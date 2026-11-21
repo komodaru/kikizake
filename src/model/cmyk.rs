@@ -161,19 +161,20 @@ fn input16(t: &[u32], v: u16) -> u32 {
     (t[i] * (256 - f) + next) >> 8
 }
 
-/// the 4D simplex: the vertices from `idx` one channel up at a time in falling fraction order
-/// (clamped to `top`), the weights `one - f0`, `f0 - f1`, .., `f3`; `cell(v, ch)` a vertex's value
-fn simplex4(idx: [usize; 4], fr: [u64; 4], one: u64, top: usize, cell: impl Fn([usize; 4], usize) -> u64) -> [u64; 3] {
-    let mut order = [0usize, 1, 2, 3];
+/// the simplex in D dimensions: the vertices from `idx` one channel up at a time in falling
+/// fraction order (clamped to `top`), the weights `one - f0`, `f0 - f1`, .., the last fraction;
+/// `cell(v, ch)` a vertex's value for each of the O outputs
+fn simplex<const D: usize, const O: usize>(idx: [usize; D], fr: [u64; D], one: u64, top: usize, cell: impl Fn([usize; D], usize) -> u64) -> [u64; O] {
+    let mut order: [usize; D] = std::array::from_fn(|k| k);
     order.sort_by(|&a, &b| fr[b].cmp(&fr[a]));
-    let mut v = [idx; 5];
+    let mut v = vec![idx; D + 1];
     for (k, &c) in order.iter().enumerate() {
         v[k + 1] = v[k];
         v[k + 1][c] = (v[k + 1][c] + 1).min(top);
     }
     let f = order.map(|c| fr[c]);
-    let w = [one - f[0], f[0] - f[1], f[1] - f[2], f[2] - f[3], f[3]];
-    std::array::from_fn(|ch| (0..5).filter(|&k| w[k] != 0).map(|k| w[k] * cell(v[k], ch)).sum())
+    let w: Vec<u64> = (0..=D).map(|k| if k == 0 { one - f[0] } else if k == D { f[D - 1] } else { f[k - 1] - f[k] }).collect();
+    std::array::from_fn(|ch| (0..=D).filter(|&k| w[k] != 0).map(|k| w[k] * cell(v[k], ch)).sum())
 }
 
 /// a sum through the generic routine's output step: +s>>16, -s>>10, >>6 (32-bit), then the
@@ -236,6 +237,25 @@ fn lab_to_xyz([l, a, b]: [u32; 3]) -> [u32; 3] {
     [x as u32, y as u32, z as u32]
 }
 
+/// FillDescaledInputLut: each 256-entry input curve made 16.16 grid positions' fractions
+/// ((v * 65536 / 65535) * (g - 1) / g), one after another
+fn descaled(curves: &[Vec<u16>], g: usize) -> Vec<u32> {
+    let g = g as u64;
+    curves.iter().flatten().map(|&v| ((u64::from(v) * 65536 / 65535) * (g - 1) / g) as u32).collect()
+}
+
+/// CalcNDim_Data8To8_Lut16 on a cube node: each 16-bit input through its descaled curve, times
+/// the grid size (index 16.16), the simplex in the lut16's grid (weights summing to 65536), the
+/// generic output step through `al`
+fn grid_stage<const D: usize, const O: usize>(lut: &Lut16, dl: &[u32], al: &[u32], node: [u16; D]) -> [u32; O] {
+    let g = lut.grid;
+    let pos: [u64; D] = std::array::from_fn(|c| u64::from(input16(&dl[256 * c..256 * c + 256], node[c])) * g as u64);
+    let s = simplex::<D, O>(pos.map(|p| (p >> 16) as usize), pos.map(|p| p & 0xffff), 65536, g - 1, |v, ch| {
+        u64::from(lut.clut[O * v.iter().fold(0, |at, &i| at * g + i) + ch])
+    });
+    std::array::from_fn(|ch| ndim_out(s[ch], al, ch))
+}
+
 /// the CMYK to RGB transform: A2B0's input curves (4 x 256) and the 16^4 table
 pub struct CmykToRgb {
     e16: Vec<u32>,
@@ -248,24 +268,21 @@ impl CmykToRgb {
         if a2b.inputs != 4 || a2b.outputs != 3 || a2b.intab.iter().any(|t| t.len() != 256) {
             return None;
         }
-        let g = a2b.grid;
         let al1: Vec<u32> = a2b.outtab.iter().flat_map(|t| alut_lut16(t)).collect();
-        // (stage 1's input: the identity, descaled to the 9-point grid)
-        let dl: Vec<u32> = (0..256u64).map(|i| ((i * 257 * 65536 / 65535) * (g as u64 - 1) / g as u64) as u32).collect();
+        // (stage 1's input: the identity, descaled to the grid; A2B0's own input curves are
+        // the per-pixel ones)
+        let identity: Vec<u16> = (0..256u16).map(|i| i * 257).collect();
+        let dl = descaled(&vec![identity; 4], a2b.grid);
         let srgb = icm::Space::Srgb.profile();
         let to_rgb = icm::inverse(&icm::half(&srgb));
         let alc = icm::alut_curve(icm::srgb_curve());
         let mut cube: Vec<[u32; 3]> = (0..1usize << 16)
             .map(|n| {
                 let node: [u16; 4] = std::array::from_fn(|c| ((n >> (4 * (3 - c))) & 15) as u16 * 4369);
-                let pos: [u64; 4] = node.map(|v| u64::from(input16(&dl, v)) * g as u64);
-                let s = simplex4(pos.map(|p| (p >> 16) as usize), pos.map(|p| p & 0xffff), 65536, g - 1, |v, ch| {
-                    u64::from(a2b.clut[3 * (((v[0] * g + v[1]) * g + v[2]) * g + v[3]) + ch])
-                });
-                lab_to_xyz(std::array::from_fn(|ch| ndim_out(s[ch], &al1, ch)))
+                lab_to_xyz(grid_stage::<4, 3>(&a2b, &dl, &al1, node))
             })
             .collect();
-        icm::matrix_pass_to(&mut cube, &to_rgb, &alc);
+        icm::matrix_pass_to(&mut cube, &to_rgb, &icm::LINEAR_ELUT, &alc);
         let e16 = a2b.intab.iter().flatten().map(|&v| u32::from(v)).collect();
         Some(CmykToRgb { e16, cube })
     }
@@ -276,7 +293,7 @@ impl CmykToRgb {
             let e = u64::from(input16(&self.e16[256 * c..256 * c + 256], cmyk[c]));
             (e * 65536 / 65535) * 15 / 16
         });
-        let s = simplex4(g.map(|v| (v >> 12) as usize), g.map(|v| v & 0xfff), 0x1000, 15, |v, ch| {
+        let s = simplex::<4, 3>(g.map(|v| (v >> 12) as usize), g.map(|v| v & 0xfff), 0x1000, 15, |v, ch| {
             u64::from(self.cube[((v[0] * 16 + v[1]) * 16 + v[2]) * 16 + v[3]][ch])
         });
         std::array::from_fn(|ch| {
@@ -302,4 +319,103 @@ impl CmykToRgb {
 pub fn to_rgb() -> Option<&'static CmykToRgb> {
     static T: OnceLock<Option<CmykToRgb>> = OnceLock::new();
     T.get_or_init(CmykToRgb::new).as_ref()
+}
+
+/// the RGB to CMYK transform (the sRGB profile into RSWOP.icm, B2A0): a 32^3 table of 16-bit
+/// C, M, Y, K filled through the sRGB tone curve and colorants, XYZ to Lab and B2A0 (17^3 grid,
+/// its input curves descaled into the stage, a linear output table); per pixel the linear
+/// input, the 3D simplex (11-bit fractions) and B2A0's output curves at 1024 entries
+pub struct RgbToCmyk {
+    elut: [u32; 256],
+    cube: Vec<[u32; 4]>,
+    alut: Vec<u32>,
+}
+
+/// XYZ2Lab_forCube16's table: 32767 times CIE L*/100 of Y = i/256, rounded; six entries differ
+/// by one in icm32 (FOUND clean-room: the DLL's 432 entries, the formula giving each of the
+/// others)
+fn lab_l_table() -> &'static [i64; 432] {
+    static T: OnceLock<[i64; 432]> = OnceLock::new();
+    T.get_or_init(|| {
+        let mut t = [0i64; 432];
+        for (i, v) in t.iter_mut().enumerate() {
+            let y = i as f64 / 256.0;
+            let l = if y <= 216.0 / 24389.0 { 24389.0 / 27.0 * y } else { 116.0 * y.cbrt() - 16.0 };
+            *v = ((32767.0 * l / 100.0).round() as i64).min(65535);
+        }
+        for i in [106, 280, 350, 358] {
+            t[i] -= 1;
+        }
+        for i in [415, 420] {
+            t[i] += 1;
+        }
+        t
+    })
+}
+
+/// XYZ2Lab_forCube16: XYZ in 1.15 (X and Z first scaled by 1/0.9642 and 1/0.8249 in 12-bit
+/// fractions) to Lab16; past the table 0x9c27
+fn xyz_to_lab([x, y, z]: [u32; 3]) -> [u32; 3] {
+    let t = lab_l_table();
+    let look = |v: i64, sh: u32, half: i64| -> i64 {
+        let i = (v >> sh) as usize;
+        if i >= 0x1af {
+            return 0x9c27;
+        }
+        t[i] + (((t[i + 1] - t[i]) * (v & ((1 << sh) - 1)) + half) >> sh)
+    };
+    let (x, y, z) = (i64::from(x), i64::from(y), i64::from(z));
+    let fy = look(y, 7, 0x3f);
+    let fx = look((x * 0x213) >> 4, 12, 0x7ff);
+    let fz = look((z * 0x26cb) >> 8, 12, 0x7ff);
+    let a = (((fx - fy) * 0x1af + 0x40_0040) >> 7).clamp(0, 0xffff);
+    let b = (((fy - fz) * 0x2b1b + 0x1000_1000) >> 13).clamp(0, 0xffff);
+    [(2 * fy).min(0xffff) as u32, a as u32, b as u32]
+}
+
+impl RgbToCmyk {
+    fn new() -> Option<RgbToCmyk> {
+        let b2a = lut16(SwopTag::B2A0.bytes())?;
+        if b2a.inputs != 3 || b2a.outputs != 4 || b2a.intab.iter().any(|t| t.len() != 256) {
+            return None;
+        }
+        let srgb = icm::Space::Srgb.profile();
+        let mut lab: Vec<[u32; 3]> = (0..32 * 32 * 32u32).map(|i| [icm::node(i >> 10), icm::node((i >> 5) & 31), icm::node(i & 31)]).collect();
+        let lin: [u32; 1024] = std::array::from_fn(|j| icm::linear_alut(j as i64) as u32);
+        icm::matrix_pass_to(&mut lab, &icm::half(&srgb), &icm::elut_curve(icm::srgb_curve()), &lin);
+        let dl = descaled(&b2a.intab, b2a.grid);
+        let lin4: Vec<u32> = (0..4).flat_map(|_| lin).collect();
+        let cube = lab.into_iter().map(|xyz| grid_stage::<3, 4>(&b2a, &dl, &lin4, xyz_to_lab(xyz).map(|v| v as u16))).collect();
+        let alut = b2a.outtab.iter().flat_map(|t| alut_lut16(t)).collect();
+        let elut = icm::LINEAR_ELUT.map(|e| ((u64::from(e) * 65536 / 65535) * 31 / 32) as u32);
+        Some(RgbToCmyk { elut, cube, alut })
+    }
+
+    /// TranslateColors COLOR_RGB to COLOR_CMYK (LHCalc3toX_Di16_Do16_Lut16_G32): 16-bit R, G, B
+    /// to 16-bit C, M, Y, K
+    pub fn cmyk16(&self, rgb: [u16; 3]) -> [u16; 4] {
+        let e: [u64; 3] = rgb.map(|v| u64::from(input16(&self.elut, v)));
+        let s = simplex::<3, 4>(e.map(|v| (v >> 11) as usize), e.map(|v| v & 0x7ff), 0x800, 31, |v, ch| u64::from(self.cube[v[0] * 1024 + v[1] * 32 + v[2]][ch]));
+        std::array::from_fn(|ch| {
+            let mut s = s[ch];
+            s += s >> 16;
+            s -= s >> 10;
+            let (idx, g) = ((s >> 17) as usize, ((s >> 8) & 0x1ff) as u32);
+            let at = 1024 * ch + idx;
+            let next = self.alut.get(at + 1).copied().unwrap_or(0);
+            ((self.alut[at] * (512 - g) + next * g) >> 9) as u16
+        })
+    }
+
+    /// Convert_32BGRA_32CMYK: 8-bit B, G, R (each x257; alpha dropped) to C, M, Y, K (each /257,
+    /// truncated)
+    pub fn cmyk8(&self, [b, g, r]: [u8; 3]) -> [u8; 4] {
+        self.cmyk16([r, g, b].map(|v| u16::from(v) * 257)).map(|v| (v / 257) as u8)
+    }
+}
+
+/// the RGB to CMYK transform, built once
+pub fn from_rgb() -> Option<&'static RgbToCmyk> {
+    static T: OnceLock<Option<RgbToCmyk>> = OnceLock::new();
+    T.get_or_init(RgbToCmyk::new).as_ref()
 }

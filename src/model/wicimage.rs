@@ -929,6 +929,32 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
         }
         return Ok(o);
     }
+    // FOUND clean-room (windowscodecsext CFormatConverterNChannel::Convert_32BGRA_64CMYK,
+    // _40CMYKAlpha, _80CMYKAlpha): to the CMYK formats past 32bppCMYK through 32bppBGRA, the
+    // CMYK words as TranslateColors gives them (64-bit, 80-bit) or divided by 257 (40-bit), the
+    // alpha byte (40-bit) or it times 257 (80-bit) after them: WIC.FROM.CMYK
+    if matches!(to, "cmyk64" | "cmyka40" | "cmyka80") && s.fmt != to {
+        hit(clause::WIC_FROM_CMYK);
+        let b = wic_convert(s, "bgra")?;
+        let t = super::cmyk::from_rgb().ok_or(Fail::Bad)?;
+        let mut o = Img::new(s.w, s.h, to);
+        o.dpi = s.dpi;
+        let (st, ost) = (b.stride(), o.stride());
+        for y in 0..s.h as usize {
+            for x in 0..s.w as usize {
+                let p = &b.px[y * st + x * 4..y * st + x * 4 + 4];
+                let c = t.cmyk16([p[2], p[1], p[0]].map(|v| u16::from(v) * 257));
+                let v: Vec<u8> = match to {
+                    "cmyk64" => c.iter().flat_map(|w| w.to_le_bytes()).collect(),
+                    "cmyka40" => c.iter().map(|&w| (w / 257) as u8).chain([p[3]]).collect(),
+                    _ => c.iter().chain(&[u16::from(p[3]) * 257]).flat_map(|w| w.to_le_bytes()).collect(),
+                };
+                let n = v.len();
+                o.px[y * ost + x * n..y * ost + x * n + n].copy_from_slice(&v);
+            }
+        }
+        return Ok(o);
+    }
     // (a pair model::wic has no format for: the wide formats past its 23 (encwide-wmp-* make
     // them from 64bppRGBA), not yet fitted; a palette other than the executor's: no case asks
     // for one, so Fail::Bad, which a new case would show as a difference)

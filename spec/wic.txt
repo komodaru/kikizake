@@ -3,7 +3,7 @@ WIC.LAYOUT doc | Native Pixel Formats Overview | each format's channels, their o
 WIC.CAN assumed | IWICFormatConverter::CanConvert | every pair of these formats can be converted (Wine refuses some)
 WIC.SAME assumed | IWICFormatConverter::Initialize | to the same format: the bytes as they are
 WIC.PAIR assumed | (none) | a pair neither of which is 32bppBGRA: as through 32bppBGRA
-WIC.PAIR.WIDE open | (none) | to 32bppCMYK (found clean-room: windowscodecsext's N-channel converter from 32bppBGRA, mscms from sRGB into RSWOP.icm's B2A tables, not yet read); pairs with the wide formats model::wic does not list (48bppBGR, the halves, fixed points, 101010, 64bppCMYK, CMYK with alpha; golden wicencode encwide-wmp-*: not yet fitted); between 16-bit formats now WIC.PAIR (wicimage's wide_pair)
+WIC.PAIR.WIDE open | (none) | pairs with the wide formats model::wic does not list (48bppBGR, the halves, fixed points, 101010; golden wicencode encwide-wmp-*: not yet fitted; to 64bppCMYK and 40/80bppCMYKAlpha the model follows windowscodecsext's routines, found clean-room, but the only cases encode them as JPEG XR, WICIMAGE.ENCODE.LOSSY); between 16-bit formats now WIC.PAIR (wicimage's wide_pair)
 WIC.TO.EXPAND measured | (none) | to 8 bits: n-bit gray v * 255 / (2^n - 1); 5 and 6 bit channels by repeating their high bits (wicconv golden)
 WIC.TO.GRAY16 measured | (none) | 16bppGray to 8 bits: a measured table of the first level of each 8-bit value, close to sRGB (wicconv golden, every level)
 WIC.TO.HIGHBYTE measured | (none) | 48bppRGB / 64bppRGBA to 8 bits: the high byte of each channel (wicconv golden)
@@ -20,5 +20,5 @@ WIC.FROM.TRUNCATE measured | (none) | to 5 and 6 bit channels: the high bits (wi
 WIC.FROM.WIDEN measured | (none) | to 16-bit channels: c * 257 (wicconv golden)
 WIC.FROM.PREMULTIPLY measured | (none) | straight to premultiplied: (c * a + 127) / 255 (wicconv golden)
 WIC.FROM.X measured | (none) | to 32bppBGR the alpha byte is kept; to 32bppRGB it is 0xff (wicconv golden)
-WIC.FROM.CMYK open | (none) | RGB to 32bppCMYK
+WIC.FROM.CMYK measured | IWICFormatConverter::CopyPixels | 32bppBGRA to 32bppCMYK (found clean-room, confirmed by Windows): windowscodecsext's N-channel converter, mscms from the sRGB profile into Windows' RSWOP.icm (perceptual, B2A0; its tables measured, golden wiccolor profile-swop-<tag>); each R, G, B times 257 (alpha dropped) through icm32: a 32^3 table of 16-bit C, M, Y, K filled through the sRGB tone curve and colorants (DoMatrixForCube16), XYZ to Lab (a 432-entry table of 32767 times CIE L*/100) and B2A0 (17^3 grid, its input curves descaled into the stage); per pixel a linear input, the 3D simplex in 11-bit fractions and B2A0's output curves at 1024 entries; C, M, Y, K each the 16-bit result divided by 257, truncated; from any other format through 32bppBGRA
 WIC.FROM.INDEXED open | (none) | to an indexed format without dithering: the nearest opaque entry by RGB distance holds in 252 of 256 measured pixels, not in close calls

@@ -65,6 +65,11 @@ impl Space {
     }
 }
 
+/// MakeCube16's node k of 32: k's 5 bits repeated through 16
+pub(crate) fn node(k: u32) -> u32 {
+    (k << 11) | (k << 6) | (k << 1) | (k >> 4)
+}
+
 /// the finished transform's tables: ELUT (8-bit in, descaled to grid units), the 32^3 table of
 /// u16 triples, ALUT (1024 entries)
 pub struct Transform {
@@ -74,7 +79,7 @@ pub struct Transform {
     alut: [u32; 1024],
 }
 
-fn elut_curve(cv: &[u16]) -> [u32; 256] {
+pub(crate) fn elut_curve(cv: &[u16]) -> [u32; 256] {
     let n = cv.len() as i64;
     let step = ((n - 1) << 18) / 255;
     std::array::from_fn(|i| {
@@ -178,13 +183,24 @@ pub(crate) fn linear_alut(j: i64) -> i64 {
 /// 1023*16, rounded half away from zero) in 14-bit steps, negatives 0
 fn matrix_pass(cube: &mut [[u32; 3]], m: &[[f64; 3]; 3]) {
     let al: [u32; 1024] = std::array::from_fn(|j| linear_alut(j as i64) as u32);
-    matrix_pass_to(cube, m, &al);
+    matrix_pass_to(cube, m, &LINEAR_ELUT, &al);
 }
 
-/// the pass with a linear input table and the output table `al` (interpolated in 8-bit
-/// fractions, its last entry from 1023 on)
-pub(crate) fn matrix_pass_to(cube: &mut [[u32; 3]], m: &[[f64; 3]; 3], al: &[u32; 1024]) {
-    let el = |i: i64| i * 257;
+/// the linear input table: entry i is i * 257
+pub(crate) const LINEAR_ELUT: [u32; 256] = {
+    let mut t = [0u32; 256];
+    let mut i = 0;
+    while i < 256 {
+        t[i] = i as u32 * 257;
+        i += 1;
+    }
+    t
+};
+
+/// the pass with the input table `el` and the output table `al` (each interpolated in 8-bit
+/// fractions, past their last entry the last)
+pub(crate) fn matrix_pass_to(cube: &mut [[u32; 3]], m: &[[f64; 3]; 3], el: &[u32; 256], al: &[u32; 1024]) {
+    let el = |i: i64| i64::from(el[i as usize]);
     let al = |j: i64| i64::from(al[j as usize]);
     let k = 1023.0 * 16.0;
     let mi = m.map(|row| row.map(|x| { let v = x * k; if v > 0.0 { (v + 0.5) as i64 } else { (v - 0.5) as i64 } }));
@@ -226,7 +242,6 @@ impl Transform {
             Curve::Sampled(c) => alut_curve(c),
             Curve::Gamma(g) => alut_gamma(f64::from(*g) / 256.0),
         };
-        let node = |k: u32| (k << 11) | (k << 6) | (k << 1) | (k >> 4);
         let mut cube: Vec<[u32; 3]> = (0..32 * 32 * 32u32).map(|i| [node(i >> 10), node((i >> 5) & 31), node(i & 31)]).collect();
         matrix_pass(&mut cube, &half(from));
         matrix_pass(&mut cube, &inverse(&half(to)));

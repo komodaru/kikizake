@@ -110,7 +110,6 @@ GL.VARIANTS open
 GP.PEN open
 WGL.OTHER open
 WIC.CAN assumed
-WIC.FROM.CMYK open
 WIC.FROM.GRAY16 open
 WIC.FROM.INDEXED open
 WIC.PAIR assumed

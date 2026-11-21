@@ -951,6 +951,67 @@ fn cmyk_float_reference(c: [u8; 4]) -> [f64; 3] {
     [enc(rgb[2]), enc(rgb[1]), enc(rgb[0])]
 }
 
+/// a float reference for WIC's RGB to CMYK: the sRGB function and colorants to XYZ, CIE Lab (D50)
+/// as ICC v2 numbers, RSWOP's B2A0 read as plain numbers, its input curves and grid
+/// interpolated multilinearly; 8-bit C, M, Y, K as reals
+fn rgb_to_cmyk_float_reference([b, g, r]: [u8; 3]) -> [f64; 4] {
+    use kikizake::model::cmyk::SwopTag;
+    let t = SwopTag::B2A0.bytes();
+    let be = |o: usize| f64::from(u16::from_be_bytes([t[o], t[o + 1]]));
+    let grid = usize::from(t[10]);
+    let nin = be(48) as usize;
+    let dec = |v: u8| {
+        let v = f64::from(v) / 255.0;
+        if v <= 0.04045 { v / 12.92 } else { ((v + 0.055) / 1.055).powf(2.4) }
+    };
+    let lin = [dec(r), dec(g), dec(b)];
+    let xyz: [f64; 3] = std::array::from_fn(|row| (0..3).map(|c| f64::from(kikizake::model::icm::SRGB_XYZ[c][row]) / 65536.0 * lin[c]).sum());
+    let f = |v: f64| if v > 216.0 / 24389.0 { v.cbrt() } else { (24389.0 / 27.0 * v + 16.0) / 116.0 };
+    let (fx, fy, fz) = (f(xyz[0] / 0.9642), f(xyz[1]), f(xyz[2] / 0.8249));
+    let lab = [(116.0 * fy - 16.0) / 100.0 * 65280.0, (500.0 * (fx - fy) + 128.0) * 256.0, (200.0 * (fy - fz) + 128.0) * 256.0].map(|v| v.clamp(0.0, 65535.0) / 65535.0);
+    let curve = |k: usize, x: f64| {
+        let p = x * (nin - 1) as f64;
+        let i = (p as usize).min(nin - 2);
+        let fr = p - i as f64;
+        (be(52 + 2 * (k * nin + i)) * (1.0 - fr) + be(52 + 2 * (k * nin + i + 1)) * fr) / 65535.0
+    };
+    let pos: [f64; 3] = std::array::from_fn(|k| curve(k, lab[k]) * (grid - 1) as f64);
+    let idx = pos.map(|p| (p as usize).min(grid - 2));
+    let clut = 52 + 2 * 3 * nin;
+    let mut o = [0.0f64; 4];
+    for corner in 0..8usize {
+        let mut w = 1.0;
+        let mut at = 0;
+        for k in 0..3 {
+            let up = corner >> (2 - k) & 1;
+            let fr = pos[k] - idx[k] as f64;
+            w *= if up == 1 { fr } else { 1.0 - fr };
+            at = at * grid + idx[k] + up;
+        }
+        for (ch, v) in o.iter_mut().enumerate() {
+            *v += w * be(clut + 2 * (4 * at + ch));
+        }
+    }
+    o.map(|v| v / 257.0)
+}
+
+proptest! {
+    /// WIC's RGB to CMYK (model::cmyk, icm32's integer pipeline): within 16 levels of the float
+    /// reading of the same B2A0 table (a 32^3 integer table against float throughout); white
+    /// and black as Windows gives them (golden wic ramp-cmyk's ends)
+    #[test]
+    fn rgb_to_cmyk_stays_near_float_reference(c in any::<[u8; 3]>()) {
+        let t = kikizake::model::cmyk::from_rgb().ok_or_else(|| TestCaseError::fail("no CMYK table"))?;
+        let got = t.cmyk8(c);
+        let want = rgb_to_cmyk_float_reference(c);
+        for (g, w) in got.iter().zip(want) {
+            prop_assert!((f64::from(*g) - w).abs() <= 16.0, "{c:?}: {got:?} against {want:?}");
+        }
+        prop_assert_eq!(t.cmyk16([65535; 3]), [0, 14, 6, 0]);
+        prop_assert_eq!(t.cmyk16([0; 3]), [0, 0, 0, 65533]);
+    }
+}
+
 proptest! {
     /// WIC's CMYK (model::cmyk, icm32's integer pipeline): within 8 levels of the float
     /// colorimetric reading of the same RSWOP table (the integer simplex in a 16^4 table against

@@ -219,7 +219,7 @@ fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src
         "rgb48" | "rgba64" => clause::WIC_FROM_WIDEN,
         "pbgra" | "prgba" => clause::WIC_FROM_PREMULTIPLY,
         "bgr32" | "rgb32" => clause::WIC_FROM_X,
-        "cmyk" => return Err(Fail::Unmodeled(open::WIC_FROM_CMYK)),
+        "cmyk" => clause::WIC_FROM_CMYK,
         n if n.starts_with("idx") => return Err(Fail::Unmodeled(open::WIC_FROM_INDEXED)),
         _ => clause::WIC_LAYOUT,
     });
@@ -250,6 +250,7 @@ fn from_bgra(f: usize, [b, g, r, a]: [u8; 4], row: &mut [u8], x: usize, gray_src
         "bgr32" | "bgra" => row[o..o + 4].copy_from_slice(&[b, g, r, a]),
         "rgba" => row[o..o + 4].copy_from_slice(&[r, g, b, a]),
         "rgb32" => row[o..o + 4].copy_from_slice(&[r, g, b, 255]),
+        "cmyk" => row[o..o + 4].copy_from_slice(&super::cmyk::from_rgb().ok_or(Fail::Bad)?.cmyk8([b, g, r])),
         "pbgra" => row[o..o + 4].copy_from_slice(&[premultiply(b, a), premultiply(g, a), premultiply(r, a), a]),
         "prgba" => row[o..o + 4].copy_from_slice(&[premultiply(r, a), premultiply(g, a), premultiply(b, a), a]),
         "rgb48" => {
@@ -286,9 +287,9 @@ pub fn convert(from: usize, to: usize, w: u32, h: u32, data: &[u8]) -> Res<Vec<u
     }
     let bgra = crate::wic_fmt!("bgra");
     if from != bgra && to != bgra {
-        // (FOUND clean-room: a pair from 32bppCMYK is windowscodecsext's CMYK to 32bppBGRA, then
-        // 32bppBGRA to the target as any other pair: WIC.TO.CMYK)
-        if wide(from) && wide(to) || FORMATS[to].0 == "cmyk" {
+        // (FOUND clean-room: a pair from or to 32bppCMYK goes through 32bppBGRA, windowscodecsext's
+        // N-channel converter on the CMYK side: WIC.TO.CMYK, WIC.FROM.CMYK)
+        if wide(from) && wide(to) {
             return Err(Fail::Unmodeled(open::WIC_PAIR_WIDE));
         }
         hit(clause::WIC_PAIR);
