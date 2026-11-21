@@ -2746,3 +2746,14 @@ dxgipref 2 0x40
 dxgipref 2 0x40000000
 dxgipref 2 0xffffffff
 end
+case device-again
+device12
+dxgifactory 0
+swapchain 0 0 0x57 0 1 0 0x20 2 0 4 0 0
+device12
+scbuffer 0
+scbuffer 1
+device12
+scpresent 1 0
+scbuffer 0
+end

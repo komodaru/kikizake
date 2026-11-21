@@ -1161,5 +1161,10 @@ pub fn dxgi() -> String {
         }
     }
     writeln!(s, "end");
+    // device12 again with a chain made (the review of 8480456, 2.2): the executor keeps its
+    // device and DXGI's chain (D3D12.DEVICE)
+    writeln!(s, "case device-again\ndevice12\ndxgifactory 0");
+    chain_line(&mut s, "swapchain", &CHAIN);
+    writeln!(s, "device12\nscbuffer 0\nscbuffer 1\ndevice12\nscpresent 1 0\nscbuffer 0\nend");
     s
 }

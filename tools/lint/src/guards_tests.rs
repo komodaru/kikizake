@@ -105,3 +105,12 @@ fn refuted_constructions_are_found() {
     assert!(r[0].starts_with("src/model/jpeg.rs:4: forbidden"), "{r:?}");
     assert!(rust("src/model/jpeg.rs", "fn encode() { match c { Chroma::H1V2 => upsample_h1v2(&d, w, h), _ => repeat(&d) } }").is_empty());
 }
+
+#[test]
+fn device12_dropping_the_chain_is_found() {
+    let old = "fn op() {\n    match name {\n        \"device12\" => {\n            self.dev = true;\n            self.chain = None;\n        }\n    }\n}\n";
+    let r = rust("src/model/d3d12.rs", old);
+    assert_eq!(r.len(), 1, "{r:?}");
+    assert!(r[0].contains("forbidden: device12 again"), "{r:?}");
+    assert!(rust("src/model/d3d12.rs", "fn op() { match name { \"device12\" => { self.dev = true; } \"dxgifactory\" => { self.chain = None; } } }").is_empty());
+}

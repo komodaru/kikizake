@@ -20,7 +20,8 @@
 //!   a byte the model does not know (Px::Unknown) as a value; D3DX's half routines only in
 //!   F16Array::half, so the array and the load codecs cannot pick different ones.
 //! * `forbidden` (review of 8480456, 1.1): a construction Windows' answers refuted (`FORBIDDEN`):
-//!   JPEG 4:4:0's chroma repeated instead of interpolated.
+//!   JPEG 4:4:0's chroma repeated instead of interpolated; device12 again dropping the swap
+//!   chain (2.2).
 use std::path::Path;
 use std::sync::LazyLock;
 
@@ -35,7 +36,10 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
 ];
 
 /// (file, what (a regular expression), why): `forbidden`
-pub const FORBIDDEN: &[(&str, &str, &str)] = &[("src/model/jpeg.rs", r"Chroma::H1V2\s*=>\s*repeat\s*\(", "4:4:0's chroma rows are interpolated 3:1 (opt-jpeg-subs-*-4), not repeated")];
+pub const FORBIDDEN: &[(&str, &str, &str)] = &[
+    ("src/model/jpeg.rs", r"Chroma::H1V2\s*=>\s*repeat\s*\(", "4:4:0's chroma rows are interpolated 3:1 (opt-jpeg-subs-*-4), not repeated"),
+    ("src/model/d3d12.rs", r#""device12"\s*=>\s*\{[^}]*self\.(chain|factory)\s*="#, "device12 again keeps the executor's device and what was made of it (dxgi device-again)"),
+];
 
 /// the name of the function `at` lies in (the last `fn name` before it)
 fn enclosing_fn(code: &str, at: usize) -> &str {
@@ -156,9 +160,11 @@ pub fn rust(rel: &str, text: &str) -> Vec<String> {
         }
     }
     bad.extend(confined(rel, &code, text));
+    // (string literals kept: a match arm is known by its string)
+    let with_strings = code_only(text, true);
     for &(file, pat, why) in FORBIDDEN.iter().filter(|f| f.0 == rel) {
         match rx(pat) {
-            Some(re) => bad.extend(re.find_iter(&code).map(|m| format!("{file}:{}: forbidden: {why}", line_of(text, m.start())))),
+            Some(re) => bad.extend(re.find_iter(&with_strings).map(|m| format!("{file}:{}: forbidden: {why}", line_of(text, m.start())))),
             None => bad.push(format!("{file}: forbidden: {pat} does not compile")),
         }
     }

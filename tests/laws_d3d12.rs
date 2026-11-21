@@ -241,3 +241,30 @@ fn dims_have_blocks() {
         }
     }
 }
+
+/// device12 again changes nothing but its own line (the review of 8480456, 2.2: the model
+/// dropped the swap chain, the executor keeps its device and what was made of it): every dxgi
+/// case with device12 repeated after each of its lines once it has a device answers as before,
+/// with one more "device12 ok" a repeat
+#[test]
+fn device12_again_keeps_everything() {
+    let src = kikizake::generators::suite("dxgi").unwrap();
+    let cases = kikizake::case::parse_cases(&src);
+    let mut n = 0;
+    for c in &cases {
+        let lines: Vec<String> = c.ops.iter().map(|o| o.tok.join(" ")).collect();
+        let Some(first) = lines.iter().position(|l| l == "device12") else { continue };
+        let mut again = lines[..=first].to_vec();
+        for l in &lines[first + 1..] {
+            again.push(l.clone());
+            again.push("device12".into());
+        }
+        let run = |ls: &[String]| kikizake::model::run_case(&kikizake::case::parse_cases(&format!("case p\n{}\nend\n", ls.join("\n")))[0]);
+        let (a, b) = (run(&lines), run(&again));
+        let (Ok(a), Ok(b)) = (a, b) else { continue };
+        let strip = |v: &[String]| v.iter().filter(|l| *l != "device12 ok").cloned().collect::<Vec<_>>();
+        assert_eq!(strip(&a), strip(&b), "{}", c.name);
+        n += 1;
+    }
+    assert!(n > 20, "{n}");
+}

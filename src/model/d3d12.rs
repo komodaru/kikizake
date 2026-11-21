@@ -509,8 +509,9 @@ impl D3d12 {
         match name {
             "device12" => {
                 hit(clause::D3D12_DEVICE);
+                // (the executor makes its device once and keeps it, with everything made of it:
+                // device12 again only turns it on, the swap chain stays, dxgi device-again)
                 self.dev = true;
-                self.chain = None;
                 out.push("device12 ok".into());
                 return Ok(true);
             }

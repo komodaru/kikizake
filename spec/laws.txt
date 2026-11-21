@@ -87,6 +87,7 @@ tests/laws_d2d.rs::source_over pbt D2D.FILL.OVER
 tests/laws_d2d.rs::premultiply_exhaustive exhaustive D2D.FILL.OVER D2D.CLEAR
 tests/laws_d2d.rs::stroke_enums_exhaustive exhaustive D2D.STROKE.ENUM D2D.STROKE.GET
 tests/laws_d2d.rs::sink_states_exhaustive exhaustive D2D.SINK.OPEN D2D.SINK.CLOSE D2D.SINK.COUNT D2D.SINK.AFTER
+tests/laws_d3d12.rs::device12_again_keeps_everything exhaustive D3D12.DEVICE
 tests/laws_d3d12.rs::unorm_reaches_every_value_in_order exhaustive D3D12.CLEAR.UNORM
 tests/laws_d3d12.rs::snorm_reaches_every_value_symmetrically exhaustive D3D12.CLEAR.SNORM
 tests/laws_d3d12.rs::float16_round_trips_and_rounds_to_zero exhaustive D3D12.CLEAR.FLOAT16
