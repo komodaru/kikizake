@@ -245,7 +245,7 @@ fn wic_matches_the_wicconv_probe() {
 }
 
 /// cases known to have a line the executor cuts (to be fixed in their suites; only shrinks)
-const LONG_LINES: &[(&str, &str)] = &[("d3d12", "rootsig-154"), ("d3d12", "rootsig-155"), ("d3d12", "rootsig-156"), ("d3d12", "rootsig-313"), ("d3d12", "rootsig-314"), ("d3d12", "rootsig-315"), ("d3d12", "rootsig-344")];
+const LONG_LINES: &[(&str, &str)] = &[];
 
 /// the generators write no line a model refuses ("invalid case" would pass over a case
 /// unchecked: a model broken on its own cases must not look unmodeled), nor one longer than

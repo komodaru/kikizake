@@ -491,6 +491,8 @@ pub struct D3d12 {
     chain: Option<([u32; 12], u32)>,
     /// its maximum frame latency
     latency: u32,
+    /// the tokens rootsig12+ lines left for the next rootsig12
+    rs_more: Vec<String>,
     /// no frame presented since the chain was made or resized (re/dxgi: DO_NOT_SEQUENCE and a
     /// partial Present1 refused then)
     fresh: bool,
@@ -512,7 +514,7 @@ impl D3d12 {
                 out.push("device12 ok".into());
                 return Ok(true);
             }
-            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" | "remove12" | "featscan12" | "committed12" | "heapx12" if !self.dev => {
+            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" | "rootsig12+" | "remove12" | "featscan12" | "committed12" | "heapx12" if !self.dev => {
                 out.push("nodev".into());
                 return Ok(true);
             }
@@ -524,15 +526,22 @@ impl D3d12 {
                 self.removed = true;
                 out.push("remove12 ok".into());
             }
+            "rootsig12+" => {
+                // (the executor reads the first MAXTOK tokens of a line)
+                let t = &t[..t.len().min(super::rootsig::MAXTOK)];
+                self.rs_more.extend(t[1..].iter().cloned());
+            }
             "rootsig12" => {
                 use super::rootsig::{checksum, cost, dxbc, parse, rts0, valid, Version, MAXTOK};
                 // (the executor reads the first MAXTOK tokens of a line)
                 let t = &t[..t.len().min(MAXTOK)];
+                let more = std::mem::take(&mut self.rs_more);
                 if t.len() < 3 {
                     return Err(Fail::Bad);
                 }
                 let w = words(&t[1..3])?;
-                let (ps, ss) = parse(&t[3..]).ok_or(Fail::Empty)?;
+                let rest: Vec<String> = more.into_iter().chain(t[3..].iter().cloned()).collect();
+                let (ps, ss) = parse(&rest).ok_or(Fail::Empty)?;
                 hit(clause::D3D12_ROOTSIG_VALID);
                 let ver = match Version::of(w[0]) {
                     Some(v) if valid(v, w[1], &ps, &ss) => v,
