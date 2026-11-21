@@ -20,6 +20,24 @@ fn widened(r: Round, pts: &[(f32, f32)], pen: &Pen) -> Path {
     wd::widen(r, &p, pen, &ID, 0.25).unwrap().unwrap()
 }
 
+/// arrows at both ends leaving one point of the body fail the widening, none left draws the
+/// caps alone (clean-room notes geometry.md 20, golden anchor-22)
+#[test]
+fn a_one_point_body_fails() {
+    for r in [Round::Down, Round::Nearest] {
+        let mut pen = Pen::new(0xff00_0000, 4.75);
+        (pen.start_cap, pen.end_cap) = (0x14, 0x14);
+        let widen = |pts: &[(f32, f32)]| {
+            let mut p = Path::new(0);
+            p.add_lines(r, pts).unwrap();
+            wd::widen(r, &p, &pen, &ID, 0.25).unwrap()
+        };
+        assert_eq!(widen(&[(-0.25, 2.0), (1.75, 4.5), (6.25, 9.75)]).unwrap_err(), wd::Widened::Failed);
+        assert_eq!(widen(&[(-0.25, 2.0), (6.25, 9.75)]).unwrap().figures().len(), 2);
+        assert_eq!(widen(&[(-0.25, 2.0), (1.75, 4.5), (2.25, 5.0), (6.25, 9.75)]).unwrap().figures().len(), 2);
+    }
+}
+
 #[test]
 fn caps_and_joins_by_value() {
     assert_eq!((Cap::line(0), Cap::line(1), Cap::line(2), Cap::line(3)), (Cap::Flat, Cap::Square, Cap::Round, Cap::Triangle));

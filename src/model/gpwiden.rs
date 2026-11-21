@@ -479,7 +479,10 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
         return inset(r, path, pen, m, flatness);
     }
     let (major, minor) = axes(r, m);
-    let caps = anchors(r, &mut figs, pen, major.min(minor), (start, end));
+    let caps = match anchors(r, &mut figs, pen, major.min(minor), (start, end)) {
+        Ok(c) => c,
+        Err(e) => return Ok(Err(e)),
+    };
     let subs: Vec<Sub> = match pattern(pen.dash) {
         Some(pat) => dashes(r, &figs, pen, major, true, pat, (start, end)),
         None => figs.into_iter().map(|(pts, closed)| Sub { pts, closed, caps: (start, end) }).collect(),
@@ -587,7 +590,7 @@ fn reference(r: Round, a: Anchor) -> Res<RefCap> {
 /// GpEndCapCreator on each open subpath: the points within the cap's radius of a capped end
 /// erased, the first kept one moved to the circle pulled back by the base inset; the cap
 /// figures (start then end, path order) placed at the original ends
-fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps: (Cap, Cap)) -> Vec<Point> {
+fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps: (Cap, Cap)) -> Result<Vec<Point>, Widened> {
     let mut out = Vec::new();
     let pick = |c: Cap| match c {
         Cap::Anchor(a) => reference(r, a).ok(),
@@ -595,7 +598,7 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps
     };
     let (sc, ec) = (pick(caps.0), pick(caps.1));
     if sc.is_none() && ec.is_none() {
-        return out;
+        return Ok(out);
     }
     let s1 = r.mul(1.0, pen.width);
     let unit = r.div(1.0, min_axis);
@@ -624,9 +627,15 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps
             }));
         }
         let kept: Vec<P> = pts.iter().zip(&marked).filter(|(_, m)| !**m).map(|(q, _)| *q).collect();
+        // (the walks skip no marked point: the end walk can move the start walk's point again
+        // and leave it alone; GpPathWidener::Initialize then fails the whole call, OutOfMemory,
+        // clean-room notes geometry.md 20, golden anchor-22, anchor-23; none left is no body)
+        if kept.len() == 1 {
+            return Err(Widened::Failed);
+        }
         *pts = kept;
     }
-    out
+    Ok(out)
 }
 
 /// one end's walk (ComputeCapGradient): the direction from the end into the line

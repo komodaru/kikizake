@@ -2376,11 +2376,13 @@ impl Gdiplus {
                     },
                 };
                 let one = v[2] == v[6] && v[3] == v[7];
-                let Some(interp) = Interp::new(interp) else {
-                    return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
-                };
-                let Some(po) = PixelOffset::from_value(po) else {
-                    return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
+                // (GdipSetInterpolationMode takes 0 ..= 7, GdipSetPixelOffsetMode 0 ..= 4, any other
+                // value InvalidParameter; the runner then draws nothing, clean-room notes image.md
+                // 11, golden drawmode-*)
+                let (Some(interp), Some(po)) = (Interp::new(interp), PixelOffset::from_value(po)) else {
+                    hit(clause::GP_PAINT_MODES);
+                    out.push(format!("draw 0 {INVALID_PARAMETER}"));
+                    return Ok(true);
                 };
                 // (a bitmap onto itself and flipped rectangles not asked)
                 if d == s || v[2] <= 0 || v[3] <= 0 || v[6] <= 0 || v[7] <= 0 {
