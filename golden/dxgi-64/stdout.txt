@@ -2467,4 +2467,14 @@ pref hr 887a0002
 pref hr 887a0002
 pref hr 887a0002
 pref hr 887a0002
+case device-again
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+device12 ok
+buffer 3 40 40 1 1 57 1 0 1
+buffer 3 40 40 1 1 57 1 0 1
+device12 ok
+present hr 00000000 index 1
+buffer 3 40 40 1 1 57 1 0 1
 done
