@@ -490,15 +490,16 @@ fn round_widen(g: &Geom, w: f32) -> Option<Vec<(bool, Fig)>> {
 }
 
 /// the special case's figures as the sink gets them: one SetFillMode(ALTERNATE), and the
-/// segment flags set where they change
+/// segment flags once, at the first rounded figure
 fn round_widen_text(figs: &[(bool, Fig)]) -> String {
     let mut o = String::from(" F 0");
     let mut flag = false;
     for (round, f) in figs {
         o += &format!(" B {} {} 0", hex(f.start.0), hex(f.start.1));
-        if *round != flag {
-            o += if *round { " S 2" } else { " S 0" };
-            flag = *round;
+        // (MEASURED, widenround-2: a sharp rectangle after a rounded one sets no flags again)
+        if *round && !flag {
+            o += " S 2";
+            flag = true;
         }
         for s in &f.segs {
             match *s {
@@ -2742,7 +2743,7 @@ impl D2d {
                 }
                 if let Geom::Path { .. } | Geom::Ell(_) = g {
                     // (MEASURED, D2D.STROKE.POLY: the widener's polygon of every figure, filled
-                    // together by nonzero winding in device space, its arcs flattened at 0.25;
+                    // together by nonzero winding in device space, its arcs cut by the curve rasterizer;
                     // a circle's special case (D2D.WIDEN.ROUND) transformed and filled ALTERNATE)
                     let (wind, polys) = match round_widen(&g, w) {
                         Some(figs) => {
@@ -2762,16 +2763,9 @@ impl D2d {
                             (true, super::d2dwiden::widen(&figs, round, &tg.st.m, w, 0.25)?)
                         }
                     };
-                    let figs = flat_figs(&polys, 0.25).into_iter().map(|f| Figure {
-                        pts: std::iter::once(f.start).chain(f.segs.iter().map(|s| match *s { Seg::L(p) | Seg::C(_, _, p) => p })).collect(),
-                        closed: true,
-                    }).collect();
-                    let g = Geom::Path { wind, figs };
                     hit(clause::D2D_STROKE_POLY);
                     let before = tg.px.clone();
-                    let m = std::mem::replace(&mut tg.st.m, IDENTITY);
-                    let r = fill_with(tg, &g, &Paint::Solid(premultiply(c)), Blend::Warp);
-                    tg.st.m = m;
+                    let r = fill_figs(tg, wind, &polys, &Paint::Solid(premultiply(c)), Blend::Warp);
                     r?;
                     tg.keep_clipped(&before);
                     return Ok(());
@@ -3146,6 +3140,26 @@ fn fill_with(tg: &mut Target, g: &Geom, paint: &Paint, blend: Blend) -> Res<()> 
         Antialias::PerPrimitive => Frame::Antialiased,
     };
     let (wind, ps) = fixed_polys(tg, g, frame)?;
+    let axis = matches!(g, Geom::Rect(_)) && tg.st.m[1] == 0.0 && tg.st.m[2] == 0.0;
+    fill_fixed(tg, wind, &ps, frame, axis, paint, blend);
+    Ok(())
+}
+
+/// fill_with of figures (with cubics) already in device space
+fn fill_figs(tg: &mut Target, wind: bool, figs: &[Fig], paint: &Paint, blend: Blend) -> Res<()> {
+    let frame = match tg.st.aa {
+        Antialias::Aliased if blend == Blend::Warp => Frame::AliasedWarp,
+        Antialias::Aliased => Frame::Aliased,
+        Antialias::PerPrimitive => Frame::Antialiased,
+    };
+    let ps = fixed_curves(tg, figs, frame)?;
+    fill_fixed(tg, wind, &ps, frame, false, paint, blend);
+    Ok(())
+}
+
+/// the pixels of fixed-point polygons, filled by the fill mode and blended
+fn fill_fixed(tg: &mut Target, wind: bool, ps: &[Vec<(i64, i64)>], frame: Frame, axis: bool, paint: &Paint, blend: Blend) {
+    let ps = ps.to_vec();
     match frame {
         Frame::Antialiased => {
             put_coverage(tg, coverage16(tg, &ps, wind), paint, blend);
@@ -3154,7 +3168,6 @@ fn fill_with(tg: &mut Target, g: &Geom, paint: &Paint, blend: Blend) -> Res<()> 
             if matches!(paint, Paint::Solid(src) if src[3] != 255) {
                 hit(clause::D2D_FILL_OVER);
             }
-            let axis = matches!(g, Geom::Rect(_)) && tg.st.m[1] == 0.0 && tg.st.m[2] == 0.0;
             for (i, inside) in cover_aliased(tg, &ps, wind).into_iter().enumerate() {
                 if inside {
                     hit(if axis { clause::D2D_FILL_RECT } else { clause::D2D_FILL_POLY });
@@ -3167,7 +3180,6 @@ fn fill_with(tg: &mut Target, g: &Geom, paint: &Paint, blend: Blend) -> Res<()> 
             }
         }
     }
-    Ok(())
 }
 
 /// the two rasterizers' fixed point frames
@@ -3214,9 +3226,16 @@ fn fixed_polys(tg: &Target, g: &Geom, frame: Frame) -> Res<(bool, Vec<Vec<(i64, 
         }
         return Ok((wind, ps.iter().map(|p| p.iter().map(|&(x, y)| (sn(x), sn(y))).collect()).collect()));
     }
+    let (wind, _, figs) = shape(&Geom::Xf(Box::new(g.clone()), tg.st.m));
+    Ok((wind, fixed_curves(tg, &figs, frame)?))
+}
+
+/// figures with cubics, in device space, in fixed point: the cubics cut up by WPF's Bezier32
+/// (Bezier64 when that overflows)
+fn fixed_curves(tg: &Target, figs: &[Fig], frame: Frame) -> Res<Vec<Vec<(i64, i64)>>> {
     hit(clause::D2D_FILL_CURVE);
     hit(clause::D2D_FILL_AACURVE);
-    let (wind, _, figs) = shape(&Geom::Xf(Box::new(g.clone()), tg.st.m));
+    let sn = |v: f64| frame.snap(v);
     let s = |p: P| (sn(f64::from(p.0)), sn(f64::from(p.1)));
     if figs.iter().any(|f| std::iter::once(f.start).chain(f.segs.iter().flat_map(|s| match *s {
         Seg::L(p) => vec![p],
@@ -3230,7 +3249,7 @@ fn fixed_polys(tg: &Target, g: &Geom, frame: Frame) -> Res<(bool, Vec<Vec<(i64, 
         Frame::Antialiased => [8, 8, 16 * tg.w as i64 + 8, 16 * tg.h as i64 + 8],
     };
     let mut ps = Vec::new();
-    for f in &figs {
+    for f in figs {
         let mut poly = vec![s(f.start)];
         for seg in &f.segs {
             match *seg {
@@ -3244,7 +3263,7 @@ fn fixed_polys(tg: &Target, g: &Geom, frame: Frame) -> Res<(bool, Vec<Vec<(i64, 
         }
         ps.push(poly);
     }
-    Ok((wind, ps))
+    Ok(ps)
 }
 
 /// the edges of closed polygons in fixed point: (top point, bottom point, first row, row past
