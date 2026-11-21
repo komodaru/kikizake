@@ -2822,8 +2822,8 @@ fn measure(s: &mut String) {
     // drawn by glRectf, as a GL_QUADS quad, as its two triangles (v0 v1 v2, v2 v3 v0) and as a
     // quad with a red ramp across its corners: whether the colors come from planes, on the
     // executor's format 5 and on a chosen one with alpha
-    for (k, ctx_line) in ["glctx 32 5", "glctx 32 choose 0x38 0 32 8 0 32 8"].into_iter().enumerate() {
-        writeln!(s, "case raster-mode-{}\n{ctx_line}\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41", 14 + k);
+    for (n, ctx_line) in (14..).zip(["glctx 32 5", "glctx 32 choose 0x38 0 32 8 0 32 8"]) {
+        writeln!(s, "case raster-mode-{n}\n{ctx_line}\n{ORTHO}gl glDisable 0xbd0\ngl glEnable 0xb41");
         for r in [[2.125f64, 2.125, 13.875, 4.375], [9.375, 3.125, 14.625, 13.875]] {
             let v = [[r[0], r[1]], [r[2], r[1]], [r[2], r[3]], [r[0], r[3]]];
             writeln!(s, "gl glColor4ub 200 100 50 255\ngl glClear 0x4000");
@@ -2836,8 +2836,8 @@ fn measure(s: &mut String) {
             writeln!(s, "gl glEnd");
             read_all(s);
             writeln!(s, "gl glClear 0x4000\ngl glBegin 4");
-            for i in [0, 1, 2, 2, 3, 0] {
-                glf(s, "glVertex2f", &v[i]);
+            for p in [v[0], v[1], v[2], v[2], v[3], v[0]] {
+                glf(s, "glVertex2f", &p);
             }
             writeln!(s, "gl glEnd");
             read_all(s);

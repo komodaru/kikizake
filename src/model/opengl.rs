@@ -389,6 +389,20 @@ pub enum V {
 
 const W: usize = 16;
 const H: usize = 16;
+/// the window's width and height as integers, and its top row from the bottom
+const WIDTH: i64 = W as i64;
+const HEIGHT: i64 = H as i64;
+const TOP_ROW: i64 = HEIGHT - 1;
+
+/// a rasterizer row (from the window's top) as the DIB's row from the bottom
+fn dib_row(row: i64) -> i64 {
+    TOP_ROW.wrapping_sub(row)
+}
+
+/// the largest value of a channel of `bits` bits (0 for none), as float32
+fn channel_max(bits: u32) -> f32 {
+    f32::from(u16::MAX.checked_shr(16u32.saturating_sub(bits)).unwrap_or(0))
+}
 
 /// the state of a context (glGet's table of initial values)
 #[derive(Clone, Debug)]
@@ -1492,7 +1506,7 @@ impl Ctx {
                 hit(clause::GL_COLOR_UB);
                 // (MEASURED: divided by 255, attrib-*: 3 reads 0x3c40c0c1; what is left after
                 // glEnd, golden opengl-32 errors-begin: `Ctx::batch_ended`)
-                let c = |i: usize| (u(a, i) & 255) as f32 / 255.0;
+                let c = |i: usize| f32::from(u8::try_from(u(a, i) & 255).unwrap_or(0)) / 255.0;
                 self.color = [c(0), c(1), c(2), if a.len() == 4 { c(3) } else { 1.0 }];
             }
             "glIndexi" => {
@@ -2349,12 +2363,8 @@ impl Ctx {
         if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
-        let red = ((1u64 << self.bits()[0]) - 1) as f32;
-        let scale: [f32; 4] = std::array::from_fn(|k| match (k, self.bits()[k]) {
-            (3, 0) => red,
-            (_, b) => ((1u64 << b) - 1) as f32,
-        });
-        let end = |v: &(Obj, [f32; 4])| tri::ClipEnd { clip: self.clip_coords(v.0), c: std::array::from_fn(|k| v.1[k] * scale[k]) };
+        let scale = self.channel_scales();
+        let end = |v: &(Obj, [f32; 4])| tri::ClipEnd { clip: self.clip_coords(v.0), c: tri::zip4(v.1, scale, |c, s| c * s) };
         let Some((e, cut)) = tri::cut_line(end(a), end(b), true) else { return Ok(()) };
         if cut.iter().any(|c| *c) {
             hit(clause::GL_RASTER_INTERPOLATE_LINE);
@@ -2362,7 +2372,8 @@ impl Ctx {
         if e[0].c != e[1].c {
             hit(clause::GL_RASTER_INTERPOLATE_LINECOLOR);
         }
-        let r: [tri::Raster; 2] = std::array::from_fn(|k| if cut[k] { tri::Raster::of_cut(e[k].clip, self.viewport, H as i64) } else { tri::Raster::of(e[k].clip, self.viewport, H as i64) });
+        let raster = |e: tri::ClipEnd, cut: bool| if cut { tri::Raster::of_cut(e.clip, self.viewport, HEIGHT) } else { tri::Raster::of(e.clip, self.viewport, HEIGHT) };
+        let r = [raster(e[0], cut[0]), raster(e[1], cut[1])];
         let colors = [e[0].c, e[1].c];
         // (stippled: the counter from 0 at glBegin and each GL_LINES segment, a strip's carried
         // on (raster-open-1, 2); a cut line's counted from its cut end, raster-open-3)
@@ -2371,29 +2382,29 @@ impl Ctx {
             if fresh {
                 self.aa_stipple = (0, 0);
             }
-            let st = tri::AaStipple { pattern: self.line_stipple.1, repeat: u8::try_from(self.line_stipple.0).map_err(|_| Fail::Bad)?, at: self.aa_stipple };
+            let st = tri::AaStipple { pattern: self.line_stipple.1, repeat: u8::try_from(self.line_stipple.0).ok().ok_or(Fail::Bad)?, at: self.aa_stipple };
             self.aa_stipple = st.after(r[0], r[1]);
             Some(st)
         } else {
             None
         };
         let thin = tri::LineWidth::of(self.line_width) == tri::LineWidth::ONE;
-        if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hints[(LINE_SMOOTH_HINT - 0xc50) as usize] != NICEST {
+        if self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST {
             hit(clause::GL_RASTER_LINE_SMOOTH);
             if self.cap(BLEND) {
                 hit(clause::GL_RASTER_LINE_SMOOTH_BLEND);
             }
-            let bias = tri::RASTER_BIAS as i64;
-            let bounds = [[bias, bias + W as i64], [bias, bias + H as i64]];
+            let bias = tri::RASTER_BIAS_INT;
+            let bounds = [[bias, bias.wrapping_add(WIDTH)], [bias, bias.wrapping_add(HEIGHT)]];
             for p in tri::aa_line_fast(r[0], r[1], colors, scale[3], bounds) {
                 let c = [f32::from(p.c[0]), f32::from(p.c[1]), f32::from(p.c[2]), 0.0];
-                self.fragment(Frag { x: p.x, y: H as i64 - 1 - p.row, c, z: 0.0, fixed: ToFixed::Wu { weight: p.weight, alpha: p.alpha }, zfixed: None })?;
+                self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed: ToFixed::Wu { weight: p.weight, alpha: p.alpha }, zfixed: None })?;
             }
             return Ok(());
         }
         hit(if thin { clause::GL_RASTER_LINE_SMOOTH } else { clause::GL_RASTER_LINE_SMOOTH_WIDE });
         for p in tri::aa_line(r[0], r[1], colors, tri::AaWidth::of(self.line_width), stipple) {
-            self.fragment(Frag { x: p.x, y: H as i64 - 1 - p.row, c: p.c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
+            self.fragment(Frag { x: p.x, y: dib_row(p.row), c: p.c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
         }
         Ok(())
     }
@@ -2407,12 +2418,19 @@ impl Ctx {
         if self.pf.ty != 0 {
             return;
         }
-        let bits = self.bits();
-        let red = ((1u64 << bits[0]) - 1) as f32;
-        self.color = std::array::from_fn(|k| {
-            let scale = if k == 3 && bits[3] == 0 { red } else { ((1u64 << bits[k]) - 1) as f32 };
-            (self.color[k] * scale) * (1.0 / scale)
-        });
+        self.color = tri::zip4(self.color, self.channel_scales(), |c, s| (c * s) * (1.0 / s));
+    }
+
+    /// what a color times makes it channel units: each channel's largest value, alpha's red's
+    /// without alpha bits
+    fn channel_scales(&self) -> [f32; 4] {
+        let [r, g, b, a] = self.bits();
+        [r, g, b, if a == 0 { r } else { a }].map(channel_max)
+    }
+
+    /// the mode a glHint target holds (GL_DONT_CARE for one not known)
+    fn hint(&self, target: u32) -> u32 {
+        usize::try_from(target.wrapping_sub(0xc50)).ok().and_then(|i| self.hints.get(i).copied()).unwrap_or(DONT_CARE)
     }
 
     /// whether GL_CULL_FACE drops a polygon of signed area `area` in normalized device
@@ -2443,39 +2461,39 @@ impl Ctx {
         }
         // (culled as any polygon, then drawn antialiased: raster-open-6)
         let w: Vec<[f64; 2]> = clip.iter().map(|c| [f64::from(c[0] * (1.0 / c[3])), f64::from(c[1] * (1.0 / c[3]))]).collect();
-        let area: f64 = (0..w.len()).map(|k| w[k][0] * w[(k + 1) % w.len()][1] - w[(k + 1) % w.len()][0] * w[k][1]).sum();
-        if self.culled_face(area) {
+        if self.culled_face(tri::signed_area(&w)) {
             return Ok(());
         }
         hit(clause::GL_POLYGON_SMOOTH);
-        let grid = if self.hints[(POLYGON_SMOOTH_HINT - 0xc50) as usize] == NICEST { tri::AaGrid::Eight } else { tri::AaGrid::Four };
-        let v: Vec<tri::Raster> = clip.iter().map(|c| tri::Raster::of(*c, self.viewport, H as i64)).collect();
+        let grid = if self.hint(POLYGON_SMOOTH_HINT) == NICEST { tri::AaGrid::Eight } else { tri::AaGrid::Four };
+        let v: Vec<tri::Raster> = clip.iter().map(|c| tri::Raster::of(*c, self.viewport, HEIGHT)).collect();
         // (a corner on a sample row or column: the edge lines' ties, GL.RASTER.TIE)
         let side = f32::from(grid.side());
-        if v.iter().any(|p| p.0.iter().any(|c| { let k = c.fract() * 2.0 * side; k.fract() == 0.0 && k as i64 % 2 == 1 })) {
+        if v.iter().any(|p| p.0.iter().any(|c| { let k = c.fract() * 2.0 * side; k.fract() == 0.0 && tri::trunc(k) & 1 == 1 })) {
             hit(clause::GL_RASTER_TIE);
         }
-        let red = ((1u64 << self.bits()[0]) - 1) as f32;
-        let scale: [f32; 4] = std::array::from_fn(|k| match (k, self.bits()[k]) {
-            (3, 0) => red,
-            (_, b) => ((1u64 << b) - 1) as f32,
-        });
-        let colors: Vec<[f32; 4]> = q.iter().map(|v| std::array::from_fn(|k| v.1[k] * scale[k])).collect();
+        let scale = self.channel_scales();
+        let colors: Vec<[f32; 4]> = q.iter().map(|v| tri::zip4(v.1, scale, |c, s| c * s)).collect();
         let flat = self.shade == FLAT;
         // (a quad's triangles v0 v1 v2 and v2 v3 v0, a polygon's the fan from v0; each sorted
         // up the raster rows before it is filled, one of no area dropped)
-        let tris: Vec<[usize; 3]> = if quad { vec![[0, 1, 2], [2, 3, 0]] } else { (1..v.len().saturating_sub(1)).map(|k| [0, k, k + 1]).collect() };
+        let tris: Vec<[usize; 3]> = if quad { vec![[0, 1, 2], [2, 3, 0]] } else { (1..v.len()).zip(2..v.len()).map(|(k, l)| [0, k, l]).collect() };
         for t in tris {
             let t = tri::Raster::up_the_rows(t, &v);
-            let r = t.map(|i| v[i]);
+            let [Some(r0), Some(r1), Some(r2)] = t.map(|i| v.get(i).copied()) else { return Err(Fail::Bad) };
+            let r = [r0, r1, r2];
             let [(ax, ay), (bx, by), (cx, cy)] = r.map(|p| (p.0[0], p.0[1]));
+            let color = |i: usize| colors.get(i).copied().ok_or(Fail::Bad);
+            let [c0, c1, c2] = [color(t[0])?, color(t[1])?, color(t[2])?];
+            let at_provoking = color(provoking)?;
             if (ax - cx) * (by - cy) - (ay - cy) * (bx - cx) == 0.0 {
                 continue;
             }
             for p in tri::aa_triangle(r, grid) {
-                let mut c: [f32; 4] = if flat { colors[provoking] } else { std::array::from_fn(|ch| tri::aa_plane(r, t.map(|i| colors[i][ch]), p.at)) };
+                let plane = |ch: fn([f32; 4]) -> f32| tri::aa_plane(r, [ch(c0), ch(c1), ch(c2)], p.at);
+                let mut c = if flat { at_provoking } else { [plane(|c| c[0]), plane(|c| c[1]), plane(|c| c[2]), plane(|c| c[3])] };
                 c[3] *= p.cover.fraction();
-                self.fragment(Frag { x: p.x, y: H as i64 - 1 - p.row, c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
+                self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed: ToFixed::Scaled, zfixed: None })?;
             }
         }
         Ok(())
@@ -2492,7 +2510,7 @@ impl Ctx {
                 return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
             }
             let w: Vec<[f64; 2]> = clip.iter().map(|c| [f64::from(c[0]), f64::from(c[1])]).collect();
-            let area: f64 = (0..w.len()).map(|k| w[k][0] * w[(k + 1) % w.len()][1] - w[(k + 1) % w.len()][0] * w[k][1]).sum();
+            let area = tri::signed_area(&w);
             let front = (area > 0.0) == (self.front_face == CCW);
             if self.cap(CULL_FACE) {
                 hit(clause::GL_CULL);
@@ -2547,19 +2565,17 @@ impl Ctx {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 self.stipple = (0, None);
-                for k in 0..win.len() {
-                    let (a, b) = (win[k], win[(k + 1) % win.len()]);
+                for ((a, b), (p, q)) in win.iter().copied().zip(win.iter().copied().cycle().skip(1)).zip(cut.iter().copied().zip(cut.iter().copied().cycle().skip(1))) {
                     // (depths that differ only matter where a depth test reads them: interp-open-5)
                     if a.0[2] != b.0[2] && self.cap(DEPTH_TEST) && self.pf.depth > 0 {
-                        let (p, q) = (cut[k], cut[(k + 1) % cut.len()]);
                         let color = if a.1 == b.1 { LineColor::Flat(a.1) } else { LineColor::Smooth(a.1, b.1) };
                         self.deep_line([p[0], p[1], p[2], p[3]], [q[0], q[1], q[2], q[3]], color)?;
                         continue;
                     }
                     let pixels = self.line_pixels([a.0[0], a.0[1]], [b.0[0], b.0[1]], FirstEnd::Kept)?;
-                    let edge_major = usize::from((b.0[1] - a.0[1]).abs() > (b.0[0] - a.0[0]).abs());
+                    let y_major = (b.0[1] - a.0[1]).abs() > (b.0[0] - a.0[0]).abs();
                     self.stipple.1 = None;
-                    let pixels: Vec<(i64, i64)> = pixels.into_iter().filter(|p| self.stipple_keeps([p.0, p.1][edge_major])).collect();
+                    let pixels: Vec<(i64, i64)> = pixels.into_iter().filter(|p| self.stipple_keeps(if y_major { p.1 } else { p.0 })).collect();
                     if a.1 == b.1 {
                         for (x, y) in pixels {
                             self.fragment(Frag { x, y, c: a.1, z: a.0[2], fixed: self.span(), zfixed: None })?;
@@ -2630,8 +2646,7 @@ impl Ctx {
         let flat = self.shade == FLAT || fogged.iter().all(|c| *c == fogged[provoking]);
         // (smooth colors lit: the corners' colors, clamped, interpolated as any others)
         let colors: Vec<[f64; 4]> = if flat { vec![fogged[provoking].map(f64::from); q.len()] } else { fogged.iter().map(|c| c.map(f64::from)).collect() };
-        let area: f64 = (0..w.len()).map(|k| w[k][0] * w[(k + 1) % w.len()][1] - w[(k + 1) % w.len()][0] * w[k][1]).sum();
-        if self.culled_face(area) {
+        if self.culled_face(tri::signed_area(&w)) {
             return Ok(());
         }
         let px = self.fill(q, &colors, depth)?;
@@ -3379,17 +3394,20 @@ impl Ctx {
                     // (MEASURED, golden opengl-32 raster-mode-5, 6, 7, line-aa-wide-0..2: the
                     // alpha over the alpha scale (red's without alpha bits), d (1 - a) + c a in
                     // float32, truncated, alpha alike)
-                    let d = self.fb[i];
-                    let scale = ((1u64 << if bits[3] == 0 { bits[0] } else { bits[3] }) - 1) as f32;
-                    let a = c[3] * (1.0 / scale);
-                    [0, 1, 2, 3].map(|k| if k == 3 && bits[3] == 0 { 0 } else if k == 3 { ((c[3] * a + d[3] as f32 * (1.0 - a)).trunc() as i64 as u32) & low_bits(bits[3]) } else { ((d[k] as f32 * (1.0 - a) + c[k] * a).trunc() as i64 as u32) & low_bits(bits[k]) })
+                    let d = self.fb.get(i).copied().ok_or(Fail::Bad)?;
+                    let a = c[3] * (1.0 / self.channel_scales()[3]);
+                    let over = |d: u32, c: f32, bits: u32| scaled_channel(tri::float(i64::from(d)) * (1.0 - a) + c * a, bits);
+                    let (alpha, dst_alpha) = (c[3] * a, tri::float(i64::from(d[3])) * (1.0 - a));
+                    [over(d[0], c[0], bits[0]), over(d[1], c[1], bits[1]), over(d[2], c[2], bits[2]), if bits[3] == 0 { 0 } else { scaled_channel(alpha + dst_alpha, bits[3]) }]
                 }
                 ToFixed::Wu { weight, alpha } => {
                     // (MEASURED, golden opengl-32 line-smooth-blend-0..5, raster-mode-4)
-                    let m = |h: u32, l: u32| (h * l) >> 8;
+                    let m = |h: u32, l: u32| h.wrapping_mul(l) >> 8;
                     let w = m(u32::from(weight), u32::from(alpha));
-                    let d = self.fb[i];
-                    [0, 1, 2, 3].map(|k| if k == 3 { 0 } else { m(255 - w, d[k]) + m(w, c[k] as u32) })
+                    let d = self.fb.get(i).copied().ok_or(Fail::Bad)?;
+                    // (c: the fast path's channel bytes)
+                    let wu = |d: u32, c: f32| m(255u32.wrapping_sub(w), d).wrapping_add(m(w, u32::try_from(tri::trunc(c)).unwrap_or(0)));
+                    [wu(d[0], c[0]), wu(d[1], c[1]), wu(d[2], c[2]), 0]
                 }
                 // (other blends, or into alpha bits: not measured)
                 ToFixed::Scaled => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
@@ -3401,7 +3419,7 @@ impl Ctx {
                 } else if dither {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32 + threshold).floor() as u32
                 } else if matches!(f.fixed, ToFixed::Scaled | ToFixed::Wu { .. }) {
-                    (c[k].trunc() as i64 as u32) & low_bits(bits[k])
+                    scaled_channel(c[k], bits[k])
                 } else if f.fixed == ToFixed::Floor {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32).floor() as u32
                 } else if f.fixed == ToFixed::Span && bits[k] == 8 {
@@ -4003,6 +4021,13 @@ impl Depth {
 }
 
 /// the mask of a value's low `n` bits (all 32 from 32 up: a format's channel may have 32)
+/// a channel-unit value truncated, its low `bits` kept (wrapping past the top: GL.POLYGON.SMOOTH)
+fn scaled_channel(v: f32, bits: u32) -> u32 {
+    // (the low 32 bits of the truncated integer, as `as i64 as u32`)
+    let low = tri::trunc(v.trunc()) & 0xFFFF_FFFF;
+    u32::try_from(low).unwrap_or(0) & low_bits(bits)
+}
+
 pub fn low_bits(n: u32) -> u32 {
     u32::try_from((1u64 << n.min(32)) - 1).unwrap_or(u32::MAX)
 }
@@ -4582,6 +4607,49 @@ pub mod tri {
     /// What window coordinates are offset by on the way to the rasterizer, and its rows flipped
     /// (MEASURED, golden opengl-32 / 64 raster-mode-2, 5, 9, 11, 12, 13: GL.POLYGON.SMOOTH)
     pub const RASTER_BIAS: f32 = 40960.0;
+    /// [`RASTER_BIAS`] as an integer
+    pub const RASTER_BIAS_INT: i64 = 40960;
+
+    /// an integer as float32 (the nearest; exact under 2^24, as every coordinate here)
+    pub fn float(v: i64) -> f32 {
+        v as f32
+    }
+
+    /// a float32 toward zero as an integer (saturating, NaN as 0)
+    pub fn trunc(v: f32) -> i64 {
+        v as i64
+    }
+
+    /// a float32 toward zero as a 32-bit integer (saturating, NaN as 0)
+    pub fn trunc32(v: f32) -> i32 {
+        v as i32
+    }
+
+    /// a double rounded to float32
+    pub fn narrow(v: f64) -> f32 {
+        v as f32
+    }
+
+    /// 2^31, the unit of the walks' fractions
+    fn two31() -> f32 {
+        2f32.powi(31)
+    }
+
+    /// the low byte of `v`
+    fn low_byte(v: i64) -> u8 {
+        u8::try_from(v & 0xFF).unwrap_or(0)
+    }
+
+    /// four channels pairwise
+    pub fn zip4(a: [f32; 4], b: [f32; 4], f: impl Fn(f32, f32) -> f32) -> [f32; 4] {
+        let ([a0, a1, a2, a3], [b0, b1, b2, b3]) = (a, b);
+        [f(a0, b0), f(a1, b1), f(a2, b2), f(a3, b3)]
+    }
+
+    /// twice the signed area of a polygon `w` (counterclockwise positive)
+    pub fn signed_area(w: &[[f64; 2]]) -> f64 {
+        w.iter().zip(w.iter().cycle().skip(1)).map(|(a, b)| a[0] * b[1] - b[0] * a[1]).sum()
+    }
 
     /// A vertex where the rasterizer has it, in float32: window x plus [`RASTER_BIAS`], and the
     /// window height less window y plus [`RASTER_BIAS`] (rows grow down the window).
@@ -4594,11 +4662,13 @@ pub mod tri {
         /// coordinate (clip times scale) times 1/w plus the center, each step in float32.
         pub fn of(clip: [f32; 4], viewport: [i64; 4], height: i64) -> Raster {
             let eps = 1.0f32 / 256.0;
-            let (hw, hh) = (viewport[2] as f32 * 0.5, viewport[3] as f32 * 0.5);
-            let scale = [hw - eps, -(hh - eps)];
-            let center = [(viewport[0] as f32 + hw) + RASTER_BIAS, (height as f32 - (viewport[1] as f32 + hh)) + RASTER_BIAS];
-            let inv = if clip[3] == 0.0 { 0.0 } else { 1.0 / clip[3] };
-            Raster([0, 1].map(|k| (clip[k] * scale[k]) * inv + center[k]))
+            let [vx, vy, vw, vh] = viewport.map(float);
+            let (hw, hh) = (vw * 0.5, vh * 0.5);
+            let (sx, sy) = (hw - eps, -(hh - eps));
+            let (ox, oy) = ((vx + hw) + RASTER_BIAS, (float(height) - (vy + hh)) + RASTER_BIAS);
+            let [cx, cy, _, cw] = clip;
+            let inv = if cw == 0.0 { 0.0 } else { 1.0 / cw };
+            Raster([(cx * sx) * inv + ox, (cy * sy) * inv + oy])
         }
 
         /// The corners `t` (indices into `v`) in the order the triangle is filled: up the raster
@@ -4649,7 +4719,7 @@ pub mod tri {
         }
         /// The fraction of the fragment's alpha kept: hits times 1 / side squared, 1 when all.
         pub fn fraction(self) -> f32 {
-            let n = self.grid.side() * self.grid.side();
+            let n = self.grid.side().saturating_mul(self.grid.side());
             if self.hits == n { 1.0 } else { f32::from(self.hits) * (1.0 / f32::from(n)) }
         }
     }
@@ -4702,9 +4772,15 @@ pub mod tri {
     /// coordinate and (`smooth`) color (out - in) t + in, the end keeping its place. Gives the
     /// ends and whether each was cut.
     pub fn cut_line(a: ClipEnd, b: ClipEnd, smooth: bool) -> Option<([ClipEnd; 2], [bool; 2])> {
+        // (clip coordinate x, y or z by the plane's bit)
+        let axis = |c: [f32; 4], bit: usize| match bit >> 1 {
+            0 => c[0],
+            1 => c[1],
+            _ => c[2],
+        };
         let code = |c: [f32; 4]| -> u8 {
             (0..6).map(|bit| {
-                let (v, w) = (c[bit / 2], c[3]);
+                let (v, w) = (axis(c, bit), c[3]);
                 let out = if bit % 2 == 0 { -w > v } else { v > w };
                 u8::from(out) << bit
             }).sum()
@@ -4718,7 +4794,7 @@ pub mod tri {
             if (ka | kb) >> bit & 1 == 0 {
                 continue;
             }
-            let d = |c: [f32; 4]| if bit % 2 == 0 { c[bit / 2] + c[3] } else { c[3] - c[bit / 2] };
+            let d = |c: [f32; 4]| if bit % 2 == 0 { axis(c, bit) + c[3] } else { c[3] - axis(c, bit) };
             let (d0, d1) = (d(e[0].clip), d(e[1].clip));
             let out = match (d0 < 0.0, d1 < 0.0) {
                 (true, true) => return None,
@@ -4727,10 +4803,11 @@ pub mod tri {
                 (false, true) => 1,
             };
             let (din, dout) = if out == 0 { (d1, d0) } else { (d0, d1) };
-            let (i, o) = (e[1 - out], e[out]);
+            let (i, o) = if out == 0 { (e[1], e[0]) } else { (e[0], e[1]) };
             let t = din / (din - dout);
-            let mix = |o: [f32; 4], i: [f32; 4]| -> [f32; 4] { std::array::from_fn(|k| (o[k] - i[k]) * t + i[k]) };
-            e[out] = ClipEnd { clip: mix(o.clip, i.clip), c: if smooth { mix(o.c, i.c) } else { o.c } };
+            let mix = |o: [f32; 4], i: [f32; 4]| zip4(o, i, |o, i| (o - i) * t + i);
+            let cut = ClipEnd { clip: mix(o.clip, i.clip), c: if smooth { mix(o.c, i.c) } else { o.c } };
+            if out == 0 { e[0] = cut } else { e[1] = cut }
         }
         Some((e, [ka != 0, kb != 0]))
     }
@@ -4739,11 +4816,11 @@ pub mod tri {
         /// A cut end's raster position: as any, then held inside the viewport's box, its far
         /// sides less 1/256 (GL.RASTER.LINE.CUT).
         pub fn of_cut(clip: [f32; 4], viewport: [i64; 4], height: i64) -> Raster {
-            let r = Raster::of(clip, viewport, height);
-            let bias = RASTER_BIAS as i64;
-            let lo = [(viewport[0] + bias) as f32, ((height - viewport[1] + bias) - viewport[3]) as f32];
-            let hi = [(viewport[0] + bias + viewport[2]) as f32, (height - viewport[1] + bias) as f32];
-            Raster([0, 1].map(|k| if lo[k] > r.0[k] { lo[k] } else if r.0[k] >= hi[k] { hi[k] - 1.0 / 256.0 } else { r.0[k] }))
+            let Raster([x, y]) = Raster::of(clip, viewport, height);
+            let [vx, vy, vw, vh] = viewport.map(float);
+            let top = (float(height) - vy) + RASTER_BIAS;
+            let hold = |v: f32, lo: f32, hi: f32| if lo > v { lo } else if v >= hi { hi - 1.0 / 256.0 } else { v };
+            Raster([hold(x, vx + RASTER_BIAS, (vx + RASTER_BIAS) + vw), hold(y, top - vh, top)])
         }
     }
 
@@ -4779,20 +4856,22 @@ pub mod tri {
         fn keeps(self, length: f32) -> f32 {
             let start = (f32::from(self.at.0) * f32::from(self.repeat) + f32::from(self.at.1)) - 0.5;
             let o = start + if length > 0.5 { length } else { 0.5 };
-            let lo = f64::from(o).floor() as i64;
-            let pct = o - lo as f32;
+            let lo = trunc(o.floor());
+            let pct = o - float(lo);
             let inv = 1.0 / f32::from(self.repeat);
-            let bit = |n: i64| f32::from(self.pattern >> (((n as f32 * inv) as i64) & 15) & 1);
-            bit(lo) * (1.0 - pct) + bit(lo + 1) * pct
+            let bit = |n: i64| f32::from(self.pattern >> (trunc(float(n) * inv) & 15) & 1);
+            bit(lo) * (1.0 - pct) + bit(lo.wrapping_add(1)) * pct
         }
 
         /// Where the next line of a strip starts: n = ceil(the line's length) on, the position
         /// by n / repeat (mod 16), the count by n (mod repeat) (golden raster-open-2).
         pub fn after(self, a: Raster, b: Raster) -> (u8, u8) {
             let (dx, dy) = (b.0[0] - a.0[0], b.0[1] - a.0[1]);
-            let n = f64::from(f64::from(dx * dx + dy * dy).sqrt() as f32).ceil() as i64;
+            let n = trunc(narrow(f64::from(dx * dx + dy * dy).sqrt()).ceil());
             let r = i64::from(self.repeat);
-            (((i64::from(self.at.0) + n / r) & 15) as u8, ((i64::from(self.at.1) + n) % r) as u8)
+            let position = i64::from(self.at.0).wrapping_add(n.checked_div(r).unwrap_or(0)) & 15;
+            let count = i64::from(self.at.1).wrapping_add(n).checked_rem(r).unwrap_or(0);
+            (low_byte(position), low_byte(count))
         }
     }
 
@@ -4827,7 +4906,7 @@ pub mod tri {
     pub fn aa_line(a: Raster, b: Raster, c: [[f32; 4]; 2], width: AaWidth, stipple: Option<AaStipple>) -> Vec<AaLineFrag> {
         let ([x0, y0], [x1, y1]) = (a.0, b.0);
         let (dx, dy) = (x1 - x0, y1 - y0);
-        let real = (f64::from(dx * dx + dy * dy)).sqrt() as f32;
+        let real = narrow(f64::from(dx * dx + dy * dy).sqrt());
         let inv = if real == 0.0 { 0.0 } else { 1.0 / real };
         let (dldx, dldy) = (dx * inv, dy * inv);
         let (dddx, dddy) = (-dldy, dldx);
@@ -4840,31 +4919,31 @@ pub mod tri {
         } else {
             (dx < dy, -1, -1)
         };
-        let (fx, fy) = (sx as f32, sy as f32);
+        let (fx, fy) = (float(sx), float(sy));
         let (dl_big, dd_big) = (fx * dldx + fy * dldy, fx * dddx + fy * dddy);
         let big = [sx, sy];
         let (little, dl_little, dd_little) = if xmajor { ([sx, 0], fx * dldx, fx * dddx) } else { ([0, sy], fy * dldy, fy * dddy) };
         // (the major axis' start, offset, length; the minor axis' start and fraction)
         let (m0, m1, n0, dm, dn, s) = if xmajor { (x0, x1, y0, dx, dy, fx) } else { (y0, y1, x0, dy, dx, fy) };
-        let start = m0.trunc() as i64;
-        let offset = if s > 0.0 { (start as f32 + 0.5) - m0 } else { m0 - (start as f32 + 0.5) };
+        let start = trunc(m0);
+        let offset = if s > 0.0 { (float(start) + 0.5) - m0 } else { m0 - (float(start) + 0.5) };
         let slope = dn / (s * dm);
         let length = s * dm;
         if length == 0.0 {
             return Vec::new();
         }
-        let pixels = (s * (m1 - m0)).ceil() as i64 + 1;
+        let pixels = trunc((s * (m1 - m0)).ceil()).wrapping_add(1);
         let w = (s * sw * real / dm).ceil();
-        let rows = w as i64 + 1;
+        let rows = trunc(w).wrapping_add(1);
         let minor = n0 + offset * slope - w * 0.5;
-        let minor_int = minor.trunc() as i64;
-        let mut fraction = ((minor - minor_int as f32) * 2147483648.0) as i32;
-        let dfraction = (slope * 2147483648.0) as i32;
+        let minor_int = trunc(minor);
+        let mut fraction = trunc32((minor - float(minor_int)) * two31());
+        let dfraction = trunc32(slope * two31());
         let (mut x, mut y) = if xmajor { (start, minor_int) } else { (minor_int, start) };
         let walk = Walk { big, little, dl: [dl_big, dl_little], dd: [dd_big, dd_little] };
         let inv_delta = 1.0 / length;
-        let dc: [f32; 4] = std::array::from_fn(|k| (c[1][k] - c[0][k]) * inv_delta);
-        let (ex, ey) = ((x as f32 + 0.5) - x0, (y as f32 + 0.5) - y0);
+        let dc = zip4(c[1], c[0], |b, a| (b - a) * inv_delta);
+        let (ex, ey) = ((float(x) + 0.5) - x0, (float(y) + 0.5) - y0);
         let (mut l, mut d) = (ey * dldy + ex * dldx, ex * dddx + ey * dddy);
         let (line_width, line_length) = (0.5 * sw - 0.5, real - 0.5);
         let step = |f: &mut i32, l: &mut f32, d: &mut f32, x: &mut i64, y: &mut i64, sign: i32| {
@@ -4875,20 +4954,20 @@ pub mod tri {
             } else {
                 1
             };
-            let (m, dl, dd) = ([walk.big, walk.little][k], walk.dl[k], walk.dd[k]);
+            let (m, dl, dd) = if k == 0 { (walk.big, walk.dl[0], walk.dd[0]) } else { (walk.little, walk.dl[1], walk.dd[1]) };
             if sign > 0 {
                 *l += dl;
                 *d += dd;
-                *x += m[0];
-                *y += m[1];
+                *x = x.wrapping_add(m[0]);
+                *y = y.wrapping_add(m[1]);
             } else {
                 *l -= dl;
                 *d -= dd;
-                *x -= m[0];
-                *y -= m[1];
+                *x = x.wrapping_sub(m[0]);
+                *y = y.wrapping_sub(m[1]);
             }
         };
-        let bias = RASTER_BIAS as i64;
+        let bias = RASTER_BIAS_INT;
         let mut out = Vec::new();
         for _ in 0..rows {
             while l > -0.5 {
@@ -4914,17 +4993,17 @@ pub mod tri {
                 if cover > 0.0 {
                     let mut c = col;
                     c[3] *= cover;
-                    out.push(AaLineFrag { x: px - bias, row: py - bias, c, cover });
+                    out.push(AaLineFrag { x: px.wrapping_sub(bias), row: py.wrapping_sub(bias), c, cover });
                 }
-                col = std::array::from_fn(|k| col[k] + dc[k]);
+                col = zip4(col, dc, |c, d| c + d);
                 step(&mut sf, &mut sl, &mut sd, &mut px, &mut py, 1);
             }
             if xmajor {
-                y += 1;
+                y = y.wrapping_add(1);
                 l += dldy;
                 d += dddy;
             } else {
-                x += 1;
+                x = x.wrapping_add(1);
                 l += dldx;
                 d += dddx;
             }
@@ -4959,75 +5038,83 @@ pub mod tri {
     /// fraction's top byte, stepping by |slope| 2^31 toward the line's minor direction (a carry
     /// or borrow past 0 the minor step); colors 16.16 from `a`'s, alpha 16.16 by 255 / scale.
     pub fn aa_line_fast(a: Raster, b: Raster, c: [[f32; 4]; 2], alpha_scale: f32, bounds: [[i64; 2]; 2]) -> Vec<FastFrag> {
-        let (db, dyb) = (i64::from(b.0[0].to_bits()) - i64::from(a.0[0].to_bits()), i64::from(b.0[1].to_bits()) - i64::from(a.0[1].to_bits()));
+        let bits = |v: f32| i64::from(v.to_bits());
+        let (db, dyb) = (bits(b.0[0]).wrapping_sub(bits(a.0[0])), bits(b.0[1]).wrapping_sub(bits(a.0[1])));
         let xmajor = db.abs() > dyb.abs();
-        let (m, n) = if xmajor { (0, 1) } else { (1, 0) };
-        let (m0, n0, m1, n1) = (a.0[m], a.0[n], b.0[m], b.0[n]);
+        let ([m0, n0], [m1, n1]) = if xmajor { (a.0, b.0) } else { ([a.0[1], a.0[0]], [b.0[1], b.0[0]]) };
         let ((im0, fm0), (_, fn0), (im1, fm1), (_, fn1)) = (whole_and_frac(m0), whole_and_frac(n0), whole_and_frac(m1), whole_and_frac(n1));
         let dmb = if xmajor { db } else { dyb };
+        // (the diamond exit: the fraction across from the pixel's middle, in 1/256)
+        let across = |f: i64| f.wrapping_sub(128).abs();
         let (start, end, step) = if dmb > 0 {
-            (im0 + i64::from(fm0 + (fn0 - 128).abs() - 256 > 0), im1 + i64::from(fm1 + (fn1 - 128).abs() - 256 > 0), 1)
+            let past = |whole: i64, m: i64, n: i64| whole.wrapping_add(i64::from(m.wrapping_add(across(n)) > 256));
+            (past(im0, fm0, fn0), past(im1, fm1, fn1), 1)
         } else if dmb < 0 {
-            (im0 - i64::from((fn0 - 128).abs() - fm0 > 0), im1 - i64::from((fn1 - 128).abs() - fm1 > 0), -1)
+            let past = |whole: i64, m: i64, n: i64| whole.wrapping_sub(i64::from(across(n) > m));
+            (past(im0, fm0, fn0), past(im1, fm1, fn1), -1)
         } else {
             return Vec::new();
         };
-        let count = (end - start) * step;
+        let count = end.wrapping_sub(start).wrapping_mul(step);
         if count <= 0 {
             return Vec::new();
         }
         let (dm, dn) = (m1 - m0, n1 - n0);
         let inv = 1.0 / dm;
         let slope = inv * dn;
-        let offset = (start as f32 + 0.5) - m0;
+        let offset = (float(start) + 0.5) - m0;
         let at = offset * slope + n0;
-        let rows = bounds[n];
+        let rows = if xmajor { bounds[1] } else { bounds[0] };
         let (mut minor, f) = whole_and_frac(at);
         let mut fraction: i64 = f << 23;
         if minor < rows[0] {
             minor = rows[0];
             fraction = 0;
-        } else if minor > rows[1] - 1 {
-            minor = rows[1] - 1;
+        } else if minor > rows[1].wrapping_sub(1) {
+            minor = rows[1].wrapping_sub(1);
             fraction = 0xFF << 23;
         }
-        let dfraction = i64::from((slope.abs() * 2147483648.0) as i32);
+        let dfraction = i64::from(trunc32(slope.abs() * two31()));
         let down = dn < 0.0;
         let inv_major = 1.0 / dm.abs();
-        let fixed = |v: f32| v as i32;
-        let mut col: [i32; 3] = std::array::from_fn(|k| fixed(c[0][k] * 65536.0));
-        let dc: [i32; 3] = std::array::from_fn(|k| if c[1][k] - c[0][k] == 0.0 { 0 } else { fixed((c[1][k] - c[0][k]) * inv_major * 65536.0) });
+        let fixed = trunc32;
+        let ([r0, g0, b0, _], [r1, g1, b1, _]) = (c[0], c[1]);
+        let delta = |a: f32, b: f32| if b - a == 0.0 { 0 } else { fixed((b - a) * inv_major * 65536.0) };
+        let mut col = [r0, g0, b0].map(|v| fixed(v * 65536.0));
+        let dc = [delta(r0, r1), delta(g0, g1), delta(b0, b1)];
         let k = 16711680.0 / alpha_scale;
         let mut alpha = fixed(c[0][3] * k);
         let da = if c[1][3] - c[0][3] == 0.0 { 0 } else { fixed((c[1][3] - c[0][3]) * inv_major * k) };
-        let bias = RASTER_BIAS as i64;
+        let bias = RASTER_BIAS_INT;
         let mut out = Vec::new();
         let mut major = start;
         for _ in 0..count {
-            let f8 = ((fraction >> 23) & 0xFF) as u8;
-            let bytes = col.map(|v| ((v >> 16) & 0xFF) as u8);
-            let a8 = ((alpha >> 16) & 0xFF) as u8;
-            for (mn, weight) in [(minor, 255 - f8), (minor + 1, f8)] {
+            let f8 = low_byte(fraction >> 23);
+            let bytes = col.map(|v| low_byte(i64::from(v >> 16)));
+            let a8 = low_byte(i64::from(alpha >> 16));
+            // (!f8: 255 - f8)
+            for (mn, weight) in [(minor, !f8), (minor.wrapping_add(1), f8)] {
                 if mn != minor && mn >= rows[1] {
                     continue;
                 }
                 let (x, y) = if xmajor { (major, mn) } else { (mn, major) };
-                out.push(FastFrag { x: x - bias, row: y - bias, c: bytes, alpha: a8, weight });
+                out.push(FastFrag { x: x.wrapping_sub(bias), row: y.wrapping_sub(bias), c: bytes, alpha: a8, weight });
             }
-            col = std::array::from_fn(|k| col[k].wrapping_add(dc[k]));
+            let ([c0, c1, c2], [d0, d1, d2]) = (col, dc);
+            col = [c0.wrapping_add(d0), c1.wrapping_add(d1), c2.wrapping_add(d2)];
             alpha = alpha.wrapping_add(da);
-            major += step;
+            major = major.wrapping_add(step);
             if down {
-                fraction -= dfraction;
+                fraction = fraction.wrapping_sub(dfraction);
                 if fraction < 0 {
-                    fraction += 1 << 31;
-                    minor -= 1;
+                    fraction = fraction.wrapping_add(1 << 31);
+                    minor = minor.wrapping_sub(1);
                 }
             } else {
-                fraction += dfraction;
+                fraction = fraction.wrapping_add(dfraction);
                 if fraction >= 1 << 31 {
-                    fraction -= 1 << 31;
-                    minor += 1;
+                    fraction = fraction.wrapping_sub(1 << 31);
+                    minor = minor.wrapping_add(1);
                 }
             }
         }
@@ -5051,22 +5138,23 @@ pub mod tri {
         let side = grid.side();
         let d = 1.0 / f32::from(side);
         let lo = 0.5 * d - 0.5;
-        let range = |k: usize| {
-            let (mn, mx) = v.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(mn, mx), p| (mn.min(p.0[k]), mx.max(p.0[k])));
-            (mn.trunc() as i64 - 1)..=(mx.trunc() as i64 + 1)
+        let range = |at: fn(&Raster) -> f32| {
+            let (mn, mx) = v.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(mn, mx), p| (mn.min(at(p)), mx.max(at(p))));
+            trunc(mn).wrapping_sub(1)..=trunc(mx).wrapping_add(1)
         };
-        let bias = RASTER_BIAS as i64;
+        let bias = RASTER_BIAS_INT;
+        let all = side.saturating_mul(side);
         let mut out = Vec::new();
-        for y in range(1) {
-            for x in range(0) {
-                let (xc, yc) = (x as f32 + 0.5, y as f32 + 0.5);
+        for y in range(|p| p.0[1]) {
+            for x in range(|p| p.0[0]) {
+                let (xc, yc) = (float(x) + 0.5, float(y) + 0.5);
                 let (mut hits, mut min, mut max) = (0u16, [999999.0f32; 2], [-1.0f32; 2]);
                 let mut px = xc + lo;
                 for _ in 0..side {
                     let mut py = yc + lo;
                     for _ in 0..side {
                         if edges.iter().all(|e| e.passes(px, py)) {
-                            hits += 1;
+                            hits = hits.saturating_add(1);
                             min = [min[0].min(px), min[1].min(py)];
                             max = [max[0].max(px), max[1].max(py)];
                         }
@@ -5077,8 +5165,8 @@ pub mod tri {
                 if hits == 0 {
                     continue;
                 }
-                let at = if hits == side * side { [xc, yc] } else { [(min[0] + max[0]) * 0.5, (min[1] + max[1]) * 0.5] };
-                out.push(AaPixel { x: x - bias, row: y - bias, cover: Cover { hits, grid }, at });
+                let at = if hits == all { [xc, yc] } else { [(min[0] + max[0]) * 0.5, (min[1] + max[1]) * 0.5] };
+                out.push(AaPixel { x: x.wrapping_sub(bias), row: y.wrapping_sub(bias), cover: Cover { hits, grid }, at });
             }
         }
         out

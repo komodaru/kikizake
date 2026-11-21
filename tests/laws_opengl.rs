@@ -11,6 +11,19 @@ fn fog(mode: FogMode, density: f32, start: f32, end: f32) -> Fog {
 }
 
 proptest! {
+    /// GL 1.1 2.6.1: a polygon's area flips its sign when its corners turn the other way, and
+    /// does not change when they start elsewhere (what GL_CULL_FACE reads)
+    #[test]
+    fn signed_areas_flip_with_the_turn(w in proptest::collection::vec(proptest::array::uniform2(-64i32..64), 3..8), k in 0usize..8) {
+        let w: Vec<[f64; 2]> = w.iter().map(|p| p.map(f64::from)).collect();
+        let a = tri::signed_area(&w);
+        let reversed: Vec<[f64; 2]> = w.iter().rev().copied().collect();
+        prop_assert_eq!(tri::signed_area(&reversed), -a);
+        let mut rotated = w.clone();
+        rotated.rotate_left(k % w.len());
+        prop_assert_eq!(tri::signed_area(&rotated), a);
+    }
+
     /// GL 1.1 2.13.8: a lit color is clamped to 0..1 at the vertex; under GL_COLOR_MATERIAL
     /// alpha is the current color's, and more light never darkens a channel
     #[test]
