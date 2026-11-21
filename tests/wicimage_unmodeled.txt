@@ -1158,7 +1158,6 @@ wicencode enc-wmp-rgb48
 wicencode enc-wmp-rgba
 wicencode enc-wmp-rgba64
 wicencode fixpath-gray16-rgba64
-wicencode opt-jpeg-sub1-bgra
 wicscale fmt-cmyk-cubic
 wicscale fmt-cmyk-fant
 wicscale fmt-cmyk-hqcubic

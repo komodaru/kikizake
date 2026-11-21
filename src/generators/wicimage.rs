@@ -1605,6 +1605,11 @@ pub fn wicencode() -> String {
     for to in ["gray16", "gray8", "bgra"] {
         writeln!(s, "case grayfixout-{to}\nwdecode {}\nwframe 0\nwconv grayfix16\nwpixels\nwconv {to}\nwpixels\nend", hex(&tf));
     }
+    // every JpegYCrCbSubsampling on pictures of odd and even sizes past one block (the MCU's
+    // edges, fancy upsampling's ends, gray ignoring it)
+    for (k, (sub, f, w, h)) in [(0, "bgra", 6, 4), (2, "bgra", 6, 4), (4, "bgra", 6, 4), (2, "bgr24", 21, 13), (4, "bgr24", 21, 13), (1, "bgr24", 21, 13), (3, "bgr24", 21, 13), (2, "gray8", 9, 7), (4, "bgra", 2, 17), (2, "bgra", 2, 17)].into_iter().enumerate() {
+        writeln!(s, "case opt-jpeg-subs-{k}-{sub}-{f}\nwbits {f} {w} {h} {}\nwencode jpeg JpegYCrCbSubsampling={sub}\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x7177_0200u32 + k as u32);
+    }
     s
 }
 

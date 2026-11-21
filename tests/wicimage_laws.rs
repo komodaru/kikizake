@@ -477,10 +477,10 @@ proptest! {
 #[test]
 fn encoder_options_are_typed() {
     use wi::EncodeOption as O;
-    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("tiff", "TiffCompressionMethod=3", O::BlackWhite), ("tiff", "TiffCompressionMethod=4", O::Lossless), ("tiff", "TiffCompressionMethod=5", O::Lossless), ("tiff", "TiffCompressionMethod=8", O::OutOfRange), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless), ("wmp", "ImageQuality=1.0", O::WmpLossless), ("jpeg", "ImageQuality=0.5", O::JpegQuality(50)), ("jpeg", "SuppressApp0=1", O::JpegNoApp0(true)), ("jpeg", "JpegYCrCbSubsampling=3", O::Jpeg444), ("jpeg", "BitmapTransform=1", O::JpegTransform(1))] {
+    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("tiff", "TiffCompressionMethod=3", O::BlackWhite), ("tiff", "TiffCompressionMethod=4", O::Lossless), ("tiff", "TiffCompressionMethod=5", O::Lossless), ("tiff", "TiffCompressionMethod=8", O::OutOfRange), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless), ("wmp", "ImageQuality=1.0", O::WmpLossless), ("jpeg", "ImageQuality=0.5", O::JpegQuality(50)), ("jpeg", "SuppressApp0=1", O::JpegNoApp0(true)), ("jpeg", "JpegYCrCbSubsampling=3", O::JpegChroma(kikizake::model::jpeg::Chroma::Full)), ("jpeg", "JpegYCrCbSubsampling=2", O::JpegChroma(kikizake::model::jpeg::Chroma::H2V1)), ("jpeg", "BitmapTransform=1", O::JpegTransform(1))] {
         assert_eq!(wi::option(c, o).ok(), Some(want), "{c} {o}");
     }
-    for (c, o) in [("wmp", "ImageQuality=0.5"), ("jpeg", "JpegYCrCbSubsampling=1"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1")] {
+    for (c, o) in [("wmp", "ImageQuality=0.5"), ("jpeg", "JpegYCrCbSubsampling=5"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1")] {
         assert!(matches!(wi::option(c, o), Err(kikizake::model::Fail::Unmodeled(_))), "{c} {o}");
     }
     assert!(matches!(wi::option("png", "FilterOption"), Err(kikizake::model::Fail::Bad)));
@@ -539,7 +539,7 @@ proptest! {
             px.push((s >> 24) as u8);
         }
         let kind = if color { Kind::Color } else { Kind::Gray };
-        let j = jpeg::encode(kind, w, h, &px, Quality::new(100), true, true);
+        let j = jpeg::encode(kind, w, h, &px, Quality::new(100), true, jpeg::Chroma::Full);
         prop_assert_eq!(&j.bytes[..2], &[0xff, 0xd8]);
         prop_assert_eq!(&j.bytes[j.bytes.len() - 2..], &[0xff, 0xd9]);
         prop_assert_eq!(j.px.len(), px.len());

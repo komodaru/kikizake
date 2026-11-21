@@ -2870,8 +2870,8 @@ pub enum EncodeOption {
     JpegQuality(i64),
     /// JPEG's SuppressApp0
     JpegNoApp0(bool),
-    /// JPEG's JpegYCrCbSubsampling 4:4:4
-    Jpeg444,
+    /// JPEG's JpegYCrCbSubsampling
+    JpegChroma(crate::model::jpeg::Chroma),
     /// JPEG's BitmapTransform (a WICBitmapTransformOptions)
     JpegTransform(u32),
 }
@@ -2937,7 +2937,7 @@ fn encode_jpeg(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
     let (w, h) = (i.w as usize, i.h as usize);
     let n = (bits_of(i.fmt) / 8) as usize;
     let px: Vec<u8> = (0..h).flat_map(|y| i.px[y * i.stride()..y * i.stride() + w * n].to_vec()).collect();
-    let j = jpeg::encode(kind, w, h, &px, q, !opts.jpeg_no_app0, opts.jpeg_444);
+    let j = jpeg::encode(kind, w, h, &px, q, !opts.jpeg_no_app0, opts.jpeg_chroma.unwrap_or(jpeg::Chroma::H2V2));
     hit(clause::WICIMAGE_ENCODE_JPEG);
     let mut o = Img::new(w as u32, h as u32, i.fmt);
     o.dpi = if kind == Kind::Cmyk || opts.jpeg_no_app0 { (96.0, 96.0) } else { (0.0, 0.0) };
@@ -2952,7 +2952,7 @@ fn encode_jpeg(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
 struct EncodeOptions {
     jpeg_quality: Option<i64>,
     jpeg_no_app0: bool,
-    jpeg_444: bool,
+    jpeg_chroma: Option<crate::model::jpeg::Chroma>,
     jpeg_transform: u32,
     v5: bool,
     bw: bool,
@@ -2980,7 +2980,11 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
         ("wmp", "Lossless", "1") | ("wmp", "ImageQuality", "1.0" | "1") => EncodeOption::WmpLossless,
         ("jpeg", "ImageQuality", v) => EncodeOption::JpegQuality((v.parse::<f64>().map_err(|_| Fail::Bad)? * 100.0).round() as i64),
         ("jpeg", "SuppressApp0", v) => EncodeOption::JpegNoApp0(v != "0"),
-        ("jpeg", "JpegYCrCbSubsampling", "3") => EncodeOption::Jpeg444,
+        // (WICJpegYCrCbSubsamplingOption: 0 default (4:2:0), 1 4:2:0, 2 4:2:2, 3 4:4:4, 4 4:4:0)
+        ("jpeg", "JpegYCrCbSubsampling", "0" | "1") => EncodeOption::JpegChroma(crate::model::jpeg::Chroma::H2V2),
+        ("jpeg", "JpegYCrCbSubsampling", "2") => EncodeOption::JpegChroma(crate::model::jpeg::Chroma::H2V1),
+        ("jpeg", "JpegYCrCbSubsampling", "3") => EncodeOption::JpegChroma(crate::model::jpeg::Chroma::Full),
+        ("jpeg", "JpegYCrCbSubsampling", "4") => EncodeOption::JpegChroma(crate::model::jpeg::Chroma::H1V2),
         ("jpeg", "BitmapTransform", "1") => EncodeOption::JpegTransform(1),
         _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_OPTIONS)),
     })
@@ -3325,9 +3329,9 @@ impl WicImage {
                             hit(clause::WICIMAGE_ENCODE_JPEG);
                             opts.jpeg_transform = t;
                         }
-                        EncodeOption::Jpeg444 => {
+                        EncodeOption::JpegChroma(c) => {
                             hit(clause::WICIMAGE_ENCODE_JPEG);
-                            opts.jpeg_444 = true;
+                            opts.jpeg_chroma = Some(c);
                         }
                         EncodeOption::Rejected => {
                             hit(clause::WICIMAGE_ENCODE_OPTION_FOREIGN);

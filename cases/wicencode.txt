@@ -7887,3 +7887,93 @@ wpixels
 wconv bgra
 wpixels
 end
+case opt-jpeg-subs-0-0-bgra
+wbits bgra 6 4 1903624704
+wencode jpeg JpegYCrCbSubsampling=0
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-jpeg-subs-1-2-bgra
+wbits bgra 6 4 1903624705
+wencode jpeg JpegYCrCbSubsampling=2
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-jpeg-subs-2-4-bgra
+wbits bgra 6 4 1903624706
+wencode jpeg JpegYCrCbSubsampling=4
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-jpeg-subs-3-2-bgr24
+wbits bgr24 21 13 1903624707
+wencode jpeg JpegYCrCbSubsampling=2
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-jpeg-subs-4-4-bgr24
+wbits bgr24 21 13 1903624708
+wencode jpeg JpegYCrCbSubsampling=4
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-jpeg-subs-5-1-bgr24
+wbits bgr24 21 13 1903624709
+wencode jpeg JpegYCrCbSubsampling=1
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-jpeg-subs-6-3-bgr24
+wbits bgr24 21 13 1903624710
+wencode jpeg JpegYCrCbSubsampling=3
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-jpeg-subs-7-2-gray8
+wbits gray8 9 7 1903624711
+wencode jpeg JpegYCrCbSubsampling=2
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-jpeg-subs-8-4-bgra
+wbits bgra 2 17 1903624712
+wencode jpeg JpegYCrCbSubsampling=4
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case opt-jpeg-subs-9-2-bgra
+wbits bgra 2 17 1903624713
+wencode jpeg JpegYCrCbSubsampling=2
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end

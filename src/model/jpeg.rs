@@ -230,20 +230,74 @@ impl Plane {
     }
 }
 
-/// h2v2 downsampling: each 2x2 averaged with a bias of 1, 2, 1, 2 along the row, the source's
-/// edges replicated; across the whole of the last blocks (their columns past the picture are
-/// averaged too, bias and all), its rows past the picture the last one again
-fn downsample(p: &Plane) -> Plane {
-    let (w, h) = (p.w.div_ceil(2), p.h.div_ceil(2));
+/// how the chroma planes are sampled against luma (JpegYCrCbSubsampling)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Chroma {
+    /// 4:2:0, half across and down (the default)
+    H2V2,
+    /// 4:2:2, half across
+    H2V1,
+    /// 4:4:0, half down
+    H1V2,
+    /// 4:4:4
+    Full,
+}
+
+impl Chroma {
+    /// luma's sampling factors across and down
+    fn factors(self) -> (usize, usize) {
+        match self {
+            Self::H2V2 => (2, 2),
+            Self::H2V1 => (2, 1),
+            Self::H1V2 => (1, 2),
+            Self::Full => (1, 1),
+        }
+    }
+}
+
+/// IJG's downsampling (jcsample.c): h2v2 each 2x2 averaged with a bias of 1, 2, 1, 2 along the
+/// row; h2v1 each pair with a bias of 0, 1; other ratios (h1v2) int_downsample, the pixels'
+/// sum plus half their count over their count; the source's edges replicated, across the whole
+/// of the last blocks (their columns past the picture are averaged too, bias and all), its rows
+/// past the picture the last one again
+fn downsample(p: &Plane, c: Chroma) -> Plane {
+    let (hs, vs) = c.factors();
+    let (w, h) = (p.w.div_ceil(hs), p.h.div_ceil(vs));
     let sw = w.div_ceil(8) * 8;
     let mut px = vec![0; sw * h];
     for y in 0..h {
         for x in 0..sw {
-            let s = p.at(2 * x, 2 * y) + p.at(2 * x + 1, 2 * y) + p.at(2 * x, 2 * y + 1) + p.at(2 * x + 1, 2 * y + 1);
-            px[y * sw + x] = (s + 1 + (x as i64 & 1)) >> 2;
+            let odd = x as i64 & 1;
+            px[y * sw + x] = match c {
+                Chroma::H2V2 => (p.at(2 * x, 2 * y) + p.at(2 * x + 1, 2 * y) + p.at(2 * x, 2 * y + 1) + p.at(2 * x + 1, 2 * y + 1) + 1 + odd) >> 2,
+                Chroma::H2V1 => (p.at(2 * x, y) + p.at(2 * x + 1, y) + odd) >> 1,
+                Chroma::H1V2 => (p.at(x, 2 * y) + p.at(x, 2 * y + 1) + 1) / 2,
+                Chroma::Full => p.at(x, y),
+            };
         }
     }
     Plane { w, h, sw, px }
+}
+
+/// h2v1 fancy upsampling (jdsample.c): each sample 3/4 itself and 1/4 its neighbour, the left
+/// output rounding with 1, the right with 2; the end samples themselves at the ends
+fn upsample_h2v1(p: &Plane, w: usize, h: usize) -> Plane {
+    let mut px = vec![0; w * h];
+    let n = p.w;
+    for oy in 0..h {
+        for ox in 0..w {
+            let x = ox / 2;
+            let v = 3 * p.at(x, oy);
+            px[oy * w + ox] = if ox % 2 == 0 {
+                if x == 0 { p.at(0, oy) } else { (v + p.at(x - 1, oy) + 1) >> 2 }
+            } else if x + 1 >= n {
+                p.at(x, oy)
+            } else {
+                (v + p.at(x + 1, oy) + 2) >> 2
+            };
+        }
+    }
+    Plane::new(w, h, px)
 }
 
 /// h2v2 fancy upsampling (a triangle filter, 3/4 and 1/4 each way) to w x h
@@ -299,7 +353,7 @@ pub struct Jpeg {
 }
 
 /// encodes `px` (8bppGray, 24bppBGR or 32bppCMYK rows, packed) of w x h
-pub fn encode(kind: Kind, w: usize, h: usize, px: &[u8], q: Quality, app0: bool, full_chroma: bool) -> Jpeg {
+pub fn encode(kind: Kind, w: usize, h: usize, px: &[u8], q: Quality, app0: bool, chroma: Chroma) -> Jpeg {
     let plane = |f: &dyn Fn(usize) -> i64| Plane::new(w, h, (0..w * h).map(f).collect());
     let planes: Vec<Plane> = match kind {
         Kind::Gray => vec![plane(&|i| i64::from(px[i]))],
@@ -312,7 +366,7 @@ pub fn encode(kind: Kind, w: usize, h: usize, px: &[u8], q: Quality, app0: bool,
                 if kind == Kind::Color { [p[2], p[1], p[0]].map(i64::from) } else { [p[0], p[1], p[2]].map(i64::from) }
             };
             let ycc = |k: usize| plane(&|i| { let [r, g, b] = rgb(i); rgb_ycc(r, g, b)[k] });
-            let down = |p: Plane| if full_chroma { p } else { downsample(&p) };
+            let down = |p: Plane| if chroma == Chroma::Full { p } else { downsample(&p, chroma) };
             let mut v = vec![ycc(0), down(ycc(1)), down(ycc(2))];
             if kind == Kind::Cmyk {
                 v.push(plane(&|i| 255 - i64::from(px[i * 4 + 3])));
@@ -324,7 +378,7 @@ pub fn encode(kind: Kind, w: usize, h: usize, px: &[u8], q: Quality, app0: bool,
     let qc = q.table(&CHROMINANCE);
     let nc = planes.len();
     let full = |c: usize| c == 0 || c == 3;
-    let samp = if nc == 1 || full_chroma { 1 } else { 2 };
+    let (hs, vs) = if nc == 1 { (1, 1) } else { chroma.factors() };
     let mut out = vec![0xff, 0xd8];
     let seg = |out: &mut Vec<u8>, m: u8, data: &[u8]| {
         out.extend_from_slice(&[0xff, m]);
@@ -346,8 +400,8 @@ pub fn encode(kind: Kind, w: usize, h: usize, px: &[u8], q: Quality, app0: bool,
     sof.extend_from_slice(&(w as u16).to_be_bytes());
     sof.push(nc as u8);
     for c in 0..nc {
-        let f = if full(c) { samp } else { 1 };
-        sof.extend_from_slice(&[c as u8 + 1, (f << 4 | f) as u8, u8::from(!full(c))]);
+        let (fh, fv) = if full(c) { (hs, vs) } else { (1, 1) };
+        sof.extend_from_slice(&[c as u8 + 1, (fh << 4 | fv) as u8, u8::from(!full(c))]);
     }
     seg(&mut out, 0xc0, &sof);
     let dht = |class: u8, bits: &[u8; 16], vals: &[u8]| [&[class][..], bits, vals].concat();
@@ -367,8 +421,7 @@ pub fn encode(kind: Kind, w: usize, h: usize, px: &[u8], q: Quality, app0: bool,
         (Huffman::new(&DC_LUMA_BITS, &DC_VALUES), Huffman::new(&AC_LUMA_BITS, &AC_LUMA_VALUES), ql),
         (Huffman::new(&DC_CHROMA_BITS, &DC_VALUES), Huffman::new(&AC_CHROMA_BITS, &AC_CHROMA_VALUES), qc),
     ];
-    let mcu = 8 * samp;
-    let (mx, my) = (w.div_ceil(mcu), h.div_ceil(mcu));
+    let (mx, my) = (w.div_ceil(8 * hs), h.div_ceil(8 * vs));
     // (each plane's blocks, kept to decode them again)
     let mut coefs: Vec<Vec<Option<[i64; 64]>>> = planes.iter().map(|p| vec![None; p.w.div_ceil(8) * p.h.div_ceil(8)]).collect();
     let mut bits = Bits { out: vec![], acc: 0, n: 0 };
@@ -376,13 +429,13 @@ pub fn encode(kind: Kind, w: usize, h: usize, px: &[u8], q: Quality, app0: bool,
     for by in 0..my {
         for bx in 0..mx {
             for (c, p) in planes.iter().enumerate() {
-                let f = if full(c) { samp } else { 1 };
+                let (fh, fv) = if full(c) { (hs, vs) } else { (1, 1) };
                 let (dc, ac, qt) = &tables[usize::from(!full(c))];
                 let (wb, hb) = (p.w.div_ceil(8), p.h.div_ceil(8));
                 let mut last = 0;
-                for yy in 0..f {
-                    for xx in 0..f {
-                        let (x0, y0) = (bx * f + xx, by * f + yy);
+                for yy in 0..fv {
+                    for xx in 0..fh {
+                        let (x0, y0) = (bx * fh + xx, by * fv + yy);
                         let blk = if x0 < wb && y0 < hb {
                             let mut d: [i64; 64] = std::array::from_fn(|i| p.at(x0 * 8 + i % 8, y0 * 8 + i / 8) - 128);
                             fdct(&mut d);
@@ -446,9 +499,18 @@ pub fn encode(kind: Kind, w: usize, h: usize, px: &[u8], q: Quality, app0: bool,
                 }
             }
             let d = Plane::new(p.w, p.h, px);
-            if full(c) || full_chroma { d } else if d.w <= 2 {
-                // (IJG jdsample.c: fancy only when the plane is wider than 2; MEASURED opt-16-bgr24)
-                Plane::new(w, h, (0..w * h).map(|i| d.at(i % w / 2, i / w / 2)).collect()) } else { upsample(&d, w, h) }
+            // (IJG jdsample.c: fancy only for h2v2 and h2v1 and when the plane is wider than 2,
+            // MEASURED opt-16-bgr24; else each sample repeated)
+            let (fh, fv) = chroma.factors();
+            let repeat = |d: &Plane| Plane::new(w, h, (0..w * h).map(|i| d.at(i % w / fh, i / w / fv)).collect());
+            match chroma {
+                _ if full(c) => d,
+                Chroma::Full => d,
+                Chroma::H1V2 => repeat(&d),
+                _ if d.w <= 2 => repeat(&d),
+                Chroma::H2V2 => upsample(&d, w, h),
+                Chroma::H2V1 => upsample_h2v1(&d, w, h),
+            }
         })
         .collect();
     let mut dec = Vec::with_capacity(w * h * 4);
