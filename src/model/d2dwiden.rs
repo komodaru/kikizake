@@ -92,8 +92,19 @@ impl Rails {
             if dt > 0.0 {
                 return Ok(());
             }
-            // (a turn of 180 degrees: the spec's open D2D.SIMP / D2D.RT, asked of Windows by widenturn-*, strketurn-*)
-            return Err(unmodeled());
+            // a turn of 180 degrees (golden d2d-32/-64: widenturn-*, strketurn-*): a miter join
+            // pushes both rails out by the limit along the incoming direction, then across
+            let Join::Miter(lim) = join else {
+                // (a round join turning back: the spec's open D2D.SIMP / D2D.RT)
+                return Err(unmodeled());
+            };
+            hit(clause::D2D_WIDEN_TURN);
+            let u = scale(pen.rad(vin), lim);
+            let (Some(&cl), Some(&cr)) = (self.l.last(), self.r.last()) else { return Err(unmodeled()) };
+            self.l.extend([add(cl, u), add(next_l, u), next_l]);
+            self.r.extend([add(cr, u), add(next_r, u), next_r]);
+            self.rad = rad_out;
+            return Ok(());
         }
         let lim = match join {
             Join::Miter(l) => l,
