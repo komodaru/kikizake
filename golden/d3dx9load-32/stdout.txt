@@ -1,6 +1,6 @@
 kikizake d3dx9load
 case cpu
-cpu GenuineIntel fefa3203 1f8bfbff f1bf2fb9
+cpu AuthenticAMD feda3203 178bfbff 219c07a9
 case load-R8G8B8
 device ok
 px rt 16 1 32
