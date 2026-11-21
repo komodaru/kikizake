@@ -70,7 +70,24 @@ static void op_plgblt(void) {
     out("ret %d\n", r ? 1 : 0);
 }
 
+/* halftone <s>: CreateHalftonePalette selected into the slot's DC (the gradients' 6 levels) */
+static HPALETTE halftones[16];
+static int nhalftone;
+static void op_halftone(void) {
+    HDC dc = gdi_dc(1);
+    if (bad || !dc || nhalftone == 16) { bad = 1; return; }
+    HPALETTE p = CreateHalftonePalette(dc);
+    if (!p) { out("halftone 0\n"); return; }
+    halftones[nhalftone++] = p;
+    out("halftone %d\n", SelectPalette(dc, p, FALSE) != NULL);
+}
+
+static void gdiblend_reset(void) {
+    while (nhalftone) DeleteObject(halftones[--nhalftone]);
+}
+
 static const struct kz_op gdiblend_ops[] = {
+    { "halftone", op_halftone },
     { "alphablend", op_alphablend },
     { "transparent", op_transparent },
     { "gradrect", op_gradient },
@@ -79,4 +96,4 @@ static const struct kz_op gdiblend_ops[] = {
     { "plgblt", op_plgblt },
     { 0 },
 };
-const struct kz_api gdiblend_api = { "gdiblend", gdiblend_ops, NULL };
+const struct kz_api gdiblend_api = { "gdiblend", gdiblend_ops, gdiblend_reset };

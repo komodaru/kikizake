@@ -81,10 +81,40 @@ fn n(op: &Op, i: usize) -> Res<i64> {
     op.tok.get(i).and_then(|t| num(t)).ok_or(Fail::Bad)
 }
 
+/// AngleArc's x, y, radius (a DWORD), start and sweep (float, as strtod reads them)
+pub fn angle_args(op: &Op) -> Res<(i32, i32, u32, f32, f32)> {
+    let [_, _, x, y, r, a, b] = &op.tok[..] else { return Err(Fail::Bad) };
+    let int = |t: &String| num(t).and_then(|v| i32::try_from(v).ok()).ok_or(Fail::Bad);
+    let float = |t: &String| t.parse::<f64>().map(|v| v as f32).map_err(|_| Fail::Bad);
+    Ok((int(x)?, int(y)?, int(r)? as u32, float(a)?, float(b)?))
+}
+
 /// a line op of gdiline.c while a path is open: its points go into the path, nothing is drawn
 pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     let Path::Open(p) = &mut sl.ext.path else { return Ok(false) };
     let t0 = op.tok[0].as_str();
+    if t0 == "anglearc" {
+        let (x, y, r, st, sw) = angle_args(op)?;
+        let Some(arc) = super::gdiarc::angle_arc(x, y, r, st, sw) else {
+            // (a radius or coordinates out of GDI's range: not measured)
+            return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
+        };
+        hit(clause::GDI_PATH_RECORD);
+        hit(clause::GDI_PATH_ANGLEARC);
+        if p.last().is_none_or(|l| l.close) {
+            p.push(Pt::int(sl.ext.pos, Kind::Move));
+        }
+        p.push(Pt::fix(arc.start, Kind::Line));
+        for g in &arc.beziers {
+            for q in g {
+                p.push(Pt::fix(*q, Kind::Bezier));
+            }
+        }
+        let last = p.last().ok_or(Fail::Bad)?;
+        sl.ext.pos = (last.x.round(), last.y.round());
+        out.push("ret 1".into());
+        return Ok(true);
+    }
     let pts: Vec<(i32, i32)> = op.tok[2.min(op.tok.len())..].chunks(2).map(|c| Ok((num(&c[0]).ok_or(Fail::Bad)? as i32, num(c.get(1).ok_or(Fail::Bad)?).ok_or(Fail::Bad)? as i32))).collect::<Res<_>>()?;
     hit(clause::GDI_PATH_RECORD);
     // (a figure starts at the current position when the path has no open figure there)

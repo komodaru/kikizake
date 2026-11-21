@@ -9357,3 +9357,470 @@ endpath 0
 pathrgn 0 0
 rgndata 0
 end
+case anglearc-0-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 15 12
+anglearc 0 28 24 21 30 100
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-0-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 7 12
+anglearc 0 8 23 2 30 100
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-1-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 32 6
+anglearc 0 25 7 14 0 45
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-1-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 8 31
+anglearc 0 28 5 2 0 45
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-2-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 17 14
+anglearc 0 4 23 17 10 2.5
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-2-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 19 6
+anglearc 0 23 6 22 10 2.5
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-3-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 22 22
+anglearc 0 24 10 15 -20 1
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-3-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 9 18
+anglearc 0 9 24 23 -20 1
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-4-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 27 18
+anglearc 0 25 11 18 45 360
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-4-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 20 21
+anglearc 0 25 24 23 45 360
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-5-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 29 23
+anglearc 0 27 16 3 90 720
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-5-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 29 30
+anglearc 0 15 20 2 90 720
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-6-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 26 32
+anglearc 0 11 15 15 15 -100
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-6-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 32 14
+anglearc 0 24 26 19 15 -100
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-7-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 2 28
+anglearc 0 25 12 4 200 -400
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-7-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 23 5
+anglearc 0 15 27 13 200 -400
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-8-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 16 7
+anglearc 0 23 21 13 0 0
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-8-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 11 16
+anglearc 0 15 4 20 0 0
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-9-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 30 8
+anglearc 0 4 25 23 3700 50
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-9-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 13 8
+anglearc 0 16 15 9 3700 50
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-10-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 32 14
+anglearc 0 17 7 19 -3650 120
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-10-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 26 6
+anglearc 0 16 27 20 -3650 120
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-11-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 32 22
+anglearc 0 16 23 24 359.5 1.25
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-11-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 21 1
+anglearc 0 27 14 5 359.5 1.25
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-12-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 16 10
+anglearc 0 26 15 9 89.999 0.002
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-12-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 30 24
+anglearc 0 27 4 18 89.999 0.002
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-13-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 13 29
+anglearc 0 12 23 11 0 4000
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-13-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 22 4
+anglearc 0 23 11 9 0 4000
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-14-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 25 23
+anglearc 0 12 20 5 12.75 77.5
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-14-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 10 13
+anglearc 0 4 8 18 12.75 77.5
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-15-1
+dib 0 32 32 8
+arcdir 0 1
+beginpath 0
+moveto 0 11 7
+anglearc 0 8 5 21 270 -270
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-15-2
+dib 0 32 32 8
+arcdir 0 2
+beginpath 0
+moveto 0 1 8
+anglearc 0 13 8 7 270 -270
+getpos 0
+endpath 0
+getpath 0
+flatten 0
+getpath 0
+pathrgn 0 0
+rgndata 0
+end
+case anglearc-two
+dib 0 32 32 8
+brush 0 solid #ff0000
+beginpath 0
+anglearc 0 16 16 10 0 90
+anglearc 0 16 16 6 90 -180
+closefig 0
+endpath 0
+getpath 0
+fillpath 0
+dump 0
+end
+case anglearc-neg
+dib 0 32 32 8
+beginpath 0
+anglearc 0 16 16 -1 0 90
+endpath 0
+getpath 0
+end

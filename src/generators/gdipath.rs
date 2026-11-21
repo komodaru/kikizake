@@ -140,5 +140,17 @@ pub fn path() -> String {
         let m = (n - 1) / 2;
         writeln!(s, "lineto 0 {m} 4\nlineto 0 {m} 9\nlineto 0 {m} 4\nclosefig 0\nendpath 0\npathrgn 0 0\nrgndata 0\nend");
     }
+    // AngleArc in a path: sweeps under 3 degrees, under 90, whole turns, negative, past 3600,
+    // each arc direction; the path, the current position, its flattening and its pixels
+    let angles: [(&str, &str); 16] = [("30", "100"), ("0", "45"), ("10", "2.5"), ("-20", "1"), ("45", "360"), ("90", "720"), ("15", "-100"), ("200", "-400"), ("0", "0"), ("3700", "50"), ("-3650", "120"), ("359.5", "1.25"), ("89.999", "0.002"), ("0", "4000"), ("12.75", "77.5"), ("270", "-270")];
+    for (i, (a, b)) in angles.iter().enumerate() {
+        for dir in [1, 2] {
+            let (x, y, rad) = (r.range(4, 28), r.range(4, 28), r.range(0, 24));
+            writeln!(s, "case anglearc-{i}-{dir}\ndib 0 32 32 8\narcdir 0 {dir}\nbeginpath 0\nmoveto 0 {} {}\nanglearc 0 {x} {y} {rad} {a} {b}\ngetpos 0\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\npathrgn 0 0\nrgndata 0\nend", r.range(0, 32), r.range(0, 32));
+        }
+    }
+    // AngleArc twice in one figure, then closed and filled; and a radius past 2^31
+    writeln!(s, "case anglearc-two\ndib 0 32 32 8\nbrush 0 solid #ff0000\nbeginpath 0\nanglearc 0 16 16 10 0 90\nanglearc 0 16 16 6 90 -180\nclosefig 0\nendpath 0\ngetpath 0\nfillpath 0\ndump 0\nend");
+    writeln!(s, "case anglearc-neg\ndib 0 32 32 8\nbeginpath 0\nanglearc 0 16 16 -1 0 90\nendpath 0\ngetpath 0\nend");
     s
 }

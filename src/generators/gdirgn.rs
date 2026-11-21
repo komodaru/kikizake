@@ -126,6 +126,11 @@ pub fn region() -> String {
     for (i, b) in ["0 0 0 0", "3 3 3 3", "0 0 1 1", "0 0 2 1", "0 0 1 5", "0 0 0 5", "0 0 2 2", "0 0 3 3", "-3 -3 3 3", "0 0 2048 6", "0 0 1100 1100"].iter().enumerate() {
         writeln!(s, "case ellipse-size-{i}\nrgn 0 ellipse {b}\nrgndata 0\nrgnbox 0\nend");
     }
+    // round rectangles: corners 0, negative, past the box, boxes 0 and 1 across, corners given
+    // in any order
+    for (i, q) in ["0 0 10 10 4 4", "0 0 10 6 0 0", "1 2 9 8 20 20", "0 0 5 5 2 2", "0 0 3 3 1 1", "0 0 10 6 0 3", "0 0 10 6 -4 -3", "10 6 0 0 4 3", "0 0 0 5 2 2", "0 0 1 1 1 1", "0 0 8 8 1 1", "-5 -3 7 9 9 4", "0 0 30 12 7 30", "0 0 2048 6 100 4", "0 0 9 9 -2147483648 3"].iter().enumerate() {
+        writeln!(s, "case rround-{i}\nrgn 0 round {q}\nrgndata 0\nrgnbox 0\nend");
+    }
     // a bound below the last row of pixels: slivers through each converter, then copied,
     // offset and combined
     let slivers = [

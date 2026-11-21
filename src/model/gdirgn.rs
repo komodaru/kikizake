@@ -49,13 +49,68 @@ pub fn elliptic(r: (i32, i32, i32, i32)) -> Res<Rgn> {
     let (l, rr) = (r.0.min(r.2), r.0.max(r.2));
     let (t, b) = (r.1.min(r.3), r.1.max(r.3));
     let c = super::gdiarc::ellipse(16 * l - 4, 16 * t - 4, 16 * rr - 28, 16 * b - 28);
-    let mut poly = vec![c[0]];
-    for q in c[1..].as_chunks::<3>().0 {
+    let segs: Vec<Seg> = c[1..].as_chunks::<3>().0.iter().map(|q| Seg::Bezier(q[0], q[1], q[2])).collect();
+    curve_region(c[0], &segs)
+}
+
+/// a polygon of lines and Béziers in 28.4 (from its first point; each Bézier three points)
+/// flattened, its pixels as a region's (alternate)
+fn curve_region(start: (i32, i32), segs: &[Seg]) -> Res<Rgn> {
+    let mut poly = vec![start];
+    for g in segs {
         let from = *poly.last().ok_or(Fail::Bad)?;
-        // (a curve too large for the 32 bit flattener: GDI's 64 bit one, open)
-        poly.extend(super::bezier::flatten([from, q[0], q[1], q[2]]).ok_or(Fail::Unmodeled(open::GDI_RGN_ROUND))?);
+        match *g {
+            Seg::Line(p) => poly.push(p),
+            // (a curve too large for the 32 bit flattener: GDI's 64 bit one, open)
+            Seg::Bezier(a, b, c) => poly.extend(super::bezier::flatten([from, a, b, c]).ok_or(Fail::Unmodeled(open::GDI_RGN_ROUND))?),
+        }
     }
     Ok(super::rgn::fix_polygon_pixels(&[poly], false))
+}
+
+/// a piece of a region's figure
+#[derive(Clone, Copy, Debug)]
+enum Seg {
+    Line((i32, i32)),
+    Bezier((i32, i32), (i32, i32), (i32, i32)),
+}
+
+/// CreateRoundRectRgn's pixels (GDI.RGN.ROUNDRECT): CreateEllipticRgn's box; the corners'
+/// half axes the box's times min(|w| / W, 1) and min(|h| / H, 1) in float32 (both 0 when W or H
+/// is), rounded half away from 0; each corner a quarter of Ellipse's of those half axes, the
+/// sides lines between them
+pub fn round_rect(r: (i32, i32, i32, i32), w: i32, h: i32) -> Res<Rgn> {
+    let (l, rr) = (r.0.min(r.2), r.0.max(r.2));
+    let (t, b) = (r.1.min(r.3), r.1.max(r.3));
+    let (fl, ft, fr, fb) = (16 * l - 4, 16 * t - 4, 16 * rr - 28, 16 * b - 28);
+    let (ax, by) = ((fr - fl + 1) >> 1, (ft - fb + 1) >> 1);
+    let half = |a: i32, b: i32| ((f64::from(a) - f64::from(b)) / 2.0).abs() as f32;
+    let (hx, hy) = (half(l, rr), half(t, b));
+    let (fx, fy) = if hx == 0.0 || hy == 0.0 {
+        (0.0f32, 0.0f32)
+    } else {
+        // (|i32::MIN| stays negative, as GDI's)
+        let f = |v: i32, d: f32| {
+            let s = v.wrapping_abs() as f32 / d;
+            if s > 2.0 { 1.0 } else { s * 0.5 }
+        };
+        (f(w, hx), f(h, hy))
+    };
+    let away = |v: f32| (v.signum() * (v.abs() + 0.5).floor()) as i32;
+    let (a, c) = (away(ax as f32 * fx), away(by as f32 * fy));
+    let k = |v: i32| ((i64::from(v) * 0x729D_7775) >> 32) as i32;
+    let (ka, kb) = (k(a), k(c));
+    let (pa, pb, pc, pd) = ((fr, ft), (fl, ft), (fl, fb), (fr, fb));
+    let segs = [
+        Seg::Bezier((pa.0, pa.1 - kb), (pa.0 - ka, pa.1), (pa.0 - a, pa.1)),
+        Seg::Line((pb.0 + a, pb.1)),
+        Seg::Bezier((pb.0 + ka, pb.1), (pb.0, pb.1 - kb), (pb.0, pb.1 - c)),
+        Seg::Line((pc.0, pc.1 + c)),
+        Seg::Bezier((pc.0, pc.1 + kb), (pc.0 + ka, pc.1), (pc.0 + a, pc.1)),
+        Seg::Line((pd.0 - a, pd.1)),
+        Seg::Bezier((pd.0 - ka, pd.1), (pd.0, pd.1 + kb), (pd.0, pd.1 + c)),
+    ];
+    curve_region((pa.0, pa.1 - c), &segs)
 }
 
 impl Gdi {
@@ -86,7 +141,12 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                     hit(clause::GDI_RGN_ELLIPSE);
                     elliptic(r)?
                 }
-                "round" => return Err(Fail::Unmodeled(open::GDI_RGN_ROUND)),
+                "round" => {
+                    let r = rect(op, 3)?;
+                    let (w, h) = (n(op, 7)?, n(op, 8)?);
+                    hit(clause::GDI_RGN_ROUNDRECT);
+                    round_rect(r, i32::try_from(w).map_err(|_| Fail::Bad)?, i32::try_from(h).map_err(|_| Fail::Bad)?)?
+                }
                 "poly" => {
                     let mode = n(op, 3)?;
                     let t = &op.tok[4..];

@@ -7842,6 +7842,81 @@ rgn 0 ellipse 0 0 1100 1100
 rgndata 0
 rgnbox 0
 end
+case rround-0
+rgn 0 round 0 0 10 10 4 4
+rgndata 0
+rgnbox 0
+end
+case rround-1
+rgn 0 round 0 0 10 6 0 0
+rgndata 0
+rgnbox 0
+end
+case rround-2
+rgn 0 round 1 2 9 8 20 20
+rgndata 0
+rgnbox 0
+end
+case rround-3
+rgn 0 round 0 0 5 5 2 2
+rgndata 0
+rgnbox 0
+end
+case rround-4
+rgn 0 round 0 0 3 3 1 1
+rgndata 0
+rgnbox 0
+end
+case rround-5
+rgn 0 round 0 0 10 6 0 3
+rgndata 0
+rgnbox 0
+end
+case rround-6
+rgn 0 round 0 0 10 6 -4 -3
+rgndata 0
+rgnbox 0
+end
+case rround-7
+rgn 0 round 10 6 0 0 4 3
+rgndata 0
+rgnbox 0
+end
+case rround-8
+rgn 0 round 0 0 0 5 2 2
+rgndata 0
+rgnbox 0
+end
+case rround-9
+rgn 0 round 0 0 1 1 1 1
+rgndata 0
+rgnbox 0
+end
+case rround-10
+rgn 0 round 0 0 8 8 1 1
+rgndata 0
+rgnbox 0
+end
+case rround-11
+rgn 0 round -5 -3 7 9 9 4
+rgndata 0
+rgnbox 0
+end
+case rround-12
+rgn 0 round 0 0 30 12 7 30
+rgndata 0
+rgnbox 0
+end
+case rround-13
+rgn 0 round 0 0 2048 6 100 4
+rgndata 0
+rgnbox 0
+end
+case rround-14
+rgn 0 round 0 0 9 9 -2147483648 3
+rgndata 0
+rgnbox 0
+end
 case loose-0
 rgn 0 poly 1 0 0 9 4 9 5 0 0
 rgndata 0
