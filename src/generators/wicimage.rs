@@ -325,25 +325,7 @@ pub fn bmp(hdr: u32, w: i32, h: i32, bpp: u32, comp: u32, masks: [u32; 4], color
     v
 }
 
-fn crc32(b: &[u8]) -> u32 {
-    let mut c = !0u32;
-    for &x in b {
-        c ^= x as u32;
-        for _ in 0..8 {
-            c = if c & 1 != 0 { 0xedb8_8320 ^ (c >> 1) } else { c >> 1 };
-        }
-    }
-    !c
-}
-
-fn adler32(b: &[u8]) -> u32 {
-    let (mut a, mut s) = (1u32, 0u32);
-    for &x in b {
-        a = (a + x as u32) % 65521;
-        s = (s + a) % 65521;
-    }
-    s << 16 | a
-}
+use crate::model::wicimage::{adler32, crc32};
 
 /// zlib, deflate with stored blocks of at most `block` bytes (RFC 1950, 1951 3.2.4)
 pub fn zlib_stored(data: &[u8], block: usize) -> Vec<u8> {

@@ -1,0 +1,2 @@
+# kikizake-lint dup (tools/lint/src/dup.rs): copies kept on purpose. kind, then file#name of each copy, then why.
+# A copy not listed fails the lint; `kikizake-lint --dup-list` shows them all, `--dup-update` drops the gone lines.

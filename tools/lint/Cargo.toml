@@ -4,13 +4,15 @@ version = "0.0.0"
 edition = "2024"
 publish = false
 license = "MIT OR Apache-2.0"
-description = "kikizake's type-safety lint ratchet over clippy (a copy of masu's masu-lint ratchet)"
+description = "kikizake's type-safety lint ratchet over clippy and copied-code check (copies of masu's masu-lint ratchet and dup)"
 
 [dependencies]
 kikizake = { path = "../.." }
 proc-macro2 = { version = "1", features = ["span-locations"] }
+quote = "1"
 regex = "1"
 serde_json = "1"
+syn = { version = "2", features = ["full", "visit"] }
 
 # (as kikizake's own: tests may unwrap, clippy.toml)
 [lints.clippy]
