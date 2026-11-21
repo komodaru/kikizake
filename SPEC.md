@@ -190,6 +190,16 @@ written (`0031` is "1"). Statuses and values are 8 hex digits.
 | `i2u <value> <base> <maximum> [null]` | RtlIntegerToUnicodeString into {Length 0x5555, MaximumLength (<= 80), 80 bytes of 0xcc or NULL} | `i2u <status> <Length> <MaximumLength> <buf\|null> <the 80 bytes>` |
 | `a2u <length> <maximum> <bytes> [null]` | RtlAnsiStringToUnicodeString(dst, {length, length + 1, the ASCII bytes}, FALSE) into dst as i2u's | as i2u, `a2u ...` |
 
+## Win32: ntdll's case tables (ntcase)
+
+Every UTF-16 unit through ntdll's case functions, 256 units per case: the NLS tables are data, so
+they are asked whole. The model is Unicode's simple mappings (one BMP unit to one) until the
+answers name where Windows differs (spec/ntcase.txt).
+
+| line | calls | prints |
+|---|---|---|
+| `tab <fn> <block>` | fn (up = RtlUpcaseUnicodeChar, down = RtlDowncaseUnicodeChar, towupper, towlower: ntdll's own) of units block * 256 .. + 255 | `tab <fn>` and the 256 answers, 4 hex digits each |
+
 ## Models
 
 `kikizake model <suite>` prints what Windows prints, case by case. A case whose behavior the

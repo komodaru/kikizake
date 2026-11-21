@@ -67,6 +67,7 @@ pub mod gditext;
 pub mod gdiblend;
 pub mod gdiddb;
 pub mod ntstr;
+pub mod ntcase;
 pub mod opengl;
 pub mod wic;
 pub mod dwrite;
@@ -320,6 +321,7 @@ fn apis() -> Vec<Box<dyn Api>> {
         Box::new(d3dx9::D3dx9),
         Box::new(opengl::Gl::default()),
         Box::new(ntstr::Ntstr),
+        Box::new(ntcase::Ntcase),
     ]
 }
 

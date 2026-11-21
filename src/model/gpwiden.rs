@@ -1,16 +1,25 @@
 //! GDI+ wide pens: GpPath::GetWidenedPathInternal, the widener (GpPathWidener: offsets, the
-//! miter/bevel join kernel, flat, square, triangle and round caps, closed subpaths, thin pens
+//! miter/bevel join kernel, the round join, flat, square, triangle and round caps, anchor caps
+//! (GpEndCapCreator), closed subpaths, thin pens
 //! widened in device space) and dashes (CreateDashedPath, getDashData), from the clean-room
 //! notes; every float op in the arch's rounding (x64 down, x86 nearest). Used by GdipWidenPath
 //! and by every stroke past the one-pixel test.
 use super::gdiplus::{Matrix, Round};
 use super::gplinear::invert;
-use super::gppath::{apply, axes, sqrt32, Kind, Path, Pen, Point, EPS, NEAR};
+use super::gppath::{add64, apply, axes, div64, mul64, sqrt32, to32, Kind, Path, Pen, Point, EPS, NEAR};
 use super::{Fail, Res};
 use crate::spec::{clause, hit, open};
 
 type P = (f32, f32);
 
+/// an anchor cap (GpEndCapCreator's reference caps)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Anchor {
+    Square,
+    Round,
+    Diamond,
+    Arrow,
+}
 /// a line cap the widener draws
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Cap {
@@ -18,18 +27,23 @@ pub enum Cap {
     Square,
     Round,
     Triangle,
+    /// a cap figure of its own; the body's end flat
+    Anchor(Anchor),
 }
 impl Cap {
-    /// a pen's start or end cap: 1, 2, 3 their own, anchors (0x10 ..= 0x14) and custom (0xff)
-    /// through GpEndCapCreator (the spec's open GP.PEN), any other value flat (MEASURED on
-    /// GDI+ itself, both arches: 5, 15, -1 widen as 0)
-    pub fn line(v: i64) -> Res<Cap> {
+    /// a pen's start or end cap: 1, 2, 3 their own, 0x11 ..= 0x14 the anchors, any other value
+    /// flat (MEASURED on GDI+ itself, both arches: 4 ..= 15, 0x10, 0xf0, 0xff with no custom
+    /// cap object, 21 ..= 255 and -1 widen as 0; no LineCap value reaches DoubleRoundCap)
+    pub fn line(v: i64) -> Cap {
         match v {
-            1 => Ok(Cap::Square),
-            2 => Ok(Cap::Round),
-            3 => Ok(Cap::Triangle),
-            0x10..=0x14 | 0xff => Err(Fail::Unmodeled(open::GP_PEN)),
-            _ => Ok(Cap::Flat),
+            1 => Cap::Square,
+            2 => Cap::Round,
+            3 => Cap::Triangle,
+            0x11 => Cap::Anchor(Anchor::Square),
+            0x12 => Cap::Anchor(Anchor::Round),
+            0x13 => Cap::Anchor(Anchor::Diamond),
+            0x14 => Cap::Anchor(Anchor::Arrow),
+            _ => Cap::Flat,
         }
     }
     /// a pen's dash cap: round and triangle their own, any other value flat (MEASURED on GDI+
@@ -48,20 +62,46 @@ impl Cap {
 pub enum Join {
     Miter,
     Bevel,
+    Round,
     MiterClipped,
-    /// a value past 0 ..= 3 (GdipSetPenLineJoin takes any): no point at an open subpath's
-    /// interior vertex, no outline of a closed one
+    /// a value past 0 ..= 3 (GdipSetPenLineJoin takes any): on x64 no point at an open
+    /// subpath's interior vertex and a closed one fails the widening; on x86 every widening
+    /// fails (golden penjoin-4, penjoin--1)
     Nothing,
 }
 impl Join {
-    /// the round join (2) is getRoundJoin's arcs: the spec's open GP.PEN
-    pub fn of(v: i64) -> Res<Join> {
+    pub fn of(v: i64) -> Join {
         match v {
-            0 => Ok(Join::Miter),
-            1 => Ok(Join::Bevel),
-            3 => Ok(Join::MiterClipped),
-            2 => Err(Fail::Unmodeled(open::GP_PEN)),
-            _ => Ok(Join::Nothing),
+            0 => Join::Miter,
+            1 => Join::Bevel,
+            2 => Join::Round,
+            3 => Join::MiterClipped,
+            _ => Join::Nothing,
+        }
+    }
+}
+
+/// which of getSmallRoundJoin's lists to make
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Make {
+    /// the outer side's arc and the inner side's points
+    Both,
+    /// the arcs only
+    Arcs,
+    /// the inner points only
+    Inner,
+}
+impl Make {
+    fn arcs(self) -> bool {
+        match self {
+            Make::Both | Make::Arcs => true,
+            Make::Inner => false,
+        }
+    }
+    fn inner(self) -> bool {
+        match self {
+            Make::Both | Make::Inner => true,
+            Make::Arcs => false,
         }
     }
 }
@@ -177,14 +217,110 @@ impl Widener {
         };
         (side(self.wl, mit_l, t[0]), side(self.wr, mit_r, t[1]))
     }
-    /// the join at an interior vertex (WidenLinePoints)
-    fn join(&self, p: P, s0: Seg, s1: Seg) -> (Vec<P>, Vec<P>) {
+    /// the join at an interior vertex (WidenLinePoints): the left and the right side's points
+    fn join(&self, p: P, s0: Seg, s1: Seg) -> (Vec<Out>, Vec<Out>) {
+        let lines = |(l, rt): (Vec<P>, Vec<P>)| -> (Vec<Out>, Vec<Out>) { (l.into_iter().map(line).collect(), rt.into_iter().map(line).collect()) };
         match self.join {
-            Join::Miter => self.kernel(p, s0, s1, true),
-            Join::Bevel => self.kernel(p, s0, s1, false),
-            Join::MiterClipped => self.kernel(p, s0, s1, !self.exceeded(s0.g, s1.g)),
+            Join::Miter => lines(self.kernel(p, s0, s1, true)),
+            Join::Bevel => lines(self.kernel(p, s0, s1, false)),
+            Join::MiterClipped => lines(self.kernel(p, s0, s1, !self.exceeded(s0.g, s1.g))),
+            Join::Round => {
+                let [l, rt] = self.round_join(p, s0, s1);
+                (l, rt)
+            }
             Join::Nothing => (vec![], vec![]),
         }
+    }
+    /// getTurningDirection's cross product: 0 for a tiny gradient, two gradients within 1e-5 or
+    /// a cross within 2^-23
+    fn turning(&self, g0: P, g1: P) -> f32 {
+        let r = self.r;
+        let tiny = |g: P| g.0.abs() < EPS && g.1.abs() < EPS;
+        if tiny(g0) || tiny(g1) || f32::from_bits(0x3727_c5ac) > r.add(sq(r, r.sub(g0.0, g1.0)), sq(r, r.sub(g0.1, g1.1))) {
+            return 0.0;
+        }
+        let c = r.sub(r.mul(g1.1, g0.0), r.mul(g0.1, g1.0));
+        if c.abs() <= EPS { 0.0 } else { c }
+    }
+    /// getSmallRoundJoin: [left, right]; the outer side (offset past 0) one Bezier quarter of
+    /// handle t = ((sqrt(2 (1 - dot)) - |cross|) 4) / (3 (1 - dot)), the inner side its two
+    /// bevel points (the no-inner-miter flag 0x20 is set on every route, MEASURED in GDI+
+    /// itself: clearing it breaks 43 of 60 random widenings)
+    fn small(&self, p: P, (g0, g1): (P, P), (n0, n1): (P, P), dot: f32, cross: f32, make: Make) -> [Vec<Out>; 2] {
+        let r = self.r;
+        if f32::from_bits(0x3f7d_70a4).partial_cmp(&dot) != Some(std::cmp::Ordering::Greater) {
+            if !make.inner() {
+                return [vec![], vec![]];
+            }
+            return [vec![line(self.off(self.wl, n0, p))], vec![line(self.off(self.wr, n0, p))]];
+        }
+        let om = r.sub(1.0, dot);
+        let t = r.div(r.mul(r.sub(sqrt32(r, r.add(om, om)), cross.abs()), 4.0), r.mul(om, 3.0));
+        let neg = |v: P| (-v.0, -v.1);
+        let side = |w: f32| -> Vec<Out> {
+            let (w, a, b) = if cross >= 0.0 { (w, n0, n1) } else { (-w, neg(n0), neg(n1)) };
+            let at = |n: P| (r.add(r.mul(n.0, w), p.0), r.add(r.mul(n.1, w), p.1));
+            if w > 0.0 {
+                if !make.arcs() {
+                    return vec![];
+                }
+                let k = r.mul(w, t);
+                let p0 = at(a);
+                let p1 = (r.add(r.mul(k, g0.0), p0.0), r.add(r.mul(k, g0.1), p0.1));
+                let p3 = at(b);
+                let p2 = (r.sub(p3.0, r.mul(k, g1.0)), r.sub(p3.1, r.mul(k, g1.1)));
+                let bz = |p| Out { p, kind: Kind::Bezier };
+                vec![line(p0), bz(p1), bz(p2), bz(p3)]
+            } else if !make.inner() {
+                vec![]
+            } else if w == 0.0 {
+                vec![line(p)]
+            } else {
+                vec![line(at(a)), line(at(b))]
+            }
+        };
+        [side(self.wl), side(self.wr)]
+    }
+    /// getRoundJoin: a turn of less than about 90 degrees (dot past -0.001) one quarter, a
+    /// sharper one split at the mid normal into two
+    fn round_join(&self, p: P, s0: Seg, s1: Seg) -> [Vec<Out>; 2] {
+        let r = self.r;
+        let (g0, g1, n0, n1) = (s0.g, s1.g, s0.n, s1.n);
+        let dot = r.add(r.mul(g1.1, g0.1), r.mul(g0.0, g1.0));
+        let cross = self.turning(g0, g1);
+        if dot > f32::from_bits(0xba83_126f) {
+            return self.small(p, (g0, g1), (n0, n1), dot, cross, Make::Both);
+        }
+        let [il, ir] = self.small(p, (g0, g1), (n0, n1), dot, cross, Make::Inner);
+        let (sx, sy) = (r.add(n0.0, n1.0), r.add(n0.1, n1.1));
+        let (mx, my) = if EPS.partial_cmp(&sx.abs()) != Some(std::cmp::Ordering::Greater) || EPS.partial_cmp(&sy.abs()) != Some(std::cmp::Ordering::Greater) {
+            let l = sqrt32(r, r.add(r.mul(sy, sy), r.mul(sx, sx)));
+            (r.div(sx, l), r.div(sy, l))
+        } else {
+            // (an exact U-turn: the mid normal is g0)
+            (-n0.1, n0.0)
+        };
+        let (mn, gm) = ((mx, my), (-my, mx));
+        let dot2 = r.add(r.mul(g0.1, mx), r.mul(g0.0, -my));
+        let cross2 = r.sub(r.mul(g0.0, mx), r.mul(g0.1, -my));
+        let [a1l, a1r] = self.small(p, (g0, gm), (n0, mn), dot2, cross2, Make::Arcs);
+        let dot3 = r.add(r.mul(g1.1, mx), r.mul(g1.0, -my));
+        let cross3 = r.sub(r.mul(g1.1, -my), r.mul(g1.0, mx));
+        let [a2l, a2r] = self.small(p, (gm, g1), (mn, n1), dot3, cross3, Make::Arcs);
+        let join = |mut v: Vec<Out>, a: Vec<Out>, b: Vec<Out>| {
+            // (arc 2's first point is written over arc 1's last)
+            match (a.split_last(), b.split_first()) {
+                (Some((_, head)), Some((b0, tail))) => {
+                    v.extend_from_slice(head);
+                    v.push(Out { p: b0.p, kind: Kind::Bezier });
+                    v.extend_from_slice(tail);
+                }
+                (Some(_), None) => v.extend(a),
+                (None, _) => v.extend(b),
+            }
+            v
+        };
+        [join(il, a1l, a2l), join(ir, a1r, a2r)]
     }
     /// SetTriangleCap's tip
     fn tip(&self, p: P, g: P, start: bool) -> P {
@@ -225,20 +361,21 @@ impl Widener {
             match (cap, start) {
                 (Cap::Square, true) => (r.add(o.0, r.mul(e, s.g.0)), r.add(o.1, r.mul(e, s.g.1))),
                 (Cap::Square, false) => (r.sub(o.0, r.mul(e, s.g.0)), r.sub(o.1, r.mul(e, s.g.1))),
-                (Cap::Flat | Cap::Round | Cap::Triangle, _) => o,
+                (Cap::Flat | Cap::Round | Cap::Triangle | Cap::Anchor(_), _) => o,
             }
         };
-        let (mut left, mut right) = (vec![end_point(self.wl, true)], vec![end_point(self.wr, true)]);
+        let (mut left, mut right) = (vec![line(end_point(self.wl, true))], vec![line(end_point(self.wr, true))]);
         for i in 1..k - 1 {
             let (l, rt) = self.join(p[i], segs[i - 1], segs[i]);
             left.extend(l);
             right.extend(rt);
         }
-        left.push(end_point(self.wl, false));
-        right.push(end_point(self.wr, false));
-        let mut out: Vec<Out> = left.iter().map(|&q| line(q)).collect();
+        left.push(line(end_point(self.wl, false)));
+        right.push(line(end_point(self.wr, false)));
+        let first_left = left[0].p;
+        let mut out = left;
         out[0].kind = Kind::Start;
-        let mut back: Vec<P> = right.into_iter().rev().collect();
+        let mut back = reverse(right);
         match caps.1 {
             Cap::Triangle => out.push(line(self.tip(p[k - 1], last.g, false))),
             Cap::Round => {
@@ -246,27 +383,24 @@ impl Widener {
                 out.extend(self.round(p[k - 1], last.g, false));
                 back.remove(0);
             }
-            Cap::Flat | Cap::Square => {}
+            Cap::Flat | Cap::Square | Cap::Anchor(_) => {}
         }
         if caps.0 == Cap::Round {
             back.pop();
         }
-        out.extend(back.into_iter().map(line));
+        out.extend(back);
         match caps.0 {
             Cap::Triangle => {
                 out.push(line(self.tip(p[0], first.g, true)));
-                out.push(line(left[0]));
+                out.push(line(first_left));
             }
             Cap::Round => out.extend(self.round(p[0], first.g, true)),
-            Cap::Flat | Cap::Square => {}
+            Cap::Flat | Cap::Square | Cap::Anchor(_) => {}
         }
         out
     }
-    /// a closed subpath's two figures; None for a join of no points
-    fn closed(&self, p: &[P]) -> Option<[Vec<Out>; 2]> {
-        if self.join == Join::Nothing {
-            return None;
-        }
+    /// a closed subpath's two figures: the left lists, then the right ones reversed
+    fn closed(&self, p: &[P]) -> [Vec<Out>; 2] {
         let k = p.len();
         let segs: Vec<Seg> = (0..k).map(|i| self.seg(p[i], p[(i + 1) % k])).collect();
         let (mut left, mut right) = (Vec::new(), Vec::new());
@@ -275,20 +409,25 @@ impl Widener {
             left.extend(l);
             right.extend(rt);
         }
-        right.reverse();
-        let fig = |v: Vec<P>| -> Vec<Out> {
-            let mut o: Vec<Out> = v.into_iter().map(line).collect();
+        let fig = |mut o: Vec<Out>| -> Vec<Out> {
             if let Some(f) = o.first_mut() {
                 f.kind = Kind::Start;
             }
             o
         };
-        Some([fig(left), fig(right)])
+        [fig(left), fig(reverse(right))]
     }
 }
 
 fn sq(r: Round, v: f32) -> f32 {
     r.mul(v, v)
+}
+
+/// a side's points backward: a point a Bezier one when the forward point after it was, so a
+/// Bezier run stays one
+fn reverse(v: Vec<Out>) -> Vec<Out> {
+    let kinds: Vec<Kind> = v.iter().skip(1).map(|o| o.kind).chain([Kind::Line]).collect();
+    v.into_iter().zip(kinds).rev().map(|(o, k)| Out { p: o.p, kind: match k { Kind::Bezier => Kind::Bezier, Kind::Start | Kind::Line => Kind::Line } }).collect()
 }
 
 /// consecutive points the same within 2^-23 dropped (GpPathWidener::Initialize)
@@ -314,8 +453,10 @@ struct Sub {
 pub enum Widened {
     /// the matrix has no inverse
     NoInverse,
-    /// a closed subpath of a join of no points: GdipWidenPath leaves the path as it was
-    Unchanged,
+    /// a join past 0 ..= 3 (a closed subpath on x64, any on x86): status 3 (OutOfMemory),
+    /// GdipWidenPath leaves the path as it was, a stroke draws nothing (golden penjoin-4,
+    /// penjoin--1)
+    Failed,
 }
 
 /// GetWidenedPathInternal: path widened by pen through m (the world to device matrix, or
@@ -323,23 +464,27 @@ pub enum Widened {
 pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Result<Path, Widened>> {
     hit(clause::GP_PEN_WIDE);
     let Some(minv) = invert(r, m) else { return Ok(Err(Widened::NoInverse)) };
-    let (start, end) = (Cap::line(pen.start_cap)?, Cap::line(pen.end_cap)?);
-    let join = Join::of(pen.join)?;
-    // (PenAlignment past Center, compound pens: the spec's open GP.PEN)
-    if pen.align != 0 {
-        return Err(Fail::Unmodeled(open::GP_PEN));
-    }
+    let (start, end) = (Cap::line(pen.start_cap), Cap::line(pen.end_cap));
+    let join = Join::of(pen.join);
     let mut c = path.clone();
     c.flatten(r, Some(m), flatness)?;
     for q in &mut c.pts {
         (q.x, q.y) = apply(r, &minv, q.x, q.y);
     }
-    let figs: Vec<(Vec<P>, bool)> = c.figures().iter().map(|f| (f.iter().map(|q| (q.x, q.y)).collect(), f.last().is_some_and(|q| q.close))).collect();
+    let mut figs: Vec<(Vec<P>, bool)> = c.figures().iter().map(|f| (f.iter().map(|q| (q.x, q.y)).collect(), f.last().is_some_and(|q| q.close))).collect();
+    // (PenAlignment Inset on a closed subpath: a 2w centred outline intersected with the
+    // shape as pixel regions, RegionToPath; the region step is the spec's open GP.PEN. Inset
+    // on open subpaths and every other value is Center, MEASURED in GDI+ itself, golden
+    // penalign-0, -2, --1)
+    if pen.align == 1 && figs.iter().any(|f| f.1) {
+        return Err(Fail::Unmodeled(open::GP_PEN));
+    }
+    let (major, minor) = axes(r, m);
+    let caps = anchors(r, &mut figs, pen, major.min(minor), (start, end));
     let subs: Vec<Sub> = match pattern(pen.dash) {
-        Some(pat) => dashes(r, &figs, pen, axes(r, m).0, true, pat, (start, end)),
+        Some(pat) => dashes(r, &figs, pen, major, true, pat, (start, end)),
         None => figs.into_iter().map(|(pts, closed)| Sub { pts, closed, caps: (start, end) }).collect(),
     };
-    let (_, minor) = axes(r, m);
     let thin_width = f32::from_bits(0x3f80_0008);
     let thin = thin_width > r.mul(pen.width, minor);
     let w = if thin { thin_width } else { pen.width };
@@ -347,6 +492,7 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
     let wd = Widener { r, w, wl, wr: r.sub(wl, w), lim: sq(r, pen.miter.max(1.0)), join };
     let mut out = Vec::new();
     for s in subs {
+        // (a thin pen: widened in device space, then back through the inverse)
         let pts: Vec<P> = if thin { s.pts.iter().map(|&(x, y)| apply(r, m, x, y)).collect() } else { s.pts };
         let mut pts = dedup(&pts);
         // (a closed figure ending on its start: that point once, golden gdipluspath
@@ -357,25 +503,168 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
         if pts.len() < 2 {
             continue;
         }
-        let figs = if s.closed {
-            match wd.closed(&pts) {
-                Some(f) => f.to_vec(),
-                None => return Ok(Err(Widened::Unchanged)),
-            }
-        } else {
-            vec![wd.open(&pts, s.caps)]
+        let figs = match (join, s.closed, super::arch()) {
+            (Join::Nothing, true, _) | (Join::Nothing, false, 32) => return Ok(Err(Widened::Failed)),
+            (Join::Miter | Join::Bevel | Join::Round | Join::MiterClipped, true, _) => wd.closed(&pts).to_vec(),
+            (Join::Miter | Join::Bevel | Join::Round | Join::MiterClipped | Join::Nothing, false, _) => vec![wd.open(&pts, s.caps)],
         };
         for f in figs {
             let n = f.len();
-            out.extend(f.into_iter().enumerate().map(|(i, o)| Point { x: o.p.0, y: o.p.1, kind: o.kind, close: i + 1 == n }));
+            out.extend(f.into_iter().enumerate().map(|(i, o)| {
+                let (x, y) = if thin { apply(r, &minv, o.p.0, o.p.1) } else { o.p };
+                Point { x, y, kind: o.kind, close: i + 1 == n }
+            }));
         }
     }
-    if !thin {
-        for q in &mut out {
-            (q.x, q.y) = apply(r, m, q.x, q.y);
-        }
+    out.extend(caps);
+    for q in &mut out {
+        (q.x, q.y) = apply(r, m, q.x, q.y);
     }
     Ok(Ok(Path::of(path.fill, out)))
+}
+
+/// an anchor's reference cap (GpEndCapCreator)
+struct RefCap {
+    /// its fill path's points, closed
+    fill: Vec<Point>,
+    len: f32,
+    base: f32,
+}
+fn reference(r: Round, a: Anchor) -> Res<RefCap> {
+    let poly = |v: &[P]| -> Vec<Point> {
+        let n = v.len();
+        v.iter().enumerate().map(|(i, &(x, y))| Point { x, y, kind: if i == 0 { Kind::Start } else { Kind::Line }, close: i + 1 == n }).collect()
+    };
+    let c = f32::from_bits(0x3f35_04f4);
+    let s3 = f32::from_bits(0x3fdd_b3d7);
+    let (fill, len, base) = match a {
+        Anchor::Square => (poly(&[(-c, -c), (c, -c), (c, c), (-c, c)]), c, 0.0),
+        Anchor::Round => {
+            let mut e = Path::new(0);
+            e.add_ellipse(r, (-1.0, -1.0, 2.0, 2.0)).map_err(|_| Fail::Bad)?;
+            (e.pts, 1.0, 0.0)
+        }
+        Anchor::Diamond => (poly(&[(0.0, 1.0), (-1.0, 0.0), (0.0, -1.0), (1.0, 0.0)]), 1.0, 0.0),
+        Anchor::Arrow => (poly(&[(0.0, 0.0), (-1.0, -s3), (1.0, -s3)]), s3, 1.0),
+    };
+    Ok(RefCap { fill, len, base })
+}
+
+/// GpEndCapCreator on each open subpath: the points within the cap's radius of a capped end
+/// erased, the first kept one moved to the circle pulled back by the base inset; the cap
+/// figures (start then end, path order) placed at the original ends
+fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps: (Cap, Cap)) -> Vec<Point> {
+    let mut out = Vec::new();
+    let pick = |c: Cap| match c {
+        Cap::Anchor(a) => reference(r, a).ok(),
+        Cap::Flat | Cap::Square | Cap::Round | Cap::Triangle => None,
+    };
+    let (sc, ec) = (pick(caps.0), pick(caps.1));
+    if sc.is_none() && ec.is_none() {
+        return out;
+    }
+    let s1 = r.mul(1.0, pen.width);
+    let unit = r.div(1.0, min_axis);
+    let mm = if s1 > unit { s1 } else { unit };
+    let s2 = r.div(2.0, min_axis);
+    let s = if s2 > s1 { s2 } else { s1 };
+    for (pts, closed) in figs.iter_mut() {
+        if *closed || pts.is_empty() {
+            continue;
+        }
+        let orig = pts.clone();
+        let n = pts.len();
+        let mut marked = vec![false; n];
+        let ends: [(Option<&RefCap>, bool); 2] = [(sc.as_ref(), true), (ec.as_ref(), false)];
+        for (cap, forward) in ends {
+            let Some(RefCap { fill, len: l, base }) = cap else { continue };
+            let order: Vec<usize> = if forward { (0..n).collect() } else { (0..n).rev().collect() };
+            let g = shorten(r, pts, &mut marked, &order, *l, *base, mm);
+            let o = orig[order[0]];
+            let d = (-g.0, -g.1);
+            let (a, b, cn) = (r.mul(d.0, s), r.mul(d.1, s), r.mul(-s, d.0));
+            out.extend(fill.iter().map(|q| Point {
+                x: r.add(r.add(r.mul(b, q.x), r.mul(a, q.y)), o.0),
+                y: r.add(r.add(r.mul(cn, q.x), r.mul(b, q.y)), o.1),
+                ..*q
+            }));
+        }
+        let kept: Vec<P> = pts.iter().zip(&marked).filter(|(_, m)| !**m).map(|(q, _)| *q).collect();
+        *pts = kept;
+    }
+    out
+}
+
+/// one end's walk (ComputeCapGradient): the direction from the end into the line
+fn shorten(r: Round, pts: &mut [P], marked: &mut [bool], order: &[usize], l: f32, base: f32, mm: f32) -> P {
+    let rad = r.mul(l, mm);
+    let r2 = r.mul(rad, rad);
+    let inset = if EPS > l.abs() { 0.0 } else { r.div(base, l) };
+    let e = pts[order[0]];
+    let (mut cur, mut beyond, mut was) = (order[0], None, false);
+    for &i in order {
+        let q = pts[i];
+        if r.add(sq(r, r.sub(q.0, e.0)), sq(r, r.sub(q.1, e.1))) > r2 {
+            beyond = Some(i);
+            break;
+        }
+        (cur, was) = (i, marked[i]);
+        marked[i] = true;
+    }
+    if beyond.is_some() && !was {
+        marked[cur] = false;
+    }
+    let x = intersect(r, e, r2, pts[beyond.unwrap_or(cur)], pts[cur]).unwrap_or(pts[cur]);
+    let g = normalize(r, (r.sub(x.0, e.0), r.sub(x.1, e.1)));
+    let k = r.sub(1.0, inset);
+    pts[cur] = (r.add(r.mul(r.sub(e.0, x.0), k), x.0), r.add(r.mul(r.sub(e.1, x.1), k), x.1));
+    g
+}
+
+/// intersect_circle_line: the first crossing of the circle of squared radius r2 about c going
+/// from a toward b
+fn intersect(r: Round, c: P, r2: f32, a: P, b: P) -> Option<P> {
+    let e = f64::from(EPS);
+    let (dx, dy) = (r.sub(b.0, a.0), r.sub(b.1, a.1));
+    let ld = sqrt64(r, f64::from(r.add(r.mul(dy, dy), r.mul(dx, dx))));
+    if e > ld {
+        return None;
+    }
+    let inv = to32(r, div64(r, 1.0, ld));
+    let (ex, ey) = (r.sub(c.0, a.0), r.sub(c.1, a.1));
+    let (ux, uy) = (r.mul(dx, inv), r.mul(dy, inv));
+    let cc = f64::from(r.add(r.mul(ey, ey), r.mul(ex, ex)));
+    let p = f64::from(r.add(r.mul(ey, uy), r.mul(ex, ux)));
+    let r2 = f64::from(r2);
+    if e > p && cc >= r2 {
+        return None;
+    }
+    let disc = add64(r, add64(r, r2, -cc), mul64(r, p, p));
+    if e > disc {
+        return None;
+    }
+    let s = sqrt64(r, disc);
+    let near = add64(r, p, -s);
+    let far = add64(r, s, p);
+    let t = if cc >= r2 && near > e && near >= 0.0 {
+        near
+    } else if far > e && far >= 0.0 {
+        far
+    } else {
+        return None;
+    };
+    let tf = to32(r, t);
+    Some((r.add(r.mul(tf, ux), a.0), r.add(r.mul(tf, uy), a.1)))
+}
+
+/// Normalize: the length in double, below 2^-23 (0, 0)
+fn normalize(r: Round, (x, y): P) -> P {
+    let d = add64(r, mul64(r, f64::from(x), f64::from(x)), mul64(r, f64::from(y), f64::from(y)));
+    if 0.0 > d || sqrt64(r, d).abs() < f64::from(EPS) {
+        return (0.0, 0.0);
+    }
+    let l = to32(r, sqrt64(r, d));
+    (r.div(x, l), r.div(y, l))
 }
 
 /// GpModF: x mod m truncating, a negative x from the top
@@ -432,7 +721,7 @@ fn dashes(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, major: f32, adjust: bool
     }
     let ins = match (adjust, dash_cap) {
         (true, Cap::Round | Cap::Triangle) => r.mul(u, 0.5),
-        (true, Cap::Flat | Cap::Square) | (false, _) => 0.0,
+        (true, Cap::Flat | Cap::Square | Cap::Anchor(_)) | (false, _) => 0.0,
     };
     let k = r.add(ins, ins);
     if k > 0.0 {

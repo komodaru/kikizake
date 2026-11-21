@@ -211,6 +211,23 @@ impl EBox {
             _ => [sub(p3, ca), add(p3, cb), add(p3, self.hb)],
         }
     }
+    /// the arc from s to e: one part of a quarter, or (multi) a part to the next axis, the
+    /// whole quarters on to e's and a part from its axis
+    fn partial(&self, v: &mut Vec<[P; 3]>, s: (Unit, Quad, Deg), e: (Unit, Quad, Deg), multi: bool) {
+        if !multi {
+            v.push(self.part(s.0, s.2, e.0, e.2));
+            return;
+        }
+        let mut q = s.1.next();
+        let (u, d) = q.axis();
+        v.push(self.part(s.0, s.2, u, d));
+        while q != e.1 {
+            v.push(self.quarter(q));
+            q = q.next();
+        }
+        let (u, d) = e.1.axis();
+        v.push(self.part(u, d, e.0, e.2));
+    }
     /// a part of a quarter from s to e: the Bézier of the span on the unit circle, mapped
     fn part(&self, s: Unit, a0: Deg, e: Unit, a1: Deg) -> [P; 3] {
         let cr = s.x * e.y - s.y * e.x;
@@ -279,18 +296,67 @@ pub fn arc(bx: (i32, i32, i32, i32), rs: (i32, i32), re: (i32, i32), cw: bool) -
     // (not past it: also NaN, as GDI compares)
     let multi = q0 != q1 || a1.partial_cmp(&a0) != Some(std::cmp::Ordering::Greater);
     let mut beziers = Vec::new();
-    if !multi {
-        beziers.push(bx.part(s, a0, e, a1));
+    bx.partial(&mut beziers, (s, q0, a0), (e, q1, a1), multi);
+    Some(Arc { start: bx.at(s), beziers, middle: bx.c })
+}
+
+/// a point on the unit circle's quadrant as AngleArc takes it (0 to 3 counterclockwise from
+/// x > 0, y >= 0; the axis points' own rules)
+fn quadrant(p: Unit) -> Quad {
+    if p.y < 0.0 {
+        Quad(if p.x >= 0.0 { 3 } else { 2 })
+    } else if p.x <= 0.0 {
+        Quad(if p.y == 0.0 { 2 } else { 1 })
     } else {
-        let mut q = q0.next();
-        let (u, d) = q.axis();
-        beziers.push(bx.part(s, a0, u, d));
-        while q != q1 {
-            beziers.push(bx.quarter(q));
-            q = q.next();
+        Quad(0)
+    }
+}
+
+/// AngleArc's arc (GDI.PATH.ANGLEARC): the circle of the radius about (x, y), from the start
+/// angle by the sweep (degrees, counterclockwise; a negative sweep mirrors it, whatever the arc
+/// direction), whole turns past the first up to 8 more; its start the end of the line from the
+/// current position; None where GDI fails (a radius past 2^31, coordinates out of range)
+pub fn angle_arc(x: i32, y: i32, radius: u32, start: f32, sweep: f32) -> Option<Arc> {
+    let rad = i32::try_from(radius).ok()?;
+    let (l, t, r, b) = (x.checked_sub(rad)?, y.checked_sub(rad)?, x.checked_add(rad)?, y.checked_add(rad)?);
+    // (in 28.4: GDI's 28 bit coordinates)
+    let fix = |v: i32| v.checked_mul(16).filter(|v| (-(1 << 31)..(1 << 31) - 16).contains(&i64::from(*v)));
+    let (mut tt, mut bb) = (fix(t)?, fix(b)?);
+    let (fl, fr) = (fix(l)?, fix(r)?);
+    let (mut st, mut sw) = (start, sweep);
+    if sw < 0.0 {
+        st = -st;
+        sw = -sw;
+        std::mem::swap(&mut tt, &mut bb);
+    }
+    let bx = EBox::new((fr, tt), (fl, tt), (fl, bb));
+    let mut n = trunc(sw * (1.0 / 90.0));
+    let revs = (n >> 2).min(8);
+    let mut en = st + sw;
+    let d = en - st;
+    let cs = if d != 0.0 && d - 3.0 < 0.0 { cos_sin_precise } else { cos_sin };
+    let (s, e) = (cs(Deg(st)), cs(Deg(en)));
+    let mut sq = quadrant(s);
+    if !(-3600.0..=3600.0).contains(&st) {
+        let (a, q) = arctan(s.x, s.y);
+        (st, sq) = (a.0, q);
+    }
+    let mut eq = quadrant(e);
+    if !(-3600.0..=3600.0).contains(&en) {
+        let (a, q) = arctan(e.x, e.y);
+        (en, eq) = (a.0, q);
+        n = i32::from((eq.0 + 4 - sq.0) & 3);
+        if n == 0 && st > en {
+            n = 3;
         }
-        let (u, d) = q1.axis();
-        beziers.push(bx.part(u, d, e, a1));
+    }
+    let multi = n & 3;
+    let (from, to) = ((s, sq, Deg(st)), (e, eq, Deg(en)));
+    let mut beziers = Vec::new();
+    bx.partial(&mut beziers, from, to, multi != 0);
+    for _ in 0..revs {
+        bx.partial(&mut beziers, to, from, 3 - multi != 0);
+        bx.partial(&mut beziers, from, to, multi != 0);
     }
     Some(Arc { start: bx.at(s), beziers, middle: bx.c })
 }
@@ -318,5 +384,9 @@ mod tests {
         assert_eq!(a((0, 0, 100, 100), (100, 50), (100, 50), false), "M(1584,792) C(1584,355)(1229,0)(792,0) C(354,0)(0,355)(0,792) C(0,1229)(354,1584)(792,1584) C(1230,1584)(1584,1229)(1584,792) C(1584,792)(1584,792)(1584,792)");
         assert_eq!(a((0, 0, 100, 100), (100, 49), (100, 51), false), "M(1584,776) C(1575,345)(1223,0)(792,0) C(354,0)(0,355)(0,792) C(0,1229)(354,1584)(792,1584) C(1223,1584)(1575,1239)(1584,808)");
         assert_eq!(a((0, 0, 100, 100), (100, 50), (100, 49), false), "M(1584,792) C(1584,787)(1584,781)(1584,776)");
+        let g = |x, y, r, st, sw| path(&angle_arc(x, y, r, st, sw).unwrap()).replacen('M', "L", 1);
+        assert_eq!(g(50, 50, 40, 30.0, 100.0), "L(1354,480) C(1240,282)(1029,160)(800,160) C(649,160)(504,213)(389,310)");
+        assert_eq!(g(50, 50, 40, 30.0, -100.0), "L(1354,480) C(1410,577)(1440,687)(1440,800) C(1440,1069)(1272,1309)(1019,1401)");
+        assert_eq!(g(0, 0, 10, 0.0, 45.0), "L(160,0) C(160,-42)(143,-83)(113,-113)");
     }
 }

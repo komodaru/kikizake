@@ -67,6 +67,14 @@ static void op_line(void) {
         return;
     }
     if (!strcmp(o, "lineto")) { int x = num(2), y = num(3); if (bad) return; r = LineTo(dc, x, y); }
+    else if (!strcmp(o, "anglearc")) {
+        /* anglearc <s> x y radius start sweep (degrees, decimal) */
+        int x = num(2), y = num(3), rad = num(4);
+        char *e1 = NULL, *e2 = NULL;
+        float a = ntok == 7 ? (float)strtod(tok[5], &e1) : 0, sw = ntok == 7 ? (float)strtod(tok[6], &e2) : 0;
+        if (bad || ntok != 7 || !e1 || *e1 || !e2 || *e2) { bad = 1; return; }
+        r = AngleArc(dc, x, y, (DWORD)rad, a, sw);
+    }
     else {
         int n = points(2);
         if (bad) return;
@@ -114,6 +122,7 @@ static const struct kz_op gdiline_ops[] = {
     { "moveto", op_line },
     { "getpos", op_line },
     { "lineto", op_line },
+    { "anglearc", op_line },
     { "polyline", op_line },
     { "polylineto", op_line },
     { "polygon", op_line },

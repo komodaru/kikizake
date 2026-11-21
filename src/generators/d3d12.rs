@@ -550,7 +550,7 @@ pub fn d3d12() -> String {
         rs.push(format!("{v} 0 srv 0 0 0 0 t 0 1 0 0xffffffff 1 0 0 0"));
     }
     for (i, l) in rs.iter().enumerate() {
-        writeln!(s, "case rootsig-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end());
+        writeln!(s, "case rootsig-{i}\ndevice12\n{}\nend", rootsig_lines(l.trim_end()));
     }
 
     // edges: each limit and one past it, one description a case (cargo-mutants: the comparisons
@@ -846,7 +846,7 @@ pub fn d3d12() -> String {
         rs2.push(format!("{v} 0 c 0 0 0 0"));
     }
     for (i, l) in rs2.iter().enumerate() {
-        writeln!(s, "case rootsig2-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end());
+        writeln!(s, "case rootsig2-{i}\ndevice12\n{}\nend", rootsig_lines(l.trim_end()));
     }
     // (added after) ALLOW_DISPLAY and cross-adapter ROW_MAJOR textures in every format
     for (n, hf, rf, layout) in [("display", 8u32, 0u32, 0u32), ("display-rt", 8, 1, 0), ("cross", 0x21, 0x10, 1), ("cross-rt", 0x21, 0x11, 1)] {
@@ -859,6 +859,25 @@ pub fn d3d12() -> String {
     }
 
     s
+}
+
+/// a root signature as rootsig12 lines of at most MAXTOK tokens: the parameters past what one line
+/// holds on rootsig12+ lines before it
+fn rootsig_lines(l: &str) -> String {
+    use crate::model::rootsig::MAXTOK;
+    let w: Vec<&str> = l.split_whitespace().collect();
+    if w.len() + 1 <= MAXTOK {
+        return format!("rootsig12 {l}");
+    }
+    let (head, params) = w.split_at(2);
+    let keep = MAXTOK - 3;
+    let (early, last) = params.split_at(params.len() - keep);
+    let mut out = String::new();
+    for c in early.chunks(MAXTOK - 1) {
+        out.push_str(&format!("rootsig12+ {}\n", c.join(" ")));
+    }
+    out.push_str(&format!("rootsig12 {} {}", head.join(" "), last.join(" ")));
+    out
 }
 
 /// a DXGI_SWAP_CHAIN_DESC1 as the executor's 12 tokens: width height format stereo samples

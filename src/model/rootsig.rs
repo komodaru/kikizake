@@ -84,8 +84,8 @@ impl Version {
 }
 
 /// what the executor holds at most: parameters, static samplers, ranges in all tables
-pub const MAX_PARAMS: usize = 16;
-pub const MAX_SAMPLERS: usize = 16;
+pub const MAX_PARAMS: usize = 64;
+pub const MAX_SAMPLERS: usize = 64;
 pub const MAX_RANGES: usize = 32;
 
 /// the rootsig12 op's parameters (after its version and flags), as the executor reads them: None

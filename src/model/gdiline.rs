@@ -38,12 +38,24 @@ pub struct Draw {
     pub font: Option<super::gdifont::TextFont>,
     /// SetMiterLimit's limit
     pub miter: f32,
+    /// the logical palette selected
+    pub palette: Palette,
+}
+
+/// a DC's logical palette
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Palette {
+    /// DEFAULT_PALETTE
+    #[default]
+    Default,
+    /// CreateHalftonePalette's
+    Halftone,
 }
 
 impl Default for Draw {
     /// a new DC: the black pen, R2_COPYPEN, (0, 0), ALTERNATE, AD_COUNTERCLOCKWISE
     fn default() -> Draw {
-        Draw { pen: Pen::Plain { style: 0, width: 0, color: 0 }, rop2: 13, pos: (0, 0), polyfill: 1, arcdir: 1, map: Default::default(), path: Default::default(), align: 0, extra: 0, font: None, miter: 10.0 }
+        Draw { pen: Pen::Plain { style: 0, width: 0, color: 0 }, rop2: 13, pos: (0, 0), polyfill: 1, arcdir: 1, map: Default::default(), path: Default::default(), align: 0, extra: 0, font: None, miter: 10.0, palette: Palette::Default }
     }
 }
 
@@ -252,7 +264,7 @@ impl Slot {
 
 pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     let t0 = op.tok[0].as_str();
-    if !matches!(t0, "pen" | "extpen" | "moveto" | "getpos" | "lineto" | "polyline" | "polylineto" | "polygon" | "polybezier" | "polybezierto" | "rectangle" | "ellipse" | "roundrect" | "arc" | "arcto" | "pie" | "chord" | "fillrect" | "framerect" | "invertrect" | "rop2" | "polyfill" | "arcdir") {
+    if !matches!(t0, "pen" | "extpen" | "moveto" | "getpos" | "lineto" | "anglearc" | "polyline" | "polylineto" | "polygon" | "polybezier" | "polybezierto" | "rectangle" | "ellipse" | "roundrect" | "arc" | "arcto" | "pie" | "chord" | "fillrect" | "framerect" | "invertrect" | "rop2" | "polyfill" | "arcdir") {
         return Ok(false);
     }
     let k = n(op, 1)?;
@@ -511,7 +523,7 @@ fn op_device(g: &mut Gdi, k: i64, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             super::gdipath::round_rect_shape(sl, a, b, wh, filled)?;
             out.push("ret 1".into());
         }
-        "ellipse" | "roundrect" | "arc" | "arcto" | "pie" | "chord" => return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE)),
+        "ellipse" | "roundrect" | "arc" | "arcto" | "pie" | "chord" | "anglearc" => return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE)),
         "polybezier" | "polybezierto" => {
             let pts = points(op, 2)?;
             let to = t0 == "polybezierto";

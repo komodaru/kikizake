@@ -1465,8 +1465,21 @@ impl Gdiplus {
             Some("arc") => (None, path.add_arc(r, rect()?, f(14)?, f(15)?)),
             Some("pie") => (None, path.add_pie(r, rect()?, f(14)?, f(15)?)),
             Some("bezier") => (None, path.add_beziers(r, &[(f(10)?, f(11)?), (f(12)?, f(13)?), (f(14)?, f(15)?), (f(16)?, f(17)?)])),
-            Some("lines") => (None, path.add_lines(r, &list(10)?)),
-            Some("polygon") => (None, path.add_polygon(r, &list(10)?)),
+            // (DrawLines of fewer than two points: InvalidParameter, clean-room notes
+            // geometry.md 13, both arches; AddLines takes one)
+            Some("lines") => (None, match list(10)?.as_slice() {
+                few @ ([] | [_]) => path.add_lines(r, few).and(Err(gpp::Refused::InvalidParameter)),
+                more => path.add_lines(r, more),
+            }),
+            // (DrawPolygon takes two points, AddPolygon does not: one closed figure of them,
+            // golden gdiplusline outline-polygon-34)
+            Some("polygon") => (None, match list(10)?.as_slice() {
+                two @ [_, _] => {
+                    path.start_figure();
+                    path.add_lines(r, two).map(|()| path.close_figure())
+                }
+                more => path.add_polygon(r, more),
+            }),
             Some("curve") => (None, path.add_curve(r, &list(11)?, f(10)?)),
             Some("closedcurve") => (None, path.add_closed_curve(r, &list(11)?, f(10)?)),
             _ => return Err(Fail::Bad),
@@ -1499,8 +1512,12 @@ impl Gdiplus {
             out.push(format!("shape 0 {INVALID_PARAMETER}"));
             return Ok(true);
         };
+        // (a shape its Add* call refuses: InvalidParameter, nothing drawn, golden gdiplusline
+        // outline-arc-28, outline-closedcurve-0)
         if made.is_err() {
-            return Err(Fail::Unmodeled(open::GP_PEN));
+            hit(clause::GP_PEN_EMPTY);
+            out.push(format!("shape 0 {INVALID_PARAMETER}"));
+            return Ok(true);
         }
         let dev = gpp::device(r, world.as_ref(), po);
         let wtd = gpp::world_to_device(r, world.as_ref(), po);
@@ -1526,10 +1543,8 @@ impl Gdiplus {
         }
         let how = gpp::stroke(r, &pen, world.as_ref(), sm.rows().is_none(), super::gpwiden::pattern(pen.dash).is_some());
         // (MEASURED, golden gdiplusline pendash-5: DashStyleCustom with no dash array set is
-        // OutOfMemory, nothing drawn; penjoin--1, penjoin-4: a wide stroke of a join past 0 ..= 3
-        // is OutOfMemory on x86, drawn with no interior join points on x64)
-        let nothing_join = matches!(super::gpwiden::Join::of(pen.join), Ok(super::gpwiden::Join::Nothing));
-        if pen.dash == 5 || (how == Stroke::Wide && nothing_join && super::arch() == 32) {
+        // OutOfMemory, nothing drawn)
+        if pen.dash == 5 {
             hit(clause::GP_PEN_DASH);
             out.push(format!("shape 0 {OUT_OF_MEMORY}"));
             return Ok(true);
@@ -1563,8 +1578,11 @@ impl Gdiplus {
                     Ok(outline) => gpp::fill(r, &outline, None, FillMode::Winding, sm.rows(), PixelOffset::None, b.w, b.h)?,
                     // (DpDriver::StrokePath of no inverse: nothing drawn)
                     Err(super::gpwiden::Widened::NoInverse) => gpp::fill(r, &gpp::Path::new(1), None, FillMode::Winding, sm.rows(), PixelOffset::None, b.w, b.h)?,
-                    // (a closed figure of an invalid join: what StrokePath then fills is GP.PEN)
-                    Err(super::gpwiden::Widened::Unchanged) => return Err(Fail::Unmodeled(open::GP_PEN)),
+                    // (golden penjoin-4, penjoin--1 on x86: OutOfMemory, nothing drawn)
+                    Err(super::gpwiden::Widened::Failed) => {
+                        out.push(format!("shape 0 {OUT_OF_MEMORY}"));
+                        return Ok(true);
+                    }
                 }
             }
         };
@@ -1740,7 +1758,11 @@ impl Gdiplus {
             };
             match super::gpwiden::widen(r, path, &pen, &m, flatness)? {
                 Ok(p) => *path = p,
-                Err(super::gpwiden::Widened::Unchanged) => {}
+                // (the path left as it was)
+                Err(super::gpwiden::Widened::Failed) => {
+                    out.push(format!("widen {OUT_OF_MEMORY}"));
+                    return Ok(true);
+                }
                 // (a matrix of no inverse: GdipWidenPath's status is GP.PEN)
                 Err(super::gpwiden::Widened::NoInverse) => return Err(Fail::Unmodeled(open::GP_PEN)),
             }

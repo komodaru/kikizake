@@ -1806,7 +1806,8 @@ fn inflate_stored(z: &[u8]) -> Option<(Vec<u8>, bool)> {
     }
 }
 
-fn adler32(b: &[u8]) -> u32 {
+/// zlib's Adler-32 (RFC 1950 8)
+pub(crate) fn adler32(b: &[u8]) -> u32 {
     let (mut a, mut s) = (1u32, 0u32);
     for &x in b {
         a = (a + x as u32) % 65521;
@@ -1815,7 +1816,8 @@ fn adler32(b: &[u8]) -> u32 {
     s << 16 | a
 }
 
-fn crc32(b: &[u8]) -> u32 {
+/// PNG's CRC-32 (ISO 3309, reflected 0xedb88320)
+pub(crate) fn crc32(b: &[u8]) -> u32 {
     let mut c = !0u32;
     for &x in b {
         c ^= x as u32;

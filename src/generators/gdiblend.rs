@@ -206,5 +206,18 @@ pub fn blend() -> String {
         let (sw, sh) = if r.chance(2) { (w, h) } else { (e(&mut r, 5), e(&mut r, 4)) };
         writeln!(s, "transparent 0 {} {} {w} {h} 1 {} {} {sw} {sh} #000000\ndump 0\nend", r.range(-1, 3), r.range(-1, 3), r.range(-1, 2), r.range(-1, 2));
     }
+    // gradients with CreateHalftonePalette's palette selected: 8 bpp (6 levels), 4 and 1 bpp
+    let mut h = XorShift32::new(0x4a1f_0000);
+    for i in 0..24 {
+        let bpp = [8, 8, 8, 8, 4, 1][i % 6];
+        let c = |r: &mut XorShift32| format!("{} {} {} {}", r.next() & 0xffff, r.next() & 0xffff, r.next() & 0xffff, r.next() & 0xffff);
+        writeln!(s, "case gradht-{i}\ndib 0 16 16 {bpp}\nhalftone 0");
+        if i % 3 == 2 {
+            let v = |q: &mut XorShift32| format!("{} {} {} {} {} {}", q.range(-4, 20), q.range(-4, 20), q.next() & 0xffff, q.next() & 0xffff, q.next() & 0xffff, q.next() & 0xffff);
+            writeln!(s, "gradtri 0 {} {} {}\ndump 0\nend", v(&mut h), v(&mut h), v(&mut h));
+        } else {
+            writeln!(s, "gradrect 0 {} 0 0 {} 16 16 {}\ndump 0\nend", i % 2, c(&mut h), c(&mut h));
+        }
+    }
     s
 }

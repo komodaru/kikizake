@@ -22,8 +22,13 @@ static HANDLE event12;
  * 600 of them, golden d3d12-32 c4c7692) */
 static int on12;
 
+/* rootsig12+ tokens kept for the next rootsig12 (op_rootsig_more) */
+static int nrsx, rsxlen;
+
 static void d3d12_reset(void) {
     on12 = 0;
+    nrsx = 0;
+    rsxlen = 0;
     /* (a removed device is not kept, nor released: left as it is) */
     if (dev12 && ID3D12Device_GetDeviceRemovedReason(dev12) != S_OK) {
         /* (WARP x64 crashed some runs after a removal, the output still buffered lost: golden
@@ -443,26 +448,59 @@ static void op_copy(void) {
  *     <max lod bits> <register> <space> <visibility>     a static sampler in full
  * "rs hr <hr> size <bytes>", the blob past its 4-byte magic and 16-byte checksum as "rs <hex>"
  * lines of 64 bytes, "rs sum <checksum hex>", then "rsmake hr <hr>" */
-#define RSP 16
+#define RSP 64
 #define RSR 32
+/* rootsig12+ <tokens>: kept for the next rootsig12 line, which reads them after its version and
+ * flags (a root signature longer than a line's MAXTOK tokens) */
+#define RSTOK 1024
+static char rspool[16384];
+static char *rsx[RSTOK];
+static char *rtk[RSTOK];
+static int rt;
+static long rn(int i) {
+    if (i >= rt) { bad = 1; return 0; }
+    char *e;
+    long v = (long)strtoul(rtk[i], &e, 0);
+    if (rtk[i][0] == '-') v = strtol(rtk[i], &e, 0);
+    if (*e) bad = 1;
+    return v;
+}
+static int ri(int i, const char *s) { return i < rt && !strcmp(rtk[i], s); }
+static void op_rootsig_more(void) {
+    for (int k = 1; k < ntok; k++) {
+        size_t n = strlen(tok[k]) + 1;
+        if (nrsx == RSTOK || rsxlen + n > sizeof rspool) { bad = 1; return; }
+        memcpy(rspool + rsxlen, tok[k], n);
+        rsx[nrsx++] = rspool + rsxlen;
+        rsxlen += n;
+    }
+}
+
 static void op_rootsig(void) {
     if (!on12) { out("nodev\n"); return; }
     static HRESULT (WINAPI *ser)(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC *, ID3DBlob **, ID3DBlob **);
     if (!ser) ser = (void *)GetProcAddress(GetModuleHandleA("d3d12.dll"), "D3D12SerializeVersionedRootSignature");
     if (!ser) { out("rs none\n"); return; }
-    UINT ver = num(1), np = 0, ns = 0, nr = 0;
+    /* the tokens: this line's first three, those rootsig12+ lines before it left, the rest of it */
+    rt = 0;
+    for (int k = 0; k < ntok && k < 3; k++) rtk[rt++] = tok[k];
+    for (int k = 0; k < nrsx && rt < RSTOK; k++) rtk[rt++] = rsx[k];
+    for (int k = 3; k < ntok && rt < RSTOK; k++) rtk[rt++] = tok[k];
+    nrsx = 0;
+    rsxlen = 0;
+    UINT ver = rn(1), np = 0, ns = 0, nr = 0;
     D3D12_ROOT_PARAMETER p0[RSP];
     D3D12_ROOT_PARAMETER1 p1[RSP];
     D3D12_DESCRIPTOR_RANGE r0[RSR];
     D3D12_DESCRIPTOR_RANGE1 r1[RSR];
     D3D12_STATIC_SAMPLER_DESC sm[RSP];
     int i = 3;
-    while (i < ntok && !bad) {
-        if (is(i, "S")) {
-            if (ns == RSP || i + 13 >= ntok) { bad = 1; break; }
+    while (i < rt && !bad) {
+        if (ri(i, "S")) {
+            if (ns == RSP || i + 13 >= rt) { bad = 1; break; }
             D3D12_STATIC_SAMPLER_DESC d;
             UINT w[13];
-            for (int k = 0; k < 13; k++) w[k] = (UINT)num(i + 1 + k);
+            for (int k = 0; k < 13; k++) w[k] = (UINT)rn(i + 1 + k);
             d.Filter = w[0]; d.AddressU = w[1]; d.AddressV = w[2]; d.AddressW = w[3];
             memcpy(&d.MipLODBias, &w[4], 4);
             d.MaxAnisotropy = w[5]; d.ComparisonFunc = w[6]; d.BorderColor = w[7];
@@ -472,9 +510,9 @@ static void op_rootsig(void) {
             i += 14;
             continue;
         }
-        if (is(i, "s")) {
-            if (ns == RSP || i + 4 >= ntok) { bad = 1; break; }
-            D3D12_STATIC_SAMPLER_DESC d = { num(i + 1), 1, 1, 1, 0, 16, 1, 0, 0, 3.402823466e+38f, num(i + 2), num(i + 3), num(i + 4) };
+        if (ri(i, "s")) {
+            if (ns == RSP || i + 4 >= rt) { bad = 1; break; }
+            D3D12_STATIC_SAMPLER_DESC d = { rn(i + 1), 1, 1, 1, 0, 16, 1, 0, 0, 3.402823466e+38f, rn(i + 2), rn(i + 3), rn(i + 4) };
             sm[ns++] = d;
             i += 5;
             continue;
@@ -482,35 +520,35 @@ static void op_rootsig(void) {
         if (np == RSP) { bad = 1; break; }
         D3D12_ROOT_PARAMETER *a = &p0[np];
         D3D12_ROOT_PARAMETER1 *b = &p1[np];
-        if (is(i, "c")) {
-            if (i + 4 >= ntok) { bad = 1; break; }
+        if (ri(i, "c")) {
+            if (i + 4 >= rt) { bad = 1; break; }
             a->ParameterType = b->ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-            a->Constants.ShaderRegister = b->Constants.ShaderRegister = num(i + 1);
-            a->Constants.RegisterSpace = b->Constants.RegisterSpace = num(i + 2);
-            a->Constants.Num32BitValues = b->Constants.Num32BitValues = num(i + 3);
-            a->ShaderVisibility = b->ShaderVisibility = num(i + 4);
+            a->Constants.ShaderRegister = b->Constants.ShaderRegister = rn(i + 1);
+            a->Constants.RegisterSpace = b->Constants.RegisterSpace = rn(i + 2);
+            a->Constants.Num32BitValues = b->Constants.Num32BitValues = rn(i + 3);
+            a->ShaderVisibility = b->ShaderVisibility = rn(i + 4);
             i += 5;
-        } else if (is(i, "cbv") || is(i, "srv") || is(i, "uav")) {
-            if (i + 4 >= ntok) { bad = 1; break; }
-            a->ParameterType = b->ParameterType = is(i, "cbv") ? D3D12_ROOT_PARAMETER_TYPE_CBV : is(i, "srv") ? D3D12_ROOT_PARAMETER_TYPE_SRV : D3D12_ROOT_PARAMETER_TYPE_UAV;
-            a->Descriptor.ShaderRegister = b->Descriptor.ShaderRegister = num(i + 1);
-            a->Descriptor.RegisterSpace = b->Descriptor.RegisterSpace = num(i + 2);
-            a->ShaderVisibility = b->ShaderVisibility = num(i + 3);
-            b->Descriptor.Flags = num(i + 4);
+        } else if (ri(i, "cbv") || ri(i, "srv") || ri(i, "uav")) {
+            if (i + 4 >= rt) { bad = 1; break; }
+            a->ParameterType = b->ParameterType = ri(i, "cbv") ? D3D12_ROOT_PARAMETER_TYPE_CBV : ri(i, "srv") ? D3D12_ROOT_PARAMETER_TYPE_SRV : D3D12_ROOT_PARAMETER_TYPE_UAV;
+            a->Descriptor.ShaderRegister = b->Descriptor.ShaderRegister = rn(i + 1);
+            a->Descriptor.RegisterSpace = b->Descriptor.RegisterSpace = rn(i + 2);
+            a->ShaderVisibility = b->ShaderVisibility = rn(i + 3);
+            b->Descriptor.Flags = rn(i + 4);
             i += 5;
-        } else if (is(i, "t")) {
-            if (i + 2 >= ntok) { bad = 1; break; }
-            UINT n = num(i + 2);
-            if (n > RSR || nr + n > RSR || i + 3 + 6 * (int)n > ntok) { bad = 1; break; }
+        } else if (ri(i, "t")) {
+            if (i + 2 >= rt) { bad = 1; break; }
+            UINT n = rn(i + 2);
+            if (n > RSR || nr + n > RSR || i + 3 + 6 * (int)n > rt) { bad = 1; break; }
             a->ParameterType = b->ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-            a->ShaderVisibility = b->ShaderVisibility = num(i + 1);
+            a->ShaderVisibility = b->ShaderVisibility = rn(i + 1);
             a->DescriptorTable.NumDescriptorRanges = b->DescriptorTable.NumDescriptorRanges = n;
             a->DescriptorTable.pDescriptorRanges = &r0[nr];
             b->DescriptorTable.pDescriptorRanges = &r1[nr];
             for (UINT k = 0; k < n; k++) {
                 int j = i + 3 + 6 * k;
-                D3D12_DESCRIPTOR_RANGE x = { num(j), num(j + 1), num(j + 2), num(j + 3), num(j + 4) };
-                D3D12_DESCRIPTOR_RANGE1 y = { num(j), num(j + 1), num(j + 2), num(j + 3), num(j + 5), num(j + 4) };
+                D3D12_DESCRIPTOR_RANGE x = { rn(j), rn(j + 1), rn(j + 2), rn(j + 3), rn(j + 4) };
+                D3D12_DESCRIPTOR_RANGE1 y = { rn(j), rn(j + 1), rn(j + 2), rn(j + 3), rn(j + 5), rn(j + 4) };
                 r0[nr] = x;
                 r1[nr++] = y;
             }
@@ -518,15 +556,15 @@ static void op_rootsig(void) {
         } else { bad = 1; break; }
         np++;
     }
-    if (bad || ntok < 3) { bad = 1; return; }
+    if (bad || rt < 3) { bad = 1; return; }
     D3D12_VERSIONED_ROOT_SIGNATURE_DESC d;
     memset(&d, 0, sizeof d);
     d.Version = ver;
     if (ver == D3D_ROOT_SIGNATURE_VERSION_1_1) {
-        D3D12_ROOT_SIGNATURE_DESC1 x = { np, np ? p1 : NULL, ns, ns ? sm : NULL, num(2) };
+        D3D12_ROOT_SIGNATURE_DESC1 x = { np, np ? p1 : NULL, ns, ns ? sm : NULL, rn(2) };
         d.Desc_1_1 = x;
     } else {
-        D3D12_ROOT_SIGNATURE_DESC x = { np, np ? p0 : NULL, ns, ns ? sm : NULL, num(2) };
+        D3D12_ROOT_SIGNATURE_DESC x = { np, np ? p0 : NULL, ns, ns ? sm : NULL, rn(2) };
         d.Desc_1_0 = x;
     }
     ID3DBlob *blob = NULL, *err = NULL;
@@ -643,6 +681,7 @@ static const struct kz_op d3d12_ops[] = {
     { "featscan12", op_featscan },
     { "remove12", op_remove },
     { "rootsig12", op_rootsig },
+    { "rootsig12+", op_rootsig_more },
     { "copy12", op_copy },
     { "device12", op_device12 },
     { "footprint12", op_footprint },

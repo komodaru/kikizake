@@ -267,7 +267,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, generators};
-    let floor = [("lines", 443), ("region", 556), ("xform", 670), ("path", 679), ("text", 171), ("blend", 964), ("ddb", 59)];
+    let floor = [("lines", 443), ("region", 627), ("xform", 670), ("path", 679), ("text", 171), ("blend", 964), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
@@ -284,18 +284,22 @@ fn models_keep_answering() {
 }
 
 proptest! {
-    /// GDI's flattener (HFD) ends exactly at the Bézier's end point and stays inside its
-    /// control points' box (a Bézier lies in its control points' convex hull), each line
-    /// shorter than the box is wide
+    /// GDI's flattener (HFD) ends exactly at the Bézier's end point for curves within 256
+    /// pixels, within 6/16 pixel beyond (its 18.14 steps lose bits there), and stays
+    /// inside its control points' box (a Bézier lies in its control points' convex hull)
     #[test]
     fn flatten_ends_at_the_end(o in (-40000i32..40000, -40000i32..40000), p in prop::array::uniform4((0i32..0x4000, 0i32..0x4000))) {
         let p = p.map(|q| (q.0 + o.0, q.1 + o.1));
         let v = kikizake::model::bezier::flatten(p).expect("in the flattener's space");
-        prop_assert_eq!(v.last().copied(), Some(p[3]));
+        let e = v.last().copied().unwrap();
+        let far = p.iter().flat_map(|q| [q.0 - o.0, q.1 - o.1]).any(|v| v >= 0x1000);
+        let off = if far { 6 } else { 0 };
+        prop_assert!((e.0 - p[3].0).abs() <= off && (e.1 - p[3].1).abs() <= off, "ends at {:?}, not {:?}", e, p[3]);
         let (l, r) = (p.iter().map(|q| q.0).min().unwrap(), p.iter().map(|q| q.0).max().unwrap());
         let (t, b) = (p.iter().map(|q| q.1).min().unwrap(), p.iter().map(|q| q.1).max().unwrap());
         for q in &v {
-            prop_assert!(l - 1 <= q.0 && q.0 <= r + 1 && t - 1 <= q.1 && q.1 <= b + 1, "{q:?} outside {p:?}");
+            let k = off.max(1);
+            prop_assert!(l - k <= q.0 && q.0 <= r + k && t - k <= q.1 && q.1 <= b + k, "{q:?} outside {p:?}");
         }
     }
 
@@ -563,6 +567,42 @@ proptest! {
             prop_assert!(i.is_some(), "{:06x}'s own cell is not written", e);
             let cc = c.map(i64::from);
             prop_assert!(d(pal[usize::from(i.unwrap())], cc) <= d(e, cc));
+        }
+    }
+}
+
+proptest! {
+    /// CreateRoundRectRgn with corners as large as the box (or larger) is CreateEllipticRgn,
+    /// and with a corner 0 the box's rectangle a pixel in on the right and bottom
+    #[test]
+    fn round_rect_region_between_rect_and_ellipse(l in -40i32..40, t in -40i32..40, w in 2i32..120, h in 2i32..120, more in (0i32..50, 0i32..50), c in 0i32..60) {
+        use kikizake::model::gdirgn::{elliptic, round_rect};
+        use kikizake::model::rgn::Rgn;
+        let b = (l, t, l + w, t + h);
+        prop_assert_eq!(round_rect(b, w + more.0, h + more.1).unwrap().bands, elliptic(b).unwrap().bands);
+        prop_assert_eq!(round_rect(b, 0, c).unwrap().bands, Rgn::rect(l, t, l + w - 1, t + h - 1).bands);
+        prop_assert_eq!(round_rect(b, c, 0).unwrap().bands, Rgn::rect(l, t, l + w - 1, t + h - 1).bands);
+    }
+
+    /// AngleArc's whole turn ends where it starts, and a negative sweep is the positive one
+    /// mirrored about the centre's row (within a 1/16 pixel: whole quarters' control points
+    /// are rounded down either way)
+    #[test]
+    fn angle_arc_turns_and_mirrors(x in -100i32..100, y in -100i32..100, r in 0u32..200, st in -720i32..720, sw in 0i32..1000) {
+        use kikizake::model::gdiarc::angle_arc;
+        let (st, sw) = (st as f32 / 4.0, sw as f32 / 4.0);
+        let full = angle_arc(x, y, r, st, 360.0).unwrap();
+        prop_assert_eq!(full.beziers.last().unwrap()[2], full.start);
+        let a = angle_arc(x, y, r, st, sw).unwrap();
+        let b = angle_arc(x, y, r, -st, -sw).unwrap();
+        let m = |p: (i32, i32)| (p.0, 32 * y - p.1);
+        prop_assert_eq!(m(a.start), b.start);
+        prop_assert_eq!(a.beziers.len(), b.beziers.len());
+        for (g, h) in a.beziers.iter().zip(&b.beziers) {
+            for (p, q) in g.iter().zip(h) {
+                let p = m(*p);
+                prop_assert!((p.0 - q.0).abs() <= 1 && (p.1 - q.1).abs() <= 1, "{:?} vs {:?}", p, q);
+            }
         }
     }
 }

@@ -466,6 +466,42 @@ fn suite(d3d11: bool) -> String {
         writeln!(&mut s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0));
     }
     writeln!(&mut s, "draw 5 4 32\nread 0 0 256 16 1\nend");
+    // a coordinate infinite
+    begin(&mut s, dev, "probe-clip-w-inf", 16, 16, 2, Prog::Ps);
+    for (k, (x, y, w)) in [(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter().enumerate() {
+        let c = color(k as u32 * 5 + 1);
+        let x = if k == 1 { f32::INFINITY } else { x * w.abs() };
+        writeln!(&mut s, "vtx {} {} {} {} {} {} {} {}", fb(x), fb(y * w.abs()), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3]));
+    }
+    writeln!(&mut s, "draw 4 3 32");
+    read_rt(&mut s, 0, crate::dxgi!(2), 16, 16);
+    writeln!(&mut s, "end");
+    // a depth that varies over triangles on a multisampled target with a depth view
+    writeln!(&mut s, "case probe-rt-ms4-zplane\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0");
+    writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
+    writeln!(&mut s, "tex 2 2 16 16 1 1 40 0 0x40 0 0 4 0\ndsv 2 2 nodesc\ncleards 2 3 {} 0\ntarget 0 2\ndepthst 1 1 2", fb(1.0));
+    for (k, t) in [[(0.0f32, 0.0f32, 0.1f32), (16.0, 2.5, 0.9), (1.0, 14.0, 0.5)], [(3.0, 1.0, 0.8), (15.5, 15.0, 0.2), (0.0, 9.75, 0.45)]].into_iter().enumerate() {
+        for (i, (x, y, z)) in t.into_iter().enumerate() {
+            vertex(&mut s, x, y, z, color(k as u32 * 3 + i as u32), 16.0, 16.0);
+        }
+    }
+    writeln!(&mut s, "draw 4 6 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
+    // a 3D texture with mips through its whole view
+    writeln!(&mut s, "case probe-filter-3d-mips\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0");
+    writeln!(&mut s, "tex 1 3 4 4 2 3 28 0 8 0 0 1 0 init 400 16 64\nsrv 1 1 nodesc\ntsrv 1\nsamp 0x15 3 3 3");
+    writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader(Prog::Vs)), hex(&shader(Prog::Pssample)));
+    writeln!(&mut s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0));
+    for (x, y, u, v) in [(-1.0f32, 1.0f32, -1.5f32, -1.5f32), (1.0, 1.0, 4.5, -1.5), (-1.0, -1.0, -1.5, 4.5), (1.0, -1.0, 4.5, 4.5)] {
+        writeln!(&mut s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0));
+    }
+    writeln!(&mut s, "draw 5 4 32\nread 0 0 256 16 1\nend");
+    // a target of 16 samples
+    writeln!(&mut s, "case probe-rt-ms16\n{dev}\ntex 0 2 16 16 1 1 28 0 0x20 0 0 16 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 28 0 0x20 0 0 1 0");
+    writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
+    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+        vertex(&mut s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(&mut s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
     // topologies D3D11_PRIMITIVE_TOPOLOGY leaves undefined (they may end the executor too, so
     // they come just before)
     for top in [0u32, 6, 7, 8, 9, 65] {

@@ -244,8 +244,12 @@ fn wic_matches_the_wicconv_probe() {
     assert!(n > 50, "{n} {open}");
 }
 
+/// cases known to have a line the executor cuts (to be fixed in their suites; only shrinks)
+const LONG_LINES: &[(&str, &str)] = &[];
+
 /// the generators write no line a model refuses ("invalid case" would pass over a case
-/// unchecked: a model broken on its own cases must not look unmodeled)
+/// unchecked: a model broken on its own cases must not look unmodeled), nor one longer than
+/// the executor reads
 #[test]
 fn no_generated_line_is_bad() {
     let only = std::env::var("KIKIZAKE_SUITES").ok();
@@ -255,6 +259,12 @@ fn no_generated_line_is_bad() {
             continue;
         }
         let cases = case::checked_cases(&generators::suite(s).unwrap()).unwrap_or_else(|e| panic!("{s}: {e}"));
+        // (a line longer than the executor reads is cut there: the case asks something else)
+        for c in &cases {
+            if c.ops.iter().any(|o| o.tok.len() > case::MAX_TOKENS) && !LONG_LINES.contains(&(*s, c.name.as_str())) {
+                bad.push(format!("{s} {}: a line of more than {} tokens", c.name, case::MAX_TOKENS));
+            }
+        }
         for arch in [32, 64] {
             model::set_arch(arch);
             let (_, invalid) = model::run_report(s, &cases);
@@ -263,4 +273,12 @@ fn no_generated_line_is_bad() {
     }
     model::set_arch(32);
     assert!(bad.is_empty(), "cases a model calls bad lines:\n{}", bad.join("\n"));
+}
+
+/// the model's token limit is the executor's (a longer line is cut there, as region
+/// loose-many was)
+#[test]
+fn token_limit_is_the_executors() {
+    let h = include_str!("../runner/core.h");
+    assert!(h.contains(&format!("#define MAXTOK {}\n", kikizake::case::MAX_TOKENS)), "runner/core.h MAXTOK is not case::MAX_TOKENS");
 }

@@ -3184,6 +3184,26 @@ fn ceil_div(a: i64, b: i64) -> i64 {
     -(-a).div_euclid(b)
 }
 
+/// The forward differences of a hardware flattener (hfd32's 64-bit ones, hfd64's 128-bit
+/// ones): halving the step (the differences of a curve evaluated twice as often)
+fn hfd_halve<T>(e: &mut [T; 4])
+where
+    T: Copy + std::ops::Add<Output = T> + std::ops::Sub<Output = T> + std::ops::Shr<i32, Output = T>,
+{
+    let [a, b, c, d] = *e;
+    let c = (c + d) >> 3;
+    *e = [a, (b - c) >> 1, c, d >> 2];
+}
+
+/// and one step along the curve
+fn hfd_step<T>(e: &mut [T; 4])
+where
+    T: Copy + std::ops::Add<Output = T> + std::ops::Sub<Output = T>,
+{
+    let [a, b, c, d] = *e;
+    *e = [a + b, b + c, c + (c - d), c];
+}
+
 /// WPF's Bezier32 (bezier.cpp, HfdBasis32): a cubic in 28.4 fixed point flattened by forward
 /// differences; the points after the start, the last the end. None when it does not fit
 /// (Bezier64's case)
@@ -3234,9 +3254,7 @@ pub fn hfd32(p: [(i64, i64); 4], clip: [i64; 4]) -> Option<Vec<(i64, i64)>> {
             }
         }
         fn halve(&mut self) {
-            self.e[2] = (self.e[2] + self.e[3]) >> 3;
-            self.e[1] = (self.e[1] - self.e[2]) >> 1;
-            self.e[3] >>= 2;
+            hfd_halve(&mut self.e);
         }
         fn double(&mut self) {
             self.e[1] += self.e[1] + self.e[2];
@@ -3244,11 +3262,7 @@ pub fn hfd32(p: [(i64, i64); 4], clip: [i64; 4]) -> Option<Vec<(i64, i64)>> {
             self.e[2] = (self.e[2] << 3) - self.e[3];
         }
         fn step(&mut self) {
-            self.e[0] += self.e[1];
-            let t = self.e[2];
-            self.e[1] += t;
-            self.e[2] += t - self.e[3];
-            self.e[3] = t;
+            hfd_step(&mut self.e);
         }
     }
     let xs = p.map(|q| q.0);
@@ -3343,9 +3357,7 @@ pub fn hfd64(p: [(i64, i64); 4], clip: [i64; 4]) -> Vec<(i64, i64)> {
             [r(e[0]), r(p1), r(p2), r(p3)]
         }
         fn halve(&mut self) {
-            self.e[2] = (self.e[2] + self.e[3]) >> 3;
-            self.e[1] = (self.e[1] - self.e[2]) >> 1;
-            self.e[3] >>= 2;
+            hfd_halve(&mut self.e);
         }
         fn double(&mut self) {
             self.e[1] = (self.e[1] << 1) + self.e[2];
@@ -3353,11 +3365,7 @@ pub fn hfd64(p: [(i64, i64); 4], clip: [i64; 4]) -> Vec<(i64, i64)> {
             self.e[2] = (self.e[2] << 3) - self.e[3];
         }
         fn step(&mut self) {
-            self.e[0] += self.e[1];
-            let t = self.e[2];
-            self.e[1] += t;
-            self.e[2] += t - self.e[3];
-            self.e[3] = t;
+            hfd_step(&mut self.e);
         }
     }
     let mut xh = Hfd::init(p[0].0, p[1].0, p[2].0, p[3].0);

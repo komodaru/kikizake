@@ -446,6 +446,10 @@ fn stays_in(v: &[V16]) -> bool {
     v.iter().all(|p| p.y < 176) || v.iter().all(|p| p.x <= 160)
 }
 
+/// The pixel slopes a/b (minor over major) of the long-edge and long-line sequences: odd and
+/// even denominators up to 13, both signs
+const LONG_SLOPES: [(i64, i64); 24] = [(1, 3), (-1, 3), (1, 5), (-1, 5), (2, 5), (-2, 5), (1, 7), (-1, 7), (2, 7), (-3, 7), (3, 7), (1, 9), (-2, 9), (4, 9), (-4, 9), (1, 11), (-3, 11), (4, 11), (-1, 13), (4, 13), (-5, 13), (3, 8), (-3, 8), (-1, 4)];
+
 pub fn d3d7edge() -> String {
     let mut s = String::from("# kikizake suite d3d7edge: Direct3D 7 software rasterizer edges (SPEC.md). Made by `kikizake gen d3d7edge`.\n# x86 only\n");
     let mut r = XorShift32::new(0x00d3_d7ed);
@@ -646,10 +650,9 @@ pub fn d3d7edge() -> String {
     // a pixel slope a/b, the edge through pixel P and its vertices whole steps of (a, b)
     // sixteenths from P, so its x is a whole pixel on every b-th row; how each such row settles
     let mut rq = XorShift32::new(0x00d3_d7e3);
-    const SLOPES: [(i64, i64); 24] = [(1, 3), (-1, 3), (1, 5), (-1, 5), (2, 5), (-2, 5), (1, 7), (-1, 7), (2, 7), (-3, 7), (3, 7), (1, 9), (-2, 9), (4, 9), (-4, 9), (1, 11), (-3, 11), (4, 11), (-1, 13), (4, 13), (-5, 13), (3, 8), (-3, 8), (-1, 4)];
     for part in 0..2 {
         writeln!(s, "case longseq-rgb-{part}\nd3d 7\nd3ddev rgb 565 64 128\nd3drs set 22 1");
-        for &(a, b) in &SLOPES {
+        for &(a, b) in &LONG_SLOPES {
             loop {
                 let p = V16 { x: rq.range(4, 59) * 16, y: rq.range(40, 80) * 16 };
                 let m = p.y / b - rq.range(0, 15);
@@ -816,11 +819,10 @@ pub fn d3d7dev() -> String {
     // whole major column) every b-th column, each drawn both ways, x-major on a 64 x 40 target
     // and y-major on a 40 x 64 one: how each of a line's ties settles in turn
     let mut rq = XorShift32::new(0x00d3_d714);
-    const SLOPES: [(i64, i64); 24] = [(1, 3), (-1, 3), (1, 5), (-1, 5), (2, 5), (-2, 5), (1, 7), (-1, 7), (2, 7), (-3, 7), (3, 7), (1, 9), (-2, 9), (4, 9), (-4, 9), (1, 11), (-3, 11), (4, 11), (-1, 13), (4, 13), (-5, 13), (3, 8), (-3, 8), (-1, 4)];
     for major_x in [true, false] {
         let (w, h, axis) = if major_x { (64, 40, "x") } else { (40, 64, "y") };
         writeln!(s, "case lineseq-rgb-{axis}\nd3d 7\nd3ddev rgb 565 {w} {h}\nd3drs set 22 1");
-        for &(a, b) in &SLOPES {
+        for &(a, b) in &LONG_SLOPES {
             // (major, minor) in 16ths
             let (p, m0, m1) = loop {
                 let p = (rq.range(20, 44) * 16, rq.range(4, 35) * 16 + 9);

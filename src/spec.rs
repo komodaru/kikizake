@@ -41,6 +41,7 @@ pub const FILES: &[(&str, &str)] = &[
     ("d2d", include_str!("../spec/d2d.txt")),
     ("wicimage", include_str!("../spec/wicimage.txt")),
     ("ntstr", include_str!("../spec/ntstr.txt")),
+    ("ntcase", include_str!("../spec/ntcase.txt")),
 ];
 
 /// (excluded: deliberately not asked, e.g. calls that read past Windows' own arrays)
