@@ -2728,13 +2728,14 @@ impl Ctx {
                 }
                 // (wide or antialiased edges: each edge v0 v1, v1 v2, .. by the line renderer of
                 // a GL_LINE_LOOP, the stipple running on, corners drawn by both edges
-                // (raster-open-48, 49); cut by the view volume or flat-shaded not measured)
+                // (raster-open-48, 49); offset, a triangle's offset on every edge (raster-open-60);
+                // offset polygons of more corners or cut ones not measured)
                 if self.line_width != 1.0 || self.cap(LINE_SMOOTH) {
-                    if offset_line || (cut != at && !(self.cap(LINE_SMOOTH) && !self.aliased_smooth_line())) {
+                    if offset_line && (fan.len() != 1 || cut != at) {
                         return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                     }
                     // (cut by the view volume, antialiased: the cut polygon's edges, raster-open-53)
-                    if cut != at {
+                    if cut != at && self.cap(LINE_SMOOTH) && !self.aliased_smooth_line() {
                         // (the corners' colors in channel units through the cut, as an
                         // antialiased triangle's)
                         let scale = self.channel_scales();
@@ -2746,9 +2747,26 @@ impl Ctx {
                         }
                         return Ok(());
                     }
+                    // (cut by the view volume, aliased: the cut polygon's edges as lines of clip
+                    // coordinates, the corners' colors in channel units through the cut,
+                    // raster-open-61)
+                    if cut != at {
+                        let scale = self.channel_scales();
+                        let units: Vec<[f32; 8]> = at.iter().map(|p| [p[0], p[1], p[2], p[3], p[4] * scale[0], p[5] * scale[1], p[6] * scale[2], p[7] * scale[3]]).collect();
+                        let cut = tri::clip(&units);
+                        for (p, n) in cut.iter().zip(cut.iter().cycle().skip(1)) {
+                            let back = |c: [f32; 4]| [c[0] / scale[0], c[1] / scale[1], c[2] / scale[2], c[3] / scale[3]];
+                            let (ca, cb) = (back([p[4], p[5], p[6], p[7]]), back([n[4], n[5], n[6], n[7]]));
+                            let color = if ca.map(f32::to_bits) == cb.map(f32::to_bits) { LineColor::Flat(ca) } else { LineColor::Smooth(ca, cb) };
+                            self.deep_line([p[0], p[1], p[2], p[3]], [n[0], n[1], n[2], n[3]], color)?;
+                        }
+                        return Ok(());
+                    }
                     // (flat-shaded: every edge in the provoking vertex's color, raster-open-52)
                     self.verts = if self.shade == FLAT { q.iter().map(|v| (v.0, q.get(provoking).map_or(v.1, |p| p.1))).collect() } else { q.to_vec() };
-                    return self.end(LINE_LOOP);
+                    let drawn = self.end(LINE_LOOP);
+                    self.line_z_offset = 0.0;
+                    return drawn;
                 }
                 self.stipple = (0, None);
                 for (k, ((mut a, mut b), (p, q))) in win.iter().copied().zip(win.iter().copied().cycle().skip(1)).zip(cut.iter().copied().zip(cut.iter().copied().cycle().skip(1))).enumerate() {
