@@ -1565,7 +1565,9 @@ impl Gdiplus {
         let how = gpp::stroke(r, &pen, world.as_ref(), sm.rows().is_none(), super::gpwiden::pattern(&pen).is_some());
         // (MEASURED, golden gdiplusline pendash-5: DashStyleCustom with no dash array set is
         // OutOfMemory, nothing drawn)
-        if pen.dash == 5 && pen.dash_array.is_empty() {
+        // (the aliased thin route dashes whatever the style but Solid, so Custom without an
+        // array fails there; elsewhere it strokes solid: golden pendashoff-36)
+        if pen.dash == 5 && pen.dash_array.is_empty() && gpp::stroke(r, &pen, world.as_ref(), sm.rows().is_none(), true) == Stroke::DashedPixel {
             hit(clause::GP_PEN_DASH);
             out.push(format!("shape 0 {OUT_OF_MEMORY}"));
             return Ok(true);
@@ -2183,8 +2185,12 @@ impl Gdiplus {
                     i += match t[i].as_str() {
                         "dash" => {
                             pen.dash = n(t, i + 1)?;
-                            if let Some(p) = super::gpwiden::preset(pen.dash) {
-                                pen.dash_array = p.to_vec();
+                            // (a style's own array written into the pen, Solid clearing it: golden
+                            // pendashset-5, -9)
+                            match (super::gpwiden::preset(pen.dash), pen.dash) {
+                                (Some(p), _) => pen.dash_array = p.to_vec(),
+                                (None, 0) => pen.dash_array.clear(),
+                                (None, _) => {}
                             }
                             2
                         }
