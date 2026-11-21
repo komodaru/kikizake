@@ -236,6 +236,59 @@ proptest! {
         }
     }
 
+    /// the software line's colour words (clean-room notes D.3): one word per walked pixel, the
+    /// first within a step of the start's bytes << 8, each step the same f32 gradient, never
+    /// below 0 nor past the larger end's word by more than one gradient, and flat (equal ends)
+    /// exactly the start's word everywhere
+    #[test]
+    fn soft_line_colours_step_from_end_to_end(v in prop::array::uniform4(-400i64..400), c0 in prop::array::uniform4(any::<u8>()), c1 in prop::array::uniform4(any::<u8>())) {
+        let walk = kikizake::model::d3dim::walk_line([(v[0], v[1]), (v[2], v[3])], true).unwrap();
+        let cs = walk.colours(c0, c1).unwrap();
+        prop_assert_eq!(cs.len(), walk.px.len());
+        let flat = walk.colours(c0, c0).unwrap();
+        prop_assert!(flat.iter().all(|w| *w == c0.map(|b| u16::from(b) << 8)), "{v:?}");
+        let n = cs.len() as i64;
+        let major = ((v[2] - v[0]).abs().max((v[3] - v[1]).abs()) as f64 / 16.0).max(1.0 / 16.0);
+        for ch in 0..4 {
+            let (a, b) = (i64::from(c0[ch]) << 8, i64::from(c1[ch]) << 8);
+            let grad = ((b - a) as f64 / major).abs();
+            for (k, w) in cs.iter().enumerate() {
+                let w = i64::from(w[ch]);
+                prop_assert!(w <= a.max(b) + grad as i64 + 2, "{v:?} {c0:?} {c1:?} ch {ch} k {k}: {w}");
+                if k == 0 && n > 0 {
+                    prop_assert!((w - a).abs() as f64 <= grad + 2.0, "{v:?} {c0:?} {c1:?} ch {ch}: first {w}");
+                }
+            }
+        }
+    }
+
+    /// a WARP line's own plane (clean-room notes D.4): the start's value at the start's own
+    /// position and the end's at the end's, along the major axis only (the minor coordinate
+    /// changes nothing)
+    #[test]
+    fn warp_line_planes_run_end_to_end(v in prop::array::uniform4(-640i64..1280), a in prop::array::uniform2(any::<u8>()), minor in -40i64..40) {
+        use kikizake::model::warp::LinePlane;
+        let (s, e) = ((v[0], v[1]), (v[2], v[3]));
+        let xmajor = (e.0 - s.0).abs() >= (e.1 - s.1).abs();
+        prop_assume!((e.0 - s.0).abs().max((e.1 - s.1).abs()) >= 16);
+        let pl = LinePlane::new([s, e], a).unwrap();
+        // pixel (i, j)'s centre is D3D7's (i, j): a 16th-grid end lies on one when a multiple of 16
+        let at = |p: (i64, i64)| -> f64 {
+            let (i, j) = (p.0.div_euclid(16), p.1.div_euclid(16));
+            let (i2, j2) = if xmajor { (i, j + minor) } else { (i + minor, j) };
+            let x = f64::from(pl.at(i, j).unwrap());
+            prop_assert_eq_f(x, f64::from(pl.at(i2, j2).unwrap()));
+            x
+        };
+        let (fa, fb) = (f64::from(a[0]) / 255.0, f64::from(a[1]) / 255.0);
+        let slope = (fb - fa) / (if xmajor { e.0 - s.0 } else { e.1 - s.1 } as f64 / 16.0);
+        for p in [s, e] {
+            let off = (if xmajor { p.0.div_euclid(16) * 16 - s.0 } else { p.1.div_euclid(16) * 16 - s.1 }) as f64 / 16.0;
+            let want = fa + slope * off;
+            prop_assert!((at(p) - want).abs() < 1e-4 * (1.0 + slope.abs() * 100.0), "{v:?} {a:?}: {} vs {want}", at(p));
+        }
+    }
+
     /// WARP's Gouraud planes (the HAL devices): at every pixel centre inside the triangle's
     /// bounds the single precision value written to 8 bits is within one of the exact
     /// interpolation rounded, and a channel equal at the three vertices is that value everywhere
@@ -418,7 +471,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 20, 0), ("d3d7shade", 0, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 1, 0), ("d3d7shade", 0, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -711,4 +764,9 @@ proptest! {
         let one = gouraud_channel(v, [col[0]; 3], px, py, a);
         prop_assert_eq!(one.raw(), u32::from(col[0]) << 8);
     }
+}
+
+/// two floats from the same expression evaluated equal
+fn prop_assert_eq_f(a: f64, b: f64) {
+    assert!(a.to_bits() == b.to_bits(), "{a} != {b}");
 }

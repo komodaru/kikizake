@@ -180,6 +180,42 @@ impl Plane {
     }
 }
 
+/// a line's own attribute plane (SetupLineAttr1, clean-room notes D.4): MEASURED (d3d7dev
+/// fillgouraud-7-hal-2, -tnl-2) along the major axis only, from the two ends' values a (bytes,
+/// read as a / 255): g = (a1 − a0) · (1 / Δmajor), c = a0 − g · X0 (x-major; Y0 y-major), X0 the
+/// start in WARP's coordinates
+#[derive(Clone, Copy, Debug)]
+pub struct LinePlane {
+    g: f32,
+    c: f32,
+    xmajor: bool,
+}
+
+impl LinePlane {
+    pub fn new(v: [(i64, i64); 2], a: [u8; 2]) -> Res<LinePlane> {
+        let bad = || Fail::Bad;
+        let px = |n: i128| ratio_f32(n, 256).ok_or_else(bad);
+        let [(x0, y0), (x1, y1)] = v.map(|(x, y)| (fixed(x), fixed(y)));
+        let xmajor = x1.wrapping_sub(x0).abs() >= y1.wrapping_sub(y0).abs();
+        let (s0, s1) = if xmajor { (px(x0)?, px(x1)?) } else { (px(y0)?, px(y1)?) };
+        let d = s1 - s0;
+        if d == 0.0 {
+            return Err(bad());
+        }
+        let inv = 1.0 / d;
+        let [Some(a0), Some(a1)] = a.map(|b| ratio_f32(i128::from(b), 255)) else { return Err(bad()) };
+        let g = (a1 - a0) * inv;
+        Ok(LinePlane { g, c: a0 - g * s0, xmajor })
+    }
+
+    /// the value at the centre of pixel (x, y)
+    pub fn at(self, x: i64, y: i64) -> Res<f32> {
+        let bad = || Fail::Bad;
+        let c = |i: i64| ratio_f32(i128::from(i).wrapping_mul(2).wrapping_add(1), 2).ok_or_else(bad);
+        Ok(if self.xmajor { self.c + c(x)? * self.g } else { c(y)? * self.g + self.c })
+    }
+}
+
 /// a float written to an n-bit UNORM channel: RNE(clamp(v, 0, 1) · (2^n − 1)), denormals as 0
 pub fn unorm(v: f32, bits: u32) -> Res<u32> {
     let bad = || Fail::Bad;

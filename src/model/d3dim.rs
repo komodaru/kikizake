@@ -451,11 +451,57 @@ fn diamond(fx: i64, fy: i64, diag: bool, bias: bool) -> bool {
 /// each end kept by its diamond (the last one inside it by LASTPIXEL), each pixel's minor index
 /// from the f32 start and a 31-bit error step
 pub fn line(v: [(i64, i64); 2], lastpixel: bool) -> Res<Vec<(i64, i64)>> {
+    Ok(walk_line(v, lastpixel)?.px)
+}
+
+/// a software line as LineSetup leaves it: its pixels in walking order (skipped ones included),
+/// the start's distance `off` in 16ths to its first major centre and inv = 16 / |D|, which the
+/// attributes step by (clean-room notes D.3)
+pub struct LineWalk {
+    pub px: Vec<(i64, i64)>,
+    off: i64,
+    inv: f32,
+}
+
+impl LineWalk {
+    /// the span colour words (B, G, R, A in 8.8, low 16 bits) of each pixel from the start's
+    /// bytes c0 to the end's c1 (flat: c1 = c0): MEASURED (d3d7dev fillgouraud-*-2 on RGB and MMX)
+    /// start = grad · offp + c0 << 8 with offp = off / 16 (0 when negative), grad = ((c1 − c0) << 8)
+    /// · inv, each pixel trunc(acc), 0 when below (an overshoot past the end's 0: MEASURED, 23
+    /// pixels of fillgouraud-*-2 on both rasterizers and both DLLs), then acc += grad, all in f32
+    pub fn colours(&self, c0: [u8; 4], c1: [u8; 4]) -> Res<Vec<[u16; 4]>> {
+        let bad = || Fail::Bad;
+        let f = |v: i64| f32_of(v).ok_or_else(bad);
+        let offp = f(self.off)? * f32::from_bits(0x3d80_0000);
+        let offp = if offp < 0.0 { 0.0 } else { offp };
+        let mut grad = [0f32; 4];
+        let mut acc = [0f32; 4];
+        for (((g, a), &b0), &b1) in grad.iter_mut().zip(acc.iter_mut()).zip(&c0).zip(&c1) {
+            let (b0, b1) = (i64::from(b0), i64::from(b1));
+            *g = f(b1.wrapping_sub(b0).wrapping_mul(256))? * self.inv;
+            *a = (*g * offp) + f(b0.wrapping_mul(256))?;
+        }
+        let mut out = Vec::with_capacity(self.px.len());
+        for _ in &self.px {
+            let mut c = [0u16; 4];
+            for ((o, a), g) in c.iter_mut().zip(acc.iter_mut()).zip(grad) {
+                *o = low16(trunc(*a).ok_or_else(bad)?.max(0));
+                *a += g;
+            }
+            out.push(c);
+        }
+        Ok(out)
+    }
+}
+
+/// d3dim700's LineSetup and WalkLinePattern (line)
+pub fn walk_line(v: [(i64, i64); 2], lastpixel: bool) -> Res<LineWalk> {
     let bad = || Fail::Bad;
+    let none = LineWalk { px: Vec::new(), off: 0, inv: 0.0 };
     let [(x0, y0), (x1, y1)] = v;
     let (dx, dy) = (x1.wrapping_sub(x0), y1.wrapping_sub(y0));
     if dx == 0 && dy == 0 {
-        return Ok(Vec::new());
+        return Ok(none);
     }
     let xmajor = dx.abs() >= dy.abs();
     let diag = dx.abs() == dy.abs();
@@ -479,7 +525,7 @@ pub fn line(v: [(i64, i64); 2], lastpixel: bool) -> Res<Vec<(i64, i64)>> {
     }
     let count = (if d >= 0 { ce.wrapping_sub(c0) } else { c0.wrapping_sub(ce) }).wrapping_add(1);
     if count <= 0 {
-        return Ok(Vec::new());
+        return Ok(none);
     }
     let f = |v: i64| f32_of(v).ok_or_else(bad);
     let sixteenth = f32::from_bits(0x3d80_0000);
@@ -498,5 +544,5 @@ pub fn line(v: [(i64, i64); 2], lastpixel: bool) -> Res<Vec<(i64, i64)>> {
         let major = c0.wrapping_add(k.wrapping_mul(st));
         out.push(if xmajor { (major, minor) } else { (minor, major) });
     }
-    Ok(out)
+    Ok(LineWalk { px: out, off, inv })
 }
