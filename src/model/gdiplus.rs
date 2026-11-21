@@ -1464,7 +1464,12 @@ impl Gdiplus {
             Some("arc") => (None, path.add_arc(r, rect()?, f(14)?, f(15)?)),
             Some("pie") => (None, path.add_pie(r, rect()?, f(14)?, f(15)?)),
             Some("bezier") => (None, path.add_beziers(r, &[(f(10)?, f(11)?), (f(12)?, f(13)?), (f(14)?, f(15)?), (f(16)?, f(17)?)])),
-            Some("lines") => (None, path.add_lines(r, &list(10)?)),
+            // (DrawLines of fewer than two points: InvalidParameter, clean-room notes
+            // geometry.md 13, both arches; AddLines takes one)
+            Some("lines") => (None, match list(10)?.as_slice() {
+                few @ ([] | [_]) => path.add_lines(r, few).and(Err(gpp::Refused::InvalidParameter)),
+                more => path.add_lines(r, more),
+            }),
             // (DrawPolygon takes two points, AddPolygon does not: one closed figure of them,
             // golden gdiplusline outline-polygon-34)
             Some("polygon") => (None, match list(10)?.as_slice() {

@@ -248,7 +248,7 @@ impl Widener {
     /// itself: clearing it breaks 43 of 60 random widenings)
     fn small(&self, p: P, (g0, g1): (P, P), (n0, n1): (P, P), dot: f32, cross: f32, make: Make) -> [Vec<Out>; 2] {
         let r = self.r;
-        if !(f32::from_bits(0x3f7d_70a4) > dot) {
+        if f32::from_bits(0x3f7d_70a4).partial_cmp(&dot) != Some(std::cmp::Ordering::Greater) {
             if !make.inner() {
                 return [vec![], vec![]];
             }
@@ -293,7 +293,7 @@ impl Widener {
         }
         let [il, ir] = self.small(p, (g0, g1), (n0, n1), dot, cross, Make::Inner);
         let (sx, sy) = (r.add(n0.0, n1.0), r.add(n0.1, n1.1));
-        let (mx, my) = if !(EPS > sx.abs()) || !(EPS > sy.abs()) {
+        let (mx, my) = if EPS.partial_cmp(&sx.abs()) != Some(std::cmp::Ordering::Greater) || EPS.partial_cmp(&sy.abs()) != Some(std::cmp::Ordering::Greater) {
             let l = sqrt32(r, r.add(r.mul(sy, sy), r.mul(sx, sx)));
             (r.div(sx, l), r.div(sy, l))
         } else {
@@ -523,16 +523,21 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
     Ok(Ok(Path::of(path.fill, out)))
 }
 
-/// an anchor's reference cap (GpEndCapCreator): its fill path's points, closed, its fill
-/// length and base inset
-fn reference(r: Round, a: Anchor) -> Res<(Vec<Point>, f32, f32)> {
+/// an anchor's reference cap (GpEndCapCreator)
+struct RefCap {
+    /// its fill path's points, closed
+    fill: Vec<Point>,
+    len: f32,
+    base: f32,
+}
+fn reference(r: Round, a: Anchor) -> Res<RefCap> {
     let poly = |v: &[P]| -> Vec<Point> {
         let n = v.len();
         v.iter().enumerate().map(|(i, &(x, y))| Point { x, y, kind: if i == 0 { Kind::Start } else { Kind::Line }, close: i + 1 == n }).collect()
     };
     let c = f32::from_bits(0x3f35_04f4);
     let s3 = f32::from_bits(0x3fdd_b3d7);
-    Ok(match a {
+    let (fill, len, base) = match a {
         Anchor::Square => (poly(&[(-c, -c), (c, -c), (c, c), (-c, c)]), c, 0.0),
         Anchor::Round => {
             let mut e = Path::new(0);
@@ -541,7 +546,8 @@ fn reference(r: Round, a: Anchor) -> Res<(Vec<Point>, f32, f32)> {
         }
         Anchor::Diamond => (poly(&[(0.0, 1.0), (-1.0, 0.0), (0.0, -1.0), (1.0, 0.0)]), 1.0, 0.0),
         Anchor::Arrow => (poly(&[(0.0, 0.0), (-1.0, -s3), (1.0, -s3)]), s3, 1.0),
-    })
+    };
+    Ok(RefCap { fill, len, base })
 }
 
 /// GpEndCapCreator on each open subpath: the points within the cap's radius of a capped end
@@ -569,9 +575,9 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps
         let orig = pts.clone();
         let n = pts.len();
         let mut marked = vec![false; n];
-        let ends: [(Option<&(Vec<Point>, f32, f32)>, bool); 2] = [(sc.as_ref(), true), (ec.as_ref(), false)];
+        let ends: [(Option<&RefCap>, bool); 2] = [(sc.as_ref(), true), (ec.as_ref(), false)];
         for (cap, forward) in ends {
-            let Some((fill, l, base)) = cap else { continue };
+            let Some(RefCap { fill, len: l, base }) = cap else { continue };
             let order: Vec<usize> = if forward { (0..n).collect() } else { (0..n).rev().collect() };
             let g = shorten(r, pts, &mut marked, &order, *l, *base, mm);
             let o = orig[order[0]];

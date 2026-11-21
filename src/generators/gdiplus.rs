@@ -503,7 +503,37 @@ pub fn gdiplusdraw() -> String {
             }
         }
     }
+    drawprobe(&mut s);
     s
+}
+
+/// probes of DrawImage past the first cases (a generator of its own, so the cases before keep
+/// their numbers): a bitmap onto itself, flipped rectangles, HQ draws whose rows the bitmap
+/// cuts, 2x HQ bicubic reductions of 16 columns and more, interpolation and pixel offset
+/// values past the enums
+fn drawprobe(s: &mut String) {
+    let mut r = XorShift32::new(0xd7a3_0b0b);
+    for im in [0, 5, 6, 7] {
+        writeln!(s, "case drawself-{im}\ngpbitmap 0 12 12 32bppARGB\ngpwrite 0 32bppARGB seed {}\ngpdraw 0 0 - 2 3 8 6 0 0 6 6 copy 0 {im} 0\ngpread 0 32bppARGB\nend", r.next());
+    }
+    for i in 0..16 {
+        let sign = |r: &mut XorShift32| if r.range(0, 2) == 0 { 1 } else { -1 };
+        let (dw, dh, sw, sh) = (sign(&mut r) * r.range(3, 12), sign(&mut r) * r.range(3, 12), sign(&mut r) * r.range(2, 8), sign(&mut r) * r.range(2, 8));
+        let (dx, dy) = (if dw < 0 { 14 } else { 2 }, if dh < 0 { 14 } else { 2 });
+        let (sx, sy) = (if sw < 0 { 8 } else { 0 }, if sh < 0 { 8 } else { 0 });
+        writeln!(s, "case drawflip-{i}\ngpbitmap 0 16 16 32bppARGB\ngpbitmap 1 8 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - {dx} {dy} {dw} {dh} {sx} {sy} {sw} {sh} copy 0 {} {}\ngpread 0 32bppARGB\nend", r.next(), *r.pick(&[1, 2, 3, 4, 5, 6, 7]), r.range(0, 5));
+    }
+    for i in 0..12 {
+        let (dy, dh) = (r.range(-10, 6), r.range(10, 24));
+        writeln!(s, "case drawcut-{i}\ngpbitmap 0 16 12 32bppARGB\ngpbitmap 1 8 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - {} {dy} {} {dh} 0 0 8 8 copy 0 {} {}\ngpread 0 32bppARGB\nend", r.next(), r.range(-4, 4), r.range(8, 20), *r.pick(&[6, 7]), r.range(0, 5));
+    }
+    for i in 0..8 {
+        let sw = r.range(32, 64);
+        writeln!(s, "case drawhalf-{i}\ngpbitmap 0 40 8 32bppARGB\ngpbitmap 1 {sw} 8 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - {} 0 {} 8 0 0 {sw} 8 copy 0 7 {}\ngpread 0 32bppARGB\nend", r.next(), r.range(0, 3), sw / 2 + r.range(-1, 2), r.range(0, 5));
+    }
+    for (im, po) in [(-1, 0), (8, 0), (9, 0), (100, 0), (5, -1), (5, 5)] {
+        writeln!(s, "case drawmode-{im}-{po}\ngpbitmap 0 8 8 32bppARGB\ngpbitmap 1 4 4 32bppRGB\ngpwrite 1 32bppRGB seed {}\ngpdraw 0 1 - 0 0 8 8 0 0 4 4 copy 0 {im} {po}\ngpread 0 32bppARGB\nend", r.next());
+    }
 }
 
 /// the gdiplusbrush suite: LinearGradientBrush and TextureBrush filling rectangles
@@ -687,7 +717,37 @@ pub fn gdiplusline() -> String {
     }
     lineprobe(&mut s);
     fillprobe(&mut s);
+    penprobe(&mut s);
     s
+}
+
+/// probes of the pen past the first cases (a generator of its own, so the cases before keep
+/// their numbers): Draw* calls of too few points, the round join on random polylines, anchor
+/// caps on random lines of any width, Inset on rectangles off the pixel grid
+fn penprobe(s: &mut String) {
+    let mut r = XorShift32::new(0x7e4_d00d);
+    let head = "gpbitmap 0 16 16 32bppARGB";
+    let pts = |r: &mut XorShift32, n: usize| -> String { (0..2 * n).map(|_| rq(r)).collect::<Vec<_>>().join(" ") };
+    for (name, tension) in [("lines", ""), ("polygon", ""), ("curve", "0.5 "), ("closedcurve", "0.5 ")] {
+        for n in 0..=2 {
+            for w in [1, 3] {
+                writeln!(s, "case pencount-{name}-{n}-{w}\n{head}\ngppen 0 0xffff0000 {w}\ngpshape 0 pen 0 - copy 0 0 0 {name} {tension}{n} {}\ngpread 0 32bppARGB\nend", pts(&mut r, n));
+            }
+        }
+    }
+    writeln!(s, "case pencount-same\n{head}\ngppen 0 0xffff0000 3\ngpshape 0 pen 0 - copy 0 0 0 polygon 3 5 5 5 5 5 5\ngpread 0 32bppARGB\nend");
+    for i in 0..30 {
+        let n = r.range(3, 7) as usize;
+        let name = *r.pick(&["lines", "polygon"]);
+        writeln!(s, "case roundjoin-{i}\n{head}\ngppen 0 0xffff0000 {} join 2 cap {} {} 0\ngpshape 0 pen 0 - copy 0 {} {} {name} {n} {}\ngpread 0 32bppARGB\nend", r.range(3, 24) as f32 / 4.0, r.range(0, 4), r.range(0, 4), r.range(0, 5), r.range(0, 4), pts(&mut r, n));
+    }
+    for i in 0..30 {
+        let caps = [0, 1, 2, 3, 0x11, 0x12, 0x13, 0x14];
+        writeln!(s, "case anchor-{i}\n{head}\ngppen 0 0xff00ff00 {} cap {} {} 0 join {}\ngpshape 0 pen 0 - copy 0 {} {} lines 3 {}\ngpread 0 32bppARGB\nend", r.range(2, 20) as f32 / 4.0, *r.pick(&caps), *r.pick(&caps), r.range(0, 4), r.range(0, 5), r.range(0, 4), pts(&mut r, 3));
+    }
+    for i in 0..10 {
+        writeln!(s, "case inset-{i}\n{head}\ngppen 0 0xffff0000 {} align 1\ngpshape 0 pen 0 - copy 0 {} 0 rect {} {} {} {}\ngpread 0 32bppARGB\nend", r.range(2, 16) as f32 / 4.0, r.range(0, 5), r.range(4, 24) as f32 / 4.0, r.range(4, 24) as f32 / 4.0, r.range(8, 40) as f32 / 4.0, r.range(8, 40) as f32 / 4.0);
+    }
 }
 
 /// probes of the aliased thin line (a generator of its own, so the cases before keep their
