@@ -381,3 +381,66 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
     }
     Ok(Some(Raster { walker, px: out, whole_bottom }))
 }
+
+/// PointDiamondCheck: whether an endpoint (fx, fy) in 16ths from its pixel's centre lies in
+/// that pixel's diamond, corners by the diagonal's bias
+fn diamond(fx: i64, fy: i64, diag: bool, bias: bool) -> bool {
+    let d = fx.abs().wrapping_add(fy.abs());
+    d < 8 || (fx == if bias { -8 } else { 8 } && fy == 0) || (fy == 8 && fx == 0) || (diag && d == 8 && if bias { fx < 0 && fy > 0 } else { fx > 0 && fy > 0 })
+}
+
+/// the pixels (x, y) of the software rasterizers' line from v[0] to v[1] (16ths of a pixel,
+/// already on the 28.4 grid), in walking order (D3D7.LINE, from the clean-room notes on
+/// d3dim700's LineSetup and WalkLinePattern): the major pixels from the start's to the end's,
+/// each end kept by its diamond (the last one inside it by LASTPIXEL), each pixel's minor index
+/// from the f32 start and a 31-bit error step
+pub fn line(v: [(i64, i64); 2], lastpixel: bool) -> Res<Vec<(i64, i64)>> {
+    let bad = || Fail::Bad;
+    let [(x0, y0), (x1, y1)] = v;
+    let (dx, dy) = (x1.wrapping_sub(x0), y1.wrapping_sub(y0));
+    if dx == 0 && dy == 0 {
+        return Ok(Vec::new());
+    }
+    let xmajor = dx.abs() >= dy.abs();
+    let diag = dx.abs() == dy.abs();
+    let bias = diag && (dx > 0) == (dy > 0);
+    let b = i64::from(bias);
+    let pix = |(x, y): (i64, i64)| ((x.wrapping_add(7).wrapping_add(b)) >> 4, y.wrapping_add(7) >> 4);
+    let ((px0, py0), (px1, py1)) = (pix(v[0]), pix(v[1]));
+    let inside = |(x, y): (i64, i64), (px, py): (i64, i64)| diamond(x.wrapping_sub(px.wrapping_mul(16)), y.wrapping_sub(py.wrapping_mul(16)), diag, bias);
+    let (start_in, end_in) = (inside(v[0], (px0, py0)), inside(v[1], (px1, py1)));
+    // (start, end, start pixel, end pixel, delta) along the major axis, the other delta and the
+    // start's minor coordinate (plus 7, in 16ths)
+    let (s, e, mut c0, mut ce, d, od, m16) = if xmajor { (x0, x1, px0, px1, dx, dy, y0) } else { (y0, y1, py0, py1, dy, dx, x0) };
+    let st = if d >= 0 { 1 } else { -1 };
+    let c16 = |c: i64| c.wrapping_mul(16);
+    if !start_in && !(if d >= 0 { s < c16(c0) } else { s > c16(c0) }) {
+        c0 = c0.wrapping_add(st);
+    }
+    let keep_end = if end_in { lastpixel } else if d >= 0 { c16(ce) < e } else { c16(ce) > e };
+    if !keep_end {
+        ce = ce.wrapping_sub(st);
+    }
+    let count = (if d >= 0 { ce.wrapping_sub(c0) } else { c0.wrapping_sub(ce) }).wrapping_add(1);
+    if count <= 0 {
+        return Ok(Vec::new());
+    }
+    let f = |v: i64| f32_of(v).ok_or_else(bad);
+    let sixteenth = f32::from_bits(0x3d80_0000);
+    let off = if d >= 0 { c16(c0).wrapping_sub(s) } else { s.wrapping_sub(c16(c0)) };
+    let inv = 16.0 / f(d.abs())?;
+    let slope = (f(od)? * inv) * sixteenth;
+    let m0 = ((f(off)? * sixteenth) * slope) + f(m16.wrapping_add(7))? * sixteenth;
+    let i0 = ifloor(m0).ok_or_else(bad)?;
+    let two31 = f32::from_bits(0x4f00_0000);
+    let frac = i128::from(trunc((m0 - f(i0)?) * two31).ok_or_else(bad)?);
+    let s31 = i128::from(trunc(slope * two31).ok_or_else(bad)?);
+    let mut out = Vec::new();
+    for k in 0..count {
+        let minor = i128::from(i0).wrapping_add(frac.wrapping_add(i128::from(k).wrapping_mul(s31)).div_euclid(1 << 31));
+        let minor = i64::try_from(minor).ok().ok_or_else(bad)?;
+        let major = c0.wrapping_add(k.wrapping_mul(st));
+        out.push(if xmajor { (major, minor) } else { (minor, major) });
+    }
+    Ok(out)
+}

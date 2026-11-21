@@ -1055,20 +1055,6 @@ pub fn f32_past(t: (i64, i64), b: (i64, i64), first: i64, k: i64, round: SlopeRo
     Some(e0.checked_add(ed.checked_mul(i128::from(k))?)? > 0)
 }
 
-/// a pixel of a line: its column along the major axis and its row across (a pixel index each)
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-struct Along {
-    major: i64,
-    minor: i64,
-}
-
-/// which of a line's two ends
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum End {
-    Start,
-    Last,
-}
-
 /// the pixels of a line from v[0] to v[1] (1/16 pixel units): MEASURED (d3d7dev lines-*,
 /// lineties-*, linemoves-*, lineseq-*: 2552 of 2552 soft lines, 820 of 820 ties) on the software
 /// rasterizers and the ramp device, the line crosses each whole column m of its major axis (x when
@@ -1084,101 +1070,21 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
         Family::Soft { .. } | Family::Ramp => {}
         Family::Hw { .. } => {
             hit(clause::D3D7_LINE_HW);
-            return crate::model::warp::line(v, w, h)?.ok_or(other);
+            return crate::model::warp::line(v, w, h);
         }
     }
     if !v.iter().all(|&(x, y)| (0..w * 16).contains(&x) && (0..h * 16).contains(&y)) {
         return Err(other);
     }
     let mut cover = vec![false; usize::try_from(w * h).map_err(|_| Fail::Bad)?];
-    let (dx, dy) = (v[1].0 - v[0].0, v[1].1 - v[0].1);
-    if dx == 0 && dy == 0 {
-        hit(clause::D3D7_LINE);
-        return Ok(cover);
-    }
-    let xmajor = match dx.abs().cmp(&dy.abs()) {
-        std::cmp::Ordering::Greater => true,
-        std::cmp::Ordering::Less => false,
-        // MEASURED (d3d7dev linediag-*, lineties-*, linecorner-*: 123 soft diagonals) as x-major
-        std::cmp::Ordering::Equal => true,
-    };
-    // a diagonal along the pixels' diamonds' sides (y ∓ x half a pixel past a whole one): an end
-    // on a diamond's lower side is inside it, a start on its right corner goes to the pixel on the
-    // right (d3d7dev linediag-*: 14 such lines)
-    let along_sides = dx.abs() == dy.abs() && (v[0].1 - dx.signum() * dy.signum() * v[0].0).rem_euclid(16) == 8;
-    // (major, minor) of each end
-    let ends = v.map(|(x, y)| if xmajor { (x, y) } else { (y, x) });
-    let ((a0, b0), (a1, b1)) = (ends[0], ends[1]);
-    // the line's f32 walk (D3D7.LINE): slope (b1 − b0) · (1 / (a1 − a0)), each step rounded to
-    // f32, from column c0: the start's pixel's when the start lies inside its diamond, else the
-    // first whole one from the start on; there w0 = (b0 + 7/16) + (c0 − a0) · slope in f32, and
-    // at whole column m the pixel floor(w0 + (m − c0) · slope), taken exactly
-    let unmodeled = || Fail::Unmodeled(open::D3D7_STATES_OTHER);
-    let f = |c: i64| px_f32(c).ok_or_else(unmodeled);
-    let (fa0, fb0, fa1, fb1) = (f(a0)?, f(b0)?, f(a1)?, f(b1)?);
-    let slope = (fb1 - fb0) * (1.0 / (fa1 - fa0));
-    let in_diamond = {
-        let (ca, cb) = ((a0 + 7).div_euclid(16), (b0 + 7).div_euclid(16));
-        (a0 - ca * 16).abs() + (b0 - cb * 16).abs() < 8
-    };
-    let c0 = match (in_diamond, a1 > a0) {
-        (true, true) => (a0 + 8).div_euclid(16),
-        (true, false) => (a0 + 7).div_euclid(16),
-        (false, true) => (a0 + 15).div_euclid(16),
-        (false, false) => a0.div_euclid(16),
-    };
-    let w0 = (fb0 + 0.4375) + (f32::from(i16::try_from(c0).map_err(|_| unmodeled())?) - fa0) * slope;
-    let (w0, step) = (f32_scaled(w0).ok_or_else(unmodeled)?, f32_scaled(slope).ok_or_else(unmodeled)?);
-    let column = |m: i64| -> Res<Along> {
-        let x = step.checked_mul(i128::from(m - c0)).and_then(|d| d.checked_add(w0)).ok_or_else(unmodeled)?;
-        let minor = i64::try_from(x.div_euclid(1i128 << 64)).map_err(|_| unmodeled())?;
-        Ok(Along { major: m, minor })
-    };
-    let mut px: Vec<Along> = Vec::new();
-    let (lo, hi) = (a0.min(a1), a0.max(a1));
-    for m in lo.div_euclid(16)..=hi.div_euclid(16) + 1 {
-        if lo < m * 16 && m * 16 < hi {
-            px.push(column(m)?);
-        }
-    }
-    for (end, (a, b)) in [(End::Start, ends[0]), (End::Last, ends[1])] {
-        let p = if a.rem_euclid(16) == 0 {
-            Some(column(a / 16)?)
-        } else {
-            // the diamond of the nearest centre, x.5 to the one below
-            let (ca, cb) = ((a + 7).div_euclid(16), (b + 7).div_euclid(16));
-            let (ua, ub) = (a - ca * 16, b - cb * 16);
-            let d = ua.abs() + ub.abs();
-            let corner = d == 8 && (ua == 8 || ub == 8);
-            match (d < 8, corner, end) {
-                (true, _, _) => Some(Along { major: ca, minor: cb }),
-                (false, true, End::Start) if along_sides && ua == 8 => Some(Along { major: ca + 1, minor: cb }),
-                (false, true, End::Start) => Some(Along { major: ca, minor: cb }),
-                // MEASURED (d3d7dev linecorner-*: 186 lines ending on a corner) as at the
-                // start; a line within 1/4 pixel of the diagonal (|dx| − |dy|, in 16ths) went
-                // the other way in 3 of 8 (D3D7.STATES.OTHER)
-                (false, true, End::Last) if (dx.abs() - dy.abs()).abs() > 4 => Some(Along { major: ca, minor: cb }),
-                (false, true, End::Last) => return Err(other),
-                (false, false, _) if along_sides && ub > 0 => Some(Along { major: ca, minor: cb }),
-                (false, false, _) => None,
-            }
-        };
-        let Some(p) = p else { continue };
-        match (end, lastpixel) {
-            (End::Start, _) | (End::Last, true) => px.push(p),
-            (End::Last, false) => px.retain(|&q| q != p),
-        }
-    }
     hit(clause::D3D7_LINE);
-    for Along { major, minor } in px {
-        let (x, y) = if xmajor { (major, minor) } else { (minor, major) };
+    for (x, y) in crate::model::d3dim::line(v, lastpixel)? {
         if (0..w).contains(&x) && (0..h).contains(&y) {
-            cover[usize::try_from(y * w + x).map_err(|_| Fail::Bad)?] = true;
+            *cover.get_mut(usize::try_from(y * w + x).map_err(|_| Fail::Bad)?).ok_or(Fail::Bad)? = true;
         }
     }
     Ok(cover)
 }
-
 
 /// the pixels of D3DFILL_WIREFRAME: MEASURED (d3d7dev fillmode-*-2-*: 96 + 5 x 24 random
 /// triangles, LASTPIXEL on and off, the software rasterizers and the ramp device) its three
@@ -1186,8 +1092,8 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
 fn wireframe(family: Family, v: [(i64, i64); 3], lastpixel: bool, w: i64, h: i64) -> Res<Vec<bool>> {
     hit(clause::D3D7_WIREFRAME);
     let mut cover = vec![false; usize::try_from(w * h).map_err(|_| Fail::Bad)?];
-    for k in 0..3 {
-        let edge = line(family, [v[k], v[(k + 1) % 3]], lastpixel, w, h)?;
+    for e in [[v[0], v[1]], [v[1], v[2]], [v[2], v[0]]] {
+        let edge = line(family, e, lastpixel, w, h)?;
         for (c, e) in cover.iter_mut().zip(edge) {
             *c |= e;
         }
@@ -1210,7 +1116,7 @@ fn points(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> 
     }
     for (x, y) in v.map(|(x, y)| (round(x), round(y))) {
         if (0..w).contains(&x) && (0..h).contains(&y) {
-            cover[usize::try_from(y * w + x).map_err(|_| Fail::Bad)?] = true;
+            *cover.get_mut(usize::try_from(y * w + x).map_err(|_| Fail::Bad)?).ok_or(Fail::Bad)? = true;
         }
     }
     Ok(cover)
@@ -1501,12 +1407,8 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
     // specular or fog: those are not measured on fractions)
     let warp = match family {
         Family::Hw { .. } if !st.flat && !st.specular && st.fog.is_none() => {
-            let mut pl = [None; 3];
-            for (i, sh) in [16u32, 8, 0].into_iter().enumerate() {
-                let ch = |c: u32| u8::try_from(c >> sh & 255).unwrap_or(0);
-                pl[i] = crate::model::warp::Plane::new(tri.v, tri.c.map(ch))?;
-            }
-            pl
+            let [r, g, b] = [16u32, 8, 0].map(|sh| crate::model::warp::Plane::new(tri.v, tri.c.map(|c| u8::try_from(c >> sh & 255).unwrap_or(0))));
+            [r?, g?, b?]
         }
         Family::Hw { .. } | Family::Soft { .. } | Family::Ramp => [None; 3],
     };
@@ -1553,8 +1455,8 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
                 }
                 Family::Soft { .. } | Family::Hw { .. } => {
                     let mut src = [Shade::Int(0); 3];
-                    for (i, sh) in [16u32, 8, 0].into_iter().enumerate() {
-                        let sc = match (wr.c, warp[i]) {
+                    for ((i, sh), wp) in [16u32, 8, 0].into_iter().enumerate().zip(warp) {
+                        let sc = match (wr.c, wp) {
                             (Some(c), _) => Shade::Fix(c[i]),
                             (None, Some(pl)) => {
                                 hit(clause::D3D7_GOURAUD);
@@ -1632,7 +1534,7 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
                 (Family::Hw { .. }, Some(f)) => [0, 1, 2].map(|i| {
                     let max = f64::from((1u32 << bits[i]) - 1);
                     let dq = rt.px[k] >> fmt.shifts()[i] & ((1 << bits[i]) - 1);
-                    let s = match warp[i] {
+                    let s = match warp.get(i).copied().flatten() {
                         Some(pl) => pl.at(px, py).map(|v| f64::from(v.clamp(0.0, 1.0))).unwrap_or(0.0),
                         None => f64::from(src[i]) / 255.0,
                     };
@@ -1644,10 +1546,10 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
                 (Family::Hw { .. }, None) => {
                     hit(clause::D3D7_HW_COLOR);
                     let mut q = [0u32; 3];
-                    for i in 0..3 {
-                        q[i] = match warp[i] {
-                            Some(pl) => crate::model::warp::unorm(pl.at(px, py)?, bits[i])?,
-                            None => round_to(src[i], bits[i]),
+                    for (((qi, wp), &b), &s) in q.iter_mut().zip(warp).zip(&bits).zip(&src) {
+                        *qi = match wp {
+                            Some(pl) => crate::model::warp::unorm(pl.at(px, py)?, b)?,
+                            None => round_to(s, b),
                         };
                     }
                     q

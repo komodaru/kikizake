@@ -186,6 +186,30 @@ proptest! {
         }
     }
 
+    /// the software rasterizers' lines (d3dim700's walk): one pixel per major column, each next to
+    /// the one before (one column on, the row at most one off), every pixel within a pixel of the
+    /// segment, and LASTPIXEL changing the last pixel only
+    #[test]
+    fn soft_lines_walk_one_column_at_a_time(v in prop::array::uniform4(-400i64..400)) {
+        let (a, b) = ((v[0], v[1]), (v[2], v[3]));
+        let on = kikizake::model::d3dim::line([a, b], true).unwrap();
+        let off = kikizake::model::d3dim::line([a, b], false).unwrap();
+        prop_assert!(on.starts_with(&off) && on.len() - off.len() <= 1, "{a:?} {b:?}");
+        let xmajor = (b.0 - a.0).abs() >= (b.1 - a.1).abs();
+        for w in on.windows(2) {
+            let ((x0, y0), (x1, y1)) = (w[0], w[1]);
+            let (dmaj, dmin) = if xmajor { (x1 - x0, y1 - y0) } else { (y1 - y0, x1 - x0) };
+            prop_assert!(dmaj.abs() == 1 && dmin.abs() <= 1, "{a:?} {b:?}: {:?}", w);
+        }
+        let (ax, ay, bx, by) = (a.0 as f64 / 16.0, a.1 as f64 / 16.0, b.0 as f64 / 16.0, b.1 as f64 / 16.0);
+        let (dx, dy) = (bx - ax, by - ay);
+        let len2 = dx * dx + dy * dy;
+        for &(x, y) in &on {
+            let t = if len2 > 0.0 { (((x as f64 - ax) * dx + (y as f64 - ay) * dy) / len2).clamp(0.0, 1.0) } else { 0.0 };
+            prop_assert!((ax + t * dx - x as f64).abs() <= 1.0 && (ay + t * dy - y as f64).abs() <= 1.0, "{a:?} {b:?}: ({x}, {y})");
+        }
+    }
+
     /// WARP's Gouraud planes (the HAL devices): at every pixel centre inside the triangle's
     /// bounds the single precision value written to 8 bits is within one of the exact
     /// interpolation rounded, and a channel equal at the three vertices is that value everywhere
@@ -215,7 +239,7 @@ proptest! {
     fn warp_lines_stay_by_the_segment(v in prop::array::uniform4(-160i64..800)) {
         let (w, h) = (40i64, 36i64);
         let (a, b) = ((v[0], v[1]), (v[2], v[3]));
-        let Some(cover) = kikizake::model::warp::line([a, b], w, h).unwrap() else { return Ok(()) };
+        let cover = kikizake::model::warp::line([a, b], w, h).unwrap();
         let (ax, ay, bx, by) = (a.0 as f64 / 16.0, a.1 as f64 / 16.0, b.0 as f64 / 16.0, b.1 as f64 / 16.0);
         let (dx, dy) = (bx - ax, by - ay);
         let len2 = dx * dx + dy * dy;
@@ -368,7 +392,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 17, 0), ("d3d7shade", 7, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 46, 0), ("d3d7shade", 5, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);

@@ -251,10 +251,10 @@ pub fn d3d7rast() -> String {
         writeln!(s, "case clip-2-{d}\nd3d 2\nd3ddev {d} 565 12 12\nd3drs set 22 1");
         let mut tris = Vec::new();
         for k in 0..8 {
-            tris.push([(-13 - k, 27 + k), (103 + k, 47), (43, 127 - k)]);
+            tris.push([((-13i64).wrapping_sub(k), 27i64.wrapping_add(k)), (103i64.wrapping_add(k), 47), (43, 127i64.wrapping_sub(k))]);
         }
         for _ in 0..40 {
-            let v: Vec<i64> = (0..6).map(|_| rc.range(0, 260) - 40).collect();
+            let v: Vec<i64> = (0..6).map(|_| rc.range(0, 260).wrapping_sub(40)).collect();
             tris.push([(v[0], v[1]), (v[2], v[3]), (v[4], v[5])]);
         }
         for tv in &tris {
@@ -867,6 +867,33 @@ pub fn d3d7dev() -> String {
             }
         }
         writeln!(s, "end");
+    }
+    // D3D7.STATES.OTHER: lines with ends outside the target (inside the guard band), points and
+    // wireframe of culled triangles and of several colors, ZENABLE without a z-buffer
+    let mut ro = XorShift32::new(0x00d3_d70e);
+    for &(v, d) in DRAWERS {
+        let dv = format!("d3d {v}\nd3ddev {d} 565 12 12");
+        writeln!(s, "case outlines-{v}-{d}\n{dv}\nd3drs set 22 1");
+        for _ in 0..24 {
+            let p: [i64; 4] = std::array::from_fn(|_| ro.range(0, 480).wrapping_sub(144));
+            writeln!(s, "d3dclear 0\nd3dline 0xffffffff {} {} {} {}\nd3ddump", p[0], p[1], p[2], p[3]);
+        }
+        writeln!(s, "end");
+        for mode in [1, 2] {
+            writeln!(s, "case fillcull-{v}-{d}-{mode}\n{dv}\nd3drs set 8 {mode}");
+            for _ in 0..8 {
+                let p: [i64; 6] = std::array::from_fn(|_| ro.range(0, 191));
+                writeln!(s, "d3dclear 0\nd3dtri 0xffffffff {} {} {} {} {} {}\nd3ddump", p[0], p[1], p[2], p[3], p[4], p[5]);
+            }
+            writeln!(s, "end");
+            writeln!(s, "case fillgouraud-{v}-{d}-{mode}\n{dv}\nd3drs set 22 1\nd3drs set 8 {mode}");
+            for _ in 0..8 {
+                let p: [i64; 6] = std::array::from_fn(|_| ro.range(0, 191));
+                writeln!(s, "d3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff {} {} {} {} {} {}\nd3ddump", p[0], p[1], p[2], p[3], p[4], p[5]);
+            }
+            writeln!(s, "end");
+        }
+        writeln!(s, "case znoz-{v}-{d}\n{dv}\nd3drs set 22 1\nd3drs set 7 1\nd3dclear 0\nd3dtri 0xffffffff 8 8 160 24 40 170\nd3ddump\nend");
     }
     s
 }
