@@ -49,6 +49,9 @@ pub fn parse_cases(text: &str) -> Vec<Case> {
 
 /// Standalone files must have complete case blocks, so a missing delimiter
 /// cannot silently discard operations when the CLI evaluates a file.
+/// the tokens a line may have: the executor drops the rest (runner/core.h MAXTOK)
+pub const MAX_TOKENS: usize = 80;
+
 pub fn checked_cases(text: &str) -> Result<Vec<Case>, String> {
     let mut cases = Vec::new();
     let mut current: Option<Case> = None;

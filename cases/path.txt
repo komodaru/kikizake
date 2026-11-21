@@ -9263,3 +9263,97 @@ getpath 0
 flatten 0
 getpath 0
 end
+case loose-31
+dib 0 48 16 8
+beginpath 0
+moveto 0 0 0
+lineto 0 1 0
+lineto 0 2 0
+lineto 0 3 0
+lineto 0 4 0
+lineto 0 5 0
+lineto 0 6 0
+lineto 0 7 0
+lineto 0 8 0
+lineto 0 9 0
+lineto 0 10 0
+lineto 0 11 0
+lineto 0 12 0
+lineto 0 13 0
+lineto 0 14 0
+lineto 0 15 0
+lineto 0 16 0
+lineto 0 17 0
+lineto 0 18 0
+lineto 0 19 0
+lineto 0 20 0
+lineto 0 21 0
+lineto 0 22 0
+lineto 0 23 0
+lineto 0 24 0
+lineto 0 25 0
+lineto 0 26 0
+lineto 0 27 0
+lineto 0 28 0
+lineto 0 29 0
+lineto 0 30 0
+lineto 0 15 4
+lineto 0 15 9
+lineto 0 15 4
+closefig 0
+endpath 0
+pathrgn 0 0
+rgndata 0
+end
+case loose-41
+dib 0 48 16 8
+beginpath 0
+moveto 0 0 0
+lineto 0 1 0
+lineto 0 2 0
+lineto 0 3 0
+lineto 0 4 0
+lineto 0 5 0
+lineto 0 6 0
+lineto 0 7 0
+lineto 0 8 0
+lineto 0 9 0
+lineto 0 10 0
+lineto 0 11 0
+lineto 0 12 0
+lineto 0 13 0
+lineto 0 14 0
+lineto 0 15 0
+lineto 0 16 0
+lineto 0 17 0
+lineto 0 18 0
+lineto 0 19 0
+lineto 0 20 0
+lineto 0 21 0
+lineto 0 22 0
+lineto 0 23 0
+lineto 0 24 0
+lineto 0 25 0
+lineto 0 26 0
+lineto 0 27 0
+lineto 0 28 0
+lineto 0 29 0
+lineto 0 30 0
+lineto 0 31 0
+lineto 0 32 0
+lineto 0 33 0
+lineto 0 34 0
+lineto 0 35 0
+lineto 0 36 0
+lineto 0 37 0
+lineto 0 38 0
+lineto 0 39 0
+lineto 0 40 0
+lineto 0 20 4
+lineto 0 20 9
+lineto 0 20 4
+closefig 0
+endpath 0
+pathrgn 0 0
+rgndata 0
+end

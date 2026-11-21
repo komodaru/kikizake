@@ -129,5 +129,16 @@ pub fn path() -> String {
         let (w, h, dir) = (i % 10 + 1, i / 10 % 10 + 1, 1 + i / 100);
         writeln!(s, "case rrgrid-{i}\ndib 0 8 8 8\narcdir 0 {dir}\nbeginpath 0\nroundrect 0 3 2 40 33 {w} {h}\nendpath 0\ngetpath 0\nflatten 0\ngetpath 0\nend");
     }
+    // a region's bound below its last row of pixels (GDI.RGN.LOOSE): a triangle with a sliver
+    // of no width hanging from it, y-monotone, of 34 points (GDI's converter for one small
+    // figure: a tight bound) and of 44 (the general one: down to the sliver's end)
+    for n in [31, 41] {
+        writeln!(s, "case loose-{n}\ndib 0 48 16 8\nbeginpath 0\nmoveto 0 0 0");
+        for x in 1..n {
+            writeln!(s, "lineto 0 {x} 0");
+        }
+        let m = (n - 1) / 2;
+        writeln!(s, "lineto 0 {m} 4\nlineto 0 {m} 9\nlineto 0 {m} 4\nclosefig 0\nendpath 0\npathrgn 0 0\nrgndata 0\nend");
+    }
     s
 }

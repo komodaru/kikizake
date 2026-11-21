@@ -267,7 +267,7 @@ proptest! {
 #[test]
 fn models_keep_answering() {
     use kikizake::{case, compare, generators};
-    let floor = [("lines", 443), ("region", 556), ("xform", 670), ("path", 679), ("text", 171), ("blend", 964), ("ddb", 59)];
+    let floor = [("lines", 443), ("region", 571), ("xform", 670), ("path", 679), ("text", 171), ("blend", 964), ("ddb", 59)];
     for (s, n) in floor {
         let cases = case::parse_cases(&generators::suite(s).unwrap());
         for arch in [32, 64] {
@@ -284,18 +284,22 @@ fn models_keep_answering() {
 }
 
 proptest! {
-    /// GDI's flattener (HFD) ends exactly at the Bézier's end point and stays inside its
-    /// control points' box (a Bézier lies in its control points' convex hull), each line
-    /// shorter than the box is wide
+    /// GDI's flattener (HFD) ends exactly at the Bézier's end point for curves within 256
+    /// pixels, within 6/16 pixel beyond (its 18.14 steps lose bits there), and stays
+    /// inside its control points' box (a Bézier lies in its control points' convex hull)
     #[test]
     fn flatten_ends_at_the_end(o in (-40000i32..40000, -40000i32..40000), p in prop::array::uniform4((0i32..0x4000, 0i32..0x4000))) {
         let p = p.map(|q| (q.0 + o.0, q.1 + o.1));
         let v = kikizake::model::bezier::flatten(p).expect("in the flattener's space");
-        prop_assert_eq!(v.last().copied(), Some(p[3]));
+        let e = v.last().copied().unwrap();
+        let far = p.iter().flat_map(|q| [q.0 - o.0, q.1 - o.1]).any(|v| v >= 0x1000);
+        let off = if far { 6 } else { 0 };
+        prop_assert!((e.0 - p[3].0).abs() <= off && (e.1 - p[3].1).abs() <= off, "ends at {:?}, not {:?}", e, p[3]);
         let (l, r) = (p.iter().map(|q| q.0).min().unwrap(), p.iter().map(|q| q.0).max().unwrap());
         let (t, b) = (p.iter().map(|q| q.1).min().unwrap(), p.iter().map(|q| q.1).max().unwrap());
         for q in &v {
-            prop_assert!(l - 1 <= q.0 && q.0 <= r + 1 && t - 1 <= q.1 && q.1 <= b + 1, "{q:?} outside {p:?}");
+            let k = off.max(1);
+            prop_assert!(l - k <= q.0 && q.0 <= r + k && t - k <= q.1 && q.1 <= b + k, "{q:?} outside {p:?}");
         }
     }
 

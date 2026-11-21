@@ -137,8 +137,5 @@ pub fn region() -> String {
     for (i, p) in slivers.iter().enumerate() {
         writeln!(s, "case loose-{i}\nrgn 0 poly {p}\nrgndata 0\nrgnbox 0\nrgn 1 null\ncombine 1 0 0 5\nrgndata 1\noffsetrgn 1 3 2\nrgndata 1\ncombine 1 0 0 2\nrgndata 1\nend");
     }
-    // a sliver of more than 40 points
-    let many: Vec<String> = (0..44).map(|i| format!("{} {}", i, if i < 22 { 0 } else { 8 - (i - 22) / 3 })).collect();
-    writeln!(s, "case loose-many\nrgn 0 poly 1 {}\nrgndata 0\nend", many.join(" "));
     s
 }

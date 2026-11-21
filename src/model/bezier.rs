@@ -3,9 +3,9 @@
 //! the points FlattenPath returns match those of the HFD32 flattener that dotnet/wpf's
 //! WpfGfx/core/geometry/bezier.cpp documents as GDI's, BEZIER_FLATTEN_GDI_COMPATIBLE).
 
-/// 28.4 to a finer fixed point than GDI's 18.14 (shift 10): its HFD32 asserts that no shift
-/// loses bits, so where it applies a finer one steps through the same values
-const INITIAL_SHIFT: u32 = 30;
+/// 28.4 to GDI's 18.14 (shift 10): a finer point steps through other values once a curve is
+/// some hundreds of pixels long (region ellipse-size-9, ellipse-size-10)
+const INITIAL_SHIFT: u32 = 10;
 const GDI_INITIAL_SHIFT: u32 = 10;
 /// 18.14 to 15.17
 const ADDITIONAL_SHIFT: u32 = 3;
