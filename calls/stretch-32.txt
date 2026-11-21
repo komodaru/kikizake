@@ -1,4 +1,4 @@
-kikizake calls stretch-32 cases 458b905a6e6da004 src f37d4fe67f1f619ed00ffc73ce6170b2247d4fbd0601c2574d4312e8ea6f5b30 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 128984 other 0
+kikizake calls stretch-32 cases 458b905a6e6da004 src d770a8cea9d46a8706fdb871b219dc07438c3ac41259b2904e01f1dcb19e5b0a shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 128984 other 0
 case scale-x
 out truncated
 CreateCompatibleDC(h0) = h1
