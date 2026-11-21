@@ -924,9 +924,12 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
         }
         return Ok(o);
     }
-    // (a pair model::wic has no format for, or a palette other than the executor's: no case
-    // asks for one, so Fail::Bad, which a new case would show as a difference)
-    let (Some(fi), Some(ti)) = (crate::model::wic::format(s.fmt), crate::model::wic::format(to)) else { return Err(Fail::Bad) };
+    // (a pair model::wic has no format for: the wide formats past its 23 (encwide-wmp-* make
+    // them from 64bppRGBA), not yet fitted; a palette other than the executor's: no case asks
+    // for one, so Fail::Bad, which a new case would show as a difference)
+    let (Some(fi), Some(ti)) = (crate::model::wic::format(s.fmt), crate::model::wic::format(to)) else {
+        return if bits_of(s.fmt) > 0 && bits_of(to) > 0 { Err(Fail::Unmodeled(open::WIC_PAIR_WIDE)) } else { Err(Fail::Bad) };
+    };
     if s.pal.is_some() && s.pal != Some(crate::model::wic::palette()) {
         return Err(Fail::Bad);
     }
@@ -2962,6 +2965,8 @@ pub enum EncodeOption {
     OutOfRange,
     /// WMP's Lossless
     WmpLossless,
+    /// WMP's ImageQuality below 1.0, as the bits of its f32
+    WmpQuality(u32),
     /// JPEG's ImageQuality, as IJG's quality 0..=100
     JpegQuality(i64),
     /// JPEG's SuppressApp0
@@ -3044,6 +3049,31 @@ fn encode_jpeg(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
     Ok(Encoded::Lossy(j.bytes, "jpeg", o))
 }
 
+/// MEASURED (golden wicencode enc-wmp-*: every byte and pixel, see model::jxr): WIC's JPEG XR
+/// encoder at its default ImageQuality 0.9, decoded again by WIC's decoder
+fn encode_wmp(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
+    use crate::model::jxr;
+
+    let Some(fmt) = jxr::Format::from_name(i.fmt) else {
+        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY));
+    };
+    let q = match opts.wmp_quality {
+        None => jxr::Quality::default_wic(),
+        Some(q) => jxr::Quality::new(q).ok_or(Fail::Bad)?,
+    };
+    let (w, h) = (i.w as usize, i.h as usize);
+    let p = jxr::Picture { fmt, w, h, stride: i.stride(), px: &i.px, dpi: i.dpi };
+    let e = jxr::encode(&p, q);
+    hit(clause::WICIMAGE_ENCODE_WMP);
+    let mut o = Img::new(i.w, i.h, i.fmt);
+    o.dpi = (0.0, 0.0);
+    let (st, row) = (o.stride(), (w * fmt.bits()).div_ceil(8));
+    for y in 0..h {
+        o.px[y * st..y * st + row].copy_from_slice(&e.decoded[y * row..(y + 1) * row]);
+    }
+    Ok(Encoded::Lossy(e.file, "wmp", o))
+}
+
 #[derive(Default, Clone, Copy)]
 struct EncodeOptions {
     jpeg_quality: Option<i64>,
@@ -3053,13 +3083,16 @@ struct EncodeOptions {
     v5: bool,
     bw: bool,
     wmp_lossless: bool,
+    wmp_quality: Option<f32>,
 }
 
 /// MEASURED (golden wicencode opt-*: every option the cases set, on BGRA, BGR and gray sources):
 /// PNG's InterlaceOption and FilterOption (1 to 6), TIFF's TiffCompressionMethod 0 (don't care),
 /// 1 (none), 4 (LZW), 5 (RLE), 6 (ZIP) and 7 (LZW with differencing) change only the file;
 /// TiffCompressionMethod 2 (CCITT3) and 3 (CCITT4) make the frame BlackWhite
-/// (golden opt-tiff-*); WMP's Lossless and ImageQuality 1.0 keep every pixel; PNG takes no ImageQuality. Other names and values are not measured.
+/// (golden opt-tiff-*); WMP's Lossless and ImageQuality 1.0 keep every pixel, ImageQuality below
+/// 1.0 sets the JPEG XR quality (golden optother-1-bgra, model::jxr); PNG takes no ImageQuality.
+/// Other names and values are not measured.
 pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
     let (name, val) = o.split_once('=').ok_or(Fail::Bad)?;
     Ok(match (cont, name, val) {
@@ -3074,6 +3107,10 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
         // (Encoder options: JPEG XR's ImageQuality 1.0 is lossless; MEASURED golden opt-19-*: every
         // pixel kept, as Lossless=1)
         ("wmp", "Lossless", "1") | ("wmp", "ImageQuality", "1.0" | "1") => EncodeOption::WmpLossless,
+        ("wmp", "ImageQuality", v) => match v.parse::<f32>() {
+            Ok(q) if (0.0..1.0).contains(&q) => EncodeOption::WmpQuality(q.to_bits()),
+            _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_OPTIONS)),
+        },
         ("jpeg", "ImageQuality", v) => EncodeOption::JpegQuality((v.parse::<f64>().map_err(|_| Fail::Bad)? * 100.0).round() as i64),
         ("jpeg", "SuppressApp0", v) => EncodeOption::JpegNoApp0(v != "0"),
         // (WICJpegYCrCbSubsamplingOption: 0 default (4:2:0), 1 4:2:0, 2 4:2:2, 3 4:4:4, 4 4:4:0)
@@ -3416,6 +3453,10 @@ impl WicImage {
                             hit(clause::WICIMAGE_ENCODE_OPTION_LOSSLESS);
                             opts.wmp_lossless = true;
                         }
+                        EncodeOption::WmpQuality(q) => {
+                            hit(clause::WICIMAGE_ENCODE_WMP);
+                            opts.wmp_quality = Some(f32::from_bits(q));
+                        }
                         EncodeOption::JpegQuality(q) => {
                             hit(clause::WICIMAGE_ENCODE_JPEG);
                             opts.jpeg_quality = Some(q);
@@ -3458,6 +3499,7 @@ impl WicImage {
                     }
                     "gif" => Encoded::Bytes(encode_gif(&img)?),
                     "wmp" if opts.wmp_lossless => Encoded::Decodes("wmp", img),
+                    "wmp" => encode_wmp(&img, opts)?,
                     "jpeg" => encode_jpeg(&img, opts)?,
                     "dds" => Encoded::Bytes(encode_dds(&img)?),
                     _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY)),

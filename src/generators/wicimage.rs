@@ -1629,6 +1629,12 @@ pub fn wicencode() -> String {
             }
         }
     }
+    // JPEG XR's lossy encoder on the formats past FORMATS (WICIMAGE.ENCODE.LOSSY): floats,
+    // halves, fixed points, 101010, CMYK of 16 bits and with alpha (made from a 64bppRGBA bitmap by
+    // the converter); what SetPixelFormat answers, the file and what decodes from it
+    for (k, f) in ["bgr48", "bgra64", "prgba64", "pbgra64", "bgr101010", "grayfloat", "rgbafloat", "prgbafloat", "rgbfloat", "rgba64fixed", "bgra64fixed", "rgba64half", "rgb96float", "cmyk64", "cmyka40", "cmyka80", "grayfix16", "grayhalf", "grayfix32", "rgb48fixed", "rgb48half", "rgb64fixed", "rgb64half", "rgba128fixed", "rgb128fixed", "rgb96fixed"].into_iter().enumerate() {
+        writeln!(s, "case encwide-wmp-{f}\nwbits rgba64 5 3 {}\nwconv {f}\nwencode wmp\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x3a8_0000u32 + k as u32);
+    }
     s
 }
 

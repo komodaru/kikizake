@@ -478,10 +478,10 @@ proptest! {
 #[test]
 fn encoder_options_are_typed() {
     use wi::EncodeOption as O;
-    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("tiff", "TiffCompressionMethod=3", O::BlackWhite), ("tiff", "TiffCompressionMethod=4", O::Lossless), ("tiff", "TiffCompressionMethod=5", O::Lossless), ("tiff", "TiffCompressionMethod=8", O::OutOfRange), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless), ("wmp", "ImageQuality=1.0", O::WmpLossless), ("jpeg", "ImageQuality=0.5", O::JpegQuality(50)), ("jpeg", "SuppressApp0=1", O::JpegNoApp0(true)), ("jpeg", "JpegYCrCbSubsampling=3", O::JpegChroma(kikizake::model::jpeg::Chroma::Full)), ("jpeg", "JpegYCrCbSubsampling=2", O::JpegChroma(kikizake::model::jpeg::Chroma::H2V1)), ("jpeg", "BitmapTransform=1", O::JpegTransform(1))] {
+    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("tiff", "TiffCompressionMethod=3", O::BlackWhite), ("tiff", "TiffCompressionMethod=4", O::Lossless), ("tiff", "TiffCompressionMethod=5", O::Lossless), ("tiff", "TiffCompressionMethod=8", O::OutOfRange), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless), ("wmp", "ImageQuality=1.0", O::WmpLossless), ("wmp", "ImageQuality=0.5", O::WmpQuality(0.5f32.to_bits())), ("jpeg", "ImageQuality=0.5", O::JpegQuality(50)), ("jpeg", "SuppressApp0=1", O::JpegNoApp0(true)), ("jpeg", "JpegYCrCbSubsampling=3", O::JpegChroma(kikizake::model::jpeg::Chroma::Full)), ("jpeg", "JpegYCrCbSubsampling=2", O::JpegChroma(kikizake::model::jpeg::Chroma::H2V1)), ("jpeg", "BitmapTransform=1", O::JpegTransform(1))] {
         assert_eq!(wi::option(c, o).ok(), Some(want), "{c} {o}");
     }
-    for (c, o) in [("wmp", "ImageQuality=0.5"), ("jpeg", "JpegYCrCbSubsampling=5"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1")] {
+    for (c, o) in [("wmp", "ImageQuality=1.5"), ("jpeg", "JpegYCrCbSubsampling=5"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1")] {
         assert!(matches!(wi::option(c, o), Err(kikizake::model::Fail::Unmodeled(_))), "{c} {o}");
     }
     assert!(matches!(wi::option("png", "FilterOption"), Err(kikizake::model::Fail::Bad)));
@@ -798,5 +798,84 @@ proptest! {
                 }
             }
         }
+    }
+}
+
+/// a JPEG XR test picture's values, channel by channel, in its own units: bits past a row's
+/// end, the pad of 32bppBGR and 16bppBGR555's top bit do not count
+fn jxr_values(f: &str, w: usize, h: usize, stride: usize, px: &[u8]) -> Vec<i64> {
+    let mut v = vec![];
+    for y in 0..h {
+        let r = &px[y * stride..];
+        for x in 0..w {
+            match f {
+                "bw" => v.push(i64::from(r[x / 8] >> (7 - x % 8) & 1)),
+                "bgr555" | "bgr565" => {
+                    let u = u16::from_le_bytes([r[2 * x], r[2 * x + 1]]);
+                    let c = if f == "bgr555" { [u & 31, u >> 5 & 31, u >> 10 & 31] } else { [u & 31, u >> 5 & 63, u >> 11] };
+                    v.extend(c.map(i64::from));
+                }
+                "gray16" | "rgb48" | "rgba64" => {
+                    let n = match f {
+                        "gray16" => 1,
+                        "rgb48" => 3,
+                        _ => 4,
+                    };
+                    v.extend((0..n).map(|k| i64::from(u16::from_le_bytes([r[2 * (x * n + k)], r[2 * (x * n + k) + 1]]))));
+                }
+                "bgr32" => v.extend(r[4 * x..4 * x + 3].iter().map(|&b| i64::from(b))),
+                _ => {
+                    let n = match f {
+                        "gray8" => 1,
+                        "bgr24" | "rgb24" => 3,
+                        _ => 4,
+                    };
+                    v.extend(r[n * x..n * (x + 1)].iter().map(|&b| i64::from(b)));
+                }
+            }
+        }
+    }
+    v
+}
+
+const JXR_FMTS: &[&str] = &["bw", "gray8", "gray16", "bgr555", "bgr565", "bgr24", "rgb24", "bgr32", "bgra", "pbgra", "rgb48", "rgba64", "cmyk"];
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(150))]
+
+    /// the JPEG XR model (src/model/jxr.rs) decodes what its encoder wrote: QP index 0 and 1
+    /// (T.832's step 1) give back every value whatever the overlap; a coarser QP index up to 32
+    /// (WIC's 0.9 is 16) gives 8-bit values back within 2 x index + 2; planar alpha is coded lossless
+    /// at any quality; and the file holds the HD Photo header, the IFD's size and the codestream
+    #[test]
+    fn jxr_decodes_what_it_encodes(fi in 0usize..13, w in 1usize..40, h in 1usize..40, seed: u32, index in 0u8..=32, ov in 0usize..3, smooth: bool) {
+        use kikizake::model::jxr::{self, Format, Overlap};
+        let name = JXR_FMTS[fi];
+        let fmt = Format::from_name(name).unwrap();
+        let stride = (w * fmt.bits()).div_ceil(8);
+        let mut r = kikizake::rng::XorShift32::new(seed);
+        let px: Vec<u8> = (0..stride * h).map(|k| if smooth { (k / 7 * 3 % 251) as u8 } else { r.next() as u8 }).collect();
+        let p = jxr::Picture { fmt, w, h, stride, px: &px, dpi: (0.0, 0.0) };
+        let ov = [Overlap::None, Overlap::One, Overlap::Two][ov];
+        let src = jxr_values(name, w, h, stride, &px);
+        let lossless = jxr::encode_at(&p, index.min(1), ov);
+        prop_assert_eq!(&jxr_values(name, w, h, stride, &lossless.decoded), &src, "{} {}x{} lossless", name, w, h);
+        prop_assert_eq!(&lossless.file[..4], b"II\xbc\x01");
+        let lossy = jxr::encode_at(&p, index, ov);
+        let got = jxr_values(name, w, h, stride, &lossy.decoded);
+        if matches!(name, "gray8" | "bgr24" | "rgb24" | "bgr32" | "bgra" | "pbgra" | "cmyk") {
+            let worst = src.iter().zip(&got).map(|(a, b)| (a - b).abs()).max().unwrap_or(0);
+            prop_assert!(worst <= 2 * i64::from(index) + 2, "{} {}x{} index {}: off by {}", name, w, h, index, worst);
+        }
+        if matches!(name, "bgra" | "pbgra" | "rgba64") {
+            let alpha = |v: &[i64]| v.iter().skip(3).step_by(4).copied().collect::<Vec<_>>();
+            prop_assert_eq!(alpha(&got), alpha(&src), "{} alpha", name);
+        }
+        // (the image codestream's offset: the IFD's 9 entries, 11 with planar alpha, then its
+        // next-IFD word and the 16-byte pixel format GUID)
+        let at = if fmt.bits() == 64 || matches!(name, "bgra" | "pbgra") { 162 } else { 138 };
+        prop_assert_eq!(&lossy.file[at..at + 8], b"WMPHOTO\0");
+        let wq = jxr::encode(&p, jxr::Quality::new(0.9).unwrap());
+        prop_assert_eq!(&wq.file, &jxr::encode(&p, jxr::Quality::default_wic()).file);
     }
 }

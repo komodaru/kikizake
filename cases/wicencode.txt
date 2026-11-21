@@ -8073,3 +8073,263 @@ winfo
 wconv rgba64fixed
 wpixels
 end
+case encwide-wmp-bgr48
+wbits rgba64 5 3 61341696
+wconv bgr48
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-bgra64
+wbits rgba64 5 3 61341697
+wconv bgra64
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-prgba64
+wbits rgba64 5 3 61341698
+wconv prgba64
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-pbgra64
+wbits rgba64 5 3 61341699
+wconv pbgra64
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-bgr101010
+wbits rgba64 5 3 61341700
+wconv bgr101010
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-grayfloat
+wbits rgba64 5 3 61341701
+wconv grayfloat
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgbafloat
+wbits rgba64 5 3 61341702
+wconv rgbafloat
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-prgbafloat
+wbits rgba64 5 3 61341703
+wconv prgbafloat
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgbfloat
+wbits rgba64 5 3 61341704
+wconv rgbfloat
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgba64fixed
+wbits rgba64 5 3 61341705
+wconv rgba64fixed
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-bgra64fixed
+wbits rgba64 5 3 61341706
+wconv bgra64fixed
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgba64half
+wbits rgba64 5 3 61341707
+wconv rgba64half
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgb96float
+wbits rgba64 5 3 61341708
+wconv rgb96float
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-cmyk64
+wbits rgba64 5 3 61341709
+wconv cmyk64
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-cmyka40
+wbits rgba64 5 3 61341710
+wconv cmyka40
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-cmyka80
+wbits rgba64 5 3 61341711
+wconv cmyka80
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-grayfix16
+wbits rgba64 5 3 61341712
+wconv grayfix16
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-grayhalf
+wbits rgba64 5 3 61341713
+wconv grayhalf
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-grayfix32
+wbits rgba64 5 3 61341714
+wconv grayfix32
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgb48fixed
+wbits rgba64 5 3 61341715
+wconv rgb48fixed
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgb48half
+wbits rgba64 5 3 61341716
+wconv rgb48half
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgb64fixed
+wbits rgba64 5 3 61341717
+wconv rgb64fixed
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgb64half
+wbits rgba64 5 3 61341718
+wconv rgb64half
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgba128fixed
+wbits rgba64 5 3 61341719
+wconv rgba128fixed
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgb128fixed
+wbits rgba64 5 3 61341720
+wconv rgb128fixed
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case encwide-wmp-rgb96fixed
+wbits rgba64 5 3 61341721
+wconv rgb96fixed
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end

@@ -3,7 +3,7 @@ WIC.LAYOUT doc | Native Pixel Formats Overview | each format's channels, their o
 WIC.CAN assumed | IWICFormatConverter::CanConvert | every pair of these formats can be converted (Wine refuses some)
 WIC.SAME assumed | IWICFormatConverter::Initialize | to the same format: the bytes as they are
 WIC.PAIR assumed | (none) | a pair neither of which is 32bppBGRA: as through 32bppBGRA
-WIC.PAIR.WIDE open | (none) | to or from 32bppCMYK (found clean-room: through windowscodecsext's N-channel converter, mscms with the profile rswop.icm into sRGB, the color engine's arithmetic not yet read); between 16-bit formats now WIC.PAIR (wicimage's wide_pair)
+WIC.PAIR.WIDE open | (none) | to or from 32bppCMYK (found clean-room: through windowscodecsext's N-channel converter, mscms with the profile rswop.icm into sRGB, the color engine's arithmetic not yet read); pairs with the wide formats model::wic does not list (48bppBGR, the halves, fixed points, 101010, 64bppCMYK, CMYK with alpha; golden wicencode encwide-wmp-*: not yet fitted); between 16-bit formats now WIC.PAIR (wicimage's wide_pair)
 WIC.TO.EXPAND measured | (none) | to 8 bits: n-bit gray v * 255 / (2^n - 1); 5 and 6 bit channels by repeating their high bits (wicconv golden)
 WIC.TO.GRAY16 measured | (none) | 16bppGray to 8 bits: a measured table of the first level of each 8-bit value, close to sRGB (wicconv golden, every level)
 WIC.TO.HIGHBYTE measured | (none) | 48bppRGB / 64bppRGBA to 8 bits: the high byte of each channel (wicconv golden)

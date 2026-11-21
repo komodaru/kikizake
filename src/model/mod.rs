@@ -77,6 +77,7 @@ pub mod dwrite;
 pub mod wicimage;
 pub mod bc;
 pub mod jpeg;
+pub mod jxr;
 
 use crate::case::Case;
 
