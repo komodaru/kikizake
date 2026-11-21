@@ -578,7 +578,9 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
         if pts.len() < 2 {
             continue;
         }
-        if let (Join::Nothing, true, _) | (Join::Nothing, false, 32) = (join, s.closed, super::arch()) {
+        // (x86 fails at the first join it makes: a two-point subpath has none, golden
+        // penobject-41)
+        if let (Join::Nothing, true, _, _) | (Join::Nothing, false, 32, true) = (join, s.closed, super::arch(), pts.len() > 2) {
             return Ok(Err(Widened::Failed));
         }
         // (compound mode: round and triangle caps once over the whole width after the bands)
@@ -694,13 +696,14 @@ fn end_cap(r: Round, cap: Cap, value: i64, custom: Option<&CustomCap>) -> Res<Op
     };
     match (cap, value, custom) {
         (Cap::Anchor(a), _, _) => reference(r, a).map(Some),
-        // (GdipCreateAdjustableArrowCap filled: the fill path (-W/2, -H) (0, 0) (W/2, -H) and
+        // (GdipCreateAdjustableArrowCap filled: the fill path (W/2, -H) (0, 0) (-W/2, -H) in this
+        // cap space (an end cap's first point on the line's right, golden pathwidenobj-*), and
         // (0, middle - H) past a middle inset of 0, base inset H / W, its fill length H - middle
         // at least 0; W or H of 0 three points on the end, a middle inset of H four, neither
         // shortening: clean-room notes geometry.md 19c)
         (Cap::Flat, 0xff, Some(&CustomCap::Arrow { height, width, filled: true, middle })) if height >= 0.0 && width >= 0.0 => {
             let (hw, top) = (r.mul(width, 0.5), -height);
-            let mut v = vec![(-hw, top), (0.0, 0.0), (hw, top)];
+            let mut v = vec![(hw, top), (0.0, 0.0), (-hw, top)];
             if middle != 0.0 {
                 v.push((0.0, r.add(top, middle)));
             }
