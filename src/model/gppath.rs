@@ -103,7 +103,7 @@ pub fn ceil16(r: Round, v: f32) -> i32 {
 /// tolerance (MEASURED, golden gdipluspath patharc-20: an arc piece rotated by almost 180
 /// degrees transformed without its sin terms)
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum Complexity {
+pub enum Complexity {
     Identity,
     Translate,
     Scale,
@@ -112,7 +112,7 @@ enum Complexity {
 /// 0x3a1c4000, about 5.96e-4
 pub const NEAR: f32 = 5.960_464_5e-4;
 const _: () = assert!(NEAR.to_bits() == 0x3a1c_4000);
-fn complexity(r: Round, m: &Matrix) -> Complexity {
+pub fn complexity(r: Round, m: &Matrix) -> Complexity {
     let big = m[0].abs().max(m[1].abs()).max(m[2].abs()).max(m[3].abs());
     let tol = r.mul(NEAR, big);
     let moved = !(m[4] == 0.0 && m[5] == 0.0);

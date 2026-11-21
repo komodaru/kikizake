@@ -2457,19 +2457,6 @@ impl Gdiplus {
                     }))
                 };
                 let mut colors = std::collections::HashMap::new();
-                // (1:1 on both axes, sizes positive: the copy span, golden gdiplusdraw copy-*)
-                if w > 0 && h > 0 && w == sw && h == sh {
-                    for y in dy.max(0)..(dy + h).min(i64::from(b.h)) {
-                        for x in dx.max(0)..(dx + w).min(i64::from(b.w)) {
-                            if let Some(c) = texel(x - dx + sx, y - dy + sy)? {
-                                colors.insert((x as u32, y as u32), c);
-                            }
-                        }
-                    }
-                    fill_area(b, (dx, dy, dx + w, dy + h), &|x, y| colors.get(&(x, y)).copied(), Source::Solid, copy, q)?;
-                    out.push("draw 0 0".into());
-                    return Ok(true);
-                }
                 use super::gpimage::{Draw, Span};
                 use super::gpstretch::Kernel;
                 let span = match interp {
@@ -2487,11 +2474,7 @@ impl Gdiplus {
                     Span::Stretch(_) => {}
                 }
                 let draw = Draw { dst: [dx, dy, w, h], src: [sx, sy, sw, sh], image: (i64::from(src.w), i64::from(src.h)), target: (i64::from(b.w), i64::from(b.h)), half: po.half() };
-                let Some(px) = super::gpimage::render(rounding(), span, &draw, super::arch() == 32, |x, y| Ok(texel(x, y)?.unwrap_or(0)))? else {
-                    // (a scale of exactly -1 on an axis: AnalyzeRotateFlip, RotateFlip and a
-                    // draw again, not read)
-                    return Err(Fail::Unmodeled(open::GP_DRAW_SCALED));
-                };
+                let px = super::gpimage::render(rounding(), span, &draw, super::arch() == 32, |x, y| Ok(texel(x, y)?.unwrap_or(0)))?;
                 let (mut x0, mut y0, mut x1, mut y1) = (i64::MAX, i64::MAX, i64::MIN, i64::MIN);
                 for (x, y, c) in px {
                     (x0, y0, x1, y1) = (x0.min(x), y0.min(y), x1.max(x + 1), y1.max(y + 1));

@@ -392,10 +392,6 @@ impl Widener {
                 let tiny = |g: P| g.0.abs() < EPS && g.1.abs() < EPS;
                 let near = r.add(sq(r, r.sub(gw.g.0, first.g.0)), sq(r, r.sub(gw.g.1, first.g.1))) < f32::from_bits(0x3727_c5ac);
                 if tiny(gw.g) || tiny(first.g) || near {
-                    // (a round or triangle start cap there: the spec's open GP.PEN)
-                    if matches!(caps.0, Cap::Round | Cap::Triangle) {
-                        return Err(Fail::Unmodeled(open::GP_PEN));
-                    }
                     if gw.n == (0.0, 0.0) { first.n } else { gw.n }
                 } else {
                     first.n
@@ -451,21 +447,38 @@ impl Widener {
             }
             Cap::Flat | Cap::Square | Cap::Anchor(_) => {}
         }
-        if caps.0 == Cap::Round {
+        // (the start offsets from the wrap-around normal: the start cap's own points from N[0],
+        // its first one dropped within 0.000596 of R0 (combineTwoOpenSegments), geometry.md 22e)
+        let wrapped = start_n != first.n;
+        if caps.0 == Cap::Round && !wrapped {
             back.pop();
         }
         out.extend(back);
-        match caps.0 {
-            Cap::Triangle => {
+        let close_to = |a: P, b: P| r.add(r.sub(a.1, b.1).abs(), r.sub(a.0, b.0).abs()) < NEAR;
+        match (caps.0, wrapped) {
+            (Cap::Triangle, false) => {
                 out.push(line(self.tip(p[0], first.g, true)));
                 out.push(line(first_left));
             }
-            Cap::Round => {
+            (Cap::Triangle, true) => {
+                let rc = self.off(self.wr, first.n, p[0]);
+                if !close_to(first_right, rc) {
+                    out.push(line(rc));
+                }
+                out.push(line(self.tip(p[0], first.g, true)));
+                out.push(line(self.off(self.wl, first.n, p[0])));
+            }
+            (Cap::Round, false) => {
                 let mut c = self.round(p[0], first.g, true);
                 c[0].p = first_right;
                 out.extend(c);
             }
-            Cap::Flat | Cap::Square | Cap::Anchor(_) => {}
+            (Cap::Round, true) => {
+                let c = self.round(p[0], first.g, true);
+                let skip = usize::from(close_to(first_right, c[0].p));
+                out.extend(c.into_iter().skip(skip));
+            }
+            (Cap::Flat | Cap::Square | Cap::Anchor(_), _) => {}
         }
         Ok(out)
     }
@@ -589,7 +602,14 @@ fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix,
     let join = Join::of(pen.join);
     let (major, minor) = axes(r, m);
     let subs: Vec<Sub> = match pattern(pen.dash) {
-        Some(pat) => dashes(r, figs, pen, major, true, pat, (start, end)),
+        Some(pat) => {
+            // (CreateDashedPath's own set-up: Flatten(M) and Transform(Minv) again, geometry.md 22f)
+            let again: Vec<(Vec<P>, bool)> = figs.iter().map(|(p, c)| (p.iter().map(|&(x, y)| {
+                let d = apply(r, m, x, y);
+                apply(r, minv, d.0, d.1)
+            }).collect(), *c)).collect();
+            dashes(r, &again, pen, major, true, pat, (start, end))
+        }
         None => figs.iter().map(|(pts, closed)| Sub { pts: pts.clone(), closed: *closed, caps: (start, end) }).collect(),
     };
     let thin_width = f32::from_bits(0x3f80_0008);
@@ -843,11 +863,6 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &
     if sc.is_none() && ec.is_none() {
         return Ok(Ok(out));
     }
-    // (custom caps under a matrix that scales, or dashed: the spec's open GP.PEN)
-    let is_custom = |c: Cap, v: i64, o: &Option<CustomCap>| c == Cap::Flat && v == 0xff && o.is_some();
-    if (is_custom(caps.0, pen.start_cap, &pen.custom[0]) || is_custom(caps.1, pen.end_cap, &pen.custom[1])) && (min_axis != 1.0 || pattern(pen.dash).is_some()) {
-        return Err(Fail::Unmodeled(open::GP_PEN));
-    }
     let unit = r.div(1.0, min_axis);
     let s2 = r.div(2.0, min_axis);
     // (9d: a cap point (px, py) through d = -g scaled by s about o)
@@ -889,11 +904,13 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &
                 }
                 (true, _, Some((line, l))) => {
                     let l = if EPS > l.abs() { 1.0 } else { *l };
-                    // (a width scale of 0 or less: the spec's open GP.PEN)
+                    let g = shorten(r, pts, &mut marked, &order, l, cap.base, s1);
+                    // (a width scale of 0 or less: GetTransformedStrokeCap writes nothing and the
+                    // widener reads uninitialized buffers, undefined (geometry.md 22d): the
+                    // spec's open GP.PEN)
                     if 0.0 >= s1 {
                         return Err(Fail::Unmodeled(open::GP_PEN));
                     }
-                    let g = shorten(r, pts, &mut marked, &order, l, cap.base, s1);
                     let d = (-g.0, -g.1);
                     let placed: Vec<P> = line.iter().map(|&q| place(q, d, s1, o)).collect();
                     let cap_pen = Pen { width: s1, start_cap: cap.caps.0, end_cap: cap.caps.1, dash_cap: 0, join: cap.join, align: 0, miter: 10.0, dash: 0, compound: Vec::new(), custom: [None, None], ..pen.clone() };

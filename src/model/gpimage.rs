@@ -5,10 +5,11 @@
 //! float op in the arch's rounding (x64 down, x86 nearest).
 use super::gdiplus::{invert_in, mul_in, Matrix, Round};
 use super::gplinear::infer;
-use super::gppath::{apply, to32, NEAR};
+use super::gppath::{apply, complexity, to32, Complexity, NEAR};
 use super::gpwiden::sqrt64;
 use super::gpstretch::Kernel;
 use super::{Fail, Res};
+use crate::spec::{clause, hit};
 use std::ops::Range;
 
 /// the span CreateOutputSpan picks by the stored mode (0, 1 store as 3, 2 as 7)
@@ -44,7 +45,46 @@ pub struct Chain {
     pub d: (f32, f32, f32, f32),
     pub cols: Range<i64>,
     pub lines: Range<i64>,
+    /// the source read flipped (the rotate / flip branch's clone)
+    pub flip: Option<Flip>,
+    /// the copy span's offset: device (x, y) reads locked (x + ox, y + oy)
+    pub copy: Option<(i64, i64)>,
 }
+
+/// AnalyzeRotateFlip's answers a scale and translate can give (RotateFlipType 4, 6, 2)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Flip {
+    X,
+    Y,
+    Both,
+}
+
+/// IsIntegerTranslate: no scale (within ComputeComplexity's tolerance), each translation within
+/// 1/64 of an integer
+fn integer_translate(r: Round, a: &Matrix) -> bool {
+    let moves = match complexity(r, a) {
+        Complexity::Identity | Complexity::Translate => true,
+        Complexity::Scale | Complexity::General => false,
+    };
+    moves && [a[4], a[5]].iter().all(|&v| r.sub(r.add(v, 0.5).floor(), v).abs() <= 1.0 / 64.0)
+}
+
+/// AnalyzeRotateFlip of the chain's matrix: m12 and m21 within 2^-23 of 0 (InferAffineMatrix of
+/// axis-aligned points; its rotations 1, 3, 5, 7 want m21 and m12 near +-1, a world transform,
+/// which DrawImageRectRectI has not), each scale +-1 within 2^-23, strictly
+fn analyze(r: Round, m: &Matrix) -> Option<Flip> {
+    let near = |a: f32, c: f32| r.sub(a, c).abs() < EPS;
+    if !(m[1].abs() < EPS && m[2].abs() < EPS) {
+        return None;
+    }
+    match (near(m[0], 1.0), near(m[0], -1.0), near(m[3], 1.0), near(m[3], -1.0)) {
+        (true, _, _, true) => Some(Flip::Y),
+        (_, true, true, _) => Some(Flip::X),
+        (_, true, _, true) => Some(Flip::Both),
+        _ => None,
+    }
+}
+const EPS: f32 = f32::EPSILON;
 
 /// where a draw goes
 #[derive(Clone, Debug)]
@@ -52,12 +92,10 @@ pub enum Front {
     Draw(Chain),
     /// no rows locked: nothing drawn
     Empty,
-    /// a scale of exactly +-1 on both axes, not both +1: AnalyzeRotateFlip's branch
-    RotateFlip,
 }
 
 /// the rectangles (integers, sizes signed) of a draw onto a bw x bh bitmap from one ih high
-pub fn chain(r: Round, span: Span, dst: [i64; 4], src: [i64; 4], ih: i64, (bw, bh): (i64, i64), half: bool) -> Res<Front> {
+pub fn chain(r: Round, span: Span, dst: [i64; 4], src: [i64; 4], (iw, ih): (i64, i64), (bw, bh): (i64, i64), half: bool) -> Res<Front> {
     let f = |v: i64| v as f32;
     let [dx, dy, dw, dh] = dst.map(f);
     let [mut sx, mut sy, mut sw, mut sh] = src.map(f);
@@ -69,9 +107,6 @@ pub fn chain(r: Round, span: Span, dst: [i64; 4], src: [i64; 4], ih: i64, (bw, b
         tx = r.sub(xr, r.mul(m11, sxr));
         m22 = r.div(r.sub(yb, dy), r.sub(syb, sy));
         ty = r.sub(yb, r.mul(m22, syb));
-    }
-    if m11.abs() == 1.0 && m22.abs() == 1.0 && !(m11 == 1.0 && m22 == 1.0) {
-        return Ok(Front::RotateFlip);
     }
     // (then the source rectangle normalized)
     if sw < 0.0 {
@@ -91,16 +126,52 @@ pub fn chain(r: Round, span: Span, dst: [i64; 4], src: [i64; 4], ih: i64, (bw, b
     let mut s = (sx, sy, sw, sh);
     // (DrvDrawImage: the world to device matrix carries the half pixel offset)
     let o = if half { -0.5 } else { 0.0 };
-    let c: Matrix = [1.0, 0.0, 0.0, 1.0, o, o];
+    let mut c: Matrix = [1.0, 0.0, 0.0, 1.0, o, o];
     // (a source of no area: InferAffineMatrix refuses, the rectangles being whole pixels the
     // determinant is never under FLT_EPSILON otherwise)
-    let m = mul_in(r, &infer(r, p, s).ok_or(Fail::Bad)?, &c);
-    // (ApplyVisibleClipToSourceRect, the visible rectangle the bitmap's)
-    let (vis, shift): ((f32, f32, f32, f32), Matrix) = if half {
-        let (x, y) = (r.add(0.0, 0.5), r.add(0.0, 0.5));
-        ((x, y, r.sub(r.add(f(bw), 0.5), x), r.sub(r.add(f(bh), 0.5), y)), [1.0, 0.0, 0.0, 1.0, 0.5, 0.5])
-    } else {
-        ((0.0, 0.0, f(bw), f(bh)), [1.0, 0.0, 0.0, 1.0, 0.0, 0.0])
+    let mut m = mul_in(r, &infer(r, p, s).ok_or(Fail::Bad)?, &c);
+    // (DrvDrawImage's rotate / flip branch: a scale of +-1, not an integer translation; the source
+    // a flipped PARGB clone, the device matrix a translation, clean-room notes image.md 13)
+    let flip = if integer_translate(r, &m) { None } else { analyze(r, &m) };
+    if let Some(fl) = flip {
+        hit(clause::GP_DRAW_SCALED);
+        let (mut tx, mut ty) = (m[4], m[5]);
+        if half {
+            tx = r.add(r.add(tx, 0.5), r.sub(r.mul(m[0], -0.5), r.mul(m[2], 0.5)));
+            ty = r.add(r.add(ty, 0.5), r.sub(r.mul(m[3], -0.5), r.mul(m[1], 0.5)));
+            s.0 = r.add(s.0, 0.5);
+            s.1 = r.add(s.1, 0.5);
+        }
+        let (w, h) = (f(iw), f(ih));
+        let mirror = |v: f32, n: f32, size: f32| r.add(v, r.sub(n, r.add(r.mul(v, 2.0), size)));
+        match fl {
+            Flip::X => {
+                tx = r.add(tx, r.add(r.mul(-w, 1.0), r.mul(0.0, 0.0)));
+                ty = r.add(ty, r.add(r.mul(-w, 0.0), r.mul(0.0, 1.0)));
+                s.0 = mirror(s.0, w, s.2);
+            }
+            Flip::Y => {
+                ty = r.add(ty, r.add(-h, 0.0));
+                tx = r.add(tx, r.add(r.mul(-h, 0.0), 0.0));
+                s.1 = mirror(s.1, h, s.3);
+            }
+            Flip::Both => {
+                tx = r.add(tx, r.add(r.mul(-w, 1.0), r.mul(-h, 0.0)));
+                ty = r.add(ty, r.add(r.mul(-w, 0.0), r.mul(-h, 1.0)));
+                s.1 = mirror(s.1, h, s.3);
+                s.0 = mirror(s.0, w, s.2);
+            }
+        }
+        c = [1.0, 0.0, 0.0, 1.0, tx, ty];
+        p = [(s.0, s.1), (r.add(s.0, s.2), s.1), (s.0, r.add(s.1, s.3))];
+        m = mul_in(r, &infer(r, p, s).ok_or(Fail::Bad)?, &c);
+    }
+    // (ApplyVisibleClipToSourceRect, the visible rectangle the bitmap's through the device to
+    // world matrix, image.md 12e, 13f)
+    let shift = invert_in(r, &c).ok_or(Fail::Bad)?;
+    let vis = {
+        let (x, y) = (r.add(0.0, shift[4]), r.add(0.0, shift[5]));
+        (x, y, r.sub(r.add(f(bw), shift[4]), x), r.sub(r.add(f(bh), shift[5]), y))
     };
     let q = invert_in(r, &mul_in(r, &m, &shift)).ok_or(Fail::Bad)?;
     let (vx, vy, vw, vh) = vis;
@@ -170,19 +241,24 @@ pub fn chain(r: Round, span: Span, dst: [i64; 4], src: [i64; 4], ih: i64, (bw, b
     let y0 = r.add(r.mul(sf.1, ms2[3]), ms2[5]);
     let y2 = r.add(r.mul(r.add(sf.1, sf.3), ms2[3]), ms2[5]);
     // (the device pixels: the points to 1/16, ceiled past the offset)
-    let to16 = |v: f32| (f64::from(v) * 16.0 + 0.5).floor() / 16.0;
-    let ov = if half { 0.5 } else { 0.0 };
-    let edge = |v: f32| (to16(v) - ov).ceil() as i64;
+    // (the points through the device translation (exactly), to 1/16, ceiled)
+    let to16 = |v: f64| (v * 16.0 + 0.5).floor() / 16.0;
+    let ex = |v: f32| to16(f64::from(v) + f64::from(c[4])).ceil() as i64;
+    let ey = |v: f32| to16(f64::from(v) + f64::from(c[5])).ceil() as i64;
     let (xl, xh) = (p[0].0.min(p[1].0), p[0].0.max(p[1].0));
     let (yl, yh) = (p[0].1.min(p[2].1), p[0].1.max(p[2].1));
+    // (CreateOutputSpan: an integer translation the copy span, whatever the mode, Clamp)
+    let copy = integer_translate(r, &ms2).then(|| (-(r.add(ms2[4], 0.5).floor() as i64), -(r.add(ms2[5], 0.5).floor() as i64)));
     Ok(Front::Draw(Chain {
         top: first,
         rows: last - first,
         sf,
         ms2,
         d: (x0, y0, r.sub(x2, x0), r.sub(y2, y0)),
-        cols: edge(xl).max(0)..edge(xh).min(bw),
-        lines: edge(yl).max(0)..edge(yh).min(bh),
+        cols: ex(xl).max(0)..ex(xh).min(bw),
+        lines: ey(yl).max(0)..ey(yh).min(bh),
+        flip,
+        copy,
     }))
 }
 
@@ -364,17 +440,36 @@ pub struct Draw {
 }
 
 /// the pixels a draw writes, (x, y, premultiplied color), the source read through texel (the
-/// image's own coordinates, inside it); None for AnalyzeRotateFlip's branch
-pub fn render<F: Fn(i64, i64) -> Res<u32>>(r: Round, span: Span, d: &Draw, x86: bool, texel: F) -> Res<Option<Vec<(i64, i64, u32)>>> {
-    let ch = match chain(r, span, d.dst, d.src, d.image.1, d.target, d.half)? {
+/// image's own coordinates, inside it)
+pub fn render<F: Fn(i64, i64) -> Res<u32>>(r: Round, span: Span, d: &Draw, x86: bool, texel: F) -> Res<Vec<(i64, i64, u32)>> {
+    let ch = match chain(r, span, d.dst, d.src, d.image, d.target, d.half)? {
         Front::Draw(ch) => ch,
-        Front::Empty => return Ok(Some(Vec::new())),
-        Front::RotateFlip => return Ok(None),
+        Front::Empty => return Ok(Vec::new()),
     };
-    let top = ch.top;
-    let read = |x: i64, y: i64| texel(x, top + y);
-    Ok(Some(match span {
-        Span::Stretch(k) => super::gpstretch::stretch(r, k, &ch, d.image.0, x86, &read)?,
-        Span::Nearest | Span::Bilinear | Span::Bicubic => draw(r, span, &ch, d.image.0, x86, &read)?,
-    }))
+    let (top, (iw, ih)) = (ch.top, d.image);
+    // (the clone RotateFlip made: rows reversed, columns, or both)
+    let read = |x: i64, y: i64| {
+        let y = top + y;
+        match ch.flip {
+            None => texel(x, y),
+            Some(Flip::X) => texel(iw - 1 - x, y),
+            Some(Flip::Y) => texel(x, ih - 1 - y),
+            Some(Flip::Both) => texel(iw - 1 - x, ih - 1 - y),
+        }
+    };
+    if let Some((ox, oy)) = ch.copy {
+        hit(clause::GP_DRAW);
+        let mut out = Vec::new();
+        for y in ch.lines.clone() {
+            for x in ch.cols.clone() {
+                let (sx, sy) = (x + ox, y + oy);
+                out.push((x, y, if (0..iw).contains(&sx) && (0..ch.rows).contains(&sy) { read(sx, sy)? } else { 0 }));
+            }
+        }
+        return Ok(out);
+    }
+    match span {
+        Span::Stretch(k) => super::gpstretch::stretch(r, k, &ch, iw, x86, &read),
+        Span::Nearest | Span::Bilinear | Span::Bicubic => draw(r, span, &ch, iw, x86, &read),
+    }
 }
