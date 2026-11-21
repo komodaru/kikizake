@@ -967,6 +967,15 @@ fn probes(s: &mut String, r: &mut XorShift32) {
     for (i, (g, w)) in [("d2ell 0 8 6 3 3", "2"), ("d2ell 0 8 6 1 1", "1.5"), ("d2rrect 0 2 2 14 10 1 1", "3"), ("d2rrect 0 2 2 14 10 2 2", "1"), ("d2rrect 0 2 2 14 10 9 9", "2")].iter().enumerate() {
         writeln!(s, "case widenround-{i}\n{g}\nd2widen 0 {w}\nend");
     }
+    // what is still open, asked: crossing figures past 2^31 area workspace units (D2D.AREA.CURVE),
+    // an Outline past 16 DIP (D2D.SIMP), a stroke under a skew (an elliptic pen) and a rounded
+    // rectangle's own stroke (D2D.RT)
+    for (i, k) in ["3000", "5000"].iter().enumerate() {
+        writeln!(s, "case pareahuge-{i}\nd2path 0 alt m -{k} -{k} {k} {k} {k} -{k} -{k} {k} z\nd2area 0\nend");
+    }
+    writeln!(s, "case outlinebig-0\nd2path 0 alt m -40 -40 40 40 40 -40 -40 40 z\nd2outline 0\nend");
+    writeln!(s, "case strkskew-0\nd2target 16 12\nd2xform 1 0 0.5 1 0 0\nd2path 0 alt m 2 2 10 8 3 9 z\nd2drawg 0 1.5 255 255 255 255\nd2read\nend");
+    writeln!(s, "case strkrrect-0\nd2target 16 12\nd2rrect 0 2 2 14 10 2 1\nd2drawg 0 1.5 255 255 255 255\nd2read\nend");
     for (i, (e, w)) in [("8 6 3 3", "2"), ("8 6 1 1", "1.5")].iter().enumerate() {
         writeln!(s, "case strkround-{i}\nd2target 16 12\nd2ell 0 {e}\nd2drawg 0 {w} 255 255 255 255\nd2read\nend");
     }
