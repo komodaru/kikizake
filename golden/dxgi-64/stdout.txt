@@ -2158,4 +2158,313 @@ device12 ok
 factory ok
 swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
 latency hr 887a0001 get 00000000 1
+case dns-first-discard
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 887a0001 index 0
+present hr 00000000 index 1
+present hr 00000000 index 1
+case dns-test-discard
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 00000000 index 0
+present hr 887a0001 index 0
+present hr 00000000 index 1
+resize = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present hr 887a0001 index 0
+case present1-none-discard
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present1 hr 00000000 index 1
+present1 hr 00000000 index 1
+present1 hr 00000000 index 1
+case present1-full-discard
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+case present1-partial-first-discard
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+case present1-rects-discard
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+case present1-scroll-discard
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+case present1-resize-discard
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present1 hr 887a0001 index 0
+resize = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+case dns-first-seq
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present hr 887a0001 index 0
+present hr 00000000 index 1
+present hr 00000000 index 1
+case dns-test-seq
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present hr 00000000 index 0
+present hr 887a0001 index 0
+present hr 00000000 index 1
+resize = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present hr 887a0001 index 0
+case present1-none-seq
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present1 hr 00000000 index 1
+present1 hr 00000000 index 1
+present1 hr 00000000 index 1
+case present1-full-seq
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present1 hr 00000000 index 1
+present1 hr 00000000 index 0
+present1 hr 00000000 index 1
+case present1-partial-first-seq
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present1 hr 887a0001 index 0
+present1 hr 00000000 index 1
+present1 hr 00000000 index 0
+case present1-rects-seq
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present1 hr 00000000 index 1
+present1 hr 887a0001 index 1
+present1 hr 887a0001 index 1
+present1 hr 887a0001 index 1
+present1 hr 887a0001 index 1
+present1 hr 887a0001 index 1
+present1 hr 887a0001 index 1
+present1 hr 887a0001 index 1
+present1 hr 887a0001 index 1
+present1 hr 00000000 index 0
+case present1-scroll-seq
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present1 hr 00000000 index 1
+present1 hr 887a0001 index 1
+present1 hr 887a0001 index 1
+present1 hr 00000000 index 0
+present1 hr 887a0001 index 0
+present1 hr 887a0001 index 0
+present1 hr 00000000 index 1
+case present1-resize-seq
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present1 hr 00000000 index 1
+resize = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+present1 hr 887a0001 index 0
+present1 hr 00000000 index 1
+present1 hr 00000000 index 0
+case hdr-discard
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+hdr hr 00000000
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 00000000
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 00000000
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+case hdr-seq
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 3 0 0 index 0
+hdr hr 00000000
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 00000000
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 00000000
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+hdr hr 80070057
+case wait-none
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 0 index 0
+wait null
+case wait-flag
+device12 ok
+factory ok
+swapchain = 40 40 57 0 1 0 20 2 0 4 0 40 index 0
+wait handle
+wait handle
+case feat-args
+factory ok
+feat hr 00000000 1
+feat hr 887a0001 cccccccc
+feat hr 887a0001 cccccccc
+feat hr 887a0001 cccccccc
+feat hr 887a0001 cccccccc
+feat hr 887a0001 cccccccc
+feat hr 887a0001 cccccccc
+feat hr 887a0001 cccccccc
+feat hr 887a0001 cccccccc
+feat hr 887a0001 cccccccc
+case pref-args
+factory ok
+pref hr 00000000 1414 8c 0
+pref hr 00000000 1414 8c 0
+pref hr 00000000 1414 8c 0
+pref hr 00000000 1414 8c 0
+pref hr 00000000 1414 8c 0
+pref hr 00000000 1414 8c 0
+pref hr 00000000 1414 8c 0
+pref hr 00000000 1414 8c 0
+pref hr 00000000 1414 8c 2
+pref hr 00000000 1414 8c 2
+pref hr 00000000 1414 8c 2
+pref hr 00000000 1414 8c 2
+pref hr 00000000 1414 8c 2
+pref hr 00000000 1414 8c 2
+pref hr 00000000 1414 8c 2
+pref hr 00000000 1414 8c 2
+pref hr 887a0002
+pref hr 887a0002
+pref hr 887a0002
+pref hr 887a0002
+pref hr 887a0002
+pref hr 887a0002
+pref hr 887a0002
+pref hr 887a0002
 done

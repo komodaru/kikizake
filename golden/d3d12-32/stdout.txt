@@ -24428,4 +24428,1770 @@ create hr 00000001
 create hr 00000001
 create hr 00000001
 create hr 00000001
-done
+case props-type0
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case props-type1
+device12 ok
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case props-type2
+device12 ok
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case props-type3
+device12 ok
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case props-type4
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case props-type5
+device12 ok
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case props-type6
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case props-nodes
+device12 ok
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-default-buf
+device12 ok
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+case committed-flags-default-rt
+device12 ok
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+case committed-flags-default-tex
+device12 ok
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+case committed-custom-default
+device12 ok
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+case committed-flags-upload-buf
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-upload-rt
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-upload-tex
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-custom-upload
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-readback-buf
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-readback-rt
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-readback-tex
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-custom-readback
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-gpuupload-buf
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-gpuupload-rt
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-gpuupload-tex
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-custom-gpuupload
+device12 ok
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+case committed-flags-custom-na-buf
+device12 ok
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+case committed-flags-custom-na-rt
+device12 ok
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+case committed-flags-custom-na-tex
+device12 ok
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+case committed-custom-custom-na
+device12 ok
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+case committed-flags-custom-wc-buf
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-custom-wc-rt
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-custom-wc-tex
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-custom-custom-wc
+device12 ok
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+case committed-flags-custom-wb-buf
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-custom-wb-rt
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-flags-custom-wb-tex
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-custom-custom-wb
+device12 ok
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+case committed-display
+device12 ok
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+case committed-clear
+device12 ok
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 80070057
+committed12 hr 00000001
+committed12 hr 00000001
+case heapx-type0
+device12 ok
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-type1
+device12 ok
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-type2
+device12 ok
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-type3
+device12 ok
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-type4
+device12 ok
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-type5
+device12 ok
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-type6
+device12 ok
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-default
+device12 ok
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-upload
+device12 ok
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-custom-wc
+device12 ok
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-custom-na
+device12 ok
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case heapx-nodes
+device12 ok
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 00000001
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+heapx12 hr 80070057
+case rootsig2-0
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000095000000010000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum b99045548d982f7ec91bc404b415cd7c
+rsmake hr 00000000
+case rootsig2-1
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000094000000010000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum f98006b09ab4e1d3b33ed8a67ab1bbad
+rsmake hr 00000000
+case rootsig2-2
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c000000010000000000000018000000010000001800000000000000d5000000010000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 37b47a4d531f795f39dda6dba3dbdfd7
+rsmake hr 00000000
+case rootsig2-3
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000095010000010000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 6260e3e56310dea41f7033960578179a
+rsmake hr 00000000
+case rootsig2-4
+device12 ok
+rs hr 80070057
+case rootsig2-5
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 0694f01402cd0825d411abf0e9930bea
+rsmake hr 00000000
+case rootsig2-6
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000020000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum ad623332fb6563be132efbddd1bce016
+rsmake hr 00000000
+case rootsig2-7
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000030000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 80737f8710172bf18b67da0679c26ca2
+rsmake hr 00000000
+case rootsig2-8
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000040000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 2fd57eaa855f5d784d8c66a9b731db9d
+rsmake hr 00000000
+case rootsig2-9
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000050000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 683ab3351f98239dc90e993b3ff2d1ac
+rsmake hr 00000000
+case rootsig2-10
+device12 ok
+rs hr 80070057
+case rootsig2-11
+device12 ok
+rs hr 80070057
+case rootsig2-12
+device12 ok
+rs hr 80070057
+case rootsig2-13
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000500000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum ef7063d627a70ed7246291d9d75f130b
+rsmake hr 00000000
+case rootsig2-14
+device12 ok
+rs hr 80070057
+case rootsig2-15
+device12 ok
+rs hr 80070057
+case rootsig2-16
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000005000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum e51dfbf75f734d6bced50c8510531041
+rsmake hr 00000000
+case rootsig2-17
+device12 ok
+rs hr 80070057
+case rootsig2-18
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 000080c110000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum aef1ce7f3d827e704d37634540686e70
+rsmake hr 00000000
+case rootsig2-19
+device12 ok
+rs hr 80070057
+case rootsig2-20
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0ad77f4110000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 1ee8d1a909d522ee144b1b095131e62f
+rsmake hr 00000000
+case rootsig2-21
+device12 ok
+rs hr 80070057
+case rootsig2-22
+device12 ok
+rs hr 80070057
+case rootsig2-23
+device12 ok
+rs hr 80070057
+case rootsig2-24
+device12 ok
+rs hr 80070057
+case rootsig2-25
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000008010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum caccfea6224e661256a4a18caa04f30a
+rsmake hr 00000000
+case rootsig2-26
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000000000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum c3461877abae3d53cbccc1de69db98ba
+rsmake hr 00000000
+case rootsig2-27
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000001000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 0f77a8722a5c407831f499751d565345
+rsmake hr 00000000
+case rootsig2-28
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 0694f01402cd0825d411abf0e9930bea
+rsmake hr 00000000
+case rootsig2-29
+device12 ok
+rs hr 80070057
+case rootsig2-30
+device12 ok
+rs hr 80070057
+case rootsig2-31
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000000000000000000000000000ffff7f7f000000000000000000000000
+rs sum c1ba154d6cb3c8523527ea5bcfaafd70
+rsmake hr 00000000
+case rootsig2-32
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 0694f01402cd0825d411abf0e9930bea
+rsmake hr 00000000
+case rootsig2-33
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000080000000000000000000000ffff7f7f000000000000000000000000
+rs sum d1c1072e356b92107c456b35c7e16c41
+rsmake hr 00000000
+case rootsig2-34
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000090000000000000000000000ffff7f7f000000000000000000000000
+rs sum 99378d3f35fdc3415329b3a18e0d5066
+rsmake hr 00000000
+case rootsig2-35
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000ffffffff0000000000000000ffff7f7f000000000000000000000000
+rs sum a51a8dd7670e980fb499b7ca5d27dfaf
+rsmake hr 00000000
+case rootsig2-36
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000010000000000000000000000ffff7f7f000000000000000000000000
+rs sum 0694f01402cd0825d411abf0e9930bea
+rsmake hr 00000000
+case rootsig2-37
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000010000000100000000000000ffff7f7f000000000000000000000000
+rs sum fc291e6c85f8de0ce7726bb9950ca9b7
+rsmake hr 00000000
+case rootsig2-38
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000010000000200000000000000ffff7f7f000000000000000000000000
+rs sum 0d82dd7566b17f819e268b25860ef99f
+rsmake hr 00000000
+case rootsig2-39
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000010000000300000000000000ffff7f7f000000000000000000000000
+rs sum 3c61d153f08b467bbe70af1b04cea31c
+rsmake hr 00000000
+case rootsig2-40
+device12 ok
+rs hr 00000000 size 78
+rs 01000000780000000100000024000000525453304c00000001000000000000001800000001000000180000000000000015000000010000000100000001000000
+rs 0000000010000000010000000400000000000000ffff7f7f000000000000000000000000
+rs sum da51e8bee6935d1b83e9342a89bb5338
+rsmake hr 00000000
