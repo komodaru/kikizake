@@ -26604,4 +26604,178 @@ beginpath 1
 ret 0
 endpath 1
 path 0
+case anglearc-turn-178-49.25
+beginpath 1
+ret 1
+pos 116 -135
+endpath 1
+path 23
+pt 0 0 6
+pt 116 -135 2
+pt 116 -135 4
+pt 116 -135 4
+pt 116 -135 4
+pt 84 -163 4
+pt 43 -178 4
+pt 0 -178 4
+pt -98 -178 4
+pt -178 -98 4
+pt -178 0 4
+pt -178 98 4
+pt -98 178 4
+pt 0 178 4
+pt 98 178 4
+pt 178 98 4
+pt 178 0 4
+pt 178 -52 4
+pt 155 -101 4
+pt 116 -135 4
+pt 116 -135 4
+pt 116 -135 4
+pt 116 -135 4
+case anglearc-turn-62-32.75
+beginpath 1
+ret 1
+pos 68 -18
+endpath 1
+path 23
+pt 0 0 6
+pt 68 -17 2
+pt 68 -17 4
+pt 68 -18 4
+pt 68 -18 4
+pt 57 -35 4
+pt 37 -46 4
+pt 16 -46 4
+pt -18 -46 4
+pt -46 -18 4
+pt -46 16 4
+pt -46 50 4
+pt -18 78 4
+pt 16 78 4
+pt 50 78 4
+pt 78 50 4
+pt 78 16 4
+pt 78 4 4
+pt 75 -8 4
+pt 68 -17 4
+pt 68 -17 4
+pt 68 -18 4
+pt 68 -18 4
+case anglearc-turn-107-41.25
+beginpath 1
+ret 1
+pos 96 -55
+endpath 1
+path 23
+pt 0 0 6
+pt 96 -54 2
+pt 96 -54 4
+pt 96 -55 4
+pt 96 -55 4
+pt 76 -78 4
+pt 47 -91 4
+pt 16 -91 4
+pt -43 -91 4
+pt -91 -43 4
+pt -91 16 4
+pt -91 75 4
+pt -43 123 4
+pt 16 123 4
+pt 75 123 4
+pt 123 75 4
+pt 123 16 4
+pt 123 -10 4
+pt 114 -35 4
+pt 96 -54 4
+pt 96 -54 4
+pt 96 -55 4
+pt 96 -55 4
+case anglearc-turn-108--144
+beginpath 1
+ret 1
+pos -72 79
+endpath 1
+path 23
+pt 0 0 6
+pt -71 79 2
+pt -71 79 4
+pt -71 80 4
+pt -71 80 4
+pt -51 107 4
+pt -19 124 4
+pt 16 124 4
+pt 76 124 4
+pt 124 76 4
+pt 124 16 4
+pt 124 -44 4
+pt 76 -92 4
+pt 16 -92 4
+pt -44 -92 4
+pt -92 -44 4
+pt -92 16 4
+pt -92 39 4
+pt -85 61 4
+pt -71 79 4
+pt -71 79 4
+pt -71 80 4
+pt -71 80 4
+case anglearc-turn-112-52.25
+beginpath 1
+ret 1
+pos 84 -73
+endpath 1
+path 23
+pt 0 0 6
+pt 85 -73 2
+pt 85 -73 4
+pt 85 -72 4
+pt 85 -72 4
+pt 65 -88 4
+pt 41 -96 4
+pt 16 -96 4
+pt -46 -96 4
+pt -96 -46 4
+pt -96 16 4
+pt -96 78 4
+pt -46 128 4
+pt 16 128 4
+pt 78 128 4
+pt 128 78 4
+pt 128 16 4
+pt 128 -19 4
+pt 112 -51 4
+pt 85 -73 4
+pt 85 -73 4
+pt 85 -72 4
+pt 85 -72 4
+case anglearc-turn-112-127.75
+beginpath 1
+ret 1
+pos -53 -73
+endpath 1
+path 23
+pt 0 0 6
+pt -53 -73 2
+pt -53 -73 4
+pt -53 -72 4
+pt -53 -72 4
+pt -80 -51 4
+pt -96 -19 4
+pt -96 16 4
+pt -96 78 4
+pt -46 128 4
+pt 16 128 4
+pt 78 128 4
+pt 128 78 4
+pt 128 16 4
+pt 128 -46 4
+pt 78 -96 4
+pt 16 -96 4
+pt -9 -96 4
+pt -33 -88 4
+pt -53 -73 4
+pt -53 -73 4
+pt -53 -72 4
+pt -53 -72 4
 done

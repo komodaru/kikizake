@@ -1,4 +1,6 @@
 kikizake d3dx9load
+case cpu
+cpu AuthenticAMD feda3203 178bfbff f1bf07a9
 case load-R8G8B8
 device ok
 px rt 16 1 32
@@ -3902,6 +3904,4 @@ px rt 4 4 -8
 1ff0d5915ff75577
 px rt 4 4 -16
 ffffffffffffffffe0ff5689555555d1
-case cpu
-cpu AuthenticAMD feda3203 178bfbff 219c07a9
 done
