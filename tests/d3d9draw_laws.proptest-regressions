@@ -6,3 +6,4 @@
 # everyone who runs the test benefits from these saved cases.
 cc b91df80e7f346e51da1d1abc02ccc7dcc724045e75d82f2c4b5db3bba79169df # shrinks to m = 1174523904, sign = false
 cc 898d233ef82ebc2151f1e597d266d9aa3ce7acb2213647b4c8864dceaf5f35bb # shrinks to a = (969, 1523), b = (337, 48)
+cc 2a8b403aecf71b92c702ea90293cf0256d520a5fe74041729c8b6c0ebd2b264e # shrinks to m = 998242731, sign = false
