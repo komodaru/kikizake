@@ -1330,6 +1330,39 @@ pub fn wicdecode() -> String {
         g.extend_from_slice(&[0x80, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 2, 2, 0x2c, 0, 0, 0x3b]);
         big(&mut s, &format!("broken-big-gif-{w}"), &g);
     }
+    // (round 2: which size GIF's limit reads, a row the data reaches in part under a filter,
+    // BMP's limits at their edge, big TIFFs)
+    let gifsz = |s: &mut String, name: &str, (sw, sh): (u32, u32), (fw, fh): (u32, u32)| {
+        let mut g = b"GIF89a".to_vec();
+        le16(&mut g, sw);
+        le16(&mut g, sh);
+        g.extend_from_slice(&[0, 0, 0, 0x2c, 0, 0, 0, 0]);
+        le16(&mut g, fw);
+        le16(&mut g, fh);
+        g.extend_from_slice(&[0x80, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 2, 2, 0x2c, 0, 0, 0x3b]);
+        writeln!(s, "case {name}\nwdecode {}\nwframe 0\nwinfo\nwpixels 0 0 1 1\nend", hex(&g));
+    };
+    gifsz(&mut s, "broken-gifsize-screen", (40000, 40000), (2, 2));
+    gifsz(&mut s, "broken-gifsize-frame", (2, 2), (40000, 40000));
+    gifsz(&mut s, "broken-gifsize-zero", (0, 5), (2, 2));
+    gifsz(&mut s, "broken-gifsize-edge-0", (32769, 16383), (2, 2));
+    gifsz(&mut s, "broken-gifsize-edge-1", (32770, 16383), (2, 2));
+    for (k, (w, h, data)) in [(1200u32, 1000u32, vec![1u8, 5, 3]), (4, 3, vec![0, 1, 2, 3, 4, 2, 9, 9]), (4, 3, vec![0, 1, 2, 3, 4, 1, 9, 9]), (4, 3, vec![0, 1, 2, 3, 4, 4, 9, 9])].into_iter().enumerate() {
+        writeln!(s, "case broken-png-part-{k}\nwdecode {}\nwframe 0\nwinfo\nwpixels 0 0 4 2\nend", hex(&png(w, h, 8, 0, false, &[], &data, 1 << 16)));
+    }
+    decode_case(&mut s, "broken-png-part-adam7", &png(4, 4, 8, 0, true, &[], &[0, 7, 0, 8, 0, 9, 1], 1 << 16), 1, false);
+    let pal = [0x102030u32, 0x405060];
+    for (k, (w, h)) in [(0i32, 4i32), (4, 0), (-4, 4), (4096, 131071), (4096, -131071), (0x0400_0000, 1)].into_iter().enumerate() {
+        writeln!(s, "case broken-bmpsize-{k}\nwdecode {}\nwframe 0\nwinfo\nwpixels 0 0 1 1\nend", hex(&bmp(40, w, h, 8, 1, [0; 4], 2, &pal, &[0, 1], false, (0, 0))));
+    }
+    for (w, h) in [(1200u32, 1000u32), (40000, 40000)] {
+        let im = TiffImage { w: 4, h: 4, photometric: 1, bits: 8, samples: 1, extra: None, planar: 1, rps: 2, px: (0..16).map(|v| v * 13).collect(), map: Vec::new(), res: None, format: 1 };
+        let mut f = tiff(false, &[im]);
+        tiff_patch(&mut f, 256, w);
+        tiff_patch(&mut f, 257, h);
+        tiff_patch(&mut f, 278, h);
+        writeln!(s, "case broken-big-tiff-{w}\nwdecode {}\nwframe 0\nwinfo\nwpixels 0 0 4 2\nwpixels {} {} 3 1\nend", hex(&f), w / 2, h / 2);
+    }
     s
 }
 
