@@ -556,7 +556,9 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
             1 if matches!(view.dim(), 2 | 3) => hit(clause::D3DRASTER_RT_1D),
             // (MEASURED, WARP: probe-rt-buffer) a buffer's view from its first element: one
             // row, as a 1D texture's
-            4 if view.dim() == 1 && view.u(0, matches!(dev, Dev::D11(_))) == 0 => hit(clause::D3DRASTER_RT_1D),
+            // (MEASURED, WARP: probe-rt-buffer-off) one from a later element: pixel x on
+            // element first + x
+            4 if view.dim() == 1 => hit(clause::D3DRASTER_RT_1D),
             _ => return Err(Fail::Unmodeled(open::D3DRASTER_RTKIND)),
         }
         r.size(r.mip_of(rt_sub))
@@ -2612,10 +2614,12 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
     let (rb, rows, _) = res.layout(sub)?;
     // (a 3D view's first depth slice, D3DRASTER.RT.3D)
     let slice = if res.d.dim == 3 && view.dim() == 8 { view.u(1, matches!(dev, Dev::D11(_))) as usize } else { 0 };
+    // (a buffer's view from its first element on, D3DRASTER.RT.1D)
+    let first = if res.d.dim == 4 && view.dim() == 1 { index(view.u(0, matches!(dev, Dev::D11(_)))) } else { 0 };
     let el = (f.bits / 8) as usize;
     let b = res.subs[sub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
     // (a view whose elements are wider than its resource's, as mutations make: not measured)
-    let e = b.get_mut(slice * rows * rb + y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
+    let e = b.get_mut(slice * rows * rb + y * rb + (first + x) * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
     let new = match f.num {
         Num::Uint | Num::Sint => {
             if d.blend.0[0] != 0 {

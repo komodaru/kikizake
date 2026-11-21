@@ -478,8 +478,9 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
     }
     let f = w[0];
     let Some(vf) = super::dxgifmt::format(f) else { return bad };
-    // (MEASURED, WARP: probe-filter-fmt107) a YUY2 texture's view in its own format is refused
-    if f == 107 && d.dim != 4 {
+    // (MEASURED, WARP: probe-filter-fmt107, -fmt108, -fmt109) a packed YUV texture's (YUY2,
+    // Y210, Y216) view in its own format is refused
+    if matches!(f, 107..=109) && d.dim != 4 {
         hit(clause::D3DRES_VIEW_YUY2);
         return bad;
     }

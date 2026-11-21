@@ -604,6 +604,22 @@ fn suite(d3d11: bool) -> String {
         vertex(&mut s, x, y, 0.5, color(i), 16.0, 16.0);
     }
     writeln!(&mut s, "draw 4 3 32\nread 0 0 64 1 1\nend");
+    // a 1D array with mips sampled through a Texture2D (TEXTURE1DARRAY view)
+    writeln!(&mut s, "case probe-filter-1darray-mips\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0");
+    writeln!(&mut s, "tex 1 1 4 1 2 3 28 0 8 0 0 1 0 init 400 16 0\nsrv 1 1 nodesc\ntsrv 1\nsamp 0x15 3 3 3");
+    writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader(Prog::Vs)), hex(&shader(Prog::Pssample)));
+    writeln!(&mut s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0));
+    for (x, y, u, v) in [(-1.0f32, 1.0f32, -1.5f32, -1.5f32), (1.0, 1.0, 4.5, -1.5), (-1.0, -1.0, -1.5, 4.5), (1.0, -1.0, 4.5, 4.5)] {
+        writeln!(&mut s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0));
+    }
+    writeln!(&mut s, "draw 5 4 32\nread 0 0 256 16 1\nend");
+    // an R8G8B8A8_UINT target of 4 samples, resolved where its samples differ
+    writeln!(&mut s, "case probe-rt-ms4-uint\n{dev}\ntex 0 2 16 16 1 1 30 0 0x20 0 0 4 0\nrtv 0 0 nodesc\ntarget 0\ntex 1 2 16 16 1 1 30 0 0x20 0 0 1 0");
+    writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
+    for (i, (x, y)) in (0u32..).zip([(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter()) {
+        vertex(&mut s, x, y, 0.5, color(i), 16.0, 16.0);
+    }
+    writeln!(&mut s, "draw 4 3 32\nresolve 1 0 0 0 30\nread 1 0 64 16 1\nend");
     // linear filtering of the other formats the model does not class: R1, Y210, Y216
     for fmt in [66u32, 108, 109] {
         writeln!(&mut s, "case probe-filter-fmt{fmt}\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0");
