@@ -649,8 +649,13 @@ proptest! {
     #[test]
     fn offset_depths_move_by_the_offset(v in any::<[(i16, i16); 3]>(), z in any::<[u16; 3]>(), factor in -4.0f32..4.0, units in -64i8..64) {
         let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 8 + 2048), y: Sub(i64::from(y) / 8 + 2048) });
-        let z = z.map(|q| f32::from(q) / 65535.0 * 0.5 + 0.25);
+        // (depths a little apart, so most planes are gentle)
+        let z = z.map(|q| f32::from(q) / 65535.0 * 2f32.powi(-12) + 0.5);
         let bits = tri::DepthBits::D32;
+        // (planes gentle enough that every row's start, seen or not, stays inside the 32-bit
+        // range with the offset: a start past it is i32::MIN, and the rows below step from it)
+        let (a, b) = tri::depth_slopes(v, z);
+        prop_assume!(a.abs().max(b.abs()) < 1.0 / 256.0);
         let plain = tri::depths(v, z, 16, 16, bits);
         prop_assert_eq!(&plain, &tri::depths_offset(v, z, 16, 16, bits, tri::Offset::NONE));
         let offset = tri::Offset { factor, units: f32::from(units) * 2f32.powi(-23) };
@@ -750,4 +755,68 @@ fn snap_pre_rounding_bound() {
     let want = a * (583.0 * 128.0 - 1.0);
     let err = (s.0 as f64 - want).abs();
     assert!(err > 0.5 && err <= 0.5 + 1.0 / 131072.0, "{err}");
+}
+
+proptest! {
+    /// GL 1.1 3.8.12: glGenTextures gives names no texture and no other glGenTextures holds; the
+    /// generic implementation's run is the lowest run of free names from 1 that fits
+    #[test]
+    fn texture_names_are_fresh_runs(steps in proptest::collection::vec((0u8..3, 1u32..6, 1u32..24), 1..24)) {
+        use kikizake::model::opengl::tex::Tex;
+        let mut tex = Tex::new();
+        let mut held: std::collections::BTreeSet<u32> = std::collections::BTreeSet::new();
+        for (op, n, name) in steps {
+            match op {
+                0 => {
+                    let names = tex.gen_names(n);
+                    prop_assert_eq!(names.len(), usize::try_from(n).unwrap());
+                    let first = names[0];
+                    for (k, v) in names.iter().enumerate() {
+                        prop_assert_eq!(*v, first + u32::try_from(k).unwrap());
+                        prop_assert!(!held.contains(v));
+                    }
+                    // (no lower run of n free names)
+                    for start in 1..first {
+                        prop_assert!((start..start + n).any(|v| held.contains(&v)));
+                    }
+                    held.extend(names);
+                }
+                1 => {
+                    tex.delete(&[name]);
+                    held.remove(&name);
+                    prop_assert!(!tex.is_texture(name));
+                }
+                _ => {
+                    prop_assert!(tex.bind(0xde1, name).is_ok() || tex.objects.get(&name).is_some_and(|o| o.target != kikizake::model::opengl::tex::Target::Two));
+                    held.insert(name);
+                    prop_assert!(tex.is_texture(name));
+                }
+            }
+        }
+    }
+
+    /// GL 1.1 3.8.1: a texel kept as a byte is the nearest of 255 steps, so keeping it again
+    /// changes nothing, and no stored component leaves [0, 1]
+    #[test]
+    fn byte_texels_keep_their_steps(units in 0f32..=255.0) {
+        use kikizake::model::opengl::tex::{kept, Store};
+        let b = kept(Store::Bytes, units);
+        prop_assert!((0.0..=1.0).contains(&b));
+        prop_assert_eq!(kept(Store::Bytes, b * 255.0).to_bits(), b.to_bits());
+        prop_assert!((b * 255.0 - units).abs() <= 0.5 + 1e-3);
+        let f = kept(Store::Floats, units);
+        prop_assert!((f * 255.0 - units).abs() <= 1e-3 * units.max(1.0));
+    }
+
+    /// C's %.9g, as the executor prints float queries: nine significant digits, so a float reads
+    /// back to itself
+    #[test]
+    fn nine_digits_read_back_to_the_float(bits in any::<u32>()) {
+        use kikizake::model::opengl::tex::g9;
+        let v = f32::from_bits(bits);
+        prop_assume!(v.is_finite());
+        let s = g9(f64::from(v));
+        let back: f64 = s.parse().unwrap();
+        prop_assert_eq!(back as f32, v, "{}", s);
+    }
 }

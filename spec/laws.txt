@@ -238,3 +238,6 @@ tests/laws_d2d.rs::widened_lines_are_rectangles pbt D2D.WIDEN
 tests/laws_d2d.rs::one_color_gradients_are_solid pbt D2D.GRAD D2D.GRAD.RADIAL
 tests/laws_dd.rs::soft_line_colours_step_from_end_to_end pbt D3D7.GOURAUD
 tests/laws_dd.rs::warp_line_planes_run_end_to_end pbt D3D7.GOURAUD
+tests/laws_opengl.rs::texture_names_are_fresh_runs pbt GL.TEX.NAMES
+tests/laws_opengl.rs::byte_texels_keep_their_steps pbt GL.TEX.IMAGE
+tests/laws_opengl.rs::nine_digits_read_back_to_the_float pbt GL.TEX.PARAM

@@ -267,6 +267,9 @@ pub fn pname(name: &str) -> u32 {
 use crate::spec::open;
 use crate::spec::clause;
 use super::{Fail, Res};
+
+#[path = "opengl_tex.rs"]
+pub mod tex;
 use crate::case::{num, Op};
 use crate::spec::hit;
 use e::*;
@@ -481,6 +484,8 @@ pub struct Ctx {
     /// what a polygon's edges' window depths are moved by under GL_POLYGON_OFFSET_LINE, while
     /// they are drawn
     pub line_z_offset: f32,
+    /// texture objects, the environment and coordinate generation
+    pub tex: tex::Tex,
     pub line_width: f32,
     /// glLineStipple's repeat factor (1..255) and pattern
     pub line_stipple: (i64, u16),
@@ -571,6 +576,7 @@ impl Ctx {
             fog: Fog { mode: FogMode::Exp, density: 1.0, start: 0.0, end: 1.0, index: 0.0, color: [0.0; 4] },
             offset: (0.0, 0.0),
             line_z_offset: 0.0,
+            tex: tex::Tex::new(),
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
             line_stipple: (1, 0xffff),
@@ -693,7 +699,8 @@ impl Ctx {
             0xb00 => c4(self.color),
             0xb01 => vec![F(self.index)],
             0xb02 => self.normal.iter().map(|x| C(*x)).collect(),
-            0xb03 | 0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],
+            0xb03 => self.tex.coord.iter().map(|x| F(*x)).collect(),
+            0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],
             0xb04 => c4([1.0; 4]),
             0xb05 => vec![F(1.0)],
             0xb07 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],
@@ -811,7 +818,8 @@ impl Ctx {
             0xdf1 | 0xdf2 | 0xdf4 => i(0),
             0x8038 => vec![F(self.offset.0)],
             0x2a00 => vec![F(self.offset.1)],
-            0x8068 | 0x8069 => i(0),
+            0x8068 => i(i64::from(*self.tex.bound.get(tex::Target::One))),
+            0x8069 => i(i64::from(*self.tex.bound.get(tex::Target::Two))),
             0x807a | 0x8088 => i(4),
             0x8081 => i(4),
             0x807b | 0x807e | 0x8082 | 0x8089 => i(FLOAT as i64),
@@ -1178,10 +1186,8 @@ impl Gl {
                 hit(clause::GL_STRINGS);
                 out.push(format!("str {:x} = {s}", n as u32));
             }
-            // (texture images, objects and queries, GL 1.1 3.8: not measured yet, tex-open-*)
-            CtxOp::Gltex | CtxOp::Gltexsub | CtxOp::Glteximg | CtxOp::Gltexq | CtxOp::Gltexv | CtxOp::Glgentex | CtxOp::Gldeltex | CtxOp::Glistex | CtxOp::Glprio | CtxOp::Glresident => {
-                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-            }
+            // (texture images, objects and queries, GL 1.1 3.8: tex::)
+            CtxOp::Gltex | CtxOp::Gltexsub | CtxOp::Glteximg | CtxOp::Gltexq | CtxOp::Gltexv | CtxOp::Glgentex | CtxOp::Gldeltex | CtxOp::Glistex | CtxOp::Glprio | CtxOp::Glresident => ctx.tex_op(t, out)?,
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
                 self.ctx = None;
@@ -1913,10 +1919,8 @@ impl Ctx {
                     Ok(op) => self.accum(op, fl(a, 1) as f32)?,
                 }
             }
-            // (texturing, GL 1.1 3.8: not measured yet, tex-open-*)
-            "glBindTexture" | "glTexParameteri" | "glTexParameterf" | "glTexEnvi" | "glTexEnvf" | "glTexGeni" | "glTexGenf" | "glTexGend" | "glTexCoord1f" | "glTexCoord2f" | "glTexCoord3f" | "glTexCoord4f" | "glCopyTexImage1D" | "glCopyTexImage2D" | "glCopyTexSubImage1D" | "glCopyTexSubImage2D" => {
-                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-            }
+            // (texturing, GL 1.1 3.8: tex::)
+            "glBindTexture" | "glTexParameteri" | "glTexParameterf" | "glTexEnvi" | "glTexEnvf" | "glTexGeni" | "glTexGenf" | "glTexGend" | "glTexCoord1f" | "glTexCoord2f" | "glTexCoord3f" | "glTexCoord4f" | "glCopyTexImage1D" | "glCopyTexImage2D" | "glCopyTexSubImage1D" | "glCopyTexSubImage2D" => self.tex_call(name, a)?,
             // (every call of the executor's table is followed above: a name here is the model's bug)
             _ => return Err(Fail::Bad),
         }
@@ -2878,6 +2882,7 @@ impl Ctx {
     }
 
     fn end(&mut self, mode: u32) -> Res<()> {
+        self.untextured()?;
         let verts = std::mem::take(&mut self.verts);
         // (antialiased points, antialiased polygons whose coverage would show in alpha, lights,
         // color materials and color index lighting are not measured)
@@ -3465,6 +3470,7 @@ impl Ctx {
     /// the per-fragment operations in their order: scissor, alpha, stencil, depth, blending,
     /// dithering, logic operation, masks
     pub fn fragment(&mut self, f: Frag) -> Res<()> {
+        self.untextured()?;
         if self.buffers[0] == 0 {
             hit(clause::GL_BUFFER_NONE);
             return Ok(());
@@ -3897,6 +3903,9 @@ impl Ctx {
         caps(attrib::COLOR, &[0xbc0, 0xbd0, 0xbe2, 0xbf1, 0xbf2]);
         caps(attrib::SCISSOR, &[0xc11]);
         caps(attrib::TEXTURE, &[0xc60, 0xc61, 0xc62, 0xc63, 0xde0, 0xde1]);
+        if mask & attrib::TEXTURE != 0 {
+            self.tex.pop(&s.tex);
+        }
         caps(attrib::EVAL, &[0xd80, 0xd90, 0xd91, 0xd92, 0xd93, 0xd94, 0xd95, 0xd96, 0xd97, 0xd98, 0xdb0, 0xdb1, 0xdb2, 0xdb3, 0xdb4, 0xdb5, 0xdb6, 0xdb7, 0xdb8]);
         if mask & attrib::CURRENT != 0 {
             self.color = s.color;
