@@ -935,7 +935,7 @@ fn xfell(s: &mut String, r: &mut XorShift32) {
         } else {
             format!("d2rrect 0 {} {} {} {} {} {}", q(r, -64, 0), q(r, -64, 0), q(r, 8, 64), q(r, 8, 64), q(r, 0, 24), q(r, 0, 24))
         };
-        let m = |r: &mut XorShift32| (0..6).map(|_| q(r, -16, 16)).collect::<Vec<_>>().join(" ");
+        let m = |r: &mut XorShift32| Vec::<_>::from_fn(6, |_| q(r, -16, 16)).join(" ");
         let (m1, m2) = (m(r), m(r));
         writeln!(s, "case xfell-{i}\n{g}\nd2xf 1 0 {m1}\nd2bounds 1\nd2bounds 1 {m2}\nend");
     }

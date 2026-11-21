@@ -1128,24 +1128,28 @@ enum Weight {
     Fore,
 }
 impl Weight {
-    /// a byte of the hatch table as its weight; a byte past the four stops the build (WEIGHTS)
-    const fn of(v: u8) -> Weight {
+    /// a byte of the hatch table as its weight (None: a byte past the four)
+    const fn of(v: u8) -> Option<Weight> {
         match v {
-            0 => Weight::Back,
-            64 => Weight::Quarter,
-            234 => Weight::Most,
-            255 => Weight::Fore,
-            _ => panic!("a hatch weight past the table's four"),
+            0 => Some(Weight::Back),
+            64 => Some(Weight::Quarter),
+            234 => Some(Weight::Most),
+            255 => Some(Weight::Fore),
+            _ => None,
         }
     }
 }
 /// HATCH as weights, made when the crate is built: a byte past the four is a build error
 const WEIGHTS: [Weight; HATCH.len()] = {
     let mut out = [Weight::Back; HATCH.len()];
-    let mut i = 0;
-    while i < HATCH.len() {
-        out[i] = Weight::of(HATCH[i]);
-        i += 1;
+    let (mut rest, mut i) = (HATCH, 0);
+    while let [b, more @ ..] = rest {
+        let w = Weight::of(*b);
+        assert!(w.is_some(), "a hatch weight past the table's four");
+        if let Some(w) = w {
+            out[i] = w;
+        }
+        (rest, i) = (more, i + 1);
     }
     out
 };

@@ -168,11 +168,7 @@ pub fn executor(source: &str) -> bool {
 pub fn verify_sources(dir: &Path, suites: &[&str]) -> std::io::Result<()> {
     let script = Path::new(env!("CARGO_MANIFEST_DIR")).join("runner/golden.py");
     let check = std::process::Command::new("python3").arg(script).arg("verify").arg(dir).args(suites).output()?;
-    if check.status.success() {
-        Ok(())
-    } else {
-        Err(std::io::Error::other(String::from_utf8_lossy(&check.stderr).into_owned()))
-    }
+    check.status.success().ok_or_else(|| std::io::Error::other(String::from_utf8_lossy(&check.stderr).into_owned()))
 }
 
 /// every suite's cases, each executor, through the models and against Windows' answers in `dir`

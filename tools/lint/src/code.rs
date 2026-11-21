@@ -137,7 +137,7 @@ fn char_lit_end(t: &[char], i: usize) -> Option<usize> {
 
 /// line `n` (1-based) of `code`, its runs of whitespace one space: what a site is known by
 pub fn line_text(code: &str, n: usize) -> String {
-    n.checked_sub(1).and_then(|k| code.split('\n').nth(k)).map(|l| l.split_whitespace().collect::<Vec<_>>().join(" ")).unwrap_or_default()
+    n.checked_sub(1).and_then(|k| code.split('\n').nth(k)).map_or_default(|l| l.split_whitespace().collect::<Vec<_>>().join(" "))
 }
 
 /// the 1-based line of byte offset `at` in `s`

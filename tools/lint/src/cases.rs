@@ -33,7 +33,7 @@ pub fn check(root: &Path) -> Result<(), String> {
             errors.push(error);
         }
     }
-    if errors.is_empty() { Ok(()) } else { Err(errors.join("\n")) }
+    errors.is_empty().ok_or_else(|| errors.join("\n"))
 }
 
 #[cfg(test)]

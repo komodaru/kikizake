@@ -24,6 +24,32 @@ fn hand_bit_width_is_found() {
 }
 
 #[test]
+fn hand_std_shapes_are_found() {
+    // (2026-11-21: 1 trim_prefix, 7 map_or_default, 5 ok_or and 14 Vec::from_fn replaced)
+    for bad in [
+        "fn f(s: &mut S) { s.on = !s.on; }",
+        "fn f(n: &str) -> &str { n.strip_prefix(\"x\").unwrap_or(n) }",
+        "fn f(o: Option<u32>) -> String { o.map(|v| v.to_string()).unwrap_or_default() }",
+        "fn f(o: Option<&str>) -> String { o.map_or(String::new(), |v| v.to_owned()) }",
+        "fn f(ok: bool) -> Res<()> { if ok { Ok(()) } else { Err(Fail::Bad) } }",
+        "fn f(v: &[u8]) -> Vec<u32> { (0..v.len()).map(|i| u32::from(v[i])).collect::<Vec<u32>>() }",
+    ] {
+        let r = rust("src/model/x.rs", bad);
+        assert!(r.len() == 1 && r[0].contains("hand-std"), "{bad}: {r:?}");
+    }
+    for good in [
+        "fn f(s: &mut S) { s.on.toggle(); s.a = !s.b; }",
+        "fn f(n: &str, d: &str) -> &str { n.strip_prefix(\"x\").unwrap_or(d) }",
+        "fn f(o: Option<u32>) -> String { o.map_or_default(|v| v.to_string()) }",
+        "fn g(v: &[Option<u8>]) -> Vec<u8> { v.iter().map(|x| x.unwrap_or_default()).collect() }",
+        "fn f(ok: bool) -> Res<u8> { if ok { Ok(1) } else { Err(Fail::Bad) } }",
+        "fn f(n: u32) -> Vec<u32> { (0..n).map(|i| i * 2).collect::<Vec<u32>>() }",
+    ] {
+        assert!(rust("src/model/x.rs", good).is_empty(), "{good}");
+    }
+}
+
+#[test]
 fn binaries_warn_of_dead_pub() {
     let on = "//! x\n#![cfg_attr(not(test), warn(dead_code_pub_in_binary))]\nfn main() {}";
     assert!(rust("src/main.rs", on).is_empty());

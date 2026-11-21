@@ -352,7 +352,7 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
     // glyphs and runs of two
     for mode in ["aliased", "gray", "cleartype", "natural", "gdi", "gdinatural"] {
         for fit in ["fit", "nofit"] {
-            let f = font_with(0x0f90_0000 + r.range(0, 1 << 16) as u32, 1000, &(0..8).map(|k| (r.range(300, 1000) as u16, if k % 2 == 0 { vec![(r.range(0, 300) as i16, r.range(-100, 100) as i16, r.range(400, 900) as i16, r.range(300, 800) as i16)] } else { vec![(300 + r.range(0, 99) as i16, 0, 300 + r.range(100, 160) as i16, 500), (0, 600, r.range(50, 500) as i16, 600 + r.range(5, 60) as i16)] })).collect::<Vec<_>>());
+            let f = font_with(0x0f90_0000 + r.range(0, 1 << 16) as u32, 1000, &Vec::<_>::from_fn(8, |k| (r.range(300, 1000) as u16, if k % 2 == 0 { vec![(r.range(0, 300) as i16, r.range(-100, 100) as i16, r.range(400, 900) as i16, r.range(300, 800) as i16)] } else { vec![(300 + r.range(0, 99) as i16, 0, 300 + r.range(100, 160) as i16, 500), (0, 600, r.range(50, 500) as i16, 600 + r.range(5, 60) as i16)] })));
             writeln!(s, "case fit-{mode}-{fit}\n{}", font_line(&f));
             for em in [6, 9, 12, 16, 20, 28, 36, 48, 64, 96] {
                 let run = if r.chance(2) { format!("{} 0", r.range(1, 8)) } else { format!("{} {} {} 0", r.range(1, 8), r.range(0, 200), r.range(1, 8)) };

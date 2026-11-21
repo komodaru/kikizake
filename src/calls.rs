@@ -463,7 +463,7 @@ pub fn from_jsonl_with_repeats(jsonl: &str, stdout: Option<&str>, repeats: &[Str
         match (phase, own(&api)) {
             (Phase::Enter, Some(Own::Write)) => {
                 let d = fields.iter().find(|(n, _)| n == "data").map(|(_, f)| f).ok_or_else(|| at("WriteFile without data".into()))?;
-                let kept_bytes = d.get("value").and_then(Json::str).map(unhex).unwrap_or_default();
+                let kept_bytes = d.get("value").and_then(Json::str).map_or_default(unhex);
                 let cut = capture_of(d).map_err(at)? != Capture::Captured;
                 // (shirusu keeps the start of a long write: the rest is what the plain run printed
                 // there when it starts the same, so that the next write's case line stays a line;
@@ -974,7 +974,7 @@ pub fn differ(a: &Recording, b: &Recording, arch: &[ArchRule]) -> Vec<String> {
             (x, y) => x == y,
         };
         if let Some(i) = (0..n).find(|&i| !same(i)) {
-            let s = |x: Option<&Call>| x.map_or("-".to_string(), |k| format!("{}({:?}) = {:?}{}", k.api.0, k.args, k.ret, k.err.map_or(String::new(), |e| format!(" ! {}", e.0))));
+            let s = |x: Option<&Call>| x.map_or("-".to_string(), |k| format!("{}({:?}) = {:?}{}", k.api.0, k.args, k.ret, k.err.map_or_default(|e| format!(" ! {}", e.0))));
             v.push(format!("{}: call {}: {} / {}", c.name, i + 1, s(c.calls.get(i)), s(d.calls.get(i))));
         }
     }
@@ -1038,8 +1038,7 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
     // (cases whose answer Windows itself gives differently from run to run) (optional: without
     // the list every case must repeat, which is stricter, not laxer)
     let unstable: Vec<String> = std::fs::read_to_string(root.join("spec/unstable.txt"))
-        .map(|t| t.lines().filter_map(|l| crate::case::tokens(l).first().cloned()).collect())
-        .unwrap_or_default();
+        .map_or_default(|t| t.lines().filter_map(|l| crate::case::tokens(l).first().cloned()).collect());
     let mut names = Vec::new();
     match std::fs::read_dir(dir) {
         Ok(entries) => for entry in entries {

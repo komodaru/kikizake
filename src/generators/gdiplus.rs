@@ -688,7 +688,7 @@ pub fn gdiplusline() -> String {
     for i in 0..100 {
         let name = *r.pick(&["ellipse", "pie", "polygon", "closedcurve"]);
         let args = match name {
-            "ellipse" => (0..4).map(|_| rq(&mut r)).collect::<Vec<_>>().join(" "),
+            "ellipse" => Vec::<_>::from_fn(4, |_| rq(&mut r)).join(" "),
             "pie" => format!("{} {} {} {} {} {}", rq(&mut r), rq(&mut r), rq(&mut r), rq(&mut r), r.range(-400, 400), r.range(-400, 400)),
             "polygon" => {
                 let n = r.range(3, 7) as usize;

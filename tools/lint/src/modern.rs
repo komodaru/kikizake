@@ -9,6 +9,8 @@
 //!   効かないので Cargo.toml でなく main に書く。
 //! * `rust-lints`: crate の Cargo.toml (fixture を除く) はどれも `raw_borrows_via_references`
 //!   (1.99) を持つ。
+//! * `hand-std`: 1.98..1.100 が名前をつけた形を手で書かない: `x.toggle()`、`s.trim_prefix(p)`、
+//!   `o.map_or_default(f)`、`c.ok_or(e)`、`Vec::from_fn(v.len(), f)`。
 //! * `publish-age`: .cargo/config.toml が `global-min-publish-age` (1.100) を持つ: 公開されて
 //!   すぐの版 (乗っ取られた版はたいてい数日で消される) を lock の更新で拾わない。
 use std::path::Path;
@@ -24,6 +26,66 @@ fn rx(s: &str) -> Option<Regex> {
 
 static WILD: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"(?:^|[\s,|{(])_\s*=>\s*\{?\s*(?:(?:::)?(?:core|std)::)?unreachable!"));
 static BITS: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"\b(?:8|16|32|64|128)\s*-\s*[\w.()\[\]&*| ]*?\.leading_zeros\(\)"));
+
+static TOGGLE: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"(?:^|[^\w.])([\w.]+(?:\[[^\]\n]+\])?)\s*=\s*!\s*([\w.]+(?:\[[^\]\n]+\])?)\s*;"));
+static TRIM: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"(?:^|[^\w.])([\w.]+)\.strip_prefix\([^()]*\)\s*\.unwrap_or\(\s*([\w.]+)\s*\)"));
+static MAP_OR_DEFAULT: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"\.map_or\(\s*(?:Default::default\(\)|String::new\(\)|Vec::new\(\))\s*,"));
+static OK_OR: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"\bif [^{};\n]+ \{\s*Ok\(\(\)\)\s*\}\s*else\s*\{\s*Err\("));
+static FROM_FN: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"\(0\.\.[\w.()]*\.len\(\)\)\.map\(\|\w+\|"));
+
+/// the byte of the `)` closing the `(` at `open` (None: unbalanced)
+fn closing(code: &str, open: usize) -> Option<usize> {
+    let mut depth = 0usize;
+    for (i, c) in code.get(open..)?.char_indices() {
+        match c {
+            '(' | '[' | '{' => depth = depth.saturating_add(1),
+            ')' | ']' | '}' => {
+                depth = depth.saturating_sub(1);
+                if depth == 0 {
+                    return Some(open.saturating_add(i));
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// the hand-written shapes of one file's code: (byte, what to write)
+fn hand_std(code: &str) -> Vec<(usize, &'static str)> {
+    let mut out = Vec::new();
+    let same = |c: &regex::Captures| c.get(1).map(|m| m.as_str()) == c.get(2).map(|m| m.as_str());
+    if let Some(r) = TOGGLE.as_ref() {
+        out.extend(r.captures_iter(code).filter(same).filter_map(|c| c.get(1)).map(|m| (m.start(), "`x = !x` is `x.toggle()` (Rust 1.100)")));
+    }
+    if let Some(r) = TRIM.as_ref() {
+        out.extend(r.captures_iter(code).filter(same).filter_map(|c| c.get(1)).map(|m| (m.start(), "`s.strip_prefix(p).unwrap_or(s)` is `s.trim_prefix(p)` (Rust 1.100)")));
+    }
+    if let Some(r) = MAP_OR_DEFAULT.as_ref() {
+        out.extend(r.find_iter(code).map(|m| (m.start(), "`.map_or(Default::default(), f)` is `.map_or_default(f)` (Rust 1.98)")));
+    }
+    // (`.map(f).unwrap_or_default()`: the map's parentheses balanced by hand, a regex cannot)
+    for (at, _) in code.match_indices(".map(") {
+        let Some(close) = closing(code, at.saturating_add(4)) else { continue };
+        if code.get(close.saturating_add(1)..).is_some_and(|rest| rest.trim_start().starts_with(".unwrap_or_default()")) {
+            out.push((at, "`.map(f).unwrap_or_default()` is `.map_or_default(f)` (Rust 1.98)"));
+        }
+    }
+    if let Some(r) = OK_OR.as_ref() {
+        out.extend(r.find_iter(code).map(|m| (m.start(), "`if c { Ok(()) } else { Err(e) }` is `c.ok_or(e)` / `c.ok_or_else(|| e)` (Rust 1.98)")));
+    }
+    if let Some(r) = FROM_FN.as_ref() {
+        for m in r.find_iter(code) {
+            // (the `(` of the `.map(` the match ends in)
+            let Some(open) = code.get(..m.end()).and_then(|s| s.rfind(".map(")).map(|k| k.saturating_add(4)) else { continue };
+            let Some(close) = closing(code, open) else { continue };
+            if code.get(close.saturating_add(1)..).is_some_and(|rest| rest.trim_start().starts_with(".collect::<Vec<")) {
+                out.push((m.start(), "`(0..v.len()).map(f).collect::<Vec<_>>()` is `Vec::from_fn(v.len(), f)` (Rust 1.100)"));
+            }
+        }
+    }
+    out
+}
 
 const BROKEN: &str = "tools/lint/src/modern.rs: a pattern does not compile";
 
@@ -44,6 +106,12 @@ pub fn rust(rel: &str, text: &str) -> Vec<String> {
     }
     for m in bits.find_iter(&code) {
         bad.push(format!("{rel}:{}: hand-bit-width: `{}` is `.bit_width()` (Rust 1.100)", line_of(text, m.start()), m.as_str()));
+    }
+    if [&*TOGGLE, &*TRIM, &*MAP_OR_DEFAULT, &*OK_OR, &*FROM_FN].iter().any(|r| r.is_none()) {
+        return vec![BROKEN.into()];
+    }
+    for (at, what) in hand_std(&code) {
+        bad.push(format!("{rel}:{}: hand-std: {what}", line_of(text, at)));
     }
     if BINARIES.contains(&rel) && !enables(&code) {
         bad.push(format!("{rel}:1: bin-dead-pub: a binary warns of pub items it does not use: `#![cfg_attr(not(test), warn(dead_code_pub_in_binary))]`"));
@@ -110,7 +178,7 @@ pub fn check(root: &Path) -> Result<(), String> {
     }
     bad.extend(cargo_config(&read(CARGO_CONFIG)?));
     bad.sort();
-    if bad.is_empty() { Ok(()) } else { Err(bad.join("\n")) }
+    bad.is_empty().ok_or_else(|| bad.join("\n"))
 }
 
 #[cfg(test)]

@@ -234,7 +234,7 @@ pub fn check(root: &Path) -> Result<(), String> {
         bad.push("no sources found".into());
     }
     bad.sort();
-    if bad.is_empty() { Ok(()) } else { Err(bad.join("\n")) }
+    bad.is_empty().ok_or_else(|| bad.join("\n"))
 }
 
 #[cfg(test)]

@@ -1767,7 +1767,7 @@ impl D2d {
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = &op.tok;
         let len = t.len();
-        let want = |k: usize| if len == k { Ok(()) } else { Err(Fail::Bad) };
+        let want = |k: usize| (len == k).ok_or(Fail::Bad);
         match t[0].as_str() {
             "d2rot" => {
                 let (a, cx, cy) = (f(op, 1)?, f(op, 2)?, f(op, 3)?);
@@ -1991,7 +1991,7 @@ impl D2d {
     fn state(&mut self, op: &Op, out: &mut Vec<String>) -> Res<()> {
         let t = &op.tok;
         let len = t.len();
-        let want = |n: usize| if len == n { Ok(()) } else { Err(Fail::Bad) };
+        let want = |n: usize| (len == n).ok_or(Fail::Bad);
         match t[0].as_str() {
             "d2info" => {
                 want(1)?;

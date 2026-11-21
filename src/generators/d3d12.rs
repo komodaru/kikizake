@@ -480,9 +480,9 @@ pub fn d3d12() -> String {
         for f in [0u32, 1, 0x14, 0x15, 0x55, 0x80, 0x95, 0xd5, 0x100, 0x115, 0x155, 0x180, 0x195, 0x1d5, 0xffff] {
             rs.push(format!("{v} 0 s {} 5 6 0", hexw(f)));
         }
-        rs.push(format!("{v} 0 {}", (0..16).map(|k| format!("c {k} 0 1 0")).collect::<Vec<_>>().join(" ")));
-        rs.push(format!("{v} 0 {}", (0..32).map(|k| format!("cbv {k} 0 0 0")).collect::<Vec<_>>().join(" ")));
-        rs.push(format!("{v} 0 {}", (0..16).map(|k| format!("s 0x15 {k} 0 0")).collect::<Vec<_>>().join(" ")));
+        rs.push(format!("{v} 0 {}", Vec::<_>::from_fn(16, |k| format!("c {k} 0 1 0")).join(" ")));
+        rs.push(format!("{v} 0 {}", Vec::<_>::from_fn(32, |k| format!("cbv {k} 0 0 0")).join(" ")));
+        rs.push(format!("{v} 0 {}", Vec::<_>::from_fn(16, |k| format!("s 0x15 {k} 0 0")).join(" ")));
         rs.push(format!("{v} 0 c 0 0 62 0 cbv 0 0 0 0"));
         rs.push(format!("{v} 0 c 0 0 61 0 cbv 0 0 0 0 t 0 1 0 1 1 0 0 0"));
     }
@@ -534,10 +534,10 @@ pub fn d3d12() -> String {
         for f in [9u32, 5, 0x10002, 0x10004] {
             rs.push(format!("{v} 0 t 0 1 0 4 0 0 0 {}", hexw(f)));
         }
-        rs.push(format!("{v} 0 {}", (0..16).map(|_| "t 0 0".to_string()).collect::<Vec<_>>().join(" ")));
-        rs.push(format!("{v} 0 {}", (0..15).map(|k| format!("s 0x15 {k} 0 0")).collect::<Vec<_>>().join(" ")));
-        rs.push(format!("{v} 0 {} c 0 1 1 0", (0..15).map(|_| "t 0 0".to_string()).collect::<Vec<_>>().join(" ")));
-        rs.push(format!("{v} 0 {} c 0 1 1 0", (0..16).map(|_| "t 0 0".to_string()).collect::<Vec<_>>().join(" ")));
+        rs.push(format!("{v} 0 {}", Vec::<_>::from_fn(16, |_| "t 0 0".to_string()).join(" ")));
+        rs.push(format!("{v} 0 {}", Vec::<_>::from_fn(15, |k| format!("s 0x15 {k} 0 0")).join(" ")));
+        rs.push(format!("{v} 0 {} c 0 1 1 0", Vec::<_>::from_fn(15, |_| "t 0 0".to_string()).join(" ")));
+        rs.push(format!("{v} 0 {} c 0 1 1 0", Vec::<_>::from_fn(16, |_| "t 0 0".to_string()).join(" ")));
         rs.push(format!("{v} 0 c 0 0 64 0"));
         rs.push(format!("{v} 0 c 0 0 62 0 cbv 1 0 0 0"));
         rs.push(format!("{v} 0 c 0 0 63 0 cbv 1 0 0 0"));

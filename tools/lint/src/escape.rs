@@ -111,7 +111,7 @@ pub fn escapes(path: &str, text: &str) -> Vec<(usize, String)> {
         while lines.get(e).is_some_and(|l| !l.is_empty()) {
             e = e.saturating_add(1);
         }
-        let block = lines.get(k..e).map(|b| b.join(" ")).unwrap_or_default();
+        let block = lines.get(k..e).map_or_default(|b| b.join(" "));
         for (i, l) in lines.iter().enumerate().take(e).skip(k) {
             if is_escape(l, &block) {
                 out.push((i.saturating_add(1), l.clone()));

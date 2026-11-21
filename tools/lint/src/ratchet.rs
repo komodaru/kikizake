@@ -238,7 +238,7 @@ fn message(line: &str, disallowed: &BTreeMap<String, Option<String>>) -> Result<
         UNSAFE_OP.1.to_owned()
     } else if let Some(l) = code.strip_prefix("clippy::") {
         if l == "disallowed_methods" {
-            let path = BACKTICK.as_ref().and_then(|r| r.captures(text)).and_then(|c| c.get(1)).map(|p| p.as_str()).unwrap_or_default();
+            let path = BACKTICK.as_ref().and_then(|r| r.captures(text)).and_then(|c| c.get(1)).map_or_default(|p| p.as_str());
             match disallowed.get(path) {
                 Some(Some(name)) => name.clone(),
                 Some(None) | None => return Err(format!("a disallowed method clippy.toml names no masu-* name for: {text}")),
@@ -411,7 +411,7 @@ pub fn count(repo: &Repo, hits: &BTreeSet<Hit>) -> Counts {
         }
         bump(&mut c.files, (h.file.clone(), h.lint.clone()));
         if pinned(&h.lint) {
-            let code = lines.entry(h.file.clone()).or_insert_with(|| std::fs::read(repo.root.join(h.file.as_str())).map(|b| code_only(&String::from_utf8_lossy(&b), true)).unwrap_or_default());
+            let code = lines.entry(h.file.clone()).or_insert_with(|| std::fs::read(repo.root.join(h.file.as_str())).map_or_default(|b| code_only(&String::from_utf8_lossy(&b), true)));
             let k = (h.file.clone(), h.lint.clone(), line_text(code, h.line));
             bump(&mut c.sites, k.clone());
             c.where_.entry(k).or_insert(h.line);
@@ -528,7 +528,7 @@ pub fn run(repo: &Repo, paths: &Paths, update: bool, raise: &BTreeSet<Rel>) -> R
 
 /// `p` as the repository names it
 fn shown(p: &Path, root: &Path) -> String {
-    p.strip_prefix(root).unwrap_or(p).display().to_string()
+    p.trim_prefix(root).display().to_string()
 }
 
 pub fn repo_paths(root: &Path) -> Paths {
