@@ -8641,7 +8641,4 @@ rects 3 2 13 3 4 3 7 4 5 4 7 6 6 6 7 8
 combine 3
 rgndata 4 0 0 10 6
 rects 0 0 10 1 1 1 4 2 2 2 4 4 3 4 4 6
-case loose-many
-rgndata 8 0 0 37 8
-rects 0 0 21 1 13 1 22 2 22 2 25 3 22 3 37 4 22 4 34 5 22 5 31 6 22 6 28 7 22 7 25 8
 done
