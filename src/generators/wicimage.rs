@@ -1615,7 +1615,9 @@ pub fn wicencode() -> String {
     }
     // option values past the enumerations and names an encoder does not take
     for (k, (c, o)) in [("jpeg", "JpegYCrCbSubsampling=5"), ("wmp", "ImageQuality=0.5"), ("png", "FilterOption=0"), ("gif", "InterlaceOption=1"), ("png", "FilterOption=7"), ("jpeg", "SuppressApp0=2")].into_iter().enumerate() {
-        writeln!(s, "case optother-{k}-bgra\nwbits bgra 6 4 {}\nwencode {c} {o}\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x0b7e_0000u32 + k as u32);
+        // (PNG's bytes are its zlib's, which the model does not write: only what decodes)
+        let bytes = if c == "png" { "" } else { "wbytes\n" };
+        writeln!(s, "case optother-{k}-bgra\nwbits bgra 6 4 {}\nwencode {c} {o}\n{bytes}wredecode\nwframe 0\nwinfo\nwpixels\nend", 0x0b7e_0000u32 + k as u32);
     }
     // the pairs of 16-bit formats (WIC.PAIR.WIDE): 64bppRGBA and 48bppRGB PNGs of random levels
     // into each other, 16bppGray and 64bppRGBAFixedPoint
@@ -1634,6 +1636,14 @@ pub fn wicencode() -> String {
     // the converter); what SetPixelFormat answers, the file and what decodes from it
     for (k, f) in ["bgr48", "bgra64", "prgba64", "pbgra64", "bgr101010", "grayfloat", "rgbafloat", "prgbafloat", "rgbfloat", "rgba64fixed", "bgra64fixed", "rgba64half", "rgb96float", "cmyk64", "cmyka40", "cmyka80", "grayfix16", "grayhalf", "grayfix32", "rgb48fixed", "rgb48half", "rgb64fixed", "rgb64half", "rgba128fixed", "rgb128fixed", "rgb96fixed"].into_iter().enumerate() {
         writeln!(s, "case encwide-wmp-{f}\nwbits rgba64 5 3 {}\nwconv {f}\nwencode wmp\nwbytes\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x3a8_0000u32 + k as u32);
+    }
+    // every option name the runner knows written to every encoder's bag (WICIMAGE.ENCODE.OPTIONS):
+    // which bags take which names, with a value each takes where it does
+    let names = [("ImageQuality", "1"), ("CompressionQuality", "0.5"), ("Lossless", "1"), ("BitmapTransform", "0"), ("InterlaceOption", "0"), ("FilterOption", "1"), ("TiffCompressionMethod", "1"), ("JpegYCrCbSubsampling", "3"), ("SuppressApp0", "0"), ("EnableV5Header32bppBGRA", "0"), ("Quality", "1"), ("Overlap", "1"), ("Subsampling", "3"), ("AlphaQuality", "1"), ("HeifCompressionMethod", "0")];
+    for (k, c) in ENCODERS.iter().enumerate() {
+        for (j, (n, v)) in names.iter().enumerate() {
+            writeln!(s, "case optname-{c}-{n}\nwbits bgra 6 4 {}\nwencode {c} {n}={v}\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x0b7f_0000u32 + (k * 16 + j) as u32);
+        }
     }
     s
 }

@@ -7998,7 +7998,6 @@ end
 case optother-2-bgra
 wbits bgra 6 4 192806914
 wencode png FilterOption=0
-wbytes
 wredecode
 wframe 0
 winfo
@@ -8016,7 +8015,6 @@ end
 case optother-4-bgra
 wbits bgra 6 4 192806916
 wencode png FilterOption=7
-wbytes
 wredecode
 wframe 0
 winfo
@@ -8328,6 +8326,1086 @@ wbits rgba64 5 3 61341721
 wconv rgb96fixed
 wencode wmp
 wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-ImageQuality
+wbits bgra 6 4 192872448
+wencode bmp ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-CompressionQuality
+wbits bgra 6 4 192872449
+wencode bmp CompressionQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-Lossless
+wbits bgra 6 4 192872450
+wencode bmp Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-BitmapTransform
+wbits bgra 6 4 192872451
+wencode bmp BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-InterlaceOption
+wbits bgra 6 4 192872452
+wencode bmp InterlaceOption=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-FilterOption
+wbits bgra 6 4 192872453
+wencode bmp FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-TiffCompressionMethod
+wbits bgra 6 4 192872454
+wencode bmp TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-JpegYCrCbSubsampling
+wbits bgra 6 4 192872455
+wencode bmp JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-SuppressApp0
+wbits bgra 6 4 192872456
+wencode bmp SuppressApp0=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-EnableV5Header32bppBGRA
+wbits bgra 6 4 192872457
+wencode bmp EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-Quality
+wbits bgra 6 4 192872458
+wencode bmp Quality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-Overlap
+wbits bgra 6 4 192872459
+wencode bmp Overlap=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-Subsampling
+wbits bgra 6 4 192872460
+wencode bmp Subsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-AlphaQuality
+wbits bgra 6 4 192872461
+wencode bmp AlphaQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-bmp-HeifCompressionMethod
+wbits bgra 6 4 192872462
+wencode bmp HeifCompressionMethod=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-ImageQuality
+wbits bgra 6 4 192872464
+wencode png ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-CompressionQuality
+wbits bgra 6 4 192872465
+wencode png CompressionQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-Lossless
+wbits bgra 6 4 192872466
+wencode png Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-BitmapTransform
+wbits bgra 6 4 192872467
+wencode png BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-InterlaceOption
+wbits bgra 6 4 192872468
+wencode png InterlaceOption=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-FilterOption
+wbits bgra 6 4 192872469
+wencode png FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-TiffCompressionMethod
+wbits bgra 6 4 192872470
+wencode png TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-JpegYCrCbSubsampling
+wbits bgra 6 4 192872471
+wencode png JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-SuppressApp0
+wbits bgra 6 4 192872472
+wencode png SuppressApp0=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-EnableV5Header32bppBGRA
+wbits bgra 6 4 192872473
+wencode png EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-Quality
+wbits bgra 6 4 192872474
+wencode png Quality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-Overlap
+wbits bgra 6 4 192872475
+wencode png Overlap=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-Subsampling
+wbits bgra 6 4 192872476
+wencode png Subsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-AlphaQuality
+wbits bgra 6 4 192872477
+wencode png AlphaQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-png-HeifCompressionMethod
+wbits bgra 6 4 192872478
+wencode png HeifCompressionMethod=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-ImageQuality
+wbits bgra 6 4 192872480
+wencode tiff ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-CompressionQuality
+wbits bgra 6 4 192872481
+wencode tiff CompressionQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-Lossless
+wbits bgra 6 4 192872482
+wencode tiff Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-BitmapTransform
+wbits bgra 6 4 192872483
+wencode tiff BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-InterlaceOption
+wbits bgra 6 4 192872484
+wencode tiff InterlaceOption=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-FilterOption
+wbits bgra 6 4 192872485
+wencode tiff FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-TiffCompressionMethod
+wbits bgra 6 4 192872486
+wencode tiff TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-JpegYCrCbSubsampling
+wbits bgra 6 4 192872487
+wencode tiff JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-SuppressApp0
+wbits bgra 6 4 192872488
+wencode tiff SuppressApp0=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-EnableV5Header32bppBGRA
+wbits bgra 6 4 192872489
+wencode tiff EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-Quality
+wbits bgra 6 4 192872490
+wencode tiff Quality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-Overlap
+wbits bgra 6 4 192872491
+wencode tiff Overlap=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-Subsampling
+wbits bgra 6 4 192872492
+wencode tiff Subsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-AlphaQuality
+wbits bgra 6 4 192872493
+wencode tiff AlphaQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-tiff-HeifCompressionMethod
+wbits bgra 6 4 192872494
+wencode tiff HeifCompressionMethod=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-ImageQuality
+wbits bgra 6 4 192872496
+wencode gif ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-CompressionQuality
+wbits bgra 6 4 192872497
+wencode gif CompressionQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-Lossless
+wbits bgra 6 4 192872498
+wencode gif Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-BitmapTransform
+wbits bgra 6 4 192872499
+wencode gif BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-InterlaceOption
+wbits bgra 6 4 192872500
+wencode gif InterlaceOption=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-FilterOption
+wbits bgra 6 4 192872501
+wencode gif FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-TiffCompressionMethod
+wbits bgra 6 4 192872502
+wencode gif TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-JpegYCrCbSubsampling
+wbits bgra 6 4 192872503
+wencode gif JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-SuppressApp0
+wbits bgra 6 4 192872504
+wencode gif SuppressApp0=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-EnableV5Header32bppBGRA
+wbits bgra 6 4 192872505
+wencode gif EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-Quality
+wbits bgra 6 4 192872506
+wencode gif Quality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-Overlap
+wbits bgra 6 4 192872507
+wencode gif Overlap=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-Subsampling
+wbits bgra 6 4 192872508
+wencode gif Subsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-AlphaQuality
+wbits bgra 6 4 192872509
+wencode gif AlphaQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-gif-HeifCompressionMethod
+wbits bgra 6 4 192872510
+wencode gif HeifCompressionMethod=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-ImageQuality
+wbits bgra 6 4 192872512
+wencode jpeg ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-CompressionQuality
+wbits bgra 6 4 192872513
+wencode jpeg CompressionQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-Lossless
+wbits bgra 6 4 192872514
+wencode jpeg Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-BitmapTransform
+wbits bgra 6 4 192872515
+wencode jpeg BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-InterlaceOption
+wbits bgra 6 4 192872516
+wencode jpeg InterlaceOption=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-FilterOption
+wbits bgra 6 4 192872517
+wencode jpeg FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-TiffCompressionMethod
+wbits bgra 6 4 192872518
+wencode jpeg TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-JpegYCrCbSubsampling
+wbits bgra 6 4 192872519
+wencode jpeg JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-SuppressApp0
+wbits bgra 6 4 192872520
+wencode jpeg SuppressApp0=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-EnableV5Header32bppBGRA
+wbits bgra 6 4 192872521
+wencode jpeg EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-Quality
+wbits bgra 6 4 192872522
+wencode jpeg Quality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-Overlap
+wbits bgra 6 4 192872523
+wencode jpeg Overlap=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-Subsampling
+wbits bgra 6 4 192872524
+wencode jpeg Subsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-AlphaQuality
+wbits bgra 6 4 192872525
+wencode jpeg AlphaQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-jpeg-HeifCompressionMethod
+wbits bgra 6 4 192872526
+wencode jpeg HeifCompressionMethod=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-ImageQuality
+wbits bgra 6 4 192872528
+wencode wmp ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-CompressionQuality
+wbits bgra 6 4 192872529
+wencode wmp CompressionQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-Lossless
+wbits bgra 6 4 192872530
+wencode wmp Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-BitmapTransform
+wbits bgra 6 4 192872531
+wencode wmp BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-InterlaceOption
+wbits bgra 6 4 192872532
+wencode wmp InterlaceOption=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-FilterOption
+wbits bgra 6 4 192872533
+wencode wmp FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-TiffCompressionMethod
+wbits bgra 6 4 192872534
+wencode wmp TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-JpegYCrCbSubsampling
+wbits bgra 6 4 192872535
+wencode wmp JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-SuppressApp0
+wbits bgra 6 4 192872536
+wencode wmp SuppressApp0=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-EnableV5Header32bppBGRA
+wbits bgra 6 4 192872537
+wencode wmp EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-Quality
+wbits bgra 6 4 192872538
+wencode wmp Quality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-Overlap
+wbits bgra 6 4 192872539
+wencode wmp Overlap=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-Subsampling
+wbits bgra 6 4 192872540
+wencode wmp Subsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-AlphaQuality
+wbits bgra 6 4 192872541
+wencode wmp AlphaQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-wmp-HeifCompressionMethod
+wbits bgra 6 4 192872542
+wencode wmp HeifCompressionMethod=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-ImageQuality
+wbits bgra 6 4 192872544
+wencode dds ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-CompressionQuality
+wbits bgra 6 4 192872545
+wencode dds CompressionQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-Lossless
+wbits bgra 6 4 192872546
+wencode dds Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-BitmapTransform
+wbits bgra 6 4 192872547
+wencode dds BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-InterlaceOption
+wbits bgra 6 4 192872548
+wencode dds InterlaceOption=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-FilterOption
+wbits bgra 6 4 192872549
+wencode dds FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-TiffCompressionMethod
+wbits bgra 6 4 192872550
+wencode dds TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-JpegYCrCbSubsampling
+wbits bgra 6 4 192872551
+wencode dds JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-SuppressApp0
+wbits bgra 6 4 192872552
+wencode dds SuppressApp0=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-EnableV5Header32bppBGRA
+wbits bgra 6 4 192872553
+wencode dds EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-Quality
+wbits bgra 6 4 192872554
+wencode dds Quality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-Overlap
+wbits bgra 6 4 192872555
+wencode dds Overlap=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-Subsampling
+wbits bgra 6 4 192872556
+wencode dds Subsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-AlphaQuality
+wbits bgra 6 4 192872557
+wencode dds AlphaQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-dds-HeifCompressionMethod
+wbits bgra 6 4 192872558
+wencode dds HeifCompressionMethod=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-ImageQuality
+wbits bgra 6 4 192872560
+wencode heif ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-CompressionQuality
+wbits bgra 6 4 192872561
+wencode heif CompressionQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-Lossless
+wbits bgra 6 4 192872562
+wencode heif Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-BitmapTransform
+wbits bgra 6 4 192872563
+wencode heif BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-InterlaceOption
+wbits bgra 6 4 192872564
+wencode heif InterlaceOption=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-FilterOption
+wbits bgra 6 4 192872565
+wencode heif FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-TiffCompressionMethod
+wbits bgra 6 4 192872566
+wencode heif TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-JpegYCrCbSubsampling
+wbits bgra 6 4 192872567
+wencode heif JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-SuppressApp0
+wbits bgra 6 4 192872568
+wencode heif SuppressApp0=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-EnableV5Header32bppBGRA
+wbits bgra 6 4 192872569
+wencode heif EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-Quality
+wbits bgra 6 4 192872570
+wencode heif Quality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-Overlap
+wbits bgra 6 4 192872571
+wencode heif Overlap=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-Subsampling
+wbits bgra 6 4 192872572
+wencode heif Subsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-AlphaQuality
+wbits bgra 6 4 192872573
+wencode heif AlphaQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-heif-HeifCompressionMethod
+wbits bgra 6 4 192872574
+wencode heif HeifCompressionMethod=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-ImageQuality
+wbits bgra 6 4 192872576
+wencode webp ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-CompressionQuality
+wbits bgra 6 4 192872577
+wencode webp CompressionQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-Lossless
+wbits bgra 6 4 192872578
+wencode webp Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-BitmapTransform
+wbits bgra 6 4 192872579
+wencode webp BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-InterlaceOption
+wbits bgra 6 4 192872580
+wencode webp InterlaceOption=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-FilterOption
+wbits bgra 6 4 192872581
+wencode webp FilterOption=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-TiffCompressionMethod
+wbits bgra 6 4 192872582
+wencode webp TiffCompressionMethod=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-JpegYCrCbSubsampling
+wbits bgra 6 4 192872583
+wencode webp JpegYCrCbSubsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-SuppressApp0
+wbits bgra 6 4 192872584
+wencode webp SuppressApp0=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-EnableV5Header32bppBGRA
+wbits bgra 6 4 192872585
+wencode webp EnableV5Header32bppBGRA=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-Quality
+wbits bgra 6 4 192872586
+wencode webp Quality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-Overlap
+wbits bgra 6 4 192872587
+wencode webp Overlap=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-Subsampling
+wbits bgra 6 4 192872588
+wencode webp Subsampling=3
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-AlphaQuality
+wbits bgra 6 4 192872589
+wencode webp AlphaQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optname-webp-HeifCompressionMethod
+wbits bgra 6 4 192872590
+wencode webp HeifCompressionMethod=0
 wredecode
 wframe 0
 winfo

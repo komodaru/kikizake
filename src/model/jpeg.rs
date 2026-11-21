@@ -300,6 +300,21 @@ fn upsample_h2v1(p: &Plane, w: usize, h: usize) -> Plane {
     Plane::new(w, h, px)
 }
 
+/// h1v2 fancy upsampling (as libjpeg-turbo's jdsample.c; IJG 6b has none): each sample 3/4
+/// itself and 1/4 the row above (the upper output, rounding with 1) or below (the lower, with
+/// 2); the first and last rows their own neighbours
+fn upsample_h1v2(p: &Plane, w: usize, h: usize) -> Plane {
+    let mut px = vec![0; w * h];
+    for oy in 0..h {
+        let y = oy / 2;
+        let (far, bias) = if oy % 2 == 0 { (y.saturating_sub(1), 1) } else { ((y + 1).min(p.h - 1), 2) };
+        for ox in 0..w {
+            px[oy * w + ox] = (3 * p.at(ox, y) + p.at(ox, far) + bias) >> 2;
+        }
+    }
+    Plane::new(w, h, px)
+}
+
 /// h2v2 fancy upsampling (a triangle filter, 3/4 and 1/4 each way) to w x h
 fn upsample(p: &Plane, w: usize, h: usize) -> Plane {
     let mut px = vec![0; w * h];
@@ -506,7 +521,7 @@ pub fn encode(kind: Kind, w: usize, h: usize, px: &[u8], q: Quality, app0: bool,
             match chroma {
                 _ if full(c) => d,
                 Chroma::Full => d,
-                Chroma::H1V2 => repeat(&d),
+                Chroma::H1V2 => upsample_h1v2(&d, w, h),
                 _ if d.w <= 2 => repeat(&d),
                 Chroma::H2V2 => upsample(&d, w, h),
                 Chroma::H2V1 => upsample_h2v1(&d, w, h),

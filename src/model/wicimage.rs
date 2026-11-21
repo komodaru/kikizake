@@ -2963,6 +2963,9 @@ pub enum EncodeOption {
     /// a value past the option's enumeration: IWICBitmapFrameEncode::Initialize fails
     /// WINCODEC_ERR_VALUEOUTOFRANGE
     OutOfRange,
+    /// a value past JPEG's JpegYCrCbSubsampling: IWICBitmapFrameEncode::Initialize fails
+    /// E_INVALIDARG
+    InvalidArg,
     /// WMP's Lossless
     WmpLossless,
     /// WMP's ImageQuality below 1.0, as the bits of its f32
@@ -3096,14 +3099,21 @@ struct EncodeOptions {
 pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
     let (name, val) = o.split_once('=').ok_or(Fail::Bad)?;
     Ok(match (cont, name, val) {
-        ("png", "InterlaceOption", "0" | "1") | ("png", "FilterOption", "1" | "2" | "3" | "4" | "5" | "6") | ("tiff", "TiffCompressionMethod", "0" | "1" | "4" | "5" | "6" | "7") => EncodeOption::Lossless,
+        // (FilterOption 0 is WICPngFilterUnspecified: MEASURED optother-2-bgra, the file decodes
+        // to the same pixels)
+        ("png", "InterlaceOption", "0" | "1") | ("png", "FilterOption", "0" | "1" | "2" | "3" | "4" | "5" | "6") | ("tiff", "TiffCompressionMethod", "0" | "1" | "4" | "5" | "6" | "7") => EncodeOption::Lossless,
         ("bmp", "EnableV5Header32bppBGRA", "0") => EncodeOption::V5Header(false),
         ("bmp", "EnableV5Header32bppBGRA", "1") => EncodeOption::V5Header(true),
         ("tiff", "TiffCompressionMethod", "2" | "3") => EncodeOption::BlackWhite,
         // (WICTiffCompressionOption ends at 7, WICTiffCompressionLZWHDifferencing; MEASURED golden
         // opt-tiff-8-bgra: 8 fails the frame's Initialize 0x88982f05)
         ("tiff", "TiffCompressionMethod", v) if v.parse::<u8>().is_ok_and(|v| v > 7) => EncodeOption::OutOfRange,
-        ("png", "ImageQuality", _) => EncodeOption::Rejected,
+        // (WICPngFilterOption ends at 6, WICPngFilterAdaptive; MEASURED optother-4-bgra: 7 fails
+        // the frame's Initialize 0x88982f05)
+        ("png", "FilterOption", v) if v.parse::<u8>().is_ok_and(|v| v > 6) => EncodeOption::OutOfRange,
+        // (MEASURED opt-20-*, optother-3-bgra: the PNG encoder's bag has no ImageQuality, GIF's
+        // no InterlaceOption)
+        ("png", "ImageQuality", _) | ("gif", "InterlaceOption", _) => EncodeOption::Rejected,
         // (Encoder options: JPEG XR's ImageQuality 1.0 is lossless; MEASURED golden opt-19-*: every
         // pixel kept, as Lossless=1)
         ("wmp", "Lossless", "1") | ("wmp", "ImageQuality", "1.0" | "1") => EncodeOption::WmpLossless,
@@ -3118,6 +3128,9 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
         ("jpeg", "JpegYCrCbSubsampling", "2") => EncodeOption::JpegChroma(crate::model::jpeg::Chroma::H2V1),
         ("jpeg", "JpegYCrCbSubsampling", "3") => EncodeOption::JpegChroma(crate::model::jpeg::Chroma::Full),
         ("jpeg", "JpegYCrCbSubsampling", "4") => EncodeOption::JpegChroma(crate::model::jpeg::Chroma::H1V2),
+        // (MEASURED optother-0-bgra: 5, past the enumeration, fails the frame's Initialize
+        // E_INVALIDARG, not VALUEOUTOFRANGE as PNG and TIFF do)
+        ("jpeg", "JpegYCrCbSubsampling", v) if v.parse::<u8>().is_ok_and(|v| v > 4) => EncodeOption::InvalidArg,
         ("jpeg", "BitmapTransform", "1") => EncodeOption::JpegTransform(1),
         _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_OPTIONS)),
     })
@@ -3481,6 +3494,11 @@ impl WicImage {
                         EncodeOption::OutOfRange => {
                             hit(clause::WICIMAGE_ENCODE_OPTION_RANGE);
                             out.push(format!("wencode 88982f05 {fmt} frameinit"));
+                            return Ok(true);
+                        }
+                        EncodeOption::InvalidArg => {
+                            hit(clause::WICIMAGE_ENCODE_OPTION_RANGE);
+                            out.push(format!("wencode {E_INVALIDARG:08x} {fmt} frameinit"));
                             return Ok(true);
                         }
                     }
