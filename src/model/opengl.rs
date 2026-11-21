@@ -2256,6 +2256,16 @@ impl Ctx {
     /// on a center), each triangle's colors a plane through its rounded corners
     /// (GL.RASTER.INTERPOLATE.COLOR), its depths `tri::depths`.
     fn fill(&self, q: &[(Obj, [f32; 4])], colors: &[[f64; 4]], depth: Option<tri::DepthBits>) -> Res<Vec<Filled>> {
+        // (GL_POLYGON_OFFSET_FILL with depths that vary: on 32 bits the units times 2^-23
+        // (raster-open-29, 31); on 16 bits not measured (raster-open-42))
+        let offset = match (self.cap(POLYGON_OFFSET_FILL), depth) {
+            (false, _) | (true, None) => tri::Offset::NONE,
+            (true, Some(tri::DepthBits::D32)) => {
+                hit(clause::GL_POLYGON_OFFSET);
+                tri::Offset { factor: self.offset.0, units: self.offset.1 * 2f32.powi(-23) }
+            }
+            (true, Some(tri::DepthBits::D16)) => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
+        };
         let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
         let center = (tri::Sub((vx * 256.0 + vw * 128.0) as i64), tri::Sub((vy * 256.0 + vh * 128.0) as i64));
         let clip: Vec<[f32; 8]> = q
@@ -2297,7 +2307,7 @@ impl Ctx {
                 None => out.extend(tri::pixels(&at, w, h).into_iter().map(|(x, y)| (x, y, color(x, y), None))),
                 Some(bits) => {
                     let fixed = |z| FixedZ { bits: match bits { tri::DepthBits::D32 => 32, tri::DepthBits::D16 => 16 }, value: u64::from(bits.stored(z)) };
-                    out.extend(tri::depths(at, [zs[0], zs[k], zs[k + 1]], w, h, bits).into_iter().map(|(x, y, z)| (x, y, color(x, y), Some(fixed(z)))));
+                    out.extend(tri::depths_offset(at, [zs[0], zs[k], zs[k + 1]], w, h, bits, offset).into_iter().map(|(x, y, z)| (x, y, color(x, y), Some(fixed(z)))));
                 }
             }
         }
@@ -2474,11 +2484,12 @@ impl Ctx {
         if self.cap(POLYGON_STIPPLE) {
             hit(clause::GL_POLYGON_STIPPLE);
         }
-        let unmeasured = [POLYGON_OFFSET_FILL].iter().any(|c| self.cap(*c))
-            || (self.cap(DEPTH_TEST) && self.pf.depth > 0 && self.pf.depth != 32)
+        // (offset: not read by the antialiased fill, its depths from the corners' own, to be
+        // seen in raster-open-37; dithered and blended on channels under 8 bits: not measured)
+        let unmeasured = (self.cap(DEPTH_TEST) && self.pf.depth > 0 && self.pf.depth != 32)
             || self.pf.ty != 0
             || self.pf.rgba[3].0 % 8 != 0
-            || (self.cap(DITHER) && self.bits()[..3].iter().any(|b| *b < 8))
+            || (self.cap(DITHER) && self.cap(BLEND) && self.bits()[..3].iter().any(|b| *b < 8))
             || clip.iter().any(|c| c[3] <= 0.0);
         if unmeasured {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
@@ -2704,11 +2715,8 @@ impl Ctx {
             None
         };
         // (one depth: the window depth of the first vertex, GL.DEPTH.FIXED; moved by an offset
-        // when flat, an offset of depths that vary not measured)
+        // when flat; depths that vary: offset in tri::depths_offset)
 
-        if self.cap(POLYGON_OFFSET_FILL) && depth.is_some() {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
         let (z0, offset_fixed) = self.offset_z(f64::from(zs[0]));
         // (MEASURED, golden opengl-32 persp-more-6, persp-more-7: with a corner at or behind
         // the eye, the way the polygon cut to the view volume turns)
@@ -3511,6 +3519,9 @@ impl Ctx {
             for k in 0..4 {
                 v[k] = if bits[k] == 0 {
                     0
+                } else if dither && f.fixed == ToFixed::Scaled {
+                    // (channel units: the threshold added, truncated, raster-open-30)
+                    scaled_channel(c[k] + threshold, bits[k])
                 } else if dither {
                     (c[k] * ((1u64 << bits[k]) - 1) as f32 + threshold).floor() as u32
                 } else if matches!(f.fixed, ToFixed::Scaled | ToFixed::Wu { .. }) {
@@ -5840,6 +5851,31 @@ pub mod tri {
     ///
     /// each float32 is fixed as `fixed`, the integers adding as 32-bit ones.
     pub fn depths(v: [Vertex; 3], z: [f32; 3], w: i64, h: i64, bits: DepthBits) -> Vec<(i64, i64, Fixed)> {
+        depths_offset(v, z, w, h, bits, Offset::NONE)
+    }
+
+    /// A glPolygonOffset as a fill adds it: the factor, and the units already times the
+    /// buffer's r in window depth (2^-23 on 32 bits).
+    #[derive(Clone, Copy, PartialEq, Debug)]
+    pub struct Offset {
+        pub factor: f32,
+        pub units: f32,
+    }
+
+    impl Offset {
+        pub const NONE: Offset = Offset { factor: 0.0, units: 0.0 };
+
+        /// max(|dz/dx|, |dz/dy|) times the factor plus the units, in float32
+        pub fn of(self, a: f32, b: f32) -> f32 {
+            a.abs().max(b.abs()) * self.factor + self.units
+        }
+    }
+
+    /// `depths` under a polygon offset (MEASURED, golden opengl-32 / 64 raster-open-29, 31,
+    /// 38..43: GL.POLYGON.OFFSET): the offset (`Offset::of` the plane's a and b) added once at
+    /// each new left edge's start, as (a dx + z) + (b dy + offset), so every pixel moves alike
+    /// but for the start's rounding.
+    pub fn depths_offset(v: [Vertex; 3], z: [f32; 3], w: i64, h: i64, bits: DepthBits, offset: Offset) -> Vec<(i64, i64, Fixed)> {
         let top = (0..3).max_by_key(|k| (v[*k].y, std::cmp::Reverse(*k))).unwrap_or(0);
         let bottom = (0..3).min_by_key(|k| (v[*k].y, *k)).unwrap_or(0);
         if top == bottom {
@@ -5855,10 +5891,12 @@ pub mod tri {
         let a = dz1 * (dy2 * inv) - dz2 * (dy1 * inv);
         let b = dz2 * (dx1 * inv) - dz1 * (dx2 * inv);
         let gx = fixed(a, bits);
+        let off = offset.of(a, b);
         let start = |k: usize, col: i64, y: Sub| {
             let dx = (center(col).0 - v[k].x.0) as f32 / 256.0;
             let dy = (y.0 - v[k].y.0) as f32 / 256.0;
-            fixed(z[k] + a * dx + b * dy, bits)
+            // (no offset: b dy + 0 is b dy, the sum as before)
+            fixed((a * dx + z[k]) + (b * dy + off), bits)
         };
         let mut out = Vec::new();
         let mut prev: Option<(usize, i32, i64)> = None;

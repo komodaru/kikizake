@@ -631,6 +631,33 @@ proptest! {
         }
     }
 
+    /// GL.POLYGON.OFFSET: an offset fill covers the same pixels, no offset is `depths`, and each
+    /// pixel moves by the offset (max |slope| times the factor plus the units) to the start's
+    /// rounding (raster-open-29, 31)
+    #[test]
+    fn offset_depths_move_by_the_offset(v in any::<[(i16, i16); 3]>(), z in any::<[u16; 3]>(), factor in -4.0f32..4.0, units in -64i8..64) {
+        let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 8 + 2048), y: Sub(i64::from(y) / 8 + 2048) });
+        let z = z.map(|q| f32::from(q) / 65535.0 * 0.5 + 0.25);
+        let bits = tri::DepthBits::D32;
+        let plain = tri::depths(v, z, 16, 16, bits);
+        prop_assert_eq!(&plain, &tri::depths_offset(v, z, 16, 16, bits, tri::Offset::NONE));
+        let offset = tri::Offset { factor, units: f32::from(units) * 2f32.powi(-23) };
+        let moved = tri::depths_offset(v, z, 16, 16, bits, offset);
+        prop_assert_eq!(plain.len(), moved.len());
+        // (the plane's slopes, as depths has them, bounded by the moves seen)
+        let scale = f64::from(1u32 << 31);
+        for (p, q) in plain.iter().zip(&moved) {
+            prop_assert_eq!((p.0, p.1), (q.0, q.1));
+            let shift = f64::from(q.2 .0.wrapping_sub(p.2 .0));
+            let first = f64::from(moved[0].2 .0.wrapping_sub(plain[0].2 .0));
+            // (every pixel alike to the rounding of each left edge's start: a float32 ulp of
+            // the start, the depth plus the offset)
+            prop_assume!(first.abs() < scale / 4.0);
+            prop_assert!((shift - first).abs() <= 512.0 + first.abs() * 2f64.powi(-21), "{shift} {first}");
+            prop_assert!(first.abs() <= f64::from(factor.abs()) * 4.0 * scale + 64.0 * 256.0 + 512.0);
+        }
+    }
+
     /// GL.RASTER.INTERPOLATE.DEPTH: where the depth changes by less than 1/64 per pixel, each
     /// pixel's depth is within 2^-16 of the plane through the corners
     #[test]

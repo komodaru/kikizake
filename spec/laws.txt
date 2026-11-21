@@ -189,6 +189,7 @@ tests/laws_opengl.rs::line_colors_run_between_the_ends pbt GL.RASTER.INTERPOLATE
 tests/laws_opengl.rs::aa_lines_cover_at_most_one pbt GL.RASTER.LINE.SMOOTH.WIDE
 tests/laws_opengl.rs::aa_stipples_only_take_coverage pbt GL.RASTER.LINE.STIPPLE
 tests/laws_opengl.rs::aa_widths_round_to_eighths pbt GL.RASTER.LINE.SMOOTH.WIDE
+tests/laws_opengl.rs::offset_depths_move_by_the_offset pbt GL.POLYGON.OFFSET
 tests/laws_opengl.rs::fast_aa_line_colors_stay_between_the_ends pbt GL.RASTER.LINE.SMOOTH
 tests/laws_opengl.rs::fast_aa_line_pairs_weigh_one_pixel pbt GL.RASTER.LINE.SMOOTH.BLEND
 tests/laws_opengl.rs::cut_lines_end_on_the_plane pbt GL.RASTER.INTERPOLATE.LINE
