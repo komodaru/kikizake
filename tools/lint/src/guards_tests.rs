@@ -79,3 +79,20 @@ fn the_repository_passes() {
 fn every_pattern_compiles() {
     assert!(pats().is_some(), "{BROKEN}");
 }
+
+#[test]
+fn unconfined_uses_are_found() {
+    // (review of 8480456, 1.3: a blit wrote the heap's bytes into px as plain values)
+    let dd = "impl Surf {\n    fn get(&self) -> Res<u32> { match self.px[0] { _ => 0 } }\n}\nfn extra(s: &mut Surf) {\n    s.px[3] = Px::Known(0x90);\n}\n";
+    let r = rust("src/model/ddraw.rs", dd);
+    assert_eq!(r.len(), 1, "{r:?}");
+    assert!(r[0].starts_with("src/model/ddraw.rs:5: confined: .px[ in extra"), "{r:?}");
+    // (1.2: the load codecs picked x86's bulk routine apart from the array's)
+    let f16 = "fn f16_sse(x: u32) -> u16 { 0 }\nfn half(x: u32) -> u16 { f16_sse(x) }\nfn f16_load(x: u32) -> u16 { f16_one(x) }\n";
+    let r = rust("src/model/d3dx9.rs", f16);
+    assert_eq!(r.len(), 1, "{r:?}");
+    assert!(r[0].contains("confined: f16_one( in f16_load"), "{r:?}");
+    // (other files, comments and the definition itself are fine)
+    assert!(rust("src/model/gdi.rs", dd).is_empty());
+    assert!(rust("src/model/d3dx9.rs", "// f16_one(x) in a comment\nfn f16_one(x: u32) -> u16 { 0 }\n").is_empty());
+}

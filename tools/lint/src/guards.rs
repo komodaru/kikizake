@@ -15,12 +15,52 @@
 //!   (`->bits`, `row(`) calls GdiFlush first (the function that creates the section excepted).
 //! * `wait-unchecked` (review 3.5): a D3D12 queue signal, fence event or wait whose result is
 //!   thrown away (the call is the whole statement).
+//! * `confined` (review of 8480456, 1.2 and 1.3): what must go through one function is used only
+//!   there (`CONFINED`): DirectDraw's pixels (`.px[`) only in Surf's accessors, so nothing reads
+//!   a byte the model does not know (Px::Unknown) as a value; D3DX's half routines only in
+//!   F16Array::half, so the array and the load codecs cannot pick different ones.
 use std::path::Path;
 use std::sync::LazyLock;
 
 use regex::Regex;
 
 use crate::code::{code_only, line_of};
+
+/// (file, what (a regular expression), the functions it may appear in): `confined`
+pub const CONFINED: &[(&str, &str, &[&str])] = &[
+    ("src/model/ddraw.rs", r"\.px\[", &["get", "pixel", "set", "put"]),
+    ("src/model/d3dx9.rs", r"\bf16_(sse|one|x64|x64_tail)\s*\(", &["half"]),
+];
+
+/// the name of the function `at` lies in (the last `fn name` before it)
+fn enclosing_fn(code: &str, at: usize) -> &str {
+    let before = code.get(..at).unwrap_or_default();
+    let Some(k) = before.rfind("fn ") else { return "" };
+    let name = before.get(k.saturating_add(3)..).unwrap_or_default();
+    name.get(..name.find(|c: char| !(c.is_alphanumeric() || c == '_')).unwrap_or(name.len())).unwrap_or_default()
+}
+
+/// `confined`: the sites of one file outside the functions allowed
+fn confined(rel: &str, code: &str, text: &str) -> Vec<String> {
+    let mut bad = Vec::new();
+    for &(file, pat, allowed) in CONFINED.iter().filter(|c| c.0 == rel) {
+        let Some(re) = rx(pat) else {
+            bad.push(format!("{file}: confined: {pat} does not compile"));
+            continue;
+        };
+        for m in re.find_iter(code) {
+            // (the function's own definition is no use of it)
+            if code.get(..m.start()).is_some_and(|b| b.trim_end().ends_with("fn")) {
+                continue;
+            }
+            let f = enclosing_fn(code, m.start());
+            if !allowed.contains(&f) {
+                bad.push(format!("{rel}:{}: confined: {} in {f}, only in {}", line_of(text, m.start()), m.as_str().trim(), allowed.join(", ")));
+            }
+        }
+    }
+    bad
+}
 
 /// (file, sites): src/model/ files still reading the generators
 pub const MODEL_USES_GENERATORS: &[(&str, usize)] = &[("src/model/wicimage.rs", 3)];
@@ -110,6 +150,7 @@ pub fn rust(rel: &str, text: &str) -> Vec<String> {
             bad.push(format!("{rel}: model-uses-generators: {n} sites, at most {allowed}: move what both need to a neutral module"));
         }
     }
+    bad.extend(confined(rel, &code, text));
     let lines: Vec<&str> = text.split('\n').collect();
     for (at, st) in statements(&code) {
         if p.fs_read.is_match(st) && p.swallow.is_match(st) && !reports(&p, &code, at, st) {
@@ -225,7 +266,7 @@ pub fn check(root: &Path) -> Result<(), String> {
             }
         }
     }
-    for (f, _) in MODEL_USES_GENERATORS {
+    for f in MODEL_USES_GENERATORS.iter().map(|g| g.0).chain(CONFINED.iter().map(|c| c.0)) {
         if !seen.iter().any(|s| s == f) {
             bad.push(format!("{f}: listed in MODEL_USES_GENERATORS but gone: take its line out"));
         }

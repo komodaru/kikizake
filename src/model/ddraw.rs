@@ -88,7 +88,7 @@ pub struct Surf {
     pub w: i64,
     pub h: i64,
     pub bpp: u32,
-    pub px: Vec<u32>,
+    pub px: Vec<Px>,
     pub src_key: Option<u32>,
     pub dest_key: Option<u32>,
     /// the ddsurf format token ("8", "555", "565", "24", "32", "a32"; chains "32")
@@ -114,11 +114,47 @@ pub struct Surf {
     pub pad: Option<Vec<u8>>,
 }
 
+/// a pixel of a surface: its value, or a byte the model does not know (DDRAW.LOCK.PAD): memory
+/// outside the surface's pixels that an 8 bpp backward Blt copied in (the heap's bytes before
+/// the surface change from run to run on one executor and source: dd8-64 overlap8front read
+/// 01 00 90, then b4 and 52 in two of them). A dump prints it as "??"; anything that computes
+/// with it is unmodeled. (A plain u32 here once let the model state one run's bytes as a rule.)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Px {
+    Known(u32),
+    Unknown,
+}
+
+impl Default for Px {
+    fn default() -> Self {
+        Px::Known(0)
+    }
+}
+
+/// a pixel as a dump prints it: its bytes in memory order, "??" a byte for one unknown
+fn dump_px(p: Px, bytes: usize) -> String {
+    match p {
+        Px::Known(v) => v.to_le_bytes()[..bytes].iter().map(|b| format!("{b:02x}")).collect(),
+        Px::Unknown => "??".repeat(bytes),
+    }
+}
+
 impl Surf {
-    fn get(&self, x: i64, y: i64) -> u32 {
+    /// the pixel's value (a pixel the model does not know: unmodeled, DDRAW.LOCK.PAD)
+    fn get(&self, x: i64, y: i64) -> Res<u32> {
+        match self.pixel(x, y) {
+            Px::Known(v) => Ok(v),
+            Px::Unknown => Err(Fail::Unmodeled(open::DDRAW_LOCK_PAD)),
+        }
+    }
+    /// the pixel as it is, known or not (a copy carries an unknown byte along)
+    fn pixel(&self, x: i64, y: i64) -> Px {
         self.px[(y * self.w + x) as usize]
     }
     fn set(&mut self, x: i64, y: i64, v: u32) {
+        self.put(x, y, Px::Known(v));
+    }
+    fn put(&mut self, x: i64, y: i64, v: Px) {
         self.px[(y * self.w + x) as usize] = v;
     }
     fn mask(&self) -> u32 {
@@ -318,14 +354,17 @@ impl Ddraw {
                 }
                 let sx = sr.0 + rule.source(Axis::X, if k.lr { w - 1 - x } else { x }, sw, w);
                 let sy = sr.1 + rule.source(Axis::Y, if k.ud { h - 1 - y } else { y }, sh, h);
-                let v = src.get(sx, sy);
-                if k.src == Some(v) {
+                let v = src.pixel(sx, sy);
+                if let Some(sk) = k.src && Px::Known(sk) == v {
                     continue;
                 }
-                if let Some(dk) = k.dest && dst.get(tx, ty) != dk {
+                if k.src.is_some() && v == Px::Unknown {
+                    return Err(Fail::Unmodeled(open::DDRAW_LOCK_PAD));
+                }
+                if let Some(dk) = k.dest && dst.get(tx, ty)? != dk {
                     continue;
                 }
-                dst.set(tx, ty, v);
+                dst.put(tx, ty, v);
             }
         }
         Ok(0)
@@ -347,23 +386,20 @@ impl Ddraw {
                 let a = (y - dy) * p + x - dx;
                 let (ry, rx) = (a.div_euclid(p), a.rem_euclid(p));
                 let v = if a < 0 {
-                    // the 3 bytes before the surface (MEASURED dd8 overlap8front, a 32 x 6
-                    // surface): 0 on x86; 01 00 90 on x86-64 (the heap's header)
-                    match (super::arch(), a) {
-                        (64, -3) => 0x01,
-                        (64, -1) => 0x90,
-                        (64, -2) | (32, -3..=-1) => 0,
-                        _ => return Err(Fail::Unmodeled(open::DDRAW_LOCK_PAD)),
-                    }
+                    // the bytes before the surface: the heap's, not the surface's (dd8-64
+                    // overlap8front read 01 00 90, and b4 and 52 in other runs of the same
+                    // executor): unknown to the model (DDRAW.LOCK.PAD)
+                    hit(clause::DDRAW_LOCK_PAD);
+                    Px::Unknown
                 } else if rx >= src.w {
                     // a row's padding (overlap8padpoke-*, overlap8padfresh-*)
                     let pad = src.pad.as_ref().ok_or(Fail::Unmodeled(open::DDRAW_VID_PITCH))?;
                     let at = usize::try_from(ry * (p - src.w) + rx - src.w).map_err(|_| Fail::Bad)?;
-                    u32::from(*pad.get(at).ok_or(Fail::Bad)?)
+                    Px::Known(u32::from(*pad.get(at).ok_or(Fail::Bad)?))
                 } else {
-                    src.get(rx, ry)
+                    src.pixel(rx, ry)
                 };
-                dst.set(x, y, v);
+                dst.put(x, y, v);
             }
         }
         Ok(())
@@ -484,7 +520,7 @@ impl Ddraw {
                 // (the pixels a new surface starts with are not documented: cases fill first)
                 let caps = if vid { 0x1000_4040 } else { 0x840 };
                 let pad = (!vid).then(|| vec![0; usize::try_from(h * (pitch(w, bpp) - w * i64::from(bpp / 8))).unwrap_or(0)]);
-                self.s[i as usize] = Some(Surf { w, h, bpp, fmt, caps, flags: 0x100f, vid, px: vec![0; (w * h) as usize], pad, ..Default::default() });
+                self.s[i as usize] = Some(Surf { w, h, bpp, fmt, caps, flags: 0x100f, vid, px: vec![Px::Known(0); (w * h) as usize], pad, ..Default::default() });
             }
             "ddfill" | "dddump" => {
                 let s = slot!(1);
@@ -503,13 +539,13 @@ impl Ddraw {
                         for b in 0..bytes {
                             v |= (g.next() & 0xff) << (8 * b);
                         }
-                        *p = v;
+                        *p = Px::Known(v);
                     }
                 } else {
                     let (x0, y0, x1, y1) = r.unwrap_or((0, 0, surf.w, surf.h));
                     out.push(format!("dd {s} {} {} {}", x1 - x0, y1 - y0, surf.bpp));
                     for y in y0..y1 {
-                        out.push((x0..x1).map(|x| surf.get(x, y).to_le_bytes()[..bytes as usize].iter().map(|b| format!("{b:02x}")).collect::<String>()).collect());
+                        out.push((x0..x1).map(|x| dump_px(surf.pixel(x, y), bytes as usize)).collect());
                     }
                 }
             }
@@ -938,14 +974,14 @@ impl Ddraw {
                         hit(clause::DDRAW_DC_NEAREST);
                         surf.set(x, y, nearest_entry(tab, c).into());
                     }
-                    let e = usize::try_from(surf.get(x, y) & 0xff).ok().and_then(|i| tab.get(i)).copied().unwrap_or(0);
+                    let e = usize::try_from(surf.get(x, y)? & 0xff).ok().and_then(|i| tab.get(i)).copied().unwrap_or(0);
                     out.push(format!("pixel {:06x}", e & 0xff_ffff));
                     return Ok(true);
                 }
                 if let Some(c) = c {
                     surf.set(x, y, g.from_rgb(c));
                 }
-                out.push(format!("pixel {:06x}", g.to_rgb(surf.get(x, y) & g.mask())));
+                out.push(format!("pixel {:06x}", g.to_rgb(surf.get(x, y)? & g.mask())));
             }
             _ => return self.op2(op, out),
         }
@@ -1045,7 +1081,13 @@ impl Ddraw {
                         *pad.get_mut(at).ok_or(Fail::Bad)? = u8::try_from(v).map_err(|_| Fail::Bad)?;
                         continue;
                     }
-                    let old = surf.get(px, py);
+                    // (a pixel the model does not know stays unknown but where this byte lands:
+                    // at 8 bpp the whole pixel)
+                    let old = match surf.pixel(px, py) {
+                        Px::Known(o) => o,
+                        Px::Unknown if b == 1 => 0,
+                        Px::Unknown => return Err(Fail::Unmodeled(open::DDRAW_LOCK_PAD)),
+                    };
                     surf.set(px, py, old & !(0xff << (8 * byte)) | v << (8 * byte));
                 }
             }
@@ -1221,7 +1263,7 @@ impl Ddraw {
             // screen's size too)
             let n = (backs as usize + 1).min(8 - s);
             for k in 0..n {
-                self.s[s + k] = Some(Surf { w: 1, h: 1, bpp: 32, fmt: "32", caps: 0x200, px: vec![0], chain: Some((s, k)), ..Default::default() });
+                self.s[s + k] = Some(Surf { w: 1, h: 1, bpp: 32, fmt: "32", caps: 0x200, px: vec![Px::Known(0)], chain: Some((s, k)), ..Default::default() });
             }
             out.push(format!("chain {n}"));
             return Ok(true);
@@ -1234,7 +1276,7 @@ impl Ddraw {
             let role = if k == 0 { 0x20 } else if k == 1 { 0x4 } else { 0 };
             let flags = if k == 0 { 0x102f } else { 0x100f };
             let c = caps | mem | if backs > 0 { 0x18 | role } else { 0 };
-            self.s[s + k] = Some(Surf { w, h, bpp: 32, fmt: "32", caps: c & !(if mem != 0 { 0x800 } else { 0 }), flags, vid: mem != 0, px: vec![0; (w * h) as usize], chain: Some((s, k)), ..Default::default() });
+            self.s[s + k] = Some(Surf { w, h, bpp: 32, fmt: "32", caps: c & !(if mem != 0 { 0x800 } else { 0 }), flags, vid: mem != 0, px: vec![Px::Known(0); (w * h) as usize], chain: Some((s, k)), ..Default::default() });
         }
         out.push(format!("chain {n}"));
         Ok(true)

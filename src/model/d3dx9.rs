@@ -622,13 +622,7 @@ fn f16_load(x: u32, n: usize, at: usize, len: usize) -> Res<u16> {
     // (the value's place in the array it goes through: the row's, or a lone one's)
     let (at, len) = if n == 4 { (at, len) } else { (0, 1) };
     let bulk = len - len % if conv == F16Array::Amd64 { 4 } else { 8 };
-    Ok(match (conv, at < bulk) {
-        (F16Array::X86, true) => f16_block(x),
-        (F16Array::IntelSse3, true) => f16_sse(x),
-        (F16Array::X86 | F16Array::IntelSse3, false) => f16_one(x),
-        (F16Array::Amd64, true) => f16_x64(x),
-        (F16Array::Amd64, false) => f16_x64_tail(x),
-    })
+    Ok(conv.half(x, at < bulk))
 }
 
 /// D3DXGetDeclVertexSize of stream 0: the end of the furthest element of the stream
@@ -694,10 +688,11 @@ pub fn f16_to_f32(h: u16) -> f32 {
     (s * if e == 0 { m * 2f64.powi(-24) } else { (1.0 + m / 1024.0) * 2f64.powi(e - 15) }) as f32
 }
 
-/// a float as a half the way D3DXFloat32To16Array does most of an array (8 at a time): IEEE,
-/// ties toward zero; infinity past 65504 and for infinities and NaNs (MEASURED: d3dx9 f16-*)
-/// a float as a half the way x64's intelsse3 D3DXFloat32To16Array does 8 at a time (the
-/// clean-room notes): below 2^-14 the magnitude plus 2^-14 in f32 (rounding to 2^-37), its
+/// a float as a half the way D3DXFloat32To16Array does most of an array, 8 at a time: x86's
+/// intelsse2 routine (every SSE2 processor without 3DNow, Intel's and AMD's alike) and x64's
+/// intelsse3 one (GenuineIntel) are the same rule (the clean-room notes of both builds; MEASURED
+/// d3dx9-32 f16-*, 56/56 lines, f16-ties' 0x33000401 -> 0001 where a shift gives 0000): IEEE,
+/// ties toward zero, 0x7c00 past 65520 and for infinities and NaNs; below 2^-14 the magnitude plus 2^-14 in f32 (rounding to 2^-37), its
 /// bits less 2^23; the bits plus 0xc8000fff shifted down 13, at most 0x7c00
 pub fn f16_sse(x: u32) -> u16 {
     let a = f32::from_bits(x & 0x7fff_ffff);
@@ -711,15 +706,6 @@ pub fn f16_sse(x: u32) -> u16 {
 fn low16(v: u32) -> u16 {
     let [a, b, _, _] = v.to_le_bytes();
     u16::from_le_bytes([a, b])
-}
-
-pub fn f16_block(x: u32) -> u16 {
-    let s = (x >> 16 & 0x8000) as u16;
-    let i = x & 0x7fff_ffff;
-    if i >= 0x4780_0000 {
-        return s | 0x7c00;
-    }
-    s | ((half_bits(i) + 0xfff) >> 13) as u16
 }
 
 /// a float as a half the way D3DXFloat32To16Array does the rest of an array (fewer than 8):
@@ -740,7 +726,8 @@ pub fn f16_one(x: u32) -> u16 {
 /// clean-room notes; MEASURED golden d3dx9 of 4abddab, AuthenticAMD as amdx64's)
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum F16Array {
-    /// 8 at a time as f16_block, the rest one by one as f16_one
+    /// 8 at a time as f16_sse (intelsse2_D3DXFloat32To16Array), the rest one by one as
+    /// f16_one (c_D3DXFloat32To16Array, called for the last n % 8 even when none are left)
     X86,
     /// 8 at a time as f16_sse, the rest one by one as f16_one (c_D3DXFloat32To16Array)
     IntelSse3,
@@ -762,16 +749,18 @@ impl F16Array {
     fn convert(self, w: &[u32]) -> Vec<u16> {
         let step = if self == Self::Amd64 { 4 } else { 8 };
         let bulk = w.len() - w.len() % step;
-        w.iter()
-            .enumerate()
-            .map(|(i, &x)| match (self, i < bulk) {
-                (Self::X86, true) => f16_block(x),
-                (Self::IntelSse3, true) => f16_sse(x),
-                (Self::X86 | Self::IntelSse3, false) => f16_one(x),
-                (Self::Amd64, true) => f16_x64(x),
-                (Self::Amd64, false) => f16_x64_tail(x),
-            })
-            .collect()
+        w.iter().enumerate().map(|(i, &x)| self.half(x, i < bulk)).collect()
+    }
+
+    /// one value as a half, in the array's blocks (`bulk`) or its rest: the one place that
+    /// picks a routine (D3DXFloat32To16Array and the load codecs both come here)
+    fn half(self, x: u32, bulk: bool) -> u16 {
+        match (self, bulk) {
+            (Self::X86 | Self::IntelSse3, true) => f16_sse(x),
+            (Self::X86 | Self::IntelSse3, false) => f16_one(x),
+            (Self::Amd64, true) => f16_x64(x),
+            (Self::Amd64, false) => f16_x64_tail(x),
+        }
     }
 }
 

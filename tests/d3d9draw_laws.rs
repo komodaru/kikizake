@@ -212,7 +212,7 @@ proptest! {
     /// (0x3b7ff9ab: 0x1bff, IEEE 0x1c00; counted over every normal float: 29696 of them)
     #[test]
     fn d3dx_halves(m in 0x3880_0000u32..0x477f_f000, sign: bool) {
-        use kikizake::model::d3dx9::{f16_block, f16_one, f16_sse, f16_x64, f16_x64_tail};
+        use kikizake::model::d3dx9::{f16_one, f16_sse, f16_x64, f16_x64_tail};
         let bits = m | (sign as u32) << 31;
         let x = f32::from_bits(bits);
         let ieee = f32_to_f16(x);
@@ -221,21 +221,44 @@ proptest! {
         let tail = f16_x64_tail(bits);
         prop_assert!(tail == ieee || (m & 0x7f_ffff >= 0x7f_f800 && tail == ieee - 1), "{bits:#x}: {tail:#x} {ieee:#x}");
         let tie = bits & 0x1fff == 0x1000;
-        prop_assert_eq!(f16_block(bits), if tie && bits & 0x2000 != 0 { ieee - 1 } else { ieee });
-        prop_assert_eq!(f16_sse(bits), f16_block(bits));
+        prop_assert_eq!(f16_sse(bits), if tie && bits & 0x2000 != 0 { ieee - 1 } else { ieee });
     }
 
     /// below 2^-14: x64's one by one conversion never gives more than its 4 at a time one
-    /// (it rounds at a normal half's bit and then truncates), and the two 8 at a time ones
-    /// differ by at most one, the f32 add's never less
+    /// (it rounds at a normal half's bit and then truncates); the 8 at a time one is the
+    /// magnitude + 2^-14 rounded in f32 (to a multiple of 2^-37), then ties toward zero at 2^-24:
+    /// exactly IEEE's half of that f32 sum's excess, ties down
     #[test]
     fn d3dx_denormal_halves(m in 0u32..0x3880_0000, sign: bool) {
-        use kikizake::model::d3dx9::{f16_block, f16_sse, f16_x64, f16_x64_tail};
+        use kikizake::model::d3dx9::{f16_sse, f16_x64, f16_x64_tail};
         let bits = m | (sign as u32) << 31;
         let (tail, four) = (f16_x64_tail(bits) & 0x7fff, f16_x64(bits) & 0x7fff);
         prop_assert!(tail <= four && four - tail <= 1, "{bits:#x}: {tail:#x} {four:#x}");
-        let (sse, blk) = (f16_sse(bits), f16_block(bits));
-        prop_assert!(sse == blk || sse == blk + 1, "{bits:#x}: {sse:#x} {blk:#x}");
+        let a = f32::from_bits(m) as f64;
+        let r = ((f32::from_bits(m) + f32::from_bits(0x3880_0000)) as f64 - 2f64.powi(-14)) * 2f64.powi(24);
+        // (ties toward zero: the half below a tie)
+        let want = if r.fract() == 0.5 { r.floor() } else { r.round() } as u16;
+        prop_assert_eq!(f16_sse(bits) & 0x7fff, want, "{:#x} ({})", bits, a);
+        prop_assert_eq!(f16_sse(bits) & 0x8000, (bits >> 16 & 0x8000) as u16);
+    }
+}
+
+/// the 8 at a time conversion of tiny values rounds the f32 sum |x| + 2^-14 first, keeping what
+/// a shift of the mantissa throws away (the 2026-11-21 review: x86 was modeled with the shift,
+/// golden d3dx9-32 f16-ties said 0001 0001 0002 0003 0004 0005 0009 0010 to its first 8);
+/// the four values the clean-room notes name come out one more than a shift's
+#[test]
+fn tiny_halves_round_the_sum_first() {
+    use kikizake::model::d3dx9::f16_sse;
+    let x = [0x3300_0401u32, 0x3300_07a0, 0x33c0_0306, 0x3420_0101, 0x3460_01fc, 0x3490_00b1, 0x3508_0041, 0x3578_0075];
+    let windows = [1u16, 1, 2, 3, 4, 5, 9, 0x10];
+    // (what the shift of the mantissa, plus 0xfff, gave: the model before)
+    let shift = [0u16, 0, 1, 2, 3, 4, 8, 0xf];
+    for ((&x, &w), &sh) in x.iter().zip(&windows).zip(&shift) {
+        assert_eq!(f16_sse(x), w, "{x:#x}");
+        let shifted = ((0x80_0000 | x & 0x7f_ffff) >> (113 - (x >> 23))).wrapping_add(0xfff) >> 13;
+        assert_eq!(shifted, u32::from(sh), "{x:#x}");
+        assert_eq!(f16_sse(x | 0x8000_0000), w | 0x8000);
     }
 }
 
@@ -250,7 +273,7 @@ fn x64_tail_at_a_binade_top() {
 
 #[test]
 fn half_midpoint_neighbors() {
-    use kikizake::model::d3dx9::f16_block;
+    use kikizake::model::d3dx9::f16_sse as f16_block;
     for sign in [0u32, 0x8000_0000] {
         for (base, half) in [(0x3f80_0000, 0x3c00), (0x3f80_2000, 0x3c01)] {
             for (tail, up) in [(0xfff, 0), (0x1000, 0), (0x1001, 1)] {

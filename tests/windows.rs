@@ -39,11 +39,24 @@ fn models_match_windows() {
         let cases = case::parse_cases(&input);
         for arch in generators::architectures(&input) {
             let reference = dir.join(format!("{s}-{arch}"));
-            let g = std::fs::read_to_string(reference.join("stdout.txt")).unwrap_or_else(|e| panic!("{s}-{arch}: {e}"));
-            let status = std::fs::read_to_string(reference.join("exit")).unwrap();
-            let status: i64 = status.trim().parse().expect("numeric executor exit status");
+            let (g, status) = match (std::fs::read_to_string(reference.join("stdout.txt")), std::fs::read_to_string(reference.join("exit"))) {
+                (Ok(g), Ok(e)) => match e.trim().parse::<i64>() {
+                    Ok(status) => (g, status),
+                    Err(e) => {
+                        bad.push(format!("{s}-{arch}: exit status: {e}"));
+                        continue;
+                    }
+                },
+                (Err(e), _) | (_, Err(e)) => {
+                    bad.push(format!("{s}-{arch}: {e}"));
+                    continue;
+                }
+            };
             let want = model::ModelContext::recorded(arch, &g).evaluate(|| model::run(s, &cases));
-            assert_eq!(case::parse_output(&want).done, status == 0, "{s}-{arch}: exit {status}");
+            // (every suite is compared to the end: a stop here would hide the differences after it)
+            if case::parse_output(&want).done != (status == 0) {
+                bad.push(format!("{s}-{arch}: the model's end (done or not) is not Windows' exit {status}"));
+            }
             let r = compare::compare_text(&want, &g);
             eprintln!("kikizake_{s}-{arch}: {} cases, {} as Windows, {} unmodeled, {} differ", r.cases, r.same, r.unmodeled, r.differ.len());
             bad.extend(r.differ.iter().map(|d| format!("{s}-{arch} {d}")));

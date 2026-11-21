@@ -770,3 +770,44 @@ proptest! {
 fn prop_assert_eq_f(a: f64, b: f64) {
     assert!(a.to_bits() == b.to_bits(), "{a} != {b}");
 }
+
+/// the bytes before a surface that an 8 bpp backward Blt copies in are the heap's: Windows'
+/// recordings of one executor and source differ there (dd8-64 overlap8front: 90 a5 52 .. and
+/// 10 a5 52 .. in its first row), so the model prints them unknown ("??") on both
+/// architectures and its answer agrees with each recording (DDRAW.LOCK.PAD)
+#[test]
+fn bytes_before_a_surface_are_unknown() {
+    let text = "dd\nddsurf 0 32 6 8\nddfill 0 3544\nddblt 0 1 0 5 2 0 0 0 4 2\ndddump 0\n";
+    for arch in [32, 64] {
+        model::set_arch(arch);
+        let r = rows(&run(text), "dd 0 ");
+        assert!(r[0].starts_with("??") && !r[0][2..].contains('?'), "{arch}: {}", r[0]);
+        for (i, row) in r.iter().enumerate().skip(1) {
+            assert!(!row.contains('?'), "{arch}: row {i} {row}");
+        }
+        for first in ["90", "10", "00", "b4", "52"] {
+            let got = format!("{first}{}", &r[0][2..]);
+            let want = format!("case p\n{}\n", r.join("\n"));
+            let rep = kikizake::compare::compare_text(&want, &format!("case p\n{got}\n{}\n", r[1..].join("\n")));
+            assert!(rep.differ.is_empty(), "{arch} {first}: {:?}", rep.differ);
+        }
+    }
+    model::set_arch(32);
+}
+
+/// an unknown byte poisons what computes with it: a source key compared against it, or a
+/// GetPixel of it, is unmodeled, and a byte poked over it at 8 bpp makes it known again
+#[test]
+fn unknown_bytes_are_never_computed_with() {
+    let base = "dd\nddsurf 0 32 6 8\nddfill 0 3544\nddblt 0 1 0 5 2 0 0 0 4 2\n";
+    model::set_arch(64);
+    let unmodeled = |t: String| assert!(matches!(try_run(&t), Err(Fail::Unmodeled(_))), "{t}");
+    unmodeled(format!("{base}ddsurf 1 32 6 8\nddkey 0 src 7\nddblt 1 0 0 32 6 0 all keysrc\ndddump 1\n"));
+    unmodeled(format!("{base}ddgetdc 0\ndcget 0 0 0\n"));
+    // (a plain copy carries the unknown byte along)
+    let copied = run(&format!("{base}ddsurf 1 32 6 8\nddblt 1 0 0 32 6 0 all\ndddump 1\n"));
+    assert!(rows(&copied, "dd 1 ")[0].starts_with("??"), "{copied:?}");
+    let poked = run(&format!("{base}ddlock 0 all\nddpoke 0 0 0 5a\nddunlock 0 none\ndddump 0\n"));
+    assert!(!poked.iter().any(|l| l.contains('?')), "{poked:?}");
+    model::set_arch(32);
+}
