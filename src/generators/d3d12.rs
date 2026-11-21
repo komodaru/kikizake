@@ -819,7 +819,8 @@ pub fn d3d12() -> String {
         vec![fb(-16.0), fb(-16.01), fb(15.99), fb(16.0), fb(15.995), fb(f32::NAN), fb(f32::INFINITY), fb(-0.0)],
         vec![0, 1, 16, 17, 0xffff_ffff],
         vec![0, 1, 8, 9, 0xffff_ffff],
-        vec![0, 1, 2, 3, 4, 99],
+        // (99 stopped the x86 executor in CreateRootSignature, golden d3d12-32 of f46733e; x64 took it)
+        vec![0, 1, 2, 3, 4, 5],
         vec![fb(f32::NAN), fb(f32::NEG_INFINITY), fb(5.0), fb(-1.0)],
         vec![fb(f32::NAN), fb(f32::INFINITY), fb(0.0), fb(-1.0)],
     ];
@@ -845,6 +846,15 @@ pub fn d3d12() -> String {
     }
     for (i, l) in rs2.iter().enumerate() {
         writeln!(s, "case rootsig2-{i}\ndevice12\nrootsig12 {}\nend", l.trim_end());
+    }
+    // (added after) ALLOW_DISPLAY and cross-adapter ROW_MAJOR textures in every format
+    for (n, hf, rf, layout) in [("display", 8u32, 0u32, 0u32), ("display-rt", 8, 1, 0), ("cross", 0x21, 0x10, 1), ("cross-rt", 0x21, 0x11, 1)] {
+        writeln!(s, "case committed-{n}-fmt\ndevice12");
+        for f in 0..=191u32 {
+            let d = Desc { flags: rf, layout, ..Desc::tex(3, 64, 64, 1, 1, f) };
+            writeln!(s, "{}", cl([1, 0, 0, 0, 0], hf, 0, none, &d));
+        }
+        writeln!(s, "end");
     }
 
     s

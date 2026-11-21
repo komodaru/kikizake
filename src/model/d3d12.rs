@@ -1072,7 +1072,9 @@ pub fn props_ok(p: Props, flags: u32, committed: bool) -> bool {
     let deny = flags & DENY;
     let deny_ok = if committed || flags & CROSS_ADAPTER != 0 { deny == 0 } else { matches!(deny, 0 | 0xc0 | 0x44 | 0x84) };
     let node = |m: u32| if m == 0 { 1 } else { m };
-    if !deny_ok || node(p.visible) & node(p.creation) != node(p.creation) {
+    // (MEASURED, golden d3d12-* props-nodes, heapx-nodes: the creation node is WARP's one node,
+    // the visible mask holds it, other bits of the visible mask taken)
+    if !deny_ok || node(p.creation) != 1 || node(p.visible) & 1 == 0 {
         return false;
     }
     let cpu_type = matches!(p.heap, Heap::Upload | Heap::Readback | Heap::GpuUpload);
@@ -1157,7 +1159,23 @@ fn clear_ok(c: Clear, d: &Desc) -> bool {
         Clear::Depth(_, z) => (0.0..=1.0).contains(&z),
         Clear::None | Clear::Color(_) => true,
     };
-    same && (d.flags & 1 == 0 || support(f) & RT != 0) && (d.flags & 2 == 0 || support(f) & DS != 0 && depth)
+    // (MEASURED, golden d3d12-* committed-clear: a depth texture's clear format a depth format
+    // (R32_FLOAT for D32_FLOAT refused); the depth from 0 to 1, denormals and -0 taken, NaN
+    // refused)
+    let _ = DS;
+    same && (d.flags & 1 == 0 || support(f) & RT != 0) && (d.flags & 2 == 0 || super::dxgi_format::DEPTH.contains(&f) && depth)
+}
+
+/// the formats an ALLOW_DISPLAY resource takes (MEASURED, golden d3d12-* committed-display,
+/// committed-display-fmt-*)
+fn display_format(f: u32) -> bool {
+    f != 2
+}
+
+/// the formats a cross-adapter ROW_MAJOR texture takes (MEASURED, golden d3d12-*
+/// committed-display, committed-cross-fmt-*)
+fn cross_format(f: u32) -> bool {
+    matches!(f, 10 | 24 | 28 | 29 | 87 | 91)
 }
 
 /// CreateCommittedResource with every argument, ppvResource NULL (re/d3d12; to be measured)
@@ -1166,16 +1184,31 @@ pub fn committed_hr(p: Props, flags: u32, state: u32, c: Clear, d: &Desc) -> Res
     if !props_ok(p, flags, true) {
         return Ok(E_INVALIDARG);
     }
+    // (MEASURED, golden d3d12-* committed-display: a cross-adapter heap takes the resource flag
+    // ALLOW_CROSS_ADAPTER with ROW_MAJOR, for some formats, golden committed-cross-*)
+    if flags & CROSS_ADAPTER != 0 || d.flags & 0x10 != 0 {
+        hit(clause::D3D12_COMMITTED_FLAGS);
+        let ok = flags & CROSS_ADAPTER != 0 && d.flags & 0x10 != 0 && d.kind() == Dim::Tex2D && d.layout == 1 && d.mips == 1 && d.d == 1 && d.samples == 1 && d.flags & !0x15 == 0 && cross_format(d.fmt);
+        if !ok {
+            return Ok(E_INVALIDARG);
+        }
+        let plain = Desc { flags: d.flags & !0x10, layout: 0, ..*d };
+        let r = create_hr(p.as_type(), state, &plain)?;
+        if r != S_FALSE {
+            return Ok(r);
+        }
+        return Ok(if clear_ok(c, d) { S_FALSE } else { E_INVALIDARG });
+    }
     let r = create_hr(p.as_type(), state, d)?;
     if r != S_FALSE {
         return Ok(r);
     }
     hit(clause::D3D12_COMMITTED_FLAGS);
-    if flags & CROSS_ADAPTER != 0 || flags & ATOMICS != 0 && d.flags & 4 == 0 {
+    if flags & ATOMICS != 0 && d.flags & 4 == 0 {
         return Ok(E_INVALIDARG);
     }
     if flags & ALLOW_DISPLAY != 0 {
-        let display = super::dxgi_format::caps(d.fmt).and_then(|c| c.0).is_some_and(|s| s.0 & 0x8_0000 != 0);
+        let display = display_format(d.fmt);
         if !(d.kind() == Dim::Tex2D && d.align == 0 && matches!(d.d, 1 | 2) && d.mips == 1 && d.samples == 1 && d.quality == 0 && d.layout == 0 && d.flags & 0xc2 == 0 && display) {
             return Ok(E_INVALIDARG);
         }
@@ -1477,7 +1510,10 @@ impl D3d12 {
                     // EnumAdapters order, the last WARP)
                     hit(clause::DXGI_ADAPTER_PREF);
                     match w[0] {
-                        0 => out.push("pref hr 00000000 1414 8c 2".into()),
+                        // (MEASURED, golden dxgi-* pref-args: the same order for every
+                        // preference, 0 to 0xffffffff: an adapter of WARP's ids without the
+                        // software flag (the render-only one), then WARP)
+                        0 => out.push("pref hr 00000000 1414 8c 0".into()),
                         1 => out.push("pref hr 00000000 1414 8c 2".into()),
                         _ => out.push(format!("pref hr {DXGI_ERROR_NOT_FOUND:08x}")),
                     }
