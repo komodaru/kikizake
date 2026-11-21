@@ -361,6 +361,8 @@ struct Target {
 struct Device {
     family: Family,
     rt: Target,
+    /// the ramp device's span buffer (crate::model::ramp)
+    spans: crate::model::ramp::Spans,
 }
 
 #[derive(Default)]
@@ -632,7 +634,7 @@ impl D3d7 {
         let k = usize::try_from(w * h).map_err(|_| Fail::Bad)?;
         // MEASURED (v1 golden): a new target holds zeros
         let rt = Target { w, h, fmt, px: vec![0; k], depth, z: vec![0; if depth.is_some() { k } else { 0 }] };
-        self.dev = Some(Device { family, rt });
+        self.dev = Some(Device { family, rt, spans: crate::model::ramp::Spans::default() });
         if depth.is_some() {
             // MEASURED: ZENABLE is on when the target had a z-buffer
             self.rs.insert(Rs::ZEnable.id(), 1);
@@ -719,9 +721,15 @@ impl D3d7 {
                 }
                 let st = States::read(self)?;
                 let d = self.dev.as_mut().ok_or(Fail::Bad)?;
-                let cover = line(d.family, v, st.lastpixel, d.rt.w, d.rt.h)?;
                 let tri = Tri { v: [v[0], v[1], v[1]], c: [c; 3], spec: [0; 3], z: 0.5 };
-                paint(d, &st, &tri, &cover_writes(&cover, d.rt.w))?;
+                let writes = match d.family {
+                    Family::Ramp => {
+                        let fmt = d.rt.fmt;
+                        ramp_writes(&mut d.spans, &st, &tri, Prim::Line, d.rt.w, d.rt.h, fmt)?
+                    }
+                    Family::Soft { .. } | Family::Hw { .. } => cover_writes(&line(d.family, v, st.lastpixel, d.rt.w, d.rt.h)?, d.rt.w),
+                };
+                paint(d, &st, &tri, &writes)?;
             }
             "d3dtri" => {
                 let c = colors(t.get(1).ok_or(Fail::Bad)?)?;
@@ -1294,8 +1302,12 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
     }
     let (w, h) = (rt.w, rt.h);
     let writes = match (st.fill, family) {
-        (Fill::Solid, Family::Soft { .. } | Family::Ramp) => soft_writes(family, st, tri, w, h, rt.fmt)?,
-        (Fill::Point | Fill::Wireframe, _) | (Fill::Solid, Family::Hw { .. }) => {
+        (_, Family::Ramp) => {
+            let fmt = rt.fmt;
+            ramp_writes(&mut dev.spans, st, tri, Prim::Tri, w, h, fmt)?
+        }
+        (Fill::Solid, Family::Soft { .. }) => soft_writes(family, st, tri, w, h, rt.fmt)?,
+        (Fill::Point | Fill::Wireframe, Family::Soft { .. } | Family::Hw { .. }) | (Fill::Solid, Family::Hw { .. }) => {
             let cover = match st.fill {
                 Fill::Point => points(family, v, w, h)?,
                 Fill::Wireframe => wireframe(family, v, st.lastpixel, w, h)?,
@@ -1305,6 +1317,108 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
         }
     };
     paint(dev, st, tri, &writes)
+}
+
+/// what a ramp draw is: a triangle in the fill mode, or a line of a line list
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Prim {
+    Tri,
+    Line,
+}
+
+/// the address of pixel (x, y) as a span walks it (past the right side on into the row's padding
+/// and the next row): its index in the target, or None past the row's end; past the surface's
+/// end not worked out (D3D7.TRI.CLIP)
+fn walked(x: i64, y: i64, w: i64, h: i64, fmt: Fmt) -> Res<Option<usize>> {
+    let bad = || Fail::Bad;
+    let b = i64::try_from(fmt.bytes()).ok().ok_or_else(bad)?;
+    let p = crate::model::ddraw::pitch(w, u32::try_from(fmt.bytes()).ok().ok_or_else(bad)?.wrapping_mul(8));
+    let a = y.checked_mul(p).and_then(|r| r.checked_add(x.checked_mul(b)?)).ok_or_else(bad)?;
+    let (row, at) = (a.div_euclid(p), a.rem_euclid(p));
+    let end = w.wrapping_mul(b);
+    if a < 0 || a.wrapping_add(b) > h.wrapping_mul(p) || at.rem_euclid(b) != 0 || (at < end && at.wrapping_add(b) > end) {
+        return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+    }
+    let col = at.div_euclid(b);
+    if col >= w {
+        return Ok(None);
+    }
+    Ok(Some(usize::try_from(row.wrapping_mul(w).wrapping_add(col)).ok().ok_or_else(bad)?))
+}
+
+/// a ramp draw (crate::model::ramp, from the clean-room notes on d3dim.dll): MEASURED (d3d7rast
+/// clip-2-ramp, -zw0, -zw1; d3d7shade *-2-ramp; d3d7dev *-2-ramp) one DrawPrimitives2 batch
+/// through the device's span buffer: a triangle clipped at the viewport into a fan, each piece
+/// set up and walked by d3dim700's rules; lines, wireframe edges and points as 1-pixel spans;
+/// every pixel index 0 (0x8000 in both colour words with z on, the alpha in red's word
+/// without) plus the span's specular words, whatever the buffer held there
+fn ramp_writes(spans: &mut crate::model::ramp::Spans, st: &States, tri: &Tri, prim: Prim, w: i64, h: i64, fmt: Fmt) -> Res<Vec<Write>> {
+    use crate::model::ramp::{self, Batch, Fill as RFill, Kind, Shading, Tl};
+    let [c0, _, _] = tri.c;
+    let alpha = c0 >> 24;
+    // (several alphas under Gouraud: J changes along the triangle, not worked out)
+    let gouraud = !st.flat;
+    let zmode = st.zenable || st.zwrite;
+    let fill = match (zmode, st.fog) {
+        (true, None) => RFill::ZIdx { z: ramp::z_word(tri.z).ok_or(Fail::Bad)? },
+        (z_stage, _) => RFill::Either { z_stage },
+    };
+    let fog = st.fog.map(|fc| [0u32, 8, 16].map(|sh| u16::try_from(fc >> sh & 255).unwrap_or(0)));
+    let sh = Shading { fill, i: 0x8000, j: alpha << 16, gouraud, specular: st.specular, fog };
+    let mut b = Batch::begin(spans, sh);
+    let px16 = |v: i64| i16::try_from(v).map(|v| f32::from(v) / 16.0).ok().ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+    let inside = |v: &[(i64, i64)]| v.iter().all(|&(x, y)| (0..w.wrapping_mul(16)).contains(&x) && (0..h.wrapping_mul(16)).contains(&y));
+    match (prim, st.fill) {
+        (Prim::Line, _) => {
+            let [a, b0, _] = tri.v;
+            let e = [a, b0];
+            if !inside(&e) {
+                return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
+            }
+            hit(clause::D3D7_LINE);
+            b.pixels(&crate::model::d3dim::line(e, st.lastpixel)?, w, h, Kind::Tri)?;
+        }
+        (Prim::Tri, Fill::Solid) => {
+            hit(clause::D3D7_TRI_WALK);
+            // (the colour as the front end makes it: index 0, the alpha kept)
+            let tl = |(v, c): ((i64, i64), u32)| -> Res<Tl> { Ok(Tl { sx: px16(v.0)?, sy: px16(v.1)?, sz: tri.z, rhw: 1.0, c: c & 0xff00_0000 }) };
+            let [p0, p1, p2] = [0, 1, 2].map(|i| tri.v.get(i).copied().zip(tri.c.get(i).copied()));
+            let (fw, fh) = (f32::from(i16::try_from(w).ok().ok_or(Fail::Bad)?), f32::from(i16::try_from(h).ok().ok_or(Fail::Bad)?));
+            let clip = crate::model::d3dim::Clip { l: 0, t: 0, r: w, b: h };
+            let (Some(p0), Some(p1), Some(p2)) = (p0, p1, p2) else { return Err(Fail::Bad) };
+            for t in ramp::clip([tl(p0)?, tl(p1)?, tl(p2)?], fw, fh) {
+                let vert = |q: Tl| crate::model::d3dim::Vert { x: q.sx, y: q.sy, c: [0, 0, 0, u8::try_from(q.c >> 24).unwrap_or(0)] };
+                let r = crate::model::d3dim::raster_as(t.map(vert), clip, gouraud, crate::model::d3dim::Attrs::Ramp)?;
+                b.tri(r.as_ref())?;
+            }
+        }
+        (Prim::Tri, Fill::Wireframe | Fill::Point) => {
+            // (a triangle the front end clips: its edges by the edge flags, not worked out)
+            if !inside(&tri.v) {
+                return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
+            }
+            if st.fill == Fill::Wireframe {
+                hit(clause::D3D7_WIREFRAME);
+                let [q0, q1, q2] = tri.v;
+                for e in [[q0, q1], [q1, q2], [q2, q0]] {
+                    b.pixels(&crate::model::d3dim::line(e, st.lastpixel)?, w, h, Kind::Tri)?;
+                }
+            } else {
+                hit(clause::D3D7_POINT);
+                for (x, y) in tri.v {
+                    b.pixels(&[(x.wrapping_add(8).div_euclid(16), y.wrapping_add(8).div_euclid(16))], w, h, Kind::Point)?;
+                }
+            }
+        }
+    }
+    b.end()?;
+    let mut out = Vec::with_capacity(b.out.len());
+    for q in &b.out {
+        let Some(k) = walked(q.x, q.y, w, h, fmt)? else { continue };
+        let [cb, cg, cr] = q.c.map(|v| Fix88(u32::from(v)));
+        out.push(Write { k, x: q.x, y: q.y, c: Some([cr, cg, cb]) });
+    }
+    Ok(out)
 }
 
 /// the covered pixels of a target w wide, row by row, their colours left to shade()
@@ -1354,22 +1468,12 @@ fn soft_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt)
         (crate::model::d3dim::Walker::NoClip, _) => hit(clause::D3D7_TRI),
         (crate::model::d3dim::Walker::Clip, Family::Soft { .. } | Family::Ramp | Family::Hw { .. }) => hit(clause::D3D7_TRI_GUARD),
     }
-    let b = i64::try_from(fmt.bytes()).map_err(|_| Fail::Bad)?;
-    let p = crate::model::ddraw::pitch(w, 8 * u32::try_from(fmt.bytes()).map_err(|_| Fail::Bad)?);
     let mut out = Vec::with_capacity(r.px.len());
     for q in &r.px {
-        let a = q.y * p + q.x * b;
         // (a pixel past the surface's last byte writes the memory after it: d3d7edge-32 died in
         // the case after whole-rgb-short, whose triangle 36 did; one across a row's end is not
         // measured)
-        if a < 0 || a + b > h * p || (a % p) % b != 0 || (a % p < w * b && a % p + b > w * b) {
-            return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
-        }
-        let (row, col) = (a / p, a % p / b);
-        if col >= w {
-            continue;
-        }
-        let k = usize::try_from(row * w + col).map_err(|_| Fail::Bad)?;
+        let Some(k) = walked(q.x, q.y, w, h, fmt)? else { continue };
         let f = |i: usize| Fix88(u32::from(q.c[i]));
         out.push(Write { k, x: q.x, y: q.y, c: Some([f(2), f(1), f(0)]) });
     }
@@ -1447,11 +1551,14 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
                 // color, 0x800080 with alpha 0, whatever the vertices say; no specular; fog acts as if every vertex's fog were 0 (the fog color, in 256ths)
                 Family::Ramp => {
                     hit(clause::D3D7_RAMP);
-                    match st.fog {
-                        None => [0x80, 0, 0x80],
-                        Some(fc) => [16u32, 8, 0].map(|sh| ((fc >> sh & 255) * 255) >> 8),
+                    match wr.c {
+                        Some(c) => c.map(Shade::Fix),
+                        None => match st.fog {
+                            None => [0x80, 0, 0x80],
+                            Some(fc) => [16u32, 8, 0].map(|sh| ((fc >> sh & 255) * 255) >> 8),
+                        }
+                        .map(|c| Shade::Fix(Fix88::whole(c))),
                     }
-                    .map(|c| Shade::Fix(Fix88::whole(c)))
                 }
                 Family::Soft { .. } | Family::Hw { .. } => {
                     let mut src = [Shade::Int(0); 3];

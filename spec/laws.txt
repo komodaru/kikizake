@@ -52,6 +52,7 @@ tests/laws_dd.rs::walk_stays_by_the_edges pbt D3D7.TRI.WALK D3D7.TRI D3D7.TRI.GU
 tests/laws_dd.rs::gouraud_spans_follow_the_plane pbt D3D7.GOURAUD D3D7.TRI.GUARD
 tests/laws_dd.rs::warp_lines_stay_by_the_segment pbt D3D7.LINE.HW
 tests/laws_dd.rs::soft_lines_walk_one_column_at_a_time pbt D3D7.LINE
+tests/laws_dd.rs::ramp_fresh_spans_are_index_zero pbt D3D7.RAMP
 tests/laws_dd.rs::warp_planes_follow_the_exact_plane pbt D3D7.GOURAUD
 tests/laws_dd.rs::ties_round_symmetrically exhaustive D3D7.TRI.TIE
 tests/laws_dd.rs::long_ties_round_toward_zero exhaustive D3D7.TRI.TIE

@@ -186,6 +186,32 @@ proptest! {
         }
     }
 
+    /// the ramp device's span buffer (d3dim.dll): the first triangle a fresh device draws inside
+    /// the target reads no stale specular (its spans' words alias no z), so every pixel is index
+    /// 0, 0x8010 on 565 with z on and 0x0010 with it off; and a second, clipped one changes
+    /// nothing but red
+    #[test]
+    fn ramp_fresh_spans_are_index_zero(v in prop::array::uniform6(0i64..192), z in 0i64..=1000, zw in 0u32..2, c in prop::array::uniform6(-100i64..300)) {
+        let base = format!("d3d 2\nd3ddev ramp 565 12 12\nd3drs set 22 1\nd3drs set 14 {zw}\nd3dclear 0\n");
+        let out = run(&format!("{base}d3dtri 0xffffffff {} {} {} {} {} {} z {z}\nd3ddump\nd3dclear 0\nd3dtri 0xffffffff {} {} {} {} {} {} z 500\nd3ddump\n", v[0], v[1], v[2], v[3], v[4], v[5], c[0], c[1], c[2], c[3], c[4], c[5]));
+        let want = if zw == 1 { "1080" } else { "1000" };
+        let dumps: Vec<usize> = out.iter().enumerate().filter(|(_, l)| l.starts_with("dd rt")).map(|(i, _)| i).collect();
+        for l in &out[dumps[0] + 1..dumps[1]] {
+            for p in l.as_bytes().chunks(4) {
+                let p = std::str::from_utf8(p).unwrap();
+                prop_assert!(p == "0000" || p == want, "{v:?} z {z} zw {zw}: {p}");
+            }
+        }
+        for l in &out[dumps[1] + 1..] {
+            for p in l.as_bytes().chunks(4) {
+                let p = std::str::from_utf8(p).unwrap();
+                // (B5 = 16 and no green: only red's word takes the stale specular)
+                let hi = u8::from_str_radix(&p[2..4], 16).unwrap();
+                prop_assert!(p == "0000" || (&p[0..2] == "10" && hi % 8 == 0), "{c:?}: {p}");
+            }
+        }
+    }
+
     /// the software rasterizers' lines (d3dim700's walk): one pixel per major column, each next to
     /// the one before (one column on, the row at most one off), every pixel within a pixel of the
     /// segment, and LASTPIXEL changing the last pixel only
@@ -392,7 +418,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 46, 0), ("d3d7shade", 5, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 46, 0), ("d3d7shade", 0, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);

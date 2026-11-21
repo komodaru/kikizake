@@ -32,7 +32,7 @@ fn x87_div(a: f32, b: f32) -> f32 {
     x87(f64::from(a) / f64::from(b))
 }
 
-fn x87_mul(a: f32, b: f32) -> f32 {
+pub(crate) fn x87_mul(a: f32, b: f32) -> f32 {
     x87(f64::from(a) * f64::from(b))
 }
 
@@ -180,11 +180,30 @@ pub struct Px {
     pub c: [u16; 4],
 }
 
+/// one trapezoid as the walker hands it its spans: its row count, and each row's chunks (start
+/// x, pixel count; none for an empty row), until the walker stops
+#[derive(Debug, Default)]
+pub struct Trap {
+    pub rows: i64,
+    /// its first row
+    pub first: i64,
+    /// (start x, pixel count, the f32 attribute accumulators B, G, R, A in 8.8 at its start)
+    pub row: Vec<Vec<(i64, i64, [f32; 4])>>,
+    /// the long edge left the target here: no row after this one
+    pub stopped: bool,
+}
+
 /// a rasterized triangle
 #[derive(Debug)]
 pub struct Raster {
     pub walker: Walker,
     pub px: Vec<Px>,
+    /// spans walked right to left
+    pub reversed: bool,
+    /// the upper and lower trapezoids the walker was called with
+    pub traps: Vec<Trap>,
+    /// the attributes' f32 change per pixel along a span (negated for spans right to left)
+    pub step: [f32; 4],
     /// a whole bottom vertex's row left out by ICEIL (D3D7.TRI.EDGE)
     pub whole_bottom: bool,
 }
@@ -217,6 +236,20 @@ struct Colors {
 /// the pixels and Gouraud colours of triangle (a, b, c) in call order, None when nothing is
 /// drawn; `gouraud` false: the colours are the first vertex's, whole
 pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
+    raster_as(v, clip, gouraud, Attrs::Rgb)
+}
+
+/// which attributes the setup interpolates: the RGB rasterizers' colours, or the ramp device's
+/// index and alpha (TriSetup_DIdx: the alpha 256 times larger, a span as long as the RGB walk's
+/// unless a step reaches 2^30)
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Attrs {
+    Rgb,
+    Ramp,
+}
+
+/// raster() for the given attributes
+pub fn raster_as(v: [Vert; 3], clip: Clip, gouraud: bool, attrs: Attrs) -> Res<Option<Raster>> {
     let bad = || Fail::Unmodeled(crate::spec::open::D3D7_TRI_CLIP);
     let fl = |v: i64| f32_of(v).ok_or_else(bad);
     let [va, vb, vc] = v;
@@ -296,7 +329,11 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
     let sdx = col.dx.map(|g| if reversed { -g } else { g });
     // the per-pixel steps in 8.8; a colour changing by 128 levels a pixel or more: every pixel
     // its own span
-    let steep = sdx.iter().any(|g| g.abs() >= 32768.0);
+    let steep = match attrs {
+        Attrs::Rgb => sdx.iter().any(|g| g.abs() >= 32768.0),
+        // (|256 · dA/dx| from 2^30 in 16.16)
+        Attrs::Ramp => sdx.get(3).is_some_and(|g| g.abs() >= f32::from_bits(0x4a80_0000)),
+    };
     let pstep = sdx.map(|g| trunc(g).unwrap_or(0));
     let max_span = if steep { 1 } else { 0x100 };
     let walker = if inside_h && width <= max_span { Walker::NoClip } else { Walker::Clip };
@@ -318,15 +355,27 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
     let start16 = |a: [f32; 4]| -> [u16; 4] { a.map(|v| trunc(v).map_or(0, low16)) };
     let at = |x0: i64, i: i64| x0.wrapping_add(dir.wrapping_mul(i));
     let mut out = Vec::new();
+    let mut traps: Vec<Trap> = Vec::new();
+    if e1.is_some() {
+        traps.push(Trap { rows: ymid.wrapping_sub(ytop), first: ytop, ..Trap::default() });
+    }
+    if e2.is_some() {
+        traps.push(Trap { rows: ybot.wrapping_sub(ymid), first: ymid, ..Trap::default() });
+    }
     let rows = (ytop..ymid).map(|y| (y, true)).chain((ymid..ybot).map(|y| (y, false)));
     for (y, upper) in rows {
         let short = if upper { e1.as_ref() } else { e2.as_ref() };
         let Some(short) = short else { continue };
+        let ti = if upper || e1.is_none() { 0 } else { 1 };
+        let mut chunks = Vec::new();
         let xs = short.x;
         match walker {
             Walker::NoClip => {
                 let n = if reversed { long.x.wrapping_sub(xs) } else { xs.wrapping_sub(long.x) };
                 let c0 = start16(acc);
+                if n > 0 {
+                    chunks.push((long.x, n, acc));
+                }
                 for i in 0..n.max(0) {
                     out.push(Px { x: at(long.x, i), y, c: along(c0, i, pstep) });
                 }
@@ -334,6 +383,9 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
             Walker::Clip => {
                 let ended = if reversed { long.x < clip.l && long.cstep <= 0 } else { long.x >= clip.r && long.cstep >= 0 };
                 if ended {
+                    if let Some(t) = traps.get_mut(ti) {
+                        t.stopped = true;
+                    }
                     break;
                 }
                 let start = if parked { side } else { long.x };
@@ -347,12 +399,16 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
                         add_scaled(&mut tmp, fl(max_span)?, sdx);
                     }
                     let c0 = start16(tmp);
+                    chunks.push((at(start, done), len, tmp));
                     for i in 0..len {
                         out.push(Px { x: at(start, done.wrapping_add(i)), y, c: along(c0, i, pstep) });
                     }
                     done = done.wrapping_add(len);
                 }
             }
+        }
+        if let Some(t) = traps.get_mut(ti) {
+            t.row.push(chunks);
         }
         // the next row
         let st = long.step();
@@ -379,7 +435,7 @@ pub fn raster(v: [Vert; 3], clip: Clip, gouraud: bool) -> Res<Option<Raster>> {
             }
         }
     }
-    Ok(Some(Raster { walker, px: out, whole_bottom }))
+    Ok(Some(Raster { walker, px: out, reversed, traps, step: sdx, whole_bottom }))
 }
 
 /// PointDiamondCheck: whether an endpoint (fx, fy) in 16ths from its pixel's centre lies in

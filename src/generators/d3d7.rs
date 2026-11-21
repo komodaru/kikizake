@@ -265,6 +265,13 @@ pub fn d3d7rast() -> String {
             ramp = tris;
         }
     }
+    // the ramp device's near-flat slivers whose alpha changes by 2^30 or more of J (alpha · 2^16)
+    // a pixel across (D3D7.TRI.CLIP: TriSetup_DIdx's integer steps then set aside)
+    writeln!(s, "case steep-2-ramp\nd3d 2\nd3ddev ramp 565 12 12\nd3drs set 22 1");
+    for (k, zw) in [(1i64, 1), (2, 1), (3, 0), (5, 0)] {
+        writeln!(s, "d3drs set 14 {zw}\nd3dclear 0\nd3dtri 0x00ffffff/0xffffffff/0x00ffffff 8 0 {} 80 {} {}\nd3ddump", 8i64.wrapping_add(k), 8i64.wrapping_add(k.wrapping_mul(2)), 160i64.wrapping_add(1));
+    }
+    writeln!(s, "end");
     // the ramp device's clipped triangles with D3DRENDERSTATE_ZWRITEENABLE (14) set to 0 and to
     // 1 (no z-buffer): whether the color of a clipped triangle follows the span function the z
     // states choose (D3D7.TRI.CLIP)

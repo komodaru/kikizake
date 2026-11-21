@@ -11645,6 +11645,27 @@ d3dclear 0xff000000
 d3dtri 0xffffffff 101 43 142 88 24 61
 d3ddump
 end
+case steep-2-ramp
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 14 1
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 8 0 9 80 10 161
+d3ddump
+d3drs set 14 1
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 8 0 10 80 12 161
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 8 0 11 80 14 161
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 8 0 13 80 18 161
+d3ddump
+end
 case clip-2-ramp-zw0
 d3d 2
 d3ddev ramp 565 12 12

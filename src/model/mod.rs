@@ -46,6 +46,7 @@ pub mod ddraw;
 pub mod d3d7;
 pub mod d3dim;
 pub mod warp;
+pub mod ramp;
 pub mod d3d9;
 pub mod d3d9draw;
 pub mod d3dx9;
