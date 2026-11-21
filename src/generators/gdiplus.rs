@@ -782,6 +782,24 @@ fn penprobe(s: &mut String) {
     for (i, set) in ["compound 1 0.5", "compound 3 0 0.5 1", "compound 2 0.5 0.25", "compound 2 -0.25 1", "compound 2 0 1.5", "compound 0", "compound 4 0 0.5 0.5 1", "compound 2 0 1 align 1", "compound 4 0 0.25 0.75 1 align 1", "arrowcap 1 0 2 1 0", "arrowcap 1 3 0 1 0", "arrowcap 1 3 2 1 3", "arrowcap 0 3 2 1 0", "arrowcap 1 -1 2 1 0", "customcap 1 0 0 0 1 0 0 0 2 0 0 1 1", "customcap 1 1 0 0 1 0 0 0 1 0 0"].iter().enumerate() {
         writeln!(s, "case penset-{i}\n{head}\ngppen 0 0xffff0000 3 {set}\ngpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8\ngpread 0 32bppARGB\nend");
     }
+    // (what the custom cap notes leave open: a scaling world matrix, a dash, a width scale of
+    // 0, a round or triangle start cap whose last point lies on the first segment's line)
+    let scale2 = "gpmatrix 0 0x40000000 0x00000000 0x00000000 0x40000000 0x00000000 0x00000000";
+    for (i, (m, pen, shape)) in [
+        (scale2, "2 customcap 1 0 0 0.5 1 0 0 0 3 -1 -1 0 0 1 -1", "line 1 4 7 4"),
+        (scale2, "1.5 arrowcap 1 3 2 0 0", "line 1 2 7 5"),
+        ("", "2 dash 1 arrowcap 1 3 2 1 0", "line 1 8 15 8"),
+        ("", "2 dash 2 customcap 0 0 0 0 1 0 0 0 3 -1 -1 0 0 1 -1", "line 2 3 14 12"),
+        ("", "2 customcap 1 1 0 0 0 0 0 0 3 -1 -1 0 0 1 -1", "line 2 8 14 8"),
+        ("", "2 cap 2 0 0", "lines 3 8 8 12 8 4 8"),
+        ("", "3 cap 3 1 0", "lines 3 6 6 10 10 2 2"),
+    ]
+    .iter()
+    .enumerate()
+    {
+        let (m, k) = if m.is_empty() { (String::new(), "-") } else { (format!("{m}\n"), "0") };
+        writeln!(s, "case penopen-{i}\n{head}\n{m}gppen 0 0xffff0000 {pen}\ngpshape 0 pen 0 {k} copy 0 0 0 {shape}\ngpread 0 32bppARGB\nend");
+    }
 }
 
 /// probes of the aliased thin line (a generator of its own, so the cases before keep their

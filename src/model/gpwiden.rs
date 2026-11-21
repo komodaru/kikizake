@@ -151,9 +151,11 @@ struct Widener {
 struct Out {
     p: P,
     kind: Kind,
+    /// a point of a join's inner side (0x40)
+    inner: bool,
 }
 fn line(p: P) -> Out {
-    Out { p, kind: Kind::Line }
+    Out { p, kind: Kind::Line, inner: false }
 }
 
 impl Widener {
@@ -179,18 +181,20 @@ impl Widener {
         let d2 = r.add(sq(r, r.sub(g0.1, g1.1)), sq(r, r.sub(g0.0, g1.0)));
         r.sub(d2, r.mul(r.mul(c, c), self.lim)) > 0.0
     }
-    /// getMiterBevelJoin: the left and right side's points at vertex p
-    fn kernel(&self, p: P, s0: Seg, s1: Seg, use_miter: bool) -> (Vec<P>, Vec<P>) {
+    /// getMiterBevelJoin: the left and right side's points at vertex p, each with whether it is
+    /// the inner side keeping its two bevel points (0x40, geometry.md 21g)
+    fn kernel(&self, p: P, s0: Seg, s1: Seg, use_miter: bool) -> ((Vec<P>, bool), (Vec<P>, bool)) {
         let r = self.r;
         let (g0, g1, n0, n1) = (s0.g, s1.g, s0.n, s1.n);
         let tiny = |g: P| g.0.abs() < EPS && g.1.abs() < EPS;
         let near = r.add(sq(r, r.sub(g0.0, g1.0)), sq(r, r.sub(g0.1, g1.1))) < f32::from_bits(0x3727_c5ac);
         if tiny(g0) || tiny(g1) || near {
             let v = if n0 == (0.0, 0.0) { n1 } else { n0 };
-            return (vec![self.off(self.wl, v, p)], vec![self.off(self.wr, v, p)]);
+            return ((vec![self.off(self.wl, v, p)], false), (vec![self.off(self.wr, v, p)], false));
         }
         let mut cross = r.sub(r.mul(g1.1, g0.0), r.mul(g0.1, g1.0));
-        if cross.abs() < EPS {
+        // (kept only past 2^-23: geometry.md 21h)
+        if cross.abs() <= EPS {
             cross = 0.0;
         }
         let (inner_l, inner_r) = if cross > 0.0 { (self.wl < 0.0, self.wr < 0.0) } else { (self.wl > 0.0, self.wr > 0.0) };
@@ -228,11 +232,14 @@ impl Widener {
                 }
             }
         };
-        (side(self.wl, mit_l, t[0]), side(self.wr, mit_r, t[1]))
+        let (l, rt) = (side(self.wl, mit_l, t[0]), side(self.wr, mit_r, t[1]));
+        let (fl, fr) = (inner_l && !(mit_l && miter.is_some()) && l.len() == 2, inner_r && !(mit_r && miter.is_some()) && rt.len() == 2);
+        ((l, fl), (rt, fr))
     }
     /// the join at an interior vertex (WidenLinePoints): the left and the right side's points
     fn join(&self, p: P, s0: Seg, s1: Seg) -> (Vec<Out>, Vec<Out>) {
-        let lines = |(l, rt): (Vec<P>, Vec<P>)| -> (Vec<Out>, Vec<Out>) { (l.into_iter().map(line).collect(), rt.into_iter().map(line).collect()) };
+        let marked = |(v, inner): (Vec<P>, bool)| -> Vec<Out> { v.into_iter().map(|p| Out { inner, ..line(p) }).collect() };
+        let lines = |(l, rt): ((Vec<P>, bool), (Vec<P>, bool))| -> (Vec<Out>, Vec<Out>) { (marked(l), marked(rt)) };
         match self.join {
             Join::Miter => lines(self.kernel(p, s0, s1, true)),
             Join::Bevel => lines(self.kernel(p, s0, s1, false)),
@@ -289,7 +296,7 @@ impl Widener {
                 let p1 = (r.add(r.mul(k, g0.0), p0.0), r.add(r.mul(k, g0.1), p0.1));
                 let p3 = at(b);
                 let p2 = (r.sub(p3.0, r.mul(k, g1.0)), r.sub(p3.1, r.mul(k, g1.1)));
-                let bz = |p| Out { p, kind: Kind::Bezier };
+                let bz = |p| Out { p, kind: Kind::Bezier, inner: false };
                 vec![line(p0), bz(p1), bz(p2), bz(p3)]
             } else if !make.inner() {
                 vec![]
@@ -334,7 +341,7 @@ impl Widener {
             match (a.split_last(), b.split_first()) {
                 (Some((_, head)), Some((b0, tail))) => {
                     v.extend_from_slice(head);
-                    v.push(Out { p: b0.p, kind: Kind::Bezier });
+                    v.push(Out { p: b0.p, kind: Kind::Bezier, inner: false });
                     v.extend_from_slice(tail);
                 }
                 (Some(_), None) => v.extend(a),
@@ -367,19 +374,38 @@ impl Widener {
         units
             .iter()
             .enumerate()
-            .map(|(i, &(u, v))| Out { p: (r.add(r.sub(r.mul(u, a), r.mul(v, b)), c.0), r.add(r.add(r.mul(v, a), r.mul(u, b)), c.1)), kind: if i == 0 { Kind::Line } else { Kind::Bezier } })
+            .map(|(i, &(u, v))| Out { p: (r.add(r.sub(r.mul(u, a), r.mul(v, b)), c.0), r.add(r.add(r.mul(v, a), r.mul(u, b)), c.1)), kind: if i == 0 { Kind::Line } else { Kind::Bezier }, inner: false })
             .collect()
     }
     /// an open subpath's outline (WidenSubpath, CombineSubpathOutlines): one closed figure
-    fn open(&self, p: &[P], caps: (Cap, Cap)) -> Vec<Out> {
+    fn open(&self, p: &[P], caps: (Cap, Cap)) -> Res<Vec<Out>> {
         let r = self.r;
         let k = p.len();
         let segs: Vec<Seg> = p.windows(2).map(|q| self.seg(q[0], q[1])).collect();
         let e = r.mul(self.w, -0.5);
         let (first, last) = (segs[0], segs[k - 2]);
+        // (the wrap-around gradient, last point to first: within the kernel's degenerate test
+        // of the first one, its normal offsets the start, geometry.md 21h)
+        let start_n = match k >= 3 {
+            true => {
+                let gw = self.seg(p[k - 1], p[0]);
+                let tiny = |g: P| g.0.abs() < EPS && g.1.abs() < EPS;
+                let near = r.add(sq(r, r.sub(gw.g.0, first.g.0)), sq(r, r.sub(gw.g.1, first.g.1))) < f32::from_bits(0x3727_c5ac);
+                if tiny(gw.g) || tiny(first.g) || near {
+                    // (a round or triangle start cap there: the spec's open GP.PEN)
+                    if matches!(caps.0, Cap::Round | Cap::Triangle) {
+                        return Err(Fail::Unmodeled(open::GP_PEN));
+                    }
+                    if gw.n == (0.0, 0.0) { first.n } else { gw.n }
+                } else {
+                    first.n
+                }
+            }
+            false => first.n,
+        };
         let end_point = |w: f32, start: bool| {
             let (at, s, cap) = if start { (p[0], first, caps.0) } else { (p[k - 1], last, caps.1) };
-            let o = self.off(w, s.n, at);
+            let o = self.off(w, if start { start_n } else { s.n }, at);
             match (cap, start) {
                 (Cap::Square, true) => (r.add(o.0, r.mul(e, s.g.0)), r.add(o.1, r.mul(e, s.g.1))),
                 (Cap::Square, false) => (r.sub(o.0, r.mul(e, s.g.0)), r.sub(o.1, r.mul(e, s.g.1))),
@@ -441,7 +467,7 @@ impl Widener {
             }
             Cap::Flat | Cap::Square | Cap::Anchor(_) => {}
         }
-        out
+        Ok(out)
     }
     /// AddCompoundCaps: a round or triangle cap over the whole width, its own closed figure,
     /// from the right side to the left at the start and back at the end (geometry.md 18d)
@@ -490,7 +516,7 @@ fn sq(r: Round, v: f32) -> f32 {
 /// Bezier run stays one
 fn reverse(v: Vec<Out>) -> Vec<Out> {
     let kinds: Vec<Kind> = v.iter().skip(1).map(|o| o.kind).chain([Kind::Line]).collect();
-    v.into_iter().zip(kinds).rev().map(|(o, k)| Out { p: o.p, kind: match k { Kind::Bezier => Kind::Bezier, Kind::Start | Kind::Line => Kind::Line } }).collect()
+    v.into_iter().zip(kinds).rev().map(|(o, k)| Out { p: o.p, kind: match k { Kind::Bezier => Kind::Bezier, Kind::Start | Kind::Line => Kind::Line }, inner: o.inner }).collect()
 }
 
 /// consecutive points the same within 2^-23 dropped (GpPathWidener::Initialize)
@@ -528,7 +554,6 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
     hit(clause::GP_PEN_WIDE);
     let Some(minv) = invert(r, m) else { return Ok(Err(Widened::NoInverse)) };
     let (start, end) = (Cap::line(pen.start_cap), Cap::line(pen.end_cap));
-    let join = Join::of(pen.join);
     let mut c = path.clone();
     c.flatten(r, Some(m), flatness)?;
     for q in &mut c.pts {
@@ -542,13 +567,30 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
         return inset(r, path, pen, m, flatness);
     }
     let (major, minor) = axes(r, m);
-    let caps = match anchors(r, &mut figs, pen, major.min(minor), (start, end))? {
+    let caps = match anchors(r, &mut figs, pen, m, &minv, major.min(minor), (start, end))? {
         Ok(c) => c,
         Err(e) => return Ok(Err(e)),
     };
+    let mut out = match body(r, &figs, pen, m, &minv, (start, end), false)? {
+        Ok(o) => o,
+        Err(e) => return Ok(Err(e)),
+    };
+    out.extend(caps);
+    for q in &mut out {
+        (q.x, q.y) = apply(r, m, q.x, q.y);
+    }
+    Ok(Ok(Path::of(path.fill, out)))
+}
+
+/// the widener proper on flattened world figures (GpPathWidener): the outline in world space,
+/// a thin pen's widened in device space and back; inner keeps the inner join bit (a custom
+/// stroke cap's own widening, geometry.md 21g)
+fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix, (start, end): (Cap, Cap), inner: bool) -> Res<Result<Vec<Point>, Widened>> {
+    let join = Join::of(pen.join);
+    let (major, minor) = axes(r, m);
     let subs: Vec<Sub> = match pattern(pen.dash) {
-        Some(pat) => dashes(r, &figs, pen, major, true, pat, (start, end)),
-        None => figs.into_iter().map(|(pts, closed)| Sub { pts, closed, caps: (start, end) }).collect(),
+        Some(pat) => dashes(r, figs, pen, major, true, pat, (start, end)),
+        None => figs.iter().map(|(pts, closed)| Sub { pts: pts.clone(), closed: *closed, caps: (start, end) }).collect(),
     };
     let thin_width = f32::from_bits(0x3f80_0008);
     let thin = thin_width > r.mul(pen.width, minor);
@@ -592,7 +634,7 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
             if s.closed {
                 figs.extend(wd.closed(&pts));
             } else {
-                figs.push(wd.open(&pts, band_caps));
+                figs.push(wd.open(&pts, band_caps)?);
             }
         }
         if !s.closed {
@@ -607,16 +649,12 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
         for f in figs {
             let n = f.len();
             out.extend(f.into_iter().enumerate().map(|(i, o)| {
-                let (x, y) = if thin { apply(r, &minv, o.p.0, o.p.1) } else { o.p };
-                Point { x, y, kind: o.kind, close: i + 1 == n }
+                let (x, y) = if thin { apply(r, minv, o.p.0, o.p.1) } else { o.p };
+                Point { x, y, kind: o.kind, close: i + 1 == n, inner: inner && o.inner }
             }));
         }
     }
-    out.extend(caps);
-    for q in &mut out {
-        (q.x, q.y) = apply(r, m, q.x, q.y);
-    }
-    Ok(Ok(Path::of(path.fill, out)))
+    Ok(Ok(out))
 }
 
 /// GetWidenedPath of an Inset pen: each closed subpath's own 2w centred outline and the whole
@@ -654,84 +692,169 @@ fn inset(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Res
     Ok(Ok(Path::of(path.fill, out)))
 }
 
-/// an anchor's reference cap (GpEndCapCreator)
-struct RefCap {
-    /// its fill path's points, closed
-    fill: Vec<Point>,
-    len: f32,
+/// a cap object as GpEndCapCreator reads it: an anchor's reference cap, an adjustable arrow
+/// or a GdipCreateCustomLineCap's
+struct CapObj {
+    /// its fill path's points (closed) and fillLength
+    fill: Option<(Vec<Point>, f32)>,
+    /// its stroke path's points (open) and strokeLength
+    stroke: Option<(Vec<P>, f32)>,
     base: f32,
-    /// the width scale (GdipSetCustomLineCapWidthScale; 1 for the anchors)
+    /// the width scale (GdipSetCustomLineCapWidthScale; 1 for the anchors and arrows)
     scale: f32,
-    /// every point on the end and no shortening (a degenerate adjustable arrow)
-    collapsed: bool,
+    /// the stroke join and the stroke start and end caps
+    join: i64,
+    caps: (i64, i64),
 }
-fn reference(r: Round, a: Anchor) -> Res<RefCap> {
-    let poly = |v: &[P]| -> Vec<Point> {
-        let n = v.len();
-        v.iter().enumerate().map(|(i, &(x, y))| Point { x, y, kind: if i == 0 { Kind::Start } else { Kind::Line }, close: i + 1 == n }).collect()
-    };
+
+fn polygon(v: &[P]) -> Vec<Point> {
+    let n = v.len();
+    v.iter().enumerate().map(|(i, &(x, y))| Point { x, y, kind: if i == 0 { Kind::Start } else { Kind::Line }, close: i + 1 == n, inner: false }).collect()
+}
+
+fn reference(r: Round, a: Anchor) -> Res<CapObj> {
     let c = f32::from_bits(0x3f35_04f4);
     let s3 = f32::from_bits(0x3fdd_b3d7);
     let (fill, len, base) = match a {
-        Anchor::Square => (poly(&[(-c, -c), (c, -c), (c, c), (-c, c)]), c, 0.0),
+        Anchor::Square => (polygon(&[(-c, -c), (c, -c), (c, c), (-c, c)]), c, 0.0),
         Anchor::Round => {
             let mut e = Path::new(0);
             e.add_ellipse(r, (-1.0, -1.0, 2.0, 2.0)).map_err(|_| Fail::Bad)?;
             (e.pts, 1.0, 0.0)
         }
-        Anchor::Diamond => (poly(&[(0.0, 1.0), (-1.0, 0.0), (0.0, -1.0), (1.0, 0.0)]), 1.0, 0.0),
-        Anchor::Arrow => (poly(&[(0.0, 0.0), (-1.0, -s3), (1.0, -s3)]), s3, 1.0),
+        Anchor::Diamond => (polygon(&[(0.0, 1.0), (-1.0, 0.0), (0.0, -1.0), (1.0, 0.0)]), 1.0, 0.0),
+        Anchor::Arrow => (polygon(&[(0.0, 0.0), (-1.0, -s3), (1.0, -s3)]), s3, 1.0),
     };
-    Ok(RefCap { fill, len, base, scale: 1.0, collapsed: false })
+    Ok(CapObj { fill: Some((fill, len)), stroke: None, base, scale: 1.0, join: 0, caps: (0, 0) })
 }
 
-/// GpEndCapCreator on each open subpath: the points within the cap's radius of a capped end
-/// erased, the first kept one moved to the circle pulled back by the base inset; the cap
-/// figures (start then end, path order) placed at the original ends
-/// the cap figure of a pen's end: an anchor's reference cap, or its custom cap object's
-fn end_cap(r: Round, cap: Cap, value: i64, custom: Option<&CustomCap>) -> Res<Option<RefCap>> {
-    let poly = |v: &[P]| -> Vec<Point> {
-        let n = v.len();
-        v.iter().enumerate().map(|(i, &(x, y))| Point { x, y, kind: if i == 0 { Kind::Start } else { Kind::Line }, close: i + 1 == n }).collect()
-    };
-    match (cap, value, custom) {
-        (Cap::Anchor(a), _, _) => reference(r, a).map(Some),
-        // (GdipCreateAdjustableArrowCap filled: the fill path (W/2, -H) (0, 0) (-W/2, -H) in this
-        // cap space (an end cap's first point on the line's right, golden pathwidenobj-*), and
-        // (0, middle - H) past a middle inset of 0, base inset H / W, its fill length H - middle
-        // at least 0; W or H of 0 three points on the end, a middle inset of H four, neither
-        // shortening: clean-room notes geometry.md 19c)
-        (Cap::Flat, 0xff, Some(&CustomCap::Arrow { height, width, filled: true, middle })) if height >= 0.0 && width >= 0.0 => {
-            let (hw, top) = (r.mul(width, 0.5), -height);
-            let mut v = vec![(hw, top), (0.0, 0.0), (-hw, top)];
-            if middle != 0.0 {
-                v.push((0.0, r.add(top, middle)));
+/// SetFillPath / SetStrokePath's length: minus the lowest crossing of the path with the y axis
+/// (a closed path's closing edge first), at least 0 (clean-room notes geometry.md 21b)
+pub fn cap_length(r: Round, p: &[P], closed: bool) -> f32 {
+    let mut m = 0.0f32;
+    let n = p.len();
+    if n <= 1 {
+        return -m;
+    }
+    let mut prev = if closed { p[n - 1] } else { p[0] };
+    for &cur in p {
+        let (dx, dy) = (r.sub(prev.0, cur.0), r.sub(prev.1, cur.1));
+        if EPS <= dx.abs() {
+            let t = r.div(-cur.0, dx);
+            // (a NaN t would leave m as it is either way)
+            if t >= -EPS && r.sub(t, 1.0) <= EPS {
+                let y = r.add(r.mul(dy, t), cur.1);
+                m = if y < m { y } else { m };
             }
-            let collapsed = match (width == 0.0 || height == 0.0, middle == 0.0, middle == height) {
-                (true, true, _) | (false, _, true) => true,
-                (true, false, _) => return Err(Fail::Unmodeled(open::GP_PEN)),
-                (false, _, false) => false,
-            };
-            let lowest = if middle == 0.0 { top } else { r.add(top, middle).min(0.0).min(top) };
-            let base = if width == 0.0 || height == 0.0 { 0.0 } else { r.div(height, width) };
-            Ok(Some(RefCap { fill: poly(&v), len: (-lowest).max(0.0), base, scale: 1.0, collapsed }))
         }
-        // (stroke caps, the open arrow, fill paths of GdipCreateCustomLineCap: the spec's open
-        // GP.PEN)
-        (Cap::Flat, 0xff, Some(CustomCap::Arrow { .. } | CustomCap::Path { .. })) => Err(Fail::Unmodeled(open::GP_PEN)),
+        prev = cur;
+    }
+    -m
+}
+
+/// AddPathPolygon's points: a last point on the first dropped past three
+fn fill_points(pts: &[(f32, f32)]) -> &[(f32, f32)] {
+    match pts {
+        [first, .., last] if pts.len() > 3 && first == last => &pts[..pts.len() - 1],
+        _ => pts,
+    }
+}
+
+/// the statuses of making a custom cap (GdipCreateCustomLineCap, then its setters), 0 when the
+/// pen gets it: a fill path of fewer than 3 points or a stroke path of fewer than 2
+/// InvalidParameter, a fill path that does not cross the negative y axis NotImplemented, stroke
+/// caps past 0 ..= 3 InvalidParameter (geometry.md 21a)
+pub fn cap_status(r: Round, c: &CustomCap) -> u32 {
+    match c {
+        CustomCap::Arrow { .. } => 0,
+        CustomCap::Path { stroke: true, pts, caps, .. } => {
+            if pts.len() < 2 || !(0..=3).contains(&caps.0) || !(0..=3).contains(&caps.1) {
+                2
+            } else {
+                0
+            }
+        }
+        CustomCap::Path { stroke: false, pts, caps, .. } => {
+            let p = fill_points(pts);
+            if p.len() < 3 {
+                2
+            } else if EPS > cap_length(r, p, true) {
+                6
+            } else if !(0..=3).contains(&caps.0) || !(0..=3).contains(&caps.1) {
+                2
+            } else {
+                0
+            }
+        }
+    }
+}
+
+/// a custom cap object's paths (GdipCreateAdjustableArrowCap's rebuild, geometry.md 21c)
+fn custom(r: Round, c: &CustomCap) -> CapObj {
+    match *c {
+        CustomCap::Arrow { height, width, filled, middle } => {
+            let base = if width != 0.0 { r.div(height, width) } else { 0.0 };
+            let q = [(r.mul(width, 0.5), -height), (0.0, 0.0), (r.mul(-width, 0.5), -height)];
+            let (fill, stroke) = if filled {
+                let mut v = q.to_vec();
+                if middle != 0.0 {
+                    v.push((0.0, r.sub(middle, height)));
+                }
+                let l = cap_length(r, &v, true);
+                (Some((polygon(&v), l)), None)
+            } else {
+                (None, Some((q.to_vec(), cap_length(r, &q, false))))
+            };
+            CapObj { fill, stroke, base, scale: 1.0, join: 0, caps: (0, 0) }
+        }
+        CustomCap::Path { stroke, ref pts, base_inset, width_scale, join, caps } => {
+            let (fill, stroke) = if stroke {
+                (None, Some((pts.clone(), cap_length(r, pts, false))))
+            } else {
+                let p = fill_points(pts);
+                (Some((polygon(p), cap_length(r, p, true))), None)
+            };
+            CapObj { fill, stroke, base: base_inset, scale: width_scale, join, caps }
+        }
+    }
+}
+
+/// the cap object of a pen's end: an anchor's reference cap, or its custom cap object's
+fn end_cap(r: Round, cap: Cap, value: i64, custom_cap: Option<&CustomCap>) -> Res<Option<CapObj>> {
+    match (cap, value, custom_cap) {
+        (Cap::Anchor(a), _, _) => reference(r, a).map(Some),
+        (Cap::Flat, 0xff, Some(c)) => {
+            hit(clause::GP_PEN_CUSTOM);
+            Ok(Some(custom(r, c)))
+        }
         (Cap::Flat | Cap::Square | Cap::Round | Cap::Triangle, _, _) => Ok(None),
     }
 }
 
-fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps: (Cap, Cap)) -> Res<Result<Vec<Point>, Widened>> {
+/// GpEndCapCreator on each open subpath (geometry.md 9, 21d-21g): the start's then the end's
+/// fill caps, then their stroke caps, each walk erasing the points within the cap's radius of
+/// its end and moving the first kept one to the circle pulled back by the base inset; the cap
+/// figures placed at the original ends (start figures, then end figures), a stroke cap's
+/// polyline widened by a pen of its own
+fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix, min_axis: f32, caps: (Cap, Cap)) -> Res<Result<Vec<Point>, Widened>> {
     let mut out = Vec::new();
     let sc = end_cap(r, caps.0, pen.start_cap, pen.custom[0].as_ref())?;
     let ec = end_cap(r, caps.1, pen.end_cap, pen.custom[1].as_ref())?;
     if sc.is_none() && ec.is_none() {
         return Ok(Ok(out));
     }
+    // (custom caps under a matrix that scales, or dashed: the spec's open GP.PEN)
+    let is_custom = |c: Cap, v: i64, o: &Option<CustomCap>| c == Cap::Flat && v == 0xff && o.is_some();
+    if (is_custom(caps.0, pen.start_cap, &pen.custom[0]) || is_custom(caps.1, pen.end_cap, &pen.custom[1])) && (min_axis != 1.0 || pattern(pen.dash).is_some()) {
+        return Err(Fail::Unmodeled(open::GP_PEN));
+    }
     let unit = r.div(1.0, min_axis);
     let s2 = r.div(2.0, min_axis);
+    // (9d: a cap point (px, py) through d = -g scaled by s about o)
+    let place = |q: (f32, f32), d: P, s: f32, o: P| -> P {
+        let (a, b, cn) = (r.mul(d.0, s), r.mul(d.1, s), r.mul(-s, d.0));
+        (r.add(r.add(r.mul(b, q.0), r.mul(a, q.1)), o.0), r.add(r.add(r.mul(cn, q.0), r.mul(b, q.1)), o.1))
+    };
     for (pts, closed) in figs.iter_mut() {
         if *closed || pts.is_empty() {
             continue;
@@ -739,27 +862,51 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, min_axis: f32, caps
         let orig = pts.clone();
         let n = pts.len();
         let mut marked = vec![false; n];
-        let ends: [(Option<&RefCap>, bool); 2] = [(sc.as_ref(), true), (ec.as_ref(), false)];
-        for (cap, forward) in ends {
-            let Some(RefCap { fill, len: l, base, scale, collapsed }) = cap else { continue };
+        let (mut starts, mut ends) = (Vec::new(), Vec::new());
+        let steps: [(Option<&CapObj>, bool, bool); 4] = [(sc.as_ref(), true, false), (ec.as_ref(), false, false), (sc.as_ref(), true, true), (ec.as_ref(), false, true)];
+        for (cap, forward, stroke) in steps {
+            let Some(cap) = cap else { continue };
             let order: Vec<usize> = if forward { (0..n).collect() } else { (0..n).rev().collect() };
             let o = orig[order[0]];
-            if *collapsed {
-                out.extend(fill.iter().map(|q| Point { x: o.0, y: o.1, ..*q }));
-                continue;
+            let s1 = r.mul(cap.scale, pen.width);
+            let figs_out = if forward { &mut starts } else { &mut ends };
+            match (stroke, &cap.fill, &cap.stroke) {
+                (false, Some((fill, l)), _) => {
+                    // (a fill length of 0, a degenerate adjustable arrow: no walk, every point on
+                    // the end, geometry.md 19c, 21c)
+                    if EPS > l.abs() {
+                        figs_out.extend(fill.iter().map(|q| Point { x: o.0, y: o.1, ..*q }));
+                        continue;
+                    }
+                    let mm = if s1 > unit { s1 } else { unit };
+                    let s = if s2 > s1 { s2 } else { s1 };
+                    let g = shorten(r, pts, &mut marked, &order, *l, cap.base, mm);
+                    let d = (-g.0, -g.1);
+                    figs_out.extend(fill.iter().map(|q| {
+                        let (x, y) = place((q.x, q.y), d, s, o);
+                        Point { x, y, ..*q }
+                    }));
+                }
+                (true, _, Some((line, l))) => {
+                    let l = if EPS > l.abs() { 1.0 } else { *l };
+                    // (a width scale of 0 or less: the spec's open GP.PEN)
+                    if 0.0 >= s1 {
+                        return Err(Fail::Unmodeled(open::GP_PEN));
+                    }
+                    let g = shorten(r, pts, &mut marked, &order, l, cap.base, s1);
+                    let d = (-g.0, -g.1);
+                    let placed: Vec<P> = line.iter().map(|&q| place(q, d, s1, o)).collect();
+                    let cap_pen = Pen { width: s1, start_cap: cap.caps.0, end_cap: cap.caps.1, dash_cap: 0, join: cap.join, align: 0, miter: 10.0, dash: 0, compound: Vec::new(), custom: [None, None], ..pen.clone() };
+                    // (an x86 stroke join past 0 ..= 3 at a vertex: that figure left out)
+                    if let Ok(w) = body(r, &[(placed, false)], &cap_pen, m, minv, (Cap::line(cap.caps.0), Cap::line(cap.caps.1)), true)? {
+                        figs_out.extend(w);
+                    }
+                }
+                (false, None, _) | (true, _, None) => {}
             }
-            let s1 = r.mul(*scale, pen.width);
-            let mm = if s1 > unit { s1 } else { unit };
-            let s = if s2 > s1 { s2 } else { s1 };
-            let g = shorten(r, pts, &mut marked, &order, *l, *base, mm);
-            let d = (-g.0, -g.1);
-            let (a, b, cn) = (r.mul(d.0, s), r.mul(d.1, s), r.mul(-s, d.0));
-            out.extend(fill.iter().map(|q| Point {
-                x: r.add(r.add(r.mul(b, q.x), r.mul(a, q.y)), o.0),
-                y: r.add(r.add(r.mul(cn, q.x), r.mul(b, q.y)), o.1),
-                ..*q
-            }));
         }
+        out.extend(starts);
+        out.extend(ends);
         let kept: Vec<P> = pts.iter().zip(&marked).filter(|(_, m)| !**m).map(|(q, _)| *q).collect();
         // (the walks skip no marked point: the end walk can move the start walk's point again
         // and leave it alone; GpPathWidener::Initialize then fails the whole call, OutOfMemory,
@@ -876,7 +1023,7 @@ pub fn dashed(r: Round, path: &Path, pen: &Pen) -> Res<Option<Path>> {
     let figs: Vec<(Vec<P>, bool)> = c.figures().iter().map(|f| (f.iter().map(|q| (q.x, q.y)).collect(), f.last().is_some_and(|q| q.close))).collect();
     let mut out = Vec::new();
     for s in dashes(r, &figs, pen, 1.0, false, pat, (Cap::Flat, Cap::Flat)) {
-        out.extend(s.pts.iter().enumerate().map(|(i, &(x, y))| Point { x, y, kind: if i == 0 { Kind::Start } else { Kind::Line }, close: false }));
+        out.extend(s.pts.iter().enumerate().map(|(i, &(x, y))| Point { x, y, kind: if i == 0 { Kind::Start } else { Kind::Line }, close: false, inner: false }));
     }
     Ok(Some(Path::of(path.fill, out)))
 }

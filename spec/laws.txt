@@ -204,6 +204,9 @@ tests/laws_gpwiden.rs::dashes_lie_on_the_line pbt GP.PEN.DASH
 tests/laws_gpwiden.rs::outlines_are_well_formed pbt GP.PEN.WIDE
 tests/laws_gpwiden.rs::a_round_join_stays_on_the_pen pbt GP.PEN.WIDE
 tests/laws_gpwiden.rs::anchors_sit_on_the_end pbt GP.PEN.WIDE
+tests/laws_gpwiden.rs::cap_lengths_as_measured exhaustive GP.PEN.CUSTOM
+tests/laws_gpwiden.rs::an_open_arrow_as_measured exhaustive GP.PEN.CUSTOM
+tests/laws_gpwiden.rs::a_fill_cap_sits_on_the_end pbt GP.PEN.CUSTOM
 tests/laws_gpregion.rs::region_to_path_keeps_the_pixels pbt GP.PEN.INSET GP.RASTER.FILL
 tests/laws_gpstretch.rs::uniform_stays_uniform pbt GP.DRAW.HQ_BILINEAR GP.DRAW.HQ_BICUBIC
 tests/laws_gpstretch.rs::writes_its_rectangle pbt GP.DRAW.HQ_BILINEAR GP.DRAW.HQ_BICUBIC

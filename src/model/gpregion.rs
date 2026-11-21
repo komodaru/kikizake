@@ -168,7 +168,7 @@ pub fn points(figs: &[Vec<V>]) -> Vec<Point> {
     figs.iter()
         .flat_map(|f| {
             let n = f.len();
-            f.iter().enumerate().map(move |(i, &(x, y))| Point { x: x as f32, y: y as f32, kind: if i == 0 { Kind::Start } else { Kind::Line }, close: i + 1 == n })
+            f.iter().enumerate().map(move |(i, &(x, y))| Point { x: x as f32, y: y as f32, kind: if i == 0 { Kind::Start } else { Kind::Line }, close: i + 1 == n, inner: false })
         })
         .collect()
 }

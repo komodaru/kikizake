@@ -159,6 +159,8 @@ pub struct Point {
     pub y: f32,
     pub kind: Kind,
     pub close: bool,
+    /// the widener's inner join side (0x40), kept on custom stroke caps only
+    pub inner: bool,
 }
 impl Point {
     pub fn type_byte(self) -> u8 {
@@ -167,7 +169,7 @@ impl Point {
             Kind::Line => 1,
             Kind::Bezier => 3,
         };
-        k | if self.close { 0x80 } else { 0 }
+        k | if self.close { 0x80 } else { 0 } | if self.inner { 0x40 } else { 0 }
     }
 }
 
@@ -203,9 +205,9 @@ impl Path {
     fn join(&mut self, r: Round, p: (f32, f32)) {
         match self.open_last() {
             Some(l) if r.sub(p.0, l.x).abs() < EPS && r.sub(p.1, l.y).abs() < EPS => {}
-            Some(_) => self.pts.push(Point { x: p.0, y: p.1, kind: Kind::Line, close: false }),
+            Some(_) => self.pts.push(Point { x: p.0, y: p.1, kind: Kind::Line, close: false, inner: false }),
             None => {
-                self.pts.push(Point { x: p.0, y: p.1, kind: Kind::Start, close: false });
+                self.pts.push(Point { x: p.0, y: p.1, kind: Kind::Start, close: false, inner: false });
                 self.new_figure = false;
             }
         }
@@ -215,7 +217,7 @@ impl Path {
             return Err(Refused::InvalidParameter);
         };
         self.join(r, first);
-        self.pts.extend(rest.iter().map(|&(x, y)| Point { x, y, kind: Kind::Line, close: false }));
+        self.pts.extend(rest.iter().map(|&(x, y)| Point { x, y, kind: Kind::Line, close: false, inner: false }));
         Ok(())
     }
     pub fn add_beziers(&mut self, r: Round, pts: &[(f32, f32)]) -> Result<(), Refused> {
@@ -223,7 +225,7 @@ impl Path {
             return Err(Refused::InvalidParameter);
         }
         self.join(r, pts[0]);
-        self.pts.extend(pts[1..].iter().map(|&(x, y)| Point { x, y, kind: Kind::Bezier, close: false }));
+        self.pts.extend(pts[1..].iter().map(|&(x, y)| Point { x, y, kind: Kind::Bezier, close: false, inner: false }));
         Ok(())
     }
     pub fn start_figure(&mut self) {
@@ -387,7 +389,7 @@ impl Path {
                 let close = f.last().is_some_and(|p| p.close);
                 let n = out.len();
                 let z = r.add(-0.0, 0.0);
-                pts.extend(out.into_iter().enumerate().map(|(j, kind)| Point { x: z, y: z, kind, close: close && j + 1 == n }));
+                pts.extend(out.into_iter().enumerate().map(|(j, kind)| Point { x: z, y: z, kind, close: close && j + 1 == n, inner: false }));
             }
             self.pts = pts;
             self.new_figure = true;

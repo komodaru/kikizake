@@ -2221,12 +2221,12 @@ impl Gdiplus {
                                 return Err(Fail::Bad);
                             }
                             let pts: Vec<(f32, f32)> = (0..c as usize).map(|k| Ok((fl(i + 10 + 2 * k)?, fl(i + 11 + 2 * k)?))).collect::<Res<_>>()?;
-                            // (AddPathPolygon of fewer than three points, AddPathLine2 of none:
-                            // InvalidParameter, no cap made, GP.PATH.ADD)
-                            if pts.len() < if stroke { 1 } else { 3 } {
-                                status = INVALID_PARAMETER;
-                            } else {
-                                pen.custom[usize::from(end)] = Some(super::gppath::CustomCap::Path { stroke, pts, base_inset: fl(i + 4)?, width_scale: fl(i + 5)?, join: n(t, i + 6)?, caps: (n(t, i + 7)?, n(t, i + 8)?) });
+                            let cap = super::gppath::CustomCap::Path { stroke, pts, base_inset: fl(i + 4)?, width_scale: fl(i + 5)?, join: n(t, i + 6)?, caps: (n(t, i + 7)?, n(t, i + 8)?) };
+                            // (the first failing call's status, the cap then not set: clean-room
+                            // notes geometry.md 21a, golden penset-15)
+                            status = super::gpwiden::cap_status(rounding(), &cap);
+                            if status == 0 {
+                                pen.custom[usize::from(end)] = Some(cap);
                                 *if end { &mut pen.end_cap } else { &mut pen.start_cap } = 0xff;
                             }
                             10 + 2 * c as usize

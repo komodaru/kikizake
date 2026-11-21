@@ -6187,3 +6187,47 @@ gppen 0 0xffff0000 3 customcap 1 1 0 0 1 0 0 0 1 0 0
 gpshape 0 pen 0 - copy 0 0 0 line 3 8 13 8
 gpread 0 32bppARGB
 end
+case penopen-0
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x40000000 0x00000000 0x00000000 0x40000000 0x00000000 0x00000000
+gppen 0 0xffff0000 2 customcap 1 0 0 0.5 1 0 0 0 3 -1 -1 0 0 1 -1
+gpshape 0 pen 0 0 copy 0 0 0 line 1 4 7 4
+gpread 0 32bppARGB
+end
+case penopen-1
+gpbitmap 0 16 16 32bppARGB
+gpmatrix 0 0x40000000 0x00000000 0x00000000 0x40000000 0x00000000 0x00000000
+gppen 0 0xffff0000 1.5 arrowcap 1 3 2 0 0
+gpshape 0 pen 0 0 copy 0 0 0 line 1 2 7 5
+gpread 0 32bppARGB
+end
+case penopen-2
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dash 1 arrowcap 1 3 2 1 0
+gpshape 0 pen 0 - copy 0 0 0 line 1 8 15 8
+gpread 0 32bppARGB
+end
+case penopen-3
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 dash 2 customcap 0 0 0 0 1 0 0 0 3 -1 -1 0 0 1 -1
+gpshape 0 pen 0 - copy 0 0 0 line 2 3 14 12
+gpread 0 32bppARGB
+end
+case penopen-4
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 customcap 1 1 0 0 0 0 0 0 3 -1 -1 0 0 1 -1
+gpshape 0 pen 0 - copy 0 0 0 line 2 8 14 8
+gpread 0 32bppARGB
+end
+case penopen-5
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 2 cap 2 0 0
+gpshape 0 pen 0 - copy 0 0 0 lines 3 8 8 12 8 4 8
+gpread 0 32bppARGB
+end
+case penopen-6
+gpbitmap 0 16 16 32bppARGB
+gppen 0 0xffff0000 3 cap 3 1 0
+gpshape 0 pen 0 - copy 0 0 0 lines 3 6 6 10 10 2 2
+gpread 0 32bppARGB
+end

@@ -199,3 +199,76 @@ proptest! {
         }
     }
 }
+
+/// SetFillPath / SetStrokePath's lengths of the notes' examples, both arches (geometry.md 21b)
+#[test]
+fn cap_lengths_as_measured() {
+    for r in [Round::Down, Round::Nearest] {
+        let v = [(-1.0, -1.0), (0.0, 0.0), (1.0, -1.0)];
+        assert_eq!((wd::cap_length(r, &v, true), wd::cap_length(r, &v, false)), (1.0, 0.0));
+        let v = [(-1.0, -2.0), (0.0, 0.0), (1.0, -2.0), (0.0, -1.0)];
+        assert_eq!((wd::cap_length(r, &v, true), wd::cap_length(r, &v, false)), (1.0, 1.0));
+        let v = [(-0.5, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.5, 0.5)];
+        assert_eq!((wd::cap_length(r, &v, true), wd::cap_length(r, &v, false)), (0.5, 0.5));
+        assert_eq!(wd::cap_length(r, &[(-1.0, -3.0), (0.3, -0.7), (2.0, -5.0)], true), 3.666_666_7);
+        // (no crossing below the x axis: NotImplemented for a fill path)
+        let cap = |pts: Vec<(f32, f32)>| path::CustomCap::Path { stroke: false, pts, base_inset: 0.0, width_scale: 1.0, join: 0, caps: (0, 0) };
+        assert_eq!(wd::cap_status(r, &cap(vec![(1.0, 1.0), (2.0, 2.0), (3.0, 1.0)])), 6);
+        assert_eq!(wd::cap_status(r, &cap(vec![(-1.0, 1.0), (0.0, 0.0), (1.0, 1.0)])), 6);
+        assert_eq!(wd::cap_status(r, &cap(vec![(-1.0, -1.0), (0.0, 0.0)])), 2);
+        assert_eq!(wd::cap_status(r, &cap(vec![(-1.0, -1.0), (0.0, 0.0), (1.0, -1.0)])), 0);
+    }
+}
+
+/// the open adjustable arrow H 3 W 2 on a width 2 pen: its V a stroke cap widened, the right
+/// side's inner bevel points typed 0x41 (geometry.md 21g)
+#[test]
+fn an_open_arrow_as_measured() {
+    for r in [Round::Down, Round::Nearest] {
+        let mut pen = Pen::new(0xff00_0000, 2.0);
+        pen.end_cap = 0xff;
+        pen.custom[1] = Some(path::CustomCap::Arrow { height: 3.0, width: 2.0, filled: false, middle: 0.0 });
+        let w = widened(r, &[(4.0, 8.0), (30.0, 8.0)], &pen);
+        let types: Vec<u8> = w.pts.iter().map(|q| q.type_byte()).collect();
+        assert_eq!(types, [0, 1, 1, 0x81, 0, 1, 1, 1, 0x41, 0x41, 0x81]);
+        let want = [(24.31623, 5.05132), (33.16228, 8.0), (24.31623, 10.94868), (23.68377, 9.05132), (29.68377, 7.05132), (29.68377, 8.94868), (23.68377, 6.94868)];
+        for (q, &(x, y)) in w.pts[4..].iter().zip(&want) {
+            assert!((q.x - x).abs() < 1e-4 && (q.y - y).abs() < 1e-4, "{q:?} {x} {y}");
+        }
+        assert!((w.pts[1].x - 27.0).abs() < 1e-4);
+        if r == Round::Nearest {
+            assert_eq!(w.pts[1].x, 27.0);
+        }
+    }
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(256))]
+    /// a custom fill cap's figure comes last, its fill path's types, within its scale of the end
+    #[test]
+    fn a_fill_cap_sits_on_the_end(a in (-20f32..20.0, -20f32..20.0), d in (-80f32..80.0, -80f32..80.0), w in 1f32..4.0, scale in 0.25f32..2.0, base in -0.5f32..2.0, k in 3usize..6, down: bool) {
+        let l = d.0.hypot(d.1);
+        let r = round(down);
+        let s = (w * scale).max(2.0);
+        prop_assume!(l > 4.0 * s);
+        // (a fan of k points about the origin dipping below the x axis)
+        let pts: Vec<(f32, f32)> = (0..k).map(|i| {
+            let t = std::f32::consts::PI * (1.0 + i as f32) / (k as f32 + 1.0);
+            (t.cos(), -t.sin() - 0.25)
+        }).collect();
+        let cap = path::CustomCap::Path { stroke: false, pts: pts.clone(), base_inset: base, width_scale: scale, join: 0, caps: (0, 0) };
+        prop_assume!(wd::cap_status(r, &cap) == 0);
+        let mut pen = Pen::new(0xff00_0000, w);
+        pen.end_cap = 0xff;
+        pen.custom[1] = Some(cap);
+        let e = (a.0 + d.0, a.1 + d.1);
+        let out = widened(r, &[a, e], &pen);
+        let fig = &out.pts[out.pts.len() - k..];
+        prop_assert_eq!(fig[0].kind, Kind::Start);
+        prop_assert!(fig[k - 1].close);
+        let reach = pts.iter().map(|q| q.0.hypot(q.1)).fold(0.0f32, f32::max) * s * 1.001 + 1e-3;
+        for q in fig {
+            prop_assert!((q.x - e.0).hypot(q.y - e.1) <= reach, "{:?} from {:?}", q, e);
+        }
+    }
+}
