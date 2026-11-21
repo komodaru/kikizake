@@ -903,3 +903,39 @@ proptest! {
         }
     }
 }
+
+proptest! {
+    /// WIC's GIF row reader (model::gifread): the encoder's own LZW, in sub-blocks of 255,
+    /// reads back as the pixels it was made of, row by row; any bytes at all read without a
+    /// panic, each row whole or WINCODEC_ERR_BADIMAGE
+    #[test]
+    fn gif_rows_read_back_and_never_panic(w in 1u32..40, h in 1u32..20, bits in 2u32..9, seed in any::<u32>(), junk in proptest::collection::vec(any::<u8>(), 0..400), min in 0u8..12) {
+        use kikizake::model::gifread::Rows;
+        let mut x = seed | 1;
+        let px: Vec<u8> = (0..w * h).map(|_| { x ^= x << 13; x ^= x >> 17; x ^= x << 5; (x as u8) & ((1u16 << bits) - 1) as u8 }).collect();
+        let lzw = wi::lzw_encode(bits, &px);
+        let mut data = Vec::new();
+        for c in lzw.chunks(255) {
+            data.push(c.len() as u8);
+            data.extend_from_slice(c);
+        }
+        data.push(0);
+        let mut r = Rows::new(&data, bits as u8, w).ok_or_else(|| TestCaseError::fail("no decoder"))?;
+        for y in 0..h as usize {
+            let mut row = vec![0xaa; w as usize];
+            prop_assert_eq!(r.row(&mut row), Ok(()));
+            prop_assert_eq!(&row[..], &px[y * w as usize..(y + 1) * w as usize]);
+        }
+        if let Some(mut r) = Rows::new(&junk, min, w) {
+            for _ in 0..h {
+                let mut row = vec![0xaa; w as usize];
+                match r.row(&mut row) {
+                    Ok(()) => {}
+                    Err(e) => prop_assert_eq!(e, wi::BAD_IMAGE),
+                }
+            }
+        } else {
+            prop_assert!(min > 8);
+        }
+    }
+}

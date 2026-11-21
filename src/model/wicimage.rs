@@ -24,6 +24,7 @@ pub const STREAM_READ: u32 = 0x8898_2f72;
 pub const BAD_IMAGE: u32 = 0x8898_2f60;
 pub const UNKNOWN_IMAGE_FORMAT: u32 = 0x8898_2f07;
 pub const COMPONENT_NOT_FOUND: u32 = 0x8898_2f50;
+pub const E_OUTOFMEMORY: u32 = 0x8007_000e;
 
 /// every pixel format the executor names: (name, bits a pixel); the first 23 are model::wic's
 pub const FORMATS: &[(&str, u32)] = &[
@@ -2152,61 +2153,6 @@ fn put_sample_bits(row: &mut [u8], x: u32, bits: u32, v: &[u8]) {
     }
 }
 
-/// GIF's LZW (GIF89a appendix F)
-fn lzw(min: u32, data: &[u8], n: usize, cut: bool) -> Option<Vec<u8>> {
-    let clear = 1u32 << min;
-    let mut dict: Vec<Vec<u8>> = (0..clear).map(|i| vec![i as u8]).collect();
-    dict.push(vec![]);
-    dict.push(vec![]);
-    let mut size = min + 1;
-    let (mut acc, mut nacc, mut p) = (0u32, 0u32, 0usize);
-    let mut out = Vec::new();
-    let mut prev: Option<u32> = None;
-    while out.len() < n {
-        while nacc < size {
-            // (data cut short: the pixels so far)
-            let Some(&x) = data.get(p) else { return if cut { Some(out) } else { None } };
-            acc |= (x as u32) << nacc;
-            p += 1;
-            nacc += 8;
-        }
-        let code = acc & ((1 << size) - 1);
-        acc >>= size;
-        nacc -= size;
-        if code == clear {
-            dict.truncate(clear as usize + 2);
-            size = min + 1;
-            prev = None;
-            continue;
-        }
-        if code == clear + 1 {
-            break;
-        }
-        if code as usize > dict.len() {
-            return None;
-        }
-        let entry = if (code as usize) < dict.len() {
-            dict[code as usize].clone()
-        } else {
-            let mut e = dict[prev? as usize].clone();
-            e.push(e[0]);
-            e
-        };
-        if let Some(pc) = prev && dict.len() < 4096 {
-            let mut e = dict[pc as usize].clone();
-            e.push(entry[0]);
-            dict.push(e);
-        }
-        out.extend_from_slice(&entry);
-        if dict.len() >= 1 << size && size < 12 {
-            size += 1;
-        }
-        prev = Some(code);
-    }
-    out.truncate(n);
-    Some(out)
-}
-
 /// GIF87a/89a: each image a frame of its own size, 8bppIndexed, its table (local or global)
 fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
     let open = Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
@@ -2265,20 +2211,14 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
                     return Ok(Err(E_INVALIDARG));
                 };
                 p += 1;
-                let mut data = Vec::new();
+                let data_at = p;
                 let mut cut = false;
-                // (the bytes of a sub-block the file ends inside, after whole ones)
-                let mut inside: Option<usize> = None;
                 while let Some(&n) = b.get(p) {
-                    let Some(d) = b.get(p + 1..p + 1 + n as usize) else {
+                    if b.get(p + 1..p + 1 + n as usize).is_none() {
                         cut = true;
-                        if !data.is_empty() {
-                            inside = Some(b.len() - p - 1);
-                        }
                         p = b.len();
                         break;
-                    };
-                    data.extend_from_slice(d);
+                    }
                     p += 1 + n as usize;
                     if n == 0 {
                         break;
@@ -2287,27 +2227,41 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
                 if b.get(p).is_none() {
                     cut = true;
                 }
-                let Some(mut idx) = lzw(min as u32, &data, (w * h) as usize, cut) else { return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN)) };
-                if idx.len() < (w * h) as usize {
-                    if !cut {
-                        return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
-                    }
+                if cut {
                     hit(clause::WICIMAGE_GIF_SHORT);
-                    idx.resize((w * h) as usize, 0);
                 }
-                // MEASURED (golden wicdecode cuta-gif-*: a 32 x 16 picture in sub-blocks of 255,
-                // 255, 98, cut at every third byte): a file that ends inside a sub-block after
-                // whole ones: the picture one row down (the first row 0, the last lost); past 32
-                // bytes of the second sub-block Windows writes pixels of no rule (cases
-                // cuta-gif-1084..1303)
-                if let Some(m) = inside {
-                    if m > 32 || f & 0x40 != 0 {
-                        return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN));
+                // FOUND clean-room and MEASURED (golden wicdecode gif-*, cut-gif-*, cuta-gif-*):
+                // the rows as WIC's reader takes them (model::gifread); a code size of 1 decodes
+                // and then fills the frame with the background index (0 without a global table)
+                hit(clause::WICIMAGE_GIF_READ);
+                let rows_of = |data: &[u8]| -> Result<Vec<u8>, u32> {
+                    let mut r = crate::model::gifread::Rows::new(data, min, w).ok_or(E_OUTOFMEMORY)?;
+                    let mut idx = vec![0u8; (w * h) as usize];
+                    for row in idx.chunks_mut(w.max(1) as usize) {
+                        r.row(row)?;
                     }
-                    let n = idx.len();
-                    idx.splice(0..0, std::iter::repeat_n(0, (w as usize).min(n)));
-                    idx.truncate(n);
-                }
+                    Ok(idx)
+                };
+                let idx = match rows_of(b.get(data_at..).unwrap_or(&[])) {
+                    Ok(mut idx) => {
+                        if min == 1 {
+                            idx.fill(if flags & 0x80 != 0 { b.get(11).copied().unwrap_or(0) } else { 0 });
+                        }
+                        Ok(idx)
+                    }
+                    Err(hr) => Err(hr),
+                };
+                let Some(pal) = local.clone().or_else(|| global.clone()) else { return Err(Fail::Unmodeled(open::WICIMAGE_DECODE_BROKEN)) };
+                let idx = match idx {
+                    Ok(i) => i,
+                    Err(hr) => {
+                        let mut img = Img::new(w, h, "idx8");
+                        img.pal = Some(pal);
+                        frames.push(Ok(Frame::NoPixels(img, hr)));
+                        transparent = None;
+                        continue;
+                    }
+                };
                 hit(clause::WICIMAGE_GIF_LZW);
                 let rows: Vec<u32> = if f & 0x40 != 0 {
                     hit(clause::WICIMAGE_GIF_INTERLACE);
@@ -2334,6 +2288,11 @@ fn gif(b: &[u8]) -> Res<Result<Decoded, u32>> {
             Some(0x3b) => break,
             // (a file that ends after a frame: the frames so far)
             None if !frames.is_empty() => break,
+            // (MEASURED cut-gif-61: one that ends before its first block, as inside a descriptor)
+            None => {
+                hit(clause::WICIMAGE_GIF_SHORT);
+                return short;
+            }
             _ => return open,
         }
     }
@@ -3996,7 +3955,7 @@ pub fn encode_gif(i: &Img) -> Res<Vec<u8>> {
 
 /// GIF's LZW the encoding way: a clear code first, codes one bit wider once the next code needs
 /// it, a clear code when the table is full, the end code last
-fn lzw_encode(min: u32, px: &[u8]) -> Vec<u8> {
+pub fn lzw_encode(min: u32, px: &[u8]) -> Vec<u8> {
     let clear = 1u32 << min;
     let mut out = Vec::new();
     let (mut acc, mut nacc) = (0u64, 0u32);
