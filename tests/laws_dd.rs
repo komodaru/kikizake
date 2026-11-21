@@ -189,9 +189,10 @@ proptest! {
     /// the ramp device's span buffer (d3dim.dll): the first triangle a fresh device draws inside
     /// the target reads no stale specular (its spans' words alias no z), so every pixel is index
     /// 0, 0x8010 on 565 with z on and 0x0010 with it off; and a second, clipped one changes
-    /// nothing but red
+    /// nothing but red; the first one's vertices up to 11 pixels, so no span runs past the right
+    /// side of the last row into the memory after the surface (D3D7.TRI.CLIP, not measured)
     #[test]
-    fn ramp_fresh_spans_are_index_zero(v in prop::array::uniform6(0i64..192), z in 0i64..=1000, zw in 0u32..2, c in prop::array::uniform6(-100i64..300)) {
+    fn ramp_fresh_spans_are_index_zero(v in prop::array::uniform6(0i64..176), z in 0i64..=1000, zw in 0u32..2, c in prop::array::uniform6(-100i64..300)) {
         let base = format!("d3d 2\nd3ddev ramp 565 12 12\nd3drs set 22 1\nd3drs set 14 {zw}\nd3dclear 0\n");
         let out = run(&format!("{base}d3dtri 0xffffffff {} {} {} {} {} {} z {z}\nd3ddump\nd3dclear 0\nd3dtri 0xffffffff {} {} {} {} {} {} z 500\nd3ddump\n", v[0], v[1], v[2], v[3], v[4], v[5], c[0], c[1], c[2], c[3], c[4], c[5]));
         let want = if zw == 1 { "1080" } else { "1000" };
