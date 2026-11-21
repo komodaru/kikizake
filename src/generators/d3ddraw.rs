@@ -642,6 +642,18 @@ fn suite(d3d11: bool) -> String {
         read_rt(&mut s, 0, crate::dxgi!(28), 16, 16);
         writeln!(s, "end");
     }
+    // a vertex at w < 0 in wireframe: culled either way, and with depth clipping off
+    for (name, cull, zclip) in [("cull2", 2u32, 1u32), ("cull3", 3, 1), ("noclip", 1, 0)] {
+        begin(&mut s, dev, &format!("probe-clip-w-wire-{name}"), 16, 16, 2, Prog::Ps);
+        writeln!(&mut s, "rast 2 {cull} 0 0 0 0 {zclip} 0 0 0");
+        for (k, (x, y, w)) in (0u32..).zip([(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter()) {
+            let c = color(k.wrapping_mul(5).wrapping_add(1));
+            writeln!(&mut s, "vtx {} {} {} {} {} {} {} {}", fb(x * w.abs()), fb(y * w.abs()), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3]));
+        }
+        writeln!(&mut s, "draw 4 3 32");
+        read_rt(&mut s, 0, crate::dxgi!(2), 16, 16);
+        writeln!(&mut s, "end");
+    }
     // the last case ends the executor: on Direct3D 11 a patch list, on 10 an integer view sampled
     if !d3d11 {
         writeln!(&mut s, "case probe-filter-r8g8b8a8-uint\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0");

@@ -206,7 +206,9 @@ fn mutated_cases_never_panic() {
                 // (a line the x86 runtime dies on ends the output there, as a patch list's draw
                 // does on either)
                 let patch = lines.iter().any(|l| l[0] == "draw" && l.get(1).and_then(|w| w.parse::<u32>().ok()).is_some_and(|top| (33..=64).contains(&top)));
-                assert!(o.cases.len() == parsed.len() && o.done || (arch == 32 || patch) && !o.done && o.cases.len() == 1, "{t}");
+                // (and an integer texture's view sampled, D3DRASTER.FILTER.INT)
+                let integer = lines.iter().any(|l| l[0] == "tex" && l.get(7).and_then(|w| kikizake::case::num(w)).and_then(|v| u32::try_from(v).ok()).and_then(kikizake::model::dxgifmt::format).is_some_and(|f| matches!(f.num, kikizake::model::dxgifmt::Num::Uint | kikizake::model::dxgifmt::Num::Sint)));
+                assert!(o.cases.len() == parsed.len() && o.done || (arch == 32 || patch || integer) && !o.done && o.cases.len() == 1, "{t}");
             }
         }
     }

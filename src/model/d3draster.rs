@@ -645,7 +645,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
                         _ => p,
                     };
                     let a = fetch(k, i)?;
-                    segs.push(Seg { a, b: fetch(k + 1, i)?, lead: a, prim: p, front: true });
+                    segs.push(Seg { a, b: fetch(k + 1, i)?, lead: a, prim: p, front: true, clip: SegClip::Line });
                 }
                 Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj => {
                     // (strips: every other triangle's first two vertices swapped; the leading
@@ -910,6 +910,17 @@ struct Seg {
     /// SV_PrimitiveID, SV_IsFrontFace (the triangle's, for wireframe edges)
     prim: u32,
     front: bool,
+    clip: SegClip,
+}
+
+/// whether a segment is still to be clipped as a line
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum SegClip {
+    /// a line's, or an unclipped triangle's edge
+    Line,
+    /// an edge of a triangle the homogeneous clipping cut (D3DRASTER.CLIPW.WIRE): drawn as it
+    /// came out
+    Done,
 }
 
 /// a line clipped and snapped
@@ -1296,7 +1307,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         drawable_w(&s.b)?;
         let (za, zb) = (s.a.pos[2] / s.a.pos[3], s.b.pos[2] / s.b.pos[3]);
         let inside = |z: f32| (0.0..=1.0).contains(&z);
-        let zclip = d.rast[6] != 0 && !(inside(za) && inside(zb));
+        let zclip = s.clip == SegClip::Line && d.rast[6] != 0 && !(inside(za) && inside(zb));
         if zclip && (za < 0.0 && zb < 0.0 || za > 1.0 && zb > 1.0) {
             hit(clause::D3DRASTER_DEPTHCLIP);
             continue;
@@ -1313,7 +1324,11 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         } else {
             (s.a, s.b)
         };
-        let Some((a, b)) = clip_line(sa, sb) else {
+        let clipped = match s.clip {
+            SegClip::Line => clip_line(sa, sb),
+            SegClip::Done => Some((sa, sb)),
+        };
+        let Some((a, b)) = clipped else {
             hit(clause::D3DRASTER_CLIP);
             continue;
         };
@@ -1465,11 +1480,23 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             d.rast[1] == 2 && front || d.rast[1] == 3 && !front
         };
         let pieces: Vec<([(i64, i64); 3], Planes, bool)> = clip_pieces(&poly, vp, d.rast[6] != 0).into_iter().filter(|(_, _, cw)| !culled(*cw)).collect();
-        // (wireframe: WARP draws the clipped polygon's edges but those along a clip plane, as
-        // lines, probe-clip-w-wire; one edge's values an ulp off that end's snapping, the line's
-        // direction and clipping each edge as a line do not explain)
+        // (MEASURED, WARP: probe-clip-w-wire, every value) wireframe: the clipped polygon's
+        // edges but those along a clip plane, as lines from the vertices the clipping gives,
+        // not clipped again (D3DRASTER.CLIPW.WIRE); (with culling on: not measured,
+        // probe-clip-w-wire-cull2, -cull3)
         if d.rast[0] == 2 {
-            return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
+            hit(clause::D3DRASTER_CLIPW_WIRE);
+            if d.rast[1] != 1 {
+                return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
+            }
+            let front = pieces.first().is_some_and(|p| p.2 != (d.rast[2] != 0));
+            for (a, b) in poly.iter().zip(poly.iter().cycle().skip(1)) {
+                if a.along {
+                    continue;
+                }
+                wire.push(Seg { a: Vert { pos: a.pos, color: a.color }, b: Vert { pos: b.pos, color: b.color }, lead, prim, front, clip: SegClip::Done });
+            }
+            return Ok(());
         }
         let [vx, vy, vw, vh, minz, maxz] = vp;
         let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
@@ -1556,7 +1583,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         let k0 = (0..3).fold(0, |k, i| if tri[i].pos[0] < tri[k].pos[0] { i } else { k });
         let t: [Vert; 3] = [0, 1, 2].map(|i| tri[(k0 + i) % 3]);
         for e in 0..3 {
-            wire.push(Seg { a: t[e], b: t[(e + 1) % 3], lead, prim, front });
+            wire.push(Seg { a: t[e], b: t[(e + 1) % 3], lead, prim, front, clip: SegClip::Line });
         }
         return Ok(());
     }
@@ -2064,6 +2091,8 @@ struct ClipVert {
     color: [f32; 4],
     dist: Dists,
     made: bool,
+    /// the edge from this vertex to the next lies along a clip plane
+    along: bool,
 }
 
 /// (MEASURED, WARP: probe-interp-clip*, probe-interp-*) a triangle clipped Sutherland-Hodgman
@@ -2082,7 +2111,7 @@ fn clip_tri(tri: &[Vert; 3], zclip: bool) -> Option<Vec<ClipVert>> {
     let mut poly: Vec<ClipVert> = (0..3)
         .map(|i| {
             let v = &tri[(sel + i) % 3];
-            ClipVert { pos: v.pos, color: v.color, dist: Dists::of(&v.pos), made: false }
+            ClipVert { pos: v.pos, color: v.color, dist: Dists::of(&v.pos), made: false, along: false }
         })
         .collect();
     let out = |v: &ClipVert, p: ClipPlane| 0.0 > v.dist.get(p);
@@ -2107,7 +2136,9 @@ fn clip_tri(tri: &[Vert; 3], zclip: bool) -> Option<Vec<ClipVert>> {
                 for q in &cut[k + 1..] {
                     dist.set(*q, lerp(i.dist.get(*q), o.dist.get(*q)));
                 }
-                next.push(ClipVert { pos: [0, 1, 2, 3].map(|c| lerp(i.pos[c], o.pos[c])), color: [0, 1, 2, 3].map(|c| lerp(i.color[c], o.color[c])), dist, made: true });
+                // (leaving: the edge on to the vertex where the polygon comes back runs along the
+                // plane; entering: the rest of the edge a to b)
+                next.push(ClipVert { pos: [0, 1, 2, 3].map(|c| lerp(i.pos[c], o.pos[c])), color: [0, 1, 2, 3].map(|c| lerp(i.color[c], o.color[c])), dist, made: true, along: ina || a.along });
             }
         }
         poly = next;
