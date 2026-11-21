@@ -26,6 +26,9 @@
 //!   below a capacity (`for (...; ... && n < CAP; ...)`) drops the rest without a word, and the
 //!   model reads it all: refuse past the capacity (`bad = 1`) instead. The line reader's MAXTOK
 //!   (runner/main.c, mirrored by the model's rootsig::MAXTOK) is the one cut allowed.
+//! * `kani-gates` (review of 8480456, 5.1): an API stable in the build's Rust but not in Kani's
+//!   compiler (`KANI_GATES`) is used only with its feature turned on for Kani in src/lib.rs
+//!   (`#![cfg_attr(kani, feature(..))]`), so the proofs compile whatever the generators use.
 //! * `header-unflushed` (review of 8480456, 4): runner/main.c writes a case's header out at once
 //!   (`oflush()` right after it), so a stop inside a case names that case.
 use std::path::Path;
@@ -97,6 +100,23 @@ static DIB: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"->bits\b|\brow\s*\("
 /// (what only tests or sets the pointer: `!s->bits`, `s->bits ?`, `s->bits = ...`)
 static DIB_POINTER: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"!\s*[\w>.-]*->bits\b|->bits\s*\?|->bits\s*=[^=]"));
 static SILENT_CUT: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"for\s*\([^;]*;[^;]*&&\s*\w+\s*<\s*([A-Z][A-Z0-9_]*)\s*;"));
+/// (what the source writes, the feature Kani 0.68's compiler wants for it)
+pub const KANI_GATES: &[(&str, &str)] = &[("Vec::<_>::from_fn", "vec_from_fn"), ("Vec::from_fn", "vec_from_fn")];
+
+/// `kani-gates`: the features the sources need for Kani that src/lib.rs does not turn on
+pub fn kani_gates(sources: &[(String, String)], lib: &str) -> Vec<String> {
+    let lib = code_only(lib, false);
+    let mut bad = Vec::new();
+    for &(api, feature) in KANI_GATES {
+        let Some((rel, _)) = sources.iter().find(|(_, t)| code_only(t, false).contains(api)) else { continue };
+        let on = lib.lines().any(|l| l.contains("#![cfg_attr(kani") && l.contains(&format!("feature({feature})")));
+        if !on && !bad.iter().any(|b: &String| b.contains(feature)) {
+            bad.push(format!("src/lib.rs: kani-gates: {rel} uses {api}, unstable in Kani's compiler: #![cfg_attr(kani, feature({feature}))]"));
+        }
+    }
+    bad
+}
+
 /// (file, capacity): the cuts allowed
 pub const CUTS: &[(&str, &str)] = &[("runner/main.c", "MAXTOK")];
 static WAIT: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"(?m)^\s*(ID3D12CommandQueue_Signal|ID3D12Fence_SetEventOnCompletion|WaitForSingleObject)\s*\("));
@@ -282,6 +302,7 @@ pub fn c(rel: &str, text: &str) -> Vec<String> {
 pub fn check(root: &Path) -> Result<(), String> {
     let mut bad = Vec::new();
     let mut seen = Vec::new();
+    let mut rust_sources: Vec<(String, String)> = Vec::new();
     for (dir, ext) in [("src", "rs"), ("runner", "c")] {
         let mut stack = vec![root.join(dir)];
         while let Some(d) = stack.pop() {
@@ -298,6 +319,9 @@ pub fn check(root: &Path) -> Result<(), String> {
                 let rel = p.strip_prefix(root).map_err(|e| e.to_string())?.to_string_lossy().replace('\\', "/");
                 let text = std::fs::read_to_string(&p).map_err(|e| format!("{rel}: {e}"))?;
                 bad.extend(if ext == "rs" { rust(&rel, &text) } else { c(&rel, &text) });
+                if ext == "rs" {
+                    rust_sources.push((rel.clone(), text));
+                }
                 seen.push(rel);
             }
         }
@@ -307,6 +331,8 @@ pub fn check(root: &Path) -> Result<(), String> {
             bad.push(format!("{f}: listed in MODEL_USES_GENERATORS but gone: take its line out"));
         }
     }
+    let lib = std::fs::read_to_string(root.join("src/lib.rs")).map_err(|e| format!("src/lib.rs: {e}"))?;
+    bad.extend(kani_gates(&rust_sources, &lib));
     if seen.is_empty() {
         bad.push("no sources found".into());
     }

@@ -152,5 +152,11 @@ pub fn path() -> String {
     // AngleArc twice in one figure, then closed and filled; and a radius past 2^31
     writeln!(s, "case anglearc-two\ndib 0 32 32 8\nbrush 0 solid #ff0000\nbeginpath 0\nanglearc 0 16 16 10 0 90\nanglearc 0 16 16 6 90 -180\nclosefig 0\nendpath 0\ngetpath 0\nfillpath 0\ndump 0\nend");
     writeln!(s, "case anglearc-neg\ndib 0 32 32 8\nbeginpath 0\nanglearc 0 16 16 -1 0 90\nendpath 0\ngetpath 0\nend");
+    // (added after) whole turns whose end the model puts 1/16 pixel off the start, where that
+    // rounds to another pixel (the review of 8480456, 5.2: 178 at 49.25 degrees about 0, 0, and
+    // the model's own search about 16, 16): whether GDI's end is its start
+    for (x, y, rad, a) in [(0, 0, 178, "49.25"), (16, 16, 62, "32.75"), (16, 16, 107, "41.25"), (16, 16, 108, "-144"), (16, 16, 112, "52.25"), (16, 16, 112, "127.75")] {
+        writeln!(s, "case anglearc-turn-{rad}-{a}\ndib 0 32 32 8\nbeginpath 0\nanglearc 0 {x} {y} {rad} {a} 360\ngetpos 0\nendpath 0\ngetpath 0\nend");
+    }
     s
 }

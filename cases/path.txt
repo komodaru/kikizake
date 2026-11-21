@@ -9824,3 +9824,51 @@ anglearc 0 16 16 -1 0 90
 endpath 0
 getpath 0
 end
+case anglearc-turn-178-49.25
+dib 0 32 32 8
+beginpath 0
+anglearc 0 0 0 178 49.25 360
+getpos 0
+endpath 0
+getpath 0
+end
+case anglearc-turn-62-32.75
+dib 0 32 32 8
+beginpath 0
+anglearc 0 16 16 62 32.75 360
+getpos 0
+endpath 0
+getpath 0
+end
+case anglearc-turn-107-41.25
+dib 0 32 32 8
+beginpath 0
+anglearc 0 16 16 107 41.25 360
+getpos 0
+endpath 0
+getpath 0
+end
+case anglearc-turn-108--144
+dib 0 32 32 8
+beginpath 0
+anglearc 0 16 16 108 -144 360
+getpos 0
+endpath 0
+getpath 0
+end
+case anglearc-turn-112-52.25
+dib 0 32 32 8
+beginpath 0
+anglearc 0 16 16 112 52.25 360
+getpos 0
+endpath 0
+getpath 0
+end
+case anglearc-turn-112-127.75
+dib 0 32 32 8
+beginpath 0
+anglearc 0 16 16 112 127.75 360
+getpos 0
+endpath 0
+getpath 0
+end

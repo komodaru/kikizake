@@ -9,6 +9,10 @@
 //!   * any implementation (sake, Wine, ...) is checked against Windows' recorded answers, and
 //!     against the model for as many fresh generated cases as wanted, with no Windows at hand.
 
+// (Kani 0.68's compiler, a nightly of 2026-08-20, has as unstable what Rust 1.100 made stable:
+// each such API the crate uses is turned on for it here, kikizake-lint kani-gates)
+#![cfg_attr(kani, feature(vec_from_fn))]
+
 pub mod calls;
 pub mod case;
 pub mod compare;

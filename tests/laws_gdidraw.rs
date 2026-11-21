@@ -80,6 +80,18 @@ fn canonical(g: &Rgn) -> bool {
         && g.bands.iter().all(|(t, b, s)| t < b && !s.is_empty() && s.iter().all(|x| x.0 < x.1) && s.windows(2).all(|w| w[0].1 < w[1].0))
 }
 
+/// the review of 8480456 (5.2): 178 at 49.25 degrees, a whole turn about 0, 0: the end comes
+/// out 1/16 pixel right of the start (in 28.4), the end's sine and cosine taken of 409.25
+/// degrees (the clean-room notes: GrepAngleArc's end point from the end angle). Windows answers
+/// path anglearc-turn-*, where that 1/16 rounds to another pixel
+#[test]
+fn angle_arc_turn_ends_off_its_start() {
+    use kikizake::model::gdiarc::angle_arc;
+    let a = angle_arc(0, 0, 178, 49.25, 360.0).unwrap();
+    assert_eq!(a.start, (1858, -2157));
+    assert_eq!(a.beziers.last().unwrap()[2], (1859, -2157));
+}
+
 proptest! {
     /// CombineRgn is the set operation on the pixels, and its result is canonical
     #[test]
@@ -606,8 +618,11 @@ proptest! {
     fn angle_arc_turns_and_mirrors(x in -100i32..100, y in -100i32..100, r in 0u32..200, st in -720i32..720, sw in 0i32..1000) {
         use kikizake::model::gdiarc::angle_arc;
         let (st, sw) = (st as f32 / 4.0, sw as f32 / 4.0);
+        // (a whole turn ends where it starts, up to the 1/16 pixel the sine and cosine of the
+        // end angle may round apart: angle_arc_turn_ends_off_its_start)
         let full = angle_arc(x, y, r, st, 360.0).unwrap();
-        prop_assert_eq!(full.beziers.last().unwrap()[2], full.start);
+        let (e, s0) = (full.beziers.last().unwrap()[2], full.start);
+        prop_assert!((e.0 - s0.0).abs() <= 1 && (e.1 - s0.1).abs() <= 1, "{:?} {:?}", e, s0);
         let a = angle_arc(x, y, r, st, sw).unwrap();
         let b = angle_arc(x, y, r, -st, -sw).unwrap();
         let m = |p: (i32, i32)| (p.0, 32 * y - p.1);

@@ -134,3 +134,15 @@ fn unflushed_case_headers_are_found() {
     assert!(c("runner/main.c", new).is_empty());
     assert!(c("runner/gdi.c", old).is_empty());
 }
+
+#[test]
+fn apis_kani_cannot_compile_are_found() {
+    let src = vec![("src/generators/gdipath.rs".to_string(), "fn f() { let v = Vec::<_>::from_fn(3, |k| k); }".to_string())];
+    let r = kani_gates(&src, "pub mod calls;\n");
+    assert_eq!(r.len(), 1, "{r:?}");
+    assert!(r[0].contains("feature(vec_from_fn)"), "{r:?}");
+    assert!(kani_gates(&src, "#![cfg_attr(kani, feature(vec_from_fn))]\npub mod calls;\n").is_empty());
+    // (in a comment is no use, nor is the gate in a comment)
+    assert!(kani_gates(&[("src/x.rs".into(), "// Vec::from_fn(3, f)".into())], "").is_empty());
+    assert_eq!(kani_gates(&src, "// #![cfg_attr(kani, feature(vec_from_fn))]\n").len(), 1);
+}

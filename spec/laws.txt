@@ -29,6 +29,7 @@ tests/laws_gdidraw.rs::italic_shears_but_keeps_the_advances pbt GDI.TEXT.ITALIC 
 tests/laws_gdidraw.rs::inverse_table_holds_near_entries pbt GDI.GRAD.INDEXED
 tests/laws_gdidraw.rs::round_rect_region_between_rect_and_ellipse pbt GDI.RGN.ROUNDRECT GDI.RGN.ELLIPSE
 tests/laws_gdidraw.rs::angle_arc_turns_and_mirrors pbt GDI.PATH.ANGLEARC
+tests/laws_gdidraw.rs::angle_arc_turn_ends_off_its_start exhaustive GDI.PATH.ANGLEARC
 tests/laws.rs::normalization_is_idempotent pbt D3D11.DEDUP D3D11.BLEND.DISABLED D3D11.DEPTH.OFF D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::unused_parts_are_ignored pbt D3D11.BLEND.SHARED D3D11.BLEND.DISABLED D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::check_create_and_same_agree pbt D3D11.CHECK D3D11.DEDUP
