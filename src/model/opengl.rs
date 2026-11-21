@@ -272,6 +272,8 @@ use super::{Fail, Res};
 pub mod tex;
 #[path = "opengl_gaps.rs"]
 mod gaps;
+#[path = "opengl_list.rs"]
+pub mod list;
 use crate::case::{num, Op};
 use crate::spec::hit;
 use e::*;
@@ -488,6 +490,8 @@ pub struct Ctx {
     pub line_z_offset: f32,
     /// texture objects, the environment and coordinate generation
     pub tex: tex::Tex,
+    /// display lists
+    pub lists: list::Lists,
     pub line_width: f32,
     /// glLineStipple's repeat factor (1..255) and pattern
     pub line_stipple: (i64, u16),
@@ -579,6 +583,7 @@ impl Ctx {
             offset: (0.0, 0.0),
             line_z_offset: 0.0,
             tex: tex::Tex::new(),
+            lists: list::Lists::default(),
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
             line_stipple: (1, 0xffff),
@@ -712,7 +717,9 @@ impl Ctx {
             0xb21 => vec![F(self.line_width)],
             0xb25 => i(i64::from(self.line_stipple.1)),
             0xb26 => i(self.line_stipple.0),
-            0xb30 | 0xb32 | 0xb33 => i(0),
+            0xb30 => i(i64::from(self.lists.compiling.as_ref().map_or(0, |c| c.mode))),
+            0xb32 => i(i64::from(self.lists.base)),
+            0xb33 => i(i64::from(self.lists.compiling.as_ref().map_or(0, |c| c.name))),
             0xb40 => self.poly_mode.iter().map(|m| I(*m as i64)).collect(),
             0xb43 => vec![B(true)],
             0xb45 => i(self.cull_mode as i64),
@@ -1138,6 +1145,9 @@ impl Gl {
                 None => return Ok(false),
             },
         };
+        if self.list_line(op, out)? {
+            return Ok(true);
+        }
         let Some(ctx) = self.ctx.as_mut() else {
             out.push("noctx".into());
             return Ok(true);

@@ -116805,6 +116805,125 @@ glr glGenLists u i 0
 glr glGenLists i i -1
 glerr
 end
+case gap-list-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+glr glGenLists u i 4
+gl glNewList 1 0x1300
+gl glTranslatef 1 0 0
+gl glEndList
+gl glNewList 2 0x1300
+gl glCallList 2
+gl glTranslatef 0 1 0
+gl glEndList
+gl glNewList 3 0x1300
+gl glColor4ub 255 255 0 255
+gl glPixelStorei 0xcf5 1
+glget i 0xcf5 1
+gl glVertex2f 3 3
+gl glEnable 0xbe2
+gl glMatrixMode 0x1705
+gl glEndList
+glerr
+glisen 0xbe2
+glget f 0xb00 4
+gl glLoadIdentity
+glp glCallLists ii 2 0x1400 b -1 1
+glerr
+glget f 0xba6 16
+gl glLoadIdentity
+glp glCallLists ii 2 0x1402 s 1 -2
+glerr
+glget f 0xba6 16
+gl glLoadIdentity
+glp glCallLists ii 2 0x1403 us 1 65535
+glerr
+glget f 0xba6 16
+gl glLoadIdentity
+glp glCallLists ii 2 0x1404 i 1 2
+glerr
+glget f 0xba6 16
+gl glLoadIdentity
+glp glCallLists ii 2 0x1405 ui 1 2
+glerr
+glget f 0xba6 16
+gl glLoadIdentity
+glp glCallLists ii 2 0x1406 f 1 2
+glerr
+glget f 0xba6 16
+gl glLoadIdentity
+glp glCallLists ii 2 0x1407 ub 0 1 0 2
+glerr
+glget f 0xba6 16
+gl glLoadIdentity
+glp glCallLists ii 2 0x1408 ub 0 0 1 0 0 3
+glerr
+glget f 0xba6 16
+gl glLoadIdentity
+glp glCallLists ii 2 0x1409 ub 0 0 0 1 0 0 0 1
+glerr
+glget f 0xba6 16
+gl glLoadIdentity
+glp glCallLists ii 2 0x140a ub 1 1
+glerr
+glget f 0xba6 16
+gl glLoadIdentity
+gl glListBase 4294967295
+glp glCallLists ii 2 0x1401 ub 2 3
+glget f 0xba6 16
+gl glListBase 0
+gl glLoadIdentity
+gl glCallList 2
+glget f 0xba6 16
+gl glCallList 3
+glerr
+glget f 0xb00 4
+glisen 0xbe2
+glget i 0xcf5 1
+glp glCallLists ii -1 0x1401 ub 1
+glerr
+gl glBegin 1
+gl glCallList 1
+glerr
+gl glNewList 4 0x1300
+glerr
+gl glEnd
+gl glNewList 4 0x1300
+gl glBegin 1
+gl glVertex2f 1 1
+gl glEndList
+glerr
+gl glDeleteLists 1 -1
+glerr
+glr glIsList b i 0
+glr glGenLists u i 2
+glr glGenLists u i 1
+glerr
+end
+case gap-list-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glNewList 5 0x1300
+gl glRasterPos2i 2 2
+gldraw 2 2 0x1908 0x1401 5 16
+gltex 0xde1 0 4 2 2 0 0x1908 0x1401 6 16
+gl glEndList
+gl glPixelStorei 0xcf2 4
+gl glClear 0x4000
+gl glCallList 5
+glread 0 0 16 16 0x1908 0x1401 1024
+gltexq level 0xde1 0 4096 i 1
+glteximg 0xde1 0 0x1908 0x1401 16
+glerr
+end
 case gap-array-0
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glMatrixMode 0x1701
@@ -116816,7 +116935,7 @@ glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13 14 14
 glp glColorPointer iii 4 0x1401 0 ub 255 0 0 255 0 255 0 255 0 0 255 255 255 255 255 255
 gl glEnableClientState 0x8074
 gl glEnableClientState 0x8076
-glisen 8074
+glisen 0x8074
 gl glClear 0x4000
 gl glDrawArrays 4 0 3
 glread 0 0 16 16 0x1908 0x1401 1024
@@ -116833,7 +116952,7 @@ glget i 0x807c 1
 gl glPushClientAttrib 2
 gl glDisableClientState 0x8074
 gl glPopClientAttrib
-glisen 8074
+glisen 0x8074
 gl glDrawArrays 4 0 -1
 glerr
 gl glDrawArrays 10 0 3
@@ -116852,7 +116971,7 @@ glp glInterleavedArrays ii 0x2a22 0 ub 255 0 0 255 0 0 0 64 0 0 0 64 0 255 0 255
 gl glClear 0x4000
 gl glDrawArrays 4 0 3
 glread 0 0 16 16 0x1908 0x1401 1024
-glisen 8076
+glisen 0x8076
 glget i 0x8082 1
 gl glPolygonMode 0x408 0x1b01
 gl glClear 0x4000
@@ -117282,7 +117401,7 @@ gl glOrtho 0 16 0 16 -1 1
 gl glMatrixMode 0x1700
 gl glDisable 0xbd0
 glq glGetPolygonStipple - ub 128
-glp glPolygonStipple - ub 11 48 85 122 159 196 233 14 51 88 125 162 199 236 17 54 91 128 165 202 239 20 57 94 131 168 205 242 23 60 97 134 171 208 245 26 63 100 137 174 211 248 29 66 103 140 177 214 251 32 69 106 143 180 217 254 35 72 109 146 183 220 1 38 75 112 149 186 223 4 41 78 115 152 189 226 7 44 81 118 155 192 229 10 47 84 121 158 195 232 13 50 87 124 161 198 235 16 53 90 127 164 201 238 19 56 93 130 167 204 241 22 59 96 133 170 207 244 25 62 99 136 173 210 247 28 65 102
+glp glPolygonStipple - ui 2052403211 250201247 2726123571 907144391 3399843931 1580799215 4073564291 2254519319 452317355 2928239679 1109260499 3601960039 1782915323 4275680399 2456635427 637656247 3130355787 1311311071 3804076147 1985031175 182829211 2658751535 839772355 3332471895 1513427179 4006192255 2187147283 384945319 2860867643 1041888463 3534588003 1715543287
 glq glGetPolygonStipple - ub 128
 gl glEnable 0xb42
 gl glClear 0x4000
@@ -117296,7 +117415,7 @@ gl glVertex2f 6 13
 gl glEnd
 glread 0 0 16 16 0x1908 0x1401 1024
 gl glPixelStorei 0xcf1 1
-glp glPolygonStipple - ub 11 48 85 122 159 196 233 14 51 88 125 162 199 236 17 54 91 128 165 202 239 20 57 94 131 168 205 242 23 60 97 134 171 208 245 26 63 100 137 174 211 248 29 66 103 140 177 214 251 32 69 106 143 180 217 254 35 72 109 146 183 220 1 38 75 112 149 186 223 4 41 78 115 152 189 226 7 44 81 118 155 192 229 10 47 84 121 158 195 232 13 50 87 124 161 198 235 16 53 90 127 164 201 238 19 56 93 130 167 204 241 22 59 96 133 170 207 244 25 62 99 136 173 210 247 28 65 102
+glp glPolygonStipple - ui 2052403211 250201247 2726123571 907144391 3399843931 1580799215 4073564291 2254519319 452317355 2928239679 1109260499 3601960039 1782915323 4275680399 2456635427 637656247 3130355787 1311311071 3804076147 1985031175 182829211 2658751535 839772355 3332471895 1513427179 4006192255 2187147283 384945319 2860867643 1041888463 3534588003 1715543287
 gl glPixelStorei 0xd01 1
 glq glGetPolygonStipple - ub 128
 gl glClear 0x4000

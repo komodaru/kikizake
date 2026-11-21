@@ -3282,18 +3282,30 @@ fn gaps(s: &mut String) {
     writeln!(s, "gl glNewList 2 0x1301\ngl glTranslatef 4 4 0\ngl glCallList 1\ngl glEndList\nglget f 0xba6 16");
     read_all(s);
     writeln!(s, "gl glLoadIdentity\ngl glListBase 1\nglp glCallLists ii 2 0x1401 ub 0 1\nglget i 0xb32 1\nglerr\ngl glEndList\nglerr\ngl glNewList 0 0x1300\nglerr\ngl glNewList 3 0x1302\nglerr\ngl glNewList 3 0x1300\ngl glNewList 4 0x1300\nglerr\ngl glEndList\ngl glDeleteLists 1 2\nglr glIsList b i 1\nglr glIsList b i 3\nglr glGenLists u i 0\nglr glGenLists i i -1\nglerr\nend");
+    // glCallLists of each type and the byte forms, nesting past the limit, what is compiled and
+    // what runs at once, a list in glBegin / glEnd, errors in a list at its call (GL.LIST)
+    head(s, "gap-list-1", 32);
+    writeln!(s, "glr glGenLists u i 4\ngl glNewList 1 0x1300\ngl glTranslatef 1 0 0\ngl glEndList\ngl glNewList 2 0x1300\ngl glCallList 2\ngl glTranslatef 0 1 0\ngl glEndList\ngl glNewList 3 0x1300\ngl glColor4ub 255 255 0 255\ngl glPixelStorei 0xcf5 1\nglget i 0xcf5 1\ngl glVertex2f 3 3\ngl glEnable 0xbe2\ngl glMatrixMode 0x1705\ngl glEndList\nglerr\nglisen 0xbe2\nglget f 0xb00 4");
+    for (ty, el, vals) in [("0x1400", "b", "-1 1"), ("0x1402", "s", "1 -2"), ("0x1403", "us", "1 65535"), ("0x1404", "i", "1 2"), ("0x1405", "ui", "1 2"), ("0x1406", "f", "1 2"), ("0x1407", "ub", "0 1 0 2"), ("0x1408", "ub", "0 0 1 0 0 3"), ("0x1409", "ub", "0 0 0 1 0 0 0 1"), ("0x140a", "ub", "1 1")] {
+        writeln!(s, "gl glLoadIdentity\nglp glCallLists ii 2 {ty} {el} {vals}\nglerr\nglget f 0xba6 16");
+    }
+    writeln!(s, "gl glLoadIdentity\ngl glListBase 4294967295\nglp glCallLists ii 2 0x1401 ub 2 3\nglget f 0xba6 16\ngl glListBase 0\ngl glLoadIdentity\ngl glCallList 2\nglget f 0xba6 16\ngl glCallList 3\nglerr\nglget f 0xb00 4\nglisen 0xbe2\nglget i 0xcf5 1\nglp glCallLists ii -1 0x1401 ub 1\nglerr\ngl glBegin 1\ngl glCallList 1\nglerr\ngl glNewList 4 0x1300\nglerr\ngl glEnd\ngl glNewList 4 0x1300\ngl glBegin 1\ngl glVertex2f 1 1\ngl glEndList\nglerr\ngl glDeleteLists 1 -1\nglerr\nglr glIsList b i 0\nglr glGenLists u i 2\nglr glGenLists u i 1\nglerr\nend");
+    head(s, "gap-list-2", 32);
+    writeln!(s, "gl glNewList 5 0x1300\ngl glRasterPos2i 2 2\ngldraw 2 2 0x1908 0x1401 5 16\ngltex 0xde1 0 4 2 2 0 0x1908 0x1401 6 16\ngl glEndList\ngl glPixelStorei 0xcf2 4\ngl glClear 0x4000\ngl glCallList 5");
+    read_all(s);
+    writeln!(s, "gltexq level 0xde1 0 4096 i 1\nglteximg 0xde1 0 0x1908 0x1401 16\nglerr\nend");
     // vertex arrays: pointers, client state, glArrayElement, glDrawArrays, glDrawElements,
     // interleaved arrays, the client attribute stack, edge flags (GL.ARRAY)
     head(s, "gap-array-0", 32);
-    writeln!(s, "glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13 14 14\nglp glColorPointer iii 4 0x1401 0 ub 255 0 0 255 0 255 0 255 0 0 255 255 255 255 255 255\ngl glEnableClientState 0x8074\ngl glEnableClientState 0x8076\nglisen 8074\ngl glClear 0x4000\ngl glDrawArrays 4 0 3");
+    writeln!(s, "glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13 14 14\nglp glColorPointer iii 4 0x1401 0 ub 255 0 0 255 0 255 0 255 0 0 255 255 255 255 255 255\ngl glEnableClientState 0x8074\ngl glEnableClientState 0x8076\nglisen 0x8074\ngl glClear 0x4000\ngl glDrawArrays 4 0 3");
     read_all(s);
     writeln!(s, "gl glClear 0x4000\nglp glDrawElements iii 1 2 0x1403 us 0 3\ngl glBegin 0\ngl glArrayElement 3\ngl glEnd");
     read_all(s);
-    writeln!(s, "glq glGetPointerv i 0x808e p 1\nglget i 0x807a 1\nglget i 0x807b 1\nglget i 0x807c 1\ngl glPushClientAttrib 2\ngl glDisableClientState 0x8074\ngl glPopClientAttrib\nglisen 8074\ngl glDrawArrays 4 0 -1\nglerr\ngl glDrawArrays 10 0 3\nglerr\nglp glDrawElements iii 4 3 0x1406 f 0 1 2\nglerr\nend");
+    writeln!(s, "glq glGetPointerv i 0x808e p 1\nglget i 0x807a 1\nglget i 0x807b 1\nglget i 0x807c 1\ngl glPushClientAttrib 2\ngl glDisableClientState 0x8074\ngl glPopClientAttrib\nglisen 0x8074\ngl glDrawArrays 4 0 -1\nglerr\ngl glDrawArrays 10 0 3\nglerr\nglp glDrawElements iii 4 3 0x1406 f 0 1 2\nglerr\nend");
     head(s, "gap-array-1", 32);
     writeln!(s, "glp glInterleavedArrays ii 0x2a22 0 ub 255 0 0 255 0 0 0 64 0 0 0 64 0 255 0 255 0 0 80 65 0 0 128 64 0 0 255 255 0 0 192 64 0 0 80 65\ngl glClear 0x4000\ngl glDrawArrays 4 0 3");
     read_all(s);
-    writeln!(s, "glisen 8076\nglget i 0x8082 1\ngl glPolygonMode 0x408 0x1b01\ngl glClear 0x4000\ngl glBegin 4\ngl glEdgeFlag 0\ngl glVertex2f 2 2\ngl glEdgeFlag 1\ngl glVertex2f 13 4\ngl glVertex2f 6 13\ngl glEnd");
+    writeln!(s, "glisen 0x8076\nglget i 0x8082 1\ngl glPolygonMode 0x408 0x1b01\ngl glClear 0x4000\ngl glBegin 4\ngl glEdgeFlag 0\ngl glVertex2f 2 2\ngl glEdgeFlag 1\ngl glVertex2f 13 4\ngl glVertex2f 6 13\ngl glEnd");
     read_all(s);
     writeln!(s, "glget i 0xb43 1\nglerr\nend");
     // evaluators: a 1D vertex and color map, grids and meshes, a 2D map, the queries (GL.EVAL)
@@ -3349,14 +3361,16 @@ fn gaps(s: &mut String) {
     writeln!(s, "gl glEnable 0xb71\ngl glDepthFunc 0x207\ngl glClear 0x400\ngl glRectf 0 0 8 8\ngl glRasterPos2i 8 8\ngl glCopyPixels 0 0 8 8 0x1801\nglread 0 0 16 16 0x1902 0x1405 1024\ngl glCopyPixels 0 0 4 4 0x1802\nglread 0 0 16 16 0x1901 0x1401 256\ngl glCopyPixels 0 0 -1 4 0x1800\nglerr\ngl glCopyPixels 0 0 1 1 0x1900\nglerr\nend");
     // a polygon stipple pattern, set, read back, masking (GL.POLYGON.STIPPLE.PATTERN)
     head(s, "gap-stipple-0", 32);
+    // (the 128 bytes as 32 little-endian words: the executor takes 80 tokens a line)
     let mut pat = String::new();
-    for k in 0u32..128 {
-        let v = k.wrapping_mul(37).wrapping_add(11) & 0xff;
+    for k in 0u32..32 {
+        let byte = |j: u32| k.wrapping_mul(4).wrapping_add(j).wrapping_mul(37).wrapping_add(11) & 0xff;
+        let v = byte(0) | byte(1) << 8 | byte(2) << 16 | byte(3) << 24;
         pat.push_str(&format!(" {v}"));
     }
-    writeln!(s, "glq glGetPolygonStipple - ub 128\nglp glPolygonStipple - ub{pat}\nglq glGetPolygonStipple - ub 128\ngl glEnable 0xb42\ngl glClear 0x4000\n{tri}");
+    writeln!(s, "glq glGetPolygonStipple - ub 128\nglp glPolygonStipple - ui{pat}\nglq glGetPolygonStipple - ub 128\ngl glEnable 0xb42\ngl glClear 0x4000\n{tri}");
     read_all(s);
-    writeln!(s, "gl glPixelStorei 0xcf1 1\nglp glPolygonStipple - ub{pat}\ngl glPixelStorei 0xd01 1\nglq glGetPolygonStipple - ub 128\ngl glClear 0x4000\ngl glRectf 0 0 16 16");
+    writeln!(s, "gl glPixelStorei 0xcf1 1\nglp glPolygonStipple - ui{pat}\ngl glPixelStorei 0xd01 1\nglq glGetPolygonStipple - ub 128\ngl glClear 0x4000\ngl glRectf 0 0 16 16");
     read_all(s);
     writeln!(s, "glerr\nend");
     // pixel maps: sizes and values, drawn and read through them, the queries (GL.PIXELMAP)
