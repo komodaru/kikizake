@@ -39415,4 +39415,114 @@ winfo -
 wpixels -
 wpixels -
 wpixels -
+case broken-gifsize-screen
+wdecode 00000000 gif frames 1
+wframe 00000000
+winfo 00000000 2 2 idx8 96.000 96.000
+wpixels 00000000 8
+00
+case broken-gifsize-frame
+wdecode 80070216 - frames 0
+wframe -
+winfo -
+wpixels -
+case broken-gifsize-zero
+wdecode 00000000 gif frames 1
+wframe 00000000
+winfo 00000000 2 2 idx8 96.000 96.000
+wpixels 00000000 8
+00
+case broken-gifsize-edge-0
+wdecode 00000000 gif frames 1
+wframe 00000000
+winfo 00000000 2 2 idx8 96.000 96.000
+wpixels 00000000 8
+00
+case broken-gifsize-edge-1
+wdecode 00000000 gif frames 1
+wframe 00000000
+winfo 00000000 2 2 idx8 96.000 96.000
+wpixels 00000000 8
+00
+case broken-png-part-0
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 1200 1000 gray8 96.000 96.000
+wpixels 00000000 8
+05080808
+00000000
+case broken-png-part-1
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 3 gray8 96.000 96.000
+wpixels 00000000 8
+01020304
+0a0b0304
+case broken-png-part-2
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 3 gray8 96.000 96.000
+wpixels 00000000 8
+01020304
+09121212
+case broken-png-part-3
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 3 gray8 96.000 96.000
+wpixels 00000000 8
+01020304
+0a131313
+case broken-png-part-adam7
+wdecode 00000000 png frames 1
+wframe 00000000
+winfo 00000000 4 4 gray8 96.000 96.000
+wpixels 00000000 8
+07000000
+00000000
+00000000
+00000000
+case broken-bmpsize-0
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case broken-bmpsize-1
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case broken-bmpsize-2
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case broken-bmpsize-3
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case broken-bmpsize-4
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case broken-bmpsize-5
+wdecode 88982f07 - frames 0
+wframe -
+winfo -
+wpixels -
+case broken-big-tiff-1200
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 1200 1000 gray8 96.000 96.000
+wpixels 00000000 8
+00000000
+00000000
+wpixels 88982f60 8
+case broken-big-tiff-40000
+wdecode 00000000 tiff frames 1
+wframe 00000000
+winfo 00000000 40000 40000 gray8 96.000 96.000
+wpixels 88982f60 8
+wpixels 88982f60 8
 done
