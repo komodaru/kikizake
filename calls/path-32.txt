@@ -1,4 +1,4 @@
-kikizake calls path-32 cases e628ad06ec75a0d8 src ec7b67a29fb1017107481add15b3f15557cc54a8ebd7552cc3f6d20d7047f8ed shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 400538 other 0
+kikizake calls path-32 cases 25dc27dc98cb9440 src f8d18223a81d31776faad892b5f5c24c55e3a7a7efb975cb72c3596d8c496ce3 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 405578 other 0
 case shape-0-2
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
@@ -16292,6 +16292,84 @@ BeginPath(h1) = 1
 AngleArc(h1,16,16,0xffffffff,f32(0x00000000),f32(0x42b40000)) = 0
 EndPath(h1) = 1
 GetPath(h1,h0,h0,0) = 0
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case anglearc-turn-178-49.25
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+BeginPath(h1) = 1
+AngleArc(h1,0,0,178,f32(0x42450000),f32(0x43b40000)) = 1
+GetCurrentPositionEx(h1,p) = 1
+EndPath(h1) = 1
+GetPath(h1,h0,h0,0) = 23
+GetPath(h1,p,p,23) = 23
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case anglearc-turn-62-32.75
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+BeginPath(h1) = 1
+AngleArc(h1,16,16,62,f32(0x42030000),f32(0x43b40000)) = 1
+GetCurrentPositionEx(h1,p) = 1
+EndPath(h1) = 1
+GetPath(h1,h0,h0,0) = 23
+GetPath(h1,p,p,23) = 23
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case anglearc-turn-107-41.25
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+BeginPath(h1) = 1
+AngleArc(h1,16,16,107,f32(0x42250000),f32(0x43b40000)) = 1
+GetCurrentPositionEx(h1,p) = 1
+EndPath(h1) = 1
+GetPath(h1,h0,h0,0) = 23
+GetPath(h1,p,p,23) = 23
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case anglearc-turn-108--144
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+BeginPath(h1) = 1
+AngleArc(h1,16,16,108,f32(0xc3100000),f32(0x43b40000)) = 1
+GetCurrentPositionEx(h1,p) = 1
+EndPath(h1) = 1
+GetPath(h1,h0,h0,0) = 23
+GetPath(h1,p,p,23) = 23
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case anglearc-turn-112-52.25
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+BeginPath(h1) = 1
+AngleArc(h1,16,16,112,f32(0x42510000),f32(0x43b40000)) = 1
+GetCurrentPositionEx(h1,p) = 1
+EndPath(h1) = 1
+GetPath(h1,h0,h0,0) = 23
+GetPath(h1,p,p,23) = 23
+SelectObject(h1,h3) = h2
+DeleteObject(h2) = 1
+DeleteDC(h1) = 1
+case anglearc-turn-112-127.75
+CreateCompatibleDC(h0) = h1
+CreateDIBSection(h1,p,0,p,h0,0) = h2
+SelectObject(h1,h2) = h3
+BeginPath(h1) = 1
+AngleArc(h1,16,16,112,f32(0x42ff8000),f32(0x43b40000)) = 1
+GetCurrentPositionEx(h1,p) = 1
+EndPath(h1) = 1
+GetPath(h1,h0,h0,0) = 23
+GetPath(h1,p,p,23) = 23
 SelectObject(h1,h3) = h2
 DeleteObject(h2) = 1
 DeleteDC(h1) = 1

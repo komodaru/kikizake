@@ -1,4 +1,4 @@
-kikizake calls lines-32 cases f7e93a6b6ce99794 src b4756f7bbd1e5dd161f5a9bd5f19241275f90171157f8de186fa50e5b8f1dec0 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 1795052 other 0
+kikizake calls lines-32 cases f7e93a6b6ce99794 src 02ea82ea84e40362359420f7789e60ad7df51d69467f98ea53b04493fd9b3584 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 1797744 other 0
 case line-out-0
 out truncated
 CreateCompatibleDC(h0) = h1
