@@ -502,6 +502,46 @@ fn suite(d3d11: bool) -> String {
         vertex(&mut s, x, y, 0.5, color(i as u32), 16.0, 16.0);
     }
     writeln!(&mut s, "draw 4 3 32\nresolve 1 0 0 0 28\nread 1 0 64 16 1\nend");
+    // a vertex at w < 0 whose triangle keeps an area: in wireframe, with a depth view, on a
+    // multisampled target
+    for name in ["wire", "depth", "ms4"] {
+        let tex = if name == "ms4" { "tex 0 2 16 16 1 1 2 0 0x20 0 0 4 0" } else { "tex 0 2 16 16 1 1 2 0 0x20 0 0 1 0" };
+        writeln!(&mut s, "case probe-clip-w-{name}\n{dev}\n{tex}\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 2 0 0x20 0 0 1 0");
+        writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
+        writeln!(&mut s, "rast {} 1 0 0 0 0 1 0 0 0", if name == "wire" { 2 } else { 3 });
+        if name == "depth" {
+            writeln!(&mut s, "tex 2 2 16 16 1 1 40 0 0x40 0 0 1 0\ndsv 2 2 nodesc\ncleards 2 3 {} 0\ntarget 0 2\ndepthst 1 1 2", fb(1.0));
+        }
+        for (k, (x, y, w)) in [(-0.5f32, 0.5f32, 1.0f32), (0.5, 0.25, 1.0), (0.25, -0.75, -0.5)].into_iter().enumerate() {
+            let c = color(k as u32 * 5 + 1);
+            writeln!(&mut s, "vtx {} {} {} {} {} {} {} {}", fb(x * w.abs()), fb(y * w.abs()), fb(0.5 * w), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3]));
+        }
+        let read = if name == "ms4" { "resolve 1 0 0 0 2\nread 1 0 256 16 1" } else { "read 0 0 256 16 1" };
+        writeln!(&mut s, "draw 4 3 32\n{read}\nend");
+    }
+    // a 1D texture with mips through its whole view
+    writeln!(&mut s, "case probe-filter-1d-mips\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0");
+    writeln!(&mut s, "tex 1 1 4 1 1 3 28 0 8 0 0 1 0 init 400 16 0\nsrv 1 1 nodesc\ntsrv 1\nsamp 0x15 3 3 3");
+    writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader(Prog::Vs)), hex(&shader(Prog::Pssample)));
+    writeln!(&mut s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(16.0), fb(16.0), fb(1.0));
+    for (x, y, u, v) in [(-1.0f32, 1.0f32, -1.5f32, -1.5f32), (1.0, 1.0, 4.5, -1.5), (-1.0, -1.0, -1.5, 4.5), (1.0, -1.0, 4.5, 4.5)] {
+        writeln!(&mut s, "vtx {} {} {} {} {} {} 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(u), fb(v), fb(1.0));
+    }
+    writeln!(&mut s, "draw 5 4 32\nread 0 0 256 16 1\nend");
+    // a float target of 4 samples, resolved where its samples differ
+    writeln!(&mut s, "case probe-rt-ms4-float\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 4 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\ntex 1 2 16 16 1 1 2 0 0x20 0 0 1 0");
+    writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
+    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+        vertex(&mut s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(&mut s, "draw 4 3 32\nresolve 1 0 0 0 2\nread 1 0 256 16 1\nend");
+    // a buffer's view (16 RGBA8 elements) as the target
+    writeln!(&mut s, "case probe-rt-buffer\n{dev}\nbuf 0 64 0 0x20 0 0 0\nrtv 0 0 28 1 0 16\nclear 0 0 0 0 0\ntarget 0");
+    writeln!(&mut s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\nrast 3 1 0 0 0 0 1 0 0 0\nviewport 0 0 {} {} 0 {}", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)), fb(16.0), fb(16.0), fb(1.0));
+    for (i, (x, y)) in [(0.0f32, 0.0f32), (16.0, 2.5), (1.0, 14.0)].into_iter().enumerate() {
+        vertex(&mut s, x, y, 0.5, color(i as u32), 16.0, 16.0);
+    }
+    writeln!(&mut s, "draw 4 3 32\nread 0 0 64 1 1\nend");
     // topologies D3D11_PRIMITIVE_TOPOLOGY leaves undefined (they may end the executor too, so
     // they come just before)
     for top in [0u32, 6, 7, 8, 9, 65] {

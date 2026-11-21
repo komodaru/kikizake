@@ -742,7 +742,7 @@ impl Target<'_> {
         let at = (usize::try_from(px).unwrap_or(0), usize::try_from(py).unwrap_or(0), self.size.0 as usize);
         match self.samples {
             // (on a multisampled target every sample of the pixel, D3DRASTER.MS.LINES)
-            Some(pattern) => put_samples(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), out, &vec![true; pattern.len()]),
+            Some(pattern) => put_samples(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), None, out, &vec![true; pattern.len()]),
             None => output(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), out),
         }
     }
@@ -810,8 +810,8 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) ->
                 }).collect();
                 if mask.contains(&true) {
                     // (MEASURED, WARP: probe-rt-ms4-points-pspos) each pixel shaded at its center
-                    let out = prim_out(ps, v.color, (px, py), z, Some(q[3]), prim, true)?;
-                    put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(z), out, &mask)?;
+                    let out = prim_out(ps, v.color, (px, py), z, q[3], prim, true)?;
+                    put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(z), None, out, &mask)?;
                 }
             }
         }
@@ -822,7 +822,7 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) ->
         return Ok(());
     }
     let z = tg.depth(z);
-    let out = prim_out(ps, v.color, px, z, Some(q[3]), prim, true)?;
+    let out = prim_out(ps, v.color, px, z, q[3], prim, true)?;
     tg.put(m, d, px, z, out)
 }
 
@@ -830,7 +830,7 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) ->
 /// color, the pixel's position, or the primitive's index
 /// (MEASURED, WARP: probe-top1-*, probe-top2-*) as for triangles: SV_Position is the pixel
 /// center, the depth and the clip w; points and lines face front
-fn prim_out(ps: &str, c: [f32; 4], (px, py): (i64, i64), z: f32, w: Option<f32>, prim: u32, front: bool) -> Res<[u32; 4]> {
+fn prim_out(ps: &str, c: [f32; 4], (px, py): (i64, i64), z: f32, w: f32, prim: u32, front: bool) -> Res<[u32; 4]> {
     match ps {
         "ps" => Ok(c.map(f32::to_bits)),
         "psflat" => {
@@ -839,7 +839,6 @@ fn prim_out(ps: &str, c: [f32; 4], (px, py): (i64, i64), z: f32, w: Option<f32>,
         }
         "pspos" => {
             hit(clause::D3DRASTER_POS);
-            let w = w.ok_or(Fail::Unmodeled(open::D3DRASTER_INTERP))?;
             if w != 1.0 {
                 hit(clause::D3DRASTER_POSW);
             }
@@ -920,6 +919,8 @@ fn sample_pattern(n: u32) -> Option<&'static [(i64, i64)]> {
         2 => Some(&[(4, 4), (-4, -4)]),
         4 => Some(&[(-2, -6), (6, -2), (-6, 2), (2, 6)]),
         8 => Some(&[(1, -3), (-1, 3), (5, 1), (-3, -5), (-5, 5), (-7, -1), (3, 7), (7, -7)]),
+        // (MEASURED, WARP: probe-rt-ms16)
+        16 => Some(&[(1, 1), (-1, -3), (-3, 2), (4, -1), (-5, -2), (2, 5), (5, 3), (3, -5), (-2, 6), (0, -7), (-4, -6), (-6, 4), (-8, 0), (7, -4), (6, 7), (-7, -8)]),
         _ => None,
     }
 }
@@ -1329,7 +1330,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                         l.color((px, py)).map(f32::to_bits)
                     }
                     ("ps", Some(p)) => p.at(px as f32 + 0.5, py as f32 + 0.5).map(f32::to_bits),
-                    _ => prim_out(ps, l.lead, (px, py), z, Some(l.pos_w((px, py))), l.prim, l.front)?,
+                    _ => prim_out(ps, l.lead, (px, py), z, l.pos_w((px, py)), l.prim, l.front)?,
                 };
                 let out = match mode {
                     // (the shader's alpha times the coverage, before the output merger)
@@ -1341,7 +1342,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                     LineMode::Aliased | LineMode::Quad => out,
                 };
                 match mask {
-                    Some(mask) => put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(z), out, &mask)?,
+                    Some(mask) => put_samples(m, tg.dev, d, tg.view, tg.fmt, tg.sub, tg.dsv, (px as usize, py as usize, tg.size.0 as usize), Some(z), None, out, &mask)?,
                     None => tg.put(m, d, (px, py), z, out)?,
                 }
             }
@@ -1358,13 +1359,10 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         hit(clause::D3DRASTER_CLIP);
         return Ok(());
     }
-    // (MEASURED, WARP: probe-clip-w-nan) a coordinate NaN: nothing drawn
-    if tri.iter().any(|v| v.pos.iter().any(|x| x.is_nan())) {
+    // (MEASURED, WARP: probe-clip-w-nan, -inf) a coordinate NaN or infinite: nothing drawn
+    if tri.iter().any(|v| v.pos.iter().any(|x| !x.is_finite())) {
         hit(clause::D3DRASTER_CLIPW_NAN);
         return Ok(());
-    }
-    if tri.iter().any(|v| v.pos.iter().any(|x| !x.is_finite())) {
-        return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
     }
     if tri.iter().any(|v| !(v.pos[3] > 0.0)) {
         // (MEASURED, WARP: probe-clip-w) a vertex at w <= 0: the clipping to the viewport
@@ -1602,8 +1600,21 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 continue;
             }
             let p = pattern.iter().find_map(|&(ox, oy)| here((px * 256 + 128 + ox * 16, py * 256 + 128 + oy * 16)));
-            let out = shade(m, ps, tri, here((px * 256 + 128, py * 256 + 128)).or(p), lead, prim, front, (px, py), z, d)?;
-            put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out, &mask)?;
+            let pl = here((px * 256 + 128, py * 256 + 128)).or(p);
+            // (MEASURED, WARP: probe-rt-ms4-zplane) a depth that varies: its plane at each
+            // sample, for the depth test; at the pixel center for the shader
+            let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
+            let q = planes.as_ref().or(zplanes.as_ref()).or(pl);
+            let each: Option<Vec<f32>> = match (z, q) {
+                (None, Some(q)) => {
+                    hit(clause::D3DRASTER_MS_ZPLANE);
+                    Some(pattern.iter().map(|&(ox, oy)| q.plane(q.zs, cx + ox as f32 / 16.0, cy + oy as f32 / 16.0).max(lo).min(hi)).collect())
+                }
+                (Some(_), _) | (None, None) => None,
+            };
+            let z = z.or_else(|| q.map(|q| q.plane(q.zs, cx, cy).max(lo).min(hi)));
+            let out = shade(m, ps, tri, pl, lead, prim, front, (px, py), z, d)?;
+            put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, each.as_deref(), out, &mask)?;
         }
     }
     Ok(())
@@ -1613,7 +1624,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
 /// all of them while every sample is alike, else per sample, each through the pixel's own
 /// output (its value put in the subresource's place for the blend, then taken back)
 #[allow(clippy::too_many_arguments)]
-fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>, at: (usize, usize, usize), z: Option<f32>, out: [u32; 4], mask: &[bool]) -> Res<()> {
+fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, rt_fmt: &'static Format, rt_sub: u32, dsv: Option<&super::d3dres::View>, at: (usize, usize, usize), z: Option<f32>, each: Option<&[f32]>, out: [u32; 4], mask: &[bool]) -> Res<()> {
     let (px, py) = (at.0, at.1);
     let n = mask.len();
     let stored = |m: &D3dres, res: usize, sub: u32| -> Res<bool> { Ok(filled(&m.res, res)?.samples.get(sub as usize).is_some_and(Option::is_some)) };
@@ -1631,7 +1642,9 @@ fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, r
         slots.push(Slot::of(m, dv.res, dsub, df, (px, py))?);
     }
     let kept = slots.iter().map(|s| stored(m, s.res, s.sub)).collect::<Res<Vec<bool>>>()?;
-    if mask.iter().all(|&k| k) && !kept.contains(&true) {
+    // (one depth for every sample, or none tested)
+    let alike = each.is_none() || dsv.is_none();
+    if mask.iter().all(|&k| k) && !kept.contains(&true) && alike {
         output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
         return Ok(());
     }
@@ -1647,6 +1660,7 @@ fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, r
         for s in &slots {
             s.swap(m, n, k, true)?;
         }
+        let z = each.and_then(|e| e.get(k).copied()).or(z);
         output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
         for s in &slots {
             s.swap(m, n, k, false)?;
@@ -2113,7 +2127,8 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
         if tri.iter().all(|v| f(v) == a) {
             Ok(a)
         } else {
-            Err(Fail::Unmodeled(open::D3DRASTER_INTERP))
+            // (every drawn triangle has its planes, D3DRASTER.INTERP.PLANE and .CLIP)
+            Err(Fail::Bad)
         }
     };
     Ok(match ps {
@@ -2143,7 +2158,8 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             if w != 1.0 {
                 hit(clause::D3DRASTER_POSW);
             }
-            let z = z.ok_or(Fail::Unmodeled(open::D3DRASTER_INTERP))?;
+            // (a drawn triangle's depth is its value or its plane's, D3DRASTER.INTERP.DEPTH)
+            let z = z.ok_or(Fail::Bad)?;
             [px as f32 + 0.5, py as f32 + 0.5, z, w].map(f32::to_bits)
         }
         "psprim" => {
@@ -2197,6 +2213,12 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // (MEASURED, WARP: probe-filter-cube-mips) a cube's view through a Texture2D: face
                 // 0's levels, as a 2D array's
                 (Some(&9), Some(&b), Some(&n)) if b < r.d.mips => {
+                    hit(clause::D3DRASTER_FILTER_ARRAY);
+                    (b, n.min(r.d.mips - b).max(1))
+                }
+                // (MEASURED, WARP: probe-filter-3d-mips) a 3D texture's view through a Texture2D:
+                // its first depth slice's levels
+                (Some(&8), Some(&b), Some(&n)) if b < r.d.mips => {
                     hit(clause::D3DRASTER_FILTER_ARRAY);
                     (b, n.min(r.d.mips - b).max(1))
                 }
@@ -2427,7 +2449,8 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
         // (a depth view smaller than the target: not measured)
         let e = b.get_mut(y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Unmodeled(open::D3DRASTER_RTKIND))?;
         if d.depthst[0] != 0 {
-            let z = z.ok_or(Fail::Unmodeled(open::D3DRASTER_INTERP))?;
+            // (only a triangle with a vertex at w <= 0 comes without depth, and with no depth view)
+            let z = z.ok_or(Fail::Bad)?;
             let (a, s) = (quantized_depth(df, z), stored_depth(df, e));
             let pass = match d.depthst[2] {
                 1 => false,
