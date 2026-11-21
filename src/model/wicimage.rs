@@ -3298,12 +3298,17 @@ impl WicImage {
                 hit(clause::WICIMAGE_COLOR_INIT);
                 out.push(format!("wcolor 00000000 00000000 {hr:08x}"));
                 if hr == 0 {
-                    if !(a == b && c.fmt == f) || COLOR_RGB.contains(&c.fmt) {
-                        return Err(Fail::Unmodeled(open::WICIMAGE_COLOR_TRANSFORM));
+                    let space = |v: i64| if v == 2 { crate::model::icm::Space::Adobe } else { crate::model::icm::Space::Srgb };
+                    if !COLOR_RGB.contains(&c.fmt) || (a == 1 && b == 1 && c.fmt == f) {
+                        // (MEASURED: golden wiccolor xf-idx8-idx8-11, xf-cmyk-cmyk-11,
+                        // xf-gray8-gray8-11: the source's pixels as they are; FOUND clean-room and
+                        // MEASURED cm-*-11-bgr24, xf-bgra-bgra-11: sRGB to sRGB in the same
+                        // format passes the source through)
+                        hit(clause::WICIMAGE_COLOR_SAME);
+                    } else {
+                        let o = color_pixels(c, space(a), space(b), f)?;
+                        self.cur = Some(o);
                     }
-                    // (MEASURED: golden wiccolor xf-idx8-idx8-11, xf-cmyk-cmyk-11, xf-gray8-gray8-11:
-                    // the source's pixels as they are)
-                    hit(clause::WICIMAGE_COLOR_SAME);
                 }
             }
             WOp::Wsteps => {
@@ -3589,6 +3594,60 @@ const COLOR_RGB: [&str; 7] = ["bgr24", "bgr565", "bgra", "pbgra", "rgb24", "rgba
 /// format is taken as it is; else an RGB source into 24bppBGR, 32bppBGRA, 32bppPBGRA or 64bppRGBA,
 /// and nothing else: indexed and BlackWhite sources and the indexed and 48bppRGB targets
 /// WINCODEC_ERR_UNSUPPORTEDPIXELFORMAT, gray and CMYK ones 0x800707db (ERROR_INVALID_TRANSFORM)
+/// FOUND clean-room (WindowsCodecsExt CIcmColorTransform::CopyPixels) and MEASURED (golden
+/// wiccolor cm-*, levels-*, xf-*): an RGB source through icm32's engine (model::icm) into
+/// 24bppBGR, 32bppBGRA, 32bppPBGRA or 64bppRGBA: 8-bit sources to 8-bit targets and 64bppRGBA
+/// to 64bppRGBA; a 4-byte target's fourth byte the source's alpha where the source has 4 bytes,
+/// else 0xFF; 32bppPBGRA then premultiplied (round(c*a/255) as AlphaMultiply_32bppBGRA) unless
+/// the source is 24-bit; 64bppRGBA's alpha the source's
+fn color_pixels(c: &Img, from: crate::model::icm::Space, to: crate::model::icm::Space, dst: &'static str) -> Res<Img> {
+    let t = crate::model::icm::transform(from, to);
+    let src16 = c.fmt == "rgba64";
+    let dst16 = dst == "rgba64";
+    // (sources the engine reads after WIC's own steps the model has not got: PBGRA's
+    // AlphaDivide, BGR565; and the generic 8 <-> 16 bit routine)
+    if src16 != dst16 || matches!(c.fmt, "pbgra" | "bgr565") {
+        return Err(Fail::Unmodeled(open::WICIMAGE_COLOR_TRANSFORM));
+    }
+    hit(clause::WICIMAGE_COLOR_ENGINE);
+    let mut o = Img::new(c.w, c.h, dst);
+    o.dpi = c.dpi;
+    let ost = o.stride();
+    for y in 0..c.h {
+        for x in 0..c.w {
+            let p = c.get(x, y);
+            let at = y as usize * ost + x as usize * (bits_of(dst) as usize / 8);
+            if src16 {
+                let v = |k: usize| u16::from_le_bytes([p[2 * k], p[2 * k + 1]]);
+                let q = t.rgb16([v(0), v(1), v(2)]);
+                for (k, w) in [q[0], q[1], q[2], v(3)].iter().enumerate() {
+                    o.px[at + 2 * k..at + 2 * k + 2].copy_from_slice(&w.to_le_bytes());
+                }
+                continue;
+            }
+            let (rgb, a) = match c.fmt {
+                "bgr24" => ([p[2], p[1], p[0]], None),
+                "rgb24" => ([p[0], p[1], p[2]], None),
+                "bgra" => ([p[2], p[1], p[0]], Some(p[3])),
+                "rgba" => ([p[0], p[1], p[2]], Some(p[3])),
+                _ => return Err(Fail::Bad),
+            };
+            let q = t.rgb8(rgb);
+            let mut bgra = [q[2], q[1], q[0], a.unwrap_or(0xff)];
+            if dst == "pbgra" && a.is_some() {
+                let al = u32::from(bgra[3]);
+                for v in bgra.iter_mut().take(3) {
+                    let m = u32::from(*v) * al;
+                    *v = ((m + ((m + 0x80) >> 8) + 0x80) >> 8) as u8;
+                }
+            }
+            let n = bits_of(dst) as usize / 8;
+            o.px[at..at + n].copy_from_slice(&bgra[..n]);
+        }
+    }
+    Ok(o)
+}
+
 pub fn color_transform(from: &str, to: &str, same_context: bool) -> u32 {
     let rgb = COLOR_RGB.contains(&from);
     if same_context && from == to {

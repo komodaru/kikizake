@@ -1,1 +1,1 @@
-# tools/lint-ratchet.py: every unsafe-kind site (file, lint, its line's text); a site not here fails CI
+# kikizake-lint: every unsafe-kind site (file, lint, its line's text); a site not here fails CI

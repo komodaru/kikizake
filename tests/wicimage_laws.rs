@@ -879,3 +879,27 @@ proptest! {
         prop_assert_eq!(&wq.file, &jxr::encode(&p, jxr::Quality::default_wic()).file);
     }
 }
+
+proptest! {
+    /// icm32's engine (model::icm): sRGB to sRGB stays within 3 of each channel (the coarse
+    /// grid near black), white stays white and black black, every space; and the 16-bit path
+    /// agrees with the 8-bit one on the levels 8 bits name, within 5 past the darkest levels (near black the 16-bit path interpolates the steep curves between ALUT entries, where the 8-bit one takes the lower)
+    #[test]
+    fn icm_transforms_stay_near(r in any::<u8>(), g in any::<u8>(), b in any::<u8>()) {
+        use kikizake::model::icm::{transform, Space};
+        let same = transform(Space::Srgb, Space::Srgb).rgb8([r, g, b]);
+        for (x, y) in same.iter().zip([r, g, b]) {
+            prop_assert!(x.abs_diff(y) <= 3, "{same:?} {r} {g} {b}");
+        }
+        for (f, t) in [(Space::Srgb, Space::Adobe), (Space::Adobe, Space::Srgb), (Space::Adobe, Space::Adobe), (Space::Srgb, Space::Srgb)] {
+            let x = transform(f, t);
+            prop_assert_eq!(x.rgb8([255; 3]), [255; 3]);
+            prop_assert_eq!(x.rgb8([0; 3]), [0; 3]);
+            let e8 = x.rgb8([r, g, b]);
+            let e16 = x.rgb16([r, g, b].map(|v| u16::from(v) * 257));
+            for (a, (w, v)) in e8.iter().zip(e16.into_iter().zip([r, g, b])) {
+                prop_assert!(v < 32 || (i32::from(*a) - i32::from(w >> 8)).abs() <= 5, "{e8:?} {e16:?}");
+            }
+        }
+    }
+}

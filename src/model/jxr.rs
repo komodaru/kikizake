@@ -226,7 +226,8 @@ impl Vlc {
             Alphabet::A7 => DELTA7[sym],
             Alphabet::A9 => DELTA9[sym],
             Alphabet::A12 => DELTA12[t + usize::from(t == 0) - 1][sym],
-            Alphabet::A4 | Alphabet::A8 => unreachable!("no discriminant for 4 and 8 symbols"),
+            // (4 and 8 symbols have no discriminant: nothing moves)
+            Alphabet::A4 | Alphabet::A8 => 0,
         }
     }
     fn delta1(&self, sym: usize) -> i32 {
@@ -235,7 +236,8 @@ impl Vlc {
         match self.abc {
             Alphabet::A6 => DELTA6[t - last][sym],
             Alphabet::A12 => DELTA12[t - last][sym],
-            Alphabet::A4 | Alphabet::A5 | Alphabet::A7 | Alphabet::A8 | Alphabet::A9 => unreachable!("one discriminant"),
+            // (the others have one discriminant, moved by delta alone)
+            Alphabet::A4 | Alphabet::A5 | Alphabet::A7 | Alphabet::A8 | Alphabet::A9 => 0,
         }
     }
     /// writes a symbol, moving the discriminant
@@ -1815,7 +1817,7 @@ fn code_plane(pl: &Plane, planes: &mut [Vec<i32>], l: &Layout) -> Coded {
                 }
             }
             let base = l.mb(mby, mbx) as usize;
-            let mut mb: Vec<[i32; 256]> = planes.iter().map(|p| p[base..base + 256].try_into().unwrap()).collect();
+            let mut mb: Vec<[i32; 256]> = planes.iter().map(|p| std::array::from_fn(|i| p[base + i])).collect();
             // the macroblock's QP sets from its luma DC (DQUANT)
             let set = if !dquant {
                 0

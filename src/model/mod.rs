@@ -81,6 +81,7 @@ pub mod wicimage;
 pub mod bc;
 pub mod jpeg;
 pub mod jxr;
+pub mod icm;
 
 use crate::case::Case;
 
