@@ -207,7 +207,9 @@ fn fvf_decl_round_trips() {
 proptest! {
     /// D3DX's float to half conversions agree with IEEE's (round to nearest even) on normal
     /// halves; the 8 at a time ones only differ at exact ties, by one toward zero; x64's 4 at
-    /// a time one and its one by one one are IEEE's there
+    /// a time one is IEEE's there, and its one by one one too but in the top 2^-12 of a
+    /// binade, where 8193 times the value has the next exponent and it may come out one less
+    /// (0x3b7ff9ab: 0x1bff, IEEE 0x1c00; counted over every normal float: 29696 of them)
     #[test]
     fn d3dx_halves(m in 0x3880_0000u32..0x477f_f000, sign: bool) {
         use kikizake::model::d3dx9::{f16_block, f16_one, f16_sse, f16_x64, f16_x64_tail};
@@ -216,7 +218,8 @@ proptest! {
         let ieee = f32_to_f16(x);
         prop_assert_eq!(f16_one(bits), ieee);
         prop_assert_eq!(f16_x64(bits), ieee);
-        prop_assert_eq!(f16_x64_tail(bits), ieee);
+        let tail = f16_x64_tail(bits);
+        prop_assert!(tail == ieee || (m & 0x7f_ffff >= 0x7f_f800 && tail == ieee - 1), "{bits:#x}: {tail:#x} {ieee:#x}");
         let tie = bits & 0x1fff == 0x1000;
         prop_assert_eq!(f16_block(bits), if tie && bits & 0x2000 != 0 { ieee - 1 } else { ieee });
         prop_assert_eq!(f16_sse(bits), f16_block(bits));
@@ -234,6 +237,15 @@ proptest! {
         let (sse, blk) = (f16_sse(bits), f16_block(bits));
         prop_assert!(sse == blk || sse == blk + 1, "{bits:#x}: {sse:#x} {blk:#x}");
     }
+}
+
+/// x64's one by one conversion at the top of a binade (the clean-room notes: (8192 v + v) -
+/// 8192 v rounds on 8193 v's exponent)
+#[test]
+fn x64_tail_at_a_binade_top() {
+    use kikizake::model::d3dx9::f16_x64_tail;
+    assert_eq!(f16_x64_tail(0x3b7f_f9ab), 0x1bff);
+    assert_eq!(f16_x64_tail(0x3f80_0000), 0x3c00);
 }
 
 #[test]
