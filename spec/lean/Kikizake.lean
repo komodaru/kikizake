@@ -31,3 +31,4 @@ import Kikizake.D3d11.Draw
 import Kikizake.D3d11.Texture
 import Kikizake.D3d11.Desc
 import Kikizake.D3d11.View
+import Kikizake.D3d11.Filter

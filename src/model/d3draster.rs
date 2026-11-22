@@ -717,8 +717,45 @@ fn center_of(p: i64) -> f32 {
     p as f32 + 0.5
 }
 
+/// D3DRASTER.FILTER.LINEAR: a coordinate's first texel and the weight of the next, in 1/256:
+/// s = c n - 0.5 in f32, floor(s) and floor(frac(s) 256)
+pub fn split(c: f32, n: u32) -> (i64, i64) {
+    let s = c * n as f32 - 0.5;
+    let i = s.floor();
+    (i as i64, ((s - i) * 256.0).floor() as i64)
+}
+
+/// D3DRASTER.FILTER.POINT: a coordinate's texel, floor(c n) with the product in f32
+pub fn point_texel(c: f32, n: u32) -> i64 {
+    (c * n as f32).floor() as i64
+}
+
+/// D3DRASTER.SAMPLE.CMP: a texel's red against the reference by the comparison function, 1 or 0
+pub fn sample_cmp(func: u32, reference: f32, red: f32) -> f32 {
+    if rules::compare(func, reference, red) { 1.0 } else { 0.0 }
+}
+
+/// D3DRASTER.FILTER.LEVEL, MIPLINEAR: the level of a lod (log2 of the span) below the last level:
+/// mip point the nearest, floor(lod + 0.5); mip linear a whole lod's level alone, else the level
+/// below and the next's weight round(frac(lod) 256)
+pub fn level(lod: f64, last: u32, point: bool) -> Level {
+    let last = f64::from(last);
+    if point {
+        Level::One(((lod + 0.5).floor().min(last)) as u32)
+    } else if lod.fract() == 0.0 || lod >= last {
+        Level::One(lod.floor().min(last) as u32)
+    } else {
+        Level::Two(lod.floor() as u32, (lod.fract() * 256.0).round() as i64)
+    }
+}
+
+/// D3DRASTER.DEPTH.SMALL (Direct3D 10): a pixel past a smaller depth view's width or height
+pub fn past_depth(dw: u32, dh: u32, x: usize, y: usize) -> bool {
+    index(dw) <= x || index(dh) <= y
+}
+
 /// a 16.8 fixed-point coordinate in pixels (exact below 2^24)
-fn pixels(v: i64) -> f32 {
+pub fn pixels(v: i64) -> f32 {
     v as f32 / 256.0
 }
 
@@ -1631,7 +1668,7 @@ fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, r
         // (a depth view smaller than the target, on Direct3D 10: nothing drawn past it,
         // D3DRASTER.DEPTH.SMALL)
         let (dw, dh, _) = dres.size(dres.mip_of(dsub));
-        if index(dw) <= px || index(dh) <= py {
+        if past_depth(dw, dh, px, py) {
             hit(clause::D3DRASTER_DEPTH_SMALL);
             return Ok(());
         }
@@ -1831,7 +1868,7 @@ impl Filter {
 /// a + (b - a) t as SSE computes it, NaNs included: an operation's result is its first operand
 /// when that is a NaN, else its second, quieted (MEASURED, WARP: probe-filter-r11g11b10, 72
 /// NaN values of differing payloads)
-fn lerp_sse(a: f32, b: f32, t: f32) -> f32 {
+pub fn lerp_sse(a: f32, b: f32, t: f32) -> f32 {
     let op = |x: f32, y: f32, r: f32| {
         let quiet = |n: f32| f32::from_bits(n.to_bits() | 0x40_0000);
         if x.is_nan() { quiet(x) } else if y.is_nan() { quiet(y) } else { r }
@@ -1870,8 +1907,8 @@ fn filter_path(id: u32) -> Option<FilterPath> {
 }
 
 /// the level or levels a sample reads
-#[derive(Clone, Copy)]
-enum Level {
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Level {
     One(u32),
     /// between a level and the next, the weight of the next in 1/256
     Two(u32, i64),
@@ -1888,7 +1925,7 @@ enum Filtered {
 /// (MEASURED, WARP: probe-filter-*, 2425 values) a bilinear result n in 1/128 of a byte (n of
 /// 32640 for 1.0) as a float: the f32 nearest n ceil(2^46 / 32640) / 2^46, a hair above
 /// n / 32640 (seven values at 0.498 ulp past an f32 round up)
-fn linear_float(n: i64) -> f32 {
+pub fn linear_float(n: i64) -> f32 {
     const M: i64 = (1 << 46) / 32640 + 1;
     const _: () = assert!(M * 32640 > 1 << 46 && (M - 1) * 32640 < 1 << 46);
     ((n * M) as f64 / (1u64 << 46) as f64) as f32
@@ -2371,16 +2408,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 } else {
                     // (MEASURED, WARP: probe-filter-mips, -mips-point, -trilinear*) past one texel
                     // the level is log2 of the span
-                    let lod = rho.log2();
-                    let last = f64::from(mips - 1);
-                    let level = if s[0] & 1 == 0 {
-                        // (mip point: the nearest level)
-                        Level::One(((lod + 0.5).floor().min(last)) as u32)
-                    } else if lod.fract() == 0.0 || lod >= last {
-                        Level::One(lod.floor().min(last) as u32)
-                    } else {
-                        Level::Two(lod.floor() as u32, (lod.fract() * 256.0).round() as i64)
-                    };
+                    let level = level(rho.log2(), mips - 1, s[0] & 1 == 0);
                     hit(clause::D3DRASTER_FILTER_LEVEL);
                     (filter.min, level)
                 }
@@ -2394,9 +2422,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                             Ok(match cmp {
                                 None => t,
                                 Some((reference, func)) => {
-                                    let a = f32::from_bits(t[0]);
-                                    let pass = rules::compare(func, reference, a);
-                                    [if pass { 1.0f32 } else { 0.0 }.to_bits(); 4]
+                                    [sample_cmp(func, reference, f32::from_bits(t[0])).to_bits(); 4]
                                 }
                             })
                         }
@@ -2410,14 +2436,9 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // floor(v h), the products in f32
                 if !linear {
                     hit(clause::D3DRASTER_FILTER_POINT);
-                    return at((uv[0] * w as f32).floor() as i64, (uv[1] * h as f32).floor() as i64).map(Filtered::Point);
+                    return at(point_texel(uv[0], w), point_texel(uv[1], h)).map(Filtered::Point);
                 }
                 hit(clause::D3DRASTER_FILTER_LINEAR);
-                let split = |c: f32, n: u32| {
-                    let s = c * n as f32 - 0.5;
-                    let i = s.floor();
-                    (i as i64, ((s - i) * 256.0).floor() as i64)
-                };
                 let ((i, wu), (j, wv)) = (split(uv[0], w), split(uv[1], h));
                 // (MEASURED, WARP: probe-filter-float, -unorm16, -r10, -srgb, -snorm, every value) float
                 // texels, 16-bit and 10-10-10-2 UNORM, sRGB (linear) and SNORM ones (as their floats): in f32, between the rows first, l = a + (c -
@@ -2517,7 +2538,7 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
         let b = dres.subs[dsub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
         // (a depth view smaller than the target, on Direct3D 10: nothing drawn past it,
         // D3DRASTER.DEPTH.SMALL)
-        if index(dw) <= x || index(dh) <= y {
+        if past_depth(dw, dh, x, y) {
             hit(clause::D3DRASTER_DEPTH_SMALL);
             return Ok(());
         }
