@@ -296,6 +296,52 @@ fn fant_spends_every_source_span() {
 }
 
 proptest! {
+    /// any TIFF layout around Windows' table (WICIMAGE.TIFF.OTHER) gets an answer, never a panic
+    /// or a missing model; a big-endian file of the same samples (16-bit ones swapped) decodes to
+    /// the same frame
+    #[test]
+    fn tiff_layouts_answer_alike_in_both_orders(ph in prop::sample::select(vec![0u16, 1, 2, 3, 5, 7, 8, 9, 10, 32844, 32845]), bits in prop::sample::select(vec![1u16, 2, 4, 8, 12, 16, 24, 32, 64]), spp in 1u16..=6, ex in prop::option::of(0u16..=2), format in 1u16..=3, seed in any::<u32>()) {
+        use kikizake::generators::{wicimage_tiff as tiff, WicTiffImage as TiffImage};
+        let (w, h) = (3u32, 2u32);
+        let total = ((w * bits as u32 * spp as u32).div_ceil(8) * h) as usize;
+        let mut x = seed | 1;
+        let px: Vec<u8> = (0..total).map(|_| { x ^= x << 13; x ^= x >> 17; x ^= x << 5; x as u8 }).collect();
+        let map = if ph == 3 && bits <= 8 { (0..3usize << bits).map(|i| (i * 977) as u16).collect() } else { vec![] };
+        let im = TiffImage { w, h, photometric: ph, bits, samples: spp, extra: ex, planar: 1, rps: h, px: px.clone(), map, res: None, format };
+        let le = wi::decode(&tiff(false, &[im.clone()]));
+        let swapped = if bits == 16 { px.chunks(2).flat_map(|c| [c[1], c[0]]).collect() } else { px.clone() };
+        let be = wi::decode(&tiff(true, &[TiffImage { px: swapped, ..im }]));
+        let show = |r: &kikizake::model::Res<Result<wi::Decoded, u32>>| match r {
+            Ok(Ok(d)) => d.frames.iter().map(|f| match f {
+                Ok(wi::Frame::Pixels(i)) => format!("{} {:?}", i.fmt, i.px),
+                Ok(wi::Frame::NoPixels(i, hr)) => format!("{} no pixels {hr:08x}", i.fmt),
+                Ok(wi::Frame::NoInfo(hr)) => format!("no info {hr:08x}"),
+                Ok(wi::Frame::ShortRows(i, n, hr)) => format!("{} short {n} {hr:08x}", i.fmt),
+                Err(e) => format!("{e:?}"),
+            }).collect::<Vec<_>>().join("; "),
+            Ok(Err(hr)) => format!("{hr:08x}"),
+            Err(e) => format!("{e:?}"),
+        };
+        let (l, b) = (show(&le), show(&be));
+        prop_assert!(!l.contains("Unmodeled"), "{}", l);
+        if bits == 8 || bits == 16 || bits < 8 {
+            prop_assert_eq!(l, b);
+        }
+    }
+
+    /// CIELab with a = b = 0 is gray, darker to lighter with L, and L = 0 black, L = 255 white
+    #[test]
+    fn lab_gray_axis_is_gray(l in 0u32..255) {
+        let [r, g, b] = wi::lab_srgb(l, 0, 0);
+        let [r1, g1, b1] = wi::lab_srgb(l + 1, 0, 0);
+        prop_assert!(r.abs_diff(g) <= 1 && g.abs_diff(b) <= 1, "{} {} {}", r, g, b);
+        prop_assert!(r1 >= r && g1 >= g && b1 >= b);
+        prop_assert_eq!(wi::lab_srgb(0, 0, 0), [0, 0, 0]);
+        prop_assert_eq!(wi::lab_srgb(255, 0, 0), [255, 255, 255]);
+    }
+}
+
+proptest! {
     /// a part of a scaler made alone (as of one too large to hold, WICIMAGE.SCALE.BIG) is that
     /// part of the whole picture, in every mode and format
     #[test]

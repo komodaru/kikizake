@@ -11,7 +11,7 @@
 //! "Programming Guide for DDS" and the block compression page). spec/wicimage.txt has the clauses.
 
 use std::sync::OnceLock;
-use crate::spec::{clause, open};
+use crate::spec::clause;
 use super::{Fail, Res};
 use crate::spec::hit;
 
@@ -1295,29 +1295,25 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str, win: &Win) -> Res<Img> {
             }
         }
         "fant" => {
-            // (MEASURED: exact in both directions, rounded once, halves up)
+            // MEASURED (golden wicscale bigread-whole-fant: 2049 x 2049 from 3 x 3, every pixel; the
+            // small row-*, col-*, rgrid-* alike): in f32, each tap's weight its integer weight times
+            // the f32 reciprocal of the pass's denominator, across each source row added in tap
+            // order, then down, rounded once, halves up (an exact sum just under a half, 228.499997,
+            // comes out above it)
             let (tx, ty) = (taps_in(mode, s.w, w, win.xs.clone()), taps_in(mode, s.h, h, win.ys.clone()));
-            let den = tx.den as i128 * ty.den as i128;
+            let (rx, ry) = (1.0 / tx.den as f32, 1.0 / ty.den as f32);
             for (y, a) in ty.taps.iter().enumerate() {
                 for (x, b) in tx.taps.iter().enumerate() {
                     for k in 0..c {
-                        let v: i128 = a.iter().map(|&(jy, wy)| b.iter().map(|&(jx, wx)| wy as i128 * wx as i128 * src(jx, jy, k) as i128).sum::<i128>()).sum();
-                        o.px[y * ost + x * c + k] = ((2 * v + den).div_euclid(2 * den)).clamp(0, 255) as u8;
+                        let v = a.iter().fold(0.0f32, |acc, &(jy, wy)| acc + (wy as f32 * ry) * b.iter().fold(0.0f32, |m, &(jx, wx)| m + (wx as f32 * rx) * src(jx, jy, k) as f32));
+                        o.px[y * ost + x * c + k] = (v + 0.5).floor().clamp(0.0, 255.0) as u8;
                     }
                 }
             }
         }
         _ => {
-            // (MEASURED: without rounding between the passes, rounded once)
-            let (tx, ty) = (hq_taps_in(s.w, w, win.xs.clone()), hq_taps_in(s.h, h, win.ys.clone()));
-            for (y, a) in ty.iter().enumerate() {
-                for (x, b) in tx.iter().enumerate() {
-                    for k in 0..c {
-                        let v: f64 = a.iter().map(|&(jy, wy)| wy * b.iter().map(|&(jx, wx)| wx * src(jx, jy, k) as f64).sum::<f64>()).sum();
-                        o.px[y * ost + x * c + k] = (v + 0.5).floor().clamp(0.0, 255.0) as u8;
-                    }
-                }
-            }
+            // (in f32, as hq_plain: golden wicscale bigread-whole-hqcubic)
+            return hq_plain(s, w, h, win);
         }
     }
     Ok(o)
@@ -1432,19 +1428,20 @@ fn hq_plain(s: &Img, w: u32, h: u32, win: &Win) -> Res<Img> {
     if matches!(s.fmt, "gray16" | "rgb48" | "rgba64") {
         return hq_wide16(s, w, h, win);
     }
-    let c = bits_of(s.fmt) as usize / 8;
-    let mut o = s.like(win.w(), win.h());
-    let src = |x: usize, y: usize, k: usize| f64::from(s.px[y * s.stride() + x * c + k]);
-    let ost = o.stride();
-    let (tx, ty) = (hq_taps_in(s.w, w, win.xs.clone()), hq_taps_in(s.h, h, win.ys.clone()));
-    for (y, a) in ty.iter().enumerate() {
-        for (x, b) in tx.iter().enumerate() {
-            let sum = |f: &dyn Fn(usize, usize) -> f64| -> f64 { a.iter().map(|&(jy, wy)| wy * b.iter().map(|&(jx, wx)| wx * f(jx, jy)).sum::<f64>()).sum() };
-            for k in 0..c {
-                let v = sum(&|x, y| src(x, y, k));
-                o.px[y * ost + x * c + k] = (v + 0.5).floor().clamp(0.0, 255.0) as u8;
-            }
-        }
+    // MEASURED (golden wicscale bigread-whole-hqcubic: 2049 x 2049 from 3 x 3, every pixel; the
+    // small rgrid-hqcubic-* alike): over 8 bits as over 16 (hq16_sums, in f32), each sum below 0
+    // 0, from 255 the top, else trunc(f32(v + 0.5))
+    let (mut o, v) = hq16_sums(s, w, h, win);
+    let (n, ost) = (v.len() / win.h().max(1) as usize, o.stride());
+    for (k, v) in v.into_iter().enumerate() {
+        let v = if v < 0.0 {
+            0
+        } else if v >= 255.0 {
+            u8::MAX
+        } else {
+            (v + 0.5f32) as u8
+        };
+        o.px[k / n * ost + k % n] = v;
     }
     Ok(o)
 }
@@ -1482,11 +1479,18 @@ fn round16(v: f32) -> u16 {
 /// and 1, a last odd one into lane 0, then (L0 + L2) + (L1 + L3); down, in slot order from 0,
 /// a slot of weight 0 left out
 fn hq16_sums(s: &Img, w: u32, h: u32, win: &Win) -> (Img, Vec<f32>) {
-    hit(clause::WICIMAGE_SCALE_HQ16);
-    let c = bits_of(s.fmt) as usize / 16;
+    let wide = matches!(s.fmt, "gray16" | "rgb48" | "rgba64");
+    if wide {
+        hit(clause::WICIMAGE_SCALE_HQ16);
+    }
+    let c = bits_of(s.fmt) as usize / if wide { 16 } else { 8 };
     let src = |x: usize, y: usize, k: usize| {
-        let i = y * s.stride() + (x * c + k) * 2;
-        f32::from(u16::from_le_bytes([s.px[i], s.px[i + 1]]))
+        if wide {
+            let i = y * s.stride() + (x * c + k) * 2;
+            f32::from(u16::from_le_bytes([s.px[i], s.px[i + 1]]))
+        } else {
+            f32::from(s.px[y * s.stride() + x * c + k])
+        }
     };
     let (tx, ty) = (hq_taps32_in(s.w, w, win.xs.clone()), hq_taps32_in(s.h, h, win.ys.clone()));
     let ow = win.w() as usize;
@@ -2680,6 +2684,18 @@ fn tiff(b: &[u8]) -> Res<Result<Decoded, u32>> {
             }
             return Err(Fail::Bad);
         }
+        let ex = tags.get(&338).and_then(|v| v.first().copied());
+        match tiff_layout(one(262, 1), one(258, 1), one(277, 1), ex, one(339, 1)) {
+            TiffLayout::Known(..) => {}
+            // (MEASURED, golden wicdecode tiff-sweep-*: a first page Windows has no format for: no
+            // decoder takes the file)
+            TiffLayout::Refused if frames.is_empty() => {
+                hit(clause::WICIMAGE_TIFF_OTHER);
+                return Ok(Err(COMPONENT_NOT_FOUND));
+            }
+            // (a later such page, or a layout no case asks: a new case shows as a difference)
+            TiffLayout::Refused | TiffLayout::Unasked => return Err(Fail::Bad),
+        }
         frames.push(tiff_image(b, &tags));
     }
     hit(clause::WICIMAGE_TIFF_IFD);
@@ -2697,51 +2713,113 @@ fn tiff_dpi(t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Option<(f64, f64)>
     Some((*x as f64 * k, *y as f64 * k))
 }
 
+/// whether a TIFF layout's pixels copy
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum TiffCopy {
+    Pixels,
+    Bad,
+}
+
+/// what Windows makes of a TIFF page's photometric, depth, samples, extra sample and sample
+/// format
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum TiffLayout {
+    /// a frame of this format
+    Known(&'static str, TiffCopy),
+    /// no decoder takes the file (WINCODEC_ERR_COMPONENTNOTFOUND)
+    Refused,
+    /// no case asks
+    Unasked,
+}
+
+/// MEASURED (golden wicdecode tiff-*, tiff-other-*, tiff-sweep-*: photometrics 0-10, 32844,
+/// 32845, depths 1, 2, 4, 8, 12, 16, 24, 32, 64, 1 to 6 samples, extra samples 0-2 at 8 and 16
+/// bits, sample formats 1-3 at 16, 32, 64 bits, both byte orders)
+fn tiff_layout(ph: u32, bits: u32, spp: u32, extra: Option<u32>, sf: u32) -> TiffLayout {
+    use TiffCopy::{Bad, Pixels};
+    use TiffLayout::{Known, Refused, Unasked};
+    let base = match ph {
+        2 | 6 | 8 | 9 | 10 => 3,
+        5 => 4,
+        _ => 1,
+    };
+    let asked_ph = matches!(ph, 0..=10 | 32844 | 32845);
+    let asked_bits = matches!(bits, 1 | 2 | 4 | 8 | 12 | 16 | 24 | 32 | 64);
+    // (extra samples asked of 8 and 16 bits past the base samples, and of 32-bit RGBA)
+    let asked_extra = match extra {
+        None => true,
+        Some(e) => e <= 2 && spp > base && (matches!(bits, 8 | 16) || bits == 32 && ph == 2 && spp == 4 && sf == 3),
+    };
+    let asked_sf = sf == 1 || matches!(sf, 2 | 3) && matches!(bits, 16 | 32 | 64) && spp <= base + 1;
+    if !asked_ph || !asked_bits || !asked_extra || !asked_sf || spp == 0 || spp > 6 {
+        return Unasked;
+    }
+    if spp == 6 {
+        return Refused;
+    }
+    let one = if spp == 1 { Pixels } else { Bad };
+    match (ph, bits) {
+        (0 | 1, 1) => Known("bw", one),
+        (0 | 1, 2 | 4) => Known("gray4", one),
+        (0 | 1, 8) => match (spp, extra) {
+            (1, _) | (2, Some(0)) => Known("gray8", Pixels),
+            (3, Some(0)) => Refused,
+            (3, _) => Known("bgr24", Pixels),
+            (_, Some(1)) => Known("pbgra", Pixels),
+            _ => Known("bgra", Pixels),
+        },
+        (0 | 1, 12) => Known(if spp == 1 { "gray16" } else { "rgba64" }, if spp <= 2 { Pixels } else { Bad }),
+        (0 | 1, 16) => match (spp, extra) {
+            (1, _) | (2, Some(0)) => Known("gray16", Pixels),
+            (_, Some(1)) => Known("prgba64", Pixels),
+            _ => Known("rgba64", Pixels),
+        },
+        (0 | 1, 32) => Known(if spp == 1 { "grayfloat" } else { "rgbafloat" }, if spp <= 2 { Pixels } else { Bad }),
+        (2, _) if spp < 3 => Refused,
+        (2, 1 | 2 | 4) => Known(if spp == 3 { "bgr24" } else { "bgra" }, if spp <= 4 { Pixels } else { Bad }),
+        (2, 8) => Known(if spp == 3 { "bgr24" } else if extra == Some(1) { "pbgra" } else { "bgra" }, Pixels),
+        (2, 12) => Known(if spp == 3 { "rgb48" } else { "rgba64" }, if spp <= 4 { Pixels } else { Bad }),
+        (2, 16) if sf == 2 => Refused,
+        (2, 16) => Known(if spp == 3 { "rgb48" } else if extra == Some(1) { "prgba64" } else { "rgba64" }, Pixels),
+        (2, 32) => Known(if spp == 3 { "rgb96float" } else { "rgbafloat" }, if spp <= 4 { Pixels } else { Bad }),
+        (3, 1) => Known("idx1", one),
+        (3, 2 | 4) => Known("idx4", one),
+        (3, 8) => Known("idx8", Pixels),
+        (5, 8) if spp >= 4 => Known(if spp == 4 { "cmyk" } else { "cmyka40" }, Pixels),
+        (5, 16) if spp >= 4 => Known(if spp == 4 { "cmyk64" } else { "cmyka80" }, Pixels),
+        // (CIELab, as sRGB: lab_srgb)
+        (8, 8) if spp >= 3 => Known("bgr24", Pixels),
+        _ => Refused,
+    }
+}
+
+/// MEASURED (golden wicdecode tiff-sweep-*-8-8-*: 135 pixels, every channel): an 8-bit CIELab
+/// pixel (L 0..=255 for 0..=100, a and b signed) as sRGB: to XYZ under D50, each of X, Y, Z
+/// held at 0 or above, through the Bradford-adapted D50 sRGB matrix, each channel held to 0..=1,
+/// the sRGB curve, times 255 rounded
+pub fn lab_srgb(l: u32, a: u32, b: u32) -> [u8; 3] {
+    let sb = |v: u32| f64::from(v as u8 as i8);
+    let fy = (f64::from(l) * 100.0 / 255.0 + 16.0) / 116.0;
+    let (fx, fz) = (fy + sb(a) / 500.0, fy - sb(b) / 200.0);
+    let finv = |t: f64| if t > 6.0 / 29.0 { t * t * t } else { 3.0 * (6.0f64 / 29.0).powi(2) * (t - 4.0 / 29.0) };
+    let (x, y, z) = ((0.9642 * finv(fx)).max(0.0), finv(fy).max(0.0), (0.8249 * finv(fz)).max(0.0));
+    const M: [[f64; 3]; 3] = [[3.1338561, -1.6168667, -0.4906146], [-0.9787684, 1.9161415, 0.0334540], [0.0719453, -0.2289914, 1.4052427]];
+    M.map(|m| {
+        let c = (m[0] * x + m[1] * y + m[2] * z).clamp(0.0, 1.0);
+        let g = if c <= 0.0031308 { 12.92 * c } else { 1.055 * c.powf(1.0 / 2.4) - 0.055 };
+        (g * 255.0 + 0.5).floor() as u8
+    })
+}
+
 fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Frame> {
     let one = |k: u32, d: u32| t.get(&k).and_then(|v| v.first().copied()).unwrap_or(d);
     let (w, h) = (one(256, 0), one(257, 0));
     let (bits, ph, spp, planar) = (one(258, 1), one(262, 1), one(277, 1), one(284, 1));
     let extra = t.get(&338).and_then(|v| v.first().copied());
     let sfmt = one(339, 1);
-    // MEASURED (golden wicdecode tiff-*: every photometric, depth, sample count and extra
-    // sample of the suite, both byte orders)
-    let fmt = match (ph, bits, spp, extra) {
-        (0 | 1, 1, 1, None) => "bw",
-        (0 | 1, 4, 1, None) => "gray4",
-        (0 | 1, 8, 1, None) => "gray8",
-        (0 | 1, 16, 1, None) => "gray16",
-        (1, 32, 1, None) if sfmt == 3 => "grayfloat",
-        (1, 8, 2, Some(2)) => "bgra",
-        (3, 1, 1, None) => "idx1",
-        (3, 4, 1, None) => "idx4",
-        (3, 8, 1, None) => "idx8",
-        (2, 8, 3, None) => "bgr24",
-        (2, 16, 3, None) => "rgb48",
-        (2, 8, 4, Some(0 | 2)) => "bgra",
-        (2, 8, 4, Some(1)) => "pbgra",
-        (2, 16, 4, Some(2)) => "rgba64",
-        (2, 16, 4, Some(1)) => "prgba64",
-        (5, 8, 4, None) => "cmyk",
-        (5, 16, 4, None) => "cmyk64",
-        (5, 8, 5, Some(2)) => "cmyka40",
-        // MEASURED (golden wicdecode tiff-other-*): 2-bit gray widened to 4 bits, 2-bit indices
-        // to 4, gray with an alpha of 16 bits to RGBA, an unspecified extra kept as alpha at 16
-        // bits and dropped at 8, a fifth sample past RGBA dropped, 32-bit RGB as float, 4-bit RGB
-        // widened to 8 bits; YCbCr and masks no decoder takes
-        (0 | 1, 2, 1, None) => "gray4",
-        (3, 2, 1, None) => "idx4",
-        (1, 16, 2, Some(2)) => "rgba64",
-        (2, 16, 4, Some(0)) => "rgba64",
-        (2, 8, 5, Some(_)) => "bgra",
-        (2, 32, 3, None) => "rgb96float",
-        // (MEASURED, golden wicencode floatalpha-*: 32-bit float RGBA with an unassociated
-        // alpha as 128bppRGBAFloat)
-        (2, 32, 4, Some(2)) if sfmt == 3 => "rgbafloat",
-        (1, 8, 2, Some(0)) => "gray8",
-        (1, 8, 2, Some(1)) => "pbgra",
-        (5, 8, 5, Some(1)) => "cmyka40",
-        (2, 4, 3, None) => "bgr24",
-        _ => return Err(Fail::Unmodeled(open::WICIMAGE_TIFF_OTHER)),
+    let (fmt, copies) = match tiff_layout(ph, bits, spp, extra, sfmt) {
+        TiffLayout::Known(f, c) => (f, c),
+        TiffLayout::Refused | TiffLayout::Unasked => return Err(Fail::Bad),
     };
     hit(clause::WICIMAGE_TIFF_FORMAT);
     let (Some(offs), Some(counts)) = (t.get(&273), t.get(&279)) else { return Err(Fail::Bad) };
@@ -2807,43 +2885,89 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Fr
     if ph == 0 {
         hit(clause::WICIMAGE_TIFF_WHITEISZERO);
     }
+    // (one sample of a row: depths below 8 and 12 bits packed from the high bit, 16 and 32 bits
+    // in the file's byte order)
+    let sample = |r: &[u8], i: usize| -> u32 {
+        match bits {
+            1 | 2 | 4 => u32::from(get_sample_bits(r, i as u32, bits)[0]),
+            8 => u32::from(r[i]),
+            12 => {
+                let bit = i * 12;
+                let v = u32::from(r[bit / 8]) << 16 | u32::from(r.get(bit / 8 + 1).copied().unwrap_or(0)) << 8 | u32::from(r.get(bit / 8 + 2).copied().unwrap_or(0));
+                (v >> (12 - bit % 8)) & 0xfff
+            }
+            16 => u32::from(if big { u16::from_be_bytes([r[2 * i], r[2 * i + 1]]) } else { u16::from_le_bytes([r[2 * i], r[2 * i + 1]]) }),
+            _ => {
+                let q = [r[4 * i], r[4 * i + 1], r[4 * i + 2], r[4 * i + 3]];
+                if big { u32::from_be_bytes(q) } else { u32::from_le_bytes(q) }
+            }
+        }
+    };
+    let gray = ph <= 1;
+    // MEASURED (golden wicdecode tiff-sweep-*): 12 bits widened to 16 as v << 4; WhiteIsZero
+    // inverts the gray level only (after widening; a float as 1 - v), never an alpha; RGB below
+    // 8 bits each sample (alpha too) times 255 / (2^bits - 1)
+    let wide = |v: u32| if bits == 12 { v << 4 } else { v };
+    let top = |v: u32| match bits {
+        1 | 2 | 4 => (1 << bits) - 1 - v,
+        8 => 255 - v,
+        32 => (1.0f32 - f32::from_bits(v)).to_bits(),
+        _ => 65535 - wide(v),
+    };
+    let level = |v: u32| if ph == 0 { top(v) } else if bits == 32 || bits < 8 || bits == 8 { v } else { wide(v) };
+    let up = |v: u32| if bits < 8 { v * (255 / ((1 << bits) - 1)) } else { v };
+    let half = sfmt == 3 && bits == 16 && ph == 2;
     for y in 0..h {
         let r = &data[y as usize * row..(y as usize + 1) * row];
         for x in 0..w {
-            let mut s = if bits < 8 {
-                (0..spp).map(|k| get_sample_bits(r, x * spp + k, bits)[0]).collect()
-            } else {
-                get_sample_bits(r, x, bits * spp)
-            };
-            if ph == 0 {
-                // (WhiteIsZero: the levels inverted)
-                for v in s.iter_mut() {
-                    *v = if bits < 8 { !*v & ((1u16 << bits) - 1) as u8 } else { !*v };
+            let s: Vec<u32> = (0..spp as usize).map(|k| sample(r, x as usize * spp as usize + k)).collect();
+            let at = |k: usize| s.get(k).copied().unwrap_or(0);
+            let b8 = |v: u32| vec![v as u8];
+            let u16s = |v: &[u32]| v.iter().flat_map(|&c| (c as u16).to_le_bytes()).collect::<Vec<u8>>();
+            let u32s = |v: &[u32]| v.iter().flat_map(|&c| c.to_le_bytes()).collect::<Vec<u8>>();
+            // (MEASURED, golden wicdecode tiff-sweep-*-2-16-*-3: a half float channel, alpha too,
+            // into 16 bits as CONVERT.FLOAT.NARROW takes a float, NaN of either sign 0)
+            let hc = |v: u32| u32::from(float_srgb(crate::model::d3d9draw::f16_to_f64(v as u16) as f32, FloatBack::Bits16));
+            let v: Vec<u8> = match fmt {
+                "bw" | "gray4" if gray => b8(if bits == 2 { level(at(0)) * 5 } else { level(at(0)) }),
+                "idx1" | "idx4" | "idx8" => b8(at(0)),
+                "gray8" => b8(level(at(0))),
+                "bgra" | "pbgra" if gray => vec![level(at(0)) as u8, level(at(0)) as u8, level(at(0)) as u8, at(1) as u8],
+                "bgra" | "pbgra" => vec![up(at(2)) as u8, up(at(1)) as u8, up(at(0)) as u8, up(at(3)) as u8],
+                "bgr24" if ph == 8 => {
+                    hit(clause::WICIMAGE_TIFF_OTHER);
+                    let [r, g, b] = lab_srgb(at(0), at(1), at(2));
+                    vec![b, g, r]
                 }
-            }
-            let w16 = |k: usize| if big { [s[2 * k + 1], s[2 * k]] } else { [s[2 * k], s[2 * k + 1]] };
-            let w32 = |k: usize| if big { [s[4 * k + 3], s[4 * k + 2], s[4 * k + 1], s[4 * k]] } else { [s[4 * k], s[4 * k + 1], s[4 * k + 2], s[4 * k + 3]] };
-            let v: Vec<u8> = match (fmt, spp) {
-                ("gray4", _) if bits == 2 => vec![s[0] * 5],
-                ("bgra" | "pbgra", 2) => vec![s[0], s[0], s[0], s[1]],
-                ("gray8", 2) => vec![s[0]],
-                ("rgba64", 2) => [w16(0), w16(0), w16(0), w16(1)].concat(),
-                ("bgr24", _) if bits == 4 => vec![s[2] * 17, s[1] * 17, s[0] * 17],
-                ("bgr24", _) => vec![s[2], s[1], s[0]],
-                ("rgb96float", _) => [w32(0), w32(1), w32(2)].concat(),
+                // (MEASURED: gray of three 8-bit samples comes out as RGB, as stored)
+                "bgr24" => vec![up(at(2)) as u8, up(at(1)) as u8, up(at(0)) as u8],
+                "gray16" => u16s(&[level(at(0))]),
+                "rgba64" | "prgba64" if gray => u16s(&[level(at(0)), level(at(0)), level(at(0)), wide(at(1))]),
+                "rgba64" | "prgba64" if half => u16s(&[hc(at(0)), hc(at(1)), hc(at(2)), hc(at(3))]),
+                "rgba64" | "prgba64" => u16s(&[wide(at(0)), wide(at(1)), wide(at(2)), wide(at(3))]),
+                "rgb48" if half => u16s(&[hc(at(0)), hc(at(1)), hc(at(2))]),
+                "rgb48" => u16s(&[wide(at(0)), wide(at(1)), wide(at(2))]),
+                "grayfloat" => u32s(&[level(at(0))]),
+                "rgbafloat" if gray => u32s(&[level(at(0)), level(at(0)), level(at(0)), at(1)]),
+                "rgbafloat" => u32s(&[at(0), at(1), at(2), at(3)]),
+                "rgb96float" => u32s(&[at(0), at(1), at(2)]),
                 // (MEASURED, golden wicdecode tiff-other-10, tiff-cmyka-assoc: CMYK with an
                 // associated alpha divided by it, truncated, at most 255)
-                ("cmyka40", _) if extra == Some(1) => {
-                    let a = s[4] as u32;
-                    (0..4).map(|k| if a == 0 { 0 } else { (s[k] as u32 * 255 / a).min(255) as u8 }).chain([s[4]]).collect()
+                "cmyka40" if extra == Some(1) => {
+                    let a = at(4);
+                    (0..4).map(|k| if a == 0 { 0 } else { (at(k) * 255 / a).min(255) as u8 }).chain([a as u8]).collect()
                 }
-                ("bgra" | "pbgra", _) => vec![s[2], s[1], s[0], s[3]],
-                ("gray16", _) => w16(0).to_vec(),
-                ("grayfloat", _) => w32(0).to_vec(),
-                ("rgbafloat", _) => [w32(0), w32(1), w32(2), w32(3)].concat(),
-                ("rgb48", _) => [w16(0), w16(1), w16(2)].concat(),
-                ("rgba64" | "prgba64" | "cmyk64", _) => [w16(0), w16(1), w16(2), w16(3)].concat(),
-                _ => s,
+                "cmyk" | "cmyka40" => s.iter().take(if fmt == "cmyk" { 4 } else { 5 }).map(|&c| c as u8).collect(),
+                // (MEASURED, golden wicdecode tiff-sweep-*-5-16-5-1-*: at 16 bits each color held
+                // to the alpha, times 65535 in a signed 32-bit product (so past 2^31 it wraps),
+                // divided by the alpha truncated toward 0, its low 16 bits)
+                "cmyka80" if extra == Some(1) => {
+                    let a = at(4);
+                    let c = |k: usize| if a == 0 { 0 } else { (at(k).min(a).wrapping_mul(65535) as i32 / a as i32) as u32 & 0xffff };
+                    u16s(&[c(0), c(1), c(2), c(3), a])
+                }
+                "cmyk64" | "cmyka80" => u16s(&s[..if fmt == "cmyk64" { 4 } else { 5 }]),
+                _ => return Err(Fail::Bad),
             };
             img.put(x, y, &v);
         }
@@ -2861,7 +2985,10 @@ fn tiff_image(b: &[u8], t: &std::collections::BTreeMap<u32, Vec<u32>>) -> Res<Fr
         let c = |v: u32| v * 255 / 65535;
         img.pal = Some((0..n).map(|i| 0xff00_0000 | c(m[i]) << 16 | c(m[n + i]) << 8 | c(m[2 * n + i])).collect());
     }
-    Ok(if gone { Frame::NoPixels(img, BAD_IMAGE) } else { Frame::Pixels(img) })
+    // MEASURED (golden wicdecode tiff-sweep-*): a layout Windows names a format for but does not
+    // copy (samples below 8 bits past the first, 12 and 32 bits past two of gray or four of
+    // RGB) fails CopyPixels WINCODEC_ERR_BADIMAGE
+    Ok(if gone || copies == TiffCopy::Bad { Frame::NoPixels(img, BAD_IMAGE) } else { Frame::Pixels(img) })
 }
 
 /// ICO: each entry a frame of 32bppBGRA ("ICO Format Overview"): a PNG, or a BMP without its
@@ -3173,6 +3300,14 @@ fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
                     return Ok(Err(0x8898_2f61));
                 }
             };
+            // MEASURED (golden wicdecode dds-dx10-mips-*): an array of 0 slices: no decoder takes
+            // the file, 0x88982f07 (WINCODEC_ERR_UNKNOWNIMAGEFORMAT)
+            if array == 0 {
+                hit(clause::WICIMAGE_DDS_FOURCC);
+                return Ok(Err(0x8898_2f07));
+            }
+            // MEASURED (golden wicdecode dds-dx10-mips-*: arrays of 2 to 4 of 2 to 5 levels,
+            // arrays of 65, 70, 100, 512): each slice then its levels, every one a frame
             hit(if array > 1 && mips > 1 || array > 64 { clause::WICIMAGE_DDS_FOURCC } else { clause::WICIMAGE_DDS_DX10 });
             (kind, false, 148usize, array.max(1))
         }
@@ -3552,7 +3687,14 @@ impl WicImage {
                 };
                 let bufs = if t.len() == 7 { Some((n(5)?, n(6)?)) } else { None };
                 let (x, y, w, h) = rect;
-                let ok = x >= 0 && y >= 0 && w > 0 && h > 0 && inside(c, x, y, w, h);
+                // (MEASURED, golden bigread-bad-*: a rectangle of a negative corner E_INVALIDARG,
+                // not the arithmetic overflow of a bitmap's)
+                if x < 0 || y < 0 {
+                    self.big = Some(big);
+                    out.push(format!("wpixels {E_INVALIDARG:08x} {}", bits_of(c.fmt)));
+                    return Ok(true);
+                }
+                let ok = w > 0 && h > 0 && inside(c, x, y, w, h);
                 if !ok || w * h > 1 << 26 {
                     if ok {
                         // (a read past 2^26 pixels: no case asks; a new case shows as a difference)
@@ -3699,7 +3841,7 @@ impl WicImage {
                     }
                     return Ok(true);
                 }
-                (Some(FrameFail::NoPixels(_) | FrameFail::ShortRows(..)), "winfo") | (None, _) => {}
+                (Some(FrameFail::NoPixels(_) | FrameFail::ShortRows(..)), "winfo") | (Some(FrameFail::NoPixels(_)), "wsrcpal") | (None, _) => {}
                 (Some(_), _) => return Err(Fail::Bad),
             }
         } else if t[0] == "wbits" || t[0] == "wdecode" {
@@ -3735,10 +3877,12 @@ impl WicImage {
                 }
                 let (w, h) = (w as u32 as u64, h as u32 as u64);
                 let c = self.cur.clone().ok_or(Fail::Empty)?; let c = &c;
-                // MEASURED (golden wicscale size-*, bigsize-*): a size of 0 E_INVALIDARG, one
-                // whose rows (in bits) or picture (in bytes, rows padded to 4 bytes) pass 32 bits arithmetic overflow, the
-                // source kept; others are made, however large
-                let bits = bits_of(scale_formats(c.fmt, m).0) as u64;
+                // MEASURED (golden wicscale size-*, bigsize-*, bigread-*): a size of 0 E_INVALIDARG,
+                // one whose rows (in bits) or picture (in bytes, rows padded to 4 bytes) of the
+                // source's format pass 32 bits arithmetic overflow (64bppRGBA Fant, which works in
+                // 128bppPRGBAFloat, made at 65535 x 8000), the source kept; others are made,
+                // however large
+                let bits = bits_of(c.fmt) as u64;
                 let hr = if w == 0 || h == 0 {
                     E_INVALIDARG
                 } else if w * bits >= 1 << 32 || (w * bits).div_ceil(32) * 4 * h >= 1 << 32 {
