@@ -567,11 +567,22 @@ impl Tex {
     /// glPopAttrib of GL_TEXTURE_BIT: the coordinate generation; each target whose bound name
     /// changed bound again to the saved name; the bound textures' parameters and the environment
     /// as saved (MEASURED, golden opengl-32 tex-open-state: GL.TEX.BIND)
-    pub fn pop(&mut self, saved: &Tex) {
+    /// glPopAttrib's texture state: TEXTURE_BIT's (`texture`), and the current coordinates,
+    /// CURRENT_BIT's (`current`). Every field is placed, so a new one does not compile until it is
+    pub fn pop(&mut self, saved: &Tex, texture: bool, current: bool) {
+        // (no group: the texture objects themselves, the names reserved, the proxies' answers;
+        // the bound objects' parameters are TEXTURE_BIT's, below)
+        let Tex { objects: _, reserved: _, defaults: _, proxies: _, bound, env_mode, env_color, gens, coord } = saved;
+        if current {
+            self.coord = *coord;
+        }
+        if !texture {
+            return;
+        }
         hit(clause::GL_TEX_BIND);
-        self.gens = saved.gens;
+        self.gens = *gens;
         for t in [Target::One, Target::Two] {
-            let name = *saved.bound.get(t);
+            let name = *bound.get(t);
             if *self.bound.get(t) != name {
                 let target = match t {
                     Target::One => TEXTURE_1D,
@@ -582,8 +593,8 @@ impl Tex {
             }
             self.object_mut(t).params = saved.object(t).params;
         }
-        self.env_mode = saved.env_mode;
-        self.env_color = saved.env_color;
+        self.env_mode = *env_mode;
+        self.env_color = *env_color;
     }
 }
 

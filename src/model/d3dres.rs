@@ -680,21 +680,91 @@ impl D3dres {
 }
 
 /// the subresources a view covers
-pub fn view_subs(dev: Dev, v: &View, r: &Resource) -> Vec<u32> {
+/// the subresources of its resource a view reaches: levels `mip ..` (`mips` of them), array
+/// slices `first ..` (`slices` of them; a 3D texture's one), and the planes a depth view writes
+/// (the review of 84b05c8, 3.1 to 3.3: Load, Sample and the binding hazards each read this one
+/// answer, so none of them takes a view's level 0 for its resource's)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Reach {
+    pub mip: u32,
+    pub mips: u32,
+    pub first: u32,
+    pub slices: u32,
+    /// the planes it reads or writes: depth, stencil (a read-only depth view writes neither of
+    /// the planes it is read-only for; other views reach the one plane of their resource, depth)
+    pub planes: [bool; 2],
+}
+
+impl Reach {
+    /// the subresource indices, each slice's levels in turn (D3D11CalcSubresource)
+    pub fn subs(&self, r: &Resource) -> Vec<u32> {
+        if r.d.dim == 4 {
+            return vec![0];
+        }
+        let total = r.d.mips.max(1);
+        let slices = if r.d.dim == 3 { 1 } else { r.d.da.max(1) };
+        let last_slice = self.first.saturating_add(self.slices).min(slices);
+        let last_mip = self.mip.saturating_add(self.mips).min(total);
+        (self.first..last_slice).flat_map(|a| (self.mip..last_mip).map(move |m| m.saturating_add(a.saturating_mul(total)))).collect()
+    }
+    /// whether a write through `w` and a read through `self` meet: a subresource both reach, of a
+    /// plane both reach (ID3D11DeviceContext::OMSetRenderTargets, PSSetShaderResources: "a
+    /// resource cannot be bound for reading and writing at once")
+    pub fn meets(&self, w: &Reach) -> bool {
+        let plane = self.planes.iter().zip(w.planes).any(|(&a, b)| a && b);
+        let range = |a0: u32, an: u32, b0: u32, bn: u32| a0 < b0.saturating_add(bn) && b0 < a0.saturating_add(an) && an > 0 && bn > 0;
+        plane && range(self.mip, self.mips, w.mip, w.mips) && range(self.first, self.slices, w.first, w.slices)
+    }
+}
+
+/// a level count the view gives as -1 (or past the resource's levels): every level from its
+/// most detailed
+fn levels_from(mip: u32, n: u32, total: u32) -> u32 {
+    n.min(total.saturating_sub(mip))
+}
+
+/// what a view reaches (Reach): its kind's and dimension's union words, as GetDesc gives them
+pub fn view_reach(dev: Dev, v: &View, r: &Resource) -> Reach {
     let d3d11 = dev.d3d11();
-    let mips = r.d.mips;
+    let total = r.d.mips.max(1);
     let u = |i| v.u(i, d3d11);
-    let (mip, first, n) = match (v.kind, v.dim()) {
-        (_, _) if r.d.dim == 4 => return vec![0],
+    let one = |mip: u32, first: u32, slices: u32| (mip, 1, first, slices);
+    let (mip, mips, first, slices) = match (v.kind, v.dim()) {
+        (_, _) if r.d.dim == 4 => (0, 1, 0, 1),
+        // srv: 2 1D(mip n) 3 1DA(mip n first size) 4 2D 5 2DA 6 MS 7 MSA(first size) 8 3D(mip n)
+        // 9 cube(mip n: 6 faces) 10 cube array(mip n first2dface cubes)
+        (0, 2 | 4 | 8) => (u(0), levels_from(u(0), u(1), total), 0, 1),
+        (0, 3 | 5) => (u(0), levels_from(u(0), u(1), total), u(2), u(3)),
+        (0, 6) => (0, 1, 0, 1),
+        (0, 7) => (0, 1, u(0), u(1)),
+        (0, 9) => (u(0), levels_from(u(0), u(1), total), 0, 6),
+        (0, 10) => (u(0), levels_from(u(0), u(1), total), u(2), u(3).saturating_mul(6)),
         // rtv: 2 1D(mip) 3 1DA(mip first n) 4 2D(mip) 5 2DA 6 MS 7 MSA(first n) 8 3D(mip first n: w slices)
-        (1, 2 | 4) | (2, 1 | 3) | (3, 2 | 4) => (u(0), 0, 1),
-        (1, 3 | 5) | (2, 2 | 4) | (3, 3 | 5) => (u(0), u(1), u(2)),
-        (1, 6) | (2, 5) => (0, 0, 1),
-        (1, 7) | (2, 6) => (0, u(0), u(1)),
-        (1, 8) | (3, 8) => (u(0), 0, 1),
-        _ => (0, 0, 1),
+        (1, 2 | 4) | (2, 1 | 3) | (3, 2 | 4) => one(u(0), 0, 1),
+        (1, 3 | 5) | (2, 2 | 4) | (3, 3 | 5) => one(u(0), u(1), u(2)),
+        (1, 6) | (2, 5) => one(0, 0, 1),
+        (1, 7) | (2, 6) => one(0, u(0), u(1)),
+        (1, 8) | (3, 8) => one(u(0), 0, 1),
+        // (buffers and dimensions no view of a texture has: its first subresource)
+        _ => one(0, 0, 1),
     };
-    (first..first.saturating_add(n).min(r.d.da.max(1))).map(|a| mip + a * mips).collect()
+    // (a depth view: the planes it does not hold read-only, D3D11_DSV_FLAG_READ_ONLY_DEPTH 1,
+    // _STENCIL 2; Direct3D 10's have no flags. A view of a stencil format's stencil, X24_TYPELESS_G8_UINT
+    // 47 or X32_TYPELESS_G8X24_UINT 22, reads that plane; any other the depth one)
+    let planes = match v.kind {
+        2 => {
+            let flags = if d3d11 { v.words.get(2).copied().unwrap_or(0) } else { 0 };
+            [flags & 1 == 0, flags & 2 == 0]
+        }
+        _ if matches!(v.format(), 22 | 47) => [false, true],
+        _ => [true, false],
+    };
+    Reach { mip, mips, first, slices, planes }
+}
+
+/// the subresources a view reaches (view_reach)
+pub fn view_subs(dev: Dev, v: &View, r: &Resource) -> Vec<u32> {
+    view_reach(dev, v, r).subs(r)
 }
 
 fn fill_subs(res: &mut Resource, subs: &[u32], el: &[u8]) -> Res<()> {

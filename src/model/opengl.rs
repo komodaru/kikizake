@@ -487,8 +487,8 @@ pub struct Ctx {
     pub raster_color: [f32; 4],
     /// the raster position's eye z, for fog on images
     pub raster_eye: f64,
-    /// the raster position's texture coordinates (s, t, q)
-    pub raster_tex: [f32; 3],
+    /// the raster position's texture coordinates (s, t, r, q)
+    pub raster_tex: [f32; 4],
     /// the texture coordinates of the fragments a point, line or image writes now
     pub frag_tex: Option<texdraw::Stq>,
     /// the fog factor a textured fragment takes after the environment
@@ -606,7 +606,7 @@ impl Ctx {
             raster_color: [1.0; 4],
             raster_get: [0.0, 0.0, 0.0, 1.0],
             raster_eye: 0.0,
-            raster_tex: [0.0, 0.0, 1.0],
+            raster_tex: [0.0, 0.0, 0.0, 1.0],
             frag_tex: None,
             frag_fog: None,
             line_texture: None,
@@ -743,7 +743,8 @@ impl Ctx {
             0xb01 => vec![F(self.index)],
             0xb02 => self.normal.iter().map(|x| C(*x)).collect(),
             0xb03 => self.tex.coord.iter().map(|x| F(*x)).collect(),
-            0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],
+            // (the raster position's texture coordinates, as glRasterPos set them)
+            0xb06 => self.raster_tex.map(F).to_vec(),
             0xb04 => c4([1.0; 4]),
             0xb05 => vec![F(1.0)],
             0xb07 => self.raster_get.iter().map(|x| F(*x)).collect(),
@@ -835,18 +836,22 @@ impl Ctx {
                 let v = self.pack[(p - 0xd00) as usize];
                 if p <= 0xd01 { vec![B(v != 0)] } else { i(v) }
             }
-            0xd10 | 0xd11 => vec![B(false)],
-            0xd12 | 0xd13 => i(0),
+            // (the pixel transfer modes and zoom as set: glPixelTransfer, glPixelZoom, PIXEL_MODE_BIT's)
+            0xd10 => vec![B(self.map[0])],
+            0xd11 => vec![B(self.map[1])],
+            0xd12 => i(self.index_shift.0),
+            0xd13 => i(self.index_shift.1),
             0xd14..=0xd1d => {
                 let k = [0xd14, 0xd18, 0xd1a, 0xd1c].iter().position(|x| *x == p & !1).unwrap_or(9);
                 match p {
-                    0xd16 | 0xd17 => vec![F(1.0)],
+                    0xd16 => vec![F(self.zoom.0)],
+                    0xd17 => vec![F(self.zoom.1)],
                     _ if k < 4 => vec![F(if p & 1 == 0 { self.transfer[k].0 } else { self.transfer[k].1 })],
                     _ => vec![F(if p == 0xd14 { self.transfer[0].0 } else { self.transfer[0].1 })],
                 }
             }
-            0xd1e => vec![F(1.0)],
-            0xd1f => vec![F(0.0)],
+            0xd1e => vec![F(self.depth_transfer.0)],
+            0xd1f => vec![F(self.depth_transfer.1)],
             // (MEASURED, golden opengl-32 defaults-*: 8 in RGBA mode at every depth; ci-*: the
             // color bits in color index mode)
             0xd51 => i(if pf.ty != 0 { pf.color as i64 } else { 8 }),
@@ -1384,7 +1389,8 @@ impl Gl {
                 }
                 let mut r = crate::rng::XorShift32::new(v[4] as u32);
                 let given: Vec<u8> = (0..v[5]).map(|_| r.next() as u8).collect();
-                ctx.frag_tex = Some(texdraw::Stq::at(ctx.raster_tex));
+                let [rs, rt, _, rq] = ctx.raster_tex;
+                ctx.frag_tex = Some(texdraw::Stq::at([rs, rt, rq]));
                 let r = ctx.draw_pixels(v[0], v[1], v[2] as u32, v[3] as u32, &Given::new(given));
                 ctx.frag_tex = None;
                 r?;
@@ -1969,7 +1975,7 @@ impl Ctx {
                 self.raster = inside.then(|| [(x + 1.0) * vw / 2.0 + vx, (y + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(c[2]))]);
                 self.raster_color = self.current();
                 self.raster_eye = e[2];
-                self.raster_tex = self.tex_coords(&Obj::at(v).with(self.vertex_coords(v, 1.0)));
+                self.raster_tex = self.tex_coords4(&Obj::at(v).with(self.vertex_coords(v, 1.0)));
             }
             "glFogf" => self.fog_param(u(a, 0), &[fl(a, 1) as f32], false),
             "glPolygonOffset" => {
@@ -2184,6 +2190,7 @@ pub mod attrib {
     pub const COLOR: u32 = 0x4000;
     pub const HINT: u32 = 0x8000;
     pub const EVAL: u32 = 0x10000;
+    pub const LIST: u32 = 0x20000;
     pub const TEXTURE: u32 = 0x40000;
     pub const SCISSOR: u32 = 0x80000;
 }
@@ -4375,98 +4382,218 @@ impl Ctx {
     /// largest value rounded up; RETURN writes the channel times value over the largest value
     /// times the color channel's largest value, rounded on 16 bits, truncated on the others; then
     /// clamped. All wrap at the channel's bits.
-    /// glPopAttrib: the groups of the mask back as they were pushed (GL 1.1 6.1.13's table)
+    /// glPopAttrib: the groups of the mask back as they were pushed (GL 1.1 6.1.13's table).
+    /// Every field of the state is named below with the group it belongs to, or why it is in
+    /// none, so a field added to Ctx does not compile until it is placed (the review of 84b05c8,
+    /// 3.3: the current texture coordinates and raster position, the line stipple and the list
+    /// base were left out, and stayed as changed after the pop)
     fn pop_attrib(&mut self, mask: u32, s: Ctx) {
         hit(clause::GL_ATTRIB_POP);
-        let mut caps = |group: u32, list: &[u32]| {
-            if mask & group != 0 || mask & attrib::ENABLE != 0 {
+        let on = |group: u32| mask & group != 0;
+        let Ctx {
+            // (no group: the context's format and error, glBegin's state, the matrix stacks,
+            // the attribute stack itself, the buffers' contents and what is undefined of them,
+            // the pixel store and the vertex arrays (client state, glPushClientAttrib's), and
+            // what a primitive being drawn keeps for itself)
+            pf: _,
+            err: _,
+            in_begin: _,
+            stacks: _,
+            attrib: _,
+            acc: _,
+            fb_undefined: _,
+            depth_undefined: _,
+            stencil_undefined: _,
+            pack: _,
+            unpack: _,
+            arrays: _,
+            frag_tex: _,
+            frag_fog: _,
+            line_texture: _,
+            line_z_offset: _,
+            loop_offsets: _,
+            from_arrays: _,
+            textured_frags: _,
+            aa_stipple: _,
+            stipple: _,
+            fb: _,
+            depth: _,
+            stencil: _,
+            never: _,
+            never_primed: _,
+            rect_call: _,
+            bpp: _,
+            verts: _,
+            // (the enables: each its group's and ENABLE_BIT's)
+            caps,
+            // CURRENT_BIT (table 6.5: the current color, index, texture coordinates, normal,
+            // raster position, its color and texture coordinates, its validity, the edge flag)
+            color,
+            index,
+            normal,
+            edge_flag,
+            raster,
+            raster_get,
+            raster_color,
+            raster_eye,
+            raster_tex,
+            // POINT_BIT
+            point_size,
+            // LINE_BIT
+            line_width,
+            line_stipple,
+            // POLYGON_BIT
+            cull_mode,
+            front_face,
+            poly_mode,
+            offset,
+            // PIXEL_MODE_BIT (the read buffer, the transfer modes, the zoom)
+            transfer,
+            map,
+            index_shift,
+            depth_transfer,
+            zoom,
+            // LIGHTING_BIT
+            shade,
+            // FOG_BIT
+            fog,
+            // DEPTH_BUFFER_BIT
+            depth_func,
+            depth_mask,
+            clear_depth,
+            // ACCUM_BUFFER_BIT
+            clear_accum,
+            // STENCIL_BUFFER_BIT
+            stencil_func,
+            stencil_op,
+            stencil_mask,
+            clear_stencil,
+            // VIEWPORT_BIT
+            viewport,
+            depth_range,
+            // TRANSFORM_BIT
+            mode,
+            // COLOR_BUFFER_BIT (and the draw buffer, buffers[0]; the read buffer, buffers[1],
+            // is PIXEL_MODE_BIT's)
+            alpha,
+            blend,
+            logic_op,
+            color_mask,
+            color_mask_raw,
+            clear_color,
+            clear_index,
+            index_mask,
+            buffers,
+            // HINT_BIT
+            hints,
+            // SCISSOR_BIT
+            scissor,
+            // TEXTURE_BIT (the current coordinates CURRENT_BIT's: Tex::pop)
+            tex,
+            // LIST_BIT (the list base: Lists::pop)
+            lists,
+        } = s;
+        let mut caps_of = |group: u32, list: &[u32]| {
+            if on(group) || on(attrib::ENABLE) {
                 for c in list {
-                    self.caps.insert(*c, s.caps[c]);
+                    if let Some(v) = caps.get(c) {
+                        self.caps.insert(*c, *v);
+                    }
                 }
             }
         };
-        caps(attrib::POINT, &[0xb10]);
-        caps(attrib::LINE, &[0xb20, 0xb24]);
-        caps(attrib::POLYGON, &[0xb41, 0xb42, 0xb44, 0x2a01, 0x2a02, 0x8037]);
-        caps(attrib::LIGHTING, &[0xb50, 0xb57, 0x4000, 0x4001, 0x4002, 0x4003, 0x4004, 0x4005, 0x4006, 0x4007]);
-        caps(attrib::FOG, &[0xb60]);
-        caps(attrib::DEPTH, &[0xb71]);
-        caps(attrib::STENCIL, &[0xb90]);
-        caps(attrib::TRANSFORM, &[0xba1, 0x3000, 0x3001, 0x3002, 0x3003, 0x3004, 0x3005]);
-        caps(attrib::COLOR, &[0xbc0, 0xbd0, 0xbe2, 0xbf1, 0xbf2]);
-        caps(attrib::SCISSOR, &[0xc11]);
-        caps(attrib::TEXTURE, &[0xc60, 0xc61, 0xc62, 0xc63, 0xde0, 0xde1]);
-        if mask & attrib::TEXTURE != 0 {
-            self.tex.pop(&s.tex);
+        caps_of(attrib::POINT, &[0xb10]);
+        caps_of(attrib::LINE, &[0xb20, 0xb24]);
+        caps_of(attrib::POLYGON, &[0xb41, 0xb42, 0xb44, 0x2a01, 0x2a02, 0x8037]);
+        caps_of(attrib::LIGHTING, &[0xb50, 0xb57, 0x4000, 0x4001, 0x4002, 0x4003, 0x4004, 0x4005, 0x4006, 0x4007]);
+        caps_of(attrib::FOG, &[0xb60]);
+        caps_of(attrib::DEPTH, &[0xb71]);
+        caps_of(attrib::STENCIL, &[0xb90]);
+        caps_of(attrib::TRANSFORM, &[0xba1, 0x3000, 0x3001, 0x3002, 0x3003, 0x3004, 0x3005]);
+        caps_of(attrib::COLOR, &[0xbc0, 0xbd0, 0xbe2, 0xbf1, 0xbf2]);
+        caps_of(attrib::SCISSOR, &[0xc11]);
+        caps_of(attrib::TEXTURE, &[0xc60, 0xc61, 0xc62, 0xc63, 0xde0, 0xde1]);
+        caps_of(attrib::EVAL, &[0xd80, 0xd90, 0xd91, 0xd92, 0xd93, 0xd94, 0xd95, 0xd96, 0xd97, 0xd98, 0xdb0, 0xdb1, 0xdb2, 0xdb3, 0xdb4, 0xdb5, 0xdb6, 0xdb7, 0xdb8]);
+        self.tex.pop(&tex, on(attrib::TEXTURE), on(attrib::CURRENT));
+        if on(attrib::LIST) {
+            self.lists.pop(&lists);
         }
-        caps(attrib::EVAL, &[0xd80, 0xd90, 0xd91, 0xd92, 0xd93, 0xd94, 0xd95, 0xd96, 0xd97, 0xd98, 0xdb0, 0xdb1, 0xdb2, 0xdb3, 0xdb4, 0xdb5, 0xdb6, 0xdb7, 0xdb8]);
-        if mask & attrib::CURRENT != 0 {
-            self.color = s.color;
-            self.normal = s.normal;
+        if on(attrib::CURRENT) {
+            self.color = color;
+            self.index = index;
+            self.normal = normal;
             // (the edge flag with the current values, GL 1.1 table 6.5)
-            self.edge_flag = s.edge_flag;
+            self.edge_flag = edge_flag;
+            self.raster = raster;
+            self.raster_get = raster_get;
+            self.raster_color = raster_color;
+            self.raster_eye = raster_eye;
+            self.raster_tex = raster_tex;
         }
-        if mask & attrib::POINT != 0 {
-            self.point_size = s.point_size;
+        if on(attrib::POINT) {
+            self.point_size = point_size;
         }
-        if mask & attrib::LINE != 0 {
-            self.line_width = s.line_width;
+        if on(attrib::LINE) {
+            self.line_width = line_width;
+            self.line_stipple = line_stipple;
         }
-        if mask & attrib::POLYGON != 0 {
-            self.cull_mode = s.cull_mode;
-            self.front_face = s.front_face;
-            self.poly_mode = s.poly_mode;
-            self.offset = s.offset;
+        if on(attrib::POLYGON) {
+            self.cull_mode = cull_mode;
+            self.front_face = front_face;
+            self.poly_mode = poly_mode;
+            self.offset = offset;
         }
-        if mask & attrib::PIXEL_MODE != 0 {
-            self.transfer = s.transfer;
-            self.map = s.map;
-            self.index_shift = s.index_shift;
-            self.depth_transfer = s.depth_transfer;
-            self.zoom = s.zoom;
-            self.buffers[1] = s.buffers[1];
+        if on(attrib::PIXEL_MODE) {
+            self.transfer = transfer;
+            self.map = map;
+            self.index_shift = index_shift;
+            self.depth_transfer = depth_transfer;
+            self.zoom = zoom;
+            self.buffers[1] = buffers[1];
         }
-        if mask & attrib::LIGHTING != 0 {
-            self.shade = s.shade;
+        if on(attrib::LIGHTING) {
+            self.shade = shade;
         }
-        if mask & attrib::FOG != 0 {
-            self.fog = s.fog;
+        if on(attrib::FOG) {
+            self.fog = fog;
         }
-        if mask & attrib::DEPTH != 0 {
-            self.depth_func = s.depth_func;
-            self.depth_mask = s.depth_mask;
-            self.clear_depth = s.clear_depth;
+        if on(attrib::DEPTH) {
+            self.depth_func = depth_func;
+            self.depth_mask = depth_mask;
+            self.clear_depth = clear_depth;
         }
-        if mask & attrib::ACCUM != 0 {
-            self.clear_accum = s.clear_accum;
+        if on(attrib::ACCUM) {
+            self.clear_accum = clear_accum;
         }
-        if mask & attrib::STENCIL != 0 {
-            self.stencil_func = s.stencil_func;
-            self.stencil_op = s.stencil_op;
-            self.stencil_mask = s.stencil_mask;
-            self.clear_stencil = s.clear_stencil;
+        if on(attrib::STENCIL) {
+            self.stencil_func = stencil_func;
+            self.stencil_op = stencil_op;
+            self.stencil_mask = stencil_mask;
+            self.clear_stencil = clear_stencil;
         }
-        if mask & attrib::VIEWPORT != 0 {
-            self.viewport = s.viewport;
-            self.depth_range = s.depth_range;
+        if on(attrib::VIEWPORT) {
+            self.viewport = viewport;
+            self.depth_range = depth_range;
         }
-        if mask & attrib::TRANSFORM != 0 {
-            self.mode = s.mode;
+        if on(attrib::TRANSFORM) {
+            self.mode = mode;
         }
-        if mask & attrib::COLOR != 0 {
-            self.alpha = s.alpha;
-            self.blend = s.blend;
-            self.logic_op = s.logic_op;
-            self.color_mask = s.color_mask;
-            self.color_mask_raw = s.color_mask_raw;
-            self.clear_color = s.clear_color;
-            self.buffers[0] = s.buffers[0];
+        if on(attrib::COLOR) {
+            self.alpha = alpha;
+            self.blend = blend;
+            self.logic_op = logic_op;
+            self.color_mask = color_mask;
+            self.color_mask_raw = color_mask_raw;
+            self.clear_color = clear_color;
+            self.clear_index = clear_index;
+            self.index_mask = index_mask;
+            self.buffers[0] = buffers[0];
         }
-        if mask & attrib::HINT != 0 {
-            self.hints = s.hints;
+        if on(attrib::HINT) {
+            self.hints = hints;
         }
-        if mask & attrib::SCISSOR != 0 {
-            self.scissor = s.scissor;
+        if on(attrib::SCISSOR) {
+            self.scissor = scissor;
         }
     }
 

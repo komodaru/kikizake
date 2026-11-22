@@ -15,7 +15,7 @@ use crate::spec::{clause, open};
 use super::d3d11::{normalize, Kind};
 use super::d3drules::{self as rules, covers as tri_covers, sample_pattern, sample_sub, Pick, Topo, Verdict};
 use super::d3dres::{slot, texel, D3dres, Dev, Resource, View, E_INVALIDARG};
-use super::objects::Id;
+use super::objects::{Id, Objects};
 use super::dxgiconv::{decode_f, encode, encode_bits, to_unorm};
 use super::dxgifmt::{format, Format, Num};
 use super::{Fail, Res};
@@ -84,6 +84,17 @@ fn known(b: &[u8]) -> Option<(&'static str, bool)> {
         static S: crate::shaders::Programs = crate::shaders::shaders();
     }
     S.with(|s| s.find(b).map(|p| (p.name(), p.vertex())))
+}
+
+/// whether reading through view `read` and writing through `write` meet in a subresource and
+/// plane (Reach::meets; views of other resources never do)
+fn meets(views: &Objects<View>, resources: &Objects<Resource>, dev: Dev, read: Id<View>, write: Id<View>) -> bool {
+    let (Ok(r), Ok(w)) = (views.get(read), views.get(write)) else { return false };
+    if r.res != w.res {
+        return false;
+    }
+    let Ok(res) = resources.get(r.res) else { return false };
+    super::d3dres::view_reach(dev, r, res).meets(&super::d3dres::view_reach(dev, w, res))
 }
 
 pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>) -> Res<()> {
@@ -219,6 +230,12 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
             };
             d.target = target;
             d.depth = depth;
+            // (a shader resource view that reaches what is now drawn into is unbound,
+            // OMSetRenderTargets; the call refused above (Bind::Keep) unbinds nothing)
+            if let Some(sv) = d.srv && [target, depth].into_iter().flatten().any(|w| meets(&m.views, &m.res, dev, sv, w)) {
+                hit(clause::D3DRASTER_HAZARD);
+                d.srv = None;
+            }
         }
         DrawOp::Viewport => {
             if t.len() != 7 {
@@ -295,7 +312,14 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
                 return Err(Fail::Bad);
             }
             if let Some(i) = m.views.id(v).filter(|&i| m.views.get(i).is_ok_and(|x| x.kind == 0)) {
-                d.srv = Some(i);
+                // (one that reaches a bound target or depth view is bound as NULL,
+                // PSSetShaderResources)
+                if [d.target, d.depth].into_iter().flatten().any(|w| meets(&m.views, &m.res, dev, i, w)) {
+                    hit(clause::D3DRASTER_HAZARD);
+                    d.srv = None;
+                } else {
+                    d.srv = Some(i);
+                }
             } else {
                 out.push("tsrv noview".into());
             }
@@ -2302,12 +2326,19 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             };
             let v = m.views.get(sv)?;
             let r = m.res.get(v.res)?;
-            let (w, h, _) = r.size(0);
+            // (the view's level 0 and slice 0: its most detailed level, its first slice, of the
+            // resource's, ld's mip and array index 0 against the view, D3D11_TEX2D_SRV)
+            let reach = super::d3dres::view_reach(m.dev.ok_or(Fail::Bad)?, v, r);
+            if reach.mip != 0 || reach.first != 0 {
+                hit(clause::D3DRASTER_LD_VIEW);
+            }
+            let sub = reach.subs(r).first().copied().ok_or(Fail::Bad)?;
+            let (w, h, _) = r.size(reach.mip);
             if px >= w as i64 || py >= h as i64 {
                 hit(clause::D3DRASTER_LD_OUT);
                 [0; 4]
             } else {
-                texel(r, 0, v.format(), px as u32, py as u32)?
+                texel(r, sub, v.format(), px as u32, py as u32)?
             }
         }
         "pssample" | "pssamplec" => {
@@ -2326,59 +2357,36 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             let v = m.views.get(sv)?;
             let r = m.res.get(v.res)?;
             // (MEASURED, WARP: probe-filter-view-mips, -view-mips-mag) a view of its own range of
-            // levels: its most detailed level is level 0 for the span and the levels
-            let (base, mips) = match (v.words.get(1), v.words.get(2), v.words.get(3)) {
-                _ if r.d.mips == 1 => (0, 1),
-                (Some(&4), Some(&b), Some(&n)) if b < r.d.mips => (b, n.min(r.d.mips - b).max(1)),
+            // levels: its most detailed level is level 0 for the span and the levels; the levels
+            // and first slice are the view's reach (view_reach), as Load's
+            let reach = super::d3dres::view_reach(m.dev.ok_or(Fail::Bad)?, v, r);
+            let dim = v.dim();
+            match dim {
+                _ if r.d.mips == 1 => {}
+                4 => {}
                 // (MEASURED, WARP: probe-filter-1d-mips) a 1D texture's view through a Texture2D:
-                // its levels as one row
-                (Some(&2), Some(&b), Some(&n)) if b < r.d.mips => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips.saturating_sub(b)).max(1))
-                }
-                // (MEASURED, WARP: probe-filter-1darray-mips) a 1D array's view (TEXTURE1DARRAY)
-                // through a Texture2D: its first slice's levels as one row
-                (Some(&3), Some(&b), Some(&n)) if b < r.d.mips && v.words.get(4).is_some_and(|&f| f < r.d.da.max(1)) => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips.saturating_sub(b)).max(1))
-                }
-                // (MEASURED, WARP: probe-filter-array-mips) a 2D array's view from slice 0 through
-                // a Texture2D: slice 0's levels
-                // (MEASURED, WARP: probe-filter-array1-mips) from a later slice: that slice's
-                (Some(&5), Some(&b), Some(&n)) if b < r.d.mips && v.words.get(4).is_some_and(|&f| f < r.d.da.max(1)) => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips - b).max(1))
-                }
-                // (MEASURED, WARP: probe-filter-cube-mips) a cube's view through a Texture2D: face
-                // 0's levels, as a 2D array's
-                (Some(&9), Some(&b), Some(&n)) if b < r.d.mips => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips - b).max(1))
-                }
-                // (MEASURED, WARP: probe-filter-3d-mips) a 3D texture's view through a Texture2D:
-                // its first depth slice's levels
-                (Some(&8), Some(&b), Some(&n)) if b < r.d.mips => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips - b).max(1))
-                }
-                // (MEASURED, WARP: probe-filter-cubearray-mips) a cube array's view through a
-                // Texture2D: its first face's levels
-                (Some(&10), Some(&b), Some(&n)) if b < r.d.mips && v.words.get(4).is_some_and(|&f| f < r.d.da.max(1)) => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips - b).max(1))
-                }
+                // its levels as one row; (probe-filter-1darray-mips) a 1D array's view
+                // (TEXTURE1DARRAY): its first slice's levels as one row; (probe-filter-array-mips)
+                // a 2D array's view from slice 0: slice 0's levels, (probe-filter-array1-mips)
+                // from a later slice: that slice's; (probe-filter-cube-mips) a cube's view: face
+                // 0's levels, as a 2D array's; (probe-filter-3d-mips) a 3D texture's view: its
+                // first depth slice's levels; (probe-filter-cubearray-mips) a cube array's view:
+                // its first face's levels
+                2 | 3 | 5 | 8 | 9 | 10 => hit(clause::D3DRASTER_FILTER_ARRAY),
                 // (other kinds of views of textures with mips: not measured)
-                // (a view's levels lie in its texture's: CreateShaderResourceView checks them)
                 _ => return Err(Fail::Bad),
-            };
+            }
+            // (a view's levels and slices lie in its texture's: CreateShaderResourceView checks them)
+            let arrayed = matches!(dim, 3 | 5 | 10);
+            if r.d.mips > 1 && (reach.mip >= r.d.mips || (arrayed && reach.first >= r.d.da.max(1))) {
+                return Err(Fail::Bad);
+            }
+            let (base, mips) = if r.d.mips == 1 { (0, 1) } else { (reach.mip, reach.mips.max(1)) };
             if base != 0 || mips != r.d.mips {
                 hit(clause::D3DRASTER_FILTER_VIEW);
             }
             // (the subresources of the view's first array slice)
-            let first = match v.words.get(1) {
-                Some(&3 | &5 | &10) => v.words.get(4).copied().unwrap_or(0) * r.d.mips,
-                _ => 0,
-            };
+            let first = if arrayed { reach.first * r.d.mips } else { 0 };
             let (w, h, _) = r.size(base);
             let uv_at = |x: i64, y: i64| -> Res<[f32; 2]> {
                 match planes {

@@ -644,11 +644,34 @@ pub fn opengl() -> String {
             writeln!(s, "case edge-{name}\n{pre}\nend");
         }
     }
-    textures_more(&mut s);
+    let mut last = String::new();
+    textures_more(&mut s, &mut last);
     arrays_more(&mut s);
     eye_more(&mut s);
     raster_rest(&mut s);
-    s
+    attrib_more(&mut last);
+    s + &last
+}
+
+/// glPushAttrib / glPopAttrib of each group the review of 84b05c8 (3.3) found left out, with the
+/// state changed between: pushed with its group (back as it was) and with another (as changed)
+fn attrib_more(s: &mut String) {
+    let groups: [(&str, &str, &str, &str); 5] = [
+        ("current", "gl glTexCoord4f 0.125 0.25 0.375 0.5\ngl glRasterPos2f 3 4\ngl glIndexf 2", "gl glTexCoord4f 0.5 0.625 0.75 0.875\ngl glColor4ub 10 20 30 40\ngl glRasterPos2f 7 9\ngl glIndexf 5", "glget f 0xb03 4\nglget f 0xb07 4\nglget f 0xb06 4\nglget f 0xb04 4\nglget i 0xb08 1\nglget f 0xb01 1"),
+        ("line", "gl glLineStipple 2 0xaaaa\ngl glLineWidth 2", "gl glLineStipple 3 0x5555\ngl glLineWidth 3", "glget i 0xb25 1\nglget i 0xb26 1\nglget f 0xb21 1"),
+        ("list", "gl glListBase 3", "gl glListBase 5", "glget i 0xb32 1"),
+        ("color", "gl glClearIndex 3\ngl glIndexMask 5", "gl glClearIndex 6\ngl glIndexMask 9", "glget f 0xc20 1\nglget i 0xc21 1"),
+        ("pixel", "gl glPixelZoom 2 3\ngl glPixelTransferi 0xd12 2\ngl glPixelTransferf 0xd1e 0.5", "gl glPixelZoom 4 5\ngl glPixelTransferi 0xd12 3\ngl glPixelTransferf 0xd1e 0.25", "glget f 0xd16 1\nglget f 0xd17 1\nglget i 0xd12 1\nglget f 0xd1e 1"),
+    ];
+    let bits = [("current", 0x1u32), ("line", 0x4), ("list", 0x20000), ("color", 0x4000), ("pixel", 0x20)];
+    for (name, before, change, get) in groups {
+        for (pushed, mask) in bits {
+            if pushed != name && pushed != "line" && !(name == "line" && pushed == "list") {
+                continue;
+            }
+            writeln!(s, "case attrib-more-{name}-pushed-{pushed}\n{}{ORTHO}gl glDisable 0xbd0\n{before}\ngl glPushAttrib {mask:#x}\n{change}\ngl glPopAttrib\n{get}\nglerr\nend", ctx(32));
+        }
+    }
 }
 
 /// what GL.RASTER.MODE still holds after raster-more-*: antialiased lines blended with the
@@ -860,7 +883,8 @@ fn type_bytes(ty: u32) -> u32 {
 }
 
 /// what textured fragments do not settle yet (GL.RASTER.MODE), after every other case
-fn textures_more(s: &mut String) {
+/// (`last`: cases that go after every other, as cases are added at the end)
+fn textures_more(s: &mut String, last: &mut String) {
     const T2: u32 = 0xde1;
     let head = |s: &mut String, name: &str, bpp: u32| {
         writeln!(s, "case {name}\n{}{ORTHO}gl glDisable 0xbd0", ctx(bpp));
@@ -1039,6 +1063,23 @@ fn textures_more(s: &mut String) {
     writeln!(s, "{tex}gl glClear 0x4000\ngl glColor4ub 200 150 100 255\ngl glTexCoord2f 0.3 0.6\ngl glRasterPos2i 4 3\nglp glBitmap iiffff 8 4 1 1 5 2 ub 129 255 66 60");
     read_all(s);
     writeln!(s, "glerr\nend");
+    // what GL.RASTER.MODE still holds of textured outlines (the review of 84b05c8, 1: no case
+    // reached it): a cut outline flat-shaded, fogged, with generated coordinates, in GL_POINT
+    // mode, offset under a depth test; an uncut one in GL_POINT mode offset under a depth test
+    for (name, setup, corners) in [
+        ("outline-cut-flat", "gl glShadeModel 0x1d00\ngl glPolygonMode 0x408 0x1b01", cut),
+        ("outline-cut-fog", "gl glEnable 0xb60\ngl glFogi 0xb65 0x2601\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1\ngl glPolygonMode 0x408 0x1b01", cut),
+        ("outline-cut-gen", "gl glTexGeni 0x2000 0x2500 0x2401\ngl glEnable 0xc60\ngl glPolygonMode 0x408 0x1b01", cut),
+        ("outline-cut-point", "gl glPolygonMode 0x408 0x1b00", cut),
+        ("outline-cut-offset-depth", "gl glEnable 0xb71\ngl glClear 0x100\ngl glPolygonOffset 1 1\ngl glEnable 0x2a02\ngl glPolygonMode 0x408 0x1b01", [[-6.0, 3.0, 0.5], [13.0, 4.0, -0.25], [6.0, 13.0, 0.0]]),
+        ("point-offset-depth", "gl glEnable 0xb71\ngl glClear 0x100\ngl glEnable 0x2a01\ngl glPolygonOffset 1 1\ngl glPolygonMode 0x408 0x1b00\ngl glPointSize 2", deep),
+    ] {
+        head(last, &format!("tex-open-more-{name}"), 32);
+        writeln!(last, "{tex}gl glClear 0x4000\n{setup}");
+        tri3(last, corners);
+        read_all(last);
+        writeln!(last, "glerr\nend");
+    }
 }
 
 /// a vertex coordinate in 1/8 steps (three subpixel bits) in lo..hi

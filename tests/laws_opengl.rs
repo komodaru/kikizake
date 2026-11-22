@@ -1095,3 +1095,43 @@ fn color_plane_allows_the_edge_rounding() {
     let r = color_plane_holds([(-15288, -30920), (5968, 0), (7616, 32512)], [[0, 55, 0, 0], [0, 0, 0, 0], [0, 55, 0, 0]]);
     assert!(r.is_ok(), "{r:?}");
 }
+
+/// GL.ATTRIB.POP: glPopAttrib gives back the groups pushed and leaves the others as changed:
+/// the current texture coordinates, raster position and index (CURRENT_BIT), the line stipple
+/// and width (LINE_BIT), the list base (LIST_BIT), the clear index and index mask
+/// (COLOR_BUFFER_BIT), the pixel zoom, index shift and depth scale (PIXEL_MODE_BIT), every mask
+/// of the five, random values (the review of 84b05c8, 3.3)
+mod attrib_pop {
+    use super::*;
+    /// (group bit, the state set from value v, what glGet reads of it)
+    fn groups(v: u32) -> [(u32, String, &'static str); 5] {
+        let f = |k: u32| f64::from(v.wrapping_add(k) % 61) / 8.0;
+        [
+            (0x1, format!("gl glTexCoord4f {} {} {} {}\ngl glRasterPos2f {} {}\ngl glIndexf {}", f(1), f(2), f(3), f(4), f(5), f(6), f(7)), "glget f 0xb03 4\nglget f 0xb07 4\nglget f 0xb06 4\nglget f 0xb01 1"),
+            (0x4, format!("gl glLineStipple {} {:#x}\ngl glLineWidth {}", v % 255 + 1, v % 65536, f(8) + 1.0), "glget i 0xb25 1\nglget i 0xb26 1\nglget f 0xb21 1"),
+            (0x20000, format!("gl glListBase {}", v % 1000), "glget i 0xb32 1"),
+            (0x4000, format!("gl glClearIndex {}\ngl glIndexMask {}", f(9), v % 256), "glget f 0xc20 1\nglget i 0xc21 1"),
+            (0x20, format!("gl glPixelZoom {} {}\ngl glPixelTransferi 0xd12 {}\ngl glPixelTransferf 0xd1e {}", f(10), f(11), v % 7, f(12)), "glget f 0xd16 1\nglget f 0xd17 1\nglget i 0xd12 1\nglget f 0xd1e 1"),
+        ]
+    }
+    fn reads(set: &str) -> Vec<String> {
+        let gets: Vec<&str> = groups(0).iter().map(|g| g.2).collect();
+        let text = format!("case p\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700\n{set}\n{}\nglerr\nend\n", gets.join("\n"));
+        let c = kikizake::case::parse_cases(&text);
+        c.first().map_or_else(Vec::new, |c| kikizake::model::run_case(c).unwrap_or_else(|e| vec![format!("{e:?}")]))
+    }
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(256))]
+        #[test]
+        fn popped_groups_come_back(mask in 0u32..32, a: u32, b: u32) {
+            prop_assume!(a % 61 != b % 61 && a % 1000 != b % 1000);
+            let (ga, gb) = (groups(a), groups(b));
+            let bits: u32 = ga.iter().enumerate().filter(|(i, _)| mask >> i & 1 == 1).map(|(_, g)| g.0).sum();
+            let set = |g: &[(u32, String, &str); 5]| g.iter().map(|x| x.1.as_str()).collect::<Vec<_>>().join("\n");
+            let popped = reads(&format!("{}\ngl glPushAttrib {bits:#x}\n{}\ngl glPopAttrib", set(&ga), set(&gb)));
+            // (what each group reads when it holds a's values, or b's)
+            let want: String = (0..5).map(|i| if mask >> i & 1 == 1 { ga[i].1.clone() } else { gb[i].1.clone() }).collect::<Vec<_>>().join("\n");
+            prop_assert_eq!(popped, reads(&want), "mask {:#x}", bits);
+        }
+    }
+}

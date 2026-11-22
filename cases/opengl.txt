@@ -121963,3 +121963,357 @@ gl glEnd
 glread 0 0 16 16 0x1908 0x1401 1024
 glerr
 end
+case tex-open-more-outline-cut-flat
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gltex 3553 0 4 4 4 0 0x1908 0x1401 19 64
+gl glTexParameteri 3553 10241 9728
+gl glTexEnvi 8960 8704 8448
+gl glEnable 3553
+gl glClear 0x4000
+gl glShadeModel 0x1d00
+gl glPolygonMode 0x408 0x1b01
+gl glColor4ub 200 150 100 255
+gl glBegin 4
+gl glTexCoord2f 0 0
+gl glVertex3f -6 3 0
+gl glTexCoord2f 1 0
+gl glVertex3f 13 4 0
+gl glTexCoord2f 0.5 1
+gl glVertex3f 6 13 0
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case tex-open-more-outline-cut-fog
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gltex 3553 0 4 4 4 0 0x1908 0x1401 19 64
+gl glTexParameteri 3553 10241 9728
+gl glTexEnvi 8960 8704 8448
+gl glEnable 3553
+gl glClear 0x4000
+gl glEnable 0xb60
+gl glFogi 0xb65 0x2601
+gl glFogf 0xb63 0
+gl glFogf 0xb64 1
+gl glPolygonMode 0x408 0x1b01
+gl glColor4ub 200 150 100 255
+gl glBegin 4
+gl glTexCoord2f 0 0
+gl glVertex3f -6 3 0
+gl glTexCoord2f 1 0
+gl glVertex3f 13 4 0
+gl glTexCoord2f 0.5 1
+gl glVertex3f 6 13 0
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case tex-open-more-outline-cut-gen
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gltex 3553 0 4 4 4 0 0x1908 0x1401 19 64
+gl glTexParameteri 3553 10241 9728
+gl glTexEnvi 8960 8704 8448
+gl glEnable 3553
+gl glClear 0x4000
+gl glTexGeni 0x2000 0x2500 0x2401
+gl glEnable 0xc60
+gl glPolygonMode 0x408 0x1b01
+gl glColor4ub 200 150 100 255
+gl glBegin 4
+gl glTexCoord2f 0 0
+gl glVertex3f -6 3 0
+gl glTexCoord2f 1 0
+gl glVertex3f 13 4 0
+gl glTexCoord2f 0.5 1
+gl glVertex3f 6 13 0
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case tex-open-more-outline-cut-point
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gltex 3553 0 4 4 4 0 0x1908 0x1401 19 64
+gl glTexParameteri 3553 10241 9728
+gl glTexEnvi 8960 8704 8448
+gl glEnable 3553
+gl glClear 0x4000
+gl glPolygonMode 0x408 0x1b00
+gl glColor4ub 200 150 100 255
+gl glBegin 4
+gl glTexCoord2f 0 0
+gl glVertex3f -6 3 0
+gl glTexCoord2f 1 0
+gl glVertex3f 13 4 0
+gl glTexCoord2f 0.5 1
+gl glVertex3f 6 13 0
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case tex-open-more-outline-cut-offset-depth
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gltex 3553 0 4 4 4 0 0x1908 0x1401 19 64
+gl glTexParameteri 3553 10241 9728
+gl glTexEnvi 8960 8704 8448
+gl glEnable 3553
+gl glClear 0x4000
+gl glEnable 0xb71
+gl glClear 0x100
+gl glPolygonOffset 1 1
+gl glEnable 0x2a02
+gl glPolygonMode 0x408 0x1b01
+gl glColor4ub 200 150 100 255
+gl glBegin 4
+gl glTexCoord2f 0 0
+gl glVertex3f -6 3 0.5
+gl glTexCoord2f 1 0
+gl glVertex3f 13 4 -0.25
+gl glTexCoord2f 0.5 1
+gl glVertex3f 6 13 0
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case tex-open-more-point-offset-depth
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gltex 3553 0 4 4 4 0 0x1908 0x1401 19 64
+gl glTexParameteri 3553 10241 9728
+gl glTexEnvi 8960 8704 8448
+gl glEnable 3553
+gl glClear 0x4000
+gl glEnable 0xb71
+gl glClear 0x100
+gl glEnable 0x2a01
+gl glPolygonOffset 1 1
+gl glPolygonMode 0x408 0x1b00
+gl glPointSize 2
+gl glColor4ub 200 150 100 255
+gl glBegin 4
+gl glTexCoord2f 0 0
+gl glVertex3f 2 2 0.5
+gl glTexCoord2f 1 0
+gl glVertex3f 13 4 -0.25
+gl glTexCoord2f 0.5 1
+gl glVertex3f 6 13 0
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case attrib-more-current-pushed-current
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glTexCoord4f 0.125 0.25 0.375 0.5
+gl glRasterPos2f 3 4
+gl glIndexf 2
+gl glPushAttrib 0x1
+gl glTexCoord4f 0.5 0.625 0.75 0.875
+gl glColor4ub 10 20 30 40
+gl glRasterPos2f 7 9
+gl glIndexf 5
+gl glPopAttrib
+glget f 0xb03 4
+glget f 0xb07 4
+glget f 0xb06 4
+glget f 0xb04 4
+glget i 0xb08 1
+glget f 0xb01 1
+glerr
+end
+case attrib-more-current-pushed-line
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glTexCoord4f 0.125 0.25 0.375 0.5
+gl glRasterPos2f 3 4
+gl glIndexf 2
+gl glPushAttrib 0x4
+gl glTexCoord4f 0.5 0.625 0.75 0.875
+gl glColor4ub 10 20 30 40
+gl glRasterPos2f 7 9
+gl glIndexf 5
+gl glPopAttrib
+glget f 0xb03 4
+glget f 0xb07 4
+glget f 0xb06 4
+glget f 0xb04 4
+glget i 0xb08 1
+glget f 0xb01 1
+glerr
+end
+case attrib-more-line-pushed-line
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glLineStipple 2 0xaaaa
+gl glLineWidth 2
+gl glPushAttrib 0x4
+gl glLineStipple 3 0x5555
+gl glLineWidth 3
+gl glPopAttrib
+glget i 0xb25 1
+glget i 0xb26 1
+glget f 0xb21 1
+glerr
+end
+case attrib-more-line-pushed-list
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glLineStipple 2 0xaaaa
+gl glLineWidth 2
+gl glPushAttrib 0x20000
+gl glLineStipple 3 0x5555
+gl glLineWidth 3
+gl glPopAttrib
+glget i 0xb25 1
+glget i 0xb26 1
+glget f 0xb21 1
+glerr
+end
+case attrib-more-list-pushed-line
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glListBase 3
+gl glPushAttrib 0x4
+gl glListBase 5
+gl glPopAttrib
+glget i 0xb32 1
+glerr
+end
+case attrib-more-list-pushed-list
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glListBase 3
+gl glPushAttrib 0x20000
+gl glListBase 5
+gl glPopAttrib
+glget i 0xb32 1
+glerr
+end
+case attrib-more-color-pushed-line
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearIndex 3
+gl glIndexMask 5
+gl glPushAttrib 0x4
+gl glClearIndex 6
+gl glIndexMask 9
+gl glPopAttrib
+glget f 0xc20 1
+glget i 0xc21 1
+glerr
+end
+case attrib-more-color-pushed-color
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearIndex 3
+gl glIndexMask 5
+gl glPushAttrib 0x4000
+gl glClearIndex 6
+gl glIndexMask 9
+gl glPopAttrib
+glget f 0xc20 1
+glget i 0xc21 1
+glerr
+end
+case attrib-more-pixel-pushed-line
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glPixelZoom 2 3
+gl glPixelTransferi 0xd12 2
+gl glPixelTransferf 0xd1e 0.5
+gl glPushAttrib 0x4
+gl glPixelZoom 4 5
+gl glPixelTransferi 0xd12 3
+gl glPixelTransferf 0xd1e 0.25
+gl glPopAttrib
+glget f 0xd16 1
+glget f 0xd17 1
+glget i 0xd12 1
+glget f 0xd1e 1
+glerr
+end
+case attrib-more-pixel-pushed-pixel
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glPixelZoom 2 3
+gl glPixelTransferi 0xd12 2
+gl glPixelTransferf 0xd1e 0.5
+gl glPushAttrib 0x20
+gl glPixelZoom 4 5
+gl glPixelTransferi 0xd12 3
+gl glPixelTransferf 0xd1e 0.25
+gl glPopAttrib
+glget f 0xd16 1
+glget f 0xd17 1
+glget i 0xd12 1
+glget f 0xd1e 1
+glerr
+end

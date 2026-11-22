@@ -97,6 +97,7 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
 /// (file, what (a regular expression), why): `forbidden`
 pub const FORBIDDEN: &[(&str, &str, &str)] = &[
     ("src/model/d3d9draw.rs", r"draw\.(fvf|decl|decl_from)\s*=[^=]", "the FVF and the declaration change together through set_fvf and set_decl, which spec/tla/D3D9Fvf.tla's replay holds to fvf-decl-order-*; one set on its own leaves the other stale"),
+    ("src/model/opengl.rs", r"0xd16\s*\|\s*0xd17\s*=>|0xd1[01]\s*=>\s*vec!\[B\(false\)\]|0xd1[23]\s*=>\s*i\(0\)|0xb06\s*=>\s*vec!\[F\(0\.0\)|0xd1e\s*=>\s*vec!\[F\(1\.0\)\]", "glGet reads the state glPixelZoom, glPixelTransfer and glRasterPos set (the pixel mode and raster position the attribute stack gives back), not its initial value (review of 84b05c8, 3.3)"),
     ("src/model/gdiplus.rs", r"\*\s*\(\s*256\s*-\s*wt\s*\)|\(\s*2\s*\*\s*\(\s*c0\b", "a hatch texel's mix and an antialiased pixel's share are the pure hatch_mix and coverage_share the Lean mirrors gp.hatch_mix, gp.coverage_share hold equal to spec/lean/Kikizake/GdiPlus/Blend.lean; a copy inlined in paint escapes them"),
     ("src/model/jpeg.rs", r"Chroma::H1V2\s*=>\s*repeat\s*\(", "4:4:0's chroma rows are interpolated 3:1 (opt-jpeg-subs-*-4), not repeated"),
     ("src/calls.rs", r"\[\s*(open|close)\s*\+|\[\s*\.\.\s*open\s*\]", "a call line is split (split_once, rsplit_once), not sliced at positions found apart: \") = (\" panicked (review of 8480456, 5.4)"),
@@ -114,6 +115,30 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
 
 /// (file, function, what (a regular expression), why): `forbidden` inside one function only
 pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
+    (
+        "src/model/opengl.rs",
+        "pop_attrib",
+        r"\.\.\s*\}",
+        "glPopAttrib names every field of Ctx with its group (or why it has none), so a new field does not compile until it is placed: a rest pattern (..) let the current texture coordinates, raster position, line stipple and list base go unrestored (review of 84b05c8, 3.3)",
+    ),
+    (
+        "src/model/opengl_tex.rs",
+        "pop",
+        r"\.\.\s*\}",
+        "Tex::pop names every field of Tex with its group (TEXTURE_BIT, CURRENT_BIT or none): a rest pattern (..) hides a new one (review of 84b05c8, 3.3)",
+    ),
+    (
+        "src/model/opengl_list.rs",
+        "pop",
+        r"\.\.\s*\}",
+        "Lists::pop names every field of Lists (the base LIST_BIT's): a rest pattern (..) hides a new one (review of 84b05c8, 3.3)",
+    ),
+    (
+        "src/model/d3draster.rs",
+        "shade",
+        r"\btexel\s*\(\s*r\s*,\s*0\s*,|\br\.size\s*\(\s*0\s*\)|\bv\.words\b|\bv\.u\s*\(",
+        "a view's levels and slices are view_reach's (Load, Sample and the binding hazards alike): reading the resource's level 0, or the view's union words apart, took a view's most detailed level for the resource's (review of 84b05c8, 3.2)",
+    ),
     (
         "src/calls.rs",
         "check_dir",

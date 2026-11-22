@@ -45,6 +45,12 @@ pub struct Lists {
 }
 
 impl Lists {
+    /// glPopAttrib's LIST_BIT: the list base (the lists themselves and the list being compiled
+    /// are in no group; every field is placed, so a new one does not compile until it is)
+    pub fn pop(&mut self, saved: &Lists) {
+        let Lists { lists: _, compiling: _, base, depth: _ } = saved;
+        self.base = *base;
+    }
     /// glGenLists: n names in one run, the lowest free run from 1, each an empty list
     pub fn gen_names(&mut self, n: u32) -> u32 {
         let mut first = 1u32;

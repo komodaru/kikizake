@@ -361,3 +361,24 @@ fn recording_names_read_apart_are_found() {
     assert!(rust("src/calls.rs", old).iter().any(|m| m.contains("forbidden in check_dir")), "{:?}", rust("src/calls.rs", old));
     assert!(rust("src/calls.rs", "impl RecName {\n    pub fn parse(s: &str) { let (suite, arch) = s.rsplit_once('-'); }\n}\n").is_empty());
 }
+
+#[test]
+fn view_levels_read_apart_are_found() {
+    // (the review's Load: level 0 of the resource, whatever the view's most detailed level)
+    let old = "fn shade(m: &D3dres) -> Res<[u32; 4]> {\n    let (w, h, _) = r.size(0);\n    texel(r, 0, v.format(), px as u32, py as u32)?\n}\n";
+    let r = rust("src/model/d3draster.rs", old);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in shade")).count(), 2, "{r:?}");
+    assert!(!rust("src/model/d3draster.rs", "fn shade() { let b = v.words.get(2); }\n").is_empty());
+    assert!(rust("src/model/d3draster.rs", "fn shade() {\n    let reach = view_reach(dev, v, r);\n    let (w, h, _) = r.size(reach.mip);\n    texel(r, sub, v.format(), x, y)?\n}\n").is_empty());
+}
+
+#[test]
+fn attribute_groups_with_a_rest_are_found() {
+    let old = "fn pop_attrib(&mut self, mask: u32, s: Ctx) {\n    let Ctx { color, normal, .. } = s;\n}\n";
+    assert!(rust("src/model/opengl.rs", old).iter().any(|b| b.contains("forbidden in pop_attrib")));
+    assert!(rust("src/model/opengl.rs", "fn pop_attrib(&mut self, mask: u32, s: Ctx) {\n    let Ctx { color, normal } = s;\n}\n").is_empty());
+    assert!(rust("src/model/opengl_list.rs", "pub fn pop(&mut self, saved: &Lists) { let Lists { base, .. } = saved; }").iter().any(|b| b.contains("forbidden in pop")));
+    // (the readbacks of the review: zoom 1 and raster coordinates 0 whatever was set)
+    let get = "fn get(&self, p: u32) -> Vec<V> {\n    match p {\n        0xd16 | 0xd17 => vec![F(1.0)],\n        0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],\n    }\n}\n";
+    assert_eq!(rust("src/model/opengl.rs", get).iter().filter(|b| b.contains("forbidden: glGet")).count(), 2);
+}
