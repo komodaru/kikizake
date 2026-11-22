@@ -555,3 +555,14 @@ spec/lean/Kikizake/DWrite/Metrics.lean::vmtx lean DW.GLYPH.VMTX
 spec/lean/Kikizake/DWrite/Metrics.lean::novmtx lean DW.GLYPH.NOVMTX
 spec/lean/Kikizake/DWrite/Metrics.lean::novmtx_noos2 lean DW.GLYPH.NOVMTX.NOOS2
 spec/tla/D3D9Clear.tla::Next tla D3D9.TARGET D3D9.CLEAR D3D9.CLEAR.FLAGS D3D9.CLEAR.BACKBUFFER D3D9.CLEAR.COLOR D3D9.SCISSOR
+tests/laws_dwrite_face.rs::analyze_is_the_signature_for_every_word exhaustive DW.FILE.ANALYZE DW.FILE.OTHER
+tests/laws_dwrite_face.rs::analyze_needs_the_directory_for_every_count exhaustive DW.FILE.OTHER
+tests/laws_dwrite_face.rs::fonts_are_one_truetype_face exhaustive DW.FILE.ANALYZE
+tests/laws_dwrite_face.rs::tables_removed_are_what_the_face_lacks exhaustive DW.FILE.OTHER
+tests/laws_dwrite_face.rs::ops_without_a_face_say_noface exhaustive DW.NOFACE
+tests/laws_dwrite_face.rs::info_is_the_tables exhaustive DW.INFO
+tests/laws_dwrite_face.rs::glyphs_outside_are_glyph_zero_and_sideways_the_same exhaustive DW.GLYPH.OUTSIDE DW.GLYPH.SIDEWAYS
+tests/laws_dwrite_face.rs::gdi_sizes_at_most_zero_are_invalid exhaustive DW.GDI.INVALID
+tests/laws_dwrite_face.rs::shaping_properties_for_every_bmp_character exhaustive DW.SHAPE.PROPS
+tests/laws_dwrite_face.rs::placements_are_the_scaled_advance exhaustive DW.SHAPE.PLACE
+tests/laws_dwrite_face.rs::a_font_without_a_family_name_has_no_layout exhaustive DW.LAYOUT.NAME
