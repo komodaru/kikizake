@@ -796,6 +796,8 @@ struct Plane {
     overlap: Overlap,
     scaled: bool,
     qp: QpPlan,
+    orient: u8,
+    hard_tiles: bool,
     /// tile starts in macroblocks
     tile_x: Vec<usize>,
     tile_y: Vec<usize>,
@@ -1687,11 +1689,11 @@ fn write_headers(pl: &Plane, b: &mut Bits) {
     let ncol = pl.tile_x.len() - 1;
     let nrow = pl.tile_y.len() - 1;
     b.put(1, 4); // version
-    b.put(0, 1); // hard tiling
+    b.bit(pl.hard_tiles); // hard tiling
     b.put(1, 3); // subversion: new scaling
     b.bit(ncol > 0 || nrow > 0);
     b.put(1, 1); // frequency order
-    b.put(0, 3); // orientation
+    b.put(u32::from(pl.orient), 3); // orientation
     b.put(1, 1); // index table
     b.put(pl.overlap.code(), 2);
     b.bit(short);
@@ -2672,6 +2674,11 @@ pub struct Picture<'a> {
     pub stride: usize,
     pub px: &'a [u8],
     pub dpi: (f64, f64),
+    /// the orientation the decoder is to apply (T.832 Table 6: bit 2 rotate 90 clockwise, bit 1
+    /// flip horizontally, bit 0 vertically)
+    pub orient: u8,
+    /// HARD_TILING_FLAG (WMPhoto's flag from Overlap 3 and 4, analyst memo 1)
+    pub hard_tiles: bool,
 }
 
 pub struct Encoded {
@@ -2969,6 +2976,8 @@ fn image_plane(p: &Picture, q: u8, overlap: Overlap) -> Plane {
         overlap,
         scaled,
         qp,
+        orient: p.orient,
+        hard_tiles: p.hard_tiles,
         tile_x: tiles(((p.w - 1) >> 8) + 1, p.w.div_ceil(16)),
         tile_y: tiles(((p.h - 1) >> 8) + 1, p.h.div_ceil(16)),
     }
@@ -3024,7 +3033,7 @@ pub fn encode_at(p: &Picture, index: u8, overlap: Overlap) -> Encoded {
     let mut f = vec![b'I', b'I', 0xbc, 0x01, 8, 0, 0, 0];
     f.extend_from_slice(&(n as u16).to_le_bytes());
     ifd_entry(&mut f, 0xbc01, 1, 16, guid_at);
-    ifd_entry(&mut f, 0xbc02, 4, 1, 0);
+    ifd_entry(&mut f, 0xbc02, 4, 1, u32::from(p.orient));
     ifd_entry(&mut f, 0xbc04, 4, 1, 0);
     ifd_entry(&mut f, 0xbc80, 4, 1, p.w as u32);
     ifd_entry(&mut f, 0xbc81, 4, 1, p.h as u32);

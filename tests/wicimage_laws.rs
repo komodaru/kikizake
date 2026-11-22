@@ -481,8 +481,12 @@ fn encoder_options_are_typed() {
     for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("tiff", "TiffCompressionMethod=3", O::BlackWhite), ("tiff", "TiffCompressionMethod=4", O::Lossless), ("tiff", "TiffCompressionMethod=5", O::Lossless), ("tiff", "TiffCompressionMethod=8", O::OutOfRange), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless), ("wmp", "ImageQuality=1.0", O::WmpLossless), ("wmp", "ImageQuality=0.5", O::WmpQuality(0.5f32.to_bits())), ("jpeg", "ImageQuality=0.5", O::JpegQuality(50)), ("jpeg", "SuppressApp0=1", O::JpegNoApp0(true)), ("jpeg", "JpegYCrCbSubsampling=3", O::JpegChroma(kikizake::model::jpeg::Chroma::Full)), ("jpeg", "JpegYCrCbSubsampling=2", O::JpegChroma(kikizake::model::jpeg::Chroma::H2V1)), ("jpeg", "BitmapTransform=1", O::JpegTransform(1)), ("jpeg", "JpegYCrCbSubsampling=5", O::InvalidArg), ("jpeg", "JpegYCrCbSubsampling=4", O::JpegChroma(kikizake::model::jpeg::Chroma::H1V2)), ("png", "FilterOption=0", O::Lossless), ("png", "FilterOption=7", O::OutOfRange), ("gif", "InterlaceOption=1", O::Rejected), ("jpeg", "SuppressApp0=2", O::JpegNoApp0(true)), ("bmp", "Overlap=1", O::Rejected), ("dds", "Quality=1", O::Rejected), ("gif", "ImageQuality=1", O::Rejected), ("wmp", "Quality=1", O::Default), ("wmp", "BitmapTransform=0", O::Default), ("tiff", "CompressionQuality=0.5", O::Default)] {
         assert_eq!(wi::option(c, o).ok(), Some(want), "{c} {o}");
     }
-    for (c, o) in [("wmp", "ImageQuality=1.5"), ("wmp", "Overlap=3"), ("jpeg", "BitmapTransform=2")] {
-        assert!(matches!(wi::option(c, o), Err(kikizake::model::Fail::Unmodeled(_))), "{c} {o}");
+    for (c, o, want) in [("wmp", "ImageQuality=1.5", O::InvalidArg), ("wmp", "Subsampling=4", O::InvalidArg), ("wmp", "Overlap=3", O::WmpHardTiles), ("wmp", "BitmapTransform=9", O::WmpTransform(9)), ("jpeg", "BitmapTransform=2", O::JpegTransform(2)), ("jpeg", "ImageQuality=1.5", O::OutOfRange), ("tiff", "CompressionQuality=-1", O::OutOfRange), ("wmp", "AlphaQuality=255", O::Default)] {
+        assert_eq!(wi::option(c, o).ok(), Some(want), "{c} {o}");
+    }
+    // (a value of a bag's name no case sets: never silently an effect)
+    for (c, o) in [("jpeg", "BitmapTransform=4"), ("wmp", "BitmapTransform=3")] {
+        assert!(matches!(wi::option(c, o), Err(kikizake::model::Fail::Bad)), "{c} {o}");
     }
     assert!(matches!(wi::option("png", "FilterOption"), Err(kikizake::model::Fail::Bad)));
 }
@@ -855,7 +859,7 @@ proptest! {
         let stride = (w * fmt.bits()).div_ceil(8);
         let mut r = kikizake::rng::XorShift32::new(seed);
         let px: Vec<u8> = (0..stride * h).map(|k| if smooth { (k / 7 * 3 % 251) as u8 } else { r.next() as u8 }).collect();
-        let p = jxr::Picture { fmt, w, h, stride, px: &px, dpi: (0.0, 0.0) };
+        let p = jxr::Picture { fmt, w, h, stride, px: &px, dpi: (0.0, 0.0), orient: 0, hard_tiles: false };
         let ov = [Overlap::None, Overlap::One, Overlap::Two][ov];
         let src = jxr_values(name, w, h, stride, &px);
         let lossless = jxr::encode_at(&p, index.min(1), ov);

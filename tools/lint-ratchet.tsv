@@ -527,7 +527,7 @@ file	src/model/wicimage.rs	cast_sign_loss	44
 file	src/model/wicimage.rs	float_cmp	1
 file	src/model/wicimage.rs	indexing_slicing	436
 file	src/model/wicimage.rs	lossy_float_literal	2
-file	src/model/wicimage.rs	map_err_ignore	12
+file	src/model/wicimage.rs	map_err_ignore	14
 file	src/model/wicimage.rs	same_name_method	1
 file	src/model/wicimage.rs	string_slice	1
 file	src/rng.rs	arithmetic_side_effects	3

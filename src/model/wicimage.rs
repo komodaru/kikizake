@@ -3196,6 +3196,10 @@ pub enum EncodeOption {
     JpegTransform(u32),
     /// a name the encoder's bag has, at a value that leaves this case's file as without it
     Default,
+    /// WMP's BitmapTransform: written as the file's orientation, which the decoder applies
+    WmpTransform(u32),
+    /// WMP's Overlap 3 and 4: the header's hard tiling flag (the overlap itself ImageQuality's)
+    WmpHardTiles,
 }
 
 /// MEASURED (golden wicencode enc-jpeg-*: every byte and pixel, see model::jpeg): WIC's JPEG
@@ -3279,12 +3283,22 @@ fn encode_wmp(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
     let Some(fmt) = jxr::Format::from_name(i.fmt) else {
         return Err(Fail::Bad);
     };
+    if bits_of(i.fmt) > 32 || i.fmt == "bgr101010" || i.fmt.starts_with("gray") && i.fmt != "gray8" && i.fmt != "gray16" {
+        hit(clause::WICIMAGE_ENCODE_LOSSY);
+    }
     let q = match opts.wmp_quality {
         None => jxr::Quality::default_wic(),
         Some(q) => jxr::Quality::new(q).ok_or(Fail::Bad)?,
     };
     let (w, h) = (i.w as usize, i.h as usize);
-    let p = jxr::Picture { fmt, w, h, stride: i.stride(), px: &i.px, dpi: i.dpi };
+    let t = opts.wmp_transform;
+    let (rcw, fh, fv) = (t & 1 != 0, t & 8 != 0, t & 16 != 0);
+    let half = t & 2 != 0;
+    // (a quarter turn swaps which way each flip goes; a half turn is both flips)
+    let (fh, fv) = if rcw { (fv, fh) } else { (fh, fv) };
+    let (fh, fv) = (fh ^ half, fv ^ half);
+    let orient = u8::from(rcw) << 2 | u8::from(fh) << 1 | u8::from(fv);
+    let p = jxr::Picture { fmt, w, h, stride: i.stride(), px: &i.px, dpi: i.dpi, orient, hard_tiles: opts.wmp_hard_tiles };
     let e = jxr::encode(&p, q);
     hit(clause::WICIMAGE_ENCODE_WMP);
     let mut o = Img::new(i.w, i.h, i.fmt);
@@ -3293,6 +3307,7 @@ fn encode_wmp(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
     for y in 0..h {
         o.px[y * st..y * st + row].copy_from_slice(&e.decoded[y * row..(y + 1) * row]);
     }
+    let o = if t == 0 { o } else { flip(&o, t) };
     Ok(Encoded::Lossy(e.file, "wmp", o))
 }
 
@@ -3306,6 +3321,10 @@ struct EncodeOptions {
     bw: bool,
     wmp_lossless: bool,
     wmp_quality: Option<f32>,
+    /// WMP's BitmapTransform (a WICBitmapTransformOptions)
+    wmp_transform: u32,
+    /// WMP's Overlap 3 or 4: hard tile boundaries
+    wmp_hard_tiles: bool,
 }
 
 /// MEASURED (golden wicencode opt-*: every option the cases set, on BGRA, BGR and gray sources):
@@ -3330,6 +3349,7 @@ fn bag(cont: &str) -> &'static [&'static str] {
 
 pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
     let (name, val) = o.split_once('=').ok_or(Fail::Bad)?;
+    hit(clause::WICIMAGE_ENCODE_OPTIONS);
     Ok(match (cont, name, val) {
         // (FilterOption 0 is WICPngFilterUnspecified: MEASURED optother-2-bgra, the file decodes
         // to the same pixels)
@@ -3349,9 +3369,13 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
         // (Encoder options: JPEG XR's ImageQuality 1.0 is lossless; MEASURED golden opt-19-*: every
         // pixel kept, as Lossless=1)
         ("wmp", "Lossless", "1") | ("wmp", "ImageQuality", "1.0" | "1") => EncodeOption::WmpLossless,
+        // (MEASURED optval-6..13: JPEG's ImageQuality and TIFF's CompressionQuality past 0..=1 fail
+        // the frame's Initialize WINCODEC_ERR_VALUEOUTOFRANGE, JPEG XR's ImageQuality E_INVALIDARG)
+        ("jpeg", "ImageQuality", v) | ("tiff", "CompressionQuality", v) if v.parse::<f32>().is_ok_and(|q| !(0.0..=1.0).contains(&q)) => EncodeOption::OutOfRange,
+        ("wmp", "ImageQuality", v) if v.parse::<f32>().is_ok_and(|q| !(0.0..=1.0).contains(&q)) => EncodeOption::InvalidArg,
         ("wmp", "ImageQuality", v) => match v.parse::<f32>() {
             Ok(q) if (0.0..1.0).contains(&q) => EncodeOption::WmpQuality(q.to_bits()),
-            _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_OPTIONS)),
+            _ => return Err(Fail::Bad),
         },
         ("jpeg", "ImageQuality", v) => EncodeOption::JpegQuality((v.parse::<f64>().map_err(|_| Fail::Bad)? * 100.0).round() as i64),
         ("jpeg", "SuppressApp0", v) => EncodeOption::JpegNoApp0(v != "0"),
@@ -3363,7 +3387,23 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
         // (MEASURED optother-0-bgra: 5, past the enumeration, fails the frame's Initialize
         // E_INVALIDARG, not VALUEOUTOFRANGE as PNG and TIFF do)
         ("jpeg", "JpegYCrCbSubsampling", v) if v.parse::<u8>().is_ok_and(|v| v > 4) => EncodeOption::InvalidArg,
-        ("jpeg", "BitmapTransform", "1") => EncodeOption::JpegTransform(1),
+        // (MEASURED optval-0..5-jpeg: 2, 3, 8, 16, 9 and 5 (bit 2 not looked at) turn the
+        // picture before it is coded)
+        ("jpeg", "BitmapTransform", v @ ("1" | "2" | "3" | "5" | "8" | "9" | "16")) => EncodeOption::JpegTransform(v.parse().map_err(|_| Fail::Bad)?),
+        // (MEASURED optval-15..19-wmp: 1, 2, 8, 16, 9 written as the orientation 4, 3, 2, 1, 5,
+        // in the IFD's Transformation too; the decoder turns the picture by it)
+        ("wmp", "BitmapTransform", v @ ("1" | "2" | "8" | "9" | "16")) => EncodeOption::WmpTransform(v.parse().map_err(|_| Fail::Bad)?),
+        // (MEASURED optval-14, -20..30-wmp: without UseCodecOptions any Quality and AlphaQuality,
+        // Overlap 0..=3 and Subsampling 0..=3 and Lossless 0 leave the file as ImageQuality makes
+        // it; Subsampling 4 fails Initialize E_INVALIDARG, as the analyst memo's range check says
+        // for Overlap past 4)
+        ("wmp", "Quality" | "AlphaQuality", v) if v.parse::<u8>().is_ok() => EncodeOption::Default,
+        // (MEASURED optval-24-wmp: Overlap 3 sets the hard tiling flag of the image and the alpha
+        // headers; the analyst memo: 4 as 3, past 4 E_INVALIDARG)
+        ("wmp", "Overlap", "3" | "4") => EncodeOption::WmpHardTiles,
+        ("wmp", "Overlap", v) if v.parse::<u8>().is_ok_and(|v| v > 4) => EncodeOption::InvalidArg,
+        ("wmp", "Overlap", "0" | "1" | "2") | ("wmp", "Subsampling", "0" | "1" | "2" | "3") | ("wmp", "Lossless", "0") => EncodeOption::Default,
+        ("wmp", "Subsampling", v) if v.parse::<u8>().is_ok_and(|v| v > 3) => EncodeOption::InvalidArg,
         // (MEASURED optname-jpeg-, -wmp-BitmapTransform: 0, WICBitmapTransformRotate0, the
         // pixels as without; optname-tiff-CompressionQuality: 0.5 with no ZIP compression, the
         // pixels as without)
@@ -3372,11 +3412,12 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
         // (MEASURED optname-wmp-*: JPEG XR's codec options Quality 1, Overlap 1, Subsampling 3
         // and AlphaQuality 1 leave the file as at the default ImageQuality 0.9: the encoder takes
         // them and goes by ImageQuality, as without UseCodecOptions, which the runner does not set)
-        ("wmp", "Quality", "1") | ("wmp", "Overlap", "1") | ("wmp", "Subsampling", "3") | ("wmp", "AlphaQuality", "1") => EncodeOption::Default,
         // (MEASURED optname-*: each encoder's bag has only its own names; a name of another
         // encoder's bag fails IPropertyBag2::Write E_FAIL, as PNG's ImageQuality)
         (c, n, _) if !bag(c).contains(&n) => EncodeOption::Rejected,
-        _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_OPTIONS)),
+        // (a value of a bag's name no case sets: Fail::Bad, which a new case shows as a
+        // difference)
+        _ => return Err(Fail::Bad),
     })
 }
 
@@ -3786,6 +3827,14 @@ impl WicImage {
                             opts.jpeg_transform = t;
                         }
                         EncodeOption::Default => hit(clause::WICIMAGE_ENCODE_OPTION_LOSSLESS),
+                        EncodeOption::WmpHardTiles => {
+                            hit(clause::WICIMAGE_ENCODE_WMP);
+                            opts.wmp_hard_tiles = true;
+                        }
+                        EncodeOption::WmpTransform(t) => {
+                            hit(clause::WICIMAGE_ENCODE_WMP);
+                            opts.wmp_transform = t;
+                        }
                         EncodeOption::JpegChroma(c) => {
                             hit(clause::WICIMAGE_ENCODE_JPEG);
                             opts.jpeg_chroma = Some(c);
