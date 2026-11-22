@@ -157,6 +157,15 @@ fn refuted_constructions_are_found() {
 }
 
 #[test]
+fn decimal_ellipse_insets_are_found() {
+    // (the model before ellipsebig-*: the inset from a decimal, the centre from the ends' sum)
+    let old = "fn ellipse_points() {\n    let (cx, cy) = ((fl + fr) / 2, (ft + fb) / 2);\n    let inset = |rad2: i32| f64::from(rad2) * 0.5 * (1.0 - 0.552_284_749_8);\n}\n";
+    let r = rust("src/model/gdipath.rs", old);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: Ellipse's and RoundRect's inset")).count(), 3, "{r:?}");
+    assert!(rust("src/model/gdipath.rs", "fn ellipse_points() {\n    // (not 0.5522847498)\n    let (cx, cy) = (fl.wrapping_add(vx / 2), ft.wrapping_add(vy / 2));\n    let dx = inset_floor(vx, 6);\n}\n").is_empty());
+}
+
+#[test]
 fn device12_dropping_the_chain_is_found() {
     let old = "fn op() {\n    match name {\n        \"device12\" => {\n            self.dev = true;\n            self.chain = None;\n        }\n    }\n}\n";
     let r = rust("src/model/d3d12.rs", old);

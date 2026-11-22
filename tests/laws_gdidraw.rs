@@ -218,7 +218,7 @@ proptest! {
         let (r, b) = (l + w, t + 2 * h);
         let at = (r + 5, t + h);
         let v = kikizake::model::gdiarc::arc((l, t, r, b), at, at, cw).unwrap();
-        let c = ellipse_points(l, t, r, b, cw);
+        let c = ellipse_points(l, t, r, b, cw).expect("a box this small has its figure");
         prop_assert_eq!(v.beziers.len(), 5);
         prop_assert_eq!(v.start, c[0]);
         for (q, g) in v.beziers.iter().take(4).enumerate() {
@@ -240,7 +240,7 @@ proptest! {
         use kikizake::model::gdipath::{ellipse_points, round_rect_points};
         let (r, b) = (l + w, t + h);
         let q = round_rect_points((l, t, r, b), (2 * w + more.0, 2 * h + more.1), cw);
-        let e = ellipse_points(l, t, r, b, cw);
+        let e = ellipse_points(l, t, r, b, cw).expect("a box this small has its figure");
         for i in [4, 8, 12] {
             prop_assert_eq!(q[i], q[i - 1], "a side of no length");
         }

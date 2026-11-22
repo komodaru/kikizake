@@ -157,6 +157,7 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
     ("src/model/d3d9draw.rs", r"a1\[i\]\s*\*\s*a2\[i\]|a1\[i\]\s*\+\s*a2\[i\]", "the stage operations' formulas are stage_value's, which the Lean mirror d3d9.stage holds bit for bit to spec/lean/Kikizake/D3d9/Stage.lean; a copy inlined elsewhere escapes it"),
     ("src/model/d3dres.rs", r#""uav none"\.into\(\)\);\s*return\s+Ok\(\(\)\);\s*\}\s*if\s+!check\s*\{\s*self\.views\.empty"#, "the executor empties the view slot before it answers Direct3D 10's \"uav none\" (runner/d3dres.c op_view; spec/tla/D3DResCalls.tla, probe-uav-slot): answering first kept the old view"),
     ("src/model/d3dres.rs", r#""buf"\s*\|\s*"srv""#, "on a removed device a view of an empty slot is still the executor's nores (spec/tla/D3DResCalls.tla, probe-removed-calls): views have their own removed arm after the nores one, not the resources' arm"),
+    ("src/model/gdipath.rs", r"0\.552_?284|\(\s*f[lt]\s*\+\s*f[rb]\s*\)\s*/\s*2", "Ellipse's and RoundRect's inset is inset_floor's, the irrational's floor exactly (path ellipsebig-* ellipsebigpx-*: a decimal 0.5522847498 floors apart from 82800 pixels on), and Ellipse's centre the near side plus half the side in 32 bits (ellipsewrap-*), not the ends' sum halved"),
     ("src/model/d3d9draw.rs", r"\(-\(z\s*\*\s*density\)\)\.exp\(\)|\(1\.0\s*-\s*f\)\s*\*\s*fc\[", "the fog factor and blend are fog_factor, fog_exp_arg and fog_blend, which the Lean mirrors d3d9.fog* hold to spec/lean/Kikizake/D3d9/Fog.lean; a copy inlined elsewhere escapes them"),
 ];
 

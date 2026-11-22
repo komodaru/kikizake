@@ -20,9 +20,11 @@ impl Fix {
     pub fn int(v: i32) -> Fix {
         Fix(v.saturating_mul(16))
     }
-    /// GetPath's integer: the nearest, halves up (MEASURED, GDI.PATH.CURVEPOINTS)
+    /// GetPath's integer: the nearest, halves up (MEASURED, GDI.PATH.CURVEPOINTS), past
+    /// 32 bits for a point within 8 of 2^31 (path ellipsewrap-19: 2^27)
     pub fn round(self) -> i32 {
-        self.0.saturating_add(8) >> 4
+        // ((x + 8) >> 4 lies in -2^27 ..= 2^27 for every 32-bit x)
+        i32::try_from(i64::from(self.0).saturating_add(8) >> 4).unwrap_or(i32::MAX)
     }
     /// the integer below: the logical current position after AngleArc (MEASURED, golden path
     /// anglearc-*)
@@ -226,12 +228,14 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             // box's edge, that inset rounded down across, and down the box rounded up
             // counterclockwise, down clockwise
             hit(clause::GDI_PATH_ELLIPSE);
-            let c = ellipse_points(l, t, r, bt, sl.ext.arcdir == 2);
-            p.push(Pt::fix(c[0], Kind::Move));
-            for q in &c[1..] {
-                p.push(Pt::fix(*q, Kind::Bezier));
+            // (a box whose 32-bit 28.4 width is 0 or -2^31 records nothing, the call succeeds)
+            if let Some(c) = ellipse_points(l, t, r, bt, sl.ext.arcdir == 2) {
+                p.push(Pt::fix(c[0], Kind::Move));
+                for q in &c[1..] {
+                    p.push(Pt::fix(*q, Kind::Bezier));
+                }
+                close(p);
             }
-            close(p);
             out.push("ret 1".into());
         }
         "roundrect" => {
@@ -331,8 +335,12 @@ pub fn ellipse_shape(sl: &mut Slot, a: (i32, i32), b: (i32, i32), filled: bool) 
         // (empty boxes, and inverted boxes one pixel thin (random-34): not measured outside a path)
         return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE));
     }
+    // (a box past the 28.4 range: not measured outside a path)
+    let c = match ellipse_points(l, t, r, bt, false) {
+        Some(c) if (-(1 << 26)..1 << 26).contains(&l) && (-(1 << 26)..1 << 26).contains(&r) && (-(1 << 26)..1 << 26).contains(&t) && (-(1 << 26)..1 << 26).contains(&bt) => c,
+        Some(_) | None => return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE)),
+    };
     hit(clause::GDI_SHAPE_ELLIPSEPEN);
-    let c = ellipse_points(l, t, r, bt, false);
     let mut p = vec![Pt::fix(c[0], Kind::Move)];
     for q in &c[1..] {
         p.push(Pt::fix(*q, Kind::Bezier));
@@ -378,22 +386,65 @@ fn draw_shape(sl: &mut Slot, p: &[Pt], filled: bool) -> Res<()> {
     Ok(())
 }
 
+/// v (7 - 4 sqrt 2) / q rounded down (v >= 0, q > 0): the inset of a Bézier's control point,
+/// 1 - 4/3 (sqrt 2 - 1) = (7 - 4 sqrt 2) / 3 of a radius, exactly (MEASURED, GDI.PATH.ELLIPSE:
+/// the irrational's floor at every size, path ellipsebig-* ellipsebigpx-*, where a decimal
+/// 0.5522847498 floors apart from 82800 pixels on). With s = sqrt(32 v^2), irrational for v > 0,
+/// and N = 7 v - isqrt(32 v^2): 7 v - s lies in (N - 1, N), which holds no multiple of q, so its
+/// floor over q is (N - 1)'s.
+pub fn inset_floor(v: i32, q: i32) -> i32 {
+    if v <= 0 || q <= 0 {
+        return 0;
+    }
+    let v = i128::from(v);
+    let n = v.saturating_mul(7).saturating_sub(v.saturating_mul(v).saturating_mul(32).isqrt());
+    i32::try_from(n.saturating_sub(1).div_euclid(i128::from(q))).unwrap_or(i32::MAX)
+}
+
+/// rounded up: the floor plus one (the value irrational) but at 0
+pub fn inset_ceil(v: i32, q: i32) -> i32 {
+    inset_floor(v, q).saturating_add(i32::from(v > 0))
+}
+
+/// the inset of a side of either sign (a box's 32-bit width past 2^31 comes out negative):
+/// v (7 - 4 sqrt 2) / 6 rounded down, or up
+fn signed_inset(v: i32, up: bool) -> i32 {
+    let floor = if v >= 0 { inset_floor(v, 6) } else { inset_floor(v.saturating_neg(), 6).saturating_add(1).saturating_neg() };
+    floor.saturating_add(i32::from(up && v != 0))
+}
+
+/// one axis of Ellipse's box in 28.4 (MEASURED, GDI.PATH.ELLIPSE, path ellipsewrap-*
+/// ellipsebigpx-* ellipseedge-*): the ordered ends times 16 to 32 bits and their width W = 16 hi
+/// - 16 lo to 32 bits; the box (16 lo, 16 hi - 16) where W > 0, (16 lo - 16, 16 hi) where W < 0;
+/// None (no figure) where W is 0 or -2^31
+fn ellipse_axis(lo: i32, hi: i32) -> Option<(i32, i32)> {
+    let (a, b) = (lo.wrapping_mul(16), hi.wrapping_mul(16));
+    let w = b.wrapping_sub(a);
+    match w {
+        0 | i32::MIN => None,
+        w if w > 0 => Some((a, b.wrapping_sub(16))),
+        _ => Some((a.wrapping_sub(16), b)),
+    }
+}
+
 /// Ellipse's 13 points in 28.4 (GDI.PATH.ELLIPSE): four Béziers around (l, t) - (r - 1, b - 1)
-/// from the right end of the middle row, counterclockwise or (cw) clockwise
-pub fn ellipse_points(l: i32, t: i32, r: i32, bt: i32, cw: bool) -> [(i32, i32); 13] {
-    let (fl, fr, ft, fb) = (l * 16, (r - 1) * 16, t * 16, (bt - 1) * 16);
-    let (cx, cy) = ((fl + fr) / 2, (ft + fb) / 2);
-    let inset = |rad2: i32| f64::from(rad2) * 0.5 * (1.0 - 0.552_284_749_8);
-    let dx = inset(fr - fl).floor() as i32;
-    let dy = if cw { inset(fb - ft).floor() } else { inset(fb - ft).ceil() } as i32;
-    let (xp, xm, ym, yp) = (fr - dx, fl + dx, ft + dy, fb - dy);
+/// (l <= r, t <= b) from the right end of the middle row, counterclockwise or (cw) clockwise;
+/// GDI's arithmetic is 32-bit: a box past the 28.4 range wraps (ellipse_axis), the centre the
+/// near side plus half the side (truncated); None where the box records no figure
+pub fn ellipse_points(l: i32, t: i32, r: i32, bt: i32, cw: bool) -> Option<[(i32, i32); 13]> {
+    let ((fl, fr), (ft, fb)) = (ellipse_axis(l, r)?, ellipse_axis(t, bt)?);
+    let (vx, vy) = (fr.wrapping_sub(fl), fb.wrapping_sub(ft));
+    let (cx, cy) = (fl.wrapping_add(vx / 2), ft.wrapping_add(vy / 2));
+    // (half the axis times the factor: the whole axis over 6)
+    let (dx, dy) = (signed_inset(vx, false), signed_inset(vy, !cw));
+    let (xp, xm, ym, yp) = (fr.wrapping_sub(dx), fl.wrapping_add(dx), ft.wrapping_add(dy), fb.wrapping_sub(dy));
     let mut c = [(fr, cy), (fr, ym), (xp, ft), (cx, ft), (xm, ft), (fl, ym), (fl, cy), (fl, yp), (xm, fb), (cx, fb), (xp, fb), (fr, yp), (fr, cy)];
     if cw {
         for q in c.iter_mut() {
-            q.1 = ft + fb - q.1;
+            q.1 = ft.wrapping_add(fb).wrapping_sub(q.1);
         }
     }
-    c
+    Some(c)
 }
 
 /// RoundRect's 16 points in 28.4 (MEASURED, GDI.PATH.ROUNDRECT, path rrgrid-* arcpath-* curve-*
@@ -412,9 +463,8 @@ pub fn round_rect_points(bx: (i32, i32, i32, i32), wh: (i32, i32), cw: bool) -> 
         i32::try_from(v).unwrap_or(i32::MAX).min(half)
     };
     let (rx, ry) = (radius(wh.0, r - l, (fr - fl) / 2), radius(wh.1, bt - t, (fb - ft) / 2));
-    let inset = |rad: i32| f64::from(rad) * (1.0 - 0.552_284_749_8);
-    let ix = inset(rx).floor() as i32;
-    let iy = if cw { inset(ry).floor() } else { inset(ry).ceil() } as i32;
+    let ix = inset_floor(rx, 3);
+    let iy = if cw { inset_floor(ry, 3) } else { inset_ceil(ry, 3) };
     let mut c = [(fr, ft + ry), (fr, ft + iy), (fr - ix, ft), (fr - rx, ft), (fl + rx, ft), (fl + ix, ft), (fl, ft + iy), (fl, ft + ry), (fl, fb - ry), (fl, fb - iy), (fl + ix, fb), (fl + rx, fb), (fr - rx, fb), (fr - ix, fb), (fr, fb - iy), (fr, fb - ry)];
     if cw {
         for q in c.iter_mut() {
