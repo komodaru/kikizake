@@ -47,7 +47,7 @@ fn text_font(ppem: i64, bold: i64, italic: i64) -> Option<gdifont::TextFont> {
 }
 
 fn rects_of(v: &[i64]) -> Vec<Rect> {
-    v.chunks_exact(4).map(|c| (c[0], c[1], c[2], c[3])).collect()
+    v.chunks_exact(4).filter_map(|c| if let [a, b, c, d] = c { Some((*a, *b, *c, *d)) } else { None }).collect()
 }
 
 /// gdi.glyph's model: [upm, ppem, ascent, descent, bold, italic, format, advance, n, rects]
@@ -93,7 +93,7 @@ fn glyph_args(a: &[i64]) -> Option<Vec<i64>> {
     let mut v = vec![*upm, *ppem, s(800)?, s(250)?, *bold, *italic, fmt, s(*adv)?, *n];
     let mut rng = crate::rng::Sample64::new(u32::try_from(*seed).ok()?);
     for _ in 0..*n {
-        let q: Vec<i64> = (0..4).map(|_| rng.range(-200, 1000)).collect();
+        let q: [i64; 4] = std::array::from_fn(|_| rng.range(-200, 1000));
         let (x0, x1) = (s(q[0].min(q[1]))?, s(q[0].max(q[1]))?.checked_add(1)?);
         let (y0, y1) = (s(q[2].min(q[3]))?, s(q[2].max(q[3]))?.checked_add(1)?);
         v.extend([x0, y0, x1, y1]);
@@ -140,12 +140,14 @@ pub static MIRRORS: &[Mirror] = &[
             let mut r = glyph_ranges();
             r.extend([(-20, 20), (-20, 20), (2, 3)]);
             sampled(&r, 5_000, 0x7e47_0001, &mut |a| {
-                let (Some(g), [.., x, y, k]) = (glyph_args(&a[..8]), a) else { return };
-                let mut v = vec![g[0], g[1], g[2], g[3], g[4], g[5], *x, *y];
+                let (Some(g), [.., x, y, k]) = (a.get(..8).and_then(glyph_args), a) else { return };
+                let [upm, ppem, asc, desc, bold, italic, _, adv, n, rects @ ..] = g.as_slice() else { return };
+                let mut v = vec![*upm, *ppem, *asc, *desc, *bold, *italic, *x, *y];
                 for i in 0..*k {
                     // (the character's rectangles, its advance a little more each time)
-                    v.extend([g[7] + 7 * i, g[8]]);
-                    v.extend(&g[9..]);
+                    let Some(adv) = i.checked_mul(7).and_then(|d| adv.checked_add(d)) else { return };
+                    v.extend([adv, *n]);
+                    v.extend(rects);
                 }
                 if text_model(&v).is_some() {
                     each(&v);
@@ -161,10 +163,9 @@ pub static MIRRORS: &[Mirror] = &[
         inputs: |each| {
             let (c, q) = ((-300, 300), (-400, 400));
             sampled(&[c, c, c, c, q, q, q, q, (0, 1)], 100_000, 0xa4c0_0001, &mut |a| {
-                if (a[2] - a[0]).abs() >= 2 && (a[3] - a[1]).abs() >= 2 {
-                    let (l, r) = (a[0].min(a[2]), a[0].max(a[2]));
-                    let (t, b) = (a[1].min(a[3]), a[1].max(a[3]));
-                    each(&[l, t, r, b, a[4], a[5], a[6], a[7], a[8]]);
+                let [x0, y0, x1, y1, a4, a5, a6, a7, a8] = *a else { return };
+                if x1.abs_diff(x0) >= 2 && y1.abs_diff(y0) >= 2 {
+                    each(&[x0.min(x1), y0.min(y1), x0.max(x1), y0.max(y1), a4, a5, a6, a7, a8]);
                 }
             })
         },
