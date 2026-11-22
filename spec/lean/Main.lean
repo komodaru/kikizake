@@ -15,6 +15,7 @@ def mirrors : List Mirror :=
   D3d11.Desc.mirrors ++
   D3d11.View.mirrors ++
   D3d11.Filter.mirrors ++
+  D3d11.Merge.mirrors ++
   DWrite.Advance.mirrors ++
   DWrite.Metrics.mirrors
 
