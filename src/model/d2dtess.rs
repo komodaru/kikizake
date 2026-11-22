@@ -342,6 +342,23 @@ pub struct Scan {
 
 /// the scanner's sweep of integer figures (below 2^31 workspace units, the crossing test exact in 256-bit products) by a fill mode
 pub fn scan(wind: bool, figs: &[Vec<(i128, i128)>]) -> Res<Scan> {
+    // (Windows' workspace holds integers to 2^48 in f64; every product and quotient here is
+    // the same after a common power of two is taken out of all the points, so figures whose
+    // points share one are swept that much smaller and the answers scaled back exactly)
+    let k = figs.iter().flatten().flat_map(|p| [p.0, p.1]).filter(|v| *v != 0).map(i128::trailing_zeros).min().unwrap_or(0);
+    if k == 0 {
+        return scan_in(wind, figs);
+    }
+    hit(clause::D2D_AREA_SHIFT);
+    let small: Vec<Vec<(i128, i128)>> = figs.iter().map(|f| f.iter().map(|p| (p.0 >> k, p.1 >> k)).collect()).collect();
+    let sc = scan_in(wind, &small)?;
+    let f = (0..k).fold(1f64, |a, _| a * 2.0);
+    Ok(Scan { tris: sc.tris.into_iter().map(|t| t.map(|v| (v.0 * f, v.1 * f))).collect(), acc: sc.acc * f * f })
+}
+
+fn scan_in(wind: bool, figs: &[Vec<(i128, i128)>]) -> Res<Scan> {
+    // (past 2^31 workspace units, about 2048 DIP, after the common power of two the exact
+    // crossing test could overflow: the spec's open D2D.AREA.CURVE, asked by pareahuge-2)
     if figs.iter().flatten().any(|p| !(p.0.abs() < 1 << 31 && p.1.abs() < 1 << 31)) {
         return Err(bad());
     }

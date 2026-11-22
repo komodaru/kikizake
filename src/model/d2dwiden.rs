@@ -416,7 +416,9 @@ pub fn widen(figs: &[Fig], round: bool, m: &M, w: f32, tol: f32) -> Res<Vec<Fig>
             let Some(rs) = &mut rails else { return Err(unmodeled()) };
             match sg {
                 DSeg::L(q) => {
-                    let rad = pen.rad(t0);
+                    // AcceptLinePoint: the offset the rails hold (a corner straight within
+                    // the fuzz keeps the last one, a curve's end tangent's)
+                    let rad = rs.rad;
                     rs.to(&pen, q, rad);
                 }
                 DSeg::C(a, b, c) => {

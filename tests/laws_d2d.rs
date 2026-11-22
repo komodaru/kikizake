@@ -535,6 +535,19 @@ proptest! {
         prop_assert!((a.abs() - len * f64::from(w)).abs() < 1e-3 * (1.0 + len * f64::from(w)), "{} {}", a, len * f64::from(w));
     }
 
+    /// the scanner's sweep is the same at any power of two: the points times 2^k give the
+    /// boundary sum times 4^k, past 2^31 workspace units too
+    #[test]
+    fn sweeps_scale_by_powers_of_two(pts in proptest::collection::vec((-64i128..64, -64i128..64), 3..8), k in 0u32..40, wind in proptest::bool::ANY) {
+        let a = kikizake::model::d2dtess::scan(wind, std::slice::from_ref(&pts));
+        let big: Vec<(i128, i128)> = pts.iter().map(|p| (p.0 << k, p.1 << k)).collect();
+        let b = kikizake::model::d2dtess::scan(wind, &[big]);
+        prop_assert_eq!(a.is_ok(), b.is_ok());
+        if let (Ok(a), Ok(b)) = (a, b) {
+            prop_assert_eq!(a.acc * 4f64.powi(k as i32), b.acc);
+        }
+    }
+
     /// Widen of one straight line through any transform that does not flatten it (an elliptic
     /// pen when it is not a similarity): the image of the local rectangle, of area |det| times
     /// the length times the width

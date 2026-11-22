@@ -995,4 +995,7 @@ fn probes(s: &mut String, r: &mut XorShift32) {
         writeln!(s, "case strkrect-{i}\nd2target 16 12\nd2aa {aa}\nd2xform {x}\nd2rect 0 2.5 2 12 9.5\nd2drawg 0 {w} 255 255 255 255\nd2read\nend");
     }
     writeln!(s, "case layercurve-0\nd2target 16 12\nd2ell 0 8 6 5 4\nd2layer 0 0 16 12 1 0\nd2fill 0 0 16 12 238 191 70 255\nd2poplayer\nd2read\nend");
+    writeln!(s, "case pareahuge-2\nd2path 0 alt m -3000 -3000 3000 3000 3000 -3000 0.0001 3000 z\nd2area 0\nend");
+    writeln!(s, "case outlinehuge-0\nd2path 0 alt m -3000 -3000 3000 3000 3000 -3000 -3000 3000 z\nd2outline 0\nend");
+    writeln!(s, "case layercurve-1\nd2target 16 12\nd2ell 0 8 6 7 5\nd2layer 2 1 13 10 1 0\nd2fill 0 0 16 12 238 191 70 255\nd2poplayer\nd2read\nend");
 }

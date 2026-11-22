@@ -142,7 +142,9 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
                     }
                 }
             }
-            if pts.iter().any(|p| !(p.0.0.abs() < 16777216.0 && p.0.1.abs() < 16777216.0)) {
+            // (past 2^31 workspace units, about 2048 DIP, the exact crossing test here could
+            // overflow: the spec's open D2D.SIMP, asked by outlinehuge-0)
+            if pts.iter().any(|p| !(p.0.0.abs() < 2147483648.0 && p.0.1.abs() < 2147483648.0)) {
                 return Err(bad());
             }
             let mut fp: Vec<(Pt, Option<Part>)> = Vec::new();

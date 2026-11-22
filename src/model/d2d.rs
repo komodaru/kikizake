@@ -2366,10 +2366,27 @@ impl D2d {
                     None => samples16(tg, &fixed_polys(tg, &Geom::Rect(r), Frame::Antialiased)?.1, false),
                     Some(g) => {
                         hit(clause::D2D_LAYER_MASK);
-                        let Some((wind, figs, m0)) = g.lines() else {
-                            return Err(Fail::Unmodeled(open::D2D_RT));
-                        };
                         let m = tg.st.m;
+                        let Some((wind, figs, m0)) = g.lines() else {
+                            // (MEASURED, D2D.LAYER.CURVE, from the clean-room notes: a mask with
+                            // curves whose bounds through the transform lie within the content
+                            // bounds' is not cut, but filled as it is, its cubics cut by the
+                            // fill's curve rasterizer)
+                            let mb = bounds(&g, Some(&m))?;
+                            let q = [apply(&m, r[0], r[1]), apply(&m, r[2], r[1]), apply(&m, r[2], r[3]), apply(&m, r[0], r[3])];
+                            let (ql, qt) = q.iter().fold((f32::INFINITY, f32::INFINITY), |a, p| (lo(a.0, p.0), lo(a.1, p.1)));
+                            let (qr, qb) = q.iter().fold((f32::NEG_INFINITY, f32::NEG_INFINITY), |a, p| (hi(a.0, p.0), hi(a.1, p.1)));
+                            let axis = m[1] == 0.0 && m[2] == 0.0;
+                            // (one cut to bounds the mask passes: two strip clippers in f32,
+                            // the spec's open D2D.RT, asked by layercurve-1)
+                            if !(axis && mb[0] >= ql && mb[1] >= qt && mb[2] <= qr && mb[3] <= qb) {
+                                return Err(Fail::Unmodeled(open::D2D_RT));
+                            }
+                            hit(clause::D2D_LAYER_CURVE);
+                            let (wind, ps) = fixed_polys(tg, &g, Frame::Antialiased)?;
+                            let inside = samples16(tg, &ps, wind);
+                            return layer_push(tg, inside, o);
+                        };
                         let quad = [apply(&m, r[0], r[1]), apply(&m, r[2], r[1]), apply(&m, r[2], r[3]), apply(&m, r[0], r[3])].map(|(x, y)| (f64::from(x), f64::from(y)));
                         let cut: Vec<Vec<(i64, i64)>> = polys(&figs, &mul(&m0, &m)).iter().map(|p| clip_convex(p, &quad)).filter(|p| p.len() >= 3).map(|p| p.into_iter().map(|(x, y)| (Frame::Antialiased.snap(x), Frame::Antialiased.snap(y))).collect()).collect();
                         if cut.iter().flatten().any(|p| !(p.0.abs() <= 16 * 8388608 && p.1.abs() <= 16 * 8388608)) {
@@ -2378,18 +2395,7 @@ impl D2d {
                         samples16(tg, &cut, wind)
                     }
                 };
-                let cover = inside.into_iter().map(|s| Samples::Mask.byte(s.count_ones())).collect();
-                // (MEASURED, D2D.LAYER.INUSE: the one ID2D1Layer pushed again while pushed is
-                // D2DERR_LAYER_ALREADY_IN_USE)
-                if tg.stack.iter().any(|p| matches!(p, Pushed::Layer(_))) {
-                    hit(clause::D2D_LAYER_INUSE);
-                    tg.fail(D2DERR_LAYER_ALREADY_IN_USE, Drawn::Dropped);
-                    return Ok(());
-                }
-                let opacity = (o * 255.0).round_ties_even().clamp(0.0, 255.0) as u32;
-                let below = std::mem::replace(&mut tg.px, vec![[0; 4]; tg.w * tg.h]);
-                tg.stack.push(Pushed::Layer(Layer { below, opacity, cover }));
-                tg.depth += 1;
+                return layer_push(tg, inside, o);
             }
             "d2poplayer" => {
                 want(1)?;
@@ -2951,6 +2957,24 @@ impl D2d {
         out.push("nort".into());
         Ok(())
     }
+}
+
+/// PushLayer after its coverage: the error of a layer pushed again, else the layer put on the
+/// stack over a transparent surface
+fn layer_push(tg: &mut Target, inside: Vec<u64>, o: f32) -> Res<()> {
+    let cover = inside.into_iter().map(|s| Samples::Mask.byte(s.count_ones())).collect();
+    // (MEASURED, D2D.LAYER.INUSE: the one ID2D1Layer pushed again while pushed is
+    // D2DERR_LAYER_ALREADY_IN_USE)
+    if tg.stack.iter().any(|p| matches!(p, Pushed::Layer(_))) {
+        hit(clause::D2D_LAYER_INUSE);
+        tg.fail(D2DERR_LAYER_ALREADY_IN_USE, Drawn::Dropped);
+        return Ok(());
+    }
+    let opacity = (o * 255.0).round_ties_even().clamp(0.0, 255.0) as u32;
+    let below = std::mem::replace(&mut tg.px, vec![[0; 4]; tg.w * tg.h]);
+    tg.stack.push(Pushed::Layer(Layer { below, opacity, cover }));
+    tg.depth += 1;
+    Ok(())
 }
 
 /// MEASURED (D2D.STROKE.RECT, from the clean-room notes): DrawRectangle's
