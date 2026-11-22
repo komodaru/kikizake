@@ -578,34 +578,10 @@ proptest! {
     }
     /// GL 1.1 3.5.1 (smooth shading): a fan triangle's color plane does not depend on the order
     /// of its corners, gives each corner its own color, and keeps every covered pixel's color
-    /// between the corners' colors
+    /// between the corners' colors, but for the rasterizer's rounding of its edges
     #[test]
     fn color_plane_is_barycentric(v in any::<[(i16, i16); 3]>(), c in any::<[[u8; 4]; 3]>()) {
-        let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 8), y: Sub(i64::from(y) / 8) });
-        let c = c.map(|q| q.map(|b| f64::from(b) / 255.0));
-        let area = (v[1].x.0 - v[0].x.0) * (v[2].y.0 - v[0].y.0) - (v[2].x.0 - v[0].x.0) * (v[1].y.0 - v[0].y.0);
-        prop_assume!(area != 0);
-        // (no slivers: a covered pixel's center may lie a rasterizer's rounding outside the
-        // corners, its color the farther past theirs the thinner the triangle; every height at
-        // least a pixel)
-        let len = |i: usize, j: usize| ((v[j].x.0 - v[i].x.0) as f64).hypot((v[j].y.0 - v[i].y.0) as f64);
-        prop_assume!([(0, 1), (1, 2), (2, 0)].iter().all(|&(i, j)| (area.abs() as f64) / len(i, j) >= 256.0));
-        let near = |a: [f64; 4], b: [f64; 4]| a.iter().zip(b).all(|(x, y)| (x - y).abs() < 1e-6);
-        for (x, y) in tri::pixels(&v, 16, 16) {
-            let at = tri::plane(v, c, x, y);
-            for p in [[0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]] {
-                prop_assert!(near(at, tri::plane(p.map(|k| v[k]), p.map(|k| c[k]), x, y)));
-            }
-            for k in 0..4 {
-                let (lo, hi) = (c.iter().map(|q| q[k]).fold(f64::INFINITY, f64::min), c.iter().map(|q| q[k]).fold(f64::NEG_INFINITY, f64::max));
-                prop_assert!(at[k] >= lo - 1e-9 && at[k] <= hi + 1e-9, "{at:?} out of {c:?}");
-            }
-        }
-        for k in 0..3 {
-            // a corner on a pixel center gets its own color
-            let w = v.map(|p| Vertex { x: Sub(p.x.0 * 256 + 128), y: Sub(p.y.0 * 256 + 128) });
-            prop_assert!(near(tri::plane(w, c, v[k].x.0, v[k].y.0), c[k]));
-        }
+        color_plane_holds(v, c)?;
     }
     /// GL.RASTER.INTERPOLATE.DEPTH: a triangle's depths cover exactly its pixels, one depth
     /// everywhere when its corners share it, and do not depend on the order of corners at
@@ -1065,4 +1041,55 @@ proptest! {
         prop_assert!(back == none || front == none, "drawn neither way");
         prop_assert!(back == clear || front == clear, "culled neither way");
     }
+}
+
+/// color_plane_is_barycentric's law for one triangle (corners in 1/2048 pixels, colors in bytes)
+fn color_plane_holds(v: [(i16, i16); 3], c: [[u8; 4]; 3]) -> Result<(), TestCaseError> {
+    let v = v.map(|(x, y)| Vertex { x: Sub(i64::from(x) / 8), y: Sub(i64::from(y) / 8) });
+    let c = c.map(|q| q.map(|b| f64::from(b) / 255.0));
+    let [p0, p1, p2] = v.map(|p| (p.x.0 as f64, p.y.0 as f64));
+    let area = (p1.0 - p0.0) * (p2.1 - p0.1) - (p2.0 - p0.0) * (p1.1 - p0.1);
+    prop_assume!(area != 0.0);
+    // (each corner's height over the edge across from it, in 1/256 pixels; no slivers: every
+    // height at least a pixel)
+    let len = |a: (f64, f64), b: (f64, f64)| (b.0 - a.0).hypot(b.1 - a.1);
+    let heights = [area.abs() / len(p1, p2), area.abs() / len(p2, p0), area.abs() / len(p0, p1)];
+    prop_assume!(heights.iter().all(|h| *h >= 256.0));
+    // (the rasterizer walks each edge in fixed point: a covered pixel's center lies at most one
+    // 1/256 step outside the triangle, each corner's weight at least -1 / its height, so a color
+    // at most its spread over the least height past the corners')
+    let slack = heights.iter().map(|h| 1.0 / h).fold(0.0, f64::max);
+    let near = |a: [f64; 4], b: [f64; 4]| a.iter().zip(b).all(|(x, y)| (x - y).abs() < 1e-6);
+    for (x, y) in tri::pixels(&v, 16, 16) {
+        let (cx, cy) = ((x * 256 + 128) as f64, (y * 256 + 128) as f64);
+        let l1 = ((cx - p0.0) * (p2.1 - p0.1) - (p2.0 - p0.0) * (cy - p0.1)) / area;
+        let l2 = ((p1.0 - p0.0) * (cy - p0.1) - (cx - p0.0) * (p1.1 - p0.1)) / area;
+        for (l, h) in [1.0 - l1 - l2, l1, l2].iter().zip(heights) {
+            prop_assert!(*l >= -1.0 / h - 1e-12, "pixel {:?} {} past an edge", (x, y), -l * h);
+        }
+        let at = tri::plane(v, c, x, y);
+        for p in [[0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]] {
+            prop_assert!(near(at, tri::plane(p.map(|k| v[k]), p.map(|k| c[k]), x, y)));
+        }
+        for k in 0..4 {
+            let (lo, hi) = (c.iter().map(|q| q[k]).fold(f64::INFINITY, f64::min), c.iter().map(|q| q[k]).fold(f64::NEG_INFINITY, f64::max));
+            let past = (hi - lo) * slack + 1e-9;
+            prop_assert!(at[k] >= lo - past && at[k] <= hi + past, "{at:?} out of {c:?}");
+        }
+    }
+    for k in 0..3 {
+        // a corner on a pixel center gets its own color
+        let w = v.map(|p| Vertex { x: Sub(p.x.0 * 256 + 128), y: Sub(p.y.0 * 256 + 128) });
+        prop_assert!(near(tri::plane(w, c, v[k].x.0, v[k].y.0), c[k]));
+    }
+    Ok(())
+}
+
+/// color_plane_is_barycentric's failing input: pixel (2, 12)'s center 0.026 of a 1/256 step past
+/// the edge from corner 0 to 2, covered by the rasterizer's rounding, green 0.2156909 over the
+/// corners' 0.2156863
+#[test]
+fn color_plane_allows_the_edge_rounding() {
+    let r = color_plane_holds([(-15288, -30920), (5968, 0), (7616, 32512)], [[0, 55, 0, 0], [0, 0, 0, 0], [0, 55, 0, 0]]);
+    assert!(r.is_ok(), "{r:?}");
 }
