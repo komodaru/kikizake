@@ -24,5 +24,7 @@ differently. So a model that breaks a clause on any short sequence fails, withou
 | D3DSbMisuse | Begin twice, End without Begin, Apply/Capture/Create while recording, types 0 and 4, Release while recording, on Direct3D 9 and 8 (D3D9.SB.MISUSE, SB.BADTYPE) | 289,286 (4) |
 | DxgiSwapChain | CreateSwapChainForHwnd, GetBuffer, Present, ResizeBuffers, Set/GetMaximumFrameLatency, GetFrameLatencyWaitableObject (DXGI.BUFFER, PRESENT, PRESENT.TEST, PRESENT.RESTART, RESIZE, LATENCY, CHAIN.SIZE) | 211,932 (3) |
 | DxgiFactory | CreateDXGIFactory2, EnumWarpAdapter, CheckFeatureSupport (ALLOW_TEARING), EnumAdapters1, EnumAdapterByGpuPreference (DXGI.FACTORY, FACTORY.DEBUG, WARP, TEARING, ADAPTERS, ADAPTER.PREF): what the windows-2025 runner answers, nofactory before a factory | 40,495 (3) |
+| GdiPlusBitmap | GdiplusStartup, Bitmap::Bitmap, GetPixelFormat / GetPalette, LockBits, GetPixel, SetPixel, Clone (GP.START, CREATE, INFO, LOCK, GRAY16, PIXEL, CLONE): 8 formats' integer conversions, every lock rectangle and pixel asked after every call | 69,216 (2) |
+| GdiPlusFill | Graphics::Clear, FillRectangleI (GP.FILL, NOGRAPHICS, RECT, NEGATIVE, COPY, OVER, INDEXED, QUALITY.OTHER): SourceCopy and SourceOver without gamma, the operators of GdiPlusBitmap by INSTANCE | 368,697 (2) |
 
 D3D9StateBlock models documented use; D3DSbMisuse the measured misuse. Comments cannot hold `*)`.
