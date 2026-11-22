@@ -304,6 +304,7 @@ spec/lean/Kikizake/GdiPlus/Conv.lean::widen_narrow lean GP.CONV.WIDEN GP.CONV.NA
 spec/lean/Kikizake/GdiPlus/Conv.lean::level_clamps lean GP.CONV.NARROW GP.CONV.NARROW.PREMULTIPLIED
 spec/lean/Kikizake/GdiPlus/Conv.lean::alpha_round_trip lean GP.CONV.WIDEN GP.CONV.NARROW
 spec/lean/Kikizake/GdiPlus/Conv.lean::rgb32_keeps lean GP.CONV.OPAQUE GP.CONV.KEEP
+spec/lean/Kikizake/GdiPlus/Conv.lean::pargb64_under_alpha lean GP.CONV.WIDEN.PREMULTIPLIED
 spec/lean/Kikizake/GdiPlus/Narrow.lean::narrow_mono lean GP.CONV.NARROW
 spec/lean/Kikizake/GdiPlus/Narrow.lean::narrow_ends lean GP.CONV.NARROW
 spec/lean/Kikizake/D3d12/Footprint.lean::align_bounds lean D3D12.FOOTPRINT.LAYOUT D3D12.ALLOC.BUFFER

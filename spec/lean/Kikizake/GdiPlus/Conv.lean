@@ -187,6 +187,18 @@ theorem rgb32_keeps (c : Nat) (h : c < 4294967296) : fromArgb .rgb32 c = some c 
   simp only [fromArgb, toArgb, Nat.mod_eq_of_lt h, Option.map, argb, byte, Option.some.injEq]
   refine ⟨trivial, by omega, by omega⟩
 
+private theorem widen_le : ∀ c, c < 256 → widen c ≤ 8192 := by decide +kernel
+
+/-- GP.CONV.WIDEN.PREMULTIPLIED: a 64bppPARGB color word never exceeds its alpha word, and an
+opaque pixel's words are the straight ones -/
+theorem pargb64_under_alpha (c a : Nat) (hc : c < 256) :
+    widen c * widenAlpha a / 8192 ≤ widenAlpha a ∧ widen c * widenAlpha 255 / 8192 = widen c := by
+  have w := widen_le c hc
+  constructor
+  · apply Nat.div_le_of_le_mul
+    exact Nat.mul_le_mul_right _ w
+  · simp [widenAlpha]
+
 def mirrors : List Mirror := [
   ⟨"gp.premultiply", fun | [c, a] => do pure [premultiply (← nat c) (← nat a)] | _ => none⟩,
   ⟨"gp.unpremultiply", fun | [c, a] => do pure [unpremultiply (← nat c) (← nat a)] | _ => none⟩,
