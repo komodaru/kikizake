@@ -313,7 +313,7 @@ spec/lean/Kikizake/D3d12/Footprint.lean::alloc_buffer lean D3D12.ALLOC.BUFFER
 spec/lean/Kikizake/D3d12/Footprint.lean::chain_ends lean D3D12.DESC.MIPS D3D12.FOOTPRINT.MIPS0
 spec/lean/Kikizake/D3d12/Footprint.lean::pitch_holds_row lean D3D12.FOOTPRINT.LAYOUT D3D12.FOOTPRINT.PLANAR
 spec/lean/Kikizake/D3d12/Footprint.lean::rows_whole lean D3D12.FOOTPRINT.BLOCK D3D12.FOOTPRINT.LAYOUT
-spec/lean/Kikizake/D3d12/Footprint.lean::last_le_extent lean D3D12.FOOTPRINT.LAYOUT
+spec/lean/Kikizake/D3d12/Footprint.lean::reach_le_span lean D3D12.FOOTPRINT.LAYOUT
 spec/lean/Kikizake/D3d12/Footprint.lean::layout_apart lean D3D12.FOOTPRINT.LAYOUT D3D12.FOOTPRINT.STENCIL
 spec/lean/Kikizake/D3d12/Alloc.lean::std_tiles_64k lean D3D12.ALLOC.SWIZZLE
 spec/lean/Kikizake/D3d12/Alloc.lean::swizzle_covers lean D3D12.ALLOC.SWIZZLE D3D12.ALLOC.TEXTURE
@@ -335,7 +335,9 @@ spec/lean/Kikizake/D3d12/Create.lean::write_alone lean D3D12.CREATE.STATE
 spec/lean/Kikizake/D3d12/Create.lean::state_flags lean D3D12.CREATE.STATE
 spec/lean/Kikizake/D3d12/Create.lean::two_planes lean D3D12.CREATE.LAYOUT64K
 spec/lean/Kikizake/D3d12/Create.lean::single_2d lean D3D12.DESC.SIZE
-spec/lean/Kikizake/D3d12/Create.lean::footprint_2d lean D3D12.FOOTPRINT.LIMITS D3D12.DESC.SIZE
+spec/lean/Kikizake/D3d12/Create.lean::footprint_limits lean D3D12.FOOTPRINT.LIMITS D3D12.DESC.SIZE
+spec/lean/Kikizake/D3d12/Create.lean::footprint_sizes lean D3D12.FOOTPRINT.LIMITS
+spec/lean/Kikizake/D3d12/Footprint.lean::wrap_takes_none lean D3D12.FOOTPRINT.WRAP
 spec/lean/Kikizake/D3d12/Copyable.lean::dims_table lean D3D12.FORMAT.DIMS
 spec/lean/Kikizake/D3d12/Copyable.lean::invalid_desc lean D3D12.FOOTPRINT.INVALID
 spec/lean/Kikizake/D3d12/Copyable.lean::buffer lean D3D12.FOOTPRINT.BUFFER D3D12.FOOTPRINT.RANGE D3D12.FOOTPRINT.INVALID

@@ -22914,3 +22914,31 @@ case fp-limit2-total-r8-800000x201
 device12
 footprint12 0 1 0 3 0 0x800000 0x201 1 1 0x3d 1 0 0 0
 end
+case fp-wrap-3d-rgba32f-2048
+device12
+footprint12 0 2 0 4 0 0x800 0x800 0x800 2 2 1 0 0 0
+end
+case fp-wrap-3d-rgba8-2048x2048x1024
+device12
+footprint12 0 2 0 4 0 0x800 0x800 0x400 2 0x1c 1 0 0 0
+end
+case fp-wrap-nv12-800000x400
+device12
+footprint12 0 2 0 3 0 0x800000 0x400 1 1 0x67 1 0 0 0
+end
+case fp-wrap-p010-800000x200
+device12
+footprint12 0 2 0 3 0 0x800000 0x200 1 1 0x68 1 0 0 0
+end
+case fp-wrap-d24s8-800000x80
+device12
+footprint12 0 2 0 3 0 0x800000 0x80 1 1 0x2d 1 0 0 0
+end
+case fp-wrap-d32s8-400000x100
+device12
+footprint12 0 2 0 3 0 0x400000 0x100 1 1 0x14 1 0 0 0
+end
+case fp-wrap-1d-rgba32f-a2048
+device12
+footprint12 0 3 0 2 0 0x4000 1 0x800 1 2 1 0 0 0
+end

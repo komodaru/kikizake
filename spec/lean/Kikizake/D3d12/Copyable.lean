@@ -71,13 +71,14 @@ def plane (x : Desc) (b i : Nat) : Nat × Nat × Nat × Nat :=
   if i < x.d then (if b = 1 then 60 else 53, x.w, x.h, x.w * b) else (if b = 1 then 48 else 33, x.w / 2, x.h / 2, x.w * b)
 
 /-- the video subresources i.. (c of them) at `off`, each item's offset, format, size, depth,
-pitch, rows, row; with the total so far -/
+pitch, rows, row; with the total so far (a plane's bytes and its last row's end to 32 bits,
+D3D12.FOOTPRINT.WRAP) -/
 def video (x : Desc) (b base : Nat) : Nat → Nat → Nat → Nat → List Nat × Nat
   | _, 0, _, t => ([], t)
   | i, c + 1, off, _ =>
     let (fmt, w, h, row) := plane x b i
     let pitch := align row 512
-    let rest := video x b base (i + 1) c (align (off + pitch * h) 512) (off + pitch * (h - 1) + row)
+    let rest := video x b base (i + 1) c (align (off + pitch * h % 2 ^ 32) 512) (off + (pitch * (h - 1) + row) % 2 ^ 32)
     ([base + off, fmt, w, h, 1, pitch, h, row] ++ rest.1, rest.2)
 
 /-- the footprints' element (bytes, block width and height), format and row alignment: the depth
@@ -144,17 +145,18 @@ theorem pairs (first count base : Nat) (x : Desc) :
     | (have := buffer_unknown x hd hv; omega)
     | (simp [hd, r]; intros; omega)
 
-/-- D3D12.FOOTPRINT.VIDEO: an NV12 2D texture of one level and an even size is two planes:
+/-- D3D12.FOOTPRINT.VIDEO: an NV12 2D texture of one level and an even size (up to 2^23) is two planes:
 luma R8_TYPELESS at full size, then chroma R8G8_TYPELESS at half, rows of the width in bytes
 aligned to 512, the chroma plane at the next multiple of 512 after the luma one -/
-theorem nv12 (base w h : Nat) (hw : 2 ≤ w) (hh : 2 ≤ h) (ew : w % 2 = 0) (eh : h % 2 = 0) :
+theorem nv12 (base w h : Nat) (hw : 2 ≤ w) (hh : 2 ≤ h) (hw' : w ≤ 2 ^ 23) (hh' : h ≤ 2 ^ 23) (ew : w % 2 = 0) (eh : h % 2 = 0) :
     footprints 0 2 base ⟨3, 0, w, h, 1, 1, 103, 1, 0, 0, 0⟩ = some
-      [align (align w 512 * h) 512 + align w 512 * (h / 2 - 1) + w,
+      [align (align w 512 * h % 2 ^ 32) 512 + (align w 512 * (h / 2 - 1) + w) % 2 ^ 32,
        base, 60, w, h, 1, align w 512, h, w,
-       base + align (align w 512 * h) 512, 48, w / 2, h / 2, 1, align w 512, h / 2, w] := by
+       base + align (align w 512 * h % 2 ^ 32) 512, 48, w / 2, h / 2, 1, align w 512, h / 2, w] := by
   have a : w ≠ 0 := by omega
   have b : h ≠ 0 := by omega
-  simp [footprints, validate, video, plane, dims, texBit, r, a, b, ew, eh, Create.T2]
+  have c : ¬(w > 2 ^ 23 ∨ h > 2 ^ 23) := by omega
+  simp [footprints, validate, Create.lim, video, plane, dims, texBit, r, a, b, c, ew, eh, Create.T2]
 
 /-- D3D12.FOOTPRINT.VIDEO: an NV12, P010 or P016 texture of an odd size or more than one level is
 all ones -/

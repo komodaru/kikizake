@@ -144,6 +144,33 @@ pub fn full_chain(d: &Desc) -> u32 {
     chain(m)
 }
 
+/// the largest width and height of a texture (D3D12.DESC.SIZE), CreateCommittedResource's and
+/// GetCopyableFootprints' alike: 2048 in 3D, 2^23 for a single-sampled 2D texture of one slice
+/// and MipLevels 1 or 0, else 16384
+pub fn size_max(d: &Desc) -> u32 {
+    match d.kind() {
+        Dim::Tex3D => 2048,
+        Dim::Tex2D if d.samples <= 1 && d.mips <= 1 && d.d == 1 => SINGLE2D_MAX,
+        Dim::Tex2D | Dim::Tex1D | Dim::Unknown | Dim::Buffer | Dim::Other => 16384,
+    }
+}
+
+/// a byte count GetCopyableFootprints keeps to 32 bits (MEASURED, golden d3d12-* fp-limit-*,
+/// fp-limit2-*: a subresource's bytes and the end of its last row wrap; the offsets, summed past
+/// them, do not): only `of` makes one, so every such count says it wraps
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Bytes32(u32);
+
+impl Bytes32 {
+    pub fn of(v: u64) -> Bytes32 {
+        hit(clause::D3D12_FOOTPRINT_WRAP);
+        Bytes32(u32::try_from(v & 0xffff_ffff).unwrap_or(0))
+    }
+    pub fn get(self) -> u64 {
+        u64::from(self.0)
+    }
+}
+
 /// why a description is refused (the clause), or Ok: GetCopyableFootprints' checks of a description
 /// (a buffer's are CreateCommittedResource's too; a texture's sizes CreateCommittedResource checks
 /// its own way, create_hr)
@@ -163,16 +190,11 @@ pub fn validate(d: &Desc) -> Result<(), crate::spec::ClauseId> {
         return Ok(());
     }
     no(d.w == 0 || d.h == 0 || d.d == 0, clause::D3D12_DESC_SIZE)?;
-    let (wmax, hmax, dmax) = match d.kind() {
-        Dim::Tex1D => (16384, 1, 2048),
-        Dim::Tex2D => (16384, 16384, 2048),
-        Dim::Tex3D | Dim::Unknown | Dim::Buffer | Dim::Other => (2048, 2048, 2048),
-    };
-    no(d.d > dmax || d.h > hmax && d.kind() == Dim::Tex1D, clause::D3D12_DESC_SIZE)?;
-    // (MEASURED: GetCopyableFootprints checks the 1D and 3D size limits, not those of 2D
-    // textures (golden d3d12-* fp-edge-*), nor the mip count)
+    no(d.d > 2048 || d.h > 1 && d.kind() == Dim::Tex1D, clause::D3D12_DESC_SIZE)?;
+    // (MEASURED: GetCopyableFootprints checks the sizes as CreateCommittedResource does, a single
+    // 2D texture up to 2^23 (golden d3d12-* fp-edge-*, fp-limit-*, fp-limit2-*), not the mip count)
     hit(clause::D3D12_FOOTPRINT_LIMITS);
-    no(d.kind() != Dim::Tex2D && (d.w > wmax || d.h > hmax), clause::D3D12_DESC_SIZE)?;
+    no(d.w > size_max(d) || d.h > size_max(d), clause::D3D12_DESC_SIZE)?;
     no(!matches!(d.align, 0 | 4096 | 65536 | 4194304), clause::D3D12_DESC_ALIGN)?;
     no(d.samples == 0, clause::D3D12_DESC_MSAA)?;
     if d.samples > 1 || d.quality > 0 {
@@ -241,8 +263,8 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
             let (fmt, w, h, row) = if i < array { ([60, 53][b as usize - 1], d.w, d.h, d.w as u64 * b) } else { ([48, 33][b as usize - 1], d.w / 2, d.h / 2, d.w as u64 * b) };
             let pitch = align(row, 512);
             v.push((base + at, fmt, w, h, 1, pitch, h, row));
-            total = at + pitch * (h as u64 - 1) + row;
-            at = align(at + pitch * h as u64, 512);
+            total = at + Bytes32::of(pitch * (h as u64 - 1) + row).get();
+            at = align(at + Bytes32::of(pitch * h as u64).get(), 512);
         }
         return Ok((v, total));
     }
@@ -318,8 +340,8 @@ pub fn layout(first: u32, count: u32, base: u64, l: &Layout) -> (Vec<Fp>, u64) {
         let row = (fw / bw) as u64 * bytes as u64;
         let pitch = align(row, l.pitch_align);
         v.push((base + at, fmt, fw, fh, depth, pitch, rows, row));
-        total = at + pitch * (rows as u64 * depth as u64 - 1) + row;
-        at = align(at + pitch * rows as u64 * depth as u64, 512);
+        total = at + Bytes32::of(pitch * (rows as u64 * depth as u64 - 1) + row).get();
+        at = align(at + Bytes32::of(pitch * rows as u64 * depth as u64).get(), 512);
     }
     (v, total)
 }
@@ -1478,12 +1500,7 @@ pub fn create_verdict(heap: Heap, state: u32, d: &Desc, blockless: bool, small4k
     // 2D texture of one slice and MipLevels 1, or 0 (the full chain: the check comes before it is
     // counted), render target or not, has a limit of its own, not of bytes (65536 x 131072 R8
     // taken): 2^23 taken, 2^23 + 1 not (create-edge4-*, create-edge5-*))
-    let (wmax, hmax) = match d.kind() {
-        Dim::Tex3D => (2048, 2048),
-        Dim::Tex2D if !ms && d.mips <= 1 && d.d == 1 => (SINGLE2D_MAX, SINGLE2D_MAX),
-        Dim::Tex2D | Dim::Tex1D | Dim::Unknown | Dim::Buffer | Dim::Other => (16384, 16384),
-    };
-    if no(d.w > wmax || d.h > hmax, clause::D3D12_DESC_SIZE) {
+    if no(d.w > size_max(d) || d.h > size_max(d), clause::D3D12_DESC_SIZE) {
         return E_INVALIDARG;
     }
     let fs = support(d.fmt);

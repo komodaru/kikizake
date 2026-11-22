@@ -51,6 +51,9 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
     ("src/model/ntstr.rs", r"from_str_radix\s*\(\s*&\w+\s*\[", "hex bytes are read as the executor's hexbytes does, digit by digit of the bytes: a str slice through a character past ASCII panicked (review of 8480456, 5.4)"),
     ("tests/calls.rs", r"calls::check_dir\s*\(", "the whole set's condition is check_complete (every suite of spec/calls-suites.txt, current); check_dir checks only the recordings there are"),
     ("src/model/d3d12.rs", r#""device12"\s*=>\s*\{[^}]*self\.(chain|factory)\s*="#, "device12 again keeps the executor's device and what was made of it (dxgi device-again)"),
+    ("src/model/d3d12.rs", r"\bat\s*\+\s*pitch\s*\*", "a subresource's bytes and its last row's end are 32-bit counts on Windows (Bytes32::of; golden d3d12-* fp-limit2-offsets-*, fp-limit2-total-*), not 64-bit sums"),
+    ("src/model/d3d12.rs", r"kind\(\)\s*!=\s*Dim::Tex2D\s*&&\s*\(\s*d\.w\s*>", "GetCopyableFootprints checks a 2D texture's size as CreateCommittedResource does (size_max; golden d3d12-* fp-wide-*, fp-limit-*)"),
+    ("src/lean/d3d12.rs", r"\bFP_SIZES\b|0x7fff_fff0", "the footprints mirror asks widths and heights up to 0xffffffff (SIZES): a narrower domain hid the model's 32-bit wrap"),
 ];
 
 /// (file, function, what (a regular expression), why): `forbidden` inside one function only

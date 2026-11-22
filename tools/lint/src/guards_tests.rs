@@ -116,6 +116,19 @@ fn device12_dropping_the_chain_is_found() {
 }
 
 #[test]
+fn footprint_sums_past_32_bits_are_found() {
+    let old = "fn layout() {\n    for i in 0..n {\n        total = at + pitch * (rows - 1) + row;\n        at = align(at + pitch * rows, 512);\n    }\n}\n";
+    let r = rust("src/model/d3d12.rs", old);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: a subresource's bytes")).count(), 2, "{r:?}");
+    assert!(rust("src/model/d3d12.rs", "fn layout() { total = at + Bytes32::of(pitch * (rows - 1) + row).get(); at = align(at + Bytes32::of(pitch * rows).get(), 512); }").is_empty());
+    let unchecked = "fn validate() {\n    no(d.kind() != Dim::Tex2D && (d.w > wmax || d.h > hmax), SIZE)?;\n}\n";
+    assert!(rust("src/model/d3d12.rs", unchecked).iter().any(|b| b.contains("forbidden: GetCopyableFootprints checks a 2D")));
+    assert!(rust("src/model/d3d12.rs", "fn validate() { no(d.w > size_max(d) || d.h > size_max(d), SIZE)?; }").is_empty());
+    assert!(rust("src/lean/d3d12.rs", "const FP_SIZES: [i64; 2] = [0, 1];").iter().any(|b| b.contains("forbidden: the footprints mirror")));
+    assert!(rust("src/lean/d3d12.rs", "const SIZES: [i64; 2] = [0, 0xffff_ffff];").is_empty());
+}
+
+#[test]
 fn silent_cuts_are_found() {
     // (review of 8480456, 3: rootsig12 kept the first 1024 tokens of its rootsig12+ lines and its own)
     let old = "static void op_rootsig(void) {\n    rt = 0;\n    for (int k = 0; k < nrsx && rt < RSTOK; k++) rtk[rt++] = rsx[k];\n}\n";

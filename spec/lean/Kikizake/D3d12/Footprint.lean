@@ -77,8 +77,12 @@ def sub (l : L) (i : Nat) : Sub :=
   ⟨if st then 60 else l.fmt, fw, fh, depth, align row l.palign, fh / l.bh, row⟩
 
 /-- the bytes a subresource spans, and the bytes up to the end of its last row -/
-def extent (s : Sub) : Nat := s.pitch * s.rows * s.depth
-def last (s : Sub) : Nat := s.pitch * (s.rows * s.depth - 1) + s.row
+def span (s : Sub) : Nat := s.pitch * s.rows * s.depth
+def reach (s : Sub) : Nat := s.pitch * (s.rows * s.depth - 1) + s.row
+
+/-- D3D12.FOOTPRINT.WRAP: both as GetCopyableFootprints keeps them, to 32 bits -/
+def extent (s : Sub) : Nat := span s % 2 ^ 32
+def last (s : Sub) : Nat := reach s % 2 ^ 32
 
 /-- subresources i.. (c of them) from offset `off` past `base`: each at the next multiple of 512 -/
 def subs (l : L) (base : Nat) : Nat → Nat → Nat → List (Nat × Sub)
@@ -111,8 +115,8 @@ theorem rows_whole (l : L) (i : Nat) (hw : 0 < l.bw) (hh : 0 < l.bh) :
     exact (Nat.le_div_iff_mul_le hh).mpr (by omega)
   · split <;> omega
 
-theorem last_le_extent (s : Sub) (hr : s.row ≤ s.pitch) (hn : 1 ≤ s.rows * s.depth) : last s ≤ extent s := by
-  unfold last extent
+theorem reach_le_span (s : Sub) (hr : s.row ≤ s.pitch) (hn : 1 ≤ s.rows * s.depth) : reach s ≤ span s := by
+  unfold reach span
   have : s.pitch * (s.rows * s.depth - 1) + s.pitch = s.pitch * (s.rows * s.depth) := by
     rw [← Nat.mul_succ]; congr 1; omega
   rw [Nat.mul_assoc]; omega
@@ -122,21 +126,25 @@ def Apart : List (Nat × Sub) → Prop
   | x :: y :: r => x.1 + last x.2 ≤ y.1 ∧ Apart (y :: r)
   | _ => True
 
-private theorem sub_fits (l : L) (i : Nat) (hp : 0 < l.palign) (hw : 0 < l.bw) (hh : 0 < l.bh) :
+private theorem sub_fits (l : L) (i : Nat) (hp : 0 < l.palign) (hw : 0 < l.bw) (hh : 0 < l.bh) (hs : span (sub l i) < 2 ^ 32) :
     last (sub l i) ≤ extent (sub l i) := by
   have p := pitch_holds_row l i hp
   have r := rows_whole l i hw hh
-  exact last_le_extent _ p.1 (Nat.mul_le_mul r.2.2.1 r.2.2.2)
+  have e := reach_le_span _ p.1 (Nat.mul_le_mul r.2.2.1 r.2.2.2)
+  unfold last extent
+  rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt hs]
+  exact e
 
-/-- D3D12.FOOTPRINT.LAYOUT: no two subresources overlap, and each starts at a multiple of 512
-(D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT) past the base -/
-theorem layout_apart (l : L) (base i c off : Nat) (hp : 0 < l.palign) (hw : 0 < l.bw) (hh : 0 < l.bh) (ha : off % 512 = 0) :
+/-- D3D12.FOOTPRINT.LAYOUT: no two subresources of fewer than 2^32 bytes each overlap, and each
+starts at a multiple of 512 (D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT) past the base -/
+theorem layout_apart (l : L) (base i c off : Nat) (hp : 0 < l.palign) (hw : 0 < l.bw) (hh : 0 < l.bh) (ha : off % 512 = 0)
+    (hs : ∀ j, span (sub l j) < 2 ^ 32) :
     Apart (subs l base i c off) ∧ ∀ x ∈ subs l base i c off, base ≤ x.1 ∧ (x.1 - base) % 512 = 0 := by
   induction c generalizing i off with
   | zero => simp [subs, Apart]
   | succ c ih =>
     have next := align_bounds (off + extent (sub l i)) 512 (by decide)
-    have fit := sub_fits l i hp hw hh
+    have fit := sub_fits l i hp hw hh (hs i)
     have t := ih (i + 1) (align (off + extent (sub l i)) 512) next.2.1
     refine ⟨?_, ?_⟩
     · cases c with
@@ -149,6 +157,17 @@ theorem layout_apart (l : L) (base i c off : Nat) (hp : 0 < l.palign) (hw : 0 < 
       rcases hx with e | m
       · subst e; simp only; omega
       · exact t.2 x m
+
+/-- D3D12.FOOTPRINT.WRAP: a subresource of 2^32 bytes takes none: the next one starts at the
+same offset -/
+theorem wrap_takes_none (l : L) (base i c off : Nat) (h : span (sub l i) = 2 ^ 32) (ha : off % 512 = 0) :
+    subs l base i (c + 2) off = (base + off, sub l i) :: (base + off, sub l (i + 1)) :: subs l base (i + 2) c (align (off + extent (sub l (i + 1))) 512) := by
+  have e : extent (sub l i) = 0 := by simp [extent, h]
+  have a : align off 512 = off := by
+    unfold align
+    have := Nat.mod_add_div off 512
+    omega
+  simp [subs, e, a]
 
 /-- the footprints as the mirror prints them: TotalBytes, then each one's offset, format, width,
 height, depth, row pitch, rows, row size -/

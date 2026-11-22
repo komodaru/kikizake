@@ -72,8 +72,12 @@ def blockless (f : Nat) : Bool :=
 /-- a texture dimension's support bit; 0 for a buffer and the values outside -/
 def texBit (dim : Nat) : Nat := if dim = 2 then T1 else if dim = 3 then T2 else if dim = 4 then T3 else 0
 
-/-- D3D12.DESC.*, FOOTPRINT.LIMITS: why GetCopyableFootprints refuses a description (0: taken);
-the 2D size limits not checked -/
+/-- D3D12.DESC.SIZE, FOOTPRINT.LIMITS: the largest width and height CreateCommittedResource and
+GetCopyableFootprints take (`size_max`) -/
+def lim (x : Desc) : Nat :=
+  if x.dim = 4 then 2048 else if x.dim = 3 ∧ x.samples ≤ 1 ∧ x.mips ≤ 1 ∧ x.d = 1 then 2 ^ 23 else 16384
+
+/-- D3D12.DESC.*, FOOTPRINT.LIMITS: why GetCopyableFootprints refuses a description (0: taken) -/
 def validate (x : Desc) : Nat :=
   if ¬(1 ≤ x.dim ∧ x.dim ≤ 4) then DIM
   else if x.dim = 1 then
@@ -82,7 +86,7 @@ def validate (x : Desc) : Nat :=
     else 0
   else if x.w = 0 ∨ x.h = 0 ∨ x.d = 0 then SIZE
   else if x.d > 2048 ∨ (x.h > 1 ∧ x.dim = 2) then SIZE
-  else if x.dim = 2 ∧ x.w > 16384 ∨ x.dim = 4 ∧ (x.w > 2048 ∨ x.h > 2048) then SIZE
+  else if x.w > lim x ∨ x.h > lim x then SIZE
   else if ¬(x.align = 0 ∨ x.align = 4096 ∨ x.align = 65536 ∨ x.align = 4194304) then ALIGN
   else if x.samples = 0 then MSAA
   else if (x.samples > 1 ∨ x.quality > 0) ∧ (x.dim ≠ 3 ∨ x.flags &&& 3 = 0 ∨ x.mips ≠ 1 ∨ x.flags &&& 0x20 ≠ 0 ∨ x.layout = 3) then MSAA
@@ -101,10 +105,6 @@ def texState (state flags : Nat) : Bool :=
   else
     let allowed := ANY ||| (if flags &&& 1 ≠ 0 then 0x4 else 0) ||| (if flags &&& 4 ≠ 0 then 0x8 else 0) ||| (if flags &&& 2 ≠ 0 then 0x30 else 0)
     state &&& (0xffffffff - allowed) == 0 && (state &&& WRITES == 0 || state &&& (state - 1) == 0)
-
-/-- D3D12.DESC.SIZE: the largest width and height CreateCommittedResource takes -/
-def lim (x : Desc) : Nat :=
-  if x.dim = 4 then 2048 else if x.dim = 3 ∧ x.samples ≤ 1 ∧ x.mips ≤ 1 ∧ x.d = 1 then 2 ^ 23 else 16384
 
 /-- D3D12.DESC.ALIGN -/
 def alignOk (x : Desc) (small : Bool) : Prop :=
@@ -318,15 +318,26 @@ theorem single_2d :
     create 1 0 ⟨3, 0, 16385, 1, 2, 1, 61, 1, 0, 0, 0⟩ false false = INVALIDARG := by
   decide
 
-/-- D3D12.FOOTPRINT.LIMITS: GetCopyableFootprints does not look at a 2D texture's width and
-height (past 0) -/
-theorem footprint_2d (x : Desc) (w h : Nat) (hd : x.dim = 3) (hw : 1 ≤ x.w) (hh : 1 ≤ x.h) (hw' : 1 ≤ w) (hh' : 1 ≤ h) :
-    validate { x with w := w, h := h } = validate x := by
+/-- D3D12.FOOTPRINT.LIMITS, DESC.SIZE: GetCopyableFootprints takes a texture only within the
+sizes CreateCommittedResource takes; within them a 2D or 3D texture's width and height are not
+looked at -/
+theorem footprint_limits (x : Desc) (hv : validate x = 0) (hd : x.dim ≠ 1) : x.w ≤ lim x ∧ x.h ≤ lim x := by
+  unfold validate at hv
+  repeat' split at hv
+  all_goals first | exact absurd hv (by decide) | omega
+
+theorem footprint_sizes (x : Desc) (w h : Nat) (hd : x.dim ≠ 1) (h1 : x.dim ≠ 2) (hw : 1 ≤ x.w ∧ x.w ≤ lim x) (hh : 1 ≤ x.h ∧ x.h ≤ lim x)
+    (hw' : 1 ≤ w ∧ w ≤ lim x) (hh' : 1 ≤ h ∧ h ≤ lim x) : validate { x with w := w, h := h } = validate x := by
+  have l : lim { x with w := w, h := h } = lim x := by simp [lim]
   have a : x.w ≠ 0 := by omega
   have b : x.h ≠ 0 := by omega
   have c : w ≠ 0 := by omega
   have e : h ≠ 0 := by omega
-  simp [validate, hd, a, b, c, e]
+  have f : ¬(x.w > lim x ∨ x.h > lim x) := by omega
+  have g : ¬(w > lim x ∨ h > lim x) := by omega
+  simp only [validate, l]
+  simp only [ne_eq] at hd h1
+  simp only [hd, h1, a, b, c, e, f, g, ite_false, and_false, or_false, false_or]
 
 def mirrors : List Mirror := [
   ⟨"d3d12.support", fun | [f] => (nat f).map fun f => [support f, if blockless f then 1 else 0] | _ => none⟩,

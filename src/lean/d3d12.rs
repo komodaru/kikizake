@@ -14,9 +14,6 @@ const U32: i64 = 0xffff_ffff;
 /// slices, mip levels, sample counts, qualities, layouts
 const ALIGNS: [i64; 9] = [0, 1, 256, 4096, 8192, 65536, 131_072, 4_194_304, U32];
 const SIZES: [i64; 14] = [0, 1, 2, 3, 7, 64, 2047, 2048, 2049, 16384, 16385, 1 << 23, (1 << 23) + 1, U32];
-/// the widths and heights asked of GetCopyableFootprints: below 2^31, so a block-rounded width
-/// stays a 32-bit footprint field
-const FP_SIZES: [i64; 14] = [0, 1, 2, 3, 7, 64, 2047, 2048, 2049, 16384, 16385, 1 << 23, (1 << 23) + 1, 0x7fff_fff0];
 const DEPTHS: [i64; 7] = [0, 1, 2, 3, 2048, 2049, 0xffff];
 const MIPS: [i64; 7] = [0, 1, 2, 3, 8, 15, 0xffff];
 const SAMPLES: [i64; 9] = [0, 1, 2, 3, 4, 8, 16, 17, 32];
@@ -245,11 +242,11 @@ pub static MIRRORS: &[Mirror] = &[
     Mirror {
         name: "d3d12.footprints",
         lean: COPYABLE,
-        domain: Domain::Sampled("every dimension 0..6 and format 0..192, the edges of each size below 2^31, alignment, sample, quality and layout, levels 0..3, 8, 15, flags 0..0x3f, ranges of up to 12 subresources from 0..12: 300,000 descriptions, and 300,000 valid ones of 1..300 texels a side"),
+        domain: Domain::Sampled("every dimension 0..6 and format 0..192, the edges of each size up to 0xffffffff, alignment, sample, quality and layout, levels 0..3, 8, 15, flags 0..0x3f, ranges of up to 12 subresources from 0..12: 300,000 descriptions, and 300,000 valid ones of 1..300 texels a side"),
         inputs: |each| {
             sampled(&[(0, 12), (0, 12), (0, 4096), (0, 6), (0, 8), (0, 13), (0, 13), (0, 6), (0, 5), (0, 192), (0, 8), (0, 2), (0, 5), (0, 0x3f)], 300_000, 0xf007_0001, &mut |v| {
                 if let [first, count, base, dim, al, w, h, d, m, fmt, sa, q, l, fl] = *v {
-                    each(&[first, count, base, dim, pick(&ALIGNS, al), pick(&FP_SIZES, w), pick(&FP_SIZES, h), pick(&DEPTHS, d), pick(&MIPS, m), fmt, pick(&SAMPLES, sa), pick(&QUALITIES, q), pick(&LAYOUTS, l), fl]);
+                    each(&[first, count, base, dim, pick(&ALIGNS, al), pick(&SIZES, w), pick(&SIZES, h), pick(&DEPTHS, d), pick(&MIPS, m), fmt, pick(&SAMPLES, sa), pick(&QUALITIES, q), pick(&LAYOUTS, l), fl]);
                 }
             });
             sampled(&[(0, 12), (0, 12), (0, 4096), (1, 4), (1, 300), (1, 300), (1, 12), (0, 4), (0, 192)], 300_000, 0xf007_0002, &mut |v| {

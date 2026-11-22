@@ -968,6 +968,20 @@ pub fn d3d12() -> String {
         let (first, count) = first_count;
         writeln!(s, "case fp-limit2-{name}\ndevice12\nfootprint12 {first} {count} 0 {}\nend", desc_str(&d));
     }
+    // (added after: the 32-bit byte counts of 2D subresources; whether 3D depths, video planes and
+    // depth planes wrap the same)
+    for (name, first_count, d) in [
+        ("3d-rgba32f-2048", (0u32, 2u32), Desc::tex(4, 2048, 2048, 2048, 2, 2)),
+        ("3d-rgba8-2048x2048x1024", (0, 2), Desc::tex(4, 2048, 2048, 1024, 2, 28)),
+        ("nv12-800000x400", (0, 2), Desc::tex(3, 1 << 23, 0x400, 1, 1, 103)),
+        ("p010-800000x200", (0, 2), Desc::tex(3, 1 << 23, 0x200, 1, 1, 104)),
+        ("d24s8-800000x80", (0, 2), Desc::tex(3, 1 << 23, 0x80, 1, 1, 45)),
+        ("d32s8-400000x100", (0, 2), Desc::tex(3, 1 << 22, 0x100, 1, 1, 20)),
+        ("1d-rgba32f-a2048", (0, 3), Desc::tex(2, 16384, 1, 2048, 1, 2)),
+    ] {
+        let (first, count) = first_count;
+        writeln!(s, "case fp-wrap-{name}\ndevice12\nfootprint12 {first} {count} 0 {}\nend", desc_str(&d));
+    }
 
     s
 }
