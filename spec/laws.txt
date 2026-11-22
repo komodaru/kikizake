@@ -578,3 +578,4 @@ spec/lean/Kikizake/D3d9/Formats.lean::targets lean D3D9.FORMATS
 spec/lean/Kikizake/D3d9/Formats.lean::d3d8 lean D3D9.FORMATS
 spec/lean/Kikizake/D3d9/Formats.lean::check_formats lean D3D9.FORMATS.CHECK
 spec/lean/Kikizake/D3d9/Formats.lean::usage lean D3D9.FORMATS.USAGE
+tests/laws_dwrite_layout.rs::layouts_are_the_lines_and_clusters exhaustive DW.LAYOUT.LINE DW.LAYOUT.WRAP DW.LAYOUT.EMERGENCY DW.LAYOUT.CLUSTERS DW.LAYOUT.DEPTH
