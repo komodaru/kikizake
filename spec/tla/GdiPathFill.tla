@@ -2,7 +2,8 @@
 (* What GDI does with a path, from spec/gdipath.txt, on a 3 by 3 8 bpp DIB section with a red
    pen and a green brush: FlattenPath of lines (GDI.PATH.FLATTEN), StrokePath (GDI.PATH.STROKE),
    FillPath, StrokeAndFillPath, PathToRegion and SelectClipPath (GDI.PATH.FILL), without a closed
-   path (GDI.PATH.NOPATH) or with an empty one (GDI.PATH.EMPTYFILL). A path is built in the
+   path (GDI.PATH.NOPATH) or with an empty one (GDI.PATH.EMPTYFILL), and Polygon outside a path
+   (GDI.SHAPE.POLYFILL). A path is built in the
    bracket as GdiPath.tla says, of whole figures on the corners of a two pixel grid, so every
    edge is level, upright or diagonal: the interior is CreatePolygonRgn's in ALTERNATE mode
    (GDI.RGN.POLYSCAN), the pixels of each row y between the x where its edges (y in their
@@ -120,6 +121,12 @@ FillOp(op, line) ==
                     [] op = "selclippath" -> clip' = inner /\ UNCHANGED rgn /\ Call(<<line, "selclippath 1">>, px)
 \* the region made, drawn
 FillRgn == UNCHANGED <<clip, bracket, path, pos, rgn>> /\ Call(<<"> fillrgn 0 1", "ret 1">>, Fill(px, rgn, clip))
+\* GDI.SHAPE.POLYFILL: Polygon outside a bracket, the brush over CreatePolygonRgn's region of the
+\* points, then the pen's outline closed back to the first point; the position kept
+RECURSIVE Coords(_)
+Coords(f) == IF f = <<>> THEN "" ELSE " " \o P(Head(f)) \o Coords(Tail(f))
+Polygon(f) == /\ bracket # "open" /\ UNCHANGED <<clip, bracket, path, pos, rgn>>
+              /\ Call(<<"> polygon 0" \o Coords(f), "ret 1">>, Lines(Fill(px, Interior(<<f>>), clip), {Edges(f)[i] : i \in 1..Len(f)}, clip))
 
 Square == <<<<0, 0>>, <<2, 0>>, <<2, 2>>, <<0, 2>>>>
 Triangle == <<<<0, 0>>, <<2, 2>>, <<2, 0>>>>
@@ -128,6 +135,7 @@ Bow == <<<<0, 0>>, <<2, 2>>, <<2, 0>>, <<0, 2>>>>
 \* (no call past MaxOps: the last states have no successors, CHECK_DEADLOCK off)
 Next == /\ n < MaxOps
         /\ \/ Begin \/ End \/ Abort \/ Flatten \/ Stroke \/ FillRgn
+           \/ \E f \in {Square, Triangle, Bow} : Polygon(f)
            \/ \E f \in {Square, Triangle, Bow}, cl \in BOOLEAN : Figure(f, cl)
            \/ Figure(<<<<2, 0>>, <<0, 2>>>>, FALSE)
            \/ Figure(<<<<2, 2>>>>, FALSE)
