@@ -131298,3 +131298,205 @@ d3dclear 0
 d3dline 0xff610610/0xffd6bc38 97 52 120800 143221
 d3ddump
 end
+case farwire-7-rgb
+d3d 7
+d3ddev rgb 32 12 12
+d3drs set 22 1
+d3drs set 8 2
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 70000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -70000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 66000
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff -66000 -66000 170 30 90 170
+d3ddump
+end
+case farwire-7-mmx
+d3d 7
+d3ddev mmx 32 12 12
+d3drs set 22 1
+d3drs set 8 2
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 70000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -70000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 66000
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff -66000 -66000 170 30 90 170
+d3ddump
+end
+case farwire-3-rgb
+d3d 3
+d3ddev rgb 32 12 12
+d3drs set 22 1
+d3drs set 8 2
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 70000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -70000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 66000
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff -66000 -66000 170 30 90 170
+d3ddump
+end
+case farwire-2-rgb
+d3d 2
+d3ddev rgb 32 12 12
+d3drs set 22 1
+d3drs set 8 2
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 70000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -70000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 66000
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff -66000 -66000 170 30 90 170
+d3ddump
+end
+case farwire-3-mmx
+d3d 3
+d3ddev mmx 32 12 12
+d3drs set 22 1
+d3drs set 8 2
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 70000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -70000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 66000
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff -66000 -66000 170 30 90 170
+d3ddump
+end
+case hugevert-7-rgb
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 20000000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -20000000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 20000000
+d3ddump
+end
+case hugevert-7-hal
+d3d 7
+d3ddev hal 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 20000000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -20000000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 20000000
+d3ddump
+end
+case hugevert-7-tnl
+d3d 7
+d3ddev tnl 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 20000000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -20000000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 20000000
+d3ddump
+end
+case hugevert-7-mmx
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 20000000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -20000000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 20000000
+d3ddump
+end
+case hugevert-3-rgb
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 20000000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -20000000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 20000000
+d3ddump
+end
+case hugevert-2-rgb
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 20000000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -20000000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 20000000
+d3ddump
+end
+case hugevert-2-ramp
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 20000000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -20000000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 20000000
+d3ddump
+end
+case hugevert-3-mmx
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 20000000 40 40 170
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 40 170 -20000000 90
+d3ddump
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 16 16 170 30 90 20000000
+d3ddump
+end

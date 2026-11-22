@@ -302,6 +302,55 @@ proptest! {
         }
     }
 
+    /// d3dim700's cut of a line at the guard band (d3d7dev farcolour-7-*): the ends it keeps lie
+    /// in the band (in 28.4, after the snap), on the segment within a 16th, an end inside kept
+    /// as it is, and each cut colour between the ends' bytes
+    #[test]
+    fn guard_cut_stays_on_the_segment(a in prop::array::uniform2(-400_000i64..400_000), b in prop::array::uniform2(-2000i64..2000), ca in any::<[u8; 4]>(), cb in any::<[u8; 4]>()) {
+        use kikizake::model::d3d7::guard_clip;
+        let (pa, pb) = ((a[0], a[1]), (b[0], b[1]));
+        let Some((e, cs)) = guard_clip([(pa, ca), (pb, cb)]).unwrap() else {
+            prop_assert!(false, "{pa:?} {pb:?}: a line with an end inside dropped");
+            return Ok(());
+        };
+        // (trunc(16·x + 1/2) toward zero: an end left of or above 0 a 16th nearer it)
+        let snap = |v: i64| if v < 0 { v + 1 } else { v };
+        prop_assert!(e[1] == (snap(pb.0), snap(pb.1)), "{pa:?} {pb:?}: the inside end moved to {:?}", e[1]);
+        prop_assert!(cs[1] == cb);
+        let band = -4096 * 16..=4095 * 16;
+        prop_assert!(band.contains(&e[0].0) && band.contains(&e[0].1), "{pa:?} {pb:?}: {:?}", e[0]);
+        let (dx, dy) = ((pb.0 - pa.0) as f64, (pb.1 - pa.1) as f64);
+        let cross = (((e[0].0 - pa.0) as f64) * dy - ((e[0].1 - pa.1) as f64) * dx).abs() / (dx * dx + dy * dy).sqrt().max(1.0);
+        prop_assert!(cross <= 1.0 + 1e-3 * (dx.abs() + dy.abs()) / 16.0, "{pa:?} {pb:?}: {:?} off by {cross} 16ths", e[0]);
+        for k in 0..4 {
+            prop_assert!(cs[0][k] >= ca[k].min(cb[k]) && cs[0][k] <= ca[k].max(cb[k]), "{pa:?} {pb:?} channel {k}");
+        }
+    }
+
+    /// WARP's line clip (clean-room notes F): ends inside the viewport (x + 1/2 in 0..w) kept
+    /// exactly, cut ends on the viewport's closed sides and within a 256th or so of the segment,
+    /// and an attribute cut between its ends' values
+    #[test]
+    fn warp_line_cut_stays_on_the_segment(v in prop::array::uniform4(-2000i64..2000), a in prop::array::uniform2(0.0f32..1.0)) {
+        use kikizake::model::warp::cut_line;
+        let (p, q) = ((v[0], v[1]), (v[2], v[3]));
+        let Some(c) = cut_line([p, q], [[a[0]], [a[1]]], 12, 12).unwrap() else { return Ok(()) };
+        let fx = |n: i64| i128::from(n) * 16 + 128;
+        for (k, orig) in [p, q].into_iter().enumerate() {
+            let inside = (0..=12 * 256).contains(&fx(orig.0)) && (0..=12 * 256).contains(&fx(orig.1));
+            let got = c.v[k];
+            if inside {
+                prop_assert!(got == (fx(orig.0), fx(orig.1)) || got.0.abs_diff(fx(orig.0)) <= 1 && got.1.abs_diff(fx(orig.1)) <= 1, "{v:?}: {got:?}");
+            }
+            prop_assert!((-1..=12 * 256 + 1).contains(&got.0) && (-1..=12 * 256 + 1).contains(&got.1), "{v:?}: {got:?} off the viewport");
+            let (dx, dy) = ((fx(q.0) - fx(p.0)) as f64, (fx(q.1) - fx(p.1)) as f64);
+            let cross = (((got.0 - fx(p.0)) as f64) * dy - ((got.1 - fx(p.1)) as f64) * dx).abs() / (dx * dx + dy * dy).sqrt().max(1.0);
+            prop_assert!(cross <= 2.0, "{v:?}: {got:?} off the segment by {cross} 256ths");
+            let [x] = c.a[k];
+            prop_assert!(x >= a[0].min(a[1]) - 1e-6 && x <= a[0].max(a[1]) + 1e-6, "{v:?}: {x}");
+        }
+    }
+
     /// the software line's colour words (clean-room notes D.3): one word per walked pixel, the
     /// first within a step of the start's bytes << 8, each step the same f32 gradient, never
     /// below 0 nor past the larger end's word by more than one gradient, and flat (equal ends)
@@ -537,7 +586,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 5, 0), ("d3d7shade", 0, 0), ("d3d7edge", 0, 0), ("d3d7rast", 0, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 11, 0), ("d3d7shade", 0, 0), ("d3d7edge", 0, 0), ("d3d7rast", 0, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);

@@ -734,22 +734,22 @@ impl D3d7 {
                 let st = States::read(self)?;
                 let d = self.dev.as_mut().ok_or(Fail::Bad)?;
                 let tri = Tri { v: [v[0], v[1], v[1]], c: [c, c1, c1], spec: [0; 3], z: 0.5 };
+                let col = |x: u32| bgra(if st.flat { c } else { x });
                 let writes = match d.family {
-                    // (two colours: each end its own, the walk's or the planes' (D3D7.GOURAUD))
-                    Family::Soft { .. } | Family::Hw { .. } if c != c1 => {
-                        // (an end past the guard band: the colours from the front end's cut end
-                        // or the whole walk, d3d7dev farcolour-* asked)
-                        if matches!(d.family, Family::Soft { .. }) && !in_guard(&v) {
-                            return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
-                        }
-                        let [a, b] = v;
-                        let col = |x: u32| bgra(if st.flat { c } else { x });
-                        line_writes(d.family, &st, [(a, col(c), [0; 4]), (b, col(c1), [0; 4])], d.rt.w, d.rt.h)?
-                    }
                     Family::Ramp => {
                         let fmt = d.rt.fmt;
                         ramp_writes(&mut d.spans, &st, &tri, Prim::Line, d.rt.w, d.rt.h, fmt)?
                     }
+                    // MEASURED (d3d7dev farcolour-7-*, farline-7-*): d3dim700's front end cuts a
+                    // line with an end past the guard band at the band (clean-room notes D.1)
+                    Family::Soft { .. } if d.ver == Ver::V7 && !in_guard(&v) => match guard_clip([(v[0], col(c)), (v[1], col(c1))])? {
+                        Some((e, cs)) => soft_line(&st, e, cs, d.rt.w, d.rt.h)?,
+                        None => Vec::new(),
+                    },
+                    // (two colours: each end its own, the walk's or the planes' (D3D7.GOURAUD);
+                    // d3dim.dll's lines past the guard band too: the walk whole, MEASURED d3d7dev
+                    // farcolour-2-*, -3-*)
+                    Family::Soft { .. } | Family::Hw { .. } if c != c1 => line_writes(d.family, &st, [(v[0], col(c), [0; 4]), (v[1], col(c1), [0; 4])], d.rt.w, d.rt.h)?,
                     Family::Soft { .. } | Family::Hw { .. } => cover_writes(&line(d.family, v, st.lastpixel, d.rt.w, d.rt.h)?, d.rt.w),
                 };
                 paint(d, &st, &tri, &writes)?;
@@ -1169,9 +1169,74 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
     Ok(cover)
 }
 
+/// a TL end as the front end's clipper holds it: x, y in pixels and the colour's bytes B, G, R,
+/// A as floats
+#[derive(Clone, Copy)]
+struct ClipEnd {
+    x: f32,
+    y: f32,
+    c: [f32; 4],
+}
+
+/// the guard band's sides, in pixels (d3dim700's caps: −4096..4095)
+const GB_LO: f32 = -4096.0;
+const GB_HI: f32 = 4095.0;
+
+/// the guard-band planes in the order ClipSingleLine cuts them (Left, Right, Top, Bottom): each
+/// end's distance inside it (negative outside) and the end moved onto it
+const GB_PLANES: [(fn(&ClipEnd) -> f32, fn(&mut ClipEnd)); 4] = [
+    (|e| e.x - GB_LO, |e| e.x = GB_LO),
+    (|e| GB_HI - e.x, |e| e.x = GB_HI),
+    (|e| e.y - GB_LO, |e| e.y = GB_LO),
+    (|e| GB_HI - e.y, |e| e.y = GB_HI),
+];
+
+/// d3dim700's cut of a software line at the guard band (clean-room notes D.1, ClipSingleLine
+/// with the guard band): MEASURED (d3d7dev farcolour-7-*: 24 of 24 lines of two colours,
+/// farline-7-*) for each plane an end outside replaced by the crossing, t = dout / (dout − din)
+/// and every value (pi − po) · t + po in f32 from the outside end, the cut coordinate set onto
+/// the side, the colour's bytes truncated; the ends then snapped as any line's, trunc(16·x + 1/2)
+/// (in 28.4); None when the line lies wholly outside one side
+pub fn guard_clip(ends: [((i64, i64), [u8; 4]); 2]) -> Res<Option<([(i64, i64); 2], [[u8; 4]; 2])>> {
+    let bad = || Fail::Bad;
+    let sixteenth = f32::from_bits(0x3d80_0000);
+    let px = |v: i64| crate::model::d3dim::f32_of(v).map(|v| v * sixteenth).ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+    let end = |((x, y), c): ((i64, i64), [u8; 4])| -> Res<ClipEnd> { Ok(ClipEnd { x: px(x)?, y: px(y)?, c: c.map(f32::from) }) };
+    let [e0, e1] = ends;
+    let mut p = [end(e0)?, end(e1)?];
+    for (dist, onto) in GB_PLANES {
+        let [a, b] = p;
+        let (da, db) = (dist(&a), dist(&b));
+        let (inside, outside, out_first) = match (da >= 0.0, db >= 0.0) {
+            (true, true) => continue,
+            (false, false) => return Ok(None),
+            (true, false) => (a, b, false),
+            (false, true) => (b, a, true),
+        };
+        let (din, dout) = (dist(&inside), dist(&outside));
+        let t = dout / (dout - din);
+        let l = |pi: f32, po: f32| (pi - po) * t + po;
+        let mut c = [0f32; 4];
+        for ((o, &ci), &co) in c.iter_mut().zip(&inside.c).zip(&outside.c) {
+            *o = l(ci, co);
+        }
+        let mut cut = ClipEnd { x: l(inside.x, outside.x), y: l(inside.y, outside.y), c };
+        onto(&mut cut);
+        p = if out_first { [cut, inside] } else { [inside, cut] };
+    }
+    let snap = |v: f32| crate::model::d3dim::trunc(v * 16.0 + 0.5).ok_or_else(bad);
+    let byte = |v: f32| crate::model::d3dim::trunc(v).and_then(|v| u8::try_from(v).ok()).ok_or_else(bad);
+    let [a, b] = p;
+    let bytes = |e: &ClipEnd| -> Res<[u8; 4]> {
+        let [c0, c1, c2, c3] = e.c;
+        Ok([byte(c0)?, byte(c1)?, byte(c2)?, byte(c3)?])
+    };
+    Ok(Some(([(snap(a.x)?, snap(a.y)?), (snap(b.x)?, snap(b.y)?)], [bytes(&a)?, bytes(&b)?])))
+}
+
 /// whether every vertex (in 16ths) lies in the software guard band −4096..4095
 fn in_guard(v: &[(i64, i64)]) -> bool {
-    let band = -4096 * 16..4096 * 16;
+    let band = -4096 * 16..=4095 * 16;
     v.iter().all(|(x, y)| band.contains(x) && band.contains(y))
 }
 
@@ -1322,6 +1387,20 @@ fn edge_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64) -> Res<Ve
     Ok(out)
 }
 
+/// a software line's pixels in the target from its ends in 28.4 and their colours' bytes: its
+/// walk (D3D7.LINE) with the colours stepped from the start (clean-room notes D.3)
+fn soft_line(st: &States, e: [(i64, i64); 2], c: [[u8; 4]; 2], w: i64, h: i64) -> Res<Vec<Write>> {
+    hit(clause::D3D7_LINE);
+    let walk = crate::model::d3dim::walk_line(e, st.lastpixel)?;
+    let [ca, cb] = c;
+    let mut out = Vec::new();
+    for (&(x, y), &c) in walk.px.iter().zip(&walk.colours(ca, cb)?) {
+        let Some(k) = at(x, y, w, h)? else { continue };
+        out.push(Write { k, x, y, c: words(c) });
+    }
+    Ok(out)
+}
+
 /// the pixels of one line from end a to end b (its position, colour and specular bytes B, G, R,
 /// A): the software rasterizers' walk with its colours stepped from the start (D3D7.GOURAUD,
 /// clean-room notes D.3), the HAL's planes along the major axis (D.4)
@@ -1331,23 +1410,26 @@ fn line_writes(family: Family, st: &States, ends: [((i64, i64), [u8; 4], [u8; 4]
     let cover = line(family, e, st.lastpixel, w, h)?;
     let mut out = Vec::new();
     match family {
-        Family::Soft { .. } | Family::Ramp => {
-            let walk = crate::model::d3dim::walk_line(e.map(|(x, y)| (snap16(x), snap16(y))), st.lastpixel)?;
-            for (&(x, y), &c) in walk.px.iter().zip(&walk.colours(ca, cb)?) {
-                let Some(k) = at(x, y, w, h)? else { continue };
-                if cover.get(k).copied().unwrap_or(false) {
-                    out.push(Write { k, x, y, c: words(c) });
-                }
-            }
-        }
+        Family::Soft { .. } | Family::Ramp => out = soft_line(st, e.map(|(x, y)| (snap16(x), snap16(y))), [ca, cb], w, h)?,
         Family::Hw { .. } if !cover.contains(&true) => {}
         Family::Hw { .. } => {
-            let plane = |a: [u8; 4], b: [u8; 4], i: usize| -> Res<crate::model::warp::LinePlane> {
-                let (Some(&p), Some(&q)) = (a.get(i), b.get(i)) else { return Err(Fail::Bad) };
-                crate::model::warp::LinePlane::new(e, [p, q])
+            // (WARP cuts the line at the viewport first, its attributes as floats: clean-room
+            // notes F, MEASURED d3d7dev linecolour-7-tnl, a pixel the cut moves onto 42.500126)
+            let unit = |c: [u8; 4], sp: [u8; 4]| -> Res<[f32; 8]> {
+                let mut o = [0f32; 8];
+                for (v, b) in o.iter_mut().zip(c.iter().chain(&sp)) {
+                    *v = f32::from(*b) / 255.0;
+                }
+                Ok(o)
             };
-            let (r, g, b) = (plane(ca, cb, 2)?, plane(ca, cb, 1)?, plane(ca, cb, 0)?);
-            let (sr, sg, sbl, sf) = (plane(sa, sb, 2)?, plane(sa, sb, 1)?, plane(sa, sb, 0)?, plane(sa, sb, 3)?);
+            let Some(cut) = crate::model::warp::cut_line(e, [unit(ca, sa)?, unit(cb, sb)?], w, h)? else { return Ok(out) };
+            let [a0, a1] = cut.a;
+            let plane = |i: usize| -> Res<crate::model::warp::LinePlane> {
+                let (Some(&p), Some(&q)) = (a0.get(i), a1.get(i)) else { return Err(Fail::Bad) };
+                crate::model::warp::LinePlane::from_fixed(cut.v, [p, q])
+            };
+            let (r, g, b) = (plane(2)?, plane(1)?, plane(0)?);
+            let (sr, sg, sbl, sf) = (plane(6)?, plane(5)?, plane(4)?, plane(7)?);
             let wu = usize::try_from(w).ok().ok_or(Fail::Bad)?.max(1);
             for (k, _) in cover.iter().enumerate().filter(|&(_, &c)| c) {
                 let (x, y) = (i64::try_from(k % wu).ok().ok_or(Fail::Bad)?, i64::try_from(k / wu).ok().ok_or(Fail::Bad)?);

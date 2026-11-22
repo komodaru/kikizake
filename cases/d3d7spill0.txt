@@ -1,0 +1,10 @@
+# kikizake suite d3d7spill0: one Direct3D triangle whose walk runs past the surface's end (SPEC.md). Made by `kikizake gen d3d7spill0`.
+# x86 only
+case spill-7-rgb-565-20-63
+d3d 7
+d3ddev rgb 565 20 63
+d3drs set 22 1
+d3dclear 0xff000000
+d3dtri 0x50cb407a 317 993 76 255 223 523
+d3ddump
+end
