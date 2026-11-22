@@ -95,12 +95,12 @@ Info(k, b) == IF ~b.ok THEN <<"> gpinfo " \o S(k), "gpinfo nobitmap">>
                        \o S(b.flags) \o " " \o S(Len(b.pal))>> \o PalLine(b.pal)
 
 \* a row of the rectangle's pixels in format f: 1 bpp from the high bit (the rest of the byte 0)
-Row(b, f, x, y, w) ==
-  IF f = "1bppIndexed"
-  THEN Hex(LET v(i) == IF i < w THEN Convert(b.f, f, Px(b, x + i, y), b.pal) * P2(7 - i) ELSE 0
-           IN v(0) + v(1), 2)
-  ELSE LET one(i) == Bytes(f, Convert(b.f, f, Px(b, x + i, y), b.pal))
-       IN IF w = 1 THEN one(0) ELSE one(0) \o one(1)
+\* (bitmaps here at most 8 wide)
+RECURSIVE RowFrom(_, _, _, _, _, _)
+RowFrom(b, f, x, y, w, i) == IF i >= w THEN "" ELSE Bytes(f, Convert(b.f, f, Px(b, x + i, y), b.pal)) \o RowFrom(b, f, x, y, w, i + 1)
+RECURSIVE IdxFrom(_, _, _, _, _, _)
+IdxFrom(b, f, x, y, w, i) == IF i >= w THEN 0 ELSE Convert(b.f, f, Px(b, x + i, y), b.pal) * P2(7 - i) + IdxFrom(b, f, x, y, w, i + 1)
+Row(b, f, x, y, w) == IF f = "1bppIndexed" THEN Hex(IdxFrom(b, f, x, y, w, 0), 2) ELSE RowFrom(b, f, x, y, w, 0)
 
 \* GP.LOCK.RECT: inside the bitmap and not empty; GP.GRAY16: 16bppGrayScale only as itself;
 \* GP.LOCK.READ: the rectangle's pixels in the format asked
