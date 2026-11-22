@@ -12,7 +12,8 @@
    resource (its copy does not run). Updates take the bytes of seed 5, rows 8 bytes apart. A box
    past a subresource removes the device: every read after fails with DXGI_ERROR_DEVICE_REMOVED
    (11: the staging copy; 10: its Map). The samples here are all one value in a pixel (a clear),
-   so resolving copies. *)
+   so resolving copies. What WARP does past a level or with a single-sampled source is as the
+   seq-* and probe-box-* cases measured. *)
 EXTENDS Integers, Sequences, TLC
 
 CONSTANTS MaxOps
@@ -65,6 +66,11 @@ Names == DOMAIN Descs
 \* integer one
 Group(f) == IF f \in {28, 30} THEN 27 ELSE IF f = 87 THEN 90 ELSE 0
 IntFmt(f) == f = 30
+
+Min(x, y) == IF x < y THEN x ELSE y
+Max(x, y) == IF x < y THEN y ELSE x
+\* x - y, 0 below
+Sat(x, y) == IF x > y THEN x - y ELSE 0
 
 Hd == <<"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f">>
 RECURSIVE Hex(_)
@@ -144,22 +150,28 @@ PutRows(sq, rb, l, t, b, w, src, so, sp) ==
 
 \* UpdateSubresource (D3DRES.UPDATE, UPDATE.BOX, UPDATE.EMPTY, UPDATE.IGNORED, UPDATE.BAD,
 \* REMOVED, MS.REGION): nothing to a subresource past the last, to a resource not of default
-\* usage or multisampled, for an empty box; a box past the subresource removes the device; else
-\* the box's rows from the source, 8 bytes apart (a buffer's box in bytes, its one row)
+\* usage or multisampled, for an empty box; a box past the resource's top level removes the
+\* device; else the box's rows from the source, 8 bytes apart, cut to the subresource (a buffer's
+\* box in bytes; a 1D texture's one row from its top whatever its bottom)
 Update(k, s, bx) ==
     LET c == "update " \o S(k) \o " " \o S(s) \o " 5 8 16" \o BoxArgs(bx)
         x == Desc(k)
-        l == IF bx = <<>> THEN 0 ELSE bx[1]
-        t == IF bx = <<>> \/ x.dim = 4 THEN 0 ELSE bx[2]
-        f == IF bx = <<>> \/ x.dim = 4 THEN 0 ELSE bx[3]
+        flat == x.dim = 1
         lay == x.lay[s + 1]
+        top == x.lay[1]
+        l == IF bx = <<>> THEN 0 ELSE bx[1]
+        t == IF bx = <<>> THEN 0 ELSE bx[2]
+        f == IF bx = <<>> THEN 0 ELSE bx[3]
         r == IF bx = <<>> THEN lay.rb \div x.el ELSE bx[4]
-        b == IF bx = <<>> THEN lay.rows ELSE IF x.dim = 4 THEN 1 ELSE bx[5]
-        bk == IF bx = <<>> \/ x.dim = 4 THEN 1 ELSE bx[6]
+        b == IF bx = <<>> THEN lay.rows ELSE IF flat THEN t + 1 ELSE bx[5]
+        bk == IF bx = <<>> THEN 1 ELSE IF flat THEN f + 1 ELSE bx[6]
+        cr == Min(r, lay.rb \div x.el)
+        cb == Min(b, lay.rows)
     IN IF ~made[k] THEN Call(c, <<"update nores">>, bytes, removed)
     ELSE IF x.count > 1 \/ s >= NSubs(k) \/ x.usage /= 0 \/ l >= r \/ t >= b \/ f >= bk THEN Nothing(c)
-    ELSE IF r * x.el > lay.rb \/ b > lay.rows \/ bk > 1 THEN Removes(c)
-    ELSE Sets(c, k, s, PutRows(bytes[k][s + 1], lay.rb, l * x.el, t, b, (r - l) * x.el, Data[5], 0, 8))
+    ELSE IF r > top.rb \div x.el \/ b > top.rows \/ bk > 1 THEN Removes(c)
+    ELSE IF l >= cr \/ t >= cb THEN Nothing(c)
+    ELSE Sets(c, k, s, PutRows(bytes[k][s + 1], lay.rb, l * x.el, t, cb, (cr - l) * x.el, Data[5], 0, 8))
 
 \* CopyResource (D3DRES.COPY, COPY.FORMAT, COPY.IGNORED, COPY.SAMPLES): every subresource, when
 \* the dimension, levels and samples agree, the formats share a typeless group (no block
@@ -175,20 +187,21 @@ Copy(dst, src) ==
 
 \* CopySubresourceRegion (D3DRES.COPYSUB, COPYSUB.BAD, COPYSUB.IGNORED, MS.REGION, REMOVED): a
 \* box or an offset to or from a multisampled resource, a missing subresource, an immutable
-\* destination, sample counts that differ, a buffer and a texture, formats of other groups, an
-\* empty box: nothing; a box past the source or a region past the destination removes the device;
-\* else the box's elements to (x, y)
+\* destination, sample counts that differ, a buffer and a texture, formats of other groups:
+\* nothing; a box past the source or a region past the destination removes the device, an empty
+\* box's too; an empty box inside both: nothing; else the box's elements to (x, y) (a buffer's to
+\* x)
 CopySub(dst, ds, at, src, ss, bx) ==
     LET c == "copysub " \o S(dst) \o " " \o S(ds) \o " " \o S(at[1]) \o " " \o S(at[2]) \o " 0 " \o S(src) \o " " \o S(ss) \o BoxArgs(bx)
         a == Desc(dst) b == Desc(src)
         whole == bx = <<>> /\ at = <<0, 0>>
         sl == b.lay[ss + 1] dl == a.lay[ds + 1]
         l == IF bx = <<>> THEN 0 ELSE bx[1]
-        t == IF bx = <<>> \/ b.dim = 4 THEN 0 ELSE bx[2]
-        f == IF bx = <<>> \/ b.dim = 4 THEN 0 ELSE bx[3]
+        t == IF bx = <<>> THEN 0 ELSE bx[2]
+        f == IF bx = <<>> THEN 0 ELSE bx[3]
         r == IF bx = <<>> THEN sl.rb \div b.el ELSE bx[4]
-        bt == IF bx = <<>> \/ b.dim = 4 THEN sl.rows ELSE bx[5]
-        bk == IF bx = <<>> \/ b.dim = 4 THEN 1 ELSE bx[6]
+        bt == IF bx = <<>> THEN sl.rows ELSE bx[5]
+        bk == IF bx = <<>> THEN 1 ELSE bx[6]
         dx == at[1]
         dy == IF a.dim = 4 THEN 0 ELSE at[2]
     IN IF ~made[dst] \/ ~made[src] THEN Call(c, <<"copysub nores">>, bytes, removed)
@@ -196,24 +209,26 @@ CopySub(dst, ds, at, src, ss, bx) ==
     ELSE IF ds >= NSubs(dst) \/ ss >= NSubs(src) \/ a.usage = 1 \/ a.count /= b.count THEN Nothing(c)
     ELSE IF (a.dim = 4) /= (b.dim = 4) THEN Nothing(c)
     ELSE IF a.dim /= 4 /\ Group(a.fmt) /= Group(b.fmt) THEN Nothing(c)
+    ELSE IF Max(l, r) > sl.rb \div b.el \/ Max(t, bt) > sl.rows \/ Max(f, bk) > 1 THEN Removes(c)
+    ELSE IF dx + Sat(r, l) > dl.rb \div a.el \/ dy + Sat(bt, t) > dl.rows \/ Sat(bk, f) > 1 THEN Removes(c)
     ELSE IF r <= l \/ bt <= t \/ bk <= f THEN Nothing(c)
-    ELSE IF r * b.el > sl.rb \/ bt > sl.rows \/ bk > 1 THEN Removes(c)
-    ELSE IF dx + (r - l) > dl.rb \div a.el \/ dy + (bt - t) > dl.rows THEN Removes(c)
     ELSE Sets(c, dst, ds, PutRows(bytes[dst][ds + 1], dl.rb, dx * a.el, dy, dy + (bt - t), (r - l) * b.el,
                                  bytes[src][ss + 1], t * sl.rb + l * b.el, sl.rb))
 
 \* ResolveSubresource (D3DRES.RESOLVE, RESOLVE.IGNORED, RESOLVE.BAD, RESOLVE.SIZE): a
-\* single-sampled source, a multisampled destination, a format of another group or an integer
-\* one, a missing subresource or other dimensions: nothing; else the samples' value where both are
+\* multisampled destination or one not of default usage, a format of another group or an integer
+\* one, a missing subresource or other dimensions: nothing; a single-sampled source larger than
+\* the destination removes the device; else the samples' value where both are (a single-sampled
+\* source's own)
 Resolve(dst, ds, src, ss, fm) ==
     LET c == "resolve " \o S(dst) \o " " \o S(ds) \o " " \o S(src) \o " " \o S(ss) \o " " \o S(fm)
         a == Desc(dst) b == Desc(src)
     IN IF ~made[dst] \/ ~made[src] THEN Call(c, <<"resolve nores">>, bytes, removed)
-    ELSE IF b.count < 2 \/ a.count /= 1 \/ Group(fm) /= Group(b.fmt) \/ Group(fm) /= Group(a.fmt) \/ IntFmt(fm) THEN Nothing(c)
+    ELSE IF a.count /= 1 \/ a.usage /= 0 \/ Group(fm) /= Group(b.fmt) \/ Group(fm) /= Group(a.fmt) \/ IntFmt(fm) THEN Nothing(c)
     ELSE IF ds >= NSubs(dst) \/ ss >= NSubs(src) \/ a.dim /= b.dim THEN Nothing(c)
-    ELSE LET sl == b.lay[ss + 1] dl == a.lay[ds + 1] rows == IF sl.rows < dl.rows THEN sl.rows ELSE dl.rows
-             w == IF sl.rb < dl.rb THEN sl.rb ELSE dl.rb
-         IN Sets(c, dst, ds, PutRows(bytes[dst][ds + 1], dl.rb, 0, 0, rows, w, bytes[src][ss + 1], 0, sl.rb))
+    ELSE LET sl == b.lay[ss + 1] dl == a.lay[ds + 1] rows == Min(sl.rows, dl.rows) w == Min(sl.rb, dl.rb)
+         IN IF b.count < 2 /\ (sl.rb > dl.rb \/ sl.rows > dl.rows) THEN Removes(c)
+            ELSE Sets(c, dst, ds, PutRows(bytes[dst][ds + 1], dl.rb, 0, 0, rows, w, bytes[src][ss + 1], 0, sl.rb))
 
 Pairs == {<<0, 1>>, <<1, 0>>}
 Next ==

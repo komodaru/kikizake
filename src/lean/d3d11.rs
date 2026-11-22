@@ -1052,7 +1052,7 @@ pub static COPY_MIRRORS: &[Mirror] = &[
     Mirror {
         name: "d3d11.box",
         lean: COPY,
-        domain: Domain::Sampled("a box or none, of a buffer or not, blocks 0..4 by 0..4 and boxes 0..3 each: every one; 300,000 of blocks 0..16, boxes of any 32-bit numbers, wholes 0..2^40"),
+        domain: Domain::Sampled("a box or none, flat or not, blocks 0..4 by 0..4 and boxes 0..3 each: every one; 300,000 of blocks 0..16, boxes of any 32-bit numbers, wholes 0..2^40"),
         inputs: |each| {
             every(&[(0, 1), (0, 1), (0, 4), (0, 4), (0, 3), (0, 3), (0, 3), (0, 3), (0, 3), (0, 3), (2, 2), (3, 3), (1, 1)], each);
             sampled(&[(0, 1), (0, 1), (0, 16), (0, 16), (0, U32), (0, U32), (0, U32), (0, U32), (0, U32), (0, U32), (0, 1 << 40), (0, 1 << 40), (0, 1 << 40)], 300_000, 0x0b0c_d311, each);
@@ -1062,6 +1062,16 @@ pub static COPY_MIRRORS: &[Mirror] = &[
             let bx = if flag(a, 0)? { Some(x.as_slice()) } else { None };
             nums(&crate::model::d3dres::box_elems(bx, flag(a, 1)?, (arg(a, 2)?, arg(a, 3)?), three(a, 10)?))
         },
+    },
+    Mirror {
+        name: "d3d11.clip",
+        lean: COPY,
+        domain: Domain::Sampled("boxes and subresources 0..3 each: every one; 300,000 of 0..2^40 each"),
+        inputs: |each| {
+            every(&[(0, 3); 9], each);
+            sampled(&[(0, 1 << 40); 9], 300_000, 0x0c11_d311, each);
+        },
+        model: |a| nums(&crate::model::d3dres::box_clip(box6(a, 0)?, three(a, 6)?)),
     },
     Mirror {
         name: "d3d11.update",
@@ -1091,6 +1101,20 @@ pub static COPY_MIRRORS: &[Mirror] = &[
                 _ => return None,
             };
             plan_code(crate::model::d3dres::region_plan(flag(a, 0)?, sides, box6(a, 2)?, three(a, 8)?, three(a, 11)?, three(a, 14)?))
+        },
+    },
+    Mirror {
+        name: "d3d11.resolve",
+        lean: COPY,
+        domain: Domain::Sampled("samples 0..4 each side, usages 0..1, each flag, sizes 0..2 each: every one; 300,000 of samples and usages of any 32-bit number, sizes 0..2^40"),
+        inputs: |each| {
+            every(&[(0, 4), (0, 4), (0, 1), (0, 1), (0, 1), (0, 1), (0, 2), (0, 2), (0, 2), (0, 2)], each);
+            sampled(&[(0, U32), (0, U32), (0, U32), (0, 1), (0, 1), (0, 1), (0, 1 << 40), (0, 1 << 40), (0, 1 << 40), (0, 1 << 40)], 300_000, 0x0e50_d311, each);
+        },
+        model: |a| {
+            let g = |i: usize| arg::<u64>(a, i);
+            let plan = crate::model::d3dres::resolve_plan(arg(a, 0)?, (arg(a, 1)?, arg(a, 2)?), flag(a, 3)?, flag(a, 4)?, flag(a, 5)?, [g(6)?, g(7)?], [g(8)?, g(9)?]);
+            plan_code(plan)
         },
     },
 ];

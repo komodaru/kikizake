@@ -1,8 +1,9 @@
 import Kikizake.Mirror
 /-! UpdateSubresource's and CopySubresourceRegion's boxes and what they do (spec/d3dres.txt
 D3DRES.UPDATE*, COPYSUB*, REMOVED), as src/model/d3dres.rs computes them: `boxElems` is
-`box_elems`, `updatePlan` `update_plan`, `regionPlan` `region_plan` (mirrors `d3d11.box`,
-`d3d11.update`, `d3d11.region`). -/
+`box_elems`, `clip` `box_clip`, `updatePlan` `update_plan`, `regionPlan` `region_plan`,
+`resolvePlan` `resolve_plan` (mirrors `d3d11.box`, `d3d11.clip`, `d3d11.update`, `d3d11.region`,
+`d3d11.resolve`). -/
 namespace Kikizake.D3d11.Copy
 
 /-- a box in elements: left, top, front inclusive, right, bottom, back exclusive -/
@@ -16,14 +17,19 @@ structure Box where
   deriving DecidableEq, Repr
 
 /-- D3D11_BOX (in pixels; a buffer's left and right in bytes) in elements of bw by bh pixels,
-or no box (`has` false): the whole of a subresource of c elements a row, r rows, s slices -/
-def boxElems (has buffer : Bool) (bw bh x0 x1 x2 x3 x4 x5 c r s : Nat) : Box :=
+or no box (`has` false): the whole of a subresource of c elements a row, r rows, s slices;
+`flat`: one row from its top and one slice from its front, whatever its bottom and back (a 1D
+texture's in UpdateSubresource) -/
+def boxElems (has flat : Bool) (bw bh x0 x1 x2 x3 x4 x5 c r s : Nat) : Box :=
   if !has then ⟨0, 0, 0, c, r, s⟩
-  else if buffer then ⟨x0, 0, 0, x3, 1, 1⟩
   else
     let w := max bw 1
     let h := max bh 1
-    ⟨x0 / w, x1 / h, x2, (x3 + w - 1) / w, (x4 + h - 1) / h, x5⟩
+    if flat then ⟨x0 / w, x1, x2, (x3 + w - 1) / w, x1 + 1, x2 + 1⟩
+    else ⟨x0 / w, x1 / h, x2, (x3 + w - 1) / w, (x4 + h - 1) / h, x5⟩
+
+/-- a box cut to a subresource of (c, r, s) -/
+def clip (b : Box) (c r s : Nat) : Box := ⟨b.l, b.t, b.f, min b.r c, min b.b r, min b.k s⟩
 
 /-- a box of no element -/
 def empty (b : Box) : Bool := b.r ≤ b.l || b.b ≤ b.t || b.k ≤ b.f
@@ -44,7 +50,8 @@ def Plan.code : Plan → Int
   | .copy => 2
 
 /-- UpdateSubresource of subresource `sub` of `nsubs` of a resource of `usage`, `count` samples,
-the box `b` of a subresource of (c, r, s) -/
+the box `b`, against the resource's top level of (c, r, s) (the write is then cut to the
+subresource with `clip`) -/
 def updatePlan (sub nsubs usage count : Nat) (b : Box) (c r s : Nat) : Plan :=
   if nsubs ≤ sub then .nothing
   else if usage ≠ 0 ∨ 1 < count then .nothing
@@ -66,9 +73,19 @@ def regionPlan (ignored : Bool) (sides : Sides) (b : Box) (sc sr ss dc dr ds ax 
     | .mixed => .nothing
     | .textures false => .nothing
     | _ =>
-      if empty b then .nothing
-      else if past b b.l b.t b.f sc sr ss || past b ax ay az dc dr ds then .removed
+      if past b b.l b.t b.f sc sr ss || past b ax ay az dc dr ds then .removed
+      else if empty b then .nothing
       else .copy
+
+/-- ResolveSubresource of a source of `sn` samples to a destination of `dn` samples and `du`
+usage: `groups` the format's typeless group is both resources', `int` an integer format,
+`subs` both subresources there and the dimensions agree; the source's row bytes and rows
+(sw, sh), the destination's (dw, dh) -/
+def resolvePlan (sn dn du : Nat) (groups int subs : Bool) (sw sh dw dh : Nat) : Plan :=
+  if dn ≠ 1 ∨ du ≠ 0 ∨ groups = false ∨ int = true then .nothing
+  else if subs = false then .nothing
+  else if sn < 2 ∧ (dw < sw ∨ dh < sh) then .removed
+  else .copy
 
 /-! ## D3DRES.UPDATE.BOX -/
 
@@ -98,10 +115,26 @@ theorem blocks (bw bh x0 x1 x2 x3 x4 x5 c r s : Nat) (hw : 0 < bw) (hh : 0 < bh)
     omega
   · have := Nat.div_mul_le_self (x4 + bh - 1) bh; omega
 
-/-- a buffer's box: its left and right bytes, one row, one slice -/
-theorem buffer_box (bw bh x0 x1 x2 x3 x4 x5 c r s : Nat) :
-    boxElems true true bw bh x0 x1 x2 x3 x4 x5 c r s = ⟨x0, 0, 0, x3, 1, 1⟩ := by
+/-- a buffer's box (elements of one byte): its left and right bytes, top, bottom, front, back -/
+theorem buffer_box (x0 x1 x2 x3 x4 x5 c r s : Nat) :
+    boxElems true false 1 1 x0 x1 x2 x3 x4 x5 c r s = ⟨x0, x1, x2, x3, x4, x5⟩ := by
   simp [boxElems]
+
+/-- a 1D texture's box in an update: one row from its top, one slice from its front -/
+theorem flat_box (bw bh x0 x1 x2 x3 x4 x5 c r s : Nat) :
+    let e := boxElems true true bw bh x0 x1 x2 x3 x4 x5 c r s
+    e.t = x1 ∧ e.b = x1 + 1 ∧ e.f = x2 ∧ e.k = x2 + 1 := by
+  simp [boxElems]
+
+/-- the cut box lies inside the subresource, and a box inside it is not cut -/
+theorem clip_inside (b : Box) (c r s : Nat) :
+    let e := clip b c r s
+    e.r ≤ c ∧ e.b ≤ r ∧ e.k ≤ s ∧ e.l = b.l ∧ e.t = b.t ∧ e.f = b.f ∧
+      (b.r ≤ c → b.b ≤ r → b.k ≤ s → e = b) := by
+  simp only [clip]
+  refine ⟨Nat.min_le_right _ _, Nat.min_le_right _ _, Nat.min_le_right _ _, trivial, trivial, trivial, ?_⟩
+  intro h1 h2 h3
+  cases b; simp_all [Nat.min_eq_left]
 
 /-! ## D3DRES.UPDATE, UPDATE.IGNORED, UPDATE.BAD, UPDATE.EMPTY, REMOVED -/
 
@@ -154,9 +187,10 @@ theorem region_mixed (ignored : Bool) (b : Box) (sc sr ss dc dr ds ax ay az : Na
     regionPlan ignored .mixed b sc sr ss dc dr ds ax ay az = .nothing := by
   cases ignored <;> simp [regionPlan]
 
-/-- an empty box: nothing -/
+/-- an empty box inside both subresources: nothing -/
 theorem region_empty (ignored : Bool) (sides : Sides) (b : Box) (sc sr ss dc dr ds ax ay az : Nat)
-    (h : empty b = true) : regionPlan ignored sides b sc sr ss dc dr ds ax ay az = .nothing := by
+    (h : empty b = true) (hs : past b b.l b.t b.f sc sr ss = false) (hd : past b ax ay az dc dr ds = false) :
+    regionPlan ignored sides b sc sr ss dc dr ds ax ay az = .nothing := by
   unfold regionPlan
   cases ignored <;> cases sides <;> simp_all <;> split <;> simp_all
 
@@ -179,18 +213,48 @@ theorem region_copies (sides : Sides) (b : Box) (sc sr ss dc dr ds ax ay az : Na
     split <;> (try split) <;> simp_all <;> omega
 
 /-- a box past the source, or a region past the destination, of a copy that would run removes
-the device -/
+the device, an empty box's too -/
 theorem region_removed (sides : Sides) (b : Box) (sc sr ss dc dr ds ax ay az : Nat)
     (hs : match sides with | .mixed => False | .textures c => c = true | .buffers => True)
-    (he : empty b = false) (hp : past b b.l b.t b.f sc sr ss = true ∨ past b ax ay az dc dr ds = true) :
+    (hp : past b b.l b.t b.f sc sr ss = true ∨ past b ax ay az dc dr ds = true) :
     regionPlan false sides b sc sr ss dc dr ds ax ay az = .removed := by
   unfold regionPlan
   have hor : (past b b.l b.t b.f sc sr ss || past b ax ay az dc dr ds) = true := by
     cases hp <;> simp_all
   cases sides with
   | mixed => exact absurd hs id
-  | textures c => simp only at hs; subst hs; simp [he, hor]
-  | buffers => simp [he, hor]
+  | textures c => simp only at hs; subst hs; simp [hor]
+  | buffers => simp [hor]
+
+/-! ## D3DRES.RESOLVE, RESOLVE.IGNORED, RESOLVE.BAD, RESOLVE.SIZE, REMOVED -/
+
+/-- a multisampled destination or one not of default usage, a format of another group, an
+integer format: nothing -/
+theorem resolve_ignored (sn dn du : Nat) (groups int subs : Bool) (sw sh dw dh : Nat)
+    (h : dn ≠ 1 ∨ du ≠ 0 ∨ groups = false ∨ int = true) :
+    resolvePlan sn dn du groups int subs sw sh dw dh = .nothing := by
+  simp [resolvePlan, h]
+
+/-- a missing subresource or other dimensions: nothing -/
+theorem resolve_bad (sn dn du : Nat) (groups int : Bool) (sw sh dw dh : Nat) :
+    resolvePlan sn dn du groups int false sw sh dw dh = .nothing := by
+  unfold resolvePlan; split <;> simp
+
+/-- a single-sampled source larger than the destination, resolved where the rest allows it,
+removes the device -/
+theorem resolve_removed (sw sh dw dh : Nat) (h : dw < sw ∨ dh < sh) :
+    resolvePlan 1 1 0 true false true sw sh dw dh = .removed := by
+  simp [resolvePlan, h]
+
+/-- the resolve runs exactly when nothing refuses it and the source is multisampled or fits the
+destination: where both are, whatever their sizes (RESOLVE.SIZE) -/
+theorem resolve_copies (sn dn du : Nat) (groups int subs : Bool) (sw sh dw dh : Nat) :
+    resolvePlan sn dn du groups int subs sw sh dw dh = .copy ↔
+      dn = 1 ∧ du = 0 ∧ groups = true ∧ int = false ∧ subs = true ∧ (2 ≤ sn ∨ (sw ≤ dw ∧ sh ≤ dh)) := by
+  unfold resolvePlan
+  cases groups <;> cases int <;> cases subs <;> simp <;>
+    by_cases h1 : dn = 1 <;> by_cases h2 : du = 0 <;> simp [h1, h2] <;>
+    (try split) <;> (try simp_all) <;> omega
 
 def args6 (a : List Int) : Option (List Nat) := a.mapM nat
 
@@ -198,8 +262,15 @@ def mirrors : List Mirror := [
   ⟨"d3d11.box", fun a => do
     let v ← args6 a
     match v with
-    | [has, buffer, bw, bh, x0, x1, x2, x3, x4, x5, c, r, s] =>
-      let e := boxElems (has != 0) (buffer != 0) bw bh x0 x1 x2 x3 x4 x5 c r s
+    | [has, flat, bw, bh, x0, x1, x2, x3, x4, x5, c, r, s] =>
+      let e := boxElems (has != 0) (flat != 0) bw bh x0 x1 x2 x3 x4 x5 c r s
+      pure [e.l, e.t, e.f, e.r, e.b, e.k]
+    | _ => none⟩,
+  ⟨"d3d11.clip", fun a => do
+    let v ← args6 a
+    match v with
+    | [l, t, f, r, b, k, c, rr, s] =>
+      let e := clip ⟨l, t, f, r, b, k⟩ c rr s
       pure [e.l, e.t, e.f, e.r, e.b, e.k]
     | _ => none⟩,
   ⟨"d3d11.update", fun a => do
@@ -216,6 +287,12 @@ def mirrors : List Mirror := [
         | 0 => some Sides.buffers | 1 => some (Sides.textures false) | 2 => some (Sides.textures true)
         | 3 => some Sides.mixed | _ => none
       pure [(regionPlan (ignored != 0) sd ⟨l, t, f, r, b, k⟩ sc sr ss dc dr ds ax ay az).code]
+    | _ => none⟩,
+  ⟨"d3d11.resolve", fun a => do
+    let v ← args6 a
+    match v with
+    | [sn, dn, du, groups, int, subs, sw, sh, dw, dh] =>
+      pure [(resolvePlan sn dn du (groups != 0) (int != 0) (subs != 0) sw sh dw dh).code]
     | _ => none⟩
 ]
 

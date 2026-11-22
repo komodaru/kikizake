@@ -79,7 +79,7 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // (an update's and a region copy's box and refusals are box_elems, update_plan and
     // region_plan, which the Lean mirrors d3d11.box, d3d11.update, d3d11.region hold to
     // spec/lean/Kikizake/D3d11/Copy.lean)
-    ("src/model/d3dres.rs", r"clause::D3DRES_(UPDATE_IGNORED|UPDATE_BAD|UPDATE_EMPTY|COPYSUB_IGNORED|COPYSUB_BAD)\b|\.div_ceil\(\s*b[wh]\s*\)", &["box_elems", "update_plan", "region_plan"]),
+    ("src/model/d3dres.rs", r"clause::D3DRES_(UPDATE_IGNORED|UPDATE_BAD|UPDATE_EMPTY|COPYSUB_IGNORED|COPYSUB_BAD|RESOLVE_IGNORED|RESOLVE_BAD|RESOLVE_SIZE)\b|\.div_ceil\(\s*b[wh]\s*\)|\.min\(\s*whole\[", &["box_elems", "box_clip", "update_plan", "region_plan", "resolve_plan"]),
     ("src/model/d3draster.rs", r"as\s+f32\s*-\s*0\.5|\.fract\(\)\s*\*\s*256|\+\s*0\.5\)\.floor\(\)|index\(dw\)\s*<=", &["split", "level", "past_depth"]),
     // (a triangle's and a line's planes, a depth's clamp and a vertex's depth are plane_value,
     // line_value, clamp_range and vertex_depth, which d3d11.plane, d3d11.lineplane,

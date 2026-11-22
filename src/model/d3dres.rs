@@ -305,19 +305,17 @@ impl D3dres {
                     out.push(format!("{name} nores"));
                     return Ok(true);
                 }
-                "tex" | "buf" if dev.d3d11() => {
+                // (MEASURED: a NULL out pointer still only validates, S_FALSE for a description
+                // taken, probe-removed-calls)
+                "tex" | "buf" if dev.d3d11() && t.get(1).is_some_and(|s| s != "check") => {
                     hit(clause::D3DRES_REMOVED_OPS);
-                    if t.get(1).is_some_and(|s| s != "check") {
-                        self.res.empty(slot(t, 1)?);
-                    }
+                    self.res.empty(slot(t, 1)?);
                     out.push(format!("{name} hr 887a0005"));
                     return Ok(true);
                 }
-                "srv" | "rtv" | "dsv" | "uav" if dev.d3d11() => {
+                "srv" | "rtv" | "dsv" | "uav" if dev.d3d11() && t.get(3).is_none_or(|s| s != "check") => {
                     hit(clause::D3DRES_REMOVED_OPS);
-                    if t.get(3).is_none_or(|s| s != "check") {
-                        self.views.empty(slot(t, 1)?);
-                    }
+                    self.views.empty(slot(t, 1)?);
                     out.push(format!("{name} hr 887a0005"));
                     return Ok(true);
                 }
@@ -422,33 +420,19 @@ impl D3dres {
                 hit(clause::D3DRES_RESOLVE);
                 let dst = self.res.at_mut(d).ok_or(Fail::Empty)?;
                 // (every sample holds the same value in these cases: the resolve is a copy)
-                // (MEASURED: a single-sampled source changes nothing, probe-resolve-single)
-                if src.d.count < 2 {
-                    hit(clause::D3DRES_RESOLVE_IGNORED);
-                    return Ok(true);
-                }
-                // (MEASURED: a multisampled destination, or a format of another group, changes
-                // nothing, probe-resolve-ms-dst, probe-resolve-format)
-                if dst.d.count != 1 || group(f) != group(src.d.fmt) || group(f) != group(dst.d.fmt) {
-                    hit(clause::D3DRES_RESOLVE_IGNORED);
-                    return Ok(true);
-                }
-                // (MEASURED, WARP: probe-rt-ms4-uint) an integer format: nothing changes
-                if format(f).is_some_and(|x| matches!(x.num, Num::Uint | Num::Sint)) {
-                    hit(clause::D3DRES_RESOLVE_IGNORED);
-                    return Ok(true);
-                }
-                // (MEASURED: a missing subresource, or textures of other dimensions: nothing
-                // changes, probe-resolve-dsub, probe-resolve-dim)
-                if ds >= dst.nsubs() || ss >= src.nsubs() || dst.d.dim != src.d.dim {
-                    hit(clause::D3DRES_RESOLVE_BAD);
-                    return Ok(true);
-                }
-                // (MEASURED: sizes that differ resolve where both are, probe-resolve-size)
-                let (srb, srows, _) = src.layout(ss)?;
-                let (drb, drows, _) = dst.layout(ds)?;
-                if (srb, srows) != (drb, drows) {
-                    hit(clause::D3DRES_RESOLVE_SIZE);
+                let (srb, srows, _) = if ss < src.nsubs() { src.layout(ss)? } else { (0, 0, 0) };
+                let (drb, drows, _) = if ds < dst.nsubs() { dst.layout(ds)? } else { (0, 0, 0) };
+                let n = |v: usize| u64::try_from(v).unwrap_or(u64::MAX);
+                let int = format(f).is_some_and(|x| matches!(x.num, Num::Uint | Num::Sint));
+                let groups = group(f) == group(src.d.fmt) && group(f) == group(dst.d.fmt);
+                let subs = ds < dst.nsubs() && ss < src.nsubs() && dst.d.dim == src.d.dim;
+                match resolve_plan(src.d.count, (dst.d.count, dst.d.usage), groups, int, subs, [n(srb), n(srows)], [n(drb), n(drows)]) {
+                    Plan::Nothing => return Ok(true),
+                    Plan::Removed => {
+                        self.removed = true;
+                        return Ok(true);
+                    }
+                    Plan::Copy => {}
                 }
                 let (Some(sv), Some(dv)) = (src.subs[ss as usize].as_ref(), dst.subs[ds as usize].as_mut()) else {
                     return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN));
@@ -824,17 +808,24 @@ pub enum Plan {
 }
 
 /// a box (D3D11_BOX: left, top, front inclusive, right, bottom, back exclusive; in pixels,
-/// block aligned; a buffer's in bytes, its left and right only) in elements of `block` pixels,
-/// or none: the whole of a subresource of `whole` elements a row, rows and slices
+/// block aligned; a buffer's in bytes) in elements of `block` pixels, or none: the whole of a
+/// subresource of `whole` elements a row, rows and slices; `flat`: one row from its top and one
+/// slice from its front, whatever its bottom and back (a 1D texture's in UpdateSubresource)
 /// (D3DRES.UPDATE.BOX)
-pub fn box_elems(bx: Option<&[u32]>, buffer: bool, block: (u32, u32), whole: [u64; 3]) -> [u64; 6] {
+pub fn box_elems(bx: Option<&[u32]>, flat: bool, block: (u32, u32), whole: [u64; 3]) -> [u64; 6] {
     let Some(x) = bx else { return [0, 0, 0, whole[0], whole[1], whole[2]] };
     let g = |i: usize| x.get(i).copied().map_or(0, u64::from);
-    if buffer {
-        return [g(0), 0, 0, g(3), 1, 1];
-    }
     let (bw, bh) = (u64::from(block.0.max(1)), u64::from(block.1.max(1)));
-    [g(0).checked_div(bw).unwrap_or(0), g(1).checked_div(bh).unwrap_or(0), g(2), g(3).div_ceil(bw), g(4).div_ceil(bh), g(5)]
+    let (l, r) = (g(0).checked_div(bw).unwrap_or(0), g(3).div_ceil(bw));
+    if flat {
+        return [l, g(1), g(2), r, g(1).saturating_add(1), g(2).saturating_add(1)];
+    }
+    [l, g(1).checked_div(bh).unwrap_or(0), g(2), r, g(4).div_ceil(bh), g(5)]
+}
+
+/// a box cut to a subresource of `whole`
+pub fn box_clip(b: [u64; 6], whole: [u64; 3]) -> [u64; 6] {
+    [b[0], b[1], b[2], b[3].min(whole[0]), b[4].min(whole[1]), b[5].min(whole[2])]
 }
 
 /// a box of no element (D3DRES.UPDATE.EMPTY, COPYSUB.BAD)
@@ -849,9 +840,9 @@ pub fn box_past(b: [u64; 6], at: [u64; 3], whole: [u64; 3]) -> bool {
 }
 
 /// UpdateSubresource of subresource `sub` of `nsubs` of a resource of `usage` and `count`
-/// samples, the box `b` in elements of a subresource of `whole` (D3DRES.UPDATE.IGNORED,
-/// UPDATE.BAD, UPDATE.EMPTY, REMOVED)
-pub fn update_plan(sub: u32, nsubs: u32, usage: u32, count: u32, b: [u64; 6], whole: [u64; 3]) -> Plan {
+/// samples, the box `b` in elements, against the resource's top level of `top` elements a row,
+/// rows and slices (D3DRES.UPDATE.IGNORED, UPDATE.BAD, UPDATE.EMPTY, REMOVED)
+pub fn update_plan(sub: u32, nsubs: u32, usage: u32, count: u32, b: [u64; 6], top: [u64; 3]) -> Plan {
     // (MEASURED: a subresource past the last changes nothing, probe-update-sub)
     if sub >= nsubs {
         hit(clause::D3DRES_UPDATE_IGNORED);
@@ -867,10 +858,46 @@ pub fn update_plan(sub: u32, nsubs: u32, usage: u32, count: u32, b: [u64; 6], wh
         hit(clause::D3DRES_UPDATE_EMPTY);
         return Plan::Nothing;
     }
-    // (MEASURED: a box past the subresource removes the device (WARP), probe-update-past)
-    if box_past(b, [b[0], b[1], b[2]], whole) {
+    // (MEASURED: a box past the top level removes the device (WARP), probe-update-past; one past
+    // only a smaller level's size is cut to it, d3d10res seq-136, seq-151)
+    if box_past(b, [b[0], b[1], b[2]], top) {
         hit(clause::D3DRES_REMOVED);
         return Plan::Removed;
+    }
+    Plan::Copy
+}
+
+/// ResolveSubresource of a source of `src_count` samples to a destination of (samples, usage) `dst`:
+/// `groups` the format's typeless group is both resources', `int` the format is an integer one,
+/// `subs` both subresources are there and the dimensions agree; each subresource's (row bytes,
+/// rows) (D3DRES.RESOLVE, RESOLVE.IGNORED, RESOLVE.BAD, RESOLVE.SIZE)
+pub fn resolve_plan(src_count: u32, dst: (u32, u32), groups: bool, int: bool, subs: bool, src_size: [u64; 2], dst_size: [u64; 2]) -> Plan {
+    hit(clause::D3DRES_RESOLVE);
+    // (MEASURED: a multisampled destination, or a format of another group, changes nothing,
+    // probe-resolve-ms-dst, probe-resolve-format; an integer format, probe-rt-ms4-uint, d3d11res
+    // seq-10, seq-67; a destination not of default usage, d3d11res seq-16, seq-171, seq-224)
+    let (dst_count, dst_usage) = dst;
+    if dst_count != 1 || dst_usage != 0 || !groups || int {
+        hit(clause::D3DRES_RESOLVE_IGNORED);
+        return Plan::Nothing;
+    }
+    // (MEASURED: a missing subresource, or textures of other dimensions: nothing changes,
+    // probe-resolve-dsub, probe-resolve-dim)
+    if !subs {
+        hit(clause::D3DRES_RESOLVE_BAD);
+        return Plan::Nothing;
+    }
+    // (MEASURED: a single-sampled source is copied, as the whole subresource to the corner: one
+    // larger than the destination removes the device, d3d10res seq-68, seq-150, d3d11res seq-130,
+    // seq-164)
+    if src_count < 2 && (src_size[0] > dst_size[0] || src_size[1] > dst_size[1]) {
+        hit(clause::D3DRES_RESOLVE_IGNORED);
+        hit(clause::D3DRES_REMOVED);
+        return Plan::Removed;
+    }
+    // (MEASURED: sizes that differ resolve where both are, probe-resolve-size)
+    if src_size != dst_size {
+        hit(clause::D3DRES_RESOLVE_SIZE);
     }
     Plan::Copy
 }
@@ -907,16 +934,16 @@ pub fn region_plan(ignored: bool, sides: Sides, b: [u64; 6], src: [u64; 3], dst:
         }
         Sides::Buffers | Sides::Textures { compatible: true } => {}
     }
+    // (MEASURED: a box past the source removes the device, probe-copysub-srcbox, and a region
+    // past the destination (WARP), probe-copysub-past, -buf, an empty box's too, seq-11, seq-109)
+    if box_past(b, [b[0], b[1], b[2]], src) || box_past(b, at, dst) {
+        hit(clause::D3DRES_REMOVED);
+        return Plan::Removed;
+    }
     // (MEASURED: an empty box changes nothing, probe-copysub-empty, -buf)
     if box_empty(b) {
         hit(clause::D3DRES_COPYSUB_BAD);
         return Plan::Nothing;
-    }
-    // (MEASURED: a box past the source removes the device too, probe-copysub-srcbox; a region
-    // past the destination (WARP), probe-copysub-past, -buf)
-    if box_past(b, [b[0], b[1], b[2]], src) || box_past(b, at, dst) {
-        hit(clause::D3DRES_REMOVED);
-        return Plan::Removed;
     }
     Plan::Copy
 }
@@ -939,13 +966,19 @@ fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: O
         hit(clause::D3DRES_UPDATE_BOX);
     }
     let whole = whole_of((rb, rows, sl), el);
-    let e = box_elems(bx, res.d.dim == 4, block, whole);
-    match update_plan(sub, res.nsubs(), res.d.usage, res.d.count, e, whole) {
+    // (MEASURED: a 1D texture's box is one row from its top whatever its bottom, d3d11res
+    // seq-100, seq-187, seq-254; a buffer's has its rows, seq-117)
+    let e = box_elems(bx, res.d.dim == 1, block, whole);
+    match update_plan(sub, res.nsubs(), res.d.usage, res.d.count, e, whole_of(res.layout(0)?, el)) {
         Plan::Nothing => return Ok(false),
         Plan::Removed => return Ok(true),
         Plan::Copy => {}
     }
-    let [l, tp, fr, r, b, bk] = e.map(|v| usize::try_from(v).unwrap_or(usize::MAX));
+    let c = box_clip(e, whole);
+    if box_empty(c) {
+        return Ok(false);
+    }
+    let [l, tp, fr, r, b, bk] = c.map(|v| usize::try_from(v).unwrap_or(usize::MAX));
     let w = (r - l) * el;
     // (the source is the executor's 4 MiB: a box whose last row lies past it reads outside)
     let last = (bk - fr - 1).checked_mul(dp).zip((b - tp - 1).checked_mul(rp)).and_then(|(a, c)| a.checked_add(c)?.checked_add(w));
@@ -999,7 +1032,7 @@ fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: 
         // (as for textures: an empty box changes nothing, one past either buffer removes the
         // device, probe-copysub-buf; the destination's y and z are not read)
         (true, true) => {
-            let e = box_elems(bx, true, (1, 1), [n(src.d.w), 1, 1]);
+            let e = box_elems(bx, false, (1, 1), [n(src.d.w), 1, 1]);
             if let Some(r) = removed(region_plan(ignored, Sides::Buffers, e, [n(src.d.w), 1, 1], [n(dst.d.w), 1, 1], [n(at.0), 0, 0])) {
                 return Ok(r);
             }

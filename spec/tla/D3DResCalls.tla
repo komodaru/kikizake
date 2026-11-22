@@ -7,8 +7,8 @@
    after it is printed, while x86-64 makes it as staging (D3DRES.X86CRASH); an update or a region
    copy past the destination removes the device, after which reading fails with
    DXGI_ERROR_DEVICE_REMOVED (11: the staging copy; 10: its Map) (D3DRES.REMOVED), Direct3D 11
-   refuses new resources and views with it (a checked one too), 10 makes them, and every other
-   call runs unseen; an empty slot is still nores (the executor's own answer) (D3DRES.REMOVED.OPS).
+   refuses new resources and views with it, 10 makes them, a NULL out pointer still only checks
+   (the d3d11res seq cases), and every other call runs unseen; an empty slot is still nores (the executor's own answer) (D3DRES.REMOVED.OPS).
    A device line starts afresh. The resources: a 1 by 1 R8G8B8A8_UNORM texture (shader resource
    and render target), the same of usage 0xffffffff with CPU read access, one of width 0, a 16-byte
    vertex buffer; none has initial data, clears clear to 0, updates are empty or past the
@@ -82,7 +82,7 @@ CheckTex(k) ==
     LET c == "tex check " \o Tex[k] IN
     IF dev = None THEN NoDev(c)
     ELSE /\ Keep
-         /\ Call(c, <<"tex hr " \o (IF removed /\ D11 THEN REMOVED ELSE IF k = "bad" THEN INVALIDARG ELSE S_FALSE)>>)
+         /\ Call(c, <<"tex hr " \o (IF k = "bad" THEN INVALIDARG ELSE S_FALSE)>>)
 MakeBuf(s) ==
     LET c == "buf " \o S(s) \o " " \o BUF IN
     IF dev = None THEN NoDev(c)
@@ -94,7 +94,7 @@ MakeBuf(s) ==
 CheckBuf ==
     LET c == "buf check " \o BUF IN
     IF dev = None THEN NoDev(c)
-    ELSE /\ Keep /\ Call(c, <<"buf hr " \o (IF removed /\ D11 THEN REMOVED ELSE S_FALSE)>>)
+    ELSE /\ Keep /\ Call(c, <<"buf hr " \o S_FALSE>>)
 
 \* a view of the resource in slot r into view slot r, or only checked: of the texture made (one of
 \* the staging texture or of the buffer, which bind neither, or a UAV, refused); the view slot is
@@ -106,7 +106,7 @@ View(k, r, check) ==
     IN IF dev = None THEN NoDev(c)
     ELSE IF res[r] = None THEN /\ Keep /\ Call(c, <<k \o " nores">>)
     ELSE IF k = "uav" /\ ~D11 THEN answer("uav none")
-    ELSE IF removed /\ D11 THEN answer(k \o " hr " \o REMOVED)
+    ELSE IF removed /\ D11 /\ ~check THEN answer(k \o " hr " \o REMOVED)
     ELSE IF res[r] = "t" /\ k /= "uav" THEN
         IF check THEN /\ Keep /\ Call(c, <<k \o " hr " \o S_FALSE>>)
         ELSE /\ UNCHANGED <<dev, removed, gone, res>> /\ views' = [views EXCEPT ![r] = k] /\ Call(c, <<ViewWords[k]>>)

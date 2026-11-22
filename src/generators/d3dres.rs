@@ -548,6 +548,7 @@ fn suite(d3d11: bool) -> String {
     writeln!(s, "case life-copy-after-reuse\n{dev}\n{}\nrtv 1 0 nodesc\n{}\n{}\nclear 1 {red}\ncopy 2 0\n{}\nend", t("0"), t("0"), t("2"), read(2));
     removed_calls(&mut s, dev, d3d11);
     sequences(&mut s, dev, d3d11);
+    box_probes(&mut s, dev);
     // (an immutable texture made without initial data crashes the x86 WARP: give it some)
     let s = s.lines().map(immutable_init).collect::<Vec<_>>().join("\n") + "\n";
     isolate_x86_crashes(&s, d3d11)
@@ -698,6 +699,46 @@ pub fn seq_ops() -> Vec<String> {
         }
     }
     v
+}
+
+/// what the seq-* cases' answers suggested, asked directly (the descriptions of seq_desc by
+/// index): an update of a smaller level past its size but inside the top level's, a 1D
+/// texture's box rows and slices, resolves of a single-sampled source to staging, integer and
+/// multisampled destinations, a buffer region copied to y = 1, empty boxes at and past the edge
+fn box_probes(s: &mut String, dev: &str) {
+    let probes: &[(usize, usize, &str)] = &[
+        (1, 0, "update 0 1 5 8 16 1 0 0 2 2 1"),
+        (1, 0, "update 0 1 5 8 16 0 0 0 2 1 1"),
+        (1, 0, "update 0 1 5 8 16 0 1 0 1 2 1"),
+        (1, 0, "update 0 1 5 8 16 0 0 0 3 1 1"),
+        (7, 0, "update 0 0 5 8 16 0 0 1 2 1 2"),
+        (7, 0, "update 0 0 5 8 16 0 0 0 2 1 0"),
+        (7, 0, "update 0 0 5 8 16 0 1 0 2 1 1"),
+        (7, 0, "update 0 0 5 8 16 1 0 0 3 0 1"),
+        (0, 8, "resolve 1 0 0 0 28"),
+        (0, 5, "resolve 1 0 0 0 30"),
+        (0, 5, "resolve 0 0 1 0 0x1d"),
+        (2, 0, "resolve 1 0 0 0 28\nresolve 0 0 1 0 28"),
+        (6, 6, "copysub 1 0 0 1 0 0 0 0 0 0 4 1 1"),
+        (6, 6, "copysub 1 0 4 0 1 0 0 0 0 0 4 1 1"),
+        (0, 0, "copysub 1 0 0 0 0 0 0 3 0 0 3 1 1"),
+        (0, 0, "copysub 1 0 2 0 0 0 0 0 0 0 0 1 1"),
+        (0, 0, "copysub 1 0 3 0 0 0 0 0 0 0 0 1 1"),
+        (1, 1, "copysub 1 1 0 0 0 0 0 0 0 0 2 1 1"),
+        (1, 1, "copysub 1 1 0 0 0 0 1"),
+        (7, 0, "copysub 1 0 0 0 0 0 0 0 0 0 2 1 1"),
+        (0, 7, "copysub 1 0 2 0 0 0 0 0 0 0 2 1 1"),
+    ];
+    for (i, (a, b, ops)) in probes.iter().enumerate() {
+        let (a, ra) = seq_desc(*a, 0, 1);
+        let (b, rb) = seq_desc(*b, 1, 2);
+        let reads: Vec<String> = ra.into_iter().chain(rb).collect();
+        writeln!(s, "case probe-box-{i}\n{dev}\n{a}\n{b}\n{}", reads.join("\n"));
+        for op in ops.lines() {
+            writeln!(s, "{op}\n{}", reads.join("\n"));
+        }
+        writeln!(s, "end");
+    }
 }
 
 /// two resources of the sequence descriptions and two calls between them, every subresource
