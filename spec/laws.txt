@@ -707,6 +707,7 @@ tests/wicimage_laws.rs::a_quarter_turned_gray_file_copies_nothing pbt WICIMAGE.E
 spec/lean/Kikizake/Gdi/Hfd.lean::value_nearest lean GDI.PATH.FLATTENHFD
 spec/lean/Kikizake/Gdi/Hfd.lean::flatten_far lean GDI.PATH.FLATTENHFD
 spec/lean/Kikizake/Gdi/Hfd.lean::flatten_keeps_the_end lean GDI.PATH.FLATTENHFD
+spec/lean/Kikizake/Gdi/Arc.lean::part_end lean GDI.PATH.ARC
 spec/lean/Kikizake/Gdi/Arc.lean::partial_ends lean GDI.PATH.ARC
 spec/lean/Kikizake/Gdi/Arc.lean::arc_thin lean GDI.PATH.ARC
 spec/lean/Kikizake/Gdi/Arc.lean::axes_exact lean GDI.PATH.ARC
@@ -715,6 +716,7 @@ spec/lean/Kikizake/Gdi/Arc.lean::arctan_mirror lean GDI.PATH.ARC
 spec/lean/Kikizake/Gdi/Glyph.lean::rows_dword_aligned lean GDI.TEXT.BITMAP GDI.TEXT.GRAY
 spec/lean/Kikizake/Gdi/Glyph.lean::bytes_length lean GDI.TEXT.BITMAP GDI.TEXT.GRAY
 spec/lean/Kikizake/Gdi/Glyph.lean::gray_levels lean GDI.TEXT.GRAY
+spec/lean/Kikizake/Gdi/Glyph.lean::dropout_strokes lean GDI.TEXT.BITMAP
 spec/lean/Kikizake/Gdi/Glyph.lean::shear_zero lean GDI.TEXT.ITALIC
 spec/lean/Kikizake/Gdi/Glyph.lean::shear_odd lean GDI.TEXT.ITALIC
 spec/lean/Kikizake/Gdi/Glyph.lean::italic_rows lean GDI.TEXT.ITALIC

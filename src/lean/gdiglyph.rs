@@ -91,7 +91,7 @@ fn glyph_args(a: &[i64]) -> Option<Vec<i64>> {
     let fmt = *[0, 1, 4, 5, 6].get(usize::try_from(*f).ok()?)?;
     let s = |t: i64| t.checked_mul(*upm).map(|v| v / 1000);
     let mut v = vec![*upm, *ppem, s(800)?, s(250)?, *bold, *italic, fmt, s(*adv)?, *n];
-    let mut rng = crate::rng::XorShift32::new(u32::try_from(*seed).ok()?);
+    let mut rng = crate::rng::Sample64::new(u32::try_from(*seed).ok()?);
     for _ in 0..*n {
         let q: Vec<i64> = (0..4).map(|_| rng.range(-200, 1000)).collect();
         let (x0, x1) = (s(q[0].min(q[1]))?, s(q[0].max(q[1]))?.checked_add(1)?);

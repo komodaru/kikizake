@@ -8,6 +8,8 @@
 //! backgrounds).
 use kikizake::case::parse_cases;
 use kikizake::model::run_case;
+mod pairs;
+use pairs::zip_eq;
 
 type V = (i64, i64, [i64; 4]);
 
@@ -27,7 +29,7 @@ fn covered(v: &[V; 3]) -> Vec<(i64, i64)> {
     let rows = |o: &[String]| -> Vec<String> { let at = o.iter().rposition(|l| l.starts_with("px ")).unwrap(); o[at + 1..].to_vec() };
     let (ra, rb) = (rows(&a), rows(&b));
     let mut out = Vec::new();
-    for (y, (la, lb)) in ra.iter().zip(&rb).enumerate() {
+    for (y, (la, lb)) in zip_eq(ra.iter(), &rb).enumerate() {
         for x in 0..6 {
             if la[8 * x..8 * x + 8] == lb[8 * x..8 * x + 8] {
                 out.push((i64::try_from(x).unwrap(), i64::try_from(y).unwrap()));

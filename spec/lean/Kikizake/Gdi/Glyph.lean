@@ -300,26 +300,36 @@ theorem char_rows (f : Font) (r : List Rect) (pen y : Int) (ps : List (Int × In
     dsimp only at hj ⊢
     omega
 
-/-- the glyphs the gray and italic theorems run over: one or two rectangles at ppem 13 on an
-em of 64 -/
-def font (bold italic : Bool) : Font := ⟨64, 13, 52, 12, bold, italic⟩
-def shapes : List (List (Int × Int × Int × Int)) :=
-  [[(4, 0, 30, 40)], [(2, -10, 40, 3)], [(0, 0, 3, 50)], [(5, 5, 50, 20), (10, 20, 18, 48)], [(1, -12, 9, 51)]]
+/-- the font the italic theorem runs over: ppem 13 on an em of 64 -/
+def em64 (bold italic : Bool) : Font := ⟨64, 13, 52, 12, bold, italic⟩
 
 set_option maxRecDepth 100000 in
-/-- GDI.TEXT.GRAY: a pixel's value is 0 to 4, 16 or 64 (the samples of its k x k), bold too -/
+/-- GDI.TEXT.GRAY: GetGlyphOutline's gray bytes are 0 to 4, 16 or 64 (the samples lit of a
+pixel's k x k), bold too -/
 theorem gray_levels : ([[(4, 0, 30, 40)], [(0, 0, 3, 50)], [(5, 5, 50, 20), (10, 20, 18, 48)]].all fun r => [false, true].all fun b => [(4, 4), (5, 16), (6, 64)].all fun (fmt, top) =>
-    match pixels ⟨64, 3, 52, 12, b, false⟩ r fmt with
-    | some v => v.all fun e => decide (0 ≤ e.2 ∧ e.2 ≤ top)
-    | none => true) = true := by decide +kernel
+    match glyph ⟨64, 3, 52, 12, b, false⟩ r 40 fmt with
+    | some l => (l.drop 6).all fun x => decide (0 ≤ x ∧ x ≤ top)
+    | none => false) = true := by decide +kernel
 
 set_option maxRecDepth 100000 in
-/-- GDI.TEXT.ITALIC: the synthesized italic keeps the upright glyph's rows and its advance;
-the shear moves pixels along their rows: the wide shapes' italic pixels lie in as many rows as the upright's -/
+/-- GDI.TEXT.ITALIC: the synthesized italic keeps the upright glyph's black box rows, its
+origin's row and its advance (the shear moves pixels along their rows) -/
 theorem italic_rows : ([[(4, 0, 30, 40)], [(2, -10, 40, 3)], [(8, 1, 60, 30)], [(3, -12, 33, 20)]].all fun r =>
-    match pixels (font false false) r 1, pixels (font false true) r 1 with
-    | some u, some i => (u.map (·.1.2)).eraseDups.length == (i.map (·.1.2)).eraseDups.length
+    match glyph (em64 false false) r 40 1, glyph (em64 false true) r 40 1 with
+    | some (_ :: _ :: h :: _ :: oy :: inc :: _), some (_ :: _ :: h' :: _ :: oy' :: inc' :: _) => h == h' && oy == oy' && inc == inc'
     | _, _ => false) = true := by decide +kernel
+
+/-- GDI.TEXT.BITMAP: a stroke thinner than a pixel still lights a pixel of each row (column)
+it crosses, by the dropout rule: here a column of two pixels and a row of two at ppem 3, each
+row of the buffer a DWORD, the high bit first; GGO_BITMAP's pixels are lit or not, bold too -/
+theorem dropout_strokes :
+    glyph ⟨64, 3, 52, 12, false, false⟩ [(0, 0, 3, 50)] 64 1 = some [8, 1, 2, 0, 2, 3, 128, 0, 0, 0, 128, 0, 0, 0] ∧
+    glyph ⟨64, 3, 52, 12, false, false⟩ [(0, 0, 50, 3)] 64 1 = some [4, 2, 1, 0, 1, 3, 192, 0, 0, 0] ∧
+    ([[(4, 0, 30, 40)], [(5, 5, 50, 20), (10, 20, 18, 48)]].all fun r => [false, true].all fun b =>
+      match pixels ⟨64, 3, 52, 12, b, false⟩ r 1 with
+      | some v => v.all (·.2 == 1)
+      | none => false) = true := by
+  decide +kernel
 
 theorem italic_width (adv : Int) (b : Bool) (u : Font) :
     width { u with italic := b } adv = width u adv := rfl
