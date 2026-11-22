@@ -896,6 +896,44 @@ pub fn d3d12() -> String {
         let (first, count) = first_count;
         writeln!(s, "case fp-wide-{name}\ndevice12\nfootprint12 {first} {count} 0 {}\nend", desc_str(&d));
     }
+    // (added after: Windows refused every fp-wide-* description; where the limit lies: the row
+    // pitch past 32 bits, the rows, a subresource's bytes or the total)
+    for (name, d) in [
+        ("r8-w-ffffff00", Desc::tex(3, 0xffff_ff00, 1, 1, 1, 61)),
+        ("r8-w-ffffff01", Desc::tex(3, 0xffff_ff01, 1, 1, 1, 61)),
+        ("r8-w-80000000", Desc::tex(3, 0x8000_0000, 1, 1, 1, 61)),
+        ("r8-w-7fffffff", Desc::tex(3, 0x7fff_ffff, 1, 1, 1, 61)),
+        ("r8-w-10000000", Desc::tex(3, 0x1000_0000, 1, 1, 1, 61)),
+        ("r8-w-01000000", Desc::tex(3, 0x0100_0000, 1, 1, 1, 61)),
+        ("r8-w-00100000", Desc::tex(3, 0x0010_0000, 1, 1, 1, 61)),
+        ("r8-w-00010000", Desc::tex(3, 0x0001_0000, 1, 1, 1, 61)),
+        ("r8-w-00800000", Desc::tex(3, 0x0080_0000, 1, 1, 1, 61)),
+        ("r8-w-00800001", Desc::tex(3, 0x0080_0001, 1, 1, 1, 61)),
+        ("r8-w-80000000-h2", Desc::tex(3, 0x8000_0000, 2, 1, 1, 61)),
+        ("rgba8-w-3fffffc0", Desc::tex(3, 0x3fff_ffc0, 1, 1, 1, 28)),
+        ("rgba8-w-00200000", Desc::tex(3, 0x0020_0000, 1, 1, 1, 28)),
+        ("rgba8-w-00200001", Desc::tex(3, 0x0020_0001, 1, 1, 1, 28)),
+        ("r8-h-00010000", Desc::tex(3, 4, 0x0001_0000, 1, 1, 61)),
+        ("r8-h-00100000", Desc::tex(3, 4, 0x0010_0000, 1, 1, 61)),
+        ("r8-h-00800000", Desc::tex(3, 4, 0x0080_0000, 1, 1, 61)),
+        ("r8-h-00800001", Desc::tex(3, 4, 0x0080_0001, 1, 1, 61)),
+        ("r8-h-00ffffff", Desc::tex(3, 4, 0x00ff_ffff, 1, 1, 61)),
+        ("r8-h-01000000", Desc::tex(3, 4, 0x0100_0000, 1, 1, 61)),
+        ("r8-h-01000001", Desc::tex(3, 4, 0x0100_0001, 1, 1, 61)),
+        ("rgba8-4000x40000", Desc::tex(3, 0x4000, 0x4_0000, 1, 1, 28)),
+        ("rgba8-4000x3ffff", Desc::tex(3, 0x4000, 0x3_ffff, 1, 1, 28)),
+        ("rgba8-10000x10000", Desc::tex(3, 0x1_0000, 0x1_0000, 1, 1, 28)),
+        ("rgba8-10000x4000", Desc::tex(3, 0x1_0000, 0x4000, 1, 1, 28)),
+        ("rgba8-4000-a2048", Desc::tex(3, 0x4000, 0x4000, 2048, 1, 28)),
+        ("bc1-w-00800000", Desc::tex(3, 0x0080_0000, 4, 1, 1, 71)),
+        ("bc1-w-00800004", Desc::tex(3, 0x0080_0004, 4, 1, 1, 71)),
+        ("bc1-w-01000000", Desc::tex(3, 0x0100_0000, 4, 1, 1, 71)),
+        ("r8-w-00800001-m2", Desc::tex(3, 0x0080_0001, 1, 1, 2, 61)),
+        ("r8-w-00800000-m0", Desc::tex(3, 0x0080_0000, 1, 1, 0, 61)),
+        ("r8-w-00800000-a2", Desc::tex(3, 0x0080_0000, 1, 2, 1, 61)),
+    ] {
+        writeln!(s, "case fp-limit-{name}\ndevice12\nfootprint12 0 1 0 {}\nend", desc_str(&d));
+    }
 
     s
 }

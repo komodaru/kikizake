@@ -22682,3 +22682,131 @@ case fp-wide-d32s8-40000000
 device12
 footprint12 0 2 0 3 0 0x40000000 2 1 1 0x14 1 0 0 0
 end
+case fp-limit-r8-w-ffffff00
+device12
+footprint12 0 1 0 3 0 0xffffff00 1 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-ffffff01
+device12
+footprint12 0 1 0 3 0 0xffffff01 1 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-80000000
+device12
+footprint12 0 1 0 3 0 0x80000000 1 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-7fffffff
+device12
+footprint12 0 1 0 3 0 0x7fffffff 1 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-10000000
+device12
+footprint12 0 1 0 3 0 0x10000000 1 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-01000000
+device12
+footprint12 0 1 0 3 0 0x1000000 1 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-00100000
+device12
+footprint12 0 1 0 3 0 0x100000 1 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-00010000
+device12
+footprint12 0 1 0 3 0 0x10000 1 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-00800000
+device12
+footprint12 0 1 0 3 0 0x800000 1 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-00800001
+device12
+footprint12 0 1 0 3 0 0x800001 1 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-80000000-h2
+device12
+footprint12 0 1 0 3 0 0x80000000 2 1 1 0x3d 1 0 0 0
+end
+case fp-limit-rgba8-w-3fffffc0
+device12
+footprint12 0 1 0 3 0 0x3fffffc0 1 1 1 0x1c 1 0 0 0
+end
+case fp-limit-rgba8-w-00200000
+device12
+footprint12 0 1 0 3 0 0x200000 1 1 1 0x1c 1 0 0 0
+end
+case fp-limit-rgba8-w-00200001
+device12
+footprint12 0 1 0 3 0 0x200001 1 1 1 0x1c 1 0 0 0
+end
+case fp-limit-r8-h-00010000
+device12
+footprint12 0 1 0 3 0 4 0x10000 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-h-00100000
+device12
+footprint12 0 1 0 3 0 4 0x100000 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-h-00800000
+device12
+footprint12 0 1 0 3 0 4 0x800000 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-h-00800001
+device12
+footprint12 0 1 0 3 0 4 0x800001 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-h-00ffffff
+device12
+footprint12 0 1 0 3 0 4 0xffffff 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-h-01000000
+device12
+footprint12 0 1 0 3 0 4 0x1000000 1 1 0x3d 1 0 0 0
+end
+case fp-limit-r8-h-01000001
+device12
+footprint12 0 1 0 3 0 4 0x1000001 1 1 0x3d 1 0 0 0
+end
+case fp-limit-rgba8-4000x40000
+device12
+footprint12 0 1 0 3 0 0x4000 0x40000 1 1 0x1c 1 0 0 0
+end
+case fp-limit-rgba8-4000x3ffff
+device12
+footprint12 0 1 0 3 0 0x4000 0x3ffff 1 1 0x1c 1 0 0 0
+end
+case fp-limit-rgba8-10000x10000
+device12
+footprint12 0 1 0 3 0 0x10000 0x10000 1 1 0x1c 1 0 0 0
+end
+case fp-limit-rgba8-10000x4000
+device12
+footprint12 0 1 0 3 0 0x10000 0x4000 1 1 0x1c 1 0 0 0
+end
+case fp-limit-rgba8-4000-a2048
+device12
+footprint12 0 1 0 3 0 0x4000 0x4000 0x800 1 0x1c 1 0 0 0
+end
+case fp-limit-bc1-w-00800000
+device12
+footprint12 0 1 0 3 0 0x800000 4 1 1 0x47 1 0 0 0
+end
+case fp-limit-bc1-w-00800004
+device12
+footprint12 0 1 0 3 0 0x800004 4 1 1 0x47 1 0 0 0
+end
+case fp-limit-bc1-w-01000000
+device12
+footprint12 0 1 0 3 0 0x1000000 4 1 1 0x47 1 0 0 0
+end
+case fp-limit-r8-w-00800001-m2
+device12
+footprint12 0 1 0 3 0 0x800001 1 1 2 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-00800000-m0
+device12
+footprint12 0 1 0 3 0 0x800000 1 1 0 0x3d 1 0 0 0
+end
+case fp-limit-r8-w-00800000-a2
+device12
+footprint12 0 1 0 3 0 0x800000 1 2 1 0x3d 1 0 0 0
+end
