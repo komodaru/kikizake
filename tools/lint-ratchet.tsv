@@ -212,7 +212,7 @@ file	src/model/d3d12.rs	indexing_slicing	142
 file	src/model/d3d12.rs	panic_in_result_fn	1
 file	src/model/d3d12.rs	same_name_method	1
 file	src/model/d3d12.rs	unreachable	1
-file	src/model/d3d7.rs	arithmetic_side_effects	89
+file	src/model/d3d7.rs	arithmetic_side_effects	87
 file	src/model/d3d7.rs	as_conversions	14
 file	src/model/d3d7.rs	cast_possible_truncation	7
 file	src/model/d3d7.rs	cast_precision_loss	7

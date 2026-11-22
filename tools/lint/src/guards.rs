@@ -198,7 +198,7 @@ static DIB: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"->bits\b|\brow\s*\("
 static DIB_POINTER: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"!\s*[\w>.-]*->bits\b|->bits\s*\?|->bits\s*=[^=]"));
 static SILENT_CUT: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"for\s*\([^;]*;[^;]*&&\s*\w+\s*<\s*([A-Z][A-Z0-9_]*)\s*;"));
 /// (what the source writes, the feature Kani 0.68's compiler wants for it)
-pub const KANI_GATES: &[(&str, &str)] = &[("Vec::<_>::from_fn", "vec_from_fn"), ("Vec::from_fn", "vec_from_fn")];
+pub const KANI_GATES: &[(&str, &str)] = &[("Vec::<_>::from_fn", "vec_from_fn"), ("Vec::from_fn", "vec_from_fn"), (".trim_prefix(", "trim_prefix_suffix"), (".trim_suffix(", "trim_prefix_suffix")];
 
 /// `kani-gates`: the features the sources need for Kani that src/lib.rs does not turn on
 pub fn kani_gates(sources: &[(String, String)], lib: &str) -> Vec<String> {
@@ -206,7 +206,8 @@ pub fn kani_gates(sources: &[(String, String)], lib: &str) -> Vec<String> {
     let mut bad = Vec::new();
     for &(api, feature) in KANI_GATES {
         let Some((rel, _)) = sources.iter().find(|(_, t)| code_only(t, false).contains(api)) else { continue };
-        let on = lib.lines().any(|l| l.contains("#![cfg_attr(kani") && l.contains(&format!("feature({feature})")));
+        // (one gate may turn on several: `feature(vec_from_fn, trim_prefix_suffix)`)
+        let on = lib.lines().filter(|l| l.contains("#![cfg_attr(kani")).filter_map(|l| l.split_once("feature(")).filter_map(|(_, r)| r.split_once(')')).any(|(list, _)| list.split(',').any(|f| f.trim() == feature));
         if !on && !bad.iter().any(|b: &String| b.contains(feature)) {
             bad.push(format!("src/lib.rs: kani-gates: {rel} uses {api}, unstable in Kani's compiler: #![cfg_attr(kani, feature({feature}))]"));
         }

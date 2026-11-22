@@ -209,6 +209,11 @@ fn apis_kani_cannot_compile_are_found() {
     // (in a comment is no use, nor is the gate in a comment)
     assert!(kani_gates(&[("src/x.rs".into(), "// Vec::from_fn(3, f)".into())], "").is_empty());
     assert_eq!(kani_gates(&src, "// #![cfg_attr(kani, feature(vec_from_fn))]\n").len(), 1);
+    // (one gate naming several features; a feature only a prefix of the one named is not on)
+    let both = vec![src[0].clone(), ("src/lean/ledger.rs".to_string(), "fn f(l: &str) -> &str { l.trim_prefix(\"def \") }".to_string())];
+    assert!(kani_gates(&both, "#![cfg_attr(kani, feature(vec_from_fn, trim_prefix_suffix))]\n").is_empty());
+    let r = kani_gates(&both, "#![cfg_attr(kani, feature(vec_from_fn, trim_prefix))]\n");
+    assert!(r.len() == 1 && r[0].contains("feature(trim_prefix_suffix)"), "{r:?}");
 }
 
 #[test]

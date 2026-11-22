@@ -7,6 +7,7 @@
 //!   kikizake tla <TLC dump>               a TLA+ spec's every state (spec/tla/) through the model
 //!   kikizake lean <mirror> [name]         the Lean definitions the proofs are about (spec/lean/) against the models
 //!   kikizake trace [golden dir]           each clause's evidence (cases against Windows, laws) and gaps, per API
+//!   kikizake ledger [--update]            the clauses proved of the specification whose proofs reach the models only on samples (spec/sampled.txt)
 //!   kikizake calls import <suite>-<arch> <cases> <jsonl> <stdout> <src> <shirusu rev> [plain repeat ...]
 //!                                         a shirusu recording of the executor as calls/<suite>-<arch>.txt (src/calls.rs)
 //!   kikizake calls check [calls dir]      the recordings against the cases, x86 against x86-64
@@ -89,6 +90,22 @@ fn main() {
         ["learn", rest @ ..] => exit(kikizake::learn::main(rest)),
         ["tla", rest @ ..] => exit(kikizake::tla::main(rest)),
         ["lean", rest @ ..] => exit(kikizake::lean::main(rest)),
+        ["ledger", rest @ ..] => {
+            let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+            let now = kikizake::trace::sampled_now(root).unwrap_or_else(|e| {
+                eprintln!("{e}");
+                exit(1)
+            });
+            let text = kikizake::trace::sampled_text(&now);
+            if rest == ["--update"] {
+                if let Err(e) = std::fs::write(root.join("spec/sampled.txt"), text) {
+                    eprintln!("spec/sampled.txt: {e}");
+                    exit(1);
+                }
+            } else {
+                print!("{text}");
+            }
+        }
         ["trace", rest @ ..] => match kikizake::trace::table(std::path::Path::new(rest.first().copied().unwrap_or("golden"))) {
             Ok(table) => print!("{table}"),
             Err(e) => { eprintln!("{e}"); exit(2); }

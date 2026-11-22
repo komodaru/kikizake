@@ -56,6 +56,57 @@ pub const FORMAL_KINDS: &[&str] = &["exhaustive", "kani", "tla", "lean"];
 /// (FORMAL_KINDS) or is listed in spec/unproven.txt, which only shrinks
 pub const PROVEN_FILES: &[&str] = &["gdi", "gdiblend", "gdiddb", "gdiline", "gdipath", "gdirgn", "gditext", "gdixform", "gdiplus", "dwrite", "d3d8", "d3d9", "d3d9draw", "d3dres", "d3dx9", "d3d12", "dxgi"];
 
+/// How far a clause's formal laws reach the implementation (the models' Rust functions), kept
+/// apart from whether the clause is proved of the specification: an exhaustive law, a Kani
+/// harness and a TLA+ replay run the model's functions themselves (over their domain: `Every`);
+/// a Lean theorem reaches them through its definitions' mirrors (lean::ledger). The best of a
+/// clause's formal laws; None: no formal law.
+pub fn implementation_reach(laws: &[Law], lean: &BTreeMap<String, crate::lean::ledger::Reach>) -> Option<crate::lean::ledger::Reach> {
+    use crate::lean::ledger::Reach;
+    laws.iter().filter(|l| FORMAL_KINDS.contains(&l.kind.as_str())).map(|l| if l.kind == "lean" { lean.get(&format!("{}::{}", l.file, l.test)).copied().unwrap_or(Reach::SpecOnly) } else { Reach::Every }).max()
+}
+
+pub const SAMPLED: &str = include_str!("../spec/sampled.txt");
+
+/// spec/sampled.txt: the settled clauses of PROVEN_FILES proved of the specification whose
+/// proof reaches the models only on samples or not at all (implementation_reach below
+/// `Every`): `<clause> <sampled|spec-only>`
+pub fn sampled() -> BTreeMap<String, String> {
+    SAMPLED.lines().filter(|l| !l.starts_with('#') && !l.trim().is_empty()).filter_map(|l| l.split_once(' ')).map(|(c, r)| (c.trim().to_string(), r.trim().to_string())).collect()
+}
+
+/// what spec/sampled.txt should hold now: each settled clause of PROVEN_FILES with a formal
+/// law whose best reach (implementation_reach) is below `Every`, the Lean files read from `root`
+pub fn sampled_now(root: &Path) -> std::io::Result<BTreeMap<String, crate::lean::ledger::Reach>> {
+    let lean = crate::lean::ledger::reaches(root)?;
+    let mut by: BTreeMap<String, Vec<Law>> = BTreeMap::new();
+    for l in laws() {
+        for c in &l.clauses {
+            by.entry(c.clone()).or_default().push(l.clone());
+        }
+    }
+    let mut out = BTreeMap::new();
+    for c in crate::spec::clauses() {
+        if !PROVEN_FILES.contains(&c.file) || !["doc", "measured"].contains(&c.status.as_str()) {
+            continue;
+        }
+        let r = by.get(&c.id).and_then(|ls| implementation_reach(ls, &lean));
+        if let Some(r) = r.filter(|r| *r < crate::lean::ledger::Reach::Every) {
+            out.insert(c.id, r);
+        }
+    }
+    Ok(out)
+}
+
+/// spec/sampled.txt's text for `now` (its header kept)
+pub fn sampled_text(now: &BTreeMap<String, crate::lean::ledger::Reach>) -> String {
+    let mut s: String = SAMPLED.lines().take_while(|l| l.starts_with('#')).map(|l| format!("{l}\n")).collect();
+    for (c, r) in now {
+        s += &format!("{c} {}\n", r.name());
+    }
+    s
+}
+
 pub const UNPROVEN: &str = include_str!("../spec/unproven.txt");
 
 /// spec/unproven.txt: the settled clauses of PROVEN_FILES no formal law proves yet
@@ -302,15 +353,24 @@ pub fn gaps(c: &Clause, e: &Evidence, learn: &BTreeMap<String, String>) -> Vec<S
 pub fn table(dir: &Path) -> std::io::Result<String> {
     let t = trace(dir)?;
     let learn = learn();
-    let mut s = String::from("# clause status same differ unmodeled unanswered laws(exhaustive/pbt) | gaps\n");
-    let mut per: BTreeMap<&str, [usize; 8]> = BTreeMap::new();
+    let lean = crate::lean::ledger::reaches(Path::new(env!("CARGO_MANIFEST_DIR")))?;
+    let mut s = String::from("# clause status same differ unmodeled unanswered laws(exhaustive/pbt) impl | gaps\n# impl: how far the formal laws reach the models' functions (every: over the domain; sampled: a Lean theorem whose definitions the models match on samples; spec-only: of the specification alone; -: no formal law)\n");
+    let mut per: BTreeMap<&str, [usize; 11]> = BTreeMap::new();
     let none = Evidence::default();
     for c in crate::spec::clauses() {
         let e = t.get(&c.id).unwrap_or(&none);
         let ex = e.laws.iter().filter(|l| l.kind == "exhaustive").count();
         let g = gaps(&c, e, &learn);
-        s += &format!("{:28} {:9} {:6} {:3} {:5} {:5} {}/{} | {}\n", c.id, c.status, e.same, e.differ, e.unmodeled, e.unanswered, ex, e.laws.len() - ex, g.join("; "));
+        let reach = implementation_reach(&e.laws, &lean);
+        s += &format!("{:28} {:9} {:6} {:3} {:5} {:5} {}/{} {:9} | {}\n", c.id, c.status, e.same, e.differ, e.unmodeled, e.unanswered, ex, e.laws.len() - ex, reach.map_or("-", |r| r.name()), g.join("; "));
         let p = per.entry(c.file).or_default();
+        let [.., every, sampled, spec_only] = p;
+        match reach {
+            Some(crate::lean::ledger::Reach::Every) => *every = every.saturating_add(1),
+            Some(crate::lean::ledger::Reach::Sampled) => *sampled = sampled.saturating_add(1),
+            Some(crate::lean::ledger::Reach::SpecOnly) => *spec_only = spec_only.saturating_add(1),
+            None => {}
+        }
         p[0] += 1;
         p[match c.status.as_str() {
             "doc" => 1,
@@ -326,9 +386,9 @@ pub fn table(dir: &Path) -> std::io::Result<String> {
             p[7] += 1;
         }
     }
-    s += "# per API: clauses doc measured assumed open excluded with-a-law with-gaps\n";
+    s += "# per API: clauses doc measured assumed open excluded with-a-law with-gaps impl-every impl-sampled spec-only\n";
     for (f, p) in per {
-        s += &format!("# {f:10} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4}\n", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+        s += &format!("# {f:10} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4}\n", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10]);
     }
     Ok(s)
 }

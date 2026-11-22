@@ -11,7 +11,7 @@
 
 // (Kani 0.68's compiler, a nightly of 2026-08-20, has as unstable what Rust 1.100 made stable:
 // each such API the crate uses is turned on for it here, kikizake-lint kani-gates)
-#![cfg_attr(kani, feature(vec_from_fn))]
+#![cfg_attr(kani, feature(vec_from_fn, trim_prefix_suffix))]
 
 pub mod calls;
 pub mod case;

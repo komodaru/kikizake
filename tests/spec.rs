@@ -133,8 +133,13 @@ fn lean_theorems_are_about_the_models() {
         let ns = text.lines().find_map(|l| l.strip_prefix("namespace ")).unwrap_or_else(|| panic!("{rel}: no namespace"));
         let short = ns.strip_prefix("Kikizake.").unwrap();
         assert!(mine.is_empty() || main.contains(&format!("{short}.mirrors")), "spec/lean/Main.lean does not run {short}.mirrors");
-        for m in mine {
+        for m in &mine {
             assert!(text.contains(&format!("⟨\"{}\",", m.name)), "{rel} does not define the mirror {}", m.name);
+        }
+        // (and the other way: a Lean mirror no Rust mirror of this file runs ties nothing to the
+        // model, and lean::ledger would read the theorems about it as of the specification alone)
+        for name in kikizake::lean::ledger::file_mirrors(&text).keys() {
+            assert!(mine.iter().any(|m| m.name == name), "{rel} lists the mirror {name} but no Rust mirror (src/lean/) of that file runs it");
         }
     }
     for m in &ms {
@@ -154,6 +159,19 @@ fn unproven_only_shrinks() {
     let gone: Vec<_> = listed.iter().filter(|c| formal.contains(*c) || !settled.contains(*c)).collect();
     assert!(new.is_empty(), "settled clauses with no formal law (prove them: spec/lean, spec/tla, src/proofs.rs, an exhaustive law):\n{}", new.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n"));
     assert!(gone.is_empty(), "clauses in spec/unproven.txt that are proven or not settled (take them out):\n{}", gone.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n"));
+}
+
+/// spec/sampled.txt is what the laws give: the settled clauses proved of the specification whose
+/// proofs reach the models' functions only on samples (a Lean theorem over Domain::Sampled
+/// mirrors) or not at all, so a proof of the specification is never counted as one of the
+/// implementation (lean::ledger)
+#[test]
+fn sampled_ledger_is_current() {
+    let now = kikizake::trace::sampled_now(std::path::Path::new(env!("CARGO_MANIFEST_DIR"))).unwrap();
+    let listed = kikizake::trace::sampled();
+    let want: std::collections::BTreeMap<String, String> = now.iter().map(|(c, r)| (c.clone(), r.name().to_string())).collect();
+    let diff: Vec<String> = want.iter().filter(|(c, r)| listed.get(*c) != Some(*r)).map(|(c, r)| format!("+ {c} {r}")).chain(listed.iter().filter(|(c, r)| want.get(*c) != Some(*r)).map(|(c, r)| format!("- {c} {r}"))).collect();
+    assert!(diff.is_empty(), "spec/sampled.txt is not what the laws give (cargo run --release -- ledger --update):\n{}", diff.join("\n"));
 }
 
 /// every clause has the evidence its status claims (kikizake trace: the table, per API):
