@@ -98,6 +98,11 @@ pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
         "bc7",
         r"\.find\s*\(\s*\|_\|\s*s\.take",
         "BC7's mode is bc7_mode, which tests/laws_conv.rs proves for every first byte; a scan inlined in bc7 escapes it",
+    ),    (
+        "src/model/d3dres_check.rs",
+        "check_with",
+        r"\b(group_support|uav_support|support|format)\s*\(",
+        "check_with takes the format tables only through its Facts (facts gives them): the d3d11.desc mirror chooses the Facts, so a table read inlined in check_with escapes spec/lean/Kikizake/D3d11/Desc.lean",
     ),
 ];
 

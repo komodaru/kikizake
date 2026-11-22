@@ -474,3 +474,12 @@ spec/lean/Kikizake/GdiPlus/Blend.lean::wide_opaque lean GP.CONV.WIDE
 spec/lean/Kikizake/GdiPlus/Blend.lean::pargb_opaque lean GP.CONV.PREMULTIPLIED.OPAQUE
 spec/lean/Kikizake/GdiPlus/Blend.lean::fixed_palettes lean GP.CLONE.PALETTE
 tests/laws_gdiplus.rs::fixed_palettes_hold_every_nearest_color exhaustive GP.CLONE.PALETTE
+spec/lean/Kikizake/D3d11/Desc.lean::desc_size lean D3DRES.DESC.SIZE D3DRES.DESC
+spec/lean/Kikizake/D3d11/Desc.lean::desc_big lean D3DRES.DESC.BIG
+spec/lean/Kikizake/D3d11/Desc.lean::usage_ff lean D3DRES.DESC.USAGEFF
+spec/lean/Kikizake/D3d11/Desc.lean::cube10 lean D3DRES.DESC.CUBE10
+spec/lean/Kikizake/D3d11/Desc.lean::blocksize lean D3DRES.DESC.BLOCKSIZE
+spec/lean/Kikizake/D3d11/Desc.lean::misc_flags lean D3DRES.DESC.MISC
+spec/lean/Kikizake/D3d11/Desc.lean::cpu_rtv lean D3DRES.DESC.CPURTV
+spec/lean/Kikizake/D3d11/Desc.lean::buffers lean D3DRES.DESC.BUF
+spec/lean/Kikizake/D3d11/Desc.lean::desc_out lean D3DRES.DESC

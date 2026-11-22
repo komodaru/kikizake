@@ -262,3 +262,149 @@ fn topo_code(t: Topo) -> u8 {
         Topo::TriStripAdj => 13,
     }
 }
+
+const DESC: &str = "spec/lean/Kikizake/D3d11/Desc.lean";
+
+/// the devices asked: kind (0 Direct3D 10, 1 10.1, 2 11) and feature level
+const DEVS: [(i64, i64); 8] = [(0, 0xa000), (1, 0xa100), (1, 0xa000), (1, 0x9300), (2, 0xb000), (2, 0xa100), (2, 0x9300), (2, 0x9100)];
+/// the values asked of a description's words: dims, sizes, depths or slices, levels, usages,
+/// binds, CPU access, misc flags, sample counts, qualities or strides
+const DIMS: [i64; 6] = [1, 2, 3, 4, 0, 5];
+const SIZES: [i64; 25] = [0, 1, 2, 3, 4, 6, 7, 8, 12, 16, 48, 64, 512, 2048, 2049, 4096, 8192, 8193, 16384, 16385, 1 << 23, (1 << 23) + 1, 0x7fff_ffff, 0x8000_0000, U32];
+const DEPTHS: [i64; 13] = [0, 1, 2, 3, 6, 7, 12, 256, 512, 513, 2048, 2049, 0x8000_0000];
+const MIPS: [i64; 8] = [0, 1, 2, 3, 5, 12, 15, 16];
+const USAGES: [i64; 6] = [0, 1, 2, 3, 4, U32];
+const BINDS: [i64; 18] = [0, 1, 2, 4, 8, 0x10, 0x20, 0x28, 0x40, 0x48, 0x80, 0x88, 0xa8, 0xc0, 0x400, 0x100, 0x89, 0x2b];
+const CPUS: [i64; 6] = [0, 0x10000, 0x20000, 0x30000, 1, 0x40000];
+const MISCS: [i64; 18] = [0, 1, 2, 4, 5, 6, 0x10, 0x20, 0x40, 0x60, 0x80, 0x100, 0x200, 0x1000, 0x800, 7, 0x1387, 0x24];
+const COUNTS: [i64; 8] = [0, 1, 2, 3, 4, 8, 16, 32];
+const QS: [i64; 14] = [0, 1, 2, 4, 16, 12, 2048, 2049, 2052, 4096, 0xffff_fffe, U32, 3, 8];
+
+/// descriptions that are taken (dim, w, h, da, mips, fmt, usage, bind, cpu, misc, count, q,
+/// init): a 2D shader resource and target, a cube, a GDI-compatible target, a staging texture,
+/// a 3D one, a 1D array, a multisampled target, a structured, a raw and a constant buffer
+const NEAR: [[i64; 13]; 11] = [
+    [2, 4, 4, 1, 1, 28, 0, 0x28, 0, 0, 1, 0, 0],
+    [2, 4, 4, 6, 1, 28, 0, 8, 0, 4, 1, 0, 0],
+    [2, 4, 4, 1, 1, 87, 0, 0x28, 0, 0x200, 1, 0, 0],
+    [2, 4, 4, 1, 1, 28, 3, 0, 0x20000, 0, 1, 0, 0],
+    [3, 4, 4, 4, 1, 28, 0, 8, 0, 0, 1, 0, 0],
+    [1, 8, 1, 2, 0, 28, 0, 8, 0, 0, 1, 0, 0],
+    [2, 4, 4, 1, 1, 28, 0, 0x20, 0, 0, 4, 0, 0],
+    [4, 64, 1, 1, 1, 0, 0, 8, 0, 0x40, 1, 16, 0],
+    [4, 64, 1, 1, 1, 0, 0, 8, 0, 0x20, 1, 0, 0],
+    [4, 64, 1, 1, 1, 0, 0, 4, 0, 0, 1, 0, 0],
+    [2, 8, 8, 1, 4, 71, 1, 8, 0, 0, 1, 0, 1],
+];
+/// formats near the rules: RGBA8, its sRGB, BGRA8 and its sRGB and typeless, R10G10B10_XR, R32
+/// float, BC1, D24S8, R8G8_B8G8, YUY2, an unknown one
+const FMTS: [i64; 13] = [28, 29, 87, 91, 90, 89, 41, 71, 45, 68, 107, 0, 200];
+
+/// a description of the mirror's words
+fn res_desc(a: &[i64], at: usize) -> Option<crate::model::d3dres_check::Desc> {
+    let w = |k: usize| arg::<u32>(a, at.checked_add(k)?);
+    Some(crate::model::d3dres_check::Desc { dim: w(0)?, w: w(1)?, h: w(2)?, da: w(3)?, mips: w(4)?, fmt: w(5)?, usage: w(6)?, bind: w(7)?, cpu: w(8)?, misc: w(9)?, count: w(10)?, q: w(11)? })
+}
+
+fn res_dev(a: &[i64]) -> Option<crate::model::d3dres::Dev> {
+    use crate::model::d3dres::Dev;
+    let l = arg::<u32>(a, 1)?;
+    match arg::<u8>(a, 0)? {
+        0 => Some(Dev::D10),
+        1 => Some(Dev::D101(l)),
+        2 => Some(Dev::D11(l)),
+        _ => None,
+    }
+}
+
+/// `n` descriptions of the values above on every device, their format's facts from the tables
+/// (or, one in five, made up)
+fn descs(n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::XorShift32::new(seed);
+    for _ in 0..n {
+        let (dk, lv) = *rng.pick(&DEVS);
+        let mut v = vec![dk, lv, *rng.pick(&DIMS), *rng.pick(&SIZES), *rng.pick(&SIZES), *rng.pick(&DEPTHS), *rng.pick(&MIPS), rng.range(0, 133), *rng.pick(&USAGES), *rng.pick(&BINDS), *rng.pick(&CPUS), *rng.pick(&MISCS), *rng.pick(&COUNTS), *rng.pick(&QS), rng.range(0, 1)];
+        if rng.chance(2) {
+            // (near a description that is taken: one of NEAR with one or two words changed)
+            let base = *rng.pick(&NEAR);
+            for (i, x) in base.iter().enumerate() {
+                if let Some(y) = v.get_mut(i.saturating_add(2)) {
+                    *y = *x;
+                }
+            }
+            for _ in 0..rng.range(1, 2) {
+                let k = usize::try_from(rng.range(0, 12)).unwrap_or(0);
+                let fresh = match k {
+                    0 => *rng.pick(&DIMS),
+                    1 | 2 => *rng.pick(&SIZES),
+                    3 => *rng.pick(&DEPTHS),
+                    4 => *rng.pick(&MIPS),
+                    5 => *rng.pick(&FMTS),
+                    6 => *rng.pick(&USAGES),
+                    7 => *rng.pick(&BINDS),
+                    8 => *rng.pick(&CPUS),
+                    9 => *rng.pick(&MISCS),
+                    10 => *rng.pick(&COUNTS),
+                    11 => *rng.pick(&QS),
+                    _ => rng.range(0, 1),
+                };
+                if let Some(y) = v.get_mut(k.saturating_add(2)) {
+                    *y = fresh;
+                }
+            }
+        }
+        if rng.chance(3) {
+            // (small sizes, where the rest of the checks decide)
+            for i in [3usize, 4] {
+                if let Some(x) = v.get_mut(i) {
+                    *x = rng.range(1, 8);
+                }
+            }
+            if let Some(x) = v.get_mut(5) {
+                *x = *rng.pick(&[1, 1, 2, 6, 12]);
+            }
+        }
+        let Some(d) = res_desc(&v, 2) else { continue };
+        let Some(dev) = res_dev(&v) else { continue };
+        let f = if rng.chance(5) {
+            let bits = [0x10, 0x20, 0x40, 0x80, 0x100, 0x1000, 0x4000, 0x10000, 0x20000, 0x200_0000];
+            let mut s = 0;
+            for b in bits {
+                if !rng.chance(4) {
+                    s |= b;
+                }
+            }
+            crate::model::d3dres_check::Facts { known: !rng.chance(10), s, bs: s ^ if rng.chance(3) { 0x4000 } else { 0 }, uav: if rng.chance(2) { s } else { 0 }, bw: *rng.pick(&[1, 2, 4]), bh: *rng.pick(&[1, 4]), q: [*rng.pick(&[0, 1, 4]), *rng.pick(&[0, 1, 0x8007_0057]), 1, 0] }
+        } else {
+            crate::model::d3dres_check::facts(dev, &d)
+        };
+        v.extend([i64::from(f.known), i64::from(f.s), i64::from(f.bs), i64::from(f.uav), i64::from(f.bw), i64::from(f.bh)]);
+        v.extend(f.q.map(i64::from));
+        each(&v);
+    }
+}
+
+pub static DESC_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.desc",
+        lean: DESC,
+        domain: Domain::Sampled("600,000 descriptions over the devices, dimensions, sizes, slices, levels, every format, usages, binds, CPU access, flags, samples and qualities, their formats' facts from the tables (one in five made up)"),
+        inputs: |each| descs(600_000, 0xde5c_d011, each),
+        model: |a| {
+            let d = res_desc(a, 2)?;
+            let w = |k: usize| arg::<u32>(a, k);
+            let fx = crate::model::d3dres_check::Facts { known: flag(a, 15)?, s: w(16)?, bs: w(17)?, uav: w(18)?, bw: w(19)?, bh: w(20)?, q: [w(21)?, w(22)?, w(23)?, w(24)?] };
+            Some(match crate::model::d3dres_check::check_with(res_dev(a)?, &d, flag(a, 14)?, &fx) {
+                Err(_) => vec![0],
+                Ok(g) => [1, g.dim, g.w, g.h, g.da, g.mips, g.fmt, g.usage, g.bind, g.cpu, g.misc, g.count, g.q].map(i64::from).to_vec(),
+            })
+        },
+    },
+    Mirror {
+        name: "d3d11.create",
+        lean: DESC,
+        domain: Domain::Sampled("the descriptions of d3d11.desc"),
+        inputs: |each| descs(600_000, 0xde5c_d011, &mut |v| each(v.get(..14).unwrap_or(&[]))),
+        model: |a| one(crate::model::d3dres_check::create_refused(res_dev(a)?, &res_desc(a, 2)?).is_some()),
+    },
+];

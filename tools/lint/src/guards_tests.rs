@@ -247,3 +247,11 @@ fn gdiplus_mixes_stay_in_the_mirrored_functions() {
     assert_eq!(r.iter().filter(|b| b.contains("forbidden: a hatch texel's mix")).count(), 2, "{r:?}");
     assert!(rust("src/model/gdiplus.rs", "fn paint() { let v = hatch_mix(f, g, wt); let s = coverage_share(c0 >> (8 * k) & 255, c, full); }").is_empty());
 }
+
+#[test]
+fn check_with_reads_the_format_tables_only_through_its_facts() {
+    let inlined = "fn check_with() {\n    let s = group_support(dev, d.fmt);\n    let q = support(dev, d.fmt).5[0];\n}\n";
+    let r = rust("src/model/d3dres_check.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in check_with: check_with takes")).count(), 2, "{r:?}");
+    assert!(rust("src/model/d3dres_check.rs", "fn facts() { let s = group_support(dev, d.fmt); }\nfn check_with() { let s = fx.s; }\n").is_empty());
+}

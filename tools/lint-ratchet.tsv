@@ -257,8 +257,8 @@ file	src/model/d3dres.rs	cast_sign_loss	3
 file	src/model/d3dres.rs	indexing_slicing	88
 file	src/model/d3dres.rs	same_name_method	2
 file	src/model/d3dres_check.rs	arithmetic_side_effects	14
-file	src/model/d3dres_check.rs	as_conversions	4
-file	src/model/d3dres_check.rs	indexing_slicing	44
+file	src/model/d3dres_check.rs	as_conversions	3
+file	src/model/d3dres_check.rs	indexing_slicing	43
 file	src/model/d3dx9.rs	arithmetic_side_effects	65
 file	src/model/d3dx9.rs	as_conversions	51
 file	src/model/d3dx9.rs	cast_possible_truncation	15

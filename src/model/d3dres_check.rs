@@ -124,67 +124,104 @@ pub fn past_level_size(dev: Dev, d: &Desc) -> bool {
     d.dim == 2 && (d.w > l2 || d.h > l2)
 }
 
+/// what check_desc takes from the format tables for a description's format: whether the format
+/// is known, its typeless group's support bits, the bits binding goes by, the UAV support bits,
+/// its element's width and height in pixels, the quality levels of 2, 4, 8 and 16 samples
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Facts {
+    pub known: bool,
+    pub s: u32,
+    pub bs: u32,
+    pub uav: u32,
+    pub bw: u32,
+    pub bh: u32,
+    pub q: [u32; 4],
+}
+
+/// the format tables' facts for a description
+pub fn facts(dev: Dev, d: &Desc) -> Facts {
+    let f = super::dxgifmt::format(d.fmt);
+    let s = group_support(dev, d.fmt);
+    Facts {
+        known: f.is_some(),
+        s,
+        bs: if d.fmt == 89 { group_support(dev, 23) } else { s },
+        uav: uav_support(dev, d.fmt, d.dim),
+        bw: f.map_or(1, |f| f.bw),
+        bh: f.map_or(1, |f| f.bh),
+        q: support(dev, d.fmt).5,
+    }
+}
+
 /// Ok(the description GetDesc gives) or Err(the HRESULT)
 pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
+    Ok(check_with(dev, d, init, &facts(dev, d)))
+}
+
+/// D3DRES.DESC: check_desc of a description whose format has these facts (the rule
+/// spec/lean/Kikizake/D3d11/Desc.lean proves its clauses of)
+pub fn check_with(dev: Dev, d: &Desc, init: bool, fx: &Facts) -> Result<Desc, u32> {
     hit(clause::D3DRES_DESC);
     let bad = Err(E_INVALIDARG);
     let mut g = *d;
     // usage and CPU access
     // (MEASURED: default resources may have CPU access; other CPU bits refused)
     if d.cpu & !0x30000 != 0 {
-        return Ok(bad);
+        return bad;
     }
     match d.usage {
         // (MEASURED: not a depth stencil target)
         0 => {
             if d.cpu != 0 && d.bind & BIND_DSV != 0 {
-                return Ok(bad);
+                return bad;
             }
         }
         1 => {
             // (MEASURED: an immutable resource is bound somewhere, never as a target)
             if !init || d.cpu != 0 || d.bind == 0 || d.bind & (BIND_RTV | BIND_DSV | BIND_UAV | BIND_SO) != 0 {
-                return Ok(bad);
+                return bad;
             }
         }
         2 => {
             // (MEASURED: a dynamic resource is bound somewhere, never as a target)
             if d.cpu != 0x10000 || d.bind == 0 || d.bind & (BIND_RTV | BIND_DSV | BIND_UAV | BIND_SO) != 0 {
-                return Ok(bad);
+                return bad;
             }
         }
         3 => {
             if d.bind != 0 || d.cpu == 0 {
-                return Ok(bad);
+                return bad;
             }
         }
         // (MEASURED: usage 0xffffffff passes as staging does)
         0xffff_ffff if d.bind == 0 && d.cpu != 0 => {
             hit(clause::D3DRES_DESC_USAGEFF);
         }
-        _ => return Ok(bad),
+        _ => return bad,
     }
     if d.dim == 4 {
-        return Ok(check_buf(dev, d));
+        return check_buf(dev, d);
     }
-    let Some(f) = super::dxgifmt::format(d.fmt) else { return Ok(bad) };
-    let s = group_support(dev, d.fmt);
+    if !fx.known {
+        return bad;
+    }
+    let s = fx.s;
     let (l2, l3, la, _lc) = limits(dev);
-    let dimbit = [0, 0x10, 0x20, 0x40][d.dim as usize];
+    let dimbit = [0, 0x10, 0x20, 0x40].get(usize::try_from(d.dim).unwrap_or(usize::MAX)).copied().unwrap_or(0);
     if s & dimbit == 0 {
-        return Ok(bad);
+        return bad;
     }
     let (w, h, da) = (d.w, if d.dim == 1 { 1 } else { d.h }, d.da);
     if w == 0 || h == 0 || da == 0 {
-        return Ok(bad);
+        return bad;
     }
     let lim = if d.dim == 3 { l3 } else { l2 };
     if d.dim != 3 && da > la.max(1) {
-        return Ok(bad);
+        return bad;
     }
     if w >= 0x8000_0000 || h >= 0x8000_0000 || d.dim == 3 && da >= 0x8000_0000 {
         hit(clause::D3DRES_DESC_SIZE);
-        return Ok(bad);
+        return bad;
     }
     // (MEASURED, big-*: 1D and 3D textures stop at the level's sizes; a 2D one of one level
     // and one slice is checked against 2^23 texels a side instead (8388608 wide passes,
@@ -192,22 +229,22 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
     // slices the level's sizes hold, big-bytes)
     if d.dim != 2 && (w > lim || h > lim || d.dim == 3 && da > l3) {
         hit(clause::D3DRES_DESC_BIG);
-        return Ok(bad);
+        return bad;
     }
     if d.dim == 2 && (w > lim || h > lim) {
         hit(clause::D3DRES_DESC_BIG);
         if da != 1 || d.mips != 1 || w > 1 << 23 || h > 1 << 23 {
-            return Ok(bad);
+            return bad;
         }
     }
     // (MEASURED: the top level of a block format is whole blocks, tex-random-169)
-    if w % f.bw != 0 || h % f.bh != 0 {
+    if w % fx.bw.max(1) != 0 || h % fx.bh.max(1) != 0 {
         hit(clause::D3DRES_DESC_BLOCKSIZE);
-        return Ok(bad);
+        return bad;
     }
     let full = full_chain(&Desc { h, ..*d });
     if d.mips > full {
-        return Ok(bad);
+        return bad;
     }
     if d.mips == 0 {
         g.mips = full;
@@ -222,21 +259,21 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
     }
     let cube = g.misc & 4 != 0;
     if g.mips > 1 && s & 0x1000 == 0 || cube && s & 0x80 == 0 || d.cpu != 0 && s & 0x20000 == 0 {
-        return Ok(bad);
+        return bad;
     }
-    let bs = if d.fmt == 89 { group_support(dev, 23) } else { s };
+    let bs = fx.bs;
     // binding
     if d.bind & !(BIND_SRV | BIND_RTV | BIND_DSV | BIND_UAV) != 0 {
-        return Ok(bad);
+        return bad;
     }
     for (b, need) in [(BIND_SRV, 0x100), (BIND_RTV, 0x4000), (BIND_DSV, 0x10000), (BIND_UAV, 0x2000000)] {
-        if d.bind & b != 0 && (if b == BIND_UAV { uav_support(dev, d.fmt, d.dim) } else { bs }) & need == 0 {
-            return Ok(bad);
+        if d.bind & b != 0 && (if b == BIND_UAV { fx.uav } else { bs }) & need == 0 {
+            return bad;
         }
     }
     // (MEASURED: no 3D depth stencil, tex-random-7)
     if d.bind & BIND_DSV != 0 && (d.bind & (BIND_RTV | BIND_UAV) != 0 || d.dim == 3) {
-        return Ok(bad);
+        return bad;
     }
     // flags (MEASURED: GENERATE_MIPS 1, SHARED 2, TEXTURECUBE 4, RESOURCE_CLAMP 0x80,
     // SHARED_KEYEDMUTEX 0x100, GDI_COMPATIBLE 0x200, RESTRICTED_CONTENT 0x1000 on textures)
@@ -245,54 +282,54 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
     // tex2-*-misc-*)
     let known = if dev.d3d11() { 1 | 2 | 4 | 0x80 | 0x100 | 0x200 | 0x1000 } else { 1 | 2 | 4 };
     if d.misc & !known != 0 {
-        return Ok(bad);
+        return bad;
     }
     // (MEASURED: RESTRICTED_CONTENT only on 2D textures)
     if d.misc & 0x1000 != 0 && d.dim != 2 {
-        return Ok(bad);
+        return bad;
     }
     // (MEASURED: a 3D default texture with CPU access has one mip)
     if d.dim == 3 && d.usage == 0 && d.cpu != 0 && g.mips != 1 {
-        return Ok(bad);
+        return bad;
     }
     // (MEASURED: Direct3D 10.0 has no arrays of cubes, d3d10res view-cubea-*)
     if cube && (d.dim != 2 || da % 6 != 0 || w != h || dev == Dev::D10 && da != 6) {
-        return Ok(bad);
+        return bad;
     }
     if d.misc & 1 != 0 && d.bind & (BIND_SRV | BIND_RTV) != BIND_SRV | BIND_RTV {
-        return Ok(bad);
+        return bad;
     }
     if d.misc & 0x200 != 0 && !matches!(d.fmt, 87 | 90 | 91) {
-        return Ok(bad);
+        return bad;
     }
     if (d.usage == 3 || d.usage == 0xffff_ffff) && d.misc & (1 | 0x80 | 0x1000) != 0 {
-        return Ok(bad);
+        return bad;
     }
     // (MEASURED: not immutable restricted content, tex-random-30)
     if d.usage == 1 && d.misc & 0x1000 != 0 {
-        return Ok(bad);
+        return bad;
     }
     // (MEASURED: a multisampled default texture has no CPU access, tex-random-207)
     if d.usage == 0 && d.cpu != 0 && d.count > 1 {
-        return Ok(bad);
+        return bad;
     }
     // (dynamic: one mip, one array slice, nothing shared)
     // (MEASURED: Direct3D 10 wants the 1 written, not 0 for a one-mip chain, d3d10res
     // tex-random-218)
     if d.usage == 2 && (g.mips != 1 || !dev.d3d11() && d.mips != 1 || d.dim != 3 && da != 1 || d.misc & !4 != 0) {
-        return Ok(bad);
+        return bad;
     }
     // multisampling
     if d.dim == 2 {
         if d.count == 0 {
-            return Ok(bad);
+            return bad;
         }
         if d.count > 1 {
             let q = match d.count {
-                2 => support(dev, d.fmt).5[0],
-                4 => support(dev, d.fmt).5[1],
-                8 => support(dev, d.fmt).5[2],
-                16 => support(dev, d.fmt).5[3],
+                2 => fx.q[0],
+                4 => fx.q[1],
+                8 => fx.q[2],
+                16 => fx.q[3],
                 _ => 0,
             };
             // (MEASURED: Direct3D 10.0 has no standard patterns and multisampled depth is not
@@ -300,20 +337,20 @@ pub fn check_desc(dev: Dev, d: &Desc, init: bool) -> Res<Result<Desc, u32>> {
             let d10 = dev == Dev::D10 && (d.q >= 0xffff_fffe || d.bind & (BIND_SRV | BIND_DSV) == BIND_SRV | BIND_DSV);
             if d10 || q == 0 || q == E_INVALIDARG || d.q >= q && d.q < 0xffff_fffe || g.mips != 1 || d.usage != 0 || init {
                 // (MEASURED: no initial data for a multisampled texture, tex-random-190)
-                return Ok(bad);
+                return bad;
             }
         } else if d.q != 0 && d.q < 0xffff_fffe && dev.d3d11() {
             // (MEASURED: Direct3D 10 takes any quality of one sample, tex2-*-quality-u0)
             // (MEASURED: one sample takes the standard and center patterns' quality)
-            return Ok(bad);
+            return bad;
         }
     }
-    Ok(Ok(g))
+    Ok(g)
 }
 
 /// a buffer's description (MEASURED, buf-*: one word swept at a time over a vertex, constant,
 /// dynamic constant, shader resource, staging, raw and structured buffer)
-fn check_buf(dev: Dev, d: &Desc) -> Result<Desc, u32> {
+pub fn check_buf(dev: Dev, d: &Desc) -> Result<Desc, u32> {
     hit(clause::D3DRES_DESC_BUF);
     let bad = Err(E_INVALIDARG);
     let mut g = *d;
