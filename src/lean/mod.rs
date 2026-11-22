@@ -16,6 +16,7 @@ mod f32;
 mod dwrite;
 mod dxgi;
 mod gdi;
+mod gdiglyph;
 mod gdiplus;
 pub mod ledger;
 
@@ -46,6 +47,7 @@ pub fn mirrors() -> Vec<&'static Mirror> {
     // (one API a line)
     let all: &[&[Mirror]] = &[
         gdi::MIRRORS,
+        gdiglyph::MIRRORS,
         gdiplus::MIRRORS,
         d3d12::MIRRORS,
         dxgi::MIRRORS,

@@ -704,3 +704,22 @@ spec/lean/Kikizake/D3d9/Draw.lean::xzero lean D3D9.DRAW.XZERO
 spec/lean/Kikizake/D3d9/Draw.lean::xzero_any lean D3D9.DRAW.XZERO
 tests/wicimage_laws.rs::a_frame_written_again_keeps_its_pixels pbt WICIMAGE.ENCODE.WMP.FRAME
 tests/wicimage_laws.rs::a_quarter_turned_gray_file_copies_nothing pbt WICIMAGE.ENCODE.WMP.TURNGRAY
+spec/lean/Kikizake/Gdi/Hfd.lean::value_nearest lean GDI.PATH.FLATTENHFD
+spec/lean/Kikizake/Gdi/Hfd.lean::flatten_far lean GDI.PATH.FLATTENHFD
+spec/lean/Kikizake/Gdi/Hfd.lean::flatten_keeps_the_end lean GDI.PATH.FLATTENHFD
+spec/lean/Kikizake/Gdi/Arc.lean::partial_ends lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Arc.lean::arc_thin lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Arc.lean::axes_exact lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Arc.lean::cos_sin_symmetric lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Arc.lean::arctan_mirror lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Glyph.lean::rows_dword_aligned lean GDI.TEXT.BITMAP GDI.TEXT.GRAY
+spec/lean/Kikizake/Gdi/Glyph.lean::bytes_length lean GDI.TEXT.BITMAP GDI.TEXT.GRAY
+spec/lean/Kikizake/Gdi/Glyph.lean::gray_levels lean GDI.TEXT.GRAY
+spec/lean/Kikizake/Gdi/Glyph.lean::shear_zero lean GDI.TEXT.ITALIC
+spec/lean/Kikizake/Gdi/Glyph.lean::shear_odd lean GDI.TEXT.ITALIC
+spec/lean/Kikizake/Gdi/Glyph.lean::italic_rows lean GDI.TEXT.ITALIC
+spec/lean/Kikizake/Gdi/Glyph.lean::italic_width lean GDI.TEXT.ITALIC
+spec/lean/Kikizake/Gdi/Glyph.lean::corners_sheared lean GDI.TEXT.ITALIC
+spec/lean/Kikizake/Gdi/Glyph.lean::text_cons lean GDI.TEXT.DRAW
+spec/lean/Kikizake/Gdi/Glyph.lean::char_rows lean GDI.TEXT.DRAW
+tests/laws_gdigradtri.rs::triangle_is_its_values_carried_as_flat_rectangles exhaustive GDI.GRAD.TRIANGLE
