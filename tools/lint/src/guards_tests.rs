@@ -309,6 +309,14 @@ fn gdiplus_gamma64_stays_in_the_mirrored_function() {
 }
 
 #[test]
+fn gdiplus_dither_place_stays_in_the_mirrored_functions() {
+    let inlined = "fn fill_area() {\n    let odd_end = (a1 - a0) % 2 == 1;\n    let c = (at + left - ox).rem_euclid(4) as u32;\n}\n";
+    let r = rust("src/model/gdiplus.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in fill_area: a gamma corrected texture's dither place")).count(), 2, "{r:?}");
+    assert!(rust("src/model/gdiplus.rs", "fn fill_area() { let c = dither_column(x86, ox, &cells, x0, x1, x); let r = dither_row(oy, y); }\n").is_empty());
+}
+
+#[test]
 fn check_with_reads_the_format_tables_only_through_its_facts() {
     let inlined = "fn check_with() {\n    let s = group_support(dev, d.fmt);\n    let q = support(dev, d.fmt).5[0];\n}\n";
     let r = rust("src/model/d3dres_check.rs", inlined);

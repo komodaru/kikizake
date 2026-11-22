@@ -461,3 +461,68 @@ fn textures_composite_as_hatches() {
         }
     }
 }
+
+/// run case text on x86; its answers
+fn answers(text: &str) -> Vec<String> {
+    let c = &kikizake::case::parse_cases(&format!("case p\n{text}end\n"))[0];
+    kikizake::model::run_case(c).unwrap_or_default()
+}
+
+/// the pixels of the last read of a case's answers in a 32-bit format (little-endian bytes)
+fn read32(out: &[String], h: usize) -> Vec<u32> {
+    let rows = out.get(out.len().saturating_sub(h)..).unwrap_or(&[]);
+    rows.iter()
+        .flat_map(|r| {
+            (0..r.len() / 8).map(move |k| {
+                let b = |i: usize| u32::from_str_radix(r.get(k * 8 + 2 * i..k * 8 + 2 * i + 2).unwrap_or("00"), 16).unwrap_or(0);
+                b(0) | b(1) << 8 | b(2) << 16 | b(3) << 24
+            })
+        })
+        .collect()
+}
+
+/// GP.FILL.BUFFER: on a 16-bit channel bitmap a fill works on a 32bppARGB copy of the whole
+/// bitmap, on an indexed one on a 32bppPARGB copy written back as the nearest entry to the
+/// premultiplied color; written back when the rectangle starts inside the bitmap with a width and
+/// height of 0 or more (every pixel then makes the trip), else the bitmap as it was: every such
+/// format, rectangle inside, past the edges, starting outside, empty and negative, copy and over,
+/// with and without gamma correction (16-bit channels), against the same fill of a 32-bit bitmap
+/// written from the same bytes
+#[test]
+fn wide_and_indexed_fills_work_on_a_copy() {
+    let rects = [(1, 0, 3, 2), (-1, -1, 9, 9), (4, 2, 0, 0), (2, 1, 0, 5), (5, 0, 2, 2), (0, 3, 2, 2), (1, 1, -1, 2), (1, 1, 2, -1), (-2, 0, 3, 3)];
+    let mut tripped = 0u32;
+    for f in [Pf::Rgb48, Pf::Argb64, Pf::Pargb64, Pf::I1, Pf::I4, Pf::I8] {
+        let name = f.name();
+        let wide = !matches!(f, Pf::I1 | Pf::I4 | Pf::I8);
+        for (seed, &(x, y, w, h)) in rects.iter().enumerate() {
+            for c in ["0x80c04020", "0xff2040e0", "0x00ffffff"] {
+                for (mode, q) in [("copy", 0), ("over", 0), ("over", 2), ("over", 3)] {
+                    if !wide && q != 0 {
+                        continue;
+                    }
+                    let write = format!("gpwrite 0 {name} seed {}\n", seed + 3);
+                    let fill = format!("gpfill 0 {x} {y} {w} {h} {c} {mode} {q}\n");
+                    let before = answers(&format!("gpbitmap 0 5 3 {name}\n{write}gpread 0 32bppARGB\n"));
+                    let after = answers(&format!("gpbitmap 0 5 3 {name}\n{write}{fill}gpread 0 32bppARGB\n"));
+                    let trip = x <= x + w && y <= y + h && w >= 0 && h >= 0 && x < 5 && y < 3;
+                    let want = if !trip {
+                        read32(&before, 3)
+                    } else if wide {
+                        // (the same bytes into a 32bppARGB bitmap, filled, read back through the format)
+                        let c = answers(&format!("gpbitmap 0 5 3 32bppARGB\n{write}{fill}gpread 0 32bppARGB\n"));
+                        read32(&c, 3).iter().map(|&v| gp::convert(f, Pf::Argb32, gp::convert(Pf::Argb32, f, u64::from(v), &[]).unwrap_or(0), &[]).ok().and_then(|v| u32::try_from(v).ok()).unwrap_or(0)).collect()
+                    } else {
+                        // (into 32bppPARGB, filled, each premultiplied color's nearest entry)
+                        let c = answers(&format!("gpbitmap 0 5 3 32bppPARGB\n{write}{fill}gpread 0 32bppPARGB\n"));
+                        read32(&c, 3).iter().map(|&v| gp::convert(f, Pf::Argb32, from_argb(f, v).unwrap_or(0), &[]).ok().and_then(|v| u32::try_from(v).ok()).unwrap_or(0)).collect()
+                    };
+                    tripped += u32::from(trip);
+                    assert_eq!(read32(&after, 3), want, "{name} {x} {y} {w} {h} {c} {mode} {q}");
+                    assert_eq!(want.len(), 15);
+                }
+            }
+        }
+    }
+    assert!(tripped > 100);
+}

@@ -842,6 +842,49 @@ impl Src {
     }
 }
 
+/// GP.PAINT.GAMMA.RUNS: the dither row of a gamma corrected texture fill, y less the rendering
+/// origin's y modulo 4 (oy), or y for a solid brush (none); mirrored by
+/// spec/lean/Kikizake/GdiPlus/Dither.lean
+pub fn dither_row(oy: Option<i64>, y: u32) -> u32 {
+    match oy {
+        Some(oy) => u32::try_from(i64::from(y).saturating_sub(oy).rem_euclid(4)).unwrap_or(0),
+        None => y,
+    }
+}
+
+/// GP.PAINT.GAMMA.RUNS: the dither column of pixel x of a gamma corrected texture fill from x0
+/// to x1 (exclusive), the row's source pixels `cells` (none left out, else whether opaque, one a
+/// pixel of the bitmap), the rendering origin's x ox: its place in its run of opaque, or of
+/// translucent, pixels plus the row's first drawn pixel less ox, modulo 4; mirrored by
+/// spec/lean/Kikizake/GdiPlus/Dither.lean
+pub fn dither_column(x86: bool, ox: i64, cells: &[Option<bool>], x0: i64, x1: i64, x: u32) -> u32 {
+    hit(clause::GP_PAINT_GAMMA_RUNS);
+    let at = |i: i64| usize::try_from(i).ok().and_then(|i| cells.get(i)).copied().flatten();
+    let bw = i64::try_from(cells.len()).unwrap_or(i64::MAX);
+    let (lo, hi) = (x0.max(0), x1.min(bw));
+    let x = i64::from(x);
+    let o = at(x);
+    let (mut a0, mut a1) = (x, x.saturating_add(1));
+    while a0 > lo && at(a0.saturating_sub(1)) == o {
+        a0 = a0.saturating_sub(1);
+    }
+    while a1 < hi && at(a1) == o {
+        a1 = a1.saturating_add(1);
+    }
+    let len = a1.saturating_sub(a0);
+    // (x86: column 2 for a run of one pixel, and for the last pixel of a translucent run of odd
+    // length or one that ends the fill)
+    let odd_end = len.rem_euclid(2) == 1 && x == a1.saturating_sub(1) && (o == Some(false) || len == 1 || a1 == hi);
+    let place = if odd_end && x86 { 2 } else { x.saturating_sub(a0) };
+    // (MEASURED, golden gdipluspaint hatchshift16-*, hatchrun16-*: every run of the row takes the
+    // phase of the fill's left edge from the rendering origin's x)
+    let mut left = lo;
+    while left < x && usize::try_from(left).ok().and_then(|i| cells.get(i)).is_some_and(Option::is_none) {
+        left = left.saturating_add(1);
+    }
+    u32::try_from(place.saturating_add(left).saturating_sub(ox).rem_euclid(4)).unwrap_or(0)
+}
+
 /// a fill's brush: one color, or a texture of them (a hatch)
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Source {
@@ -857,7 +900,7 @@ enum Source {
 /// with the premultiplied brush color c(x, y) gives, none for a pixel the shape leaves out
 fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(u32, u32) -> Option<u32>, kind: Source, copy: bool, q: Quality) -> Res<()> {
     let gamma = !copy && q.gamma();
-    let bw = b.w as i64;
+    let bw = b.w;
     // (MEASURED, golden gdipluspaint hatchopaque16-*: gamma corrected, the dither's column counts
     // from the start of the pixel's run of opaque, or of translucent, source pixels in its row; a
     // run of one pixel takes column 2)
@@ -868,34 +911,11 @@ fn fill_area(b: &mut Bitmap, (x0, y0, x1, y1): (i64, i64, i64, i64), c: &dyn Fn(
     };
     // (MEASURED, golden gdipluspaint hatchshift16-*, hatchrun16-*: the dither's row counts from
     // the rendering origin's y)
-    let row = |y: u32| -> u32 {
-        match texture {
-            Some((_, oy)) => (i64::from(y) - oy).rem_euclid(4) as u32,
-            None => y,
-        }
-    };
+    let row = |y: u32| -> u32 { dither_row(texture.map(|o| o.1), y) };
     let column = |x: u32, y: u32| -> u32 {
         let Some((ox, _)) = texture else { return x };
-        hit(clause::GP_PAINT_GAMMA_RUNS);
-        let o = opaque(x, y);
-        let (mut a0, mut a1) = (x, x + 1);
-        while i64::from(a0) > x0.max(0) && opaque(a0 - 1, y) == o {
-            a0 -= 1;
-        }
-        while i64::from(a1) < x1.min(bw) && opaque(a1, y) == o {
-            a1 += 1;
-        }
-        // (x86: column 2 for a run of one pixel, and for the last pixel of a translucent run of
-        // odd length)
-        let odd_end = (a1 - a0) % 2 == 1 && x == a1 - 1 && (o == Some(false) || a1 - a0 == 1 || i64::from(a1) == x1.min(bw));
-        let at = if odd_end && super::arch() == 32 { 2 } else { x - a0 };
-        // (MEASURED, golden gdipluspaint hatchshift16-*, hatchrun16-*: every run of the row
-        // takes the phase of the fill's left edge from the rendering origin's x)
-        let mut left = x0.max(0);
-        while left < i64::from(x) && c(left as u32, y).is_none() {
-            left += 1;
-        }
-        (i64::from(at) + left - ox).rem_euclid(4) as u32
+        let cells: Vec<Option<bool>> = (0..bw).map(|px| opaque(px, y)).collect();
+        dither_column(super::arch() == 32, ox, &cells, x0, x1, x)
     };
     let pargb = Pf::Pargb32;
     let argb = Pf::Argb32;

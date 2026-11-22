@@ -157,6 +157,12 @@ pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
     ),
     (
         "src/model/gdiplus.rs",
+        "fill_area",
+        r"\bodd_end\b|rem_euclid\s*\(\s*4\s*\)",
+        "a gamma corrected texture's dither place is the pure dither_column and dither_row, which the Lean mirror gp.dither_place holds equal to spec/lean/Kikizake/GdiPlus/Dither.lean; a run walk inlined in fill_area escapes them",
+    ),
+    (
+        "src/model/gdiplus.rs",
         "mix",
         r"8192\.0|\bas\s+f32\b",
         "x86-64's gamma corrected word is the pure mix64, which the Lean mirror gp.gamma64 holds equal to spec/lean/Kikizake/GdiPlus/Matrix.lean; float arithmetic inlined in mix escapes it",

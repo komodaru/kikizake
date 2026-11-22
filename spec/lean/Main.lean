@@ -11,6 +11,8 @@ def mirrors : List Mirror :=
   D3d9.Tex.mirrors ++ D3d9.Texel.mirrors ++ D3d9.Chain.mirrors ++ D3d9.Blend.mirrors ++ D3d9.Filter.mirrors ++
   GdiPlus.Blend.mirrors ++
   GdiPlus.Matrix.mirrors ++
+  GdiPlus.Flatten.mirrors ++
+  GdiPlus.Dither.mirrors ++
   D3d11.Raster.mirrors ++ D3d11.Draw.mirrors ++ D3d11.Texture.mirrors ++
   D3d11.Desc.mirrors ++
   D3d11.View.mirrors ++

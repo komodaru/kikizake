@@ -1,10 +1,13 @@
 //! GDI+'s mirrors (spec/lean/Kikizake/GdiPlus/).
 use super::{arg, every, one, sampled, Domain, Mirror};
 use crate::model::gdiplus::{self, Depth, Pf, Round};
+use crate::model::gppath::{self, Kind, Path, Point};
 
 const CONV: &str = "spec/lean/Kikizake/GdiPlus/Conv.lean";
 const BLEND: &str = "spec/lean/Kikizake/GdiPlus/Blend.lean";
 const MATRIX: &str = "spec/lean/Kikizake/GdiPlus/Matrix.lean";
+const FLATTEN: &str = "spec/lean/Kikizake/GdiPlus/Flatten.lean";
+const DITHER: &str = "spec/lean/Kikizake/GdiPlus/Dither.lean";
 
 /// the formats the mirror converts, by their place in `Pf` (the indexed ones and 16bppGrayScale
 /// convert through tables and refusals the Lean file does not hold)
@@ -137,6 +140,104 @@ fn draws(n: usize, count: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
         }
         each(&v);
     }
+}
+
+/// a float the paths take: a multiple of 1/8 in -64..64 mostly, a moderate value, any pattern
+fn coord(rng: &mut crate::rng::XorShift32) -> u32 {
+    match rng.range(0, 7) {
+        0 => rng.next(),
+        1 | 2 => u32::try_from(rng.range(0x3c00_0000, 0x4300_0000)).unwrap_or(0) | if rng.chance(2) { 0x8000_0000 } else { 0 },
+        _ => (f32::from(i16::try_from(rng.range(-512, 512)).unwrap_or(0)) / 8.0).to_bits(),
+    }
+}
+
+/// a path's coordinate: a multiple of 1/8 in -64..64 or a moderate value (any pattern makes
+/// Beziers of billions of points)
+fn path_coord(rng: &mut crate::rng::XorShift32) -> u32 {
+    match rng.range(0, 3) {
+        0 => u32::try_from(rng.range(0x3c00_0000, 0x4280_0000)).unwrap_or(0) | if rng.chance(2) { 0x8000_0000 } else { 0 },
+        _ => (f32::from(i16::try_from(rng.range(-512, 512)).unwrap_or(0)) / 8.0).to_bits(),
+    }
+}
+
+/// a matrix element: near 1 or 0 (within GpMatrix's tolerance or just past it), a small integer,
+/// a moderate value
+fn element(rng: &mut crate::rng::XorShift32, diagonal: bool) -> u32 {
+    let base: f32 = if diagonal { 1.0 } else { 0.0 };
+    match rng.range(0, 5) {
+        0 => base.to_bits(),
+        1 => (base + f32::from(i16::try_from(rng.range(-40, 40)).unwrap_or(0)) * 2e-5).to_bits(),
+        2 => f32::from(i8::try_from(rng.range(-4, 4)).unwrap_or(0)).to_bits(),
+        3 => (f32::from(i16::try_from(rng.range(-4000, 4000)).unwrap_or(0)) / 512.0).to_bits(),
+        _ => coord(rng),
+    }
+}
+
+/// a path's matrix element: as element gives it, but never far from 1
+fn path_element(rng: &mut crate::rng::XorShift32, diagonal: bool) -> u32 {
+    let e = element(rng, diagonal);
+    if f32::from_bits(e).abs() < 16.0 { e } else { e & 0x80ff_ffff | 0x3f00_0000 }
+}
+
+/// a path for Flatten: rounding, a matrix or none, the flatness, then (x, y, type) points of one
+/// to three figures of lines and Beziers, closed or not
+fn paths(count: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::XorShift32::new(seed);
+    for k in 0..count {
+        let mut v = vec![i64::from(u8::from(k % 2 == 1)), i64::from(u8::from(rng.chance(2)))];
+        for i in 0..6 {
+            v.push(i64::from(path_element(&mut rng, i == 0 || i == 3)));
+        }
+        let fl: f32 = match rng.range(0, 5) {
+            0 => 0.25,
+            1 => 0.0,
+            2 => 1.0,
+            3 => f32::from(i16::try_from(rng.range(1, 400)).unwrap_or(0)) / 64.0,
+            _ => f32::from_bits(u32::try_from(rng.range(0x3a00_0000, 0x4100_0000)).unwrap_or(0)),
+        };
+        v.push(i64::from(fl.to_bits()));
+        for _ in 0..rng.range(1, 3) {
+            v.extend([i64::from(path_coord(&mut rng)), i64::from(path_coord(&mut rng)), 0]);
+            for _ in 0..rng.range(0, 3) {
+                if rng.chance(2) {
+                    v.extend([i64::from(path_coord(&mut rng)), i64::from(path_coord(&mut rng)), 1]);
+                } else {
+                    for _ in 0..3 {
+                        v.extend([i64::from(path_coord(&mut rng)), i64::from(path_coord(&mut rng)), 3]);
+                    }
+                }
+            }
+            if rng.chance(2) {
+                if let Some(t) = v.last_mut() {
+                    *t |= 128;
+                }
+            }
+        }
+        each(&v);
+    }
+}
+
+/// four control points: spans within 14 bits, past them, far apart
+fn controls(count: usize, seed: u32, span: i64, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::XorShift32::new(seed);
+    for _ in 0..count {
+        let (ox, oy) = (rng.range(span.saturating_neg(), span), rng.range(span.saturating_neg(), span));
+        let s = match rng.range(0, 3) {
+            0 => 64,
+            1 => 2000,
+            _ => span,
+        };
+        let v: Vec<i64> = [ox, oy, ox, oy, ox, oy, ox, oy].iter().map(|&o| o.saturating_add(rng.range(s.saturating_neg(), s))).collect();
+        each(&v);
+    }
+}
+
+fn int_pairs(a: &[i64]) -> Option<[(i32, i32); 4]> {
+    let mut q = [(0i32, 0i32); 4];
+    for (p, xy) in q.iter_mut().zip(a.chunks(2)) {
+        *p = (arg(xy, 0)?, arg(xy, 1)?);
+    }
+    Some(q)
 }
 
 pub static MIRRORS: &[Mirror] = &[
@@ -335,6 +436,123 @@ pub static MIRRORS: &[Mirror] = &[
         model: |a| {
             let m = floats::<6>(a, 1)?;
             Some(gdiplus::inverse(rounding(arg(a, 0)?), &m).map_or_default(|e| e.iter().map(|&v| canon(v)).collect()))
+        },
+    },
+    Mirror {
+        name: "gp.ceil16",
+        lean: FLATTEN,
+        domain: Domain::Sampled("to nearest and down: 300,000 floats, 1/8 multiples, moderate values and any patterns"),
+        inputs: |each| {
+            let mut rng = crate::rng::XorShift32::new(0x6c16_0016);
+            for k in 0..300_000u32 {
+                each(&[i64::from(u8::from(k % 2 == 1)), i64::from(coord(&mut rng))]);
+            }
+        },
+        model: |a| one(i64::from(gppath::ceil16(rounding(arg(a, 0)?), f32::from_bits(arg(a, 1)?)))),
+    },
+    Mirror {
+        name: "gp.apply",
+        lean: FLATTEN,
+        domain: Domain::Sampled("to nearest and down: 300,000 matrices of elements near 1 and 0 within and past the tolerance, and points"),
+        inputs: |each| {
+            let mut rng = crate::rng::XorShift32::new(0x6c17_0017);
+            for k in 0..300_000u32 {
+                let mut v = vec![i64::from(u8::from(k % 2 == 1))];
+                for i in 0..6 {
+                    v.push(i64::from(element(&mut rng, i == 0 || i == 3)));
+                }
+                v.extend([i64::from(coord(&mut rng)), i64::from(coord(&mut rng))]);
+                each(&v);
+            }
+        },
+        model: |a| {
+            let m = floats::<8>(a, 1)?;
+            let x: [f32; 6] = m.get(..6)?.try_into().ok()?;
+            let (px, py) = gppath::apply(rounding(arg(a, 0)?), &x, *m.get(6)?, *m.get(7)?);
+            Some(vec![canon(px), canon(py)])
+        },
+    },
+    Mirror {
+        name: "gp.bezier32",
+        lean: FLATTEN,
+        domain: Domain::Sampled("200,000 sets of four control points spanning 64, 2000 and 40,000 (past 14 bits: none)"),
+        inputs: |each| controls(200_000, 0x6c32_0032, 20_000, each),
+        model: |a| Some(gppath::bezier32(int_pairs(a)?).map_or_default(|v| v.iter().flat_map(|&(x, y)| [i64::from(x), i64::from(y)]).collect())),
+    },
+    Mirror {
+        name: "gp.bezier64",
+        lean: FLATTEN,
+        domain: Domain::Sampled("20,000 sets of four control points spanning 64, 2000 and 2^24"),
+        inputs: |each| controls(20_000, 0x6c64_0064, 1 << 24, each),
+        model: |a| Some(gppath::bezier64(int_pairs(a)?).iter().flat_map(|&(x, y)| [i64::from(x), i64::from(y)]).collect()),
+    },
+    Mirror {
+        name: "gp.flatten",
+        lean: FLATTEN,
+        domain: Domain::Sampled("to nearest and down: 40,000 paths of one to three figures of lines and Beziers, closed or not, with and without a matrix, flatness 0, 1/4, 1 and others"),
+        inputs: |each| paths(40_000, 0x6c70_0070, each),
+        model: |a| {
+            let r = rounding(arg(a, 0)?);
+            let m = if arg::<u8>(a, 1)? == 0 { None } else { Some(floats::<6>(a, 2)?) };
+            let fl = f32::from_bits(arg(a, 8)?);
+            let mut pts = Vec::new();
+            let mut i = 9;
+            while i < a.len() {
+                let t: u32 = arg(a, i + 2)?;
+                let kind = match t & 127 {
+                    0 => Kind::Start,
+                    1 => Kind::Line,
+                    _ => Kind::Bezier,
+                };
+                pts.push(Point { x: f32::from_bits(arg(a, i)?), y: f32::from_bits(arg(a, i + 1)?), kind, close: t >= 128, inner: false });
+                i = i.checked_add(3)?;
+            }
+            let mut path = Path::of(0, pts);
+            path.flatten(r, m.as_ref(), fl).ok()?;
+            Some(path.pts.iter().flat_map(|p| [canon(p.x), canon(p.y), i64::from(p.type_byte())]).collect())
+        },
+    },
+    Mirror {
+        name: "gp.dither_place",
+        lean: DITHER,
+        domain: Domain::Every("x86 and x86-64, texture and solid, every row of 1 ..= 7 pixels each left out, translucent or opaque; rows of 1 ..= 5: every fill from -1 to past the row, origins x 0 ..= 3; rows of 6 and 7: fills from -1 ..= 1 to bw - 1 ..= bw + 1, origin 0; every drawn pixel"),
+        inputs: |each| {
+            for bw in 1..=7u32 {
+                let n = 3i64.pow(bw);
+                let wide = bw > 5;
+                for code in 0..n {
+                    let cells: Vec<i64> = (0..bw).scan(code, |c, _| {
+                        let d = c.rem_euclid(3);
+                        *c = c.div_euclid(3);
+                        Some(d)
+                    }).collect();
+                    let bwi = i64::from(bw);
+                    for x0 in -1..=bwi {
+                        for x1 in x0..=bwi.saturating_add(1) {
+                            // (rows of 6 and 7: the fills from -1 ..= 1 to bw - 1 ..= bw + 1)
+                            if wide && (x0 > 1 || x1 < bwi.saturating_sub(1)) {
+                                continue;
+                            }
+                            for x in x0.max(0)..x1.min(bwi) {
+                                for ox in if wide { 0..1 } else { 0..4 } {
+                                    for (x86, tex) in [(1, 1), (0, 1), (1, 0)] {
+                                        let mut v = vec![x86, tex, ox, -1, x0, x1, x, 2];
+                                        v.extend_from_slice(&cells);
+                                        each(&v);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        model: |a| {
+            let tex = arg::<u8>(a, 1)? != 0;
+            let cells: Vec<Option<bool>> = a.get(8..)?.iter().map(|&c| (c != 0).then_some(c == 2)).collect();
+            let col = if tex { gdiplus::dither_column(arg::<u8>(a, 0)? != 0, arg(a, 2)?, &cells, arg(a, 4)?, arg(a, 5)?, arg(a, 6)?) } else { arg(a, 6)? };
+            let row = gdiplus::dither_row(tex.then_some(arg(a, 3)?), arg(a, 7)?);
+            Some(vec![i64::from(col), i64::from(row)])
         },
     },
 ];

@@ -510,10 +510,16 @@ spec/lean/Kikizake/GdiPlus/Matrix.lean::down_products lean GP.MATRIX.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::down_comm lean GP.MATRIX.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::inverse_scale lean GP.MATRIX.X86 GP.MATRIX.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::inverse_nonfinite lean GP.MATRIX.INVERT
+spec/lean/Kikizake/GdiPlus/Flatten.lean::ceil16_steps lean GP.PATH.FLATTEN
+spec/lean/Kikizake/GdiPlus/Flatten.lean::bezier32_steps lean GP.PATH.FLATTEN
+spec/lean/Kikizake/GdiPlus/Flatten.lean::flatten_arch lean GP.PATH.FLATTEN
+spec/lean/Kikizake/GdiPlus/Flatten.lean::bezier_big lean GP.PATH.FLATTEN.BIG
+spec/lean/Kikizake/GdiPlus/Dither.lean::places lean GP.PAINT.GAMMA.RUNS
 spec/lean/Kikizake/GdiPlus/Matrix.lean::gamma64_ends lean GP.FILL.GAMMA.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::gamma64_down lean GP.FILL.GAMMA.X64
 tests/laws_gdiplus.rs::fixed_palettes_hold_every_nearest_color exhaustive GP.CLONE.PALETTE
 tests/laws_gdiplus.rs::textures_composite_as_hatches exhaustive GP.BRUSH.TEXTURE.PAINT
+tests/laws_gdiplus.rs::wide_and_indexed_fills_work_on_a_copy exhaustive GP.FILL.BUFFER
 spec/lean/Kikizake/D3d11/Desc.lean::desc_size lean D3DRES.DESC.SIZE D3DRES.DESC
 spec/lean/Kikizake/D3d11/Desc.lean::desc_big lean D3DRES.DESC.BIG
 spec/lean/Kikizake/D3d11/Desc.lean::usage_ff lean D3DRES.DESC.USAGEFF

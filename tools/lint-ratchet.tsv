@@ -376,12 +376,12 @@ file	src/model/gdipath.rs	indexing_slicing	40
 file	src/model/gdipath.rs	map_err_ignore	1
 file	src/model/gdipath.rs	unreachable	1
 file	src/model/gdipath.rs	wildcard_enum_match_arm	4
-file	src/model/gdiplus.rs	arithmetic_side_effects	119
-file	src/model/gdiplus.rs	as_conversions	214
-file	src/model/gdiplus.rs	cast_possible_truncation	111
+file	src/model/gdiplus.rs	arithmetic_side_effects	108
+file	src/model/gdiplus.rs	as_conversions	210
+file	src/model/gdiplus.rs	cast_possible_truncation	108
 file	src/model/gdiplus.rs	cast_possible_wrap	2
 file	src/model/gdiplus.rs	cast_precision_loss	7
-file	src/model/gdiplus.rs	cast_sign_loss	71
+file	src/model/gdiplus.rs	cast_sign_loss	70
 file	src/model/gdiplus.rs	float_cmp	4
 file	src/model/gdiplus.rs	indexing_slicing	84
 file	src/model/gdiplus.rs	map_err_ignore	4
