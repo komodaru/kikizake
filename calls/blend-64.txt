@@ -1,4 +1,4 @@
-kikizake calls blend-64 cases 45f5fd372e60bace src 43564dbde8debf0bc6b48445eabc5d9cd7f77c2c9f218083af88d1f7a61bc508 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 52882 other 0
+kikizake calls blend-64 cases 45f5fd372e60bace src 34b96c0899481ed69e0c794e85c980851bcf1f5bd27f1de942e267f1c33068b0 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 52882 other 0
 case constant-0
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
