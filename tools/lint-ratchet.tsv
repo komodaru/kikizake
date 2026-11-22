@@ -128,9 +128,9 @@ file	src/generators/opengl.rs	float_cmp	1
 file	src/generators/opengl.rs	indexing_slicing	68
 file	src/generators/opengl.rs	string_slice	1
 file	src/generators/wic.rs	arithmetic_side_effects	4
-file	src/generators/wicimage.rs	arithmetic_side_effects	197
-file	src/generators/wicimage.rs	as_conversions	232
-file	src/generators/wicimage.rs	cast_possible_truncation	126
+file	src/generators/wicimage.rs	arithmetic_side_effects	198
+file	src/generators/wicimage.rs	as_conversions	233
+file	src/generators/wicimage.rs	cast_possible_truncation	127
 file	src/generators/wicimage.rs	cast_possible_wrap	10
 file	src/generators/wicimage.rs	cast_sign_loss	41
 file	src/generators/wicimage.rs	indexing_slicing	63

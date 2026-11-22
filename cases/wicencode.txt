@@ -9411,3 +9411,279 @@ wframe 0
 winfo
 wpixels
 end
+case optval-0-jpeg
+wbits bgra 6 4 192937984
+wencode jpeg BitmapTransform=2
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-1-jpeg
+wbits bgra 6 4 192937985
+wencode jpeg BitmapTransform=3
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-2-jpeg
+wbits bgra 6 4 192937986
+wencode jpeg BitmapTransform=8
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-3-jpeg
+wbits bgra 6 4 192937987
+wencode jpeg BitmapTransform=16
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-4-jpeg
+wbits bgra 6 4 192937988
+wencode jpeg BitmapTransform=9
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-5-jpeg
+wbits bgra 6 4 192937989
+wencode jpeg BitmapTransform=5
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-6-jpeg
+wbits bgra 6 4 192937990
+wencode jpeg ImageQuality=0
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-7-jpeg
+wbits bgra 6 4 192937991
+wencode jpeg ImageQuality=1.5
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-8-jpeg
+wbits bgra 6 4 192937992
+wencode jpeg ImageQuality=-0.5
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-9-tiff
+wbits bgra 6 4 192937993
+wencode tiff CompressionQuality=1.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-10-tiff
+wbits bgra 6 4 192937994
+wencode tiff TiffCompressionMethod=6 CompressionQuality=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-11-tiff
+wbits bgra 6 4 192937995
+wencode tiff TiffCompressionMethod=6 CompressionQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-12-wmp
+wbits bgra 6 4 192937996
+wencode wmp ImageQuality=1.5
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-13-wmp
+wbits bgra 6 4 192937997
+wencode wmp ImageQuality=-0.5
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-14-wmp
+wbits bgra 6 4 192937998
+wencode wmp Lossless=0
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-15-wmp
+wbits bgra 6 4 192937999
+wencode wmp BitmapTransform=1
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-16-wmp
+wbits bgra 6 4 192938000
+wencode wmp BitmapTransform=2
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-17-wmp
+wbits bgra 6 4 192938001
+wencode wmp BitmapTransform=8
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-18-wmp
+wbits bgra 6 4 192938002
+wencode wmp BitmapTransform=16
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-19-wmp
+wbits bgra 6 4 192938003
+wencode wmp BitmapTransform=9
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-20-wmp
+wbits bgra 6 4 192938004
+wencode wmp Quality=0
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-21-wmp
+wbits bgra 6 4 192938005
+wencode wmp Quality=255
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-22-wmp
+wbits bgra 6 4 192938006
+wencode wmp Overlap=0
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-23-wmp
+wbits bgra 6 4 192938007
+wencode wmp Overlap=2
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-24-wmp
+wbits bgra 6 4 192938008
+wencode wmp Overlap=3
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-25-wmp
+wbits bgra 6 4 192938009
+wencode wmp Subsampling=0
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-26-wmp
+wbits bgra 6 4 192938010
+wencode wmp Subsampling=1
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-27-wmp
+wbits bgra 6 4 192938011
+wencode wmp Subsampling=2
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-28-wmp
+wbits bgra 6 4 192938012
+wencode wmp Subsampling=4
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-29-wmp
+wbits bgra 6 4 192938013
+wencode wmp AlphaQuality=0
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optval-30-wmp
+wbits bgra 6 4 192938014
+wencode wmp AlphaQuality=255
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end

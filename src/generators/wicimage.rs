@@ -1743,6 +1743,19 @@ pub fn wicencode() -> String {
             writeln!(s, "case optname-{c}-{n}\nwbits bgra 6 4 {}\nwencode {c} {n}={v}\nwredecode\nwframe 0\nwinfo\nwpixels\nend", 0x0b7f_0000u32 + (k * 16 + j) as u32);
         }
     }
+    // the values of the names each bag has past those (WICIMAGE.ENCODE.OPTIONS): out of range,
+    // the other transforms, JPEG XR's codec options at their other values
+    let vals = [
+        ("jpeg", "BitmapTransform=2"), ("jpeg", "BitmapTransform=3"), ("jpeg", "BitmapTransform=8"), ("jpeg", "BitmapTransform=16"), ("jpeg", "BitmapTransform=9"), ("jpeg", "BitmapTransform=5"),
+        ("jpeg", "ImageQuality=0"), ("jpeg", "ImageQuality=1.5"), ("jpeg", "ImageQuality=-0.5"),
+        ("tiff", "CompressionQuality=1.5"), ("tiff", "TiffCompressionMethod=6 CompressionQuality=0"), ("tiff", "TiffCompressionMethod=6 CompressionQuality=1"),
+        ("wmp", "ImageQuality=1.5"), ("wmp", "ImageQuality=-0.5"), ("wmp", "Lossless=0"), ("wmp", "BitmapTransform=1"), ("wmp", "BitmapTransform=2"), ("wmp", "BitmapTransform=8"), ("wmp", "BitmapTransform=16"), ("wmp", "BitmapTransform=9"),
+        ("wmp", "Quality=0"), ("wmp", "Quality=255"), ("wmp", "Overlap=0"), ("wmp", "Overlap=2"), ("wmp", "Overlap=3"), ("wmp", "Subsampling=0"), ("wmp", "Subsampling=1"), ("wmp", "Subsampling=2"), ("wmp", "Subsampling=4"), ("wmp", "AlphaQuality=0"), ("wmp", "AlphaQuality=255"),
+    ];
+    for (k, (c, o)) in vals.into_iter().enumerate() {
+        let bytes = if c == "png" || c == "tiff" { "" } else { "wbytes\n" };
+        writeln!(s, "case optval-{k}-{c}\nwbits bgra 6 4 {}\nwencode {c} {o}\n{bytes}wredecode\nwframe 0\nwinfo\nwpixels\nend", 0x0b80_0000u32 + k as u32);
+    }
     s
 }
 

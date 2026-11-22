@@ -3049,6 +3049,8 @@ pub enum EncodeOption {
     JpegChroma(crate::model::jpeg::Chroma),
     /// JPEG's BitmapTransform (a WICBitmapTransformOptions)
     JpegTransform(u32),
+    /// a name the encoder's bag has, at a value that leaves this case's file as without it
+    Default,
 }
 
 /// MEASURED (golden wicencode enc-jpeg-*: every byte and pixel, see model::jpeg): WIC's JPEG
@@ -3167,6 +3169,19 @@ struct EncodeOptions {
 /// (golden opt-tiff-*); WMP's Lossless and ImageQuality 1.0 keep every pixel, ImageQuality below
 /// 1.0 sets the JPEG XR quality (golden optother-1-bgra, model::jxr); PNG takes no ImageQuality.
 /// Other names and values are not measured.
+/// the names of the options the runner knows that each encoder's bag has (MEASURED golden
+/// wicencode optname-*: every other one of them fails the write)
+fn bag(cont: &str) -> &'static [&'static str] {
+    match cont {
+        "bmp" => &["EnableV5Header32bppBGRA"],
+        "png" => &["InterlaceOption", "FilterOption"],
+        "tiff" => &["CompressionQuality", "TiffCompressionMethod"],
+        "jpeg" => &["ImageQuality", "BitmapTransform", "JpegYCrCbSubsampling", "SuppressApp0"],
+        "wmp" => &["ImageQuality", "Lossless", "BitmapTransform", "Quality", "Overlap", "Subsampling", "AlphaQuality"],
+        _ => &[],
+    }
+}
+
 pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
     let (name, val) = o.split_once('=').ok_or(Fail::Bad)?;
     Ok(match (cont, name, val) {
@@ -3203,6 +3218,18 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
         // E_INVALIDARG, not VALUEOUTOFRANGE as PNG and TIFF do)
         ("jpeg", "JpegYCrCbSubsampling", v) if v.parse::<u8>().is_ok_and(|v| v > 4) => EncodeOption::InvalidArg,
         ("jpeg", "BitmapTransform", "1") => EncodeOption::JpegTransform(1),
+        // (MEASURED optname-jpeg-, -wmp-BitmapTransform: 0, WICBitmapTransformRotate0, the
+        // pixels as without; optname-tiff-CompressionQuality: 0.5 with no ZIP compression, the
+        // pixels as without)
+        ("jpeg" | "wmp", "BitmapTransform", "0") => EncodeOption::Default,
+        ("tiff", "CompressionQuality", v) if v.parse::<f32>().is_ok_and(|q| (0.0..=1.0).contains(&q)) => EncodeOption::Default,
+        // (MEASURED optname-wmp-*: JPEG XR's codec options Quality 1, Overlap 1, Subsampling 3
+        // and AlphaQuality 1 leave the file as at the default ImageQuality 0.9: the encoder takes
+        // them and goes by ImageQuality, as without UseCodecOptions, which the runner does not set)
+        ("wmp", "Quality", "1") | ("wmp", "Overlap", "1") | ("wmp", "Subsampling", "3") | ("wmp", "AlphaQuality", "1") => EncodeOption::Default,
+        // (MEASURED optname-*: each encoder's bag has only its own names; a name of another
+        // encoder's bag fails IPropertyBag2::Write E_FAIL, as PNG's ImageQuality)
+        (c, n, _) if !bag(c).contains(&n) => EncodeOption::Rejected,
         _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_OPTIONS)),
     })
 }
@@ -3612,6 +3639,7 @@ impl WicImage {
                             hit(clause::WICIMAGE_ENCODE_JPEG);
                             opts.jpeg_transform = t;
                         }
+                        EncodeOption::Default => hit(clause::WICIMAGE_ENCODE_OPTION_LOSSLESS),
                         EncodeOption::JpegChroma(c) => {
                             hit(clause::WICIMAGE_ENCODE_JPEG);
                             opts.jpeg_chroma = Some(c);
