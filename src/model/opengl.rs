@@ -500,6 +500,8 @@ pub struct Ctx {
     /// what a polygon's edges' window depths are moved by under GL_POLYGON_OFFSET_LINE, while
     /// they are drawn
     pub line_z_offset: f32,
+    /// a polygon outline's offsets edge by edge, drawn as a GL_LINE_LOOP (GL.POLYGON.OFFSET)
+    pub loop_offsets: Vec<f32>,
     /// texture objects, the environment and coordinate generation
     pub tex: tex::Tex,
     /// display lists
@@ -606,6 +608,7 @@ impl Ctx {
             fog: Fog { mode: FogMode::Exp, density: 1.0, start: 0.0, end: 1.0, index: 0.0, color: [0.0; 4] },
             offset: (0.0, 0.0),
             line_z_offset: 0.0,
+            loop_offsets: Vec::new(),
             tex: tex::Tex::new(),
             lists: list::Lists::default(),
             arrays: array::Arrays::default(),
@@ -2351,6 +2354,35 @@ impl Ctx {
         }
     }
 
+    /// a textured polygon's outline cut by the view volume (MEASURED, golden opengl-32 / 64
+    /// tex-open-more-outline-cut: the cut polygon's edges, the one along the cut too, as a
+    /// GL_LINE_LOOP, each new corner's texture coordinates and color between its ends' in clip
+    /// space); flat-shaded, fogged, generated coordinates, offset or in GL_POINT mode not measured
+    fn cut_textured_outline(&mut self, q: &[(Obj, [f32; 4])], clip: &[[f32; 4]], colors: &[[f32; 4]], face: u32) -> Res<()> {
+        if face == POLY_POINT || self.shade == FLAT || self.cap(FOG) || [0xc60u32, 0xc61, 0xc62, 0xc63].iter().any(|g| self.cap(*g)) || (self.cap(POLYGON_OFFSET_LINE) && self.cap(DEPTH_TEST)) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        }
+        let at: Vec<[f32; 12]> = q.iter().zip(clip).zip(colors).map(|((v, p), c)| {
+            let [s, t, r, w] = v.0.tc;
+            [p[0], p[1], p[2], p[3], c[0], c[1], c[2], c[3], s, t, r, w]
+        }).collect();
+        let cut = tri::clip(&at);
+        // (the cut corners given as clip coordinates through identity matrices)
+        let saved = [*self.top(0), *self.top(1)];
+        for m in 0..2 {
+            *self.stacks.get_mut(m).ok_or(Fail::Bad)?.top_mut() = IDENTITY;
+        }
+        self.verts = cut.iter().map(|p| {
+            let [x, y, z, w, r, g, b, a, s, t, tr, tq] = *p;
+            (Obj { xyz: [f64::from(x), f64::from(y), f64::from(z)], w: f64::from(w), tc: [s, t, tr, tq], edge: true }, [r, g, b, a])
+        }).collect();
+        let drawn = self.end(LINE_LOOP);
+        for (m, top) in saved.into_iter().enumerate() {
+            *self.stacks.get_mut(m).ok_or(Fail::Bad)?.top_mut() = top;
+        }
+        drawn
+    }
+
     /// the edge flag a vertex takes: GL_TRIANGLES, GL_QUADS and GL_POLYGON's only, strips and
     /// fans every edge drawn (MEASURED, golden opengl-32 / 64 array-more-edge-immediate: GL.ARRAY)
     fn edge_on(&self) -> bool {
@@ -2995,9 +3027,6 @@ impl Ctx {
                 // points, other polygons or cut ones not measured)
                 // (GL_POLYGON_OFFSET_POINT on the corners alike, raster-open-54)
                 let offset_line = ((face == POLY_LINE && self.cap(POLYGON_OFFSET_LINE)) || (face == POLY_POINT && self.cap(POLYGON_OFFSET_POINT))) && self.cap(DEPTH_TEST) && self.pf.depth > 0;
-                if offset_line && cut != at {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-                }
                 self.line_z_offset = 0.0;
                 // (each fan triangle's own offset: an edge v0 v1 and v1 v2 the first's, vk vk+1
                 // the one of (v0, vk, vk+1), the last edge the last's: raster-open-55)
@@ -3022,11 +3051,21 @@ impl Ctx {
                 // (textured, uncut: the edges a GL_LINE_LOOP's, the corners GL_POINTS', each
                 // with its vertex's texture coordinates)
                 if self.texturing() {
-                    if cut != at || offset_line {
+                    if offset_line && face == POLY_POINT {
                         return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                     }
+                    if cut != at {
+                        return self.cut_textured_outline(&q, &clip, &fogged, face);
+                    }
                     self.verts = if self.shade == FLAT { q.iter().map(|v| (v.0, q.get(provoking).map_or(v.1, |p| p.1))).collect() } else { q.to_vec() };
-                    return self.end(if face == POLY_POINT { POINTS } else { LINE_LOOP });
+                    // (MEASURED, golden opengl-32 / 64 tex-open-more-outline-offset: offset,
+                    // each edge its fan triangle's offset as untextured ones)
+                    if offset_line {
+                        self.loop_offsets = (0..q.len()).map(|k| fan.get(k.saturating_sub(1).min(fan.len().saturating_sub(1))).copied().unwrap_or(0.0)).collect();
+                    }
+                    let drawn = self.end(if face == POLY_POINT { POINTS } else { LINE_LOOP });
+                    (self.line_z_offset, self.loop_offsets) = (0.0, Vec::new());
+                    return drawn;
                 }
                 let edge_offset = |k: usize| fan.get(k.saturating_sub(1).min(fan.len().saturating_sub(1))).copied().unwrap_or(0.0);
                 let win: Vec<([f64; 3], [f32; 4])> = cut
@@ -3055,9 +3094,6 @@ impl Ctx {
                 // (raster-open-48, 49); offset, a triangle's offset on every edge (raster-open-60);
                 // offset polygons of more corners or cut ones not measured)
                 if self.line_width != 1.0 || self.cap(LINE_SMOOTH) {
-                    if offset_line && (fan.len() != 1 || cut != at) {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-                    }
                     // (cut by the view volume, antialiased: the cut polygon's edges, raster-open-53)
                     if cut != at && self.cap(LINE_SMOOTH) && !self.aliased_smooth_line() {
                         // (the corners' colors in channel units through the cut, as an
@@ -3078,18 +3114,27 @@ impl Ctx {
                         let scale = self.channel_scales();
                         let units: Vec<[f32; 8]> = at.iter().map(|p| [p[0], p[1], p[2], p[3], p[4] * scale[0], p[5] * scale[1], p[6] * scale[2], p[7] * scale[3]]).collect();
                         let cut = tri::clip(&units);
-                        for (p, n) in cut.iter().zip(cut.iter().cycle().skip(1)) {
+                        // (offset: each edge its fan triangle's offset, MEASURED, golden opengl-32 /
+                        // 64 raster-more-offset-wide-cut)
+                        for (k, (p, n)) in cut.iter().zip(cut.iter().cycle().skip(1)).enumerate() {
+                            self.line_z_offset = if offset_line { edge_offset(k) } else { 0.0 };
                             let back = |c: [f32; 4]| [c[0] / scale[0], c[1] / scale[1], c[2] / scale[2], c[3] / scale[3]];
                             let (ca, cb) = (back([p[4], p[5], p[6], p[7]]), back([n[4], n[5], n[6], n[7]]));
                             let color = if ca.map(f32::to_bits) == cb.map(f32::to_bits) { LineColor::Flat(ca) } else { LineColor::Smooth(ca, cb) };
                             self.deep_line([p[0], p[1], p[2], p[3]], [n[0], n[1], n[2], n[3]], color)?;
                         }
+                        self.line_z_offset = 0.0;
                         return Ok(());
                     }
                     // (flat-shaded: every edge in the provoking vertex's color, raster-open-52)
                     self.verts = if self.shade == FLAT { q.iter().map(|v| (v.0, q.get(provoking).map_or(v.1, |p| p.1))).collect() } else { q.to_vec() };
+                    // (MEASURED, golden opengl-32 / 64 raster-more-offset-wide-quad, smooth-quad:
+                    // each edge its fan triangle's offset, as thin ones)
+                    if offset_line {
+                        self.loop_offsets = (0..q.len()).map(edge_offset).collect();
+                    }
                     let drawn = self.end(LINE_LOOP);
-                    self.line_z_offset = 0.0;
+                    (self.line_z_offset, self.loop_offsets) = (0.0, Vec::new());
                     return drawn;
                 }
                 self.stipple = (0, None);
@@ -3402,6 +3447,9 @@ impl Ctx {
                         self.stipple = (0, None);
                     }
                     self.stipple.1 = None;
+                    if let Some(o) = self.loop_offsets.get(i) {
+                        self.line_z_offset = *o;
+                    }
                     let (a, b) = (&verts[i], &verts[j]);
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
