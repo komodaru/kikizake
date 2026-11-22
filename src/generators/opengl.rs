@@ -721,6 +721,113 @@ fn textures_more(s: &mut String) {
     writeln!(s, "gldraw 16 16 0x1908 0x1401 22 1024\ngl glCopyTexImage2D {T2} 0 0x8058 12 -2 8 8 0\nglerr\nglteximg {T2} 0 0x1908 0x1401 256\ngl glCopyTexSubImage2D {T2} 0 0 0 -3 14 4 4\nglerr\nglteximg {T2} 0 0x1908 0x1401 256\nglerr\nend");
     // color index mode: a texture enabled over an index polygon, line and point
     writeln!(s, "case tex-open-more-ci\nglctx 8 29\n{ORTHO}gl glDisable 0xbd0\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 23 64\ngl glTexParameteri {T2} 10241 9728\ngl glEnable {T2}\ngl glClearIndex 3\ngl glClear 0x4000\ngl glIndexi 9\ngl glBegin 4\ngl glTexCoord2f 0 0\ngl glVertex2f 2 2\ngl glTexCoord2f 1 0\ngl glVertex2f 13 4\ngl glTexCoord2f 0.5 1\ngl glVertex2f 6 13\ngl glEnd\nglread 0 0 16 16 0x1900 0x1405 1024\nglerr\nend");
+    // (after them, so the earlier cases keep their places) the same in a color index format
+    // asked for, textured antialiased lines' depths, a textured flat line's color end, an eye
+    // plane under a rotation
+    writeln!(s, "case tex-open-more-ci-choose\nglctx 8 choose 0x38 1 8 0 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 23 64\ngl glTexParameteri {T2} 10241 9728\ngl glEnable {T2}\ngl glClearIndex 3\ngl glClear 0x4000\ngl glIndexi 9\ngl glBegin 4\ngl glTexCoord2f 0 0\ngl glVertex2f 2 2\ngl glTexCoord2f 1 0\ngl glVertex2f 13 4\ngl glTexCoord2f 0.5 1\ngl glVertex2f 6 13\ngl glEnd\ngl glBegin 1\ngl glTexCoord2f 0 0\ngl glVertex2f 1.5 14.5\ngl glTexCoord2f 1 1\ngl glVertex2f 14.5 9.5\ngl glEnd\nglread 0 0 16 16 0x1900 0x1405 1024\nglerr\nend");
+    for (name, setup) in [("line-smooth-depth-read", "gl glEnable 0xb20\ngl glEnable 0xb71"), ("line-smooth-wide-depth-read", "gl glEnable 0xb20\ngl glEnable 0xb71\ngl glLineWidth 2.5")] {
+        writeln!(s, "case tex-open-more-{name}\n{}{ORTHO}gl glDisable 0xbd0\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 19 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 8448\ngl glEnable {T2}\ngl glClear 0x4100\ngl glColor4ub 200 150 100 255\n{setup}", ctx(32));
+        writeln!(s, "gl glBegin 1\ngl glTexCoord2f 0 0\ngl glVertex3f 1.5 2.25 0.5\ngl glTexCoord2f 1 1\ngl glVertex3f 14.5 11.75 -0.25\ngl glEnd\nglread 0 0 16 16 0x1902 0x1405 1024");
+        read_all(s);
+        writeln!(s, "glerr\nend");
+    }
+    for (name, setup) in [("line-flat-ends", "gl glShadeModel 0x1d00"), ("line-smooth-flat-ends", "gl glShadeModel 0x1d00\ngl glEnable 0xb20"), ("line-wide-flat-ends", "gl glShadeModel 0x1d00\ngl glLineWidth 3")] {
+        writeln!(s, "case tex-open-more-{name}\n{}{ORTHO}gl glDisable 0xbd0\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 19 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 8448\ngl glEnable {T2}\ngl glClear 0x4100\n{setup}", ctx(32));
+        writeln!(s, "gl glBegin 1\ngl glColor4ub 200 150 100 255\ngl glTexCoord2f 0 0\ngl glVertex2f 1.5 2.25\ngl glColor4ub 90 220 40 255\ngl glTexCoord2f 1 1\ngl glVertex2f 14.5 11.75\ngl glEnd");
+        read_all(s);
+        writeln!(s, "glerr\nend");
+    }
+    head(s, "tex-open-more-eye-rot", 32);
+    writeln!(s, "gltex {T2} 0 4 4 4 0 0x1908 0x1401 20 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 7681\ngl glEnable {T2}\ngl glTranslatef 3 -1 0.5\ngl glRotatef 30 0.2 0.3 1\ngl glScalef 0.7 1.3 0.9\ngl glTexGeni 8192 9472 9216\ngl glTexGeni 8193 9472 9216\ngltexv gen 8192 9474 f 0.1 0.03 0.2 0.05\ngltexv gen 8193 9474 f -0.02 0.11 0.3 0.25\ngl glLoadIdentity\ngl glEnable 0xc60\ngl glEnable 0xc61\ngl glClear 0x4000");
+    quad(s, 0.0, 0.0, 1.0, 1.0);
+    read_all(s);
+    q(s, "gen", "8192 9474", "f", 4);
+    q(s, "gen", "8193 9474", "f", 4);
+    writeln!(s, "glerr\nend");
+    // alpha bits cleared to values between steps (0.5 gave 127 in tex-open-more-2)
+    for (k, a) in [0.25f32, 0.3, 0.5, 0.75, 0.9, 0.002, 0.998].into_iter().enumerate() {
+        writeln!(s, "case clear-alpha-more-{k}\nglctx 32 choose 0x38 0 32 8 0 32 8\ngl glClearColor {a} {a} {a} {a}\ngl glClear 0x4000\nglread 0 0 2 1 0x1908 0x1401 8\nglerr\nend");
+    }
+    // what GL.RASTER.MODE still holds: textured outlines cut or offset, offset outlines and
+    // points of other shapes, antialiased lines blended otherwise into 16 bits, a smooth
+    // polygon reaching behind the eye, an eye plane under a singular modelview, a paletted
+    // image, images and bitmaps under a texture
+    let tex = format!("gltex {T2} 0 4 4 4 0 0x1908 0x1401 19 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 8448\ngl glEnable {T2}\n");
+    let tri3 = |s: &mut String, v: [[f32; 3]; 3]| {
+        writeln!(s, "gl glColor4ub 200 150 100 255\ngl glBegin 4");
+        for (k, [x, y, z]) in v.into_iter().enumerate() {
+            let (ts, tt) = [(0.0, 0.0), (1.0, 0.0), (0.5, 1.0)].get(k).copied().unwrap_or((0.0, 0.0));
+            writeln!(s, "gl glTexCoord2f {ts} {tt}\ngl glVertex3f {x} {y} {z}");
+        }
+        writeln!(s, "gl glEnd");
+    };
+    let quad4 = |s: &mut String| {
+        writeln!(s, "gl glColor4ub 90 220 40 255\ngl glBegin 7\ngl glVertex3f 3 3 0.5\ngl glVertex3f 12 4 -0.25\ngl glVertex3f 11 12 0\ngl glVertex3f 4 11 0.25\ngl glEnd");
+    };
+    let depth_read = |s: &mut String| {
+        writeln!(s, "glread 0 0 16 16 0x1902 0x1405 1024");
+    };
+    let cut = [[-6.0, 3.0, 0.0], [13.0, 4.0, 0.0], [6.0, 13.0, 0.0]];
+    let deep = [[2.0, 2.0, 0.5], [13.0, 4.0, -0.25], [6.0, 13.0, 0.0]];
+    let offset = "gl glEnable 0xb71\ngl glClear 0x100\ngl glPolygonOffset 1 1";
+    head(s, "tex-open-more-outline-cut", 32);
+    writeln!(s, "{tex}gl glClear 0x4000\ngl glPolygonMode 0x408 0x1b01");
+    tri3(s, cut);
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    head(s, "tex-open-more-outline-offset", 32);
+    writeln!(s, "{tex}gl glClear 0x4000\n{offset}\ngl glEnable 0x2a02\ngl glPolygonMode 0x408 0x1b01");
+    tri3(s, deep);
+    read_all(s);
+    depth_read(s);
+    writeln!(s, "glerr\nend");
+    for (name, setup) in [("offset-point-quad", "gl glEnable 0x2a01\ngl glPolygonMode 0x408 0x1b00\ngl glPointSize 2"), ("offset-wide-quad", "gl glEnable 0x2a02\ngl glPolygonMode 0x408 0x1b01\ngl glLineWidth 3"), ("offset-smooth-quad", "gl glEnable 0x2a02\ngl glPolygonMode 0x408 0x1b01\ngl glEnable 0xb20")] {
+        head(s, &format!("raster-more-{name}"), 32);
+        writeln!(s, "gl glClear 0x4000\n{offset}\n{setup}");
+        quad4(s);
+        read_all(s);
+        depth_read(s);
+        writeln!(s, "glerr\nend");
+    }
+    for (name, setup) in [("offset-line-cut", "gl glEnable 0x2a02\ngl glPolygonMode 0x408 0x1b01"), ("offset-wide-cut", "gl glEnable 0x2a02\ngl glPolygonMode 0x408 0x1b01\ngl glLineWidth 3")] {
+        head(s, &format!("raster-more-{name}"), 32);
+        writeln!(s, "gl glClear 0x4000\n{offset}\n{setup}");
+        tri3(s, [[-6.0, 3.0, 0.5], [13.0, 4.0, -0.25], [6.0, 13.0, 0.0]]);
+        read_all(s);
+        depth_read(s);
+        writeln!(s, "glerr\nend");
+    }
+    for (k, (sf, df)) in [(1u32, 1u32), (0x306, 0x307), (0x302, 1)].into_iter().enumerate() {
+        head(s, &format!("raster-more-aa-line-16-{k}"), 16);
+        writeln!(s, "gl glClearColor 0.25 0.5 0.75 1\ngl glClear 0x4000\ngl glEnable 0xb20\ngl glEnable 0xbe2\ngl glBlendFunc {sf:#x} {df:#x}\ngl glColor4ub 200 150 100 180\ngl glBegin 1\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glVertex2f 2.5 13.5\ngl glVertex2f 12.25 1.5\ngl glEnd");
+        read_all(s);
+        writeln!(s, "glerr\nend");
+    }
+    writeln!(s, "case raster-more-smooth-behind\n{}gl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glFrustum -1 1 -1 1 1 10\ngl glMatrixMode 0x1700\ngl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb41", ctx(32));
+    writeln!(s, "gl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f -1 -1 -2\ngl glColor4ub 0 255 0 255\ngl glVertex3f 1 -0.5 -2\ngl glColor4ub 0 0 255 255\ngl glVertex3f 0 1 1\ngl glEnd");
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    head(s, "tex-open-more-eye-singular", 32);
+    writeln!(s, "gl glScalef 0 1 1\ngltexv gen 8192 9474 f 0.125 0.25 0.5 1\nglerr\ngl glLoadIdentity");
+    q(s, "gen", "8192 9474", "f", 4);
+    writeln!(s, "glerr\nend");
+    head(s, "tex-open-more-paletted", 32);
+    writeln!(s, "gltex {T2} 0 0x80e5 4 4 0 0x1900 0x1401 24 16\nglerr");
+    for l in levels {
+        q(s, "level", &format!("{T2} 0 {l}"), "i", 1);
+    }
+    writeln!(s, "glteximg {T2} 0 0x1908 0x1401 64\ngl glEnable {T2}\ngl glClear 0x4000");
+    quad(s, 0.0, 0.0, 1.0, 1.0);
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    head(s, "tex-open-more-copypixels", 32);
+    writeln!(s, "gldraw 16 16 0x1908 0x1401 25 1024\n{tex}gl glTexCoord2f 0.3 0.6\ngl glRasterPos2i 4 3\ngl glCopyPixels 1 1 6 5 0x1800");
+    read_all(s);
+    writeln!(s, "glerr\nend");
+    head(s, "tex-open-more-bitmap", 32);
+    writeln!(s, "{tex}gl glClear 0x4000\ngl glColor4ub 200 150 100 255\ngl glTexCoord2f 0.3 0.6\ngl glRasterPos2i 4 3\nglp glBitmap iiffff 8 4 1 1 5 2 ub 129 255 66 60");
+    read_all(s);
+    writeln!(s, "glerr\nend");
 }
 
 /// a vertex coordinate in 1/8 steps (three subpixel bits) in lo..hi

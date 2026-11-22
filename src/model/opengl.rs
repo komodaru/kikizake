@@ -485,6 +485,8 @@ pub struct Ctx {
     pub raster_tex: [f32; 3],
     /// the texture coordinates of the fragments a point, line or image writes now
     pub frag_tex: Option<texdraw::Stq>,
+    /// the fog factor a textured fragment takes after the environment
+    pub frag_fog: Option<f32>,
     /// the texture coordinates along the antialiased line drawn now
     pub line_texture: Option<texdraw::LineTex>,
     /// glFog
@@ -591,6 +593,7 @@ impl Ctx {
             raster_eye: 0.0,
             raster_tex: [0.0, 0.0, 1.0],
             frag_tex: None,
+            frag_fog: None,
             line_texture: None,
             fog: Fog { mode: FogMode::Exp, density: 1.0, start: 0.0, end: 1.0, index: 0.0, color: [0.0; 4] },
             offset: (0.0, 0.0),
@@ -1449,10 +1452,11 @@ pub enum ToFixed {
     /// ONE_MINUS_SRC_ALPHA) without alpha bits as d (1 - a / scale) + c a / scale in float32,
     /// unclamped (GL.POLYGON.SMOOTH)
     Scaled,
-    /// a fast smooth line's: the channels' bytes, written as they are; blended (SRC_ALPHA,
-    /// ONE_MINUS_SRC_ALPHA) as m(255 - w, d) + m(w, c) with w = m(weight, alpha) and
-    /// m(h, l) = (h l) >> 8 (GL.RASTER.LINE.SMOOTH.BLEND)
-    Wu { weight: u8, alpha: u8 },
+    /// a fast span's: the channels' bytes, written as they are; blended (SRC_ALPHA,
+    /// ONE_MINUS_SRC_ALPHA) as m(255 - w, d) + m(w, c), m(h, l) = (h l) >> 8, w a smooth
+    /// line's m(weight, alpha) (GL.RASTER.LINE.SMOOTH.BLEND), a textured span's alpha byte
+    /// (GL.RASTER.TEXTURE.FAST)
+    Wu { w: u8 },
 }
 
 /// a depth already in a depth buffer's fixed point, for a buffer of `bits` bits only
@@ -2557,12 +2561,14 @@ impl Ctx {
     /// `aa_line` from its ends in clip coordinates, colors in channel units
     fn aa_line_ends(&mut self, a: tri::ClipEnd, b: tri::ClipEnd, fresh: bool) -> Res<()> {
         // (GL_TEXTURE_1D / 2D on with no image: as without, raster-open-44)
-        let unmeasured = self.cap(FOG)
-            || (self.cap(DEPTH_TEST) && self.pf.depth > 0)
-            || self.shade == FLAT
+        let unmeasured = (self.cap(FOG) && self.line_texture.is_none())
+            || (self.cap(DEPTH_TEST) && self.pf.depth > 0 && self.line_texture.is_none())
+            || (self.shade == FLAT && self.line_texture.is_none())
             || self.pf.rgba[3].0 % 8 != 0;
+        // (untextured, these are drawn aliased before here: aliased_smooth_line; alpha bits are
+        // 0 or 8, WGL.FORMATS)
         if unmeasured {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+            return Err(Fail::Bad);
         }
         let index_mode = self.pf.ty != 0;
         let scale = self.channel_scales();
@@ -2613,7 +2619,7 @@ impl Ctx {
                 };
                 // (channels under 8 bits: both pixels of a step written unweighted in the
                 // step's channel-unit color, raster-open-32)
-                let fixed = if narrow && !self.cap(BLEND) { ToFixed::Scaled } else { ToFixed::Wu { weight: p.weight, alpha: p.alpha } };
+                let fixed = if narrow && !self.cap(BLEND) { ToFixed::Scaled } else { ToFixed::Wu { w: u8::try_from(u32::from(p.weight).saturating_mul(u32::from(p.alpha)) >> 8).unwrap_or(0) } };
                 self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed: None })?;
             }
             return Ok(());
@@ -2624,15 +2630,48 @@ impl Ctx {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         hit(if thin { clause::GL_RASTER_LINE_SMOOTH } else { clause::GL_RASTER_LINE_SMOOTH_WIDE });
+        // (textured under a depth test: each pixel the depth along the snapped ends at its
+        // center, as an aliased line's, GL.RASTER.TEXTURE.PRIM)
+        let depth = self.aa_line_depth(e[0].clip, e[1].clip)?;
         for p in tri::aa_line(r[0], r[1], colors, tri::AaWidth::of(self.line_width), stipple) {
             let (c, fixed) = if index_mode { ([tri::index_coverage(p.c[0], p.c[3]), 0.0, 0.0, 0.0], ToFixed::Trunc) } else { (p.c, ToFixed::Scaled) };
             let y = dib_row(p.row);
-            self.frag_tex = self.line_texture.map(|t| t.at(p.x, y));
-            let r = self.fragment(Frag { x: p.x, y, c, z: 0.0, fixed, zfixed: None });
-            self.frag_tex = None;
+            let along = self.line_texture.map(|t| t.along(p.k));
+            self.frag_tex = along.map(|(_, stq)| stq);
+            self.frag_fog = along.filter(|_| self.cap(FOG)).map(|([.., f], _)| f);
+            let zfixed = depth.map(|(major, z, bits)| {
+                let j = if major { y } else { p.x };
+                FixedZ { bits: match bits { tri::DepthBits::D32 => 32, tri::DepthBits::D16 => 16 }, value: u64::from(bits.stored(tri::line_depth(z.0, z.1, j, j, bits))) }
+            });
+            let r = self.fragment(Frag { x: p.x, y, c, z: 0.0, fixed, zfixed });
+            (self.frag_tex, self.frag_fog) = (None, None);
             r?;
         }
         Ok(())
+    }
+
+    /// a textured antialiased line's depths under a depth test: whether y is its major axis,
+    /// its snapped ends there and their window depths, the buffer's bits
+    fn aa_line_depth(&self, a: [f32; 4], b: [f32; 4]) -> Res<Option<(bool, ([tri::Sub; 2], [f32; 2]), tri::DepthBits)>> {
+        let bits = match self.pf.depth {
+            _ if self.line_texture.is_none() || !self.cap(DEPTH_TEST) => return Ok(None),
+            32 => tri::DepthBits::D32,
+            16 => tri::DepthBits::D16,
+            0 => return Ok(None),
+            // (the formats have 32 or 16 depth bits only: WGL.FORMATS)
+            _ => return Err(Fail::Bad),
+        };
+        let [_, _, vw, vh] = self.viewport.map(|v| f64::from(tri::float(v)));
+        let center = self.viewport_center();
+        let end = |c: [f32; 4]| {
+            let [x, y, z, w] = c;
+            let r = 1.0 / w;
+            ([tri::Sub::snap(f64::from(x * r), vw, center.0), tri::Sub::snap(f64::from(y * r), vh, center.1)], self.window_z(z * r))
+        };
+        let (([ax, ay], za), ([bx, by], zb)) = (end(a), end(b));
+        let major = (by.0.saturating_sub(ay.0)).abs() > (bx.0.saturating_sub(ax.0)).abs();
+        let ends = if major { [ay, by] } else { [ax, bx] };
+        Ok(Some((major, (ends, [za, zb]), bits)))
     }
 
     /// whether a GL_LINE_SMOOTH line is drawn aliased instead, through the pipeline in its
@@ -2698,9 +2737,11 @@ impl Ctx {
         // (offset: not read by the antialiased fill, its depths from the corners' own, to be
         // seen in raster-open-37)
         let index_mode = self.pf.ty != 0;
-        let unmeasured = self.pf.rgba[3].0 % 8 != 0
-            || clip.iter().any(|c| c[3] <= 0.0);
-        if unmeasured {
+        // (alpha bits are 0 or 8, WGL.FORMATS)
+        if self.pf.rgba[3].0 % 8 != 0 {
+            return Err(Fail::Bad);
+        }
+        if clip.iter().any(|c| c[3] <= 0.0) {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         // (culled as any polygon, then drawn antialiased: raster-open-6)
@@ -2715,9 +2756,6 @@ impl Ctx {
         // (each corner: clip coordinates, colors in channel units, fog factor; cut to the view
         // volume as any polygon, then the fan from the first corner: raster-open-19)
         let textured = self.texturing();
-        if textured && self.cap(FOG) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
         let corners: Vec<[f32; 12]> = q
             .iter()
             .zip(&clip)
@@ -2783,7 +2821,9 @@ impl Ctx {
             for p in tri::aa_triangle(r, grid) {
                 let plane = |ch: fn([f32; 4]) -> f32| tri::aa_plane(r, [ch(c0), ch(c1), ch(c2)], p.at);
                 let mut c = if flat { at_provoking } else { [plane(|c| c[0]), plane(|c| c[1]), plane(|c| c[2]), plane(|c| c[3])] };
-                if fogged {
+                if fogged && textured {
+                    self.frag_fog = Some(tri::aa_plane(r, [f0, f1, f2], p.at));
+                } else if fogged {
                     let k = tri::aa_plane(r, [f0, f1, f2], p.at);
                     let a = c[3];
                     // (color index: the index plus (1 - k) the fog index, raster-open-56)
@@ -2807,6 +2847,7 @@ impl Ctx {
                 });
                 let drawn = self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed });
                 self.frag_tex = None;
+                self.frag_fog = None;
                 drawn?;
             }
         }
@@ -2886,6 +2927,15 @@ impl Ctx {
                         fan.push(tri::Offset { factor: self.offset.0, units }.of(a, b));
                     }
                     self.line_z_offset = fan.first().copied().unwrap_or(0.0);
+                }
+                // (textured, uncut: the edges a GL_LINE_LOOP's, the corners GL_POINTS', each
+                // with its vertex's texture coordinates)
+                if self.texturing() {
+                    if cut != at || offset_line {
+                        return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                    }
+                    self.verts = if self.shade == FLAT { q.iter().map(|v| (v.0, q.get(provoking).map_or(v.1, |p| p.1))).collect() } else { q.to_vec() };
+                    return self.end(if face == POLY_POINT { POINTS } else { LINE_LOOP });
                 }
                 let edge_offset = |k: usize| fan.get(k.saturating_sub(1).min(fan.len().saturating_sub(1))).copied().unwrap_or(0.0);
                 let win: Vec<([f64; 3], [f32; 4])> = cut
@@ -3073,9 +3123,7 @@ impl Ctx {
 
     fn end(&mut self, mode: u32) -> Res<()> {
         let texturing = self.texturing();
-        if texturing {
-            self.textured_mode(mode)?;
-        }
+        self.line_texture = None;
         let verts = std::mem::take(&mut self.verts);
         // (antialiased points, antialiased polygons whose coverage would show in alpha, lights,
         // color materials and color index lighting are not measured)
@@ -3259,8 +3307,10 @@ impl Ctx {
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
                     }
+                    // (textured: the coordinates along the line, as the aliased one's)
+                    self.line_texture = if texturing { Some(self.line_tex(&a.0, &b.0, self.window(a.0)?, self.window(b.0)?, None)) } else { None };
                     // (flat-shaded, fogged, scissored or depth tested: not antialiased, below)
-                    if self.cap(LINE_SMOOTH) && !self.aliased_smooth_line() {
+                    if self.cap(LINE_SMOOTH) && (!self.aliased_smooth_line() || texturing) {
                         self.aa_line(a, b, mode == LINES || i == 0)?;
                         continue;
                     }
@@ -3313,7 +3363,8 @@ impl Ctx {
                     self.deep_line(ca, cb, LineColor::Flat(c))?;
                 }
             }
-            _ => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
+            // (glBegin takes only the ten modes: GL.BEGIN)
+            _ => return Err(Fail::Bad),
         }
         Ok(())
     }
@@ -3492,7 +3543,10 @@ impl Ctx {
                 }
                 _ => (ends[1], self.span()),
             };
-            self.fragment(Frag { x, y, c, z: f64::from(za), fixed, zfixed })?;
+            self.frag_tex = self.line_texture.map(|t| t.at(x, y));
+            let drawn = self.fragment(Frag { x, y, c, z: f64::from(za), fixed, zfixed });
+            self.frag_tex = None;
+            drawn?;
         }
         Ok(())
     }
@@ -3536,7 +3590,7 @@ impl Ctx {
         // tested (17), blended and depth tested (25), stencil or alpha tested, a logic op, fog
         // or a color mask (20..24); stippled, the pipeline's pixels (line-stipple-2), its color
         // end measured by line-stipple-4)
-        let others = self.cap(LINE_STIPPLE) || self.cap(BLEND) || self.cap(FOG) || self.cap(STENCIL_TEST) || self.cap(ALPHA_TEST) || self.cap(COLOR_LOGIC_OP) || self.cap(INDEX_LOGIC_OP) || self.color_mask != [true; 4];
+        let others = self.texturing() || self.cap(LINE_STIPPLE) || self.cap(BLEND) || self.cap(FOG) || self.cap(STENCIL_TEST) || self.cap(ALPHA_TEST) || self.cap(COLOR_LOGIC_OP) || self.cap(INDEX_LOGIC_OP) || self.color_mask != [true; 4];
         let wide = tri::LineWidth::of(self.line_width) != tri::LineWidth::ONE;
         Ok(match (self.cap(DEPTH_TEST) || self.cap(SCISSOR_TEST), others) {
             (false, false) => FlatPath::Gdi,
@@ -3687,6 +3741,12 @@ impl Ctx {
             return Ok(());
         }
         let i = f.y as usize * W + f.x as usize;
+        // (textured from undefined texels, a copy from outside the window: its outcome
+        // undefined, GL.UNDEFINED)
+        if f.c.iter().any(|v| v.is_nan()) {
+            self.spoil(i, false, self.pf.depth > 0 && self.cap(DEPTH_TEST) && self.depth_mask);
+            return Ok(());
+        }
         if self.cap(SCISSOR_TEST) {
             hit(clause::GL_SCISSOR_TEST);
             let [sx, sy, sw, sh] = self.scissor;
@@ -3830,10 +3890,10 @@ impl Ctx {
                     let (alpha, dst_alpha) = (c[3] * a, tri::float(i64::from(d[3])) * (1.0 - a));
                     [over(d[0], c[0], bits[0]), over(d[1], c[1], bits[1]), over(d[2], c[2], bits[2]), if bits[3] == 0 { 0 } else { scaled_channel(alpha + dst_alpha, bits[3]) }]
                 }
-                ToFixed::Wu { weight, alpha } => {
+                ToFixed::Wu { w } => {
                     // (MEASURED, golden opengl-32 line-smooth-blend-0..5, raster-mode-4)
                     let m = |h: u32, l: u32| h.wrapping_mul(l) >> 8;
-                    let w = m(u32::from(weight), u32::from(alpha));
+                    let w = u32::from(w);
                     let d = self.fb.get(i).copied().ok_or(Fail::Bad)?;
                     // (c: the fast path's channel bytes)
                     let wu = |d: u32, c: f32| m(255u32.wrapping_sub(w), d).wrapping_add(m(w, u32::try_from(tri::trunc(c)).unwrap_or(0)));
@@ -4243,7 +4303,15 @@ impl Ctx {
         }
         let dither = self.cap(DITHER) && self.bits()[0] < 8 && m & COLOR_BUFFER_BIT != 0;
         let bits = self.bits();
-        let cv: Vec<u32> = (0..4).map(|k| if bits[k] == 0 { 0 } else { self.to_fixed(self.clear_color[k], bits[k]) }).collect();
+        // (alpha bits truncated, the colors rounded: MEASURED, golden opengl-32 / 64
+        // tex-open-more-2, 0.5 as 127; between steps clear-alpha-more-*: GL.CLEAR.ALPHA)
+        let [.., alpha_bits] = bits;
+        let [.., clear_alpha] = self.clear_color;
+        let alpha = (alpha_bits > 0).then(|| {
+            hit(clause::GL_CLEAR_ALPHA);
+            u32::try_from(tri::trunc(clear_alpha.clamp(0.0, 1.0) * channel_max(alpha_bits))).unwrap_or(0)
+        });
+        let cv: Vec<u32> = (0..3).map(|k| if bits[k] == 0 { 0 } else { self.to_fixed(self.clear_color[k], bits[k]) }).chain([alpha.unwrap_or(0)]).collect();
         // a dithered clear: each pixel as a fragment of the clear color would be (GL.DITHER)
         let dithered = |x: i64, y: i64, k: usize| {
             let m = ((1u64 << bits[k]) - 1) as f32;
@@ -5346,6 +5414,8 @@ pub mod tri {
         pub row: i64,
         pub c: [f32; 4],
         pub cover: f32,
+        /// pixels from its row's first
+        pub k: i64,
     }
 
     /// Minor steps of a Bresenham walk in 1/2^31: on a carry past bit 31 the big step.
@@ -5441,7 +5511,7 @@ pub mod tri {
             }
             let (mut sl, mut sd, mut sf, mut px, mut py) = (l, d, fraction, x, y);
             let mut col = c[0];
-            for _ in 0..pixels {
+            for k in 0..pixels {
                 let mut cover = if sd > line_width { (line_width - sd) + 1.0 } else if sd < -line_width { (sd + line_width) + 1.0 } else { 1.0 };
                 if cover >= 0.0 {
                     if sl < 0.5 {
@@ -5456,7 +5526,7 @@ pub mod tri {
                 if cover > 0.0 {
                     let mut c = col;
                     c[3] *= cover;
-                    out.push(AaLineFrag { x: px.wrapping_sub(bias), row: py.wrapping_sub(bias), c, cover });
+                    out.push(AaLineFrag { x: px.wrapping_sub(bias), row: py.wrapping_sub(bias), c, cover, k });
                 }
                 col = zip4(col, dc, |c, d| c + d);
                 step(&mut sf, &mut sl, &mut sd, &mut px, &mut py, 1);

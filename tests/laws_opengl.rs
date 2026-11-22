@@ -895,4 +895,45 @@ proptest! {
             prop_assert!((start..start + n).any(|v| held.contains(&v)));
         }
     }
+
+    // GL.TEX.GEN: the eye plane is kept times the inverse modelview, so the inverse undoes
+    // the matrix: M^-1 M is the identity for a matrix of rotation, scale and translation
+    #[test]
+    fn eye_plane_inverse_undoes_the_modelview(angle in -3.0f32..3.0, sx in 0.25f32..4.0, sy in 0.25f32..4.0, sz in 0.25f32..4.0, t in proptest::array::uniform3(-8.0f32..8.0)) {
+        let (c, s) = (angle.cos(), angle.sin());
+        let m: [f32; 16] = [c * sx, s * sx, 0.0, 0.0, -s * sy, c * sy, 0.0, 0.0, 0.0, 0.0, sz, 0.0, t[0], t[1], t[2], 1.0];
+        let inv = kikizake::model::opengl::tex::invert(&m).ok_or_else(|| TestCaseError::fail("singular"))?;
+        for r in 0..4 {
+            for col in 0..4 {
+                let v: f64 = (0..4).map(|k| inv[k * 4 + r] * f64::from(m[col * 4 + k])).sum();
+                let want = if r == col { 1.0 } else { 0.0 };
+                prop_assert!((v - want).abs() < 1e-9, "({r}, {col}) {v}");
+            }
+        }
+    }
+
+    // GL.RASTER.TEXTURE.PRIM: an antialiased line's rows each count their pixels from 0 and its
+    // colors are the first end's plus the count times the step, so texture coordinates stepped
+    // by the same count follow its colors exactly
+    #[test]
+    fn aa_line_rows_count_as_their_colors_step(x0 in 1.0f32..30.0, y0 in 1.0f32..30.0, x1 in 1.0f32..30.0, y1 in 1.0f32..30.0, w in 1.0f32..4.0) {
+        let (a, b) = (tri::Raster([x0, y0]), tri::Raster([x1, y1]));
+        let c = [[0.0, 10.0, 20.0, 1.0], [100.0, 50.0, 0.0, 1.0]];
+        let length = (x1 - x0).abs().max((y1 - y0).abs());
+        prop_assume!(length > 0.5);
+        let dc: Vec<f32> = (0..3).map(|k| (c[1][k] - c[0][k]) * (1.0 / length)).collect();
+        for p in tri::aa_line(a, b, c, tri::AaWidth::of(w), None) {
+            prop_assert!(p.k >= 0);
+            let mut col: [f32; 3] = [c[0][0], c[0][1], c[0][2]];
+            for _ in 0..p.k {
+                for k in 0..3 {
+                    col[k] += dc[k];
+                }
+            }
+            for k in 0..3 {
+                prop_assert_eq!(p.c[k].to_bits(), col[k].to_bits());
+            }
+        }
+    }
 }
+

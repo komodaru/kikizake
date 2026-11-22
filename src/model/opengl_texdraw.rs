@@ -5,12 +5,12 @@
 //! The rules come from clean-room notes of opengl32.dll (behaviour only, no code) and each is
 //! confirmed by the goldens of the tex-open-* cases (spec/opengl.txt GL.RASTER.TEXTURE).
 
-use super::e::{ALPHA_TEST, BLEND as BLENDING, COLOR_LOGIC_OP, DEPTH_TEST, DITHER, FLAT, FRONT_AND_BACK, LESS, ONE_MINUS_SRC_ALPHA, POLYGON_MODE_POLYGON, POLYGON_STIPPLE, POLY_FILL, QUADS, QUAD_STRIP, SRC_ALPHA, STENCIL_TEST, TRIANGLES, TRIANGLE_FAN, TRIANGLE_STRIP};
+use super::e::{ALPHA_TEST, BLEND as BLENDING, COLOR_LOGIC_OP, DEPTH_TEST, DITHER, FLAT, FRONT_AND_BACK, LESS, ONE_MINUS_SRC_ALPHA, POLYGON_STIPPLE, SRC_ALPHA, STENCIL_TEST};
 use super::tex::{Base, Level, Object, Store, Target, TEXTURE_1D, TEXTURE_2D};
 use std::collections::BTreeMap;
 
 use super::{tri, Ctx, Fail, FixedZ, Frag, Obj, Res, ToFixed};
-use crate::spec::{clause, hit, open};
+use crate::spec::{clause, hit};
 
 const NEAREST: u32 = 0x2600;
 const LINEAR: u32 = 0x2601;
@@ -78,11 +78,23 @@ pub struct LineTex {
 }
 
 impl LineTex {
+    /// the coordinates (fog factor last) `k` pixels along a row of an antialiased line: each
+    /// row from the first pixel's, each pixel the change a pixel more, as its colors
+    /// (`tri::aa_line`; MEASURED, golden opengl-32 / 64 tex-open-prim-line-smooth; on a real
+    /// machine tex-open-more-line-smooth-*)
+    pub fn along(&self, k: i64) -> ([f32; 4], Stq) {
+        let n = tri::float(k);
+        let v: [f32; 4] = std::array::from_fn(|i| self.c0.get(i).copied().unwrap_or(0.0) + n * self.step.get(i).copied().unwrap_or(0.0));
+        let [s, t, q, _] = v;
+        (v, Stq::at([s, t, q]))
+    }
+
     /// at pixel (x, y)
     pub fn at(&self, x: i64, y: i64) -> Stq {
         let j = if self.y_major { y } else { x };
         let n = tri::float(j.saturating_sub(self.first).saturating_mul(self.sign));
-        let [s, t, q, _]: [f32; 4] = std::array::from_fn(|k| self.c0.get(k).copied().unwrap_or(0.0) + n * self.step.get(k).copied().unwrap_or(0.0));
+        let v: [f32; 4] = std::array::from_fn(|k| self.c0.get(k).copied().unwrap_or(0.0) + n * self.step.get(k).copied().unwrap_or(0.0));
+        let [s, t, q, _] = v;
         Stq::at([s, t, q])
     }
 }
@@ -154,6 +166,8 @@ impl Env {
 enum Fast {
     /// MODULATE: (c t) >> 8 a channel, the color stepped in 16.16 from one half when smooth
     Modulate { smooth: bool },
+    /// REPLACE (or DECAL on RGB) dithered: as MODULATE by a flat 255
+    Replace255,
     /// REPLACE (or DECAL on RGB) undithered: the texel's bytes
     Copy,
 }
@@ -410,6 +424,7 @@ impl Ctx {
             || mode == Env::Blend
             || rgba_decal
             || b.min != Filter::Nearest
+            || b.levels.iter().any(|l| l.undefined())
             || b.mag != Filter::Nearest
             || b.wrap != [Wrap::Repeat; 2]
             || first.border != 0
@@ -424,15 +439,15 @@ impl Ctx {
         if !depth_ok && self.hints.first() == Some(&NICEST) {
             return Ok(None);
         }
-        // (depth tested (the 32-bit span of a deep buffer writes byte 3 as 0), blended or into
-        // alpha bits: to be seen in tex-open-more-1 .. 5)
-        if tested || self.cap(BLENDING) || self.pf.rgba.get(3).is_some_and(|a| a.0 > 0) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        // (into alpha bits: the general path, MEASURED, golden opengl-32 / 64 tex-open-more-2;
+        // depth tested as any fragment, tex-open-more-3, 4, 6; blended as a fast span's bytes,
+        // tex-open-more-1)
+        if self.pf.rgba.get(3).is_some_and(|a| a.0 > 0) {
+            return Ok(None);
         }
         Ok(Some(match mode {
             Env::Modulate => Fast::Modulate { smooth: self.shade != FLAT },
-            // (dithered: (255 t) >> 8 by texture.md 7.1, to be seen in tex-open-more-0)
-            Env::Replace | Env::Decal if self.cap(DITHER) => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
+            Env::Replace | Env::Decal if self.cap(DITHER) => Fast::Replace255,
             Env::Replace | Env::Decal => Fast::Copy,
             Env::Blend => return Ok(None),
         }))
@@ -440,17 +455,9 @@ impl Ctx {
 
     /// whether fragments are textured now
     pub(super) fn texturing(&self) -> bool {
-        self.bound_texture().is_some()
-    }
-
-    /// what is drawn under a texture: filled polygons; any other primitive, coordinate
-    /// generation, fog, antialiased or outlined polygons the open clause GL.RASTER.MODE
-    pub(super) fn textured_mode(&self, mode: u32) -> Res<()> {
-        let polygons = matches!(mode, TRIANGLES | TRIANGLE_STRIP | TRIANGLE_FAN | QUADS | QUAD_STRIP | POLYGON_MODE_POLYGON);
-        if self.pf.ty != 0 || (polygons && self.poly_mode != [POLY_FILL, POLY_FILL]) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
-        Ok(())
+        // (not in color index mode: GL 1.1 3.8 textures RGBA fragments only; checked on a real
+        // machine tex-open-more-ci-choose)
+        self.pf.ty == 0 && self.bound_texture().is_some()
     }
 
     /// the texture coordinates of a vertex at object coordinates `xyz`, `w` given now: the
@@ -529,14 +536,18 @@ impl Ctx {
         let ([ax, ay], [bx, by]) = (snap(wa), snap(wb));
         let y_major = (by.0.saturating_sub(ay.0)).abs() >= (bx.0.saturating_sub(ax.0)).abs();
         let (from, run) = if y_major { (wa[1], wb[1] - wa[1]) } else { (wa[0], wb[0] - wa[0]) };
-        let per = 1.0 / tri::narrow(run.abs());
-        let four = |v: [f32; 3]| -> [f32; 4] {
-            let [s, t, q] = v;
-            [s, t, q, 0.0]
+        let four = |v: &Obj| -> [f32; 4] {
+            let [s, t, q] = self.tex_coords(v);
+            [s, t, q, self.fog.factor(super::xform(self.top(0), [v.xyz[0], v.xyz[1], v.xyz[2], v.w])[2])]
         };
-        let (c0, c1) = (four(self.tex_coords(a)), four(self.tex_coords(b)));
-        let step: [f32; 4] = std::array::from_fn(|k| (c1.get(k).copied().unwrap_or(0.0) - c0.get(k).copied().unwrap_or(0.0)) * per);
+        let (c0, c1) = (four(a), four(b));
         let first = first.unwrap_or_else(|| tri::trunc(tri::narrow(from.floor())));
+        // (from the snapped first end to the first pixel's center, over the snapped run)
+        let (e0, e1) = if y_major { (ay.0, by.0) } else { (ax.0, bx.0) };
+        let srun = tri::float(e1.saturating_sub(e0)) / 256.0;
+        let d = (tri::float(first.saturating_mul(256).saturating_add(128).saturating_sub(e0)) / 256.0) * if srun < 0.0 { -1.0 } else { 1.0 };
+        let step: [f32; 4] = std::array::from_fn(|k| (c1.get(k).copied().unwrap_or(0.0) - c0.get(k).copied().unwrap_or(0.0)) / srun.abs());
+        let c0: [f32; 4] = std::array::from_fn(|k| c0.get(k).copied().unwrap_or(0.0) + d * step.get(k).copied().unwrap_or(0.0));
         LineTex { c0, step, first, sign: if run < 0.0 { -1 } else { 1 }, y_major }
     }
 
@@ -566,6 +577,16 @@ impl Ctx {
         };
         let texel = bound.sample(s, t, rho_used.then_some(rho));
         let c = env(mode, first.base, units, texel, cc, scale);
+        // (fogged after the environment, an antialiased polygon's factor at the samples' center)
+        let c = match self.frag_fog {
+            Some(k) => {
+                let [r, g, b, a] = c;
+                let fc: [f32; 4] = std::array::from_fn(|i| self.fog.color.get(i).copied().unwrap_or(0.0) * scale.get(i).copied().unwrap_or(S));
+                let [kr, kg, kb, _] = fc;
+                [k * r + (1.0 - k) * kr, k * g + (1.0 - k) * kg, k * b + (1.0 - k) * kb, a]
+            }
+            None => c,
+        };
         Ok(Frag { c, fixed: ToFixed::Scaled, ..f })
     }
 
@@ -608,10 +629,18 @@ impl Ctx {
                     match fast {
                         Fast::Modulate { smooth: true } => m(byte(c.saturating_add(0x80)), t),
                         Fast::Modulate { smooth: false } => m(byte(c), t),
+                        Fast::Replace255 => m(255, t),
                         Fast::Copy => t,
                     }
                 });
-                frags.push(Frag { x, y, c: out.map(tri::float), z: z0, fixed: ToFixed::Scaled, zfixed: zf.or(zfixed) });
+                let fixed = if self.cap(BLENDING) {
+                    let [_, _, _, alpha] = out;
+                    let alpha = u8::try_from(alpha.clamp(0, 255)).unwrap_or(0);
+                    ToFixed::Wu { w: alpha }
+                } else {
+                    ToFixed::Scaled
+                };
+                frags.push(Frag { x, y, c: out.map(tri::float), z: z0, fixed, zfixed: zf.or(zfixed) });
                 continue;
             }
             let qv = stq.at[2];

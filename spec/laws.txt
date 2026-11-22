@@ -307,3 +307,5 @@ spec/lean/Kikizake/D3d12/Footprint.lean::pitch_holds_row lean D3D12.FOOTPRINT.LA
 spec/lean/Kikizake/D3d12/Footprint.lean::rows_whole lean D3D12.FOOTPRINT.BLOCK D3D12.FOOTPRINT.LAYOUT
 spec/lean/Kikizake/D3d12/Footprint.lean::last_le_extent lean D3D12.FOOTPRINT.LAYOUT
 spec/lean/Kikizake/D3d12/Footprint.lean::layout_apart lean D3D12.FOOTPRINT.LAYOUT D3D12.FOOTPRINT.STENCIL
+tests/laws_opengl.rs::eye_plane_inverse_undoes_the_modelview pbt GL.TEX.GEN
+tests/laws_opengl.rs::aa_line_rows_count_as_their_colors_step pbt GL.RASTER.TEXTURE.PRIM

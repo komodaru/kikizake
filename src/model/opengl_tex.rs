@@ -74,6 +74,15 @@ pub enum Target {
 }
 
 impl Target {
+    /// the target a proxy target stands for
+    pub fn proxy(name: u32) -> Option<Target> {
+        match name {
+            PROXY_1D => Some(Target::One),
+            PROXY_2D => Some(Target::Two),
+            _ => None,
+        }
+    }
+
     pub fn of(name: u32) -> Option<Target> {
         match name {
             TEXTURE_1D => Some(Target::One),
@@ -97,7 +106,7 @@ impl<T> PerTarget<T> {
             Target::Two => &self.two,
         }
     }
-    fn get_mut(&mut self, t: Target) -> &mut T {
+    pub fn get_mut(&mut self, t: Target) -> &mut T {
         match t {
             Target::One => &mut self.one,
             Target::Two => &mut self.two,
@@ -165,6 +174,11 @@ pub struct Level {
 
 impl Level {
     /// a texel at column `i`, row `j` (with the border)
+    /// whether any texel is undefined (NaN: copied from outside the window, GL.UNDEFINED)
+    pub fn undefined(&self) -> bool {
+        self.texels.iter().any(|t| t.iter().any(|v| v.is_nan()))
+    }
+
     pub fn texel(&self, i: u32, j: u32) -> Option<[f32; 4]> {
         let at = usize::try_from(j.checked_mul(self.width)?.checked_add(i)?).ok()?;
         self.texels.get(at).copied()
@@ -215,6 +229,10 @@ pub fn kept(store: Store, units: f32) -> f32 {
 
 /// a texel from an image pixel (RGBA in [0, 1], expanded as GL 1.1 3.6.4 says)
 fn reduce(base: Base, store: Store, c: [f32; 4]) -> [f32; 4] {
+    // (an undefined texel stays so: GL.UNDEFINED)
+    if c.iter().any(|v| v.is_nan()) {
+        return [f32::NAN; 4];
+    }
     let [r, g, b, a] = c.map(|v| kept(store, v * 255.0));
     match (store, base) {
         (Store::Bytes, Base::Alpha | Base::Luminance | Base::LuminanceAlpha | Base::Intensity | Base::Rgb | Base::Rgba) => [r, g, b, a],
@@ -274,6 +292,8 @@ pub struct Tex {
     /// names glGenTextures gave that are not bound yet
     pub reserved: BTreeSet<u32>,
     pub defaults: PerTarget<Object>,
+    /// GL_PROXY_TEXTURE_1D / 2D: their levels' sizes and formats, no texels
+    pub proxies: PerTarget<Object>,
     pub bound: PerTarget<u32>,
     pub env_mode: u32,
     /// in channel units
@@ -292,6 +312,7 @@ impl Tex {
             objects: BTreeMap::new(),
             reserved: BTreeSet::new(),
             defaults: PerTarget { one: Object::new(Target::One), two: Object::new(Target::Two) },
+            proxies: PerTarget { one: Object::new(Target::One), two: Object::new(Target::Two) },
             bound: PerTarget { one: 0, two: 0 },
             env_mode: MODULATE,
             env_color: [0.0; 4],
@@ -440,10 +461,14 @@ impl Tex {
     /// glGetTexLevelParameter (MEASURED, golden opengl-32 tex-open-format-*, tex-open-state: an
     /// empty level 0 wide with 1 component; a 1D level 1 high: GL.TEX.LEVEL)
     pub fn level_param(&self, target: u32, level: i64, pname: u32) -> Result<Vec<V>, Bad> {
-        let t = Target::of(target).ok_or(Bad::Enum)?;
+        let (t, o) = match (Target::of(target), Target::proxy(target)) {
+            (Some(t), _) => (t, self.object(t)),
+            (None, Some(t)) => (t, self.proxies.get(t)),
+            (None, None) => return Err(Bad::Enum),
+        };
         let l = usize::try_from(level).ok().filter(|l| *l < LEVELS).ok_or(Bad::Value)?;
         hit(clause::GL_TEX_LEVEL);
-        let lv = self.object(t).levels.get(l).and_then(Option::as_ref);
+        let lv = o.levels.get(l).and_then(Option::as_ref);
         let i = |x: u32| vec![V::I(i64::from(x))];
         let size = |k: usize| vec![V::I(lv.map_or(0, |l| l.sizes().get(k).copied().unwrap_or(0)))];
         Ok(match pname {
@@ -659,10 +684,13 @@ impl Ctx {
                 }
                 let n = usize::try_from(int_at(&v, 4)?).ok().ok_or(Fail::Bad)?;
                 let mut buf = vec![0xccu8; n.checked_add(64).ok_or(Fail::Bad)?];
-                let r = self.get_tex_image(enum_at(&v, 0)?, int_at(&v, 1)?, enum_at(&v, 2)?, enum_at(&v, 3)?, &mut buf)?;
+                let mut undefined = vec![false; buf.len()];
+                let r = self.get_tex_image(enum_at(&v, 0)?, int_at(&v, 1)?, enum_at(&v, 2)?, enum_at(&v, 3)?, &mut buf, &mut undefined)?;
                 self.tex_err(r);
                 let (shown, past) = buf.split_at(n);
-                out.push(format!("read {}", super::hex(shown)));
+                // (an undefined byte as "??": any byte matches it, crate::compare)
+                let text: String = shown.iter().zip(&undefined).map(|(b, u)| if *u { "??".to_string() } else { format!("{b:02x}") }).collect();
+                out.push(format!("read {text}"));
                 if past.iter().any(|b| *b != 0xcc) {
                     out.push("over".into());
                 }
@@ -774,12 +802,18 @@ impl Ctx {
         Ok(())
     }
 
-    /// glTexGen's planes: the eye plane times the inverse modelview (only the identity's here)
+    /// glTexGen's planes: the eye plane times the inverse modelview as a row vector, p' = p M^-1
+    /// (MEASURED, golden opengl-32 / 64 on a real machine tex-open-more-eye: a translated,
+    /// scaled modelview; GL.TEX.GEN); a singular modelview not measured (GL.RASTER.MODE)
     fn tex_gen(&mut self, coord: u32, pname: u32, v: &[f64]) -> Res<Result<(), Bad>> {
-        if pname == EYE_PLANE && self.stacks.first().is_none_or(|s| *s.top() != super::IDENTITY) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        if pname != EYE_PLANE || v.len() != 4 {
+            return Ok(self.tex.set_gen(coord, pname, v));
         }
-        Ok(self.tex.set_gen(coord, pname, v))
+        let m = self.stacks.first().map_or(super::IDENTITY, |s| *s.top());
+        let Some(inv) = invert(&m) else { return Err(Fail::Unmodeled(open::GL_RASTER_MODE)) };
+        // (column k of the inverse: entries k*4 .. k*4 + 3 of the column-major array)
+        let plane: Vec<f64> = inv.chunks_exact(4).map(|col| col.iter().zip(v).map(|(a, p)| a * p).sum()).collect();
+        Ok(self.tex.set_gen(coord, pname, &plane))
     }
 
     /// A gl call of textures (glBindTexture .. glCopyTexSubImage2D).
@@ -833,8 +867,12 @@ impl Ctx {
         for j in 0..h.max(0) {
             for i in 0..w.max(0) {
                 let (cx, cy) = (x.checked_add(i).ok_or(Fail::Bad)?, y.checked_add(j).ok_or(Fail::Bad)?);
+                // (outside the window: memory past the DIB's, undefined, MEASURED on a real
+                // machine tex-open-more-copy: other bytes on each executor; GL.UNDEFINED)
                 if !(0..super::WIDTH).contains(&cx) || !(0..super::HEIGHT).contains(&cy) {
-                    return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+                    hit(clause::GL_UNDEFINED);
+                    px.push([f32::NAN; 4]);
+                    continue;
                 }
                 let p = usize::try_from(cy.checked_mul(super::WIDTH).and_then(|r| r.checked_add(cx)).ok_or(Fail::Bad)?).ok().ok_or(Fail::Bad)?;
                 let c = self.transfer(self.dst_color(p).map(f64::from))?;
@@ -856,8 +894,16 @@ impl Ctx {
             // (a null pointer: the level's texels undefined; the model makes them 0)
             return Ok(vec![[0.0; 4]; n]);
         };
-        if size == 0 || f == COLOR_INDEX {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        // (color indices, bitmaps too: through GL_PIXEL_MAP_I_TO_R .. A, whose initial tables
+        // hold one zero each, then the transfer, as glDrawPixels has them in RGBA mode; MEASURED,
+        // golden opengl-32 / 64 tex-open-source-16: GL.DRAW.INDEX)
+        if f == COLOR_INDEX {
+            hit(clause::GL_DRAW_INDEX);
+            let c = self.transfer([0.0; 4])?.map(super::tri::narrow);
+            return Ok(vec![c; n]);
+        }
+        if size == 0 {
+            return Err(Fail::Bad);
         }
         let (start, k) = super::layout(&self.unpack, comps.len(), size, i64::from(w));
         let mut px = Vec::with_capacity(n);
@@ -886,7 +932,8 @@ impl Ctx {
                                 *x = v;
                             }
                         }
-                        _ => return Err(Fail::Unmodeled(open::GL_RASTER_MODE)),
+                        // (indices returned above, depth and stencil formats refused: GL.TEX.ERRORS)
+                        _ => return Err(Fail::Bad),
                     }
                 }
                 px.push(self.transfer(c)?.map(super::tri::narrow));
@@ -900,10 +947,10 @@ impl Ctx {
     /// border, the sizes (2^n plus the border, 0 taken), then the largest size: GL.TEX.ERRORS)
     fn tex_image(&mut self, target: u32, one: bool, level: i64, ifmt: u32, (w, h, b): (i64, i64, i64), src: Source<'_>) -> Res<Result<(), Bad>> {
         hit(clause::GL_TEX_IMAGE);
-        if matches!(target, PROXY_1D | PROXY_2D) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
-        let Some(t) = Target::of(target).filter(|t| (*t == Target::One) == one) else { return Ok(Err(Bad::Enum)) };
+        // (a proxy target: the same checks, a size past the largest leaving the level empty with
+        // no error, no texels read: MEASURED, on a real machine tex-open-more-proxy; GL.TEX.PROXY)
+        let proxy = Target::proxy(target).filter(|t| (*t == Target::One) == one && matches!(src, Source::Image { .. }));
+        let Some(t) = Target::of(target).or(proxy).filter(|t| (*t == Target::One) == one) else { return Ok(Err(Bad::Enum)) };
         if let Source::Image { f, ty, .. } = src {
             let types = (0x1400..=0x1406).contains(&ty) || (ty == BITMAP && f == COLOR_INDEX);
             if !types {
@@ -930,10 +977,18 @@ impl Ctx {
         let h = if one { 1i64.saturating_add(2i64.saturating_mul(i64::from(border))) } else { h };
         let inner = |s: i64| -> Option<u32> { u32::try_from(s.checked_sub(2i64.saturating_mul(i64::from(border)))?).ok().filter(|v| *v == 0 || v.is_power_of_two()) };
         let (Some(iw), Some(ih)) = (inner(w), inner(h)) else { return Ok(Err(Bad::Value)) };
+        let (Ok(width), Ok(height)) = (u32::try_from(w), u32::try_from(h)) else { return Ok(Err(Bad::Value)) };
+        if proxy.is_some() {
+            hit(clause::GL_TEX_PROXY);
+            let fits = iw <= MAX_SIZE && ih <= MAX_SIZE;
+            if let Some(slot) = self.tex.proxies.get_mut(t).levels.get_mut(l) {
+                *slot = fits.then(|| Level { width, height, border, ifmt, base, store, texels: Vec::new() });
+            }
+            return Ok(Ok(()));
+        }
         if iw > MAX_SIZE || ih > MAX_SIZE {
             return Ok(Err(Bad::Value));
         }
-        let (Ok(width), Ok(height)) = (u32::try_from(w), u32::try_from(h)) else { return Ok(Err(Bad::Value)) };
         let px = self.source_pixels(src, width, height)?;
         let texels = px.into_iter().map(|c| reduce(base, store, c)).collect();
         let o = self.tex.object_mut(t);
@@ -984,7 +1039,7 @@ impl Ctx {
     /// glGetTexImage into `buf` (MEASURED, golden opengl-32 tex-open-format-*: each level as
     /// RGBA (Level::rgba), through the pixel transfer, packed as glReadPixels packs; an empty
     /// level writes nothing: GL.TEX.GETIMAGE)
-    fn get_tex_image(&mut self, target: u32, level: i64, f: u32, ty: u32, buf: &mut [u8]) -> Res<Result<(), Bad>> {
+    fn get_tex_image(&mut self, target: u32, level: i64, f: u32, ty: u32, buf: &mut [u8], undefined: &mut [bool]) -> Res<Result<(), Bad>> {
         hit(clause::GL_TEX_GETIMAGE);
         if self.in_begin.is_some() {
             return Ok(Err(Bad::Operation));
@@ -1000,7 +1055,9 @@ impl Ctx {
         let (start, k) = super::layout(&self.pack, comps.len(), size, i64::from(lv.width));
         for j in 0..lv.height {
             for i in 0..lv.width {
-                let c = lv.rgba(lv.texel(i, j).ok_or(Fail::Bad)?);
+                let texel = lv.texel(i, j).ok_or(Fail::Bad)?;
+                let unknown = texel.iter().any(|v| v.is_nan());
+                let c = lv.rgba(texel);
                 let c = self.transfer(c.map(f64::from))?.map(super::tri::narrow);
                 for (m, which) in comps.iter().enumerate() {
                     let [r, g, b, _] = c;
@@ -1023,6 +1080,9 @@ impl Ctx {
                     let at = row.zip(col).and_then(|(r, c)| start.checked_add(r)?.checked_add(c)?.checked_mul(size)).ok_or(Fail::Bad)?;
                     if let Some(dst) = at.checked_add(size).and_then(|end| buf.get_mut(at..end)) {
                         dst.copy_from_slice(&e);
+                    }
+                    if let Some(u) = at.checked_add(size).and_then(|end| undefined.get_mut(at..end)) {
+                        u.fill(unknown);
                     }
                 }
             }
@@ -1052,4 +1112,40 @@ fn given(seed: i64, n: i64) -> Res<Option<Given>> {
 /// the names of an op's tokens from the second on
 fn names(t: &[String]) -> Res<Vec<u32>> {
     t.iter().skip(1).map(|x| num(x).and_then(|v| u32::try_from(v & 0xFFFF_FFFF).ok()).ok_or(Fail::Bad)).collect()
+}
+
+/// the inverse of a column-major 4 by 4 matrix (Gauss-Jordan with partial pivots, in f64),
+/// column-major too; none when singular
+pub fn invert(m: &[f32; 16]) -> Option<[f64; 16]> {
+    // (rows of [M | I]: row r holds M's row r, then the identity's)
+    let mut rows: [[f64; 8]; 4] = std::array::from_fn(|r| std::array::from_fn(|c| if c < 4 { m.get(c.wrapping_mul(4).wrapping_add(r)).map_or(0.0, |x| f64::from(*x)) } else if c.wrapping_sub(4) == r { 1.0 } else { 0.0 }));
+    for col in 0..4usize {
+        let pivot = (col..4).max_by(|a, b| {
+            let at = |r: usize| rows.get(r).and_then(|row| row.get(col)).map_or(0.0, |x: &f64| x.abs());
+            at(*a).total_cmp(&at(*b))
+        })?;
+        rows.swap(col, pivot);
+        let p = *rows.get(col)?;
+        let d = *p.get(col)?;
+        if d.to_bits() & 0x7FFF_FFFF_FFFF_FFFF == 0 {
+            return None;
+        }
+        let p: [f64; 8] = p.map(|x| x / d);
+        for (r, row) in rows.iter_mut().enumerate() {
+            if r == col {
+                *row = p;
+                continue;
+            }
+            let f = *row.get(col)?;
+            for (x, y) in row.iter_mut().zip(p) {
+                *x -= f * y;
+            }
+        }
+    }
+    let mut out = [0.0f64; 16];
+    for (k, o) in out.iter_mut().enumerate() {
+        // (column k / 4, row k % 4 of the right half)
+        *o = *rows.get(k % 4)?.get(4usize.wrapping_add(k / 4))?;
+    }
+    Some(out)
 }
