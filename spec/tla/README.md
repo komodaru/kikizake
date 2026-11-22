@@ -32,5 +32,7 @@ differently. So a model that breaks a clause on any short sequence fails, withou
 | DxgiFactory | CreateDXGIFactory2, EnumWarpAdapter, CheckFeatureSupport (ALLOW_TEARING), EnumAdapters1, EnumAdapterByGpuPreference (DXGI.FACTORY, FACTORY.DEBUG, WARP, TEARING, ADAPTERS, ADAPTER.PREF): what the windows-2025 runner answers, nofactory before a factory | 40,495 (3) |
 | GdiPlusBitmap | GdiplusStartup, Bitmap::Bitmap, GetPixelFormat / GetPalette, LockBits, GetPixel, SetPixel, Clone (GP.START, CREATE, INFO, LOCK, GRAY16, PIXEL, CLONE): 8 formats' integer conversions, every lock rectangle and pixel asked after every call | 69,216 (2) |
 | GdiPlusFill | Graphics::Clear, FillRectangleI (GP.FILL, NOGRAPHICS, RECT, NEGATIVE, COPY, OVER, INDEXED, QUALITY.OTHER): SourceCopy and SourceOver without gamma, the operators of GdiPlusBitmap by INSTANCE | 368,697 (2) |
+| GdiPlusMatrix | Matrix::Matrix, Multiply, Invert, TransformPoints (GP.MATRIX, MUL, ORDER, POINT, INVERT): entries on the 1/64 grid, exact in f32 but for the signs of zeros, answered as float bits | 22,765 (3) |
+| GdiPlusObjects | solid, hatch and texture brushes and GetBrushType, Pen and its setters, FillRectangle, SetColorMatrix and DrawImage at 1:1 (GP.BRUSH, HATCH.RANGE, TEXTURE, TEXTURE.STATUS, INFO, PEN.MAKE, PAINT, NOBRUSH, MODES, NEGATIVE, ATTR, FLAGS, DRAW.NOATTR, SKIPGRAYS, ALTGRAY, ALTGRAY.TRANSLATE) | 7,429 (2) |
 
 D3D9StateBlock models documented use; D3DSbMisuse the measured misuse. Comments cannot hold `*)`.
