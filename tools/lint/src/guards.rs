@@ -72,6 +72,9 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // (a declaration's refusals are decl_ok's, which the Lean mirror d3d9.decl holds to
     // spec/lean/Kikizake/D3d9/Decl.lean)
     ("src/model/d3d9draw.rs", r"usage\s*==\s*8\s*&&|\(9,\s*0\)", &["decl_ok"]),
+    // (blending on targets of other formats is blend_float and factor_f32, which d3d9.blendf holds
+    // to spec/lean/Kikizake/D3d9/Blend.lean)
+    ("src/model/d3d9draw.rs", r"D3D9_BLEND_FORMAT|\.min\(\s*1\.0\s*-|\|x\|\s*x\.clamp\(0\.0,\s*1\.0\)\s*as\s*f32", &["blend_float", "factor_f32"]),
 ];
 
 /// (file, what (a regular expression), why): `forbidden`

@@ -2785,64 +2785,27 @@ impl D3d9 {
         Ok(())
     }
 
-    fn blend_float(&self, s: [f64; 4], d: [f64; 4]) -> Res<[f64; 4]> {
-        let s = s.map(|x| x.clamp(0.0, 1.0) as f32);
-        let d = d.map(|x| x as f32);
-        let c = blend_color(self.v8, self.rs(193));
+    /// the blend states (blend_float's)
+    fn blend_states(&self) -> BlendStates {
         if self.v8 && [19, 20].iter().any(|&i| matches!(self.rs(i), 14 | 15)) {
             hit(clause::D3D9_BLEND_FACTOR);
         }
-        let bf = argb(c).map(|v| v as f32);
-        let factor = |f: u32, k: usize| -> Res<f32> {
-            Ok(match f {
-                1 => 0.0,
-                2 => 1.0,
-                3 => s[k],
-                4 => 1.0 - s[k],
-                5 => s[3],
-                6 => 1.0 - s[3],
-                7 => d[3],
-                8 => 1.0 - d[3],
-                9 => d[k],
-                10 => 1.0 - d[k],
-                11 if k < 3 => s[3].min(1.0 - d[3]),
-                11 => 1.0,
-                14 => bf[k],
-                15 => 1.0 - bf[k],
-                _ => return Err(Fail::Bad),
-            })
-        };
-        let separate = !self.v8 && self.rs(206) != 0;
-        let mut out = [0.0; 4];
-        for k in 0..4 {
-            let alpha = separate && k == 3;
-            let (mut sf, mut df, op) = if alpha { (self.rs(207), self.rs(208), self.rs(209)) } else { (self.rs(19), self.rs(20), self.rs(171)) };
-            if [sf, df].iter().any(|f| matches!(f, 12 | 13)) {
-                if alpha {
-                    hit(clause::D3D9_BLEND_BOTHALPHA);
-                    let zero = |f: u32| if matches!(f, 12 | 13) { 1 } else { f };
-                    (sf, df) = (zero(sf), zero(df));
-                } else {
-                    (sf, df) = if sf == 12 || sf != 13 && df == 12 { (5, 6) } else { (6, 5) };
-                }
-            }
-            let (a, b) = (s[k] * factor(sf, k)?, d[k] * factor(df, k)?);
-            out[k] = match blend_op(op) {
-                BlendOp::Add => a + b,
-                BlendOp::Sub => a - b,
-                BlendOp::RevSub => b - a,
-                BlendOp::Min => s[k].min(d[k]),
-                BlendOp::Max => s[k].max(d[k]),
-            } as f64;
+        BlendStates {
+            src: self.rs(19),
+            dst: self.rs(20),
+            op: self.rs(171),
+            separate: !self.v8 && self.rs(206) != 0,
+            src_alpha: self.rs(207),
+            dst_alpha: self.rs(208),
+            op_alpha: self.rs(209),
+            factor: blend_color(self.v8, self.rs(193)),
         }
-        Ok(out)
     }
 
     fn blend(&self, fmt: u32, s: [f64; 4], d: [f64; 4]) -> Res<[f64; 4]> {
         let fm = format(fmt).ok_or(Fail::Bad)?;
         if fm.kind != Kind::Int || fm.ch.iter().any(|c| c.c != b'x' && (c.bits != 8 || !matches!(c.c, b'r' | b'g' | b'b' | b'a'))) {
-            hit(clause::D3D9_BLEND_FORMAT);
-            return self.blend_float(s, d);
+            return blend_float(s, d, &self.blend_states()).ok_or(Fail::Bad);
         }
         let (s, d) = (s.map(|x| unorm(x, 8) as i64), d.map(|x| unorm(x, 8) as i64));
         let c = blend_color(self.v8, self.rs(193));
@@ -2892,6 +2855,73 @@ pub fn blend_op(op: u32) -> BlendOp {
             BlendOp::Max
         }
     }
+}
+
+/// what blending reads of the render states: SRCBLEND, DESTBLEND, BLENDOP, (9)
+/// SEPARATEALPHABLENDENABLE and the alpha's SRCBLENDALPHA, DESTBLENDALPHA, BLENDOPALPHA, and
+/// the BLENDFACTOR color (blend_color)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct BlendStates {
+    pub src: u32,
+    pub dst: u32,
+    pub op: u32,
+    pub separate: bool,
+    pub src_alpha: u32,
+    pub dst_alpha: u32,
+    pub op_alpha: u32,
+    pub factor: u32,
+}
+
+/// a blend factor (D3DBLEND) of channel k in f32, of the clamped source s, the destination d and
+/// the BLENDFACTOR color's channels bf; none outside the enumeration and for the BOTH ones
+/// (both_alpha turns them first)
+fn factor_f32(f: u32, k: usize, s: [f32; 4], d: [f32; 4], bf: [f32; 4]) -> Option<f32> {
+    let (sk, dk, bk) = (*s.get(k)?, *d.get(k)?, *bf.get(k)?);
+    Some(match f {
+        1 => 0.0,
+        2 => 1.0,
+        3 => sk,
+        4 => 1.0 - sk,
+        5 => s[3],
+        6 => 1.0 - s[3],
+        7 => d[3],
+        8 => 1.0 - d[3],
+        9 => dk,
+        10 => 1.0 - dk,
+        11 if k < 3 => s[3].min(1.0 - d[3]),
+        11 => 1.0,
+        14 => bk,
+        15 => 1.0 - bk,
+        _ => return None,
+    })
+}
+
+/// blending on a target of any format but 8-bit unsigned ones (MEASURED d3d9draw blend-fmt-*,
+/// 95 cases; D3D9.BLEND.FORMAT): in f32, the source clamped to 0..1, the destination as read,
+/// source * its factor OP destination * its factor, MIN and MAX of the two alone; the alpha by
+/// the separate states where they are on; the result written as the format writes; none for a
+/// factor outside the enumeration; spec/lean/Kikizake/D3d9/Blend.lean `blendFloat`
+pub fn blend_float(s: [f64; 4], d: [f64; 4], b: &BlendStates) -> Option<[f64; 4]> {
+    hit(clause::D3D9_BLEND_FORMAT);
+    let s = s.map(|x| x.clamp(0.0, 1.0) as f32);
+    let d = d.map(|x| x as f32);
+    let bf = argb(b.factor).map(|v| v as f32);
+    let mut out = [0.0; 4];
+    for (k, o) in out.iter_mut().enumerate() {
+        let alpha = b.separate && k == 3;
+        let (sf, df, op) = if alpha { (b.src_alpha, b.dst_alpha, b.op_alpha) } else { (b.src, b.dst, b.op) };
+        let (sf, df) = both_alpha(sf, df, alpha);
+        let (sk, dk) = (*s.get(k)?, *d.get(k)?);
+        let (x, y) = (sk * factor_f32(sf, k, s, d, bf)?, dk * factor_f32(df, k, s, d, bf)?);
+        *o = f64::from(match blend_op(op) {
+            BlendOp::Add => x + y,
+            BlendOp::Sub => x - y,
+            BlendOp::RevSub => y - x,
+            BlendOp::Min => sk.min(dk),
+            BlendOp::Max => sk.max(dk),
+        });
+    }
+    Some(out)
 }
 
 /// the BLENDFACTOR color blends take: Direct3D 8 has no BLENDFACTOR state, yet BLENDFACTOR and

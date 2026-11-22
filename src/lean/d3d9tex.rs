@@ -1,11 +1,13 @@
 //! Direct3D 9's texture, stage chain and pixel mirrors (spec/lean/Kikizake/D3d9/Tex.lean and
 //! the files after it).
 use super::{arg, arg_f64, every, f64_halves, sampled, Domain, Mirror};
-use crate::model::d3d9draw::{self, AlphaRule, DrawGate, StageDesc, Step, TexFilter};
+use crate::model::d3d9draw::{self, AlphaRule, BlendStates, DrawGate, StageDesc, Step, TexFilter};
 
+const U32: i64 = 0xffff_ffff;
 const TEX: &str = "spec/lean/Kikizake/D3d9/Tex.lean";
 const TEXEL: &str = "spec/lean/Kikizake/D3d9/Texel.lean";
 const CHAIN: &str = "spec/lean/Kikizake/D3d9/Chain.lean";
+const BLEND: &str = "spec/lean/Kikizake/D3d9/Blend.lean";
 /// COLOROPs and ALPHAOPs of the plan: DISABLE, SELECTARG1, MODULATE, PREMODULATE, the bump mapping
 /// ones, DOTPRODUCT3, one past LERP
 const PLAN_OPS: [i64; 8] = [1, 2, 4, 17, 22, 23, 24, 27];
@@ -267,6 +269,47 @@ pub static MIRRORS: &[Mirror] = &[
             let sc = d3d9draw::bump_scale(f(22)?, l);
             let pm = d3d9draw::premodulate(f(22)?, f(24)?);
             Some([u, v, l, sc, pm].iter().flat_map(|&x| f64_halves(x)).collect())
+        },
+    },
+    Mirror {
+        name: "d3d9.blendf",
+        lean: BLEND,
+        domain: Domain::Sampled("every SRCBLEND and DESTBLEND 0..16 by BLENDOP 0..7 and 0xffffffff, separate alpha on and off, on random channels; 400,000 samples of those with every alpha state; channels of f32 in -0.5..1.5, 0, -0, 1, NaN, infinities and any f32 bits"),
+        inputs: |each| {
+            let mut rng = crate::rng::XorShift32::new(0xb1e0_d009);
+            let special = [0.0f32, -0.0, 1.0, 0.5, f32::NAN, f32::INFINITY, f32::NEG_INFINITY, 2.0, -1.0];
+            let chan = |rng: &mut crate::rng::XorShift32| -> f64 {
+                f64::from(match rng.range(0, 3) {
+                    0 => special.get(usize::try_from(rng.range(0, 8)).unwrap_or(0)).copied().unwrap_or(0.0),
+                    1 => f32::from_bits(rng.next()),
+                    _ => -0.5 + 2.0 * (f32::from(u16::try_from(rng.range(0, 0xffff)).unwrap_or(0)) / 65535.0),
+                })
+            };
+            let mut send = |st: [i64; 8], rng: &mut crate::rng::XorShift32| {
+                let mut w: Vec<i64> = (0..8).flat_map(|_| f64_halves(chan(rng))).collect();
+                w.extend(st);
+                each(&w);
+            };
+            let ops = [0, 1, 2, 3, 4, 5, 6, 7, 0xffff_ffff];
+            for sf in 0..=16 {
+                for df in 0..=16 {
+                    for op in ops {
+                        for sep in 0..2 {
+                            let st = [sf, df, op, sep, rng.range(0, 16), rng.range(0, 16), ops.get(usize::try_from(rng.range(0, 8)).unwrap_or(0)).copied().unwrap_or(1), rng.range(0, U32)];
+                            send(st, &mut rng);
+                        }
+                    }
+                }
+            }
+            for _ in 0..400_000 {
+                let st = [rng.range(0, 16), rng.range(0, 16), rng.range(0, 7), rng.range(0, 1), rng.range(0, 16), rng.range(0, 16), rng.range(0, 7), rng.range(0, U32)];
+                send(st, &mut rng);
+            }
+        },
+        model: |a| {
+            let c4 = |i: usize| -> Option<[f64; 4]> { Some([arg_f64(a, i)?, arg_f64(a, i.checked_add(2)?)?, arg_f64(a, i.checked_add(4)?)?, arg_f64(a, i.checked_add(6)?)?]) };
+            let b = BlendStates { src: arg(a, 16)?, dst: arg(a, 17)?, op: arg(a, 18)?, separate: arg::<u8>(a, 19)? != 0, src_alpha: arg(a, 20)?, dst_alpha: arg(a, 21)?, op_alpha: arg(a, 22)?, factor: arg(a, 23)? };
+            Some(d3d9draw::blend_float(c4(0)?, c4(8)?, &b).map_or(vec![], |v| v.iter().flat_map(|&x| f64_halves(x)).collect()))
         },
     },
 ];

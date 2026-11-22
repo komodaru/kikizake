@@ -113,6 +113,7 @@ fn unconfined_uses_are_found() {
         ("fn fill_bytes(w: usize) -> usize { w.div_ceil(4) * b }", "create_level"),
         ("fn stages(&self) { let r = self.tss(st, 2) & 0xf == 2; }", "stage_plan"),
         ("fn stages(&self) { t[k] = ((c * l * 255.0).round_ties_even() / 255.0) as f64; }", "bump_scale"),
+        ("fn blend(&self) { let s = s.map(|x| x.clamp(0.0, 1.0) as f32); let f = s[3].min(1.0 - d[3]); }", "blend_float"),
     ];
     for (code, only) in inlined {
         let r = rust("src/model/d3d9draw.rs", code);
