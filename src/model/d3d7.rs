@@ -1411,7 +1411,6 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
         Cull::Ccw => area < 0,
         Cull::Cw => area > 0,
     };
-    let several = tri.c[0] != tri.c[1] || tri.c[0] != tri.c[2] || tri.spec[0] != tri.spec[1] || tri.spec[0] != tri.spec[2];
     let drawn = match (st.fill, family) {
         (Fill::Solid, _) => !culled,
         // (points or wireframe of a flat triangle, the HAL's of several colors: not measured)

@@ -960,5 +960,34 @@ pub fn d3d7dev() -> String {
         }
         writeln!(s, "end");
     }
+    // D3D7.STATES.OTHER: states set past their enumeration (and SHADE_PHONG), then a triangle of
+    // three colours; D3D7.TRI.CLIP: a vertex past the software guard band
+    let bad: [(&str, &str); 12] = [
+        ("cull0", "22 0"),
+        ("cull4", "22 4"),
+        ("fill0", "8 0"),
+        ("fill4", "8 4"),
+        ("shade0", "9 0"),
+        ("shade3", "9 3"),
+        ("shade4", "9 4"),
+        ("afunc0", "15 1\nd3drs set 24 0x80\nd3drs set 25 0"),
+        ("afunc9", "15 1\nd3drs set 24 0x80\nd3drs set 25 9"),
+        ("src0", "27 1\nd3drs set 19 0"),
+        ("src14", "27 1\nd3drs set 19 14"),
+        ("dst14", "27 1\nd3drs set 20 14"),
+    ];
+    for &(v, d) in DRAWERS {
+        for (name, set) in bad {
+            writeln!(s, "case badstate-{v}-{d}-{name}\nd3d {v}\nd3ddev {d} 565 12 12\nd3drs set 22 1\nd3drs set {set}");
+            writeln!(s, "d3dclear 0x00404040\nd3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165\nd3ddump\nd3dclear 0x00404040\nd3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60\nd3ddump\nend");
+        }
+    }
+    for (v, d) in [(7, "rgb"), (7, "mmx"), (3, "rgb"), (2, "rgb"), (3, "mmx")] {
+        writeln!(s, "case farvert-{v}-{d}\nd3d {v}\nd3ddev {d} 565 12 12\nd3drs set 22 1");
+        for p in ["8 8 70000 40 40 170", "8 8 40 170 -70000 90", "16 16 170 30 90 66000", "-66000 -66000 170 30 90 170"] {
+            writeln!(s, "d3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff {p}\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
     s
 }
