@@ -10364,3 +10364,155 @@ wframe 0
 winfo
 wpixels
 end
+case wmpframe-opt-0
+wbits bgra 7 5 193134592
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-opt-1
+wbits bgra 7 5 193134593
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-opt-2
+wbits bgra 7 5 193134594
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-opt-3
+wbits bgra 7 5 193134595
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp BitmapTransform=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-opt-4
+wbits bgra 7 5 193134596
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp Overlap=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-opt-5
+wbits gray8 7 5 193134597
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp ImageQuality=0.9
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-opt-6
+wbits bgra 7 5 193134598
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp bgr24
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-opt-7
+wbits bgr24 7 5 193134599
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp bgra
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-0-gray8
+wbits gray8 16 9 193200128
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-1-gray8
+wbits gray8 2 3 193200129
+wencode wmp ImageQuality=0.5 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-2-gray8
+wbits gray8 5 4 193200130
+wencode wmp ImageQuality=0.8 BitmapTransform=9
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-3-gray8
+wbits gray8 4 4 193200131
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-4-gray16
+wbits gray16 3 2 193200132
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-5-bw
+wbits bw 9 3 193200133
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-6-bgr24
+wbits bgr24 3 2 193200134
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-7-gray8
+wbits gray8 3 2 193200135
+wencode wmp Lossless=1 BitmapTransform=2
+wredecode
+wframe 0
+winfo
+wpixels
+end

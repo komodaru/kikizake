@@ -745,8 +745,11 @@ impl Ctx {
             0xb03 => self.tex.coord.iter().map(|x| F(*x)).collect(),
             // (the raster position's texture coordinates, as glRasterPos set them)
             0xb06 => self.raster_tex.map(F).to_vec(),
-            0xb04 => c4([1.0; 4]),
-            0xb05 => vec![F(1.0)],
+            // (the raster position's color and index, as glRasterPos took them of the current
+            // ones, the color as the rasterizer holds it, scaled to 255 and back by 1/255 in
+            // float32: golden opengl attrib-more-current-pushed-line, 30 as 0x3df0f0f2)
+            0xb04 => c4(if pf.ty != 0 { [1.0; 4] } else { self.raster_color.map(|v| (v * 255.0) * (1.0 / 255.0)) }),
+            0xb05 => vec![F(if pf.ty != 0 { self.raster_color[0] } else { 1.0 })],
             0xb07 => self.raster_get.iter().map(|x| F(*x)).collect(),
             0xb08 => vec![B(self.raster.is_some())],
             0xb09 => vec![F(0.0)],

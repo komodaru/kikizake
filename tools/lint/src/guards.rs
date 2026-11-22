@@ -45,6 +45,9 @@ use crate::code::{code_only, line_of};
 
 /// (file, what (a regular expression), the functions it may appear in): `confined`
 pub const CONFINED: &[(&str, &str, &[&str])] = &[
+    // (the current source and which decoder's frame it is change together, golden wmpframe-*:
+    // a frame of JPEG XR's written again by JPEG XR's encoder keeps its pixels)
+    ("src/model/wicimage.rs", r"self\.cur\s*=\s*|self\.from\s*=\s*", &["set_cur", "op"]),
     ("src/model/ddraw.rs", r"\.px\[", &["get", "pixel", "set", "put"]),
     ("src/model/d3dx9.rs", r"\bf16_(sse|one|x64|x64_tail)\s*\(", &["half"]),
     // (a stage argument's selector and modifiers are stage_arg's, which the Lean mirror d3d9.arg
@@ -105,7 +108,7 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
     ("src/model/opengl_list.rs", r#""gltex"\s*\|\s*"glmat"|"glmat"\s*\|\s*"glfogv"\s*\|\s*"gldraw"\s*\|\s*"gltex"\s*=>\s*Kind::Compiled\s*,\s*\n\s*_\s*=>"#, "a glTexImage of a proxy target runs at once, outside the list (GL 1.1 3.8.3; list-more-proxy-*): its gltex arm comes before the compiled ones (review of 84b05c8, 3.5)"),
     ("src/model/jxr.rs", r">>=?\s*\(?\s*1\s*-\s*e1", "float2pixel's shift by 1 - e1 reaches 32 and more (float-shift-*): it is a wrapping_shr, x86's SAR count mod 32, not Rust's >>, which panics there in a debug build (review of 84b05c8, 5)"),
     ("src/model/d3d9draw.rs", r"draw\.(fvf|decl|decl_from)\s*=[^=]", "the FVF and the declaration change together through set_fvf and set_decl, which spec/tla/D3D9Fvf.tla's replay holds to fvf-decl-order-*; one set on its own leaves the other stale"),
-    ("src/model/opengl.rs", r"0xd16\s*\|\s*0xd17\s*=>|0xd1[01]\s*=>\s*vec!\[B\(false\)\]|0xd1[23]\s*=>\s*i\(0\)|0xb06\s*=>\s*vec!\[F\(0\.0\)|0xd1e\s*=>\s*vec!\[F\(1\.0\)\]", "glGet reads the state glPixelZoom, glPixelTransfer and glRasterPos set (the pixel mode and raster position the attribute stack gives back), not its initial value (review of 84b05c8, 3.3)"),
+    ("src/model/opengl.rs", r"0xd16\s*\|\s*0xd17\s*=>|0xd1[01]\s*=>\s*vec!\[B\(false\)\]|0xd1[23]\s*=>\s*i\(0\)|0xb06\s*=>\s*vec!\[F\(0\.0\)|0xd1e\s*=>\s*vec!\[F\(1\.0\)\]|0xb04\s*=>\s*c4\(\[1\.0;\s*4\]\)|0xb05\s*=>\s*vec!\[F\(1\.0\)\]", "glGet reads the state glPixelZoom, glPixelTransfer and glRasterPos set (the pixel mode and raster position the attribute stack gives back), not its initial value (review of 84b05c8, 3.3; the raster color: golden attrib-more-current-pushed-line)"),
     ("src/model/gdiplus.rs", r"\*\s*\(\s*256\s*-\s*wt\s*\)|\(\s*2\s*\*\s*\(\s*c0\b", "a hatch texel's mix and an antialiased pixel's share are the pure hatch_mix and coverage_share the Lean mirrors gp.hatch_mix, gp.coverage_share hold equal to spec/lean/Kikizake/GdiPlus/Blend.lean; a copy inlined in paint escapes them"),
     ("src/model/jpeg.rs", r"Chroma::H1V2\s*=>\s*repeat\s*\(", "4:4:0's chroma rows are interpolated 3:1 (opt-jpeg-subs-*-4), not repeated"),
     ("src/calls.rs", r"\[\s*(open|close)\s*\+|\[\s*\.\.\s*open\s*\]", "a call line is split (split_once, rsplit_once), not sliced at positions found apart: \") = (\" panicked (review of 8480456, 5.4)"),

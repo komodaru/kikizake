@@ -1290,3 +1290,32 @@ mod options_again {
         }
     }
 }
+
+/// a JPEG XR decoder's frame written again by JPEG XR's encoder with no option keeps the frame's
+/// pixels (WICIMAGE.ENCODE.WMP.FRAME), and a quarter turned 8bppGray file's frame copies
+/// nothing (WICIMAGE.ENCODE.WMP.TURNGRAY), whatever the size, quality and seed
+mod wmp_frames {
+    use super::*;
+    fn run(text: &str) -> Vec<String> {
+        kikizake::model::run("wicencode", &kikizake::case::parse_cases(text)).lines().map(str::to_string).collect()
+    }
+    fn pixels(out: &[String]) -> Vec<String> {
+        out.iter().skip_while(|l| !l.starts_with("wpixels")).take_while(|l| !l.starts_with("case") && *l != "done").cloned().collect()
+    }
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(48))]
+        #[test]
+        fn a_frame_written_again_keeps_its_pixels(f in prop_oneof![Just("bgra"), Just("gray8"), Just("bgr24")], w in 1u32..12, h in 1u32..12, q in prop_oneof![Just(" ImageQuality=0.5"), Just(" Lossless=1"), Just("")], seed: u32) {
+            let first = format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp{q}\nwredecode\nwframe 0\nwpixels\nend\n");
+            let again = format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp{q}\nwredecode\nwframe 0\nwencode wmp\nwredecode\nwframe 0\nwpixels\nend\n");
+            prop_assert_eq!(pixels(&run(&first)), pixels(&run(&again)));
+        }
+
+        #[test]
+        fn a_quarter_turned_gray_file_copies_nothing(w in 1u32..12, h in 1u32..12, t in prop_oneof![Just(1u32), Just(9)], q in prop_oneof![Just("Lossless=1"), Just("ImageQuality=1"), Just("ImageQuality=0.5")], seed: u32) {
+            let out = run(&format!("case a\nwbits gray8 {w} {h} {seed}\nwencode wmp {q} BitmapTransform={t}\nwredecode\nwframe 0\nwinfo\nwpixels\nend\n"));
+            prop_assert!(out.iter().any(|l| *l == format!("winfo 00000000 {h} {w} gray8 0.000 0.000")), "{:?}", out);
+            prop_assert!(out.iter().any(|l| l == "wpixels 88982f48 8"), "{:?}", out);
+        }
+    }
+}

@@ -395,6 +395,8 @@ fn attribute_groups_with_a_rest_are_found() {
     // (the readbacks of the review: zoom 1 and raster coordinates 0 whatever was set)
     let get = "fn get(&self, p: u32) -> Vec<V> {\n    match p {\n        0xd16 | 0xd17 => vec![F(1.0)],\n        0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],\n    }\n}\n";
     assert_eq!(rust("src/model/opengl.rs", get).iter().filter(|b| b.contains("forbidden: glGet")).count(), 2);
+    let color = "fn get(&self, p: u32) -> Vec<V> {\n    match p {\n        0xb04 => c4([1.0; 4]),\n        0xb05 => vec![F(1.0)],\n    }\n}\n";
+    assert_eq!(rust("src/model/opengl.rs", color).iter().filter(|b| b.contains("forbidden: glGet")).count(), 2);
 }
 
 #[test]
@@ -442,4 +444,12 @@ fn view_slots_and_removed_views_keep_the_executors_order() {
     assert_eq!(r.iter().filter(|b| b.contains("forbidden: on a removed device a view of an empty slot")).count(), 1, "{r:?}");
     let new = "fn view() {\n    if !check {\n        self.views.empty(v);\n    }\n    if kind == 3 && !dev.d3d11() {\n        out.push(\"uav none\".into());\n        return Ok(());\n    }\n}\nfn op() {\n    match name {\n        \"read\" => {\n            return Ok(true);\n        }\n        \"srv\" | \"rtv\" if self.res.at(slot(t, 2)?).is_none() => {\n            return Ok(true);\n        }\n        \"tex\" | \"buf\" if dev.d3d11() => {}\n        \"srv\" | \"rtv\" if dev.d3d11() => {}\n    }\n}\n";
     assert!(rust("src/model/d3dres.rs", new).is_empty(), "{:?}", rust("src/model/d3dres.rs", new));
+}
+
+#[test]
+fn current_sources_set_apart_are_found() {
+    // (a source set without set_cur keeps the decoder's frame it replaced as its own)
+    let old = "fn flipper(&mut self) {\n    self.cur = Some(flip(c, o));\n}\n";
+    assert!(rust("src/model/wicimage.rs", old).iter().any(|b| b.contains("confined")), "{:?}", rust("src/model/wicimage.rs", old));
+    assert!(rust("src/model/wicimage.rs", "fn flipper(&mut self) {\n    self.set_cur(flip(c, o));\n}\n").is_empty());
 }

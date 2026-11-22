@@ -1895,6 +1895,16 @@ pub fn wicencode() -> String {
             writeln!(s, "case optset-{k}-{c}-{f}\nwbits {f} {w} {h} {seed}\nwencode {c} {o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
         }
     }
+    // (added after) a JPEG XR decoder's frame written again by JPEG XR's encoder with an option,
+    // or in another format (whether the frame's pixels are still kept, WICIMAGE.ENCODE.WMP.FRAME)
+    for ((k, (o, f, to)), seed) in [(" ImageQuality=0.5", "bgra", ""), (" ImageQuality=1", "bgra", ""), (" Lossless=1", "bgra", ""), (" BitmapTransform=2", "bgra", ""), (" Overlap=0", "bgra", ""), (" ImageQuality=0.9", "gray8", ""), ("", "bgra", " bgr24"), ("", "bgr24", " bgra")].into_iter().enumerate().zip(0x0b83_0000u32..) {
+        writeln!(s, "case wmpframe-opt-{k}\nwbits {f} 7 5 {seed}\nwencode wmp ImageQuality=0.5\nwredecode\nwframe 0\nwencode wmp{to}{o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
+    }
+    // (added after) quarter turned 8bppGray files of other sizes, lossy too, and of the other
+    // gray formats (WICIMAGE.ENCODE.WMP.TURNGRAY: which of them copy)
+    for ((k, (f, w, h, o)), seed) in [("gray8", 16, 9, "Lossless=1 BitmapTransform=1"), ("gray8", 2, 3, "ImageQuality=0.5 BitmapTransform=1"), ("gray8", 5, 4, "ImageQuality=0.8 BitmapTransform=9"), ("gray8", 4, 4, "Lossless=1 BitmapTransform=1"), ("gray16", 3, 2, "Lossless=1 BitmapTransform=1"), ("bw", 9, 3, "Lossless=1 BitmapTransform=1"), ("bgr24", 3, 2, "Lossless=1 BitmapTransform=1"), ("gray8", 3, 2, "Lossless=1 BitmapTransform=2")].into_iter().enumerate().zip(0x0b84_0000u32..) {
+        writeln!(s, "case wmpturn-{k}-{f}\nwbits {f} {w} {h} {seed}\nwencode wmp {o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
+    }
     s
 }
 

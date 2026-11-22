@@ -699,12 +699,12 @@ pub static MIRRORS: &[Mirror] = &[
                     }
                 }
             }
-            let mut rng = crate::rng::XorShift32::new(0xd4a3_0001);
+            let mut rng = crate::rng::Sample64::new(0xd4a3_0001);
             for _ in 0..50_000 {
                 let (nv, size) = (rng.range(1, 30), rng.range(0, 16));
                 let len = nv * rng.range(0, 10) + if rng.chance(8) { rng.range(0, 3) } else { 0 };
                 let mut v = vec![nv, size];
-                v.extend((0..len).map(|_| i64::from(rng.next())));
+                v.extend((0..len).map(|_| i64::from(rng.word())));
                 each(&v);
             }
         },
@@ -725,9 +725,9 @@ pub static MIRRORS: &[Mirror] = &[
             for b in [0x7f80_0000u32, 0xff80_0000, 0x7fc0_0000, 0x5f00_0000, 0xdf00_0000, 0x5eff_ffff, 0xdeff_ffff, 0x8000_0000] {
                 each(&[i64::from(b)]);
             }
-            let mut rng = crate::rng::XorShift32::new(0xd4a3_0002);
+            let mut rng = crate::rng::Sample64::new(0xd4a3_0002);
             for _ in 0..300_000 {
-                each(&[i64::from(rng.next())]);
+                each(&[i64::from(rng.word())]);
             }
         },
         model: |a| one(d3d9draw::point_pixel(bits32(a, 0)?, 0.0).0),
@@ -737,7 +737,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: DRAW,
         domain: Domain::Sampled("every integer format number to 130, X written and not, 500 channel values each of any value of the channel's bits; the pixel as four 32-bit words, low first"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xd4a3_0003);
+            let mut rng = crate::rng::Sample64::new(0xd4a3_0003);
             for f in 0..=130u32 {
                 let Some(fm) = d3d9draw::format(f) else { continue };
                 if fm.kind != d3d9draw::Kind::Int {
@@ -748,7 +748,7 @@ pub static MIRRORS: &[Mirror] = &[
                         let mut v = vec![xa];
                         for c in &fm.ch {
                             let mask = 1u64.checked_shl(c.bits).map_or(u64::MAX, |m| m - 1);
-                            v.extend([i64::from(c.c), i64::from(c.shift), i64::try_from((u64::from(rng.next()) << 32 | u64::from(rng.next())) & mask).unwrap_or(0)]);
+                            v.extend([i64::from(c.c), i64::from(c.shift), i64::try_from((u64::from(rng.word()) << 32 | u64::from(rng.word())) & mask).unwrap_or(0)]);
                         }
                         each(&v);
                     }

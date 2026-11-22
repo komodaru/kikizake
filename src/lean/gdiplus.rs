@@ -143,9 +143,9 @@ fn draws(n: usize, count: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
 }
 
 /// a float the paths take: a multiple of 1/8 in -64..64 mostly, a moderate value, any pattern
-fn coord(rng: &mut crate::rng::XorShift32) -> u32 {
+fn coord(rng: &mut crate::rng::Sample64) -> u32 {
     match rng.range(0, 7) {
-        0 => rng.next(),
+        0 => rng.word(),
         1 | 2 => u32::try_from(rng.range(0x3c00_0000, 0x4300_0000)).unwrap_or(0) | if rng.chance(2) { 0x8000_0000 } else { 0 },
         _ => (f32::from(i16::try_from(rng.range(-512, 512)).unwrap_or(0)) / 8.0).to_bits(),
     }
@@ -153,7 +153,7 @@ fn coord(rng: &mut crate::rng::XorShift32) -> u32 {
 
 /// a path's coordinate: a multiple of 1/8 in -64..64 or a moderate value (any pattern makes
 /// Beziers of billions of points)
-fn path_coord(rng: &mut crate::rng::XorShift32) -> u32 {
+fn path_coord(rng: &mut crate::rng::Sample64) -> u32 {
     match rng.range(0, 3) {
         0 => u32::try_from(rng.range(0x3c00_0000, 0x4280_0000)).unwrap_or(0) | if rng.chance(2) { 0x8000_0000 } else { 0 },
         _ => (f32::from(i16::try_from(rng.range(-512, 512)).unwrap_or(0)) / 8.0).to_bits(),
@@ -162,7 +162,7 @@ fn path_coord(rng: &mut crate::rng::XorShift32) -> u32 {
 
 /// a matrix element: near 1 or 0 (within GpMatrix's tolerance or just past it), a small integer,
 /// a moderate value
-fn element(rng: &mut crate::rng::XorShift32, diagonal: bool) -> u32 {
+fn element(rng: &mut crate::rng::Sample64, diagonal: bool) -> u32 {
     let base: f32 = if diagonal { 1.0 } else { 0.0 };
     match rng.range(0, 5) {
         0 => base.to_bits(),
@@ -174,7 +174,7 @@ fn element(rng: &mut crate::rng::XorShift32, diagonal: bool) -> u32 {
 }
 
 /// a path's matrix element: as element gives it, but never far from 1
-fn path_element(rng: &mut crate::rng::XorShift32, diagonal: bool) -> u32 {
+fn path_element(rng: &mut crate::rng::Sample64, diagonal: bool) -> u32 {
     let e = element(rng, diagonal);
     if f32::from_bits(e).abs() < 16.0 { e } else { e & 0x80ff_ffff | 0x3f00_0000 }
 }
@@ -182,7 +182,7 @@ fn path_element(rng: &mut crate::rng::XorShift32, diagonal: bool) -> u32 {
 /// a path for Flatten: rounding, a matrix or none, the flatness, then (x, y, type) points of one
 /// to three figures of lines and Beziers, closed or not
 fn paths(count: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     for k in 0..count {
         let mut v = vec![i64::from(u8::from(k % 2 == 1)), i64::from(u8::from(rng.chance(2)))];
         for i in 0..6 {
@@ -219,7 +219,7 @@ fn paths(count: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
 
 /// four control points: spans within 14 bits, past them, far apart
 fn controls(count: usize, seed: u32, span: i64, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     for _ in 0..count {
         let (ox, oy) = (rng.range(span.saturating_neg(), span), rng.range(span.saturating_neg(), span));
         let s = match rng.range(0, 3) {
@@ -443,7 +443,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: FLATTEN,
         domain: Domain::Sampled("to nearest and down: 300,000 floats, 1/8 multiples, moderate values and any patterns"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x6c16_0016);
+            let mut rng = crate::rng::Sample64::new(0x6c16_0016);
             for k in 0..300_000u32 {
                 each(&[i64::from(u8::from(k % 2 == 1)), i64::from(coord(&mut rng))]);
             }
@@ -455,7 +455,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: FLATTEN,
         domain: Domain::Sampled("to nearest and down: 300,000 matrices of elements near 1 and 0 within and past the tolerance, and points"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x6c17_0017);
+            let mut rng = crate::rng::Sample64::new(0x6c17_0017);
             for k in 0..300_000u32 {
                 let mut v = vec![i64::from(u8::from(k % 2 == 1))];
                 for i in 0..6 {

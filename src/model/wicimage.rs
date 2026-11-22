@@ -3483,7 +3483,7 @@ fn encode_jpeg(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
     for y in 0..h {
         o.px[y * st..y * st + w * n].copy_from_slice(&j.px[y * w * n..(y + 1) * w * n]);
     }
-    Ok(Encoded::Lossy(j.bytes, "jpeg", o))
+    Ok(Encoded::Lossy(j.bytes, "jpeg", Written::Pixels(o)))
 }
 
 /// MEASURED (golden wicencode enc-wmp-*: every byte and pixel, see model::jxr): WIC's JPEG XR
@@ -3514,12 +3514,22 @@ fn encode_wmp(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
     let e = jxr::encode(&p, q);
     hit(clause::WICIMAGE_ENCODE_WMP);
     let mut o = Img::new(i.w, i.h, i.fmt);
-    o.dpi = (0.0, 0.0);
+    // (the source's resolution, none when it has none: golden opt-18-*, float-shift-0 / 1 of a
+    // TIFF frame's 96 dpi)
+    o.dpi = i.dpi;
     let (st, row) = (o.stride(), (w * fmt.bits()).div_ceil(8));
     for y in 0..h {
         o.px[y * st..y * st + row].copy_from_slice(&e.decoded[y * row..(y + 1) * row]);
     }
     let o = if t == 0 { o } else { flip(&o, t) };
+    // (a quarter turned 8bppGray file decodes to its size and format, but its CopyPixels fails:
+    // golden optset-0, 1, 8, 9-wmp-gray8, lossless and ImageQuality 1, where 32bppBGRA's copy)
+    let o = if rcw && i.fmt == "gray8" {
+        hit(clause::WICIMAGE_ENCODE_WMP_TURNGRAY);
+        Written::NoPixels(o, 0x8898_2f48)
+    } else {
+        Written::Pixels(o)
+    };
     Ok(Encoded::Lossy(e.file, "wmp", o))
 }
 
@@ -3667,13 +3677,35 @@ pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
     })
 }
 
+/// what a file the model has no decoder of decodes to: a frame of pixels, or one whose size and
+/// format are there and whose CopyPixels fails with the HRESULT
+#[derive(Clone)]
+pub enum Written {
+    Pixels(Img),
+    NoPixels(Img, u32),
+}
+
+impl Written {
+    pub fn frame(self) -> Frame {
+        match self {
+            Written::Pixels(i) => Frame::Pixels(i),
+            Written::NoPixels(i, hr) => Frame::NoPixels(i, hr),
+        }
+    }
+    fn img_mut(&mut self) -> &mut Img {
+        match self {
+            Written::Pixels(i) | Written::NoPixels(i, _) => i,
+        }
+    }
+}
+
 pub enum Encoded {
     Bytes(Vec<u8>),
     /// a lossless file the model has no bytes of: what decodes from it
-    Decodes(&'static str, Img),
+    Decodes(&'static str, Written),
     /// a file the model has the bytes of and, since its decoder is not modelled apart, what
     /// Windows' decoder gives from it
-    Lossy(Vec<u8>, &'static str, Img),
+    Lossy(Vec<u8>, &'static str, Written),
 }
 
 /* ---------------------------------------------------------------------------------------- */
@@ -3700,6 +3732,12 @@ impl Big {
 }
 
 impl WicImage {
+    /// a new current source, no decoder's frame as selected
+    fn set_cur(&mut self, img: Img) {
+        self.cur = Some(img);
+        self.from = None;
+    }
+
     /// a command on a scaler too large to hold (MEASURED, golden wicscale bigread-*): the pixels
     /// of a rectangle are those of that rectangle of the whole picture, each made from the source
     /// alone; a clipper over it is the same part; a picture of no more than 2^22 pixels so cut is
@@ -3769,9 +3807,9 @@ impl WicImage {
                 if u64::from(w) * u64::from(h) <= 1 << 22 {
                     let mut p = wic_convert(&big.part(x, y, w, h)?, c.fmt)?;
                     p.dpi = dpi;
-                    self.cur = Some(p);
+                    self.set_cur(p);
                 } else {
-                    self.cur = Some(Img { w, h, px: vec![], ..c.clone() });
+                    self.set_cur(Img { w, h, px: vec![], ..c.clone() });
                     self.big = Some(Big { at: (big.at.0 + x, big.at.1 + y), of: (w, h, c.fmt), ..big });
                 }
                 Ok(true)
@@ -3786,6 +3824,9 @@ impl WicImage {
 #[derive(Default)]
 pub struct WicImage {
     cur: Option<Img>,
+    /// the container of the decoder whose frame `cur` is, as selected (no other operation since):
+    /// set only by set_cur and wframe
+    from: Option<&'static str>,
     /// the scaler behind `cur` when it is too large to hold (`cur` its size, no pixels): made
     /// only in the parts that are read
     big: Option<Big>,
@@ -3901,7 +3942,7 @@ impl WicImage {
                 }
                 let seed = if t[4] == "ramp" { None } else { Some(n(4)? as u32) };
                 out.push("wbits 00000000".into());
-                self.cur = Some(bitmap(crate::model::wic::FORMATS[f].0, w as u32, h as u32, seed)?);
+                self.set_cur(bitmap(crate::model::wic::FORMATS[f].0, w as u32, h as u32, seed)?);
             }
             WOp::Wscale => {
                 let (w, h) = (n(1)?, n(2)?);
@@ -3936,12 +3977,12 @@ impl WicImage {
                     let mode = ["nn", "linear", "cubic", "fant", "hqcubic"].into_iter().find(|x| *x == m).ok_or(Fail::Bad)?;
                     let (w, h) = (w as u32, h as u32);
                     self.big = (!c.px.is_empty()).then(|| Big { src: c.clone(), w, h, mode, at: (0, 0), of: (w, h, of) });
-                    self.cur = Some(Img { w, h, px: vec![], fmt: of, ..Img::new(1, 1, wf) });
+                    self.set_cur(Img { w, h, px: vec![], fmt: of, ..Img::new(1, 1, wf) });
                     self.cur.as_mut().ok_or(Fail::Empty)?.dpi = c.dpi;
                     return Ok(true);
                 }
                 let s = scale(c, w as u32, h as u32, m)?;
-                self.cur = Some(s);
+                self.set_cur(s);
             }
             WOp::Wflip => {
                 // MEASURED (golden wictransform flipbad-*: 17 values): the bits besides the
@@ -3953,7 +3994,7 @@ impl WicImage {
                 let o = o & 0x1b;
                 hit(clause::WICIMAGE_FLIP);
                 out.push("wflip 00000000".into());
-                self.cur = Some(flip(self.cur.as_ref().ok_or(Fail::Empty)?, o));
+                self.set_cur(flip(self.cur.as_ref().ok_or(Fail::Empty)?, o));
             }
             WOp::Wclip => {
                 let (x, y, w, h) = (n(1)?, n(2)?, n(3)?, n(4)?);
@@ -3964,7 +4005,7 @@ impl WicImage {
                 } else {
                     hit(clause::WICIMAGE_CLIP);
                     out.push("wclip 00000000".into());
-                    self.cur = Some(clip(c, x as u32, y as u32, w as u32, h as u32));
+                    self.set_cur(clip(c, x as u32, y as u32, w as u32, h as u32));
                 }
             }
             WOp::Wconv => {
@@ -3972,7 +4013,7 @@ impl WicImage {
                 hit(clause::WICIMAGE_CONVERT);
                 let c = wic_convert(self.cur.as_ref().ok_or(Fail::Empty)?, to)?;
                 out.push("wconv 00000000".into());
-                self.cur = Some(c);
+                self.set_cur(c);
             }
             WOp::Wcolor => {
                 let (a, b, f) = (n(1)?, n(2)?, fmt_static(t.get(3).ok_or(Fail::Bad)?));
@@ -4000,7 +4041,7 @@ impl WicImage {
                         hit(clause::WICIMAGE_COLOR_SAME);
                     } else {
                         let o = color_pixels(c, space(a), space(b), f)?;
-                        self.cur = Some(o);
+                        self.set_cur(o);
                     }
                 }
             }
@@ -4129,23 +4170,25 @@ impl WicImage {
                 // frame once; selected again it is a failed one)
                 let big = matches!(f, Ok(Frame::Pixels(g) | Frame::NoPixels(g, _)) if g.px.len() > 1 << 24);
                 let f = if big { std::mem::replace(f, Err(Fail::Bad)) } else { f.clone() }?;
+                let container = d.container;
                 hit(clause::WICIMAGE_FRAME);
                 out.push("wframe 00000000".into());
                 match f {
                     Frame::Pixels(f) => {
-                        self.cur = Some(f);
+                        self.set_cur(f);
+                        self.from = Some(container);
                         self.fail = None;
                     }
                     Frame::NoInfo(hr) => {
-                        self.cur = Some(Img::new(0, 0, "bgra"));
+                        self.set_cur(Img::new(0, 0, "bgra"));
                         self.fail = Some(FrameFail::NoInfo(hr));
                     }
                     Frame::NoPixels(f, hr) => {
-                        self.cur = Some(f);
+                        self.set_cur(f);
                         self.fail = Some(FrameFail::NoPixels(hr));
                     }
                     Frame::ShortRows(f, ok, hr) => {
-                        self.cur = Some(f);
+                        self.set_cur(f);
                         self.fail = Some(FrameFail::ShortRows(ok, hr));
                     }
                 }
@@ -4249,19 +4292,28 @@ impl WicImage {
                 let enc = match cont {
                     // (MEASURED: golden opt-0-bgra: a v5 header keeps 32bppBGRA's alpha, it decodes as
                     // 32bppBGRA; without, as 32bppBGR)
-                    "bmp" if opts.v5 && img.fmt == "bgra" => Encoded::Decodes("bmp", img),
+                    "bmp" if opts.v5 && img.fmt == "bgra" => Encoded::Decodes("bmp", Written::Pixels(img)),
                     "bmp" => Encoded::Bytes(encode_bmp(&img)?),
                     "png" | "tiff" => {
                         hit(clause::WICIMAGE_ENCODE_LOSSLESS);
-                        Encoded::Decodes(if cont == "png" { "png" } else { "tiff" }, img)
+                        Encoded::Decodes(if cont == "png" { "png" } else { "tiff" }, Written::Pixels(img))
                     }
                     "gif" => Encoded::Bytes(encode_gif(&img)?),
-                    // (lossless: the pixels kept, and turned as BitmapTransform writes the
-                    // file's orientation, as the lossy file's)
-                    "wmp" if opts.wmp_lossless => {
-                        hit(clause::WICIMAGE_ENCODE_WMP);
-                        Encoded::Decodes("wmp", if opts.wmp_transform == 0 { img } else { flip(&img, opts.wmp_transform) })
+                    // (lossless: JPEG XR's integers kept, as ImageQuality 1 keeps them, so a
+                    // float's is float2pixel's (golden float-shift-2: past a shift of 31 its
+                    // count mod 32), and turned as BitmapTransform writes the file's
+                    // orientation, as the lossy file's)
+                    // (a JPEG XR decoder's frame written by JPEG XR's encoder, no option given,
+                    // in its own format: its pixels as decoded, not encoded again (golden
+                    // wmpframe-0..2, 12..14: lossy and lossless files alike))
+                    "wmp" if self.from == Some("wmp") && bag.last().next().is_none() && nf == c.fmt => {
+                        hit(clause::WICIMAGE_ENCODE_WMP_FRAME);
+                        Encoded::Decodes("wmp", Written::Pixels(img))
                     }
+                    "wmp" if opts.wmp_lossless => match encode_wmp(&img, EncodeOptions { wmp_quality: Some(1.0), ..opts })? {
+                        Encoded::Lossy(_, _, o) => Encoded::Decodes("wmp", o),
+                        Encoded::Bytes(_) | Encoded::Decodes(..) => return Err(Fail::Bad),
+                    },
                     "wmp" => encode_wmp(&img, opts)?,
                     "jpeg" => encode_jpeg(&img, opts)?,
                     "dds" => Encoded::Bytes(encode_dds(&img)?),
@@ -4289,22 +4341,22 @@ impl WicImage {
                     self.decode_into("wredecode", &b, out)?;
                     self.enc = Some(Encoded::Bytes(b));
                 }
-                Some(Encoded::Decodes(cont, img)) => {
+                Some(Encoded::Decodes(cont, written)) => {
                     out.push(format!("wredecode 00000000 {cont} frames 1"));
-                    let mut i = img.clone();
+                    let mut f = written.clone();
                     // (MEASURED: written at 96 dpi when the source has none, but by WMP's
                     // encoder (golden opt-18-*: 0 dpi))
+                    let i = f.img_mut();
                     if i.dpi == (0.0, 0.0) && cont != "wmp" {
                         i.dpi = (96.0, 96.0);
                     }
-                    i.pal = img.pal.clone();
-                    self.dec = Some(Decoded { container: cont, frames: vec![Ok(Frame::Pixels(i))] });
-                    self.enc = Some(Encoded::Decodes(cont, img));
+                    self.dec = Some(Decoded { container: cont, frames: vec![Ok(f.frame())] });
+                    self.enc = Some(Encoded::Decodes(cont, written));
                 }
-                Some(Encoded::Lossy(b, cont, img)) => {
+                Some(Encoded::Lossy(b, cont, written)) => {
                     out.push(format!("wredecode 00000000 {cont} frames 1"));
-                    self.dec = Some(Decoded { container: cont, frames: vec![Ok(Frame::Pixels(img.clone()))] });
-                    self.enc = Some(Encoded::Lossy(b, cont, img));
+                    self.dec = Some(Decoded { container: cont, frames: vec![Ok(written.clone().frame())] });
+                    self.enc = Some(Encoded::Lossy(b, cont, written));
                 }
             },
         }

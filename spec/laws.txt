@@ -698,3 +698,5 @@ spec/lean/Kikizake/D3d9/Draw.lean::stride_read lean D3D9.DRAW.STRIDE
 spec/lean/Kikizake/D3d9/Draw.lean::nearest_pixel lean D3D9.DRAW.POINTS
 spec/lean/Kikizake/D3d9/Draw.lean::xzero lean D3D9.DRAW.XZERO
 spec/lean/Kikizake/D3d9/Draw.lean::xzero_any lean D3D9.DRAW.XZERO
+tests/wicimage_laws.rs::a_frame_written_again_keeps_its_pixels pbt WICIMAGE.ENCODE.WMP.FRAME
+tests/wicimage_laws.rs::a_quarter_turned_gray_file_copies_nothing pbt WICIMAGE.ENCODE.WMP.TURNGRAY
