@@ -98,6 +98,16 @@ tests/laws_d3d12.rs::unsigned_small_floats_never_negative pbt D3D12.CLEAR.FLOAT1
 tests/laws_d3d12.rs::srgb_is_monotonic pbt D3D12.CLEAR.SRGB
 tests/laws_d3d12.rs::ints_are_clamped pbt D3D12.CLEAR.INT
 tests/laws_d3d12.rs::clears_fill_one_texel pbt D3D12.CLEAR.FORMAT
+tests/laws_d3d12_f32.rs::denormals_are_flushed_for_every_float exhaustive D3D12.CLEAR.DENORM
+tests/laws_d3d12_f32.rs::float32_holds_every_float exhaustive D3D12.CLEAR.FLOAT32
+tests/laws_d3d12_f32.rs::unorm_is_the_nearest_level_for_every_float exhaustive D3D12.CLEAR.UNORM
+tests/laws_d3d12_f32.rs::unorm_never_decreases exhaustive D3D12.CLEAR.UNORM
+tests/laws_d3d12_f32.rs::snorm_is_the_nearest_for_every_float exhaustive D3D12.CLEAR.SNORM
+tests/laws_d3d12_f32.rs::srgb_is_the_curve_for_every_float exhaustive D3D12.CLEAR.SRGB
+tests/laws_d3d12_f32.rs::srgb_never_decreases exhaustive D3D12.CLEAR.SRGB
+tests/laws_d3d12_f32.rs::float16_rounds_to_zero_for_every_float exhaustive D3D12.CLEAR.FLOAT16
+tests/laws_d3d12_f32.rs::small_floats_round_to_zero_for_every_float exhaustive D3D12.CLEAR.FLOAT11
+tests/laws_d3d12_f32.rs::ints_truncate_and_clamp_for_every_float exhaustive D3D12.CLEAR.INT
 tests/laws_d3d12.rs::footprints_are_aligned_and_disjoint pbt D3D12.FOOTPRINT.LAYOUT D3D12.FOOTPRINT.MIPS0
 tests/laws_d3d12.rs::accepted_chains_are_flip_model exhaustive DXGI.CHAIN.EFFECT DXGI.CHAIN.BUFFERS DXGI.CHAIN.SAMPLES
 tests/laws_d3d12.rs::buffer_rules_are_the_documented_ones exhaustive D3D12.DESC.BUFFER
