@@ -626,3 +626,5 @@ spec/lean/Kikizake/D3d9/Decl.lean::bad_element lean D3D9.DECL.CREATE
 spec/lean/Kikizake/D3d9/Decl.lean::twice lean D3D9.DECL.CREATE
 spec/lean/Kikizake/D3d9/Decl.lean::positiont lean D3D9.DECL.CREATE
 spec/lean/Kikizake/D3d9/Decl.lean::stream_apart lean D3D9.DECL.CREATE
+spec/lean/Kikizake/D3d11/Merge.lean::merge_none lean D3DRASTER.WRITEMASK
+spec/lean/Kikizake/D3d11/Merge.lean::merge_zero lean D3DRASTER.WRITEMASK

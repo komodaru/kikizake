@@ -694,3 +694,55 @@ pub static FILTER_MIRRORS: &[Mirror] = &[
         model: |a| one(crate::model::d3draster::past_depth(arg(a, 0)?, arg(a, 1)?, arg(a, 2)?, arg(a, 3)?)),
     },
 ];
+
+const MERGE: &str = "spec/lean/Kikizake/D3d11/Merge.lean";
+
+pub static MERGE_MIRRORS: &[Mirror] = &[Mirror {
+    name: "d3d11.merge",
+    lean: MERGE,
+    domain: Domain::Sampled("every DXGI format's components with every mask 0..15 (and 16, 0xffffffff) over 40 pairs of elements each: zeros, ones, alternating bits, any bytes"),
+    inputs: |each| {
+        let mut rng = crate::rng::XorShift32::new(0x3e26_d311);
+        for id in 0..=200u32 {
+            let Some(f) = crate::model::dxgifmt::format(id) else { continue };
+            let bits: u32 = f.comps.iter().sum();
+            let len = bits.div_ceil(8).max(1);
+            let comps: Vec<(u32, u32)> = f.comps.iter().zip(f.chans).map(|(&b, &c)| (b, u32::from(c))).collect();
+            for mask in (0..=16).chain([U32]) {
+                for k in 0..40 {
+                    let mut v = vec![i64::try_from(comps.len()).unwrap_or(0)];
+                    for &(b, c) in &comps {
+                        v.extend([i64::from(b), i64::from(c)]);
+                    }
+                    v.push(i64::from(len));
+                    let byte = |rng: &mut crate::rng::XorShift32| match k {
+                        0 => 0,
+                        1 => 0xff,
+                        2 => 0x55,
+                        3 => 0xaa,
+                        _ => i64::from(rng.byte()),
+                    };
+                    for _ in 0..len.saturating_mul(2) {
+                        v.push(byte(&mut rng));
+                    }
+                    v.push(mask);
+                    each(&v);
+                }
+            }
+        }
+    },
+    model: |a| {
+        let n = arg::<usize>(a, 0)?;
+        let comps = (0..n).map(|i| Some((arg::<u32>(a, i.checked_mul(2)?.checked_add(1)?)?, arg::<u32>(a, i.checked_mul(2)?.checked_add(2)?)?))).collect::<Option<Vec<_>>>()?;
+        let at = n.checked_mul(2)?.checked_add(1)?;
+        let len = arg::<usize>(a, at)?;
+        let bytes = |from: usize| (from..from.checked_add(len)?).map(|i| arg::<u8>(a, i)).collect::<Option<Vec<u8>>>();
+        let old = bytes(at.checked_add(1)?)?;
+        let new = bytes(at.checked_add(1)?.checked_add(len)?)?;
+        let mask = arg::<u32>(a, at.checked_add(1)?.checked_add(len.checked_mul(2)?)?)?;
+        if a.len() != at.checked_add(2)?.checked_add(len.checked_mul(2)?)? {
+            return None;
+        }
+        Some(crate::model::d3drules::merge(&comps, &old, &new, mask).into_iter().map(i64::from).collect())
+    },
+}];
