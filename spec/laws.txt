@@ -41,6 +41,9 @@ tests/laws_gdimap.rs::dp_to_lp_is_near_the_documented_inverse exhaustive GDI.MAP
 tests/laws_gdimap.rs::world_lp_to_dp_is_the_exact_f32_matrix exhaustive GDI.XFORM.WORLDPOINT GDI.XFORM.ROUNDWORLD
 tests/laws_gdimap.rs::world_dp_to_lp_is_the_f32_inverse exhaustive GDI.XFORM.WORLDINV GDI.XFORM.ROUNDWORLD
 tests/laws_gdimap.rs::isotropic_points_take_the_extents_shrunk_once_more exhaustive GDI.MAP.ISOPOINTS
+tests/laws_gdibezier.rs::bezier_calls_record_as_the_clauses_say exhaustive GDI.PATH.BEZIER
+tests/laws_gdigiq.rs::giq_is_the_diamond_rule_on_the_fine_grid exhaustive GDI.LINE.GIQ
+tests/laws_gdigiq.rs::giq_is_the_diamond_rule_on_the_coarse_grid exhaustive GDI.LINE.GIQ
 tests/laws.rs::normalization_is_idempotent pbt D3D11.DEDUP D3D11.BLEND.DISABLED D3D11.DEPTH.OFF D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::unused_parts_are_ignored pbt D3D11.BLEND.SHARED D3D11.BLEND.DISABLED D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::check_create_and_same_agree pbt D3D11.CHECK D3D11.DEDUP
