@@ -914,5 +914,51 @@ pub fn d3d7dev() -> String {
         }
         writeln!(s, "case znoz-{v}-{d}\n{dv}\nd3drs set 22 1\nd3drs set 7 1\nd3dclear 0\nd3dtri 0xffffffff 8 8 160 24 40 170\nd3ddump\nend");
     }
+    // D3D7.STATES.OTHER, D3D7.TRI.CLIP still asked: points and wireframe of triangles of no
+    // area (a point, a line), the ramp device's points and wireframe of a triangle it clips, the
+    // HAL's wireframe whose least x two vertices share and its points and edges of several
+    // colours under specular and fog, the ramp device's fog stepping along a crossing span
+    for &(v, d) in DRAWERS {
+        let dv = format!("d3d {v}\nd3ddev {d} 565 12 12");
+        for mode in [1, 2] {
+            writeln!(s, "case zeroarea-{v}-{d}-{mode}\n{dv}\nd3drs set 22 1\nd3drs set 8 {mode}");
+            for p in ["24 24 96 96 168 168", "40 100 40 100 40 100", "16 72 176 72 96 72", "96 8 96 8 96 170"] {
+                writeln!(s, "d3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff {p}\nd3ddump");
+            }
+            writeln!(s, "end");
+        }
+    }
+    for mode in [1, 2] {
+        writeln!(s, "case rampclip-2-ramp-{mode}\nd3d 2\nd3ddev ramp 565 12 12\nd3drs set 22 1\nd3drs set 8 {mode}");
+        for p in ["-40 16 100 50 30 170", "20 -30 230 90 60 150", "8 8 170 40 -60 260", "-50 -50 250 -40 90 300"] {
+            writeln!(s, "d3dclear 0\nd3dtri 0xffffffff {p}\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
+    for d in ["hal", "tnl"] {
+        writeln!(s, "case haltie-7-{d}\nd3d 7\nd3ddev {d} 565 12 12\nd3drs set 22 1\nd3drs set 8 2");
+        for p in ["16 16 16 160 150 90", "16 160 150 90 16 16", "150 90 16 16 16 160", "40 20 170 60 40 150"] {
+            writeln!(s, "d3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff {p}\nd3ddump");
+        }
+        writeln!(s, "end");
+        for mode in [1, 2] {
+            writeln!(s, "case halspec-7-{d}-{mode}\nd3d 7\nd3ddev {d} 565 12 12\nd3drs set 22 1\nd3drs set 8 {mode}\nd3drs set 29 1");
+            writeln!(s, "d3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff 20 30 170 60 60 165 spec 0x00102030/0x00302010/0x00000040\nd3ddump");
+            writeln!(s, "d3drs set 29 0\nd3drs set 28 1\nd3drs set 34 0xff4080c0\nd3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff 20 30 170 60 60 165 spec 0x00000000/0xff000000/0x80000000\nd3ddump\nend");
+        }
+    }
+    writeln!(s, "case rampfog-2-ramp\nd3d 2\nd3ddev ramp 565 12 12\nd3drs set 22 1\nd3drs set 28 1\nd3drs set 34 0xff4080c0");
+    for p in ["-40 16 220 50 30 170", "8 8 170 40 90 180"] {
+        writeln!(s, "d3dclear 0\nd3dtri 0xffffffff {p} spec 0x00000000/0xff000000/0x80000000\nd3ddump");
+    }
+    writeln!(s, "end");
+    // a vertex inside the guard band but past 2048 pixels (beyond 16-bit sixteenths)
+    for (v, d) in [(7, "rgb"), (7, "mmx"), (3, "rgb")] {
+        writeln!(s, "case bigtri-{v}-{d}\nd3d {v}\nd3ddev {d} 565 12 12\nd3drs set 22 1");
+        for p in ["8 8 48000 40 40 170", "8 8 40 170 -40000 90", "16 16 170 30 90 50000"] {
+            writeln!(s, "d3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff {p}\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
     s
 }
