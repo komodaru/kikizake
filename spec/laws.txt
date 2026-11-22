@@ -605,3 +605,5 @@ spec/lean/Kikizake/D3d9/Chain.lean::alpha_disable_first lean D3D9.STAGE.ALPHADIS
 spec/lean/Kikizake/D3d9/Chain.lean::alpha_disable lean D3D9.STAGE.ALPHADISABLE
 spec/lean/Kikizake/D3d9/Chain.lean::reads_args lean D3D9.STAGE.ALPHADISABLE.FIRST D3D9.STAGE.BUMPCHAIN
 spec/lean/Kikizake/D3d9/Chain.lean::bump lean D3D9.STAGE.BUMP
+tests/laws_dwrite_bidi.rs::a_paragraph_separator_ends_the_paragraph exhaustive DW.BIDI.SEGMENT
+tests/laws_dwrite_bidi.rs::a_segment_separator_ends_the_level_run exhaustive DW.BIDI.SEGMENT
