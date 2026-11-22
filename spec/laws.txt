@@ -44,6 +44,11 @@ tests/laws_gdimap.rs::isotropic_points_take_the_extents_shrunk_once_more exhaust
 tests/laws_gdibezier.rs::bezier_calls_record_as_the_clauses_say exhaustive GDI.PATH.BEZIER
 tests/laws_gdigiq.rs::giq_is_the_diamond_rule_on_the_fine_grid exhaustive GDI.LINE.GIQ
 tests/laws_gdigiq.rs::giq_is_the_diamond_rule_on_the_coarse_grid exhaustive GDI.LINE.GIQ
+tests/laws_gdipolybez.rs::poly_bezier_draws_what_stroke_path_draws exhaustive GDI.LINE.BEZIER
+tests/laws_gdifill.rs::fix_fill_is_the_crossing_rule_for_every_triangle exhaustive GDI.PATH.FILLFIX
+tests/laws_gdifill.rs::fix_fill_is_the_crossing_rule_for_every_quadrilateral exhaustive GDI.PATH.FILLFIX
+tests/laws_gdifill.rs::stroke_and_fill_is_the_fill_then_the_closed_outline exhaustive GDI.PATH.STROKEFILLFIX
+tests/laws_gdifill.rs::ellipse_and_round_rect_draw_their_path exhaustive GDI.SHAPE.ELLIPSEPEN GDI.SHAPE.ROUNDPEN
 tests/laws.rs::normalization_is_idempotent pbt D3D11.DEDUP D3D11.BLEND.DISABLED D3D11.DEPTH.OFF D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::unused_parts_are_ignored pbt D3D11.BLEND.SHARED D3D11.BLEND.DISABLED D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::check_create_and_same_agree pbt D3D11.CHECK D3D11.DEDUP
