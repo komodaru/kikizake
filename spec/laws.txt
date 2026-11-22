@@ -639,3 +639,4 @@ tests/laws_dwrite_run.rs::gdi_metrics_round_through_pixels exhaustive DW.GDI.MET
 tests/laws_d3dx9_yuv.rs::yuy2_is_the_formula_for_every_colour exhaustive D3DX9.LOAD.YUY2
 tests/laws_d3dx9_yuv.rs::the_chroma_tap_for_every_four_bytes exhaustive D3DX9.LOAD.YUV
 tests/laws_d3dx9_yuv.rs::yuv_is_the_formula_for_every_sample exhaustive D3DX9.LOAD.YUV
+spec/tla/D3D9Fvf.tla::Next tla D3D9.FVF.SET D3D9.FVF.GET D3D9.DECL.GET

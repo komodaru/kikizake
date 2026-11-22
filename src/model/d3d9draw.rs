@@ -458,6 +458,37 @@ pub enum BlendOp {
     Max,
 }
 
+/// the call that set the vertex declaration
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum DeclFrom {
+    /// SetFVF, or none set yet
+    #[default]
+    Fvf,
+    /// SetVertexDeclaration
+    Declaration,
+}
+
+/// D3D9.FVF.SET, FVF.GET, DECL.GET: SetFVF(f) as GetFVF and GetVertexDeclaration then answer
+/// (fvf, declaration, its origin), from what they answered before. MEASURED fvf-decl-order-*:
+/// an FVF of 0 changes nothing with no declaration or one SetVertexDeclaration set, and else sets
+/// a declaration of no elements; fvf-*: any other FVF its runtime declaration
+pub fn set_fvf(f: u32, now: (u32, Option<Vec<(u32, u32)>>, DeclFrom)) -> Res<(u32, Option<Vec<(u32, u32)>>, DeclFrom)> {
+    hit(clause::D3D9_FVF_SET);
+    Ok(match (f, now) {
+        (0, (fvf, None, from)) => (fvf, None, from),
+        (0, (fvf, Some(d), DeclFrom::Declaration)) => (fvf, Some(d), DeclFrom::Declaration),
+        (0, (_, Some(_), DeclFrom::Fvf)) => (0, Some(Vec::new()), DeclFrom::Fvf),
+        (f, _) => (f, fvf_runtime_decl(f)?, DeclFrom::Fvf),
+    })
+}
+
+/// D3D9.FVF.GET, DECL.GET: SetVertexDeclaration of a declaration CreateVertexDeclaration took:
+/// GetFVF then answers the FVF it converts to, 0 when none (MEASURED fvf-decl-order-*, decl-*)
+pub fn set_decl(e: Vec<(u32, u32)>) -> (u32, Option<Vec<(u32, u32)>>, DeclFrom) {
+    hit(clause::D3D9_FVF_GET);
+    (super::d3dx9::decl_fvf(&e).unwrap_or(0), Some(e), DeclFrom::Declaration)
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct Draw {
     pub rt: Option<Surface>,
@@ -469,6 +500,8 @@ pub struct Draw {
     pub fvf: u32,
     /// the vertex declaration GetVertexDeclaration answers (None: no declaration)
     pub decl: Option<Vec<(u32, u32)>>,
+    /// which call set the declaration (D3D9.FVF.SET: SetFVF(0) keeps one SetVertexDeclaration set)
+    pub decl_from: DeclFrom,
     pub scissor: Option<(i32, i32, i32, i32)>,
     /// the triangle being drawn is counterclockwise on screen (two-sided stencil)
     pub ccw: bool,
@@ -786,14 +819,7 @@ impl Planes {
     }
 
     fn plane(&self, a: [f32; 3], cx: f32, cy: f32) -> f32 {
-        let ([x0, x1, x2], [y0, y1, y2]) = (self.xs, self.ys);
-        let area = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
-        let r = 1.0 / area;
-        let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
-        let gx = (d1 * (y2 - y0) - d2 * (y1 - y0)) * r;
-        let gy = (d2 * (x1 - x0) - d1 * (x2 - x0)) * r;
-        let c = (a[0] - gx * x0) - gy * y0;
-        (c + gy * cy) + gx * cx
+        plane10(self.xs, self.ys, a, cx, cy)
     }
 
     fn at(&self, cx: f32, cy: f32) -> [f64; ATTRS] {
@@ -803,6 +829,34 @@ impl Planes {
             (if PERSP.contains(&k) { v * q } else { v }) as f64
         })
     }
+}
+
+/// D3D9.SHADE.GOURAUD: an attribute's gradients (d/dx, d/dy) over a triangle at the pixel
+/// centers x, y (positions plus half a pixel), in f32: d/dx = ((a1 - a0)(y2 - y0) - (a2 - a0)(y1 -
+/// y0)) / area, d/dy = ((a2 - a0)(x1 - x0) - (a1 - a0)(x2 - x0)) / area
+pub fn grad9(x: [f32; 3], y: [f32; 3], a: [f32; 3]) -> (f32, f32) {
+    let area = (x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]);
+    let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
+    ((d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) / area, (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) / area)
+}
+
+/// D3D9.SHADE.GOURAUD: the attribute at the pixel center (sx, sy), v0 + d/dy (y - y0) + d/dx
+/// (x - x0) in that order, in f32
+pub fn at9(a0: f32, (dx, dy): (f32, f32), x0: f32, y0: f32, sx: f32, sy: f32) -> f32 {
+    a0 + dy * (sy - y0) + dx * (sx - x0)
+}
+
+/// Direct3D 10's attribute plane (D3DRASTER.INTERP, D3D9.TEX.QUAD, D3D9.DRAW.XYZ):
+/// gx = (d1 (y2 - y0) - d2 (y1 - y0)) (1 / A), gy = (d2 (x1 - x0) - d1 (x2 - x0)) (1 / A),
+/// C = (a0 - gx x0) - gy y0, the value (C + gy cy) + gx cx, in f32
+pub fn plane10(x: [f32; 3], y: [f32; 3], a: [f32; 3], cx: f32, cy: f32) -> f32 {
+    let area = (x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]);
+    let r = 1.0 / area;
+    let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
+    let gx = (d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) * r;
+    let gy = (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) * r;
+    let c = (a[0] - gx * x[0]) - gy * y[0];
+    (c + gy * cy) + gx * cx
 }
 
 /// the triangle's vertex of least x, then least y (the first of equals)
@@ -1575,9 +1629,8 @@ impl D3d9 {
                 }
             }
             "d9fvf" => {
-                self.draw.fvf = n(op, 1)? as u32;
-                hit(clause::D3D9_FVF_SET);
-                self.draw.decl = fvf_runtime_decl(self.draw.fvf)?;
+                let now = (self.draw.fvf, self.draw.decl.take(), self.draw.decl_from);
+                (self.draw.fvf, self.draw.decl, self.draw.decl_from) = set_fvf(n(op, 1)? as u32, now)?;
             }
             "d9getfvf" => {
                 hit(clause::D3D9_FVF_GET);
@@ -1659,9 +1712,7 @@ impl D3d9 {
                 let e: Vec<(u32, u32)> = w.chunks(2).map(|p| (p[0], p[1])).collect();
                 hit(clause::D3D9_DECL_CREATE);
                 if decl_ok(&e)? {
-                    // (SetVertexDeclaration: GetFVF answers 0 after it, MEASURED: decl-*)
-                    self.draw.fvf = 0;
-                    self.draw.decl = Some(e);
+                    (self.draw.fvf, self.draw.decl, self.draw.decl_from) = set_decl(e);
                 } else {
                     // (the declaration set before stays)
                     out.push("decl hr 80004005".into());
@@ -2621,11 +2672,7 @@ impl D3d9 {
             // (D3D10's pixel centers), each attribute's gradients over the area and then
             // v0 + d/dy (y - y0) + d/dx (x - x0), in that order
             let (x, y) = (piece.map(|v| v.x + 0.5), piece.map(|v| v.y + 0.5));
-            let area32 = (x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]);
-            let grads: [(f32, f32); ATTRS] = std::array::from_fn(|k| {
-                let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
-                ((d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) / area32, (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) / area32)
-            });
+            let grads: [(f32, f32); ATTRS] = std::array::from_fn(|k| grad9(x, y, piece.map(|v| v.at[k])));
             self.draw.duv = UV_AT.map(|k| ((grads[k].0 as f64, grads[k].1 as f64), (grads[k + 1].0 as f64, grads[k + 1].1 as f64)));
             // (MEASURED filter-other-4-*, -5-*: a draw that filters with PYRAMIDALQUAD or
             // GAUSSIANQUAD has its attributes set up as Direct3D 10's rasterizer does, the planes
@@ -2650,18 +2697,8 @@ impl D3d9 {
                     }
                     let (sx, sy) = (px as f32 + 0.5, py as f32 + 0.5);
                     let at32: [f32; ATTRS] = std::array::from_fn(|k| match setup {
-                        Setup::Warp9 => {
-                            let (dx, dy) = grads[k];
-                            piece[0].at[k] + dy * (sy - y[0]) + dx * (sx - x[0])
-                        }
-                        Setup::D3d10 => {
-                            let r = 1.0 / area32;
-                            let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
-                            let gx = (d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) * r;
-                            let gy = (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) * r;
-                            let c = (piece[0].at[k] - gx * x[0]) - gy * y[0];
-                            (c + gy * sy) + gx * sx
-                        }
+                        Setup::Warp9 => at9(piece[0].at[k], grads[k], x[0], y[0], sx, sy),
+                        Setup::D3d10 => plane10(x, y, piece.map(|v| v.at[k]), sx, sy),
                     });
                     let at: [f64; ATTRS] = match &planes {
                         Some(p) => p.at(sx, sy),
@@ -2684,14 +2721,7 @@ impl D3d9 {
                                 // (the clean-room notes and MEASURED aniso-4, -5, -17, -20, -27,
                                 // aniso-axis-11: the quad's values as the pixel shader's planes
                                 // give them, C + gy y + gx x, Direct3D 10's setup)
-                                None => std::array::from_fn(|k| {
-                                    let r = 1.0 / area32;
-                                    let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
-                                    let gx = (d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) * r;
-                                    let gy = (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) * r;
-                                    let c = (piece[0].at[k] - gx * x[0]) - gy * y[0];
-                                    f64::from((c + gy * (sy + oy)) + gx * (sx + ox))
-                                }),
+                                None => std::array::from_fn(|k| f64::from(plane10(x, y, piece.map(|v| v.at[k]), sx + ox, sy + oy))),
 
                             }
                         };

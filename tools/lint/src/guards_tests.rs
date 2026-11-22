@@ -103,6 +103,9 @@ fn unconfined_uses_are_found() {
     let check = "pub fn check_hr(f: u32) -> u32 { 0x8876_086a }\nfn draw_op(&mut self) { out.push(format!(\"{:08x}\", 0x0876_086f)); }\n";
     let r = rust("src/model/d3d9draw.rs", check);
     assert!(r.len() == 1 && r[0].contains("in draw_op"), "{r:?}");
+    // (the FVF and the declaration only through set_fvf, set_decl)
+    assert!(!rust("src/model/d3d9draw.rs", "fn op(&mut self) { self.draw.fvf = 0; }").is_empty());
+    assert!(rust("src/model/d3d9draw.rs", "fn op(&mut self) { (self.draw.fvf, self.draw.decl, self.draw.decl_from) = set_decl(e); if self.draw.fvf == 0 {} }").is_empty());
     // (the draw's checks, filters, palette texels, stencil states, DXT, a level's bytes, the stage
     // plan and the bump arithmetic each in their pure function, which the Lean mirrors hold)
     let inlined = [
