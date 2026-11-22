@@ -48,6 +48,23 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // (CheckDeviceFormat's answers are check_hr's and the formats taken supported's, which the
     // Lean mirrors d3d9.check, d3d9.supported hold to spec/lean/Kikizake/D3d9/Formats.lean)
     ("src/model/d3d9draw.rs", r"0x8876_086a|0x0876_086f|D3D9_FORMATS_CHECK|let\s+no_tex\s*=", &["check_hr", "supported"]),
+    // (what stops a draw on x86 or without a palette, the filters a sampler's MAGFILTER and
+    // MINFILTER make, palette texels and the two-sided stencil states are the pure draw_gate,
+    // sample_filter, d3d10_setup, palette_texel and stencil_states the Lean mirrors d3d9.gate,
+    // d3d9.filter, d3d9.palette, d3d9.stencil2 hold to spec/lean/Kikizake/D3d9/Tex.lean)
+    ("src/model/d3d9draw.rs", r"\(1\.\.=5\)\.contains|D3D9_BLEND_OPX86|D3D9_TEX_ADDRESSX86|D3D9_TEX_PALETTE_NONE", &["draw_gate"]),
+    ("src/model/d3d9draw.rs", r"TexFilter::of\(|D3D9_TEX_FILTEROTHER|D3D9_TEX_MAGONLY", &["sample_filter", "d3d10_setup"]),
+    ("src/model/d3d9draw.rs", r"D3D9_TEX_PALETTE\)|D3D9_STENCIL_TWOSIDED|\b18[6-9]\b", &["palette_texel", "stencil_states"]),
+    // (DXT texels, the channels a format lacks, how a format is sampled and a level's bytes are
+    // dxt_*, to_rgba, texel_kind and level_bytes, which d3d9.dxt, d3d9.rgba, d3d9.level hold to
+    // spec/lean/Kikizake/D3d9/Texel.lean)
+    ("src/model/d3d9draw.rs", r"\b171\s*\*|\b85\s*\*\s*a\b|D3D9_TEX_DXT", &["dxt_mix", "dxt_block_texel"]),
+    ("src/model/d3d9draw.rs", r"D3D9_TEX_CREATE|div_ceil\(\s*4\s*\)|D3D9_TEX_MISSING|D3D9_TEX_FORMAT", &["create_level", "level_bytes", "to_rgba", "texel_kind"]),
+    // (the order the texture stages run in and the bump mapping arithmetic are stage_plan,
+    // reads_texture, reads_current, bump_uv, bump_luminance, bump_scale and premodulate, which
+    // d3d9.plan, d3d9.reads, d3d9.bump hold to spec/lean/Kikizake/D3d9/Chain.lean)
+    ("src/model/d3d9draw.rs", r"D3D9_STAGE_(DISABLE|MULTI|BUMPCHAIN|ALPHADISABLE(_FIRST)?)\b|&\s*0xf\s*==\s*2|&\s*0xf,\s*0\s*\|\s*1\)", &["stage_plan", "reads_texture", "reads_current"]),
+    ("src/model/d3d9draw.rs", r"round_ties_even\(\)|\bm\(\s*7\s*\)\s*\*|\(\w+\s*\*\s*scale\s*\+", &["bump_scale", "bump_uv", "bump_luminance"]),
 ];
 
 /// (file, what (a regular expression), why): `forbidden`

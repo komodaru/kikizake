@@ -11,6 +11,7 @@ use std::process::{Command, Stdio};
 mod d3d11;
 mod d3d12;
 mod d3d9;
+mod d3d9tex;
 mod f32;
 mod dwrite;
 mod dxgi;
@@ -48,6 +49,7 @@ pub fn mirrors() -> Vec<&'static Mirror> {
         d3d12::MIRRORS,
         dxgi::MIRRORS,
         d3d9::MIRRORS,
+        d3d9tex::MIRRORS,
         d3d11::MIRRORS,
         d3d11::DESC_MIRRORS,
         d3d11::VIEW_MIRRORS,

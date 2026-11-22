@@ -284,21 +284,34 @@ fn half_midpoint_neighbors() {
 }
 
 /// every format WARP takes as a texture or a target (either API) has a decoding the model samples
-/// with: none of the formats it takes falls to the model's "bad line" (D3D9.TEX.FORMAT)
+/// with (texel_kind: its channels, DXT or the palette): none of the formats it takes falls to the
+/// model's "bad line"; of all 2^16 low formats and the FOURCCs asked, the YUV ones and those the
+/// model does not know are not taken (D3D9.TEX.FORMAT)
 #[test]
 fn every_taken_format_is_decoded() {
-    for &(f, name) in TEXTURE_FORMATS {
+    let all = (0..=0xffffu32).chain(TEXTURE_FORMATS.iter().map(|t| t.0));
+    for f in all {
         for v8 in [false, true] {
             for rt in [false, true] {
                 if !supported(f, rt, v8) {
                     continue;
                 }
-                let m = format(f).unwrap_or_else(|| panic!("{name} taken but not decoded"));
-                assert!(!matches!(m.kind, Kind::Yuv), "{name}");
-                let p = m.ch.iter().any(|c| c.c == b'p');
-                assert!(!p || matches!(f, 40 | 41), "{name}");
+                let m = format(f).unwrap_or_else(|| panic!("{f} taken but not decoded"));
+                let kind = texel_kind(f, &m).unwrap_or_else(|| panic!("{f} taken but not sampled"));
+                assert!(!matches!(m.kind, Kind::Yuv), "{f}");
+                match kind {
+                    TexelKind::Dxt(n) => assert!(m.kind == Kind::Dxt(n) && (1..=5).contains(&n), "{f}"),
+                    TexelKind::Palette => assert!(matches!(f, 40 | 41) && !rt, "{f}"),
+                    TexelKind::Channels => assert!(!m.ch.is_empty() && m.ch.iter().all(|c| c.c != b'p'), "{f}"),
+                }
             }
         }
+    }
+    // (the YUV formats have no sampling)
+    for s in [b"UYVY", b"YUY2"] {
+        let f = fourcc(s);
+        assert!(!supported(f, false, false) && !supported(f, false, true));
+        assert_eq!(format(f).and_then(|m| texel_kind(f, &m)), None);
     }
 }
 

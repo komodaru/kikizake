@@ -579,3 +579,27 @@ spec/lean/Kikizake/D3d9/Formats.lean::d3d8 lean D3D9.FORMATS
 spec/lean/Kikizake/D3d9/Formats.lean::check_formats lean D3D9.FORMATS.CHECK
 spec/lean/Kikizake/D3d9/Formats.lean::usage lean D3D9.FORMATS.USAGE
 tests/laws_dwrite_layout.rs::layouts_are_the_lines_and_clusters exhaustive DW.LAYOUT.LINE DW.LAYOUT.WRAP DW.LAYOUT.EMERGENCY DW.LAYOUT.CLUSTERS DW.LAYOUT.DEPTH
+spec/lean/Kikizake/D3d9/Tex.lean::mag_only lean D3D9.TEX.MAGONLY
+spec/lean/Kikizake/D3d9/Tex.lean::filter_other lean D3D9.TEX.FILTEROTHER
+spec/lean/Kikizake/D3d9/Tex.lean::quad lean D3D9.TEX.QUAD
+spec/lean/Kikizake/D3d9/Tex.lean::blend_op_x86 lean D3D9.BLEND.OPX86
+spec/lean/Kikizake/D3d9/Tex.lean::address_x86 lean D3D9.TEX.ADDRESSX86
+spec/lean/Kikizake/D3d9/Tex.lean::palette_none lean D3D9.TEX.PALETTE.NONE
+spec/lean/Kikizake/D3d9/Tex.lean::palette lean D3D9.TEX.PALETTE
+spec/lean/Kikizake/D3d9/Tex.lean::two_sided lean D3D9.STENCIL.TWOSIDED
+spec/lean/Kikizake/D3d9/Texel.lean::widen_top_bits lean D3D9.TEX.DXT
+spec/lean/Kikizake/D3d9/Texel.lean::mix_between lean D3D9.TEX.DXT
+spec/lean/Kikizake/D3d9/Texel.lean::alpha_nearest lean D3D9.TEX.DXT
+spec/lean/Kikizake/D3d9/Texel.lean::alpha4 lean D3D9.TEX.DXT
+spec/lean/Kikizake/D3d9/Texel.lean::no_alpha lean D3D9.TEX.MISSING
+spec/lean/Kikizake/D3d9/Texel.lean::missing lean D3D9.TEX.MISSING
+spec/lean/Kikizake/D3d9/Texel.lean::level_rows lean D3D9.TEX.CREATE
+tests/d3d9draw_laws.rs::every_taken_format_is_decoded exhaustive D3D9.TEX.FORMAT
+spec/lean/Kikizake/D3d9/Chain.lean::disable lean D3D9.STAGE.DISABLE
+spec/lean/Kikizake/D3d9/Chain.lean::multi lean D3D9.STAGE.MULTI
+spec/lean/Kikizake/D3d9/Chain.lean::bump_chain lean D3D9.STAGE.BUMPCHAIN
+spec/lean/Kikizake/D3d9/Chain.lean::bump_last lean D3D9.STAGE.BUMP
+spec/lean/Kikizake/D3d9/Chain.lean::alpha_disable_first lean D3D9.STAGE.ALPHADISABLE.FIRST
+spec/lean/Kikizake/D3d9/Chain.lean::alpha_disable lean D3D9.STAGE.ALPHADISABLE
+spec/lean/Kikizake/D3d9/Chain.lean::reads_args lean D3D9.STAGE.ALPHADISABLE.FIRST D3D9.STAGE.BUMPCHAIN
+spec/lean/Kikizake/D3d9/Chain.lean::bump lean D3D9.STAGE.BUMP

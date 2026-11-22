@@ -103,6 +103,23 @@ fn unconfined_uses_are_found() {
     let check = "pub fn check_hr(f: u32) -> u32 { 0x8876_086a }\nfn draw_op(&mut self) { out.push(format!(\"{:08x}\", 0x0876_086f)); }\n";
     let r = rust("src/model/d3d9draw.rs", check);
     assert!(r.len() == 1 && r[0].contains("in draw_op"), "{r:?}");
+    // (the draw's checks, filters, palette texels, stencil states, DXT, a level's bytes, the stage
+    // plan and the bump arithmetic each in their pure function, which the Lean mirrors hold)
+    let inlined = [
+        ("fn draw_op(&mut self) { if x86 && !(1..=5).contains(&op) { return; } }", "draw_gate"),
+        ("fn sample(&self) { let m = TexFilter::of(self.samp(st, 5), self.v8); }", "sample_filter"),
+        ("fn pixel(&mut self) { let s = if ccw { [186, 187, 188, 189] } else { [53, 54, 55, 56] }; }", "palette_texel"),
+        ("fn dxt_texel(n: u32) -> u32 { (171 * a + 85 * b) >> 8 }", "dxt_mix"),
+        ("fn fill_bytes(w: usize) -> usize { w.div_ceil(4) * b }", "create_level"),
+        ("fn stages(&self) { let r = self.tss(st, 2) & 0xf == 2; }", "stage_plan"),
+        ("fn stages(&self) { t[k] = ((c * l * 255.0).round_ties_even() / 255.0) as f64; }", "bump_scale"),
+    ];
+    for (code, only) in inlined {
+        let r = rust("src/model/d3d9draw.rs", code);
+        assert!(!r.is_empty() && r.iter().all(|e| e.contains("confined") && e.contains(only)), "{code}: {r:?}");
+    }
+    let pure = "pub fn draw_gate(x86: bool, op: u32) -> bool { x86 && !(1..=5).contains(&op) }\npub fn dxt_mix(a: u32, b: u32) -> u32 { (171 * a + 85 * b) >> 8 }\npub fn stage_plan(a: u32) -> bool { a & 0xf == 2 }\npub fn bump_scale(c: f32) -> f32 { (c * 255.0).round_ties_even() }\n";
+    assert!(rust("src/model/d3d9draw.rs", pure).is_empty());
 }
 
 #[test]

@@ -83,6 +83,28 @@ pub struct Fmt {
     pub ch: Vec<Ch>,
 }
 
+/// how a texture's texels are read: by their channels (D3D9.TEX.DECODE, TEX.MISSING), as DXT
+/// blocks (D3D9.TEX.DXT) or through the palette (D3D9.TEX.PALETTE)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TexelKind {
+    Channels,
+    Dxt(u32),
+    Palette,
+}
+
+/// the way a texture of format f (of layout fm) is sampled; none for a format of no such way (the
+/// YUV ones, which WARP does not take: law every_taken_format_is_decoded, D3D9.TEX.FORMAT)
+pub fn texel_kind(f: u32, fm: &Fmt) -> Option<TexelKind> {
+    hit(clause::D3D9_TEX_FORMAT);
+    let p = fm.ch.iter().any(|c| c.c == b'p');
+    match fm.kind {
+        Kind::Int | Kind::F16 | Kind::F32 if !p => Some(TexelKind::Channels),
+        Kind::Dxt(n) => Some(TexelKind::Dxt(n)),
+        Kind::Int if matches!(f, 40 | 41) => Some(TexelKind::Palette),
+        Kind::Int | Kind::F16 | Kind::F32 | Kind::Yuv => None,
+    }
+}
+
 /// a format's layout (D3DFORMAT: channels named from the most significant bit down, so A8R8G8B8
 /// keeps blue in bits 0..7); None for formats the model does not know
 pub fn format(f: u32) -> Option<Fmt> {
@@ -323,56 +345,73 @@ pub fn round_even(x: f64) -> f64 {
     }
 }
 
-/// one texel of a DXT1..DXT5 texture as rgba
+/// one texel of a DXT1..DXT5 texture as rgba: its block's texel (dxt_block_texel)
 fn dxt_texel(n: u32, bytes: &[u8], w: i32, x: i32, y: i32) -> Res<[f64; 4]> {
-    hit(clause::D3D9_TEX_DXT);
     let bsz = if n == 1 { 8 } else { 16 };
     let bi = ((y / 4) * ((w + 3) / 4) + x / 4) as usize * bsz;
-    let b = &bytes[bi..bi + bsz];
-    let t = ((y % 4) * 4 + x % 4) as u32;
-    let cb = if n == 1 { &b[0..8] } else { &b[8..16] };
-    let (c0, c1) = (u16::from_le_bytes([cb[0], cb[1]]) as u32, u16::from_le_bytes([cb[2], cb[3]]) as u32);
-    let idx = u32::from_le_bytes([cb[4], cb[5], cb[6], cb[7]]) >> (2 * t) & 3;
-    // (the 565 endpoints widened to 8 bits by repeating their top bits)
-    let ex = |c: u32| [(c >> 11 & 31) << 3 | (c >> 13 & 7), (c >> 5 & 63) << 2 | (c >> 9 & 3), (c & 31) << 3 | (c >> 2 & 7)];
+    let t = u32::try_from((y % 4) * 4 + x % 4).ok().ok_or(Fail::Bad)?;
+    let c = dxt_block_texel(n, bytes.get(bi..bi + bsz).ok_or(Fail::Bad)?, t).ok_or(Fail::Bad)?;
+    Ok(c.map(|v| f64::from(v) / 255.0))
+}
+
+/// a 5-bit (6-bit) endpoint channel widened to 8 bits by repeating its top bits
+pub fn dxt_widen(c: u32, bits: u32) -> u32 {
+    if bits == 5 { c << 3 | c >> 2 } else { c << 2 | c >> 4 }
+}
+
+/// a DXT color of the endpoint channels a and b by its index: a, b, then the thirds as 171/256
+/// and 85/256 taken down (four colors), or the half taken down and 0 (DXT1's three)
+pub fn dxt_mix(idx: u32, four: bool, a: u32, b: u32) -> u32 {
+    match (idx, four) {
+        (0, _) => a,
+        (1, _) => b,
+        (2, true) => (171 * a + 85 * b) >> 8,
+        (3, true) => (85 * a + 171 * b) >> 8,
+        (2, false) => (a + b) >> 1,
+        _ => 0,
+    }
+}
+
+/// a DXT4/5 alpha of the endpoints a0, a1 by its 3-bit index: sevenths (a0 > a1) or fifths
+/// and 0, 255, each rounded to nearest
+pub fn dxt_alpha(ai: u32, a0: u32, a1: u32) -> u32 {
+    let mix = |wa: u32, wb: u32| (wa * a0 + wb * a1 + (wa + wb) / 2) / (wa + wb);
+    match ai {
+        0 => a0,
+        1 => a1,
+        i if a0 > a1 => mix(8 - i, i - 1),
+        6 => 0,
+        7 => 255,
+        i => mix(6 - i, i - 1),
+    }
+}
+
+/// texel t (0..15, row by row) of a DXT1..DXT5 block (8 bytes for DXT1, else 16: the alpha
+/// block, then the color one) as 8-bit r, g, b, a (MEASURED tex-*-DXT*, D3D9.TEX.DXT);
+/// spec/lean/Kikizake/D3d9/Texel.lean `texel`
+pub fn dxt_block_texel(n: u32, b: &[u8], t: u32) -> Option<[u32; 4]> {
+    hit(clause::D3D9_TEX_DXT);
+    if t > 15 {
+        return None;
+    }
+    let cb = b.get(if n == 1 { 0..8 } else { 8..16 })?;
+    let word = |i: usize| -> Option<u32> { Some(u32::from(u16::from_le_bytes(*cb.get(i..)?.first_chunk()?))) };
+    let (c0, c1) = (word(0)?, word(2)?);
+    let idx = u32::from_le_bytes(*cb.get(4..)?.first_chunk()?) >> (2 * t) & 3;
+    let ex = |c: u32| [dxt_widen(c >> 11 & 31, 5), dxt_widen(c >> 5 & 63, 6), dxt_widen(c & 31, 5)];
     let (e0, e1) = (ex(c0), ex(c1));
     let four = n != 1 || c0 > c1;
-    let mut c = [0.0, 0.0, 0.0, 1.0];
-    for k in 0..3 {
-        let (a, b) = (e0[k], e1[k]);
-        // (MEASURED: thirds as 171/256 and 85/256, taken down; the half taken down)
-        let v = match (idx, four) {
-            (0, _) => a,
-            (1, _) => b,
-            (2, true) => (171 * a + 85 * b) >> 8,
-            (3, true) => (85 * a + 171 * b) >> 8,
-            (2, false) => (a + b) >> 1,
-            _ => 0,
-        };
-        c[k] = v as f64 / 255.0;
-    }
-    if n == 1 && !four && idx == 3 {
-        c[3] = 0.0;
-    }
-    if n == 2 || n == 3 {
-        let a = u64::from_le_bytes(*b.first_chunk().ok_or(Fail::Bad)?) >> (4 * t) & 15;
-        c[3] = (a * 17) as f64 / 255.0;
-    } else if n >= 4 {
-        let (a0, a1) = (b[0] as u32, b[1] as u32);
-        let ai = (u64::from_le_bytes([b[2], b[3], b[4], b[5], b[6], b[7], 0, 0]) >> (3 * t) & 7) as u32;
-        // (MEASURED: sevenths and fifths rounded to nearest)
-        let mix = |wa: u32, wb: u32| (wa * a0 + wb * a1 + (wa + wb) / 2) / (wa + wb);
-        let v = match ai {
-            0 => a0,
-            1 => a1,
-            i if a0 > a1 => mix(8 - i, i - 1),
-            6 => 0,
-            7 => 255,
-            i => mix(6 - i, i - 1),
-        };
-        c[3] = v as f64 / 255.0;
-    }
-    Ok(c)
+    let [r, g, bl] = [0, 1, 2].map(|k| dxt_mix(idx, four, e0[k], e1[k]));
+    let alpha = if n == 1 {
+        if !four && idx == 3 { 0 } else { 255 }
+    } else if n == 2 || n == 3 {
+        u32::try_from(u64::from_le_bytes(*b.first_chunk()?) >> (4 * t) & 15).ok()? * 17
+    } else {
+        let (a0, a1) = (u32::from(*b.first()?), u32::from(*b.get(1)?));
+        let bits = u64::from_le_bytes([*b.get(2)?, *b.get(3)?, *b.get(4)?, *b.get(5)?, *b.get(6)?, *b.get(7)?, 0, 0]);
+        dxt_alpha(u32::try_from(bits >> (3 * t) & 7).ok()?, a0, a1)
+    };
+    Some([r, g, bl, alpha])
 }
 
 /// float -> n-bit unsigned normalized: clamped, scaled, rounded to nearest (D3D9.RT.UNORM)
@@ -456,15 +495,34 @@ fn n(op: &Op, i: usize) -> Res<i64> {
 /// xorshift32 bytes (SPEC.md), or byte i = i mod 256 for seed -1, for w x h pixels of a format
 /// (block rows for DXT)
 pub fn fill_bytes(f: &Fmt, w: i32, h: i32, seed: i64) -> Vec<u8> {
-    let n = match f.kind {
-        Kind::Dxt(_) => ((w + 3) / 4 * f.bytes as i32 * ((h + 3) / 4)) as usize,
-        _ => (w * h) as usize * f.bytes,
-    };
+    let n = level_bytes(matches!(f.kind, Kind::Dxt(_)), f.bytes, w, h).unwrap_or(0);
     if seed == -1 {
         return (0..n).map(|i| i as u8).collect();
     }
     let mut r = crate::rng::XorShift32::new(seed as u32);
     (0..n).map(|_| r.next() as u8).collect()
+}
+
+/// the bytes of a texture's one level (D3D9.TEX.CREATE): its rows of w pixels of bpp bytes, or
+/// of a DXT format the rows of 4 x 4 blocks of bpp bytes each, a part block whole;
+/// spec/lean/Kikizake/D3d9/Texel.lean `levelBytes`
+pub fn level_bytes(dxt: bool, bpp: usize, w: i32, h: i32) -> Option<usize> {
+    let (w, h) = (usize::try_from(w).ok()?, usize::try_from(h).ok()?);
+    if dxt {
+        w.div_ceil(4).checked_mul(bpp)?.checked_mul(h.div_ceil(4))
+    } else {
+        h.checked_mul(w.checked_mul(bpp)?)
+    }
+}
+
+/// CreateTexture's level of a format (D3D9.TEX.CREATE): refused (INVALIDCALL) for a format WARP
+/// does not take as a texture (taken: supported), else the level's bytes, all 0
+pub fn create_level(taken: bool, dxt: bool, bpp: usize, w: i32, h: i32) -> Result<Vec<u8>, u32> {
+    hit(clause::D3D9_TEX_CREATE);
+    if !taken {
+        return Err(INVALIDCALL);
+    }
+    Ok(vec![0; level_bytes(dxt, bpp, w, h).ok_or(INVALIDCALL)?])
 }
 
 /// MEASURED (check case, d3d9draw and d3d8draw goldens, x86 and x86-64 alike): the formats
@@ -771,6 +829,148 @@ impl Bump {
     }
 }
 
+/// what stage_plan reads of a texture stage: COLOROP, ALPHAOP, whether it has a texture, whether
+/// its operations read it (reads_texture) and whether its color operation reads the diffuse
+/// color or CURRENT (reads_current)
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct StageDesc {
+    pub cop: u32,
+    pub aop: u32,
+    pub has_tex: bool,
+    pub reads_tex: bool,
+    pub reads_cur: bool,
+}
+
+/// how a running stage's alpha is made: by an alpha operation, or under ALPHAOP DISABLE the
+/// alpha it is given (CURRENT's) or 1
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AlphaRule {
+    Op(u32),
+    Keep,
+    One,
+}
+
+/// one stage of a draw's texture stages (stage_plan); moved: its texture coordinates moved by the
+/// bump mapping stage before it
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Step {
+    /// the stage's operations, the alpha by the rule; premod: PREMODULATE times the next stage's
+    /// texture
+    Run { st: u32, moved: bool, alpha: AlphaRule, premod: bool },
+    /// a bump mapping stage followed by an enabled stage: it writes nothing
+    Defer { st: u32, moved: bool },
+    /// a bump mapping stage that is the last: it writes the texture the stage before (from)
+    /// sampled, 0 where none did
+    BumpLast { st: u32, moved: bool, from: Option<u32> },
+    /// a bump mapping stage followed by one, with stage s before it reading the texture it lacks:
+    /// the stages off from s, CURRENT as s found it
+    Off { st: u32, moved: bool, s: u32 },
+}
+
+/// whether a stage's color or alpha operation reads its texture: an argument it uses of
+/// D3DTA_TEXTURE (args: COLORARG1, 2, 0, ALPHAARG1, 2, 0), or BLENDTEXTUREALPHA(PM); the alpha
+/// operation not under ALPHAOP DISABLE; spec/lean/Kikizake/D3d9/Chain.lean `readsTexture`
+pub fn reads_texture(cop: u32, aop: u32, args: [u32; 6]) -> bool {
+    let [c1, c2, c0, a1, a2, a0] = args.map(|a| a & 0xf == 2);
+    let reads = |op: u32, s1: bool, s2: bool, s0: bool| (op != 3 && s1) || (op != 2 && s2) || (matches!(op, 25 | 26) && s0) || matches!(op, 13 | 14);
+    reads(cop, c1, c2, c0) || aop != 1 && reads(aop, a1, a2, a0)
+}
+
+/// whether a stage's color operation reads the diffuse color or CURRENT: through an argument it
+/// uses (COLORARG1, 2, 0), or BLENDDIFFUSEALPHA, BLENDCURRENTALPHA;
+/// spec/lean/Kikizake/D3d9/Chain.lean `readsCurrent`
+pub fn reads_current(cop: u32, args: [u32; 3]) -> bool {
+    let [s1, s2, s0] = args.map(|a| matches!(a & 0xf, 0 | 1));
+    (cop != 3 && s1) || (cop != 2 && s2) || (matches!(cop, 25 | 26) && s0) || matches!(cop, 12 | 16)
+}
+
+/// the texture stages a draw runs, in turn to the first whose COLOROP is DISABLE (D3D9.STAGE.MULTI,
+/// STAGE.DISABLE: none where stage 0's is, the diffuse color going through), a bump mapping stage
+/// followed by an enabled one writing nothing, or turning the stages off from the first before it
+/// that reads the texture it lacks (D3D9.STAGE.BUMPCHAIN), ALPHAOP DISABLE keeping the alpha
+/// given where the color operation reads it, 1 on stage 0 where not (D3D9.STAGE.ALPHADISABLE.FIRST,
+/// STAGE.ALPHADISABLE); spec/lean/Kikizake/D3d9/Chain.lean `plan`
+pub fn stage_plan(d: &[StageDesc]) -> Vec<Step> {
+    let mut plan = Vec::new();
+    // (the first stage so far that reads the texture it lacks)
+    let mut lack: Option<u32> = None;
+    let mut moved = false;
+    for (st, (x, next)) in (0u32..).zip(d.iter().zip(d.iter().skip(1).map(Some).chain([None]))) {
+        if x.cop == 1 {
+            if st == 0 {
+                hit(clause::D3D9_STAGE_DISABLE);
+            }
+            break;
+        }
+        if st > 0 {
+            hit(clause::D3D9_STAGE_MULTI);
+        }
+        let next_on = next.is_some_and(|n| n.cop != 1);
+        let step = if Bump::of(x.cop).is_some() {
+            if next_on {
+                hit(clause::D3D9_STAGE_BUMPCHAIN);
+                if let Some(s) = lack {
+                    plan.push(Step::Off { st, moved, s });
+                    return plan;
+                }
+                Step::Defer { st, moved }
+            } else {
+                Step::BumpLast { st, moved, from: st.checked_sub(1) }
+            }
+        } else {
+            let alpha = if x.aop != 1 {
+                AlphaRule::Op(x.aop)
+            } else if x.cop == 24 {
+                // (DOTPRODUCT3 writes its own alpha)
+                AlphaRule::Op(2)
+            } else if st > 0 {
+                // (MEASURED alphadisable-stage1-*: a later stage leaves CURRENT's alpha)
+                hit(clause::D3D9_STAGE_ALPHADISABLE);
+                AlphaRule::Keep
+            } else {
+                // (MEASURED alphadisable-*: stage 0 the alpha it is given where the color
+                // operation reads the diffuse color or CURRENT, else 1)
+                hit(clause::D3D9_STAGE_ALPHADISABLE_FIRST);
+                if x.reads_cur { AlphaRule::Keep } else { AlphaRule::One }
+            };
+            let premod = (x.cop == 17 || x.aop == 17) && next_on && next.is_some_and(|n| n.has_tex);
+            Step::Run { st, moved, alpha, premod }
+        };
+        if lack.is_none() && !x.has_tex && x.reads_tex {
+            lack = Some(st);
+        }
+        moved = matches!(step, Step::Defer { .. } | Step::BumpLast { .. });
+        plan.push(step);
+    }
+    plan
+}
+
+/// a bump mapped stage's texture coordinates (MEASURED bump-*, D3D9.STAGE.BUMP): (u + (M00 du +
+/// M10 dv), v + (M01 du + M11 dv)) in f64, m = (M00, M01, M10, M11);
+/// spec/lean/Kikizake/D3d9/Chain.lean `bumpUv`
+pub fn bump_uv((u, v): (f64, f64), [m00, m01, m10, m11]: [f64; 4], (du, dv): (f64, f64)) -> (f64, f64) {
+    (u + (m00 * du + m10 * dv), v + (m01 * du + m11 * dv))
+}
+
+/// BUMPENVMAPLUMINANCE's factor: L LSCALE + LOFFSET clamped to 0..1, in f64 (D3D9.STAGE.BUMP);
+/// spec/lean/Kikizake/D3d9/Chain.lean `bumpLuminance`
+pub fn bump_luminance(l: f64, scale: f64, offset: f64) -> f64 {
+    (l * scale + offset).clamp(0.0, 1.0)
+}
+
+/// a color channel times the luminance factor in f32, rounded to the nearest of 255, halves to
+/// even (MEASURED bump-2, bump-chain-3; D3D9.STAGE.BUMP); spec/lean/Kikizake/D3d9/Chain.lean
+/// `bumpScale`
+pub fn bump_scale(c: f64, l: f64) -> f64 {
+    f64::from(((c as f32) * (l as f32) * 255.0).round_ties_even() / 255.0)
+}
+
+/// PREMODULATE's channel times the next stage's texture, in f32 (MEASURED premod-chain-*;
+/// D3D9.STAGE.BUMP); spec/lean/Kikizake/D3d9/Chain.lean `premodulate`
+pub fn premodulate(a: f64, t: f64) -> f64 {
+    f64::from((a as f32) * (t as f32))
+}
+
 /// how a triangle's attributes are set up for its pixels
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Setup {
@@ -793,7 +993,7 @@ enum Weighted {
 
 /// a sampler's D3DTEXTUREFILTERTYPE, as WARP filters with it
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum TexFilter {
+pub enum TexFilter {
     Point,
     Linear,
     Anisotropic,
@@ -817,6 +1017,105 @@ impl TexFilter {
             4 | 5 if !v8 => TexFilter::Quad,
             _ => TexFilter::Other,
         }
+    }
+}
+
+/// the filter WARP samples a texture of one level with, of a sampler's MAGFILTER and MINFILTER
+/// (Point, Linear or Anisotropic, which is still linear for a footprint of no axis past a
+/// texel): the level of detail clamped to 0 before it picks, MAGFILTER alone filters
+/// (D3D9.TEX.MAGONLY), but for a MINFILTER that makes the whole of it POINT or ANISOTROPIC
+/// (D3D9.TEX.FILTEROTHER, D3D9.TEX.QUAD); spec/lean/Kikizake/D3d9/Tex.lean `sampleFilter`
+pub fn sample_filter(mag: u32, min: u32, v8: bool) -> TexFilter {
+    hit(clause::D3D9_TEX_MAGONLY);
+    let (mag, min) = (TexFilter::of(mag, v8), TexFilter::of(min, v8));
+    let mag = match min {
+        // (MEASURED d3d8draw filter-min-quad-*, filter-min-other-0: Direct3D 8's FLATCUBIC,
+        // GAUSSIANCUBIC and NONE as MINFILTER make the whole of it POINT)
+        TexFilter::Other | TexFilter::None if v8 => TexFilter::Point,
+        // (MEASURED filter-min-other-6, -7, -ffffffff: Direct3D 9's CONVOLUTIONMONO and values
+        // past it as MINFILTER make the whole of it POINT too, D3D9.TEX.FILTEROTHER)
+        TexFilter::Other => TexFilter::Point,
+        // (MEASURED aniso-*: ANISOTROPIC as either filter makes both anisotropic, Direct3D 10's
+        // one ANISOTROPIC filter)
+        TexFilter::Anisotropic => TexFilter::Anisotropic,
+        // (MEASURED filter-min-other-0, filter-min-quad-*: Direct3D 9's NONE, PYRAMIDALQUAD,
+        // GAUSSIANQUAD as MINFILTER leave MAGFILTER's filter, with Direct3D 10's attribute
+        // setup: d3d10_setup)
+        TexFilter::None | TexFilter::Quad | TexFilter::Point | TexFilter::Linear => mag,
+    };
+    match mag {
+        // (MEASURED filter-other-4-*, -5-*: linear, the attributes set up as Direct3D 10's
+        // rasterizer does, D3D9.TEX.QUAD)
+        TexFilter::Quad => TexFilter::Linear,
+        // (MEASURED filter-other-*: NONE, CONVOLUTIONMONO, values past them and Direct3D 8's
+        // FLATCUBIC, GAUSSIANCUBIC as MAGFILTER: POINT)
+        TexFilter::None | TexFilter::Other => {
+            hit(clause::D3D9_TEX_FILTEROTHER);
+            TexFilter::Point
+        }
+        f @ (TexFilter::Point | TexFilter::Linear | TexFilter::Anisotropic) => f,
+    }
+}
+
+/// whether a textured stage's filters set the draw's attributes up as Direct3D 10's rasterizer
+/// does (Setup::D3d10): Direct3D 9's PYRAMIDALQUAD or GAUSSIANQUAD as MAGFILTER, or those or NONE
+/// as MINFILTER (MEASURED filter-other-4-*, -5-*, filter-min-quad-*, filter-min-other-0;
+/// D3D9.TEX.QUAD, D3D9.TEX.FILTEROTHER); spec/lean/Kikizake/D3d9/Tex.lean `d3d10Setup`
+pub fn d3d10_setup(mag: u32, min: u32, v8: bool) -> bool {
+    TexFilter::of(mag, v8) == TexFilter::Quad || (!v8 && matches!(TexFilter::of(min, v8), TexFilter::Quad | TexFilter::None))
+}
+
+/// what d9draw does before it draws: on x86 a BLENDOP outside ADD..MAX, or an address mode
+/// outside WRAP..MIRRORONCE of a stage with a texture, kills the runtime, so the executor reads
+/// the state back and does not draw (MEASURED d3d9draw-32, d3d8draw-32; D3D9.BLEND.OPX86,
+/// D3D9.TEX.ADDRESSX86); a palette texture bound before any palette is set fails the draw
+/// with INVALIDCALL (MEASURED tex-*-P8, tex-*-A8P8; D3D9.TEX.PALETTE.NONE)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DrawGate {
+    Draw,
+    BlendOpX86(u32),
+    AddressX86(u32),
+    NoPalette,
+}
+
+/// DrawGate of x86 or x64, BLENDOP, the ADDRESSU and ADDRESSV of each stage with a texture in
+/// turn, whether a palette is set and whether a palette texture is bound;
+/// spec/lean/Kikizake/D3d9/Tex.lean `gate`
+pub fn draw_gate(x86: bool, blend_op: u32, addresses: &[u32], palette_set: bool, palette_tex: bool) -> DrawGate {
+    let named = |v: u32| (1..=5).contains(&v);
+    if x86 && !named(blend_op) {
+        hit(clause::D3D9_BLEND_OPX86);
+        return DrawGate::BlendOpX86(blend_op);
+    }
+    if let Some(&a) = addresses.iter().find(|&&a| x86 && !named(a)) {
+        hit(clause::D3D9_TEX_ADDRESSX86);
+        return DrawGate::AddressX86(a);
+    }
+    if !palette_set && palette_tex {
+        hit(clause::D3D9_TEX_PALETTE_NONE);
+        return DrawGate::NoPalette;
+    }
+    DrawGate::Draw
+}
+
+/// a palette texel (MEASURED palette-*, D3D9.TEX.PALETTE): its entry's color (r, g, b, flags);
+/// P8's alpha the entry's flags, A8P8's (40) its own byte a8; spec/lean/Kikizake/D3d9/Tex.lean
+/// `paletteTexel`
+pub fn palette_texel(fmt: u32, a8: u8, e: [u8; 4]) -> [u8; 4] {
+    hit(clause::D3D9_TEX_PALETTE);
+    let [r, g, b, flags] = e;
+    [r, g, b, if fmt == 40 { a8 } else { flags }]
+}
+
+/// the stencil states a pixel is tested and written with: FAIL, ZFAIL, PASS, FUNC, or (9) the
+/// CCW ones for a counterclockwise triangle under TWOSIDEDSTENCILMODE (MEASURED stencil2-*,
+/// D3D9.STENCIL.TWOSIDED); spec/lean/Kikizake/D3d9/Tex.lean `stencilStates`
+pub fn stencil_states(v8: bool, two_sided: u32, ccw: bool) -> [u32; 4] {
+    if !v8 && two_sided != 0 && ccw {
+        hit(clause::D3D9_STENCIL_TWOSIDED);
+        [186, 187, 188, 189]
+    } else {
+        [53, 54, 55, 56]
     }
 }
 
@@ -1157,14 +1456,10 @@ impl D3d9 {
     fn tss(&self, s: u32, t: u32) -> u32 {
         self.state.get(&Key::Tss(s, t)).copied().unwrap_or(0)
     }
-    /// whether an enabled stage with a texture filters with PYRAMIDALQUAD or GAUSSIANQUAD
+    /// whether an enabled stage with a texture sets the attributes up as Direct3D 10 does
+    /// (d3d10_setup)
     fn quad_filtered(&self) -> bool {
-        (0..8u32).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.draw.stage_tex[st as usize].is_some() && (self.filter(st, 5) == TexFilter::Quad || (!self.v8 && matches!(self.filter(st, 6), TexFilter::Quad | TexFilter::None))))
-    }
-
-    /// a stage's MAGFILTER (t 5) or MINFILTER (t 6)
-    fn filter(&self, s: u32, t: u32) -> TexFilter {
-        TexFilter::of(self.samp(s, t), self.v8)
+        (0..8u32).take_while(|&st| self.tss(st, 1) != 1).any(|st| self.draw.stage_tex[st as usize].is_some() && d3d10_setup(self.samp(st, 5), self.samp(st, 6), self.v8))
     }
     /// a sampler state (Direct3D 8: the stage state of the same meaning)
     fn samp(&self, s: u32, t: u32) -> u32 {
@@ -1306,14 +1601,15 @@ impl D3d9 {
             }
             "d9tex" => {
                 let (i, w, h, f) = (n(op, 1)? as usize, n(op, 2)? as i32, n(op, 3)? as i32, n(op, 4)? as u32);
-                hit(clause::D3D9_TEX_CREATE);
-                if !supported(f, false, self.v8) {
-                    self.draw.texs[i] = None;
-                    out.push(format!("tex failed {INVALIDCALL:08x}"));
-                    return Ok(true);
+                let taken = supported(f, false, self.v8);
+                let fm = format(f).filter(|_| taken);
+                match create_level(taken, fm.as_ref().is_some_and(|m| matches!(m.kind, Kind::Dxt(_))), fm.as_ref().map_or(0, |m| m.bytes), w, h) {
+                    Ok(bytes) => self.draw.texs[i] = Some(Surface { w, h, fmt: f, bytes }),
+                    Err(hr) => {
+                        self.draw.texs[i] = None;
+                        out.push(format!("tex failed {hr:08x}"));
+                    }
                 }
-                let fm = format(f).ok_or(Fail::Bad)?;
-                self.draw.texs[i] = Some(Surface { w, h, fmt: f, bytes: fill_bytes(&fm, w, h, 0).iter().map(|_| 0).collect() });
             }
             "d9texfill" => {
                 let i = n(op, 1)? as usize;
@@ -1346,21 +1642,13 @@ impl D3d9 {
                 if nv == 0 || words.len() % nv != 0 {
                     return Err(Fail::Bad);
                 }
-                let op = self.rs(171);
-                if crate::model::arch() == 32 && !(1..=5).contains(&op) {
-                    // (the executor does not draw: the x86 runtime dies on it, MEASURED)
-                    hit(clause::D3D9_BLEND_OPX86);
-                    out.push(format!("draw x86 blendop {op}"));
-                } else if let Some(a) = (0..8u32).filter(|&st| crate::model::arch() == 32 && self.draw.stage_tex[st as usize].is_some()).flat_map(|st| [self.samp(st, 1), self.samp(st, 2)]).find(|a| !(1..=5).contains(a)) {
-                    // (nor with a texture's address mode outside WRAP..MIRRORONCE, MEASURED)
-                    hit(clause::D3D9_TEX_ADDRESSX86);
-                    out.push(format!("draw x86 address {a}"));
-                } else if self.draw.palette.is_none() && self.draw.stage_tex.iter().flatten().any(|&i| self.draw.texs[i].as_ref().is_some_and(|t| matches!(t.fmt, 40 | 41))) {
-                    // (MEASURED tex-*-P8, tex-*-A8P8: no palette, no drawing)
-                    hit(clause::D3D9_TEX_PALETTE_NONE);
-                    out.push(format!("draw hr {INVALIDCALL:08x}"));
-                } else {
-                    self.draw_prims(ty, nv, &words)?;
+                let addresses: Vec<u32> = (0..8u32).filter(|&st| self.draw.stage_tex[st as usize].is_some()).flat_map(|st| [self.samp(st, 1), self.samp(st, 2)]).collect();
+                let palette_tex = self.draw.stage_tex.iter().flatten().any(|&i| self.draw.texs[i].as_ref().is_some_and(|t| matches!(t.fmt, 40 | 41)));
+                match draw_gate(crate::model::arch() == 32, self.rs(171), &addresses, self.draw.palette.is_some(), palette_tex) {
+                    DrawGate::BlendOpX86(op) => out.push(format!("draw x86 blendop {op}")),
+                    DrawGate::AddressX86(a) => out.push(format!("draw x86 address {a}")),
+                    DrawGate::NoPalette => out.push(format!("draw hr {INVALIDCALL:08x}")),
+                    DrawGate::Draw => self.draw_prims(ty, nv, &words)?,
                 }
             }
             "d9decl" => {
@@ -1506,17 +1794,14 @@ impl D3d9 {
             return Ok(argb(self.samp(st, 4)));
         };
         let fm = format(tx.fmt).ok_or(Fail::Bad)?;
-        hit(clause::D3D9_TEX_FORMAT);
-        match fm.kind {
-            Kind::Int | Kind::F16 | Kind::F32 if !fm.ch.iter().any(|c| c.c == b'p') => {}
-            Kind::Dxt(n) => return dxt_texel(n, &tx.bytes, tx.w, x as i32, y as i32),
-            Kind::Int if matches!(tx.fmt, 40 | 41) => {
+        match texel_kind(tx.fmt, &fm) {
+            Some(TexelKind::Channels) => {}
+            Some(TexelKind::Dxt(n)) => return dxt_texel(n, &tx.bytes, tx.w, x as i32, y as i32),
+            Some(TexelKind::Palette) => {
                 // (MEASURED palette-*: the entry's color; P8's alpha the entry's flags, A8P8's its own)
-                hit(clause::D3D9_TEX_PALETTE);
                 let p = tx.px(x as i32, y as i32)?;
                 let e = self.draw.palette.as_ref().ok_or(Fail::Bad)?[p[0] as usize];
-                let a = if tx.fmt == 40 { p[1] } else { e[3] };
-                return Ok([e[0] as f64 / 255.0, e[1] as f64 / 255.0, e[2] as f64 / 255.0, a as f64 / 255.0]);
+                return Ok(palette_texel(tx.fmt, p.get(1).copied().unwrap_or(0), e).map(|c| f64::from(c) / 255.0));
             }
             // (none taken: every format WARP takes is decoded above, law every_taken_format_is_decoded)
             _ => return Err(Fail::Bad),
@@ -1562,26 +1847,7 @@ impl D3d9 {
         // (MEASURED filter2-0-32, filter2-1-32: a texture of one level magnifies everywhere,
         // minified or not: the level of detail is clamped to the texture's levels, 0, before it
         // picks the filter, so MINFILTER takes no part)
-        hit(clause::D3D9_TEX_MAGONLY);
-        // (MEASURED aniso-*: ANISOTROPIC as either filter makes both anisotropic, Direct3D 10's
-        // one ANISOTROPIC filter)
-        let (mag, min) = (self.filter(st, 5), self.filter(st, 6));
-        let mag = match min {
-            // (MEASURED d3d8draw filter-min-quad-*: Direct3D 8's FLATCUBIC, GAUSSIANCUBIC as
-            // MINFILTER make the whole of it POINT)
-            TexFilter::Other | TexFilter::None if self.v8 => TexFilter::Point,
-            // (MEASURED filter-min-other-6, -7, -ffffffff: Direct3D 9's CONVOLUTIONMONO and
-            // values past it as MINFILTER make the whole of it POINT too, D3D9.TEX.FILTEROTHER)
-            TexFilter::Other => TexFilter::Point,
-            // (MEASURED filter-min-other-0: NONE leaves MAGFILTER's filter, Direct3D 10's
-            // attribute setup)
-            TexFilter::None => mag,
-            // (MEASURED filter-min-quad-*: PYRAMIDALQUAD, GAUSSIANQUAD as MINFILTER leave
-            // MAGFILTER's filter, with Direct3D 10's attribute setup, D3D9.TEX.QUAD)
-            TexFilter::Quad | TexFilter::Point | TexFilter::Linear | TexFilter::Anisotropic => mag,
-        };
-        let mag = if min == TexFilter::Anisotropic { min } else { mag };
-        let filter = match mag {
+        let filter = match sample_filter(self.samp(st, 5), self.samp(st, 6), self.v8) {
             TexFilter::Anisotropic => {
                 // (MEASURED filter2-5-4, d3d8draw filter2-2-4: linear while no axis of the
                 // footprint is longer than a texel, aniso-3, -11, -18, -21, -23, -31: and with
@@ -1666,13 +1932,6 @@ impl D3d9 {
                 }
                 TexFilter::Linear
             }
-            // (MEASURED filter-other-4-*, -5-*: linear, the attributes set up as Direct3D 10's
-            // rasterizer does, D3D9.TEX.QUAD)
-            TexFilter::Quad => TexFilter::Linear,
-            TexFilter::None | TexFilter::Other => {
-                hit(clause::D3D9_TEX_FILTEROTHER);
-                TexFilter::Point
-            }
             f => f,
         };
         let (x, y) = (u * tx.w as f64, v * tx.h as f64);
@@ -1699,121 +1958,105 @@ impl D3d9 {
         stage_arg(a, &regs, self.v8)
     }
 
-    /// the texture stages (D3DTEXTUREOP) in turn, to the first whose COLOROP is DISABLE
+    /// a stage's states as stage_plan reads them
+    fn stage_desc(&self, st: u32) -> StageDesc {
+        let a = |t: u32| self.tss(st, t);
+        StageDesc {
+            cop: a(1),
+            aop: a(4),
+            has_tex: self.draw.stage_tex.get(st as usize).is_some_and(Option::is_some),
+            reads_tex: reads_texture(a(1), a(4), [a(2), a(3), a(26), a(5), a(6), a(27)]),
+            reads_cur: reads_current(a(1), [a(2), a(3), a(26)]),
+        }
+    }
+
+    /// the texture stages (D3DTEXTUREOP) as stage_plan orders them
     fn stages(&self, diffuse: [f64; 4], specular: [f64; 4], uv: [[f64; 2]; NSET]) -> Res<[f64; 4]> {
         let mut r = Regs { diffuse, specular, current: diffuse, temp: [0.0; 4] };
-        // (a bump mapping stage's texel, its kind and the stage, for the stage after it)
-        let mut bump: Option<([f64; 4], Bump, u32)> = None;
-        // (the texture the stage before sampled)
-        let mut last_tex: Option<[f64; 4]> = None;
-        // (CURRENT as each stage found it)
+        let desc: [StageDesc; 8] = std::array::from_fn(|st| self.stage_desc(st as u32));
+        // (the texture each stage sampled, and CURRENT as each stage found it)
+        let mut texs: [Option<[f64; 4]>; 8] = [None; 8];
         let mut found = [diffuse; 8];
-        for st in 0..8u32 {
-            found[st as usize] = r.current;
-            let (cop, aop) = (self.tss(st, 1), self.tss(st, 4));
-            if cop == 1 {
-                if st == 0 {
-                    hit(clause::D3D9_STAGE_DISABLE);
-                }
-                break;
-            }
-            if st > 0 {
-                hit(clause::D3D9_STAGE_MULTI);
-            }
-            let tex = match self.draw.stage_tex[st as usize] {
+        for step in stage_plan(&desc) {
+            let (Step::Run { st, moved, .. } | Step::Defer { st, moved } | Step::BumpLast { st, moved, .. } | Step::Off { st, moved, .. }) = step;
+            let k = st as usize;
+            found[k] = r.current;
+            let tex = match self.draw.stage_tex[k] {
                 Some(i) => {
                     let [mut u, mut v] = uv[self.tex_set(st).at()];
                     let mut lum = None;
-                    if let Some((t, kind, bs)) = bump {
+                    // (the bump mapping stage before: its texel, 0 without a texture (bump-2), and kind)
+                    if let Some(kind) = moved.then(|| Bump::of(desc[k - 1].cop)).flatten() {
                         // (MEASURED bump-*: the coordinates moved by BUMPENVMAT times (du, dv);
                         // LUMINANCE: the texture's color times L LSCALE + LOFFSET, clamped to 0..1,
                         // L 1 where the format has none)
                         hit(clause::D3D9_STAGE_BUMP);
+                        let t = texs[k - 1].unwrap_or([0.0; 4]);
+                        let bs = st - 1;
                         let m = |k: u32| f32::from_bits(self.tss(bs, k)) as f64;
-                        let (du, dv) = (t[0], t[1]);
-                        u += m(7) * du + m(9) * dv;
-                        v += m(8) * du + m(10) * dv;
+                        (u, v) = bump_uv((u, v), [m(7), m(8), m(9), m(10)], (t[0], t[1]));
                         if kind == Bump::Luminance {
-                            lum = Some((t[2] * m(22) + m(23)).clamp(0.0, 1.0));
+                            lum = Some(bump_luminance(t[2], m(22), m(23)));
                         }
                     }
                     let mut t = self.sample(st, self.draw.texs[i].as_ref().ok_or(Fail::Empty)?, u, v)?;
                     if let Some(l) = lum {
-                        // (MEASURED bump-2, bump-chain-3: in f32, rounded to the nearest of 255,
-                        // halves to even)
-                        for k in 0..3 {
-                            t[k] = (((t[k] as f32) * (l as f32) * 255.0).round_ties_even() / 255.0) as f64;
+                        for c in t.iter_mut().take(3) {
+                            *c = bump_scale(*c, l);
                         }
                     }
                     Some(t)
                 }
                 None => None,
             };
-            let before = std::mem::replace(&mut last_tex, tex);
-            bump = None;
-            if let Some(kind) = Bump::of(cop) {
-                // (MEASURED top-color-BUMPENVMAP*, stage1-BUMPENVMAP*, bump-*: the stage gives
-                // the texture the stage before it sampled, 0 where none did; with no texture of
-                // its own, (du, dv) and L are 0, bump-2, bump-3 on both)
-                hit(clause::D3D9_STAGE_BUMP);
-                let next = st + 1;
-                if next < 8 && self.tss(next, 1) != 1 {
-                    // (MEASURED bump-chain-4, -5, -6, -9, -10: followed by a stage, it writes
-                    // nothing, CURRENT going on as the stage before left it)
-                    hit(clause::D3D9_STAGE_BUMPCHAIN);
-                    if let Some(s) = (0..st).find(|&s| self.draw.stage_tex[s as usize].is_none() && self.reads_texture_any(s)) {
-                        // (MEASURED bump-chain-2, -8, -11, bump-late-*: a stage before reading
-                        // the texture it lacks turns the stages off from it, as DISABLE there:
-                        // CURRENT as it found it, the diffuse color on stage 0)
-                        return Ok(found[s as usize]);
-                    }
-                    bump = Some((tex.unwrap_or([0.0; 4]), kind, st));
-                    continue;
+            texs[k] = tex;
+            let (cop, aop) = (desc[k].cop, desc[k].aop);
+            let out = match step {
+                // (MEASURED bump-chain-2, -8, -11, bump-late-*: the stages off from s, CURRENT as
+                // it found it)
+                Step::Off { s, .. } => return Ok(found[s as usize]),
+                // (MEASURED bump-chain-4, -5, -6, -9, -10: a bump mapping stage followed by a
+                // stage writes nothing)
+                Step::Defer { .. } => continue,
+                // (MEASURED top-color-BUMPENVMAP*, stage1-BUMPENVMAP*, bump-*: the last stage
+                // gives the texture the stage before it sampled, 0 where none did)
+                Step::BumpLast { from, .. } => {
+                    hit(clause::D3D9_STAGE_BUMP);
+                    from.and_then(|p| texs.get(p as usize).copied().flatten()).unwrap_or([0.0; 4])
                 }
-                bump = Some((tex.unwrap_or([0.0; 4]), kind, st));
-                let out = before.unwrap_or([0.0; 4]);
-                match self.tss(st, 28) {
-                    1 => r.current = out,
-                    5 if !self.v8 => r.temp = out,
-                    _ => return Err(Fail::Bad),
-                }
-                continue;
-            }
-            let out = if aop == 1 {
-                // ALPHAOP DISABLE under an enabled COLOROP (MEASURED, alphadisable-*, stage 0):
-                // the alpha the stage is given where its color operation reads the diffuse color
-                // or CURRENT, else 1 (DOTPRODUCT3 writes its own)
-                if st == 0 {
-                    hit(clause::D3D9_STAGE_ALPHADISABLE_FIRST);
-                }
-                let mut out = self.stage(st, cop, 2, &r, tex)?;
-                if cop != 24 {
-                    out[3] = if st > 0 {
-                        // (MEASURED alphadisable-stage1-*: a later stage leaves CURRENT's alpha)
-                        hit(clause::D3D9_STAGE_ALPHADISABLE);
-                        r.current[3]
-                    } else if self.reads_current(st, cop) {
-                        r.current[3]
-                    } else {
-                        1.0
+                Step::Run { alpha, premod, .. } => {
+                    let mut out = match alpha {
+                        AlphaRule::Op(op) => self.stage(st, cop, op, &r, tex)?,
+                        // (ALPHAOP DISABLE: the color operation's stage, its alpha the one given
+                        // or 1, alphadisable-*)
+                        AlphaRule::Keep => {
+                            let mut out = self.stage(st, cop, 2, &r, tex)?;
+                            out[3] = r.current[3];
+                            out
+                        }
+                        AlphaRule::One => {
+                            let mut out = self.stage(st, cop, 2, &r, tex)?;
+                            out[3] = 1.0;
+                            out
+                        }
                     };
-                }
-                out
-            } else {
-                self.stage(st, cop, aop, &r, tex)?
-            };
-            // (MEASURED premod-chain-*: PREMODULATE gives its first argument times the next
-            // stage's texture, in f32, where the next stage is enabled and has one)
-            let mut out = out;
-            if (cop == 17 || aop == 17) && st < 7 && self.tss(st + 1, 1) != 1 && let Some(i) = self.draw.stage_tex[st as usize + 1] {
-                hit(clause::D3D9_STAGE_BUMP);
-                let nt = self.sample(st + 1, self.draw.texs[i].as_ref().ok_or(Fail::Empty)?, uv[self.tex_set(st + 1).at()][0], uv[self.tex_set(st + 1).at()][1])?;
-                for k in 0..4 {
-                    if (k < 3 && cop == 17) || (k == 3 && aop == 17) {
-                        out[k] = ((out[k] as f32) * (nt[k] as f32)) as f64;
+                    if premod {
+                        // (MEASURED premod-chain-*: PREMODULATE gives its first argument times
+                        // the next stage's texture, in f32, where the next stage is enabled and
+                        // has one)
+                        hit(clause::D3D9_STAGE_BUMP);
+                        let i = self.draw.stage_tex[k + 1].ok_or(Fail::Bad)?;
+                        let [nu, nv] = uv[self.tex_set(st + 1).at()];
+                        let nt = self.sample(st + 1, self.draw.texs[i].as_ref().ok_or(Fail::Empty)?, nu, nv)?;
+                        for c in 0..4 {
+                            if (c < 3 && cop == 17) || (c == 3 && aop == 17) {
+                                out[c] = premodulate(out[c], nt[c]);
+                            }
+                        }
                     }
+                    out
                 }
-            }
+            };
             match self.tss(st, 28) {
                 1 => r.current = out,
                 5 if !self.v8 => {
@@ -1837,23 +2080,6 @@ impl D3d9 {
     /// what tells apart the set a stage reads (SetKey)
     fn set_key(&self, st: u32) -> SetKey {
         SetKey { tci: self.tss(st, 11), xform: match self.tss(st, 24) { 0 => None, t => Some((t, st)) } }
-    }
-
-    /// whether a stage's color or alpha operation reads its texture (D3DTA_TEXTURE, or
-    /// BLENDTEXTUREALPHA, BLENDTEXTUREALPHAPM)
-    fn reads_texture_any(&self, st: u32) -> bool {
-        let sel = |a: u32| self.tss(st, a) & 0xf == 2;
-        let (cop, aop) = (self.tss(st, 1), self.tss(st, 4));
-        let reads = |op: u32, a1: u32, a2: u32, a0: u32| (op != 3 && sel(a1)) || (op != 2 && sel(a2)) || (matches!(op, 25 | 26) && sel(a0)) || matches!(op, 13 | 14);
-        reads(cop, 2, 3, 26) || aop != 1 && reads(aop, 5, 6, 27)
-    }
-
-    /// whether a stage's color operation reads the diffuse color or CURRENT: through an argument
-    /// it uses, or BLENDDIFFUSEALPHA, BLENDCURRENTALPHA
-    fn reads_current(&self, st: u32, cop: u32) -> bool {
-        let sel = |a: u32| matches!(self.tss(st, a) & 0xf, 0 | 1);
-        let (a1, a2, a0) = (cop != 3 && sel(2), cop != 2 && sel(3), matches!(cop, 25 | 26) && sel(26));
-        a1 || a2 || a0 || matches!(cop, 12 | 16)
     }
 
     /// one stage's color and alpha operations
@@ -2517,12 +2743,7 @@ impl D3d9 {
         if self.rs(52) != 0 {
             hit(clause::D3D9_STENCIL);
             // (two-sided: a counterclockwise triangle takes the CCW states)
-            let (fail, zfail, pass, func) = if !self.v8 && self.rs(185) != 0 && self.draw.ccw {
-                hit(clause::D3D9_STENCIL_TWOSIDED);
-                (186, 187, 188, 189)
-            } else {
-                (53, 54, 55, 56)
-            };
+            let [fail, zfail, pass, func] = stencil_states(self.v8, self.rs(185), self.draw.ccw);
             let s = self.draw.stencil[k];
             let (refv, mask, wmask) = (self.rs(57) as u8, self.rs(58) as u8, self.rs(59) as u8);
             let spass = cmp(self.rs(func), (refv & mask) as u64, (s & mask) as u64);
