@@ -103,6 +103,9 @@ fn unconfined_uses_are_found() {
     let check = "pub fn check_hr(f: u32) -> u32 { 0x8876_086a }\nfn draw_op(&mut self) { out.push(format!(\"{:08x}\", 0x0876_086f)); }\n";
     let r = rust("src/model/d3d9draw.rs", check);
     assert!(r.len() == 1 && r[0].contains("in draw_op"), "{r:?}");
+    // (the shading arithmetic only in grad9, plane10)
+    let r = rust("src/model/d3d9draw.rs", "fn grad9(x: X) -> f32 { d1 * (y[2] - y[0]) }\nfn draw(&self) { let g = d1 * (y[2] - y[0]); }\n");
+    assert!(r.len() == 1 && r[0].contains("in draw"), "{r:?}");
     // (the FVF and the declaration only through set_fvf, set_decl)
     assert!(!rust("src/model/d3d9draw.rs", "fn op(&mut self) { self.draw.fvf = 0; }").is_empty());
     assert!(rust("src/model/d3d9draw.rs", "fn op(&mut self) { (self.draw.fvf, self.draw.decl, self.draw.decl_from) = set_decl(e); if self.draw.fvf == 0 {} }").is_empty());

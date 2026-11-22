@@ -72,6 +72,10 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // (a declaration's refusals are decl_ok's, which the Lean mirror d3d9.decl holds to
     // spec/lean/Kikizake/D3d9/Decl.lean)
     ("src/model/d3d9draw.rs", r"usage\s*==\s*8\s*&&|\(9,\s*0\)", &["decl_ok"]),
+    // (the shading, clipping and snapping arithmetic is grad9, at9, plane10, clip_bounds and
+    // snap256, which the Lean mirrors d3d9.grad, at, plane, clipbounds, snap hold bit for bit to
+    // spec/lean/Kikizake/D3d9/Shade.lean and Clip.lean)
+    ("src/model/d3d9draw.rs", r"\*\s*\(y\[2\]\s*-\s*y\[0\]\)|1\.0\s*/\s*area|\*\s*256\.0\)|D3D9_RASTER_CLIP8\b|D3D9_SHADE_(FLAT|GOURAUD)", &["grad9", "plane10", "snap256", "clip_bounds", "shaded"]),
     // (blending on targets of other formats is blend_float and factor_f32, which d3d9.blendf holds
     // to spec/lean/Kikizake/D3d9/Blend.lean)
     ("src/model/d3d9draw.rs", r"D3D9_BLEND_FORMAT|\.min\(\s*1\.0\s*-|\|x\|\s*x\.clamp\(0\.0,\s*1\.0\)\s*as\s*f32", &["blend_float", "factor_f32"]),

@@ -652,3 +652,13 @@ tests/laws_d3dx9_load.rs::surfaces_of_formats_not_taken_are_invalid exhaustive D
 tests/laws_d3dx9_dxt.rs::every_colour_block_texel exhaustive D3DX9.LOAD.DXT
 tests/laws_d3dx9_dxt.rs::every_alpha exhaustive D3DX9.LOAD.DXT
 tests/laws_d3dx9_dxt.rs::every_texel_of_each_format exhaustive D3DX9.LOAD.DXT
+spec/lean/Kikizake/D3d9/Shade.lean::gouraud lean D3D9.SHADE.GOURAUD
+spec/lean/Kikizake/D3d9/Shade.lean::gouraud_colors lean D3D9.SHADE.GOURAUD
+spec/lean/Kikizake/D3d9/Shade.lean::flat lean D3D9.SHADE.FLAT
+spec/lean/Kikizake/D3d9/Shade.lean::strip_cuts lean D3D9.RASTER.CLIP
+spec/lean/Kikizake/D3d9/Shade.lean::strip_examples lean D3D9.RASTER.CLIP
+spec/lean/Kikizake/D3d9/Clip.lean::no_sides lean D3D9.RASTER.CLIP
+spec/lean/Kikizake/D3d9/Clip.lean::pass_keeps lean D3D9.RASTER.CLIP
+spec/lean/Kikizake/D3d9/Clip.lean::snap_near lean D3D9.RASTER.CLIP
+spec/lean/Kikizake/D3d9/Clip.lean::d3d9_half_in lean D3D9.RASTER.CLIP8SIDE
+spec/lean/Kikizake/D3d9/Clip.lean::outside_sides lean D3D9.RASTER.CLIP8

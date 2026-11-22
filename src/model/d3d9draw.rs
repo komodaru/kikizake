@@ -336,6 +336,12 @@ pub fn encode_x(f: &Fmt, rgba: [f64; 4], x_alpha: bool) -> Vec<u8> {
     w.to_le_bytes()[..f.bytes].to_vec()
 }
 
+/// D3D9.RASTER.CLIP, RASTER.TOPLEFT: a screen coordinate snapped to 1/256 pixel, to nearest even
+/// (the value in 1/256ths)
+pub fn snap256(v: f32) -> i64 {
+    round_even(f64::from(v) * 256.0) as i64
+}
+
 pub fn round_even(x: f64) -> f64 {
     let r = x.round();
     if (x - x.trunc()).abs() == 0.5 && r % 2.0 != 0.0 {
@@ -702,7 +708,7 @@ struct Regs {
 
 /// the attributes a vertex carries through clipping: z, diffuse (r, g, b, a), specular, u, v
 /// z, diffuse, specular, (u, v), rhw, a second (u, v)
-const ATTRS: usize = 19;
+pub const ATTRS: usize = 19;
 /// the attributes perspective divides (all but z and rhw)
 const PERSP: [usize; 17] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18];
 /// how many sets of texture coordinates a vertex carries for the stages (TexSet)
@@ -772,10 +778,10 @@ impl TexSet {
 
 /// a vertex of a clipped polygon: its position and attributes, in f32
 #[derive(Clone, Copy)]
-struct PolyVtx {
-    x: f32,
-    y: f32,
-    at: [f32; ATTRS],
+pub struct PolyVtx {
+    pub x: f32,
+    pub y: f32,
+    pub at: [f32; ATTRS],
 }
 
 impl Vtx {
@@ -846,6 +852,18 @@ pub fn at9(a0: f32, (dx, dy): (f32, f32), x0: f32, y0: f32, sx: f32, sy: f32) ->
     a0 + dy * (sy - y0) + dx * (sx - x0)
 }
 
+/// D3D9.SHADE.FLAT, SHADE.GOURAUD: the colors a pixel takes, the first vertex's with flat
+/// shading, else the interpolated ones
+pub fn shaded<T>(flat: bool, first: T, interpolated: T) -> T {
+    if flat {
+        hit(clause::D3D9_SHADE_FLAT);
+        first
+    } else {
+        hit(clause::D3D9_SHADE_GOURAUD);
+        interpolated
+    }
+}
+
 /// Direct3D 10's attribute plane (D3DRASTER.INTERP, D3D9.TEX.QUAD, D3D9.DRAW.XYZ):
 /// gx = (d1 (y2 - y0) - d2 (y1 - y0)) (1 / A), gy = (d2 (x1 - x0) - d1 (x2 - x0)) (1 / A),
 /// C = (a0 - gx x0) - gy y0, the value (C + gy cy) + gx cx, in f32
@@ -860,7 +878,7 @@ pub fn plane10(x: [f32; 3], y: [f32; 3], a: [f32; 3], cx: f32, cy: f32) -> f32 {
 }
 
 /// the triangle's vertex of least x, then least y (the first of equals)
-fn least_x(c: &[PolyVtx; 3]) -> usize {
+pub fn least_x(c: &[PolyVtx; 3]) -> usize {
     (0..3).min_by(|&i, &j| (c[i].x, c[i].y).partial_cmp(&(c[j].x, c[j].y)).unwrap_or(std::cmp::Ordering::Equal)).unwrap_or(0)
 }
 
@@ -1262,7 +1280,7 @@ enum Side {
 /// vertices then clamped into the viewport (the clean-room notes: WARP clamps them to its clip
 /// space's -w ..= w, so a new vertex past a side not clipped lands on it; MEASURED clip8-*,
 /// raster-3, -54, -90 of d3d8draw: on a side clipped at the size itself, Direct3D 8's, there)
-fn clip_polygon(poly: &[PolyVtx], x1: f32, y1: f32, sides: [bool; 4]) -> Vec<PolyVtx> {
+pub fn clip_polygon(poly: &[PolyVtx], x1: f32, y1: f32, sides: [bool; 4]) -> Vec<PolyVtx> {
     let mut poly: Vec<(PolyVtx, bool)> = poly.iter().map(|v| (*v, false)).collect();
     for (si, side) in [Side::Left, Side::Right, Side::Top, Side::Bottom].into_iter().enumerate() {
         if !sides[si] {
@@ -1298,9 +1316,27 @@ fn clip_polygon(poly: &[PolyVtx], x1: f32, y1: f32, sides: [bool; 4]) -> Vec<Pol
     }).collect()
 }
 
+/// D3D9.RASTER.CLIP, CLIP8, CLIP8SIDE: where a triangle is clipped, (the right side, the bottom
+/// side, the sides (left, right, top, bottom) some vertex is strictly outside of: x < 0, x > the
+/// width, y < 0, y > the height; the clean-room notes, MEASURED clip8-*). The right and bottom
+/// sides half a pixel in, at the size itself with perspective (MEASURED rhw-6) and on Direct3D 8
+/// with a vertex at the width (height) itself (d3d8draw raster-77, -96 and 17 more)
+pub fn clip_bounds(pts: [(f32, f32); 3], w: i32, h: i32, v8: bool, persp: bool) -> (f32, f32, [bool; 4]) {
+    let (wf, hf): (f32, f32) = (w.to_string().parse().unwrap_or(f32::NAN), h.to_string().parse().unwrap_or(f32::NAN));
+    let at_w = v8 && pts.iter().any(|v| v.0 == wf);
+    let at_h = v8 && pts.iter().any(|v| v.1 == hf);
+    if at_w || at_h {
+        hit(clause::D3D9_RASTER_CLIP8SIDE);
+    }
+    hit(clause::D3D9_RASTER_CLIP8);
+    let edge = if persp { 0.0 } else { 0.5 };
+    let (ex, ey) = (if at_w { 0.0 } else { edge }, if at_h { 0.0 } else { edge });
+    (wf - ex, hf - ey, [pts.iter().any(|v| v.0 < 0.0), pts.iter().any(|v| v.0 > wf), pts.iter().any(|v| v.1 < 0.0), pts.iter().any(|v| v.1 > hf)])
+}
+
 /// a convex polygon of n vertices cut into the strip v1 v2 v0 v3 v(n-1) v4 v(n-2) ... (MEASURED:
 /// d3d9draw shade-clip-*, no other order fits all 16)
-fn strip(n: usize) -> Vec<[usize; 3]> {
+pub fn strip(n: usize) -> Vec<[usize; 3]> {
     let mut order = vec![0];
     let (mut lo, mut hi) = (1, n.saturating_sub(1));
     while lo <= hi {
@@ -2442,7 +2478,7 @@ impl D3d9 {
             return Err(Fail::Bad);
         }
         let inside = |v: &Vtx| (-0.5..=w as f32 - 0.5).contains(&v.x) && (-0.5..=h as f32 - 0.5).contains(&v.y);
-        let snap = |v: f32| round_even(v as f64 * 256.0) as i128;
+        let snap = |v: f32| i128::from(snap256(v));
         let l = Seg9 { a: (snap(a.x), snap(a.y)), b: (snap(b.x), snap(b.y)) };
         if l.a == l.b {
             return Ok(());
@@ -2480,7 +2516,7 @@ impl D3d9 {
                     hit(clause::D3D9_DRAW_LINECLIP);
                     return Ok(());
                 };
-                let snap = |v: f32| round_even(f64::from(v) * 256.0) as i128;
+                let snap = |v: f32| i128::from(snap256(v));
                 let r = Seg9 { a: (snap(ca.0), snap(ca.1)), b: (snap(cb.0), snap(cb.1)) };
                 // (MEASURED line-clip-*, line-random-*, line-end-*-clip, line-corner-*,
                 // line-both-*: a line past the target cut to it in f32, t = (edge - a) / (b - a),
@@ -2629,11 +2665,7 @@ impl D3d9 {
         // 9 does, but with a vertex at the target's width (height) itself it clips the right
         // (bottom) side at the size, not half a pixel in: raster-77, -96 and 17 more,
         // D3D9.RASTER.CLIP8SIDE)
-        let at_w = self.v8 && pts.iter().any(|v| v.0 == w as f32);
-        let at_h = self.v8 && pts.iter().any(|v| v.1 == h as f32);
-        if clipped && (at_w || at_h) {
-            hit(clause::D3D9_RASTER_CLIP8SIDE);
-        }
+        let (x1, y1, sides) = clip_bounds(pts, w, h, self.v8, persp);
         let flat = self.rs(9) == 1;
         let mut clipr = (0, 0, w, h);
         if !self.v8 && self.rs(174) != 0 {
@@ -2654,7 +2686,7 @@ impl D3d9 {
             }
             PolyVtx { x: v.x, y: v.y, at }
         });
-        let snap = |v: &PolyVtx| (round_even(v.x as f64 * 256.0) as i64, round_even(v.y as f64 * 256.0) as i64);
+        let snap = |v: &PolyVtx| (snap256(v.x), snap256(v.y));
         // the pieces drawn: the triangle itself, or the clipped polygon's vertices snapped to
         // 1/256 pixel and cut into a strip (MEASURED: d3d9draw shade-clip-*, d3d8draw prims-3,
         // shade-9: the polygon as clipped to x = -0.5, size - 0.5, y = -0.5, size - 0.5 in turn,
@@ -2666,15 +2698,7 @@ impl D3d9 {
             // clip-decide-*, which diagonal cuts a quadrilateral)
             let first = least_x(&corners);
             let turned: [PolyVtx; 3] = std::array::from_fn(|k| corners[(first + k) % 3]);
-            // (MEASURED rhw-6: with perspective, the right and bottom sides at the size itself)
-            let edge = if persp { 0.0 } else { 0.5 };
-            let ex = if at_w { 0.0 } else { edge };
-            let ey = if at_h { 0.0 } else { edge };
-            // (the clean-room notes, MEASURED clip8-*: the sides some vertex is outside of,
-            // x < 0, x > the width, y < 0, y > the height, strictly, D3D9.RASTER.CLIP8)
-            hit(clause::D3D9_RASTER_CLIP8);
-            let sides = [pts.iter().any(|v| v.0 < 0.0), pts.iter().any(|v| v.0 > w as f32), pts.iter().any(|v| v.1 < 0.0), pts.iter().any(|v| v.1 > h as f32)];
-            let poly: Vec<PolyVtx> = clip_polygon(&turned, w as f32 - ex, h as f32 - ey, sides)
+            let poly: Vec<PolyVtx> = clip_polygon(&turned, x1, y1, sides)
                 .iter()
                 .map(|v| {
                     let (x, y) = snap(v);
@@ -2735,13 +2759,7 @@ impl D3d9 {
                         Some(p) => p.at(sx, sy),
                         None => std::array::from_fn(|k| if persp && PERSP.contains(&k) { (at32[k] / at32[11]) as f64 } else { at32[k] as f64 }),
                     };
-                    let (diffuse, specular) = if flat {
-                        hit(clause::D3D9_SHADE_FLAT);
-                        (a.diffuse, a.specular)
-                    } else {
-                        hit(clause::D3D9_SHADE_GOURAUD);
-                        (std::array::from_fn(|k| at[1 + k]), std::array::from_fn(|k| at[5 + k]))
-                    };
+                    let (diffuse, specular) = shaded(flat, (a.diffuse, a.specular), (std::array::from_fn(|k| at[1 + k]), std::array::from_fn(|k| at[5 + k])));
                     if !persp {
                         // (the footprint as Direct3D 10's coarse derivatives, the quad's top-left
                         // pixel's s/q, t/q against its right and lower neighbours': projected
