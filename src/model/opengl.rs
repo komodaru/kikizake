@@ -2641,6 +2641,7 @@ impl Ctx {
         }
         let index_mode = self.pf.ty != 0;
         let scale = self.channel_scales();
+        let last = b.c;
         let Some((e, cut)) = tri::cut_line(a, b, true) else { return Ok(()) };
         if cut.iter().any(|c| *c) {
             hit(clause::GL_RASTER_INTERPOLATE_LINE);
@@ -2650,7 +2651,9 @@ impl Ctx {
         }
         let raster = |e: tri::ClipEnd, cut: bool| if cut { tri::Raster::of_cut(e.clip, self.viewport, HEIGHT) } else { tri::Raster::of(e.clip, self.viewport, HEIGHT) };
         let r = [raster(e[0], cut[0]), raster(e[1], cut[1])];
-        let colors = [e[0].c, e[1].c];
+        // (MEASURED, golden opengl-32 / 64 tex-open-more-line-smooth-flat-ends: flat-shaded
+        // (textured, so through here), every pixel in the second end's color, GL 1.1 2.13.7)
+        let colors = if self.shade == FLAT { [last, last] } else { [e[0].c, e[1].c] };
         // (stippled: the counter from 0 at glBegin and each GL_LINES segment, a strip's carried
         // on (raster-open-1, 2); a cut line's counted from its cut end, raster-open-3)
         let stipple = if self.cap(LINE_STIPPLE) {
@@ -2699,8 +2702,9 @@ impl Ctx {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         hit(if thin { clause::GL_RASTER_LINE_SMOOTH } else { clause::GL_RASTER_LINE_SMOOTH_WIDE });
-        // (textured under a depth test: each pixel the depth along the snapped ends at its
-        // center, as an aliased line's, GL.RASTER.TEXTURE.PRIM)
+        // (MEASURED, golden opengl-32 / 64 tex-open-more-line-smooth-depth-read, -wide-: textured
+        // under a depth test, an aliased line's depths from the first end's pixel, a pixel taking
+        // the one of its step k along the line, as its texture coordinates: GL.RASTER.TEXTURE.PRIM)
         let depth = self.aa_line_depth(e[0].clip, e[1].clip)?;
         for p in tri::aa_line(r[0], r[1], colors, tri::AaWidth::of(self.line_width), stipple) {
             let (c, fixed) = if index_mode { ([tri::index_coverage(p.c[0], p.c[3]), 0.0, 0.0, 0.0], ToFixed::Trunc) } else { (p.c, ToFixed::Scaled) };
@@ -2708,9 +2712,10 @@ impl Ctx {
             let along = self.line_texture.map(|t| t.along(p.k));
             self.frag_tex = along.map(|(_, stq)| stq);
             self.frag_fog = along.filter(|_| self.cap(FOG)).map(|([.., f], _)| f);
-            let zfixed = depth.map(|(major, z, bits)| {
-                let j = if major { y } else { p.x };
-                FixedZ { bits: match bits { tri::DepthBits::D32 => 32, tri::DepthBits::D16 => 16 }, value: u64::from(bits.stored(tri::line_depth(z.0, z.1, j, j, bits))) }
+            let zfixed = depth.map(|(z, bits)| {
+                let first = z.0[0].0.div_euclid(256);
+                let j = first.saturating_add(p.k);
+                FixedZ { bits: match bits { tri::DepthBits::D32 => 32, tri::DepthBits::D16 => 16 }, value: u64::from(bits.stored(tri::line_depth(z.0, z.1, first, j, bits))) }
             });
             let r = self.fragment(Frag { x: p.x, y, c, z: 0.0, fixed, zfixed });
             (self.frag_tex, self.frag_fog) = (None, None);
@@ -2719,9 +2724,9 @@ impl Ctx {
         Ok(())
     }
 
-    /// a textured antialiased line's depths under a depth test: whether y is its major axis,
-    /// its snapped ends there and their window depths, the buffer's bits
-    fn aa_line_depth(&self, a: [f32; 4], b: [f32; 4]) -> Res<Option<(bool, ([tri::Sub; 2], [f32; 2]), tri::DepthBits)>> {
+    /// a textured antialiased line's depths under a depth test: its snapped ends along the major axis
+    /// and their window depths, the buffer's bits
+    fn aa_line_depth(&self, a: [f32; 4], b: [f32; 4]) -> Res<Option<(([tri::Sub; 2], [f32; 2]), tri::DepthBits)>> {
         let bits = match self.pf.depth {
             _ if self.line_texture.is_none() || !self.cap(DEPTH_TEST) => return Ok(None),
             32 => tri::DepthBits::D32,
@@ -2740,7 +2745,7 @@ impl Ctx {
         let (([ax, ay], za), ([bx, by], zb)) = (end(a), end(b));
         let major = (by.0.saturating_sub(ay.0)).abs() > (bx.0.saturating_sub(ax.0)).abs();
         let ends = if major { [ay, by] } else { [ax, bx] };
-        Ok(Some((major, (ends, [za, zb]), bits)))
+        Ok(Some(((ends, [za, zb]), bits)))
     }
 
     /// whether a GL_LINE_SMOOTH line is drawn aliased instead, through the pipeline in its
