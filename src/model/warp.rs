@@ -302,6 +302,107 @@ pub fn cut_line<const N: usize>(v: [(i64, i64); 2], a: [[f32; N]; 2], w: i64, h:
     Ok(Some(CutLine { v: [screen(&e0)?, screen(&e1)?], a: [e0.a, e1.a] }))
 }
 
+/// a triangle as WARP's clipper hands it to its setup
+pub enum TriCut {
+    /// no vertex outside the viewport: the triangle as it is
+    Whole,
+    /// every vertex outside one side: nothing drawn
+    Gone,
+    /// cut: the polygon's vertices in 256ths of a pixel (x + 1/2), drawn as a fan from the first
+    Fan(Vec<(i128, i128)>),
+}
+
+/// WARP's ClipTriangle for a pretransformed triangle (rhw 1) on a w × h viewport at the origin,
+/// from the clean-room notes F.6: the same clip codes as a line's (no guard band); the vertices
+/// rotated so the one of least x (then least y) comes first; Sutherland–Hodgman over the sides
+/// Left, Right, Top, Bottom in the codes, each crossing cut as cut_line cuts; the vertices back on
+/// the screen clamped to the viewport's clip-space square, RNE(((1/w · x) · scale + off) · 256)
+pub fn cut_tri(v: [(i64, i64); 3], w: i64, h: i64) -> Res<TriCut> {
+    let bad = || Fail::Bad;
+    let ends: Vec<CutEnd<0>> = v.iter().map(|&(x, y)| clip_end(x, y, [], w, h)).collect::<Res<_>>()?;
+    let out = |e: &CutEnd<0>, k: usize| e.d.get(k).is_some_and(|&d| d < 0.0);
+    let any = |k: usize| ends.iter().any(|e| out(e, k));
+    if (0..4).all(|k| !any(k)) {
+        return Ok(TriCut::Whole);
+    }
+    if (0..4).any(|k| ends.iter().all(|e| out(e, k))) {
+        return Ok(TriCut::Gone);
+    }
+    // (least x first, then least y; the winding kept)
+    let first = (0..3usize).min_by(|&i, &j| {
+        let (a, b) = (v.get(i).copied().unwrap_or_default(), v.get(j).copied().unwrap_or_default());
+        a.0.cmp(&b.0).then(a.1.cmp(&b.1))
+    }).ok_or_else(bad)?;
+    let mut poly: Vec<CutEnd<0>> = ends.iter().cycle().skip(first).take(3).copied().collect();
+    for k in 0..4usize {
+        if !any(k) {
+            continue;
+        }
+        let mut next = Vec::with_capacity(poly.len().wrapping_add(1));
+        for i in 0..poly.len() {
+            let (Some(&cur), Some(&prev)) = (poly.get(i), poly.get(i.checked_sub(1).unwrap_or(poly.len().wrapping_sub(1)))) else { return Err(bad()) };
+            let (ic, ip) = (!out(&cur, k), !out(&prev, k));
+            match (ip, ic) {
+                (true, true) => next.push(cur),
+                (true, false) => next.push(cut(k, &prev, &cur)?),
+                (false, true) => {
+                    next.push(cut(k, &cur, &prev)?);
+                    next.push(cur);
+                }
+                (false, false) => {}
+            }
+        }
+        poly = next;
+    }
+    if poly.len() < 3 {
+        return Ok(TriCut::Gone);
+    }
+    Ok(TriCut::Fan(poly.iter().map(|e| screen(e, w, h)).collect::<Res<_>>()?))
+}
+
+/// a TL end (16ths of a pixel, rhw 1) in WARP's clip space on a w × h viewport
+fn clip_end<const N: usize>(x: i64, y: i64, a: [f32; N], w: i64, h: i64) -> Res<CutEnd<N>> {
+    let bad = || Fail::Bad;
+    let f = |n: i128| ratio_f32(n, 1).ok_or_else(bad);
+    let (hw, hh) = (ratio_f32(i128::from(w), 2).ok_or_else(bad)?, ratio_f32(i128::from(h), 2).ok_or_else(bad)?);
+    let (ix, iy) = (ratio_f32(2, i128::from(w)).ok_or_else(bad)?, -ratio_f32(2, i128::from(h)).ok_or_else(bad)?);
+    let half = f32::from_bits(0x3f00_0000);
+    let sixteenth = f32::from_bits(0x3d80_0000);
+    let (sx, sy) = (f(i128::from(x))? * sixteenth + half, f(i128::from(y))? * sixteenth + half);
+    let cw = 1.0f32;
+    let (cx, cy) = (((sx - hw) * cw) * ix, ((sy - hh) * cw) * iy);
+    Ok(CutEnd { x: cx, y: cy, w: cw, d: [cw + cx, cw - cx, cw - cy, cw + cy], a })
+}
+
+/// the crossing of side k from the end inside to the one outside: in + (out − in) · d_in /
+/// (d_in − d_out) for every value, the differences in f32, the rest in double rounded once
+fn cut<const N: usize>(k: usize, inside: &CutEnd<N>, outside: &CutEnd<N>) -> Res<CutEnd<N>> {
+    let (Some(&din), Some(&dout)) = (inside.d.get(k), outside.d.get(k)) else { return Err(Fail::Bad) };
+    let lerp = |qi: f32, qo: f32| crate::model::gppath::to32(crate::model::gdiplus::Round::Nearest, f64::from(qi) + f64::from(qo - qi) * f64::from(din) / f64::from(din - dout));
+    let mut n = CutEnd { x: lerp(inside.x, outside.x), y: lerp(inside.y, outside.y), w: lerp(inside.w, outside.w), d: [0.0; 4], a: [0.0; N] };
+    for ((o, &qi), &qo) in n.d.iter_mut().zip(&inside.d).zip(&outside.d) {
+        *o = lerp(qi, qo);
+    }
+    for ((o, &qi), &qo) in n.a.iter_mut().zip(&inside.a).zip(&outside.a) {
+        *o = lerp(qi, qo);
+    }
+    Ok(n)
+}
+
+/// a clipped end back on the screen in 256ths: x, y clamped to ±w, RNE((((1/w) · x) · scale +
+/// off) · 256)
+fn screen<const N: usize>(e: &CutEnd<N>, w: i64, h: i64) -> Res<(i128, i128)> {
+    let bad = || Fail::Bad;
+    let (hw, hh) = (ratio_f32(i128::from(w), 2).ok_or_else(bad)?, ratio_f32(i128::from(h), 2).ok_or_else(bad)?);
+    let iw = 1.0 / e.w;
+    let q = |c: f32, scale: f32, off: f32| -> Res<i128> {
+        let c = c.clamp(-e.w, e.w);
+        let v = (((iw * c) * scale) + off) * 256.0;
+        crate::model::d3dim::trunc(v.round_ties_even()).map(i128::from).ok_or_else(bad)
+    };
+    Ok((q(e.x, hw, hw)?, q(e.y, -hh, hh)?))
+}
+
 /// a float written to an n-bit UNORM channel: RNE(clamp(v, 0, 1) · (2^n − 1)), denormals as 0
 pub fn unorm(v: f32, bits: u32) -> Res<u32> {
     let bad = || Fail::Bad;

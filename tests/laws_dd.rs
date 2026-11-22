@@ -157,6 +157,22 @@ proptest! {
         }
     }
 
+    /// the software walk of a triangle inside the target (d3dim700's NoClip walker, spans
+    /// unclamped): no pixel left of the target's left side, above or below it, nor more than one
+    /// column past its right side, so a span reaches at most the first byte after a row (D3D7.TRI.CLIP:
+    /// the 24-bit pixel across a row's end is never reached; d3d7spill*: column w on the last row)
+    #[test]
+    fn soft_walk_overruns_by_one_column_at_most(v in prop::array::uniform6(0i64..=320), w in 1i64..=20, h in 1i64..=20) {
+        use kikizake::model::d3dim::{raster, Clip, Vert};
+        let (wx, hy) = (w * 16, h * 16);
+        let vert = |i: usize| Vert { x: (v[2 * i] % (wx + 1)) as f32 / 16.0, y: (v[2 * i + 1] % (hy + 1)) as f32 / 16.0, c: [0x80; 4] };
+        let clip = Clip { l: 0, t: 0, r: w, b: h };
+        let Some(r) = raster([vert(0), vert(1), vert(2)], clip, false).unwrap() else { return Ok(()) };
+        for q in &r.px {
+            prop_assert!((0..=w).contains(&q.x) && (0..h).contains(&q.y), "{v:?} {w}x{h}: ({}, {})", q.x, q.y);
+        }
+    }
+
     /// the software rasterizers' Gouraud spans (crate::model::d3dim, D3D7.GOURAUD): each pixel's
     /// 8.8 colour, inside or across the target, lies within the f32 error and the truncated
     /// per-pixel step of the exact colour plane at that pixel (a level and an eighth, plus the
@@ -586,7 +602,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 11, 0), ("d3d7shade", 0, 0), ("d3d7edge", 0, 0), ("d3d7rast", 0, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 0, 0), ("d3d7shade", 0, 0), ("d3d7edge", 0, 0), ("d3d7rast", 0, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
