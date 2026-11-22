@@ -235,7 +235,7 @@ file	src/model/d3d9draw.rs	cast_possible_wrap	6
 file	src/model/d3d9draw.rs	cast_precision_loss	60
 file	src/model/d3d9draw.rs	cast_sign_loss	38
 file	src/model/d3d9draw.rs	float_cmp	11
-file	src/model/d3d9draw.rs	indexing_slicing	222
+file	src/model/d3d9draw.rs	indexing_slicing	211
 file	src/model/d3d9draw.rs	map_err_ignore	1
 file	src/model/d3d9draw.rs	unreachable	1
 file	src/model/d3d9draw.rs	wildcard_enum_match_arm	4
