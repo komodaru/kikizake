@@ -758,6 +758,50 @@ pub fn level(lod: f64, last: u32, point: bool) -> Level {
     }
 }
 
+/// D3DRASTER.NOSAMPLER: the sampler bound, or with none the default one: linear filtering,
+/// clamped addresses (filter, address u, v, w, comparison)
+pub fn sampler_or_default(s: Option<[u32; 5]>) -> [u32; 5] {
+    s.unwrap_or([0x15, 3, 3, 3, 1])
+}
+
+/// D3DRASTER.FILTER.ANISO, MINMAG: a sampler's filter's minifying and magnifying filters,
+/// linear or point; None for a filter the model does not draw with
+pub fn filter_linear(f: u32) -> Option<(bool, bool)> {
+    Filter::of(f).map(|x| (x.min, x.mag))
+}
+
+/// D3DRASTER.FILTER.MINMAG, LEVEL, ANISO: the texels of level 0 (w x h) a 2 x 2 quad spans, its
+/// coordinates at its corner and its right and lower neighbours: the longer of
+/// sqrt((du w)^2 + (dv h)^2) along x and along y, in f64
+pub fn quad_span(q: [[f32; 2]; 3], w: u32, h: u32) -> f64 {
+    let span = |a: [f32; 2], b: [f32; 2]| ((f64::from(b[0] - a[0]) * f64::from(w)).powi(2) + (f64::from(b[1] - a[1]) * f64::from(h)).powi(2)).sqrt();
+    span(q[0], q[1]).max(span(q[0], q[2]))
+}
+
+/// which filter a quad of span rho takes
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum FilterPick {
+    /// the magnifying filter, at level 0
+    Mag,
+    /// the minifying filter, at the one level
+    Min,
+    /// the minifying filter at the level or levels of the lod
+    Mip(Level),
+}
+
+/// D3DRASTER.FILTER.MINMAG, LEVEL: a span of up to one texel magnifies, past it minifies; with
+/// mips at the level of log2rho (f64::log2 of rho, as the platform's libm gives it), mip point
+/// or linear
+pub fn filter_pick(mips: u32, mip_point: bool, rho: f64, log2rho: f64) -> FilterPick {
+    if rho <= 1.0 {
+        FilterPick::Mag
+    } else if mips <= 1 {
+        FilterPick::Min
+    } else {
+        FilterPick::Mip(level(log2rho, mips.saturating_sub(1), mip_point))
+    }
+}
+
 /// D3DRASTER.DEPTH.SMALL (Direct3D 10): a pixel past a smaller depth view's width or height
 pub fn past_depth(dw: u32, dh: u32, x: usize, y: usize) -> bool {
     index(dw) <= x || index(dh) <= y
@@ -2442,10 +2486,10 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             };
             // (MEASURED, WARP: probe-sample-nosampler) no sampler bound: the default one,
             // linear filtering, clamped addresses
-            let s = d.sampler.unwrap_or_else(|| {
+            if d.sampler.is_none() {
                 hit(clause::D3DRASTER_NOSAMPLER);
-                [0x15, 3, 3, 3, 1]
-            });
+            }
+            let s = sampler_or_default(d.sampler);
             let v = m.views.get(sv)?;
             let r = m.res.get(v.res)?;
             // (MEASURED, WARP: probe-filter-view-mips, -view-mips-mag) a view of its own range of
@@ -2527,22 +2571,24 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             } else {
                 let (qx, qy) = (px & !1, py & !1);
                 let q = [uv_at(qx, qy)?, uv_at(qx + 1, qy)?, uv_at(qx, qy + 1)?];
-                let span = |a: [f32; 2], b: [f32; 2]| ((f64::from(b[0] - a[0]) * w as f64).powi(2) + (f64::from(b[1] - a[1]) * h as f64).powi(2)).sqrt();
-                let rho = span(q[0], q[1]).max(span(q[0], q[2]));
+                let rho = quad_span(q, w, h);
                 // (MEASURED, WARP: probe-filter-min, -min-point, -rho-*) a span of up to one texel
-                // magnifies, past it minifies (1 - 2^-10, 1, 1 + 2^-10, 1 + 2^-6, 1.1, 1.25)
-                if rho <= 1.0 {
-                    hit(clause::D3DRASTER_FILTER_MINMAG);
-                    (filter.mag, Level::One(0))
-                } else if mips == 1 {
-                    hit(clause::D3DRASTER_FILTER_MINMAG);
-                    (filter.min, Level::One(0))
-                } else {
-                    // (MEASURED, WARP: probe-filter-mips, -mips-point, -trilinear*) past one texel
-                    // the level is log2 of the span
-                    let level = level(rho.log2(), mips - 1, s[0] & 1 == 0);
-                    hit(clause::D3DRASTER_FILTER_LEVEL);
-                    (filter.min, level)
+                // magnifies, past it minifies (1 - 2^-10, 1, 1 + 2^-10, 1 + 2^-6, 1.1, 1.25);
+                // (probe-filter-mips, -mips-point, -trilinear*) past one texel the level is log2
+                // of the span (f64::log2, the platform's libm)
+                match filter_pick(mips, s[0] & 1 == 0, rho, rho.log2()) {
+                    FilterPick::Mag => {
+                        hit(clause::D3DRASTER_FILTER_MINMAG);
+                        (filter.mag, Level::One(0))
+                    }
+                    FilterPick::Min => {
+                        hit(clause::D3DRASTER_FILTER_MINMAG);
+                        (filter.min, Level::One(0))
+                    }
+                    FilterPick::Mip(level) => {
+                        hit(clause::D3DRASTER_FILTER_LEVEL);
+                        (filter.min, level)
+                    }
                 }
             };
             let one = |level: u32| -> Res<Filtered> {

@@ -370,6 +370,14 @@ fn layout_stays_in_the_mirrored_function() {
 }
 
 #[test]
+fn lod_stays_in_the_mirrored_functions() {
+    let inlined = "fn shade() {\n    let s = (du * w).powi(2);\n    if rho <= 1.0 {}\n    let d = [0x15, 3, 3, 3, 1];\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in shade")).count(), 3, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", "fn quad_span() { (du * w).powi(2) }\nfn filter_pick() { if rho <= 1.0 {} }\nfn sampler_or_default() { [0x15, 3, 3, 3, 1] }\n").is_empty());
+}
+
+#[test]
 fn lines_stay_in_the_mirrored_functions() {
     let inlined = "fn lines() {\n    let k = QUAD_HALF / len;\n    let a = s * f32::from_bits(0x3EE6_6666);\n    let k = 2.0 / len;\n    let y = (pb.y - pa.y).abs() > dx;\n}\n";
     let r = rust("src/model/d3draster.rs", inlined);

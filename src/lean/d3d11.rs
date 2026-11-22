@@ -1130,3 +1130,102 @@ pub static LAYOUT_MIRRORS: &[Mirror] = &[Mirror {
         })
     },
 }];
+
+const LOD: &str = "spec/lean/Kikizake/D3d11/Lod.lean";
+
+pub static LOD_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.sampler",
+        lean: LOD,
+        domain: Domain::Every("no sampler, and every sampler of five words 0..3"),
+        inputs: |each| {
+            each(&[0]);
+            every(&[(1, 1), (0, 3), (0, 3), (0, 3), (0, 3), (0, 3)], each);
+        },
+        model: |a| {
+            let s = match a {
+                [0] => None,
+                [1, ..] if a.len() == 6 => Some([arg(a, 1)?, arg(a, 2)?, arg(a, 3)?, arg(a, 4)?, arg(a, 5)?]),
+                _ => return None,
+            };
+            Some(crate::model::d3draster::sampler_or_default(s).map(i64::from).to_vec())
+        },
+    },
+    Mirror {
+        name: "d3d11.filterlinear",
+        lean: LOD,
+        domain: Domain::Every("every filter 0..255"),
+        inputs: |each| every(&[(0, 255)], each),
+        model: |a| {
+            Some(match crate::model::d3draster::filter_linear(arg(a, 0)?) {
+                None => vec![-1],
+                Some((mn, mg)) => vec![i64::from(mn), i64::from(mg)],
+            })
+        },
+    },
+    Mirror {
+        name: "d3d11.quadspan",
+        lean: LOD,
+        domain: Domain::Sampled("200,000 quads: a corner's coordinates in 0..1 (multiples of 2^-k too), its neighbours' a little off it (exactly 1/w and 1/h too), and the 40 signed boundary floats now and then; widths of TEXTURE_SIZES (0 and 2^32 - 1 among them), heights 1..4096"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x59a0_d311);
+            let mut bounds = Vec::new();
+            floats(0, &mut crate::rng::Sample64::new(1), &mut |c| bounds.push(i64::from(c)));
+            for _ in 0..200_000 {
+                let (w, h) = (*rng.pick(&TEXTURE_SIZES), rng.range(1, 4096));
+                let base = |rng: &mut crate::rng::Sample64| f64::from(u32::try_from(rng.range(0, 1 << 16)).unwrap_or(0)) / 65536.0;
+                let near = |rng: &mut crate::rng::Sample64, c: f64, n: i64| match rng.range(0, 3) {
+                    0 => c + f64::from(i32::try_from(rng.range(-3, 3)).unwrap_or(0)) / f64::from(i32::try_from(n).unwrap_or(1)),
+                    1 => c + f64::from(i32::try_from(rng.range(-4000, 4000)).unwrap_or(0)) / 1e6,
+                    _ => c,
+                };
+                let bits = |x: f64| i64::from(x.to_string().parse::<f32>().unwrap_or(0.0).to_bits());
+                let (u, v) = (base(&mut rng), base(&mut rng));
+                let mut q = vec![bits(u), bits(v), bits(near(&mut rng, u, w)), bits(near(&mut rng, v, h)), bits(near(&mut rng, u, w)), bits(near(&mut rng, v, h))];
+                if rng.chance(20) {
+                    let k = usize::try_from(rng.range(0, 5)).unwrap_or(0);
+                    if let Some(slot) = q.get_mut(k) {
+                        *slot = *rng.pick(&bounds);
+                    }
+                }
+                q.extend([w, h]);
+                each(&q);
+            }
+        },
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            let q = [[f(0)?, f(1)?], [f(2)?, f(3)?], [f(4)?, f(5)?]];
+            Some(super::f64_halves(crate::model::d3draster::quad_span(q, arg(a, 6)?, arg(a, 7)?)))
+        },
+    },
+    Mirror {
+        name: "d3d11.filterpick",
+        lean: LOD,
+        domain: Domain::Sampled("mips 1..12, mip point and linear, 200,000 spans: about 1 (1 - 2^-10, 1, 1 + 2^-10, 1 + 2^-6, 1.1, 1.25), powers of two and between them, 0..2^13, a NaN, infinity; each with the model's f64::log2 of it (the platform's libm), and 20,000 with any binary64 as the lod"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xf1c7_d311);
+            let special = [1.0 - 1.0 / 1024.0, 1.0, 1.0 + 1.0 / 1024.0, 1.0 + 1.0 / 64.0, 1.1, 1.25, 0.0, 0.5, 2.0, 4.0, 8.0, 3.0, 6.0, f64::NAN, f64::INFINITY];
+            for k in 0..220_000 {
+                let rho = match rng.range(0, 3) {
+                    0 => *rng.pick(&special),
+                    1 => f64::from(u32::try_from(rng.range(1, 1 << 20)).unwrap_or(1)) / 128.0,
+                    _ => 2f64.powi(i32::try_from(rng.range(0, 12)).unwrap_or(0)) * (1.0 + f64::from(u32::try_from(rng.range(0, 1 << 10)).unwrap_or(0)) / 1024.0),
+                };
+                let lod = if k >= 200_000 { f64::from_bits(rng.next()) } else { rho.log2() };
+                let mut v = vec![rng.range(1, 12), rng.range(0, 1)];
+                v.extend(super::f64_halves(rho));
+                v.extend(super::f64_halves(lod));
+                each(&v);
+            }
+        },
+        model: |a| {
+            use crate::model::d3draster::{filter_pick, FilterPick, Level};
+            Some(match filter_pick(arg(a, 0)?, flag(a, 1)?, super::arg_f64(a, 2)?, super::arg_f64(a, 4)?) {
+                FilterPick::Mag => vec![0],
+                FilterPick::Min => vec![1],
+                FilterPick::Mip(Level::One(n)) => vec![2, 0, i64::from(n)],
+                FilterPick::Mip(Level::Two(n, w)) => vec![2, 1, i64::from(n), w],
+            })
+        },
+    },
+];

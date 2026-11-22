@@ -759,6 +759,12 @@ spec/lean/Kikizake/D3d11/Line.lean::alpha_symmetric lean D3DRASTER.LINE.ALPHA
 spec/lean/Kikizake/D3d11/Line.lean::horizontal_example lean D3DRASTER.LINE
 spec/lean/Kikizake/D3d11/Line.lean::end_pulled_back lean D3DRASTER.LINE.END D3DRASTER.LINE
 spec/lean/Kikizake/D3d11/Line.lean::alpha_on_line lean D3DRASTER.LINE.ALPHA
+spec/lean/Kikizake/D3d11/Lod.lean::default_linear lean D3DRASTER.NOSAMPLER
+spec/lean/Kikizake/D3d11/Lod.lean::aniso_linear lean D3DRASTER.FILTER.ANISO
+spec/lean/Kikizake/D3d11/Lod.lean::up_to_one lean D3DRASTER.FILTER.MINMAG
+spec/lean/Kikizake/D3d11/Lod.lean::past_one lean D3DRASTER.FILTER.MINMAG
+spec/lean/Kikizake/D3d11/Lod.lean::past_one_mips lean D3DRASTER.FILTER.LEVEL
+spec/lean/Kikizake/D3d11/Lod.lean::span_example lean D3DRASTER.FILTER.MINMAG D3DRASTER.FILTER.ANISO
 spec/lean/Kikizake/D3d11/Layout.lean::no_program lean D3DRASTER.LAYOUT.BAD
 spec/lean/Kikizake/D3d11/Layout.lean::pixel_program lean D3DRASTER.LAYOUT.SIG
 spec/lean/Kikizake/D3d11/Layout.lean::made_vertex lean D3DRASTER.LAYOUT.SIG D3DRASTER.LAYOUT.BAD

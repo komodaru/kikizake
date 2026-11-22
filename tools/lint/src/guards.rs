@@ -97,6 +97,10 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // (string literals are blanked before matching, so the verdicts are what it confines: a
     // program named, how many inputs it needs, and the check that every one is fed)
     ("src/model/d3draster.rs", r"=>\s*return\s+Some\(LayoutVerdict::|usable\.len\(\)\s*>=\s*needs", &["layout_verdict"]),
+    // (a quad's span, the filter and level it takes and the default sampler are quad_span,
+    // filter_pick and sampler_or_default, which d3d11.quadspan, d3d11.filterpick and
+    // d3d11.sampler hold to spec/lean/Kikizake/D3d11/Lod.lean)
+    ("src/model/d3draster.rs", r"\.powi\(2\)|rho\s*<=\s*1\.0|0x15,\s*3,\s*3,\s*3", &["quad_span", "filter_pick", "sampler_or_default"]),
     // (a declaration's refusals are decl_ok's, which the Lean mirror d3d9.decl holds to
     // spec/lean/Kikizake/D3d9/Decl.lean)
     ("src/model/d3d9draw.rs", r"usage\s*==\s*8\s*&&|\(9,\s*0\)", &["decl_ok"]),
