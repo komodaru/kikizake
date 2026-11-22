@@ -573,7 +573,7 @@ impl D3d12 {
                 out.push("device12 ok".into());
                 return Ok(true);
             }
-            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" | "rootsig12+" | "remove12" | "featscan12" | "committed12" | "heapx12" if !self.dev => {
+            "footprint12" | "alloc12" | "create12" | "clear12" | "cleardsv12" | "feature12" | "msq12" | "incr12" | "copy12" | "heap12" | "dheap12" | "queue12" | "cmdlist12" | "qheap12" | "fence12" | "placed12" | "rootsig12" | "remove12" | "featscan12" | "committed12" | "heapx12" if !self.dev => {
                 out.push("nodev".into());
                 return Ok(true);
             }
@@ -586,6 +586,8 @@ impl D3d12 {
                 out.push("remove12 ok".into());
             }
             "rootsig12+" => {
+                // (kept with or without a device, as op_rootsig_more keeps them, for the next
+                // rootsig12 the device reads them for: the review of 84b05c8, 5)
                 // (the executor reads the first MAXTOK tokens of a line)
                 let t = &t[..t.len().min(super::rootsig::MAXTOK)];
                 // (the executor keeps them in RSTOK places and RSPOOL bytes, or the line is bad)

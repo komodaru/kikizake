@@ -982,6 +982,21 @@ pub fn d3d12() -> String {
         let (first, count) = first_count;
         writeln!(s, "case fp-wrap-{name}\ndevice12\nfootprint12 {first} {count} 0 {}\nend", desc_str(&d));
     }
+    // (added after) rootsig12+ lines before the device (the review of 84b05c8, 5): the executor
+    // keeps their tokens with or without a device, and a rootsig12 without one answers nodev and
+    // leaves them; the rootsig12 after device12 reads them (and those of rootsig12+ lines after
+    // it too: -then, their parameters split across lines, a bad line if both are read)
+    {
+        let mut l = String::from("1 0");
+        for k in 0..40u32 {
+            l.push_str(&format!(" cbv {k} 0 0 0"));
+        }
+        let lines = rootsig_lines(&l);
+        let (more, last) = lines.rsplit_once('\n').unwrap_or(("", &lines));
+        writeln!(s, "case rootsig-more-nodev\n{more}\ndevice12\n{last}\nfeature12 0\nend");
+        writeln!(s, "case rootsig-more-nodev-kept\n{more}\n{last}\ndevice12\n{last}\nfeature12 0\nend");
+        writeln!(s, "case rootsig-more-nodev-then\n{more}\ndevice12\n{more}\n{last}\nfeature12 0\nend");
+    }
 
     s
 }

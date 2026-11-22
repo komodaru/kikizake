@@ -96,6 +96,10 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
 
 /// (file, what (a regular expression), why): `forbidden`
 pub const FORBIDDEN: &[(&str, &str, &str)] = &[
+    ("src/model/wicimage.rs", r#"for\s+\w+\s+in\s+&?t\s*\[\s*first\s*\.\.\s*\]|\bmatch\s+option\s*\(\s*cont\s*,\s*o\s*\)|Decodes\s*\(\s*"wmp"\s*,\s*img\s*\)"#, "an encoder's options are Bag::write's, each name's last value as Initialize reads them (a name given twice), and a lossless JPEG XR file is turned by its BitmapTransform as a lossy one is (review of 84b05c8, 3.4)"),
+    ("src/model/opengl_list.rs", r"1\s*<<\s*20|0x10_?0000|1_?048_?576", "glDeleteLists deletes every list of its range, however wide (list-more-delete-*), not the first 2^20 names (review of 84b05c8, 5)"),
+    ("src/model/opengl_list.rs", r#""gltex"\s*\|\s*"glmat"|"glmat"\s*\|\s*"glfogv"\s*\|\s*"gldraw"\s*\|\s*"gltex"\s*=>\s*Kind::Compiled\s*,\s*\n\s*_\s*=>"#, "a glTexImage of a proxy target runs at once, outside the list (GL 1.1 3.8.3; list-more-proxy-*): its gltex arm comes before the compiled ones (review of 84b05c8, 3.5)"),
+    ("src/model/jxr.rs", r">>=?\s*\(?\s*1\s*-\s*e1", "float2pixel's shift by 1 - e1 reaches 32 and more (float-shift-*): it is a wrapping_shr, x86's SAR count mod 32, not Rust's >>, which panics there in a debug build (review of 84b05c8, 5)"),
     ("src/model/d3d9draw.rs", r"draw\.(fvf|decl|decl_from)\s*=[^=]", "the FVF and the declaration change together through set_fvf and set_decl, which spec/tla/D3D9Fvf.tla's replay holds to fvf-decl-order-*; one set on its own leaves the other stale"),
     ("src/model/opengl.rs", r"0xd16\s*\|\s*0xd17\s*=>|0xd1[01]\s*=>\s*vec!\[B\(false\)\]|0xd1[23]\s*=>\s*i\(0\)|0xb06\s*=>\s*vec!\[F\(0\.0\)|0xd1e\s*=>\s*vec!\[F\(1\.0\)\]", "glGet reads the state glPixelZoom, glPixelTransfer and glRasterPos set (the pixel mode and raster position the attribute stack gives back), not its initial value (review of 84b05c8, 3.3)"),
     ("src/model/gdiplus.rs", r"\*\s*\(\s*256\s*-\s*wt\s*\)|\(\s*2\s*\*\s*\(\s*c0\b", "a hatch texel's mix and an antialiased pixel's share are the pure hatch_mix and coverage_share the Lean mirrors gp.hatch_mix, gp.coverage_share hold equal to spec/lean/Kikizake/GdiPlus/Blend.lean; a copy inlined in paint escapes them"),
@@ -288,6 +292,50 @@ pub fn kani_gates(sources: &[(String, String)], lib: &str) -> Vec<String> {
         if !on && !bad.iter().any(|b: &String| b.contains(feature)) {
             bad.push(format!("src/lib.rs: kani-gates: {rel} uses {api}, unstable in Kani's compiler: #![cfg_attr(kani, feature({feature}))]"));
         }
+    }
+    bad
+}
+
+/// (executor, its op table, model, its guard): the ops a device-less executor answers `nodev`
+/// to are the model's: the C ops whose function begins with `if (!on12) { out("nodev\n"); ...`
+/// and the names of the model's `... if !self.dev =>` arm (the review of 84b05c8, 5: rootsig12+
+/// answered nodev in the model and kept its tokens in the executor)
+pub const NODEV_GATES: &[(&str, &str, &str, &str)] = &[("runner/d3d12.c", "d3d12_ops", "src/model/d3d12.rs", "!self.dev")];
+
+/// the ops of `table` in `c` whose function tests `gate` (as `if (gate) { out("nodev\n")`),
+/// and the names of the arm of `rs` guarded `if <guard> =>`: the two differing, each name apart
+pub fn nodev_gates(c_rel: &str, c: &str, table: &str, rs_rel: &str, rs: &str, guard: &str) -> Vec<String> {
+    let mut bad = Vec::new();
+    let Some(body) = c.split_once(&format!("{table}[] = {{")).and_then(|(_, r)| r.split_once("};")).map(|(b, _)| b) else {
+        return vec![format!("{c_rel}: nodev-gates: no table {table}")];
+    };
+    let mut gated = std::collections::BTreeSet::new();
+    let mut ops = std::collections::BTreeSet::new();
+    for entry in body.split('{').skip(1) {
+        let Some((name, f)) = entry.split_once(',') else { continue };
+        let (name, f) = (name.trim().trim_end_matches(['}', ' ']).trim_matches('"'), f.trim().trim_end_matches(['}', ',', ' ', '\n']).trim());
+        if name == "0" || name.is_empty() {
+            continue;
+        }
+        ops.insert(name.to_string());
+        // (the op's function, to its first closing brace at the line's start)
+        let Some(func) = c.split_once(&format!("static void {f}(void) {{")).and_then(|(_, r)| r.split_once("\n}")).map(|(b, _)| b) else {
+            bad.push(format!("{c_rel}: nodev-gates: {name}'s function {f} not found"));
+            continue;
+        };
+        if func.contains("if (!on12) { out(\"nodev\\n\"); return; }") {
+            gated.insert(name.to_string());
+        }
+    }
+    let arm = rs.lines().find(|l| l.trim_end().ends_with(&format!("if {guard} => {{")));
+    let Some(arm) = arm else { return vec![format!("{rs_rel}: nodev-gates: no arm guarded {guard}")] };
+    let model: std::collections::BTreeSet<String> = arm.split('"').skip(1).step_by(2).map(str::to_string).collect();
+    for n in gated.difference(&model) {
+        bad.push(format!("{rs_rel}: nodev-gates: the executor answers nodev to {n} without a device ({c_rel}); the model's `if {guard}` arm does not name it"));
+    }
+    for n in model.difference(&gated) {
+        let why = if ops.contains(n) { "the executor's function runs it without a device" } else { "the executor has no such op" };
+        bad.push(format!("{rs_rel}: nodev-gates: the model answers nodev to {n} without a device, but {why} ({c_rel})"));
     }
     bad
 }
@@ -522,6 +570,10 @@ pub fn check(root: &Path) -> Result<(), String> {
         if !seen.iter().any(|s| s == f) {
             bad.push(format!("{f}: listed in MODEL_USES_GENERATORS but gone: take its line out"));
         }
+    }
+    for &(c_rel, table, rs_rel, guard) in NODEV_GATES {
+        let read = |f: &str| std::fs::read_to_string(root.join(f)).map_err(|e| format!("{f}: {e}"));
+        bad.extend(nodev_gates(c_rel, &read(c_rel)?, table, rs_rel, &read(rs_rel)?, guard));
     }
     // (files outside src/ that a forbidden construction names)
     for f in FORBIDDEN.iter().map(|f| f.0).filter(|f| !f.starts_with("src/")) {

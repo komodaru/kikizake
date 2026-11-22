@@ -674,4 +674,9 @@ tests/laws_dwrite_layout.rs::the_fallback_table_is_the_lookup exhaustive DW.FALL
 tests/laws_dwrite_layout.rs::the_fallback_pieces_for_every_short_text exhaustive DW.FALLBACK.MAP
 tests/laws_dwrite_layout.rs::fallback_layouts_take_each_fonts_metrics exhaustive DW.LAYOUT.FALLBACK
 tests/laws_d3dres.rs::a_view_drawn_into_is_unbound exhaustive D3DRASTER.HAZARD D3DRASTER.LD.VIEW
-tests/laws_opengl.rs::attrib_pop::popped_groups_come_back pbt GL.ATTRIB.POP
+tests/laws_opengl.rs::popped_groups_come_back pbt GL.ATTRIB.POP
+tests/laws_opengl.rs::deleted_lists_are_their_range pbt GL.LIST
+tests/laws_opengl.rs::proxy_images_run_outside_lists pbt GL.LIST GL.TEX.PROXY
+tests/wicimage_laws.rs::float2pixel_at_every_shift exhaustive WICIMAGE.ENCODE.LOSSY
+tests/wicimage_laws.rs::the_last_value_of_a_name_is_encoded pbt WICIMAGE.ENCODE.OPTIONS
+tests/wicimage_laws.rs::a_refused_write_fails_whatever_follows pbt WICIMAGE.ENCODE.OPTION.FOREIGN

@@ -382,3 +382,40 @@ fn attribute_groups_with_a_rest_are_found() {
     let get = "fn get(&self, p: u32) -> Vec<V> {\n    match p {\n        0xd16 | 0xd17 => vec![F(1.0)],\n        0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],\n    }\n}\n";
     assert_eq!(rust("src/model/opengl.rs", get).iter().filter(|b| b.contains("forbidden: glGet")).count(), 2);
 }
+
+#[test]
+fn options_read_token_by_token_are_found() {
+    let old = "fn op() {\n    for o in &t[first..] {\n        match option(cont, o)? {\n        }\n    }\n    let e = Encoded::Decodes(\"wmp\", img);\n}\n";
+    assert_eq!(rust("src/model/wicimage.rs", old).iter().filter(|b| b.contains("Bag::write")).count(), 3);
+    assert!(rust("src/model/wicimage.rs", "fn op() {\n    let bag = Bag::write(cont, &t[first..])?;\n    for (o, _) in bag.last() {}\n}\n").is_empty());
+}
+
+#[test]
+fn list_cuts_and_proxies_compiled_are_found() {
+    let cut = "fn run() {\n    for k in 0..u32::try_from(range.min(1 << 20)).unwrap_or(0) {}\n}\n";
+    assert!(rust("src/model/opengl_list.rs", cut).iter().any(|b| b.contains("glDeleteLists")));
+    let old = "fn kind(t: &[String]) -> Kind {\n    match op {\n        \"glmat\" | \"glfogv\" | \"gldraw\" | \"gltex\" => Kind::Compiled,\n        _ => Kind::Immediate,\n    }\n}\n";
+    assert!(rust("src/model/opengl_list.rs", old).iter().any(|b| b.contains("proxy")));
+    let new = "fn kind(t: &[String]) -> Kind {\n    match op {\n        \"gltex\" if proxy(t) => Kind::Immediate,\n        \"glmat\" | \"glfogv\" | \"gldraw\" | \"gltex\" | \"gltexsub\" => Kind::Compiled,\n        _ => Kind::Immediate,\n    }\n}\n";
+    assert!(rust("src/model/opengl_list.rs", new).is_empty(), "{:?}", rust("src/model/opengl_list.rs", new));
+    assert!(rust("src/model/opengl_list.rs", "fn run() { ctx.lists.lists.retain(|&k, _| u64::from(k.wrapping_sub(first)) >= range); }\n").is_empty());
+}
+
+#[test]
+fn float_shifts_past_31_are_found() {
+    assert!(rust("src/model/jxr.rs", "fn float2pixel() {\n    m >>= 1 - e1;\n}\n").iter().any(|b| b.contains("wrapping_shr")));
+    assert!(rust("src/model/jxr.rs", "fn float2pixel() {\n    m = m.wrapping_shr(u32::try_from(1 - e1).unwrap_or(u32::MAX));\n}\n").is_empty());
+}
+
+#[test]
+fn nodev_gates_apart_are_found() {
+    let c = "static void op_a(void) {\n    if (!on12) { out(\"nodev\\n\"); return; }\n}\nstatic void op_more(void) {\n    keep();\n}\nstatic const struct kz_op ops[] = {\n    { \"a12\", op_a },\n    { \"more12\", op_more },\n    { 0 },\n};\n";
+    let old = "fn op() {\n    match t0 {\n        \"a12\" | \"more12\" if !self.dev => {\n        }\n    }\n}\n";
+    let b = nodev_gates("runner/x.c", c, "ops", "src/model/x.rs", old, "!self.dev");
+    assert_eq!(b.len(), 1, "{b:?}");
+    assert!(b[0].contains("more12"));
+    let new = old.replace(" | \"more12\"", "");
+    assert!(nodev_gates("runner/x.c", c, "ops", "src/model/x.rs", &new, "!self.dev").is_empty());
+    let less = old.replace("\"a12\" | ", "");
+    assert_eq!(nodev_gates("runner/x.c", c, "ops", "src/model/x.rs", &less, "!self.dev").len(), 2);
+}

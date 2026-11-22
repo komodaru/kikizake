@@ -14,7 +14,7 @@ use crate::spec::{clause, hit, open};
 pub const TEXTURE_1D: u32 = 0xde0;
 pub const TEXTURE_2D: u32 = 0xde1;
 const PROXY_1D: u32 = 0x8063;
-const PROXY_2D: u32 = 0x8064;
+pub(super) const PROXY_2D: u32 = 0x8064;
 const NEAREST: u32 = 0x2600;
 const LINEAR: u32 = 0x2601;
 const NEAREST_MIPMAP_NEAREST: u32 = 0x2700;

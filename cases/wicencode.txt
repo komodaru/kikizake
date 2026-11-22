@@ -9687,3 +9687,416 @@ wframe 0
 winfo
 wpixels
 end
+case float-shift-0
+wdecode 49492a00480000000000403e0000c03d0000403d000040320000402f0000c02e0000402e0000c02d0000402d0000401e0000c00000004000ffeb2f2dffeb2fad0000002effffffae0b000001040001000000100000000101040001000000010000000201030001000000200000000301030001000000010000000601030001000000010000001101040001000000080000001501030001000000010000001601040001000000010000001701040001000000400000001c010300010000000100000053010300010000000300000000000000
+wframe 0
+wencode wmp
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case float-shift-1
+wdecode 49492a00480000000000403e0000c03d0000403d000040320000402f0000c02e0000402e0000c02d0000402d0000401e0000c00000004000ffeb2f2dffeb2fad0000002effffffae0b000001040001000000100000000101040001000000010000000201030001000000200000000301030001000000010000000601030001000000010000001101040001000000080000001501030001000000010000001601040001000000010000001701040001000000400000001c010300010000000100000053010300010000000300000000000000
+wframe 0
+wencode wmp ImageQuality=0.5
+wbytes
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case float-shift-2
+wdecode 49492a00480000000000403e0000c03d0000403d000040320000402f0000c02e0000402e0000c02d0000402d0000401e0000c00000004000ffeb2f2dffeb2fad0000002effffffae0b000001040001000000100000000101040001000000010000000201030001000000200000000301030001000000010000000601030001000000010000001101040001000000080000001501030001000000010000001601040001000000010000001701040001000000400000001c010300010000000100000053010300010000000300000000000000
+wframe 0
+wencode wmp ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-0-wmp-gray8
+wbits gray8 2 3 193003520
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-0-wmp-bgra
+wbits bgra 6 4 193003520
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-1-wmp-gray8
+wbits gray8 2 3 193003521
+wencode wmp ImageQuality=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-1-wmp-bgra
+wbits bgra 6 4 193003521
+wencode wmp ImageQuality=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-2-wmp-gray8
+wbits gray8 2 3 193003522
+wencode wmp Lossless=1 BitmapTransform=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-2-wmp-bgra
+wbits bgra 6 4 193003522
+wencode wmp Lossless=1 BitmapTransform=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-3-wmp-gray8
+wbits gray8 2 3 193003523
+wencode wmp ImageQuality=1 BitmapTransform=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-3-wmp-bgra
+wbits bgra 6 4 193003523
+wencode wmp ImageQuality=1 BitmapTransform=2
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-4-wmp-gray8
+wbits gray8 2 3 193003524
+wencode wmp Lossless=1 BitmapTransform=8
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-4-wmp-bgra
+wbits bgra 6 4 193003524
+wencode wmp Lossless=1 BitmapTransform=8
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-5-wmp-gray8
+wbits gray8 2 3 193003525
+wencode wmp ImageQuality=1 BitmapTransform=8
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-5-wmp-bgra
+wbits bgra 6 4 193003525
+wencode wmp ImageQuality=1 BitmapTransform=8
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-6-wmp-gray8
+wbits gray8 2 3 193003526
+wencode wmp Lossless=1 BitmapTransform=16
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-6-wmp-bgra
+wbits bgra 6 4 193003526
+wencode wmp Lossless=1 BitmapTransform=16
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-7-wmp-gray8
+wbits gray8 2 3 193003527
+wencode wmp ImageQuality=1 BitmapTransform=16
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-7-wmp-bgra
+wbits bgra 6 4 193003527
+wencode wmp ImageQuality=1 BitmapTransform=16
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-8-wmp-gray8
+wbits gray8 2 3 193003528
+wencode wmp Lossless=1 BitmapTransform=9
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-8-wmp-bgra
+wbits bgra 6 4 193003528
+wencode wmp Lossless=1 BitmapTransform=9
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-9-wmp-gray8
+wbits gray8 2 3 193003529
+wencode wmp ImageQuality=1 BitmapTransform=9
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-9-wmp-bgra
+wbits bgra 6 4 193003529
+wencode wmp ImageQuality=1 BitmapTransform=9
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-10-wmp-gray8
+wbits gray8 2 3 193003530
+wencode wmp ImageQuality=1 ImageQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-10-wmp-bgra
+wbits bgra 6 4 193003530
+wencode wmp ImageQuality=1 ImageQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-11-wmp-gray8
+wbits gray8 2 3 193003531
+wencode wmp ImageQuality=0.5 ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-11-wmp-bgra
+wbits bgra 6 4 193003531
+wencode wmp ImageQuality=0.5 ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-12-wmp-gray8
+wbits gray8 2 3 193003532
+wencode wmp Lossless=1 Lossless=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-12-wmp-bgra
+wbits bgra 6 4 193003532
+wencode wmp Lossless=1 Lossless=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-13-wmp-gray8
+wbits gray8 2 3 193003533
+wencode wmp Lossless=1 ImageQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-13-wmp-bgra
+wbits bgra 6 4 193003533
+wencode wmp Lossless=1 ImageQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-14-wmp-gray8
+wbits gray8 2 3 193003534
+wencode wmp ImageQuality=0.5 Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-14-wmp-bgra
+wbits bgra 6 4 193003534
+wencode wmp ImageQuality=0.5 Lossless=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-15-wmp-gray8
+wbits gray8 2 3 193003535
+wencode wmp BitmapTransform=1 BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-15-wmp-bgra
+wbits bgra 6 4 193003535
+wencode wmp BitmapTransform=1 BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-16-wmp-gray8
+wbits gray8 2 3 193003536
+wencode wmp Overlap=3 Overlap=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-16-wmp-bgra
+wbits bgra 6 4 193003536
+wencode wmp Overlap=3 Overlap=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-17-wmp-gray8
+wbits gray8 2 3 193003537
+wencode wmp ImageQuality=1.5 ImageQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-17-wmp-bgra
+wbits bgra 6 4 193003537
+wencode wmp ImageQuality=1.5 ImageQuality=0.5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-18-wmp-gray8
+wbits gray8 2 3 193003538
+wencode wmp Subsampling=4 Overlap=5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-18-wmp-bgra
+wbits bgra 6 4 193003538
+wencode wmp Subsampling=4 Overlap=5
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-19-wmp-gray8
+wbits gray8 2 3 193003539
+wencode wmp Lossless=0 ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-19-wmp-bgra
+wbits bgra 6 4 193003539
+wencode wmp Lossless=0 ImageQuality=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-20-jpeg-gray8
+wbits gray8 2 3 193003540
+wencode jpeg BitmapTransform=2 BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-20-jpeg-bgra
+wbits bgra 6 4 193003540
+wencode jpeg BitmapTransform=2 BitmapTransform=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-21-jpeg-gray8
+wbits gray8 2 3 193003541
+wencode jpeg ImageQuality=0.5 ImageQuality=0.9
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-21-jpeg-bgra
+wbits bgra 6 4 193003541
+wencode jpeg ImageQuality=0.5 ImageQuality=0.9
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-22-jpeg-gray8
+wbits gray8 2 3 193003542
+wencode jpeg ImageQuality=1.5 ImageQuality=0.9
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-22-jpeg-bgra
+wbits bgra 6 4 193003542
+wencode jpeg ImageQuality=1.5 ImageQuality=0.9
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-23-jpeg-gray8
+wbits gray8 2 3 193003543
+wencode jpeg JpegYCrCbSubsampling=3 JpegYCrCbSubsampling=0
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case optset-23-jpeg-bgra
+wbits bgra 6 4 193003543
+wencode jpeg JpegYCrCbSubsampling=3 JpegYCrCbSubsampling=0
+wredecode
+wframe 0
+winfo
+wpixels
+end

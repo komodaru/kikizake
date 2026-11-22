@@ -2425,7 +2425,7 @@ const MANTISSA: u32 = 13;
 const EXP_BIAS: i32 = 4;
 
 /// float2pixel: a float as a sign and magnitude integer of `MANTISSA` mantissa bits
-fn float2pixel(f: f32) -> i32 {
+pub fn float2pixel(f: f32) -> i32 {
     if f == 0.0 {
         return 0;
     }
@@ -2439,7 +2439,11 @@ fn float2pixel(f: f32) -> i32 {
     let mut e1 = e - 127 + EXP_BIAS;
     if e1 <= 1 {
         if e1 < 1 {
-            m >>= 1 - e1;
+            // (a shift of 32 or more, from a float below 2^-35 (1e-11 is one): jxrlib's
+            // `iMant >>= (1 - iExp)` compiled for x86 and x86-64 is a SAR, whose count the
+            // processor takes mod 32 (float-shift-*; the review of 84b05c8, 5: Rust's `>>`
+            // panicked there in a debug build)
+            m = m.wrapping_shr(u32::try_from(1 - e1).unwrap_or(u32::MAX));
         }
         e1 = 1;
         if m & 0x80_0000 == 0 {

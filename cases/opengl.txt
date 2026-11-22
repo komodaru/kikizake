@@ -122317,3 +122317,67 @@ glget i 0xd12 1
 glget f 0xd1e 1
 glerr
 end
+case list-more-proxy-compile
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glNewList 1 0x1300
+gltex 0x8064 0 4 8 8 0 0x1908 0x1401 21 256
+gltexq level 0x8064 0 0x1000 i 1
+gl glEndList
+gltexq level 0x8064 0 0x1000 i 1
+gltex 0x8064 0 4 4 4 0 0x1908 0x1401 21 64
+gltexq level 0x8064 0 0x1000 i 1
+gl glCallList 1
+gltexq level 0x8064 0 0x1000 i 1
+glerr
+end
+case list-more-proxy-compile-execute
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glNewList 1 0x1301
+gltex 0x8064 0 4 8 8 0 0x1908 0x1401 21 256
+gltexq level 0x8064 0 0x1000 i 1
+gl glEndList
+gltexq level 0x8064 0 0x1000 i 1
+gltex 0x8064 0 4 4 4 0 0x1908 0x1401 21 64
+gltexq level 0x8064 0 0x1000 i 1
+gl glCallList 1
+gltexq level 0x8064 0 0x1000 i 1
+glerr
+end
+case list-more-delete-far
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glNewList 1048577 0x1300
+gl glColor4ub 1 2 3 4
+gl glEndList
+glr glIsList b i 1048577
+gl glDeleteLists 1 1048577
+glr glIsList b i 1048577
+glerr
+end
+case list-more-delete-near
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glNewList 1048577 0x1300
+gl glColor4ub 1 2 3 4
+gl glEndList
+glr glIsList b i 1048577
+gl glDeleteLists 1048577 1
+glr glIsList b i 1048577
+glerr
+end
+case list-more-delete-short
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glNewList 1048577 0x1300
+gl glColor4ub 1 2 3 4
+gl glEndList
+glr glIsList b i 1048577
+gl glDeleteLists 1 1048576
+glr glIsList b i 1048577
+glerr
+end

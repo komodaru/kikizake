@@ -1201,3 +1201,92 @@ proptest! {
         prop_assert_eq!(px(0, 1), cut >= 45);
     }
 }
+
+/// float2pixel at every exponent (the review of 84b05c8, 5): the JPEG XR integer of a float
+/// is odd in its sign, grows with the float while the denormalizing shift 1 - e1 is below 32,
+/// and past it shifts by the count mod 32 as x86's SAR does (float-shift-* answer which)
+#[test]
+fn float2pixel_at_every_shift() {
+    use kikizake::model::jxr::float2pixel;
+    // (jxrlib's float2pixel in 64-bit arithmetic, the shift's count taken mod 32)
+    let reference = |f: f32| -> i64 {
+        if f == 0.0 {
+            return 0;
+        }
+        let x = i64::from(f.to_bits());
+        let (mut e, mut m) = ((x >> 23) & 0xff, (x & 0x7f_ffff) | 0x80_0000);
+        if e == 0 {
+            m ^= 0x80_0000;
+            e = 1;
+        }
+        let mut e1 = e - 127 + 4;
+        if e1 <= 1 {
+            if e1 < 1 {
+                m >>= (1 - e1) & 31;
+            }
+            e1 = i64::from(m & 0x80_0000 != 0);
+        }
+        let h = (e1 << 13) + (((m & 0x7f_ffff) + (1 << 9)) >> 10);
+        if f.is_sign_negative() { -h } else { h }
+    };
+    let mut last = (0i64, false);
+    for e in 0u32..255 {
+        for m in [0u32, 1, 0x1ff, 0x200, 0x3ff, 0x40_0000, 0x7f_fdff, 0x7f_fe00, 0x7f_ffff] {
+            let f = f32::from_bits(e << 23 | m);
+            let (p, n) = (i64::from(float2pixel(f)), i64::from(float2pixel(-f)));
+            assert_eq!(p, reference(f), "{f:e}");
+            assert_eq!(n, -p, "{f:e}");
+            // (exponents 124 - e of 31 or less: no wrap, the integers in order)
+            let wraps = 124 - i64::from(e.max(1)) >= 32;
+            if !wraps && last.1 {
+                assert!(p >= last.0, "{f:e}: {p} < {}", last.0);
+            }
+            last = (p, !wraps);
+        }
+    }
+}
+
+/// options written again (the review of 84b05c8, 3.4): an encoder given a name twice encodes as
+/// given its last value alone, where the first one was written, as IWICBitmapFrameEncode's
+/// Initialize reads the property bag; a value the bag refuses fails whatever comes after
+mod options_again {
+    use super::*;
+    const WMP: [&str; 12] = ["ImageQuality=1", "ImageQuality=0.5", "ImageQuality=0.8", "Lossless=1", "Lossless=0", "BitmapTransform=0", "BitmapTransform=2", "BitmapTransform=9", "Overlap=0", "Overlap=2", "Subsampling=1", "Subsampling=3"];
+    const JPEG: [&str; 6] = ["ImageQuality=1", "ImageQuality=0.5", "BitmapTransform=0", "BitmapTransform=8", "JpegYCrCbSubsampling=0", "JpegYCrCbSubsampling=3"];
+    fn encode(c: &str, opts: &[&str], seed: u32) -> String {
+        let text = format!("case o\nwbits bgra 6 4 {seed}\nwencode {c} {}\nwredecode\nwframe 0\nwinfo\nwpixels\nend\n", opts.join(" "));
+        kikizake::model::run("wicencode", &kikizake::case::parse_cases(&text))
+    }
+    /// each name once, at its first place, holding its last value
+    fn last(opts: &[&str]) -> Vec<String> {
+        let mut v: Vec<String> = Vec::new();
+        for o in opts {
+            let name = o.split('=').next().unwrap_or("");
+            match v.iter_mut().find(|w| w.split('=').next() == Some(name)) {
+                Some(w) => *w = (*o).to_string(),
+                None => v.push((*o).to_string()),
+            }
+        }
+        v
+    }
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(64))]
+        #[test]
+        fn the_last_value_of_a_name_is_encoded(jpeg: bool, picks in proptest::collection::vec(0usize..12, 1..5), seed: u32) {
+            let (c, all): (&str, &[&str]) = if jpeg { ("jpeg", &JPEG) } else { ("wmp", &WMP) };
+            let opts: Vec<&str> = picks.iter().map(|&i| all[i % all.len()]).collect();
+            let once = last(&opts);
+            let once: Vec<&str> = once.iter().map(String::as_str).collect();
+            prop_assert_eq!(encode(c, &opts, seed), encode(c, &once, seed), "{:?}", opts);
+        }
+
+        #[test]
+        fn a_refused_write_fails_whatever_follows(at in 0usize..3, picks in proptest::collection::vec(0usize..12, 0..3), seed: u32) {
+            // (TIFF's compression is no option of JPEG XR's: the bag refuses it)
+            let mut opts: Vec<&str> = picks.iter().map(|&i| WMP[i]).collect();
+            opts.insert(at.min(opts.len()), "TiffCompressionMethod=1");
+            let got = encode("wmp", &opts, seed);
+            prop_assert!(got.lines().any(|l| l == "wencode 80004005 bgra option"), "{:?}: {}", opts, got);
+        }
+    }
+}

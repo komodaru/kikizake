@@ -88,6 +88,10 @@ fn kind(t: &[String]) -> Kind {
             _ if op == "glr" => Kind::Immediate,
             _ => Kind::Compiled,
         },
+        // (glTexImage2D of PROXY_TEXTURE_2D runs at once and is not compiled, GL 1.1 3.8.3:
+        // the review of 84b05c8, 3.5; the executor gives every target but TEXTURE_1D to
+        // glTexImage2D, so PROXY_TEXTURE_1D there is an INVALID_ENUM command, compiled)
+        "gltex" if t.get(1).and_then(|x| num(x)).is_some_and(|target| target == i64::from(super::tex::PROXY_2D)) => Kind::Immediate,
         "glmat" | "glfogv" | "gldraw" | "gltex" | "gltexsub" | "gltexv" | "glprio" => Kind::Compiled,
         _ => Kind::Immediate,
     }
@@ -250,9 +254,12 @@ impl Gl {
                 } else if range < 0 {
                     ctx.error(INVALID_VALUE);
                 } else {
-                    for k in 0..u32::try_from(range.min(1 << 20)).unwrap_or(0) {
-                        ctx.lists.lists.remove(&first.wrapping_add(k));
-                    }
+                    // (every list of first .. first + range - 1, names past 2^32 - 1 wrapping as
+                    // the names do, the names no list has ignored; a range is read of the lists
+                    // there are, not counted out: the review of 84b05c8, 5, a list 1048577 left
+                    // by glDeleteLists(1, 1048577))
+                    let range = u64::try_from(range).unwrap_or(0);
+                    ctx.lists.lists.retain(|&k, _| u64::from(k.wrapping_sub(first)) >= range);
                 }
                 Ok(true)
             }

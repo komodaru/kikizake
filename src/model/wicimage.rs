@@ -3559,6 +3559,40 @@ fn bag(cont: &str) -> &'static [&'static str] {
     }
 }
 
+/// a write the encoder's property bag refuses (IPropertyBag2::Write E_FAIL)
+pub struct Refused;
+
+/// an encoder frame's property bag after the executor's writes: each name's last value, in the
+/// order the names were first written (so an option given again replaces the earlier value, and
+/// ImageQuality=1 then 0.5 is not lossless)
+pub struct Bag {
+    last: Vec<(EncodeOption, String)>,
+}
+
+impl Bag {
+    /// the writes `name=value` in turn; Err(Refused) at the first the bag refuses
+    pub fn write<W: AsRef<str>>(cont: &str, writes: &[W]) -> Res<Result<Bag, Refused>> {
+        let mut last: Vec<(String, String)> = Vec::new();
+        for w in writes {
+            let w = w.as_ref();
+            let (name, _) = w.split_once('=').ok_or(Fail::Bad)?;
+            if option(cont, w)? == EncodeOption::Rejected {
+                return Ok(Err(Refused));
+            }
+            match last.iter_mut().find(|(n, _)| n == name) {
+                Some(e) => e.1 = w.to_string(),
+                None => last.push((name.to_string(), w.to_string())),
+            }
+        }
+        let last = last.into_iter().map(|(_, w)| Ok((option(cont, &w)?, w))).collect::<Res<_>>()?;
+        Ok(Ok(Bag { last }))
+    }
+    /// each name's last value, what Initialize reads
+    pub fn last(&self) -> impl Iterator<Item = &(EncodeOption, String)> {
+        self.last.iter()
+    }
+}
+
 pub fn option(cont: &str, o: &str) -> Res<EncodeOption> {
     let (name, val) = o.split_once('=').ok_or(Fail::Bad)?;
     hit(clause::WICIMAGE_ENCODE_OPTIONS);
@@ -4139,9 +4173,20 @@ impl WicImage {
                     out.push(format!("wencode {hr:08x} {fmt} create"));
                     return Ok(true);
                 }
+                // (the executor writes each option into the frame's property bag in turn, a
+                // write the bag refuses failing there; IWICBitmapFrameEncode::Initialize then
+                // reads the bag's last value of each name: the review of 84b05c8, 3.4)
+                let bag = match Bag::write(cont, &t[first..])? {
+                    Ok(b) => b,
+                    Err(Refused) => {
+                        hit(clause::WICIMAGE_ENCODE_OPTION_FOREIGN);
+                        out.push(format!("wencode 80004005 {fmt} option"));
+                        return Ok(true);
+                    }
+                };
                 let mut opts = EncodeOptions::default();
-                for o in &t[first..] {
-                    match option(cont, o)? {
+                for (o, _) in bag.last() {
+                    match *o {
                         EncodeOption::Lossless => hit(clause::WICIMAGE_ENCODE_OPTION_LOSSLESS),
                         EncodeOption::V5Header(v5) => {
                             hit(clause::WICIMAGE_ENCODE_OPTION_LOSSLESS);
@@ -4184,11 +4229,8 @@ impl WicImage {
                             hit(clause::WICIMAGE_ENCODE_JPEG);
                             opts.jpeg_chroma = Some(c);
                         }
-                        EncodeOption::Rejected => {
-                            hit(clause::WICIMAGE_ENCODE_OPTION_FOREIGN);
-                            out.push(format!("wencode 80004005 {fmt} option"));
-                            return Ok(true);
-                        }
+                        // (Bag::write stopped at the first refused write)
+                        EncodeOption::Rejected => return Err(Fail::Bad),
                         EncodeOption::OutOfRange => {
                             hit(clause::WICIMAGE_ENCODE_OPTION_RANGE);
                             out.push(format!("wencode 88982f05 {fmt} frameinit"));
@@ -4214,7 +4256,12 @@ impl WicImage {
                         Encoded::Decodes(if cont == "png" { "png" } else { "tiff" }, img)
                     }
                     "gif" => Encoded::Bytes(encode_gif(&img)?),
-                    "wmp" if opts.wmp_lossless => Encoded::Decodes("wmp", img),
+                    // (lossless: the pixels kept, and turned as BitmapTransform writes the
+                    // file's orientation, as the lossy file's)
+                    "wmp" if opts.wmp_lossless => {
+                        hit(clause::WICIMAGE_ENCODE_WMP);
+                        Encoded::Decodes("wmp", if opts.wmp_transform == 0 { img } else { flip(&img, opts.wmp_transform) })
+                    }
                     "wmp" => encode_wmp(&img, opts)?,
                     "jpeg" => encode_jpeg(&img, opts)?,
                     "dds" => Encoded::Bytes(encode_dds(&img)?),

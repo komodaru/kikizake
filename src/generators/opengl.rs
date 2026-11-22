@@ -650,7 +650,21 @@ pub fn opengl() -> String {
     eye_more(&mut s);
     raster_rest(&mut s);
     attrib_more(&mut last);
+    lists_more(&mut last);
     s + &last
+}
+
+/// display lists the review of 84b05c8 found handled wrong: a proxy texture image made while a
+/// list compiles (run at once, not compiled; GL_COMPILE and GL_COMPILE_AND_EXECUTE), and
+/// glDeleteLists over a range past 2^20 with one list at its end
+fn lists_more(s: &mut String) {
+    let q = "gltexq level 0x8064 0 0x1000 i 1";
+    for (mode, name) in [(0x1300u32, "compile"), (0x1301, "compile-execute")] {
+        writeln!(s, "case list-more-proxy-{name}\n{}{ORTHO}gl glNewList 1 {mode:#x}\ngltex 0x8064 0 4 8 8 0 0x1908 0x1401 21 256\n{q}\ngl glEndList\n{q}\ngltex 0x8064 0 4 4 4 0 0x1908 0x1401 21 64\n{q}\ngl glCallList 1\n{q}\nglerr\nend", ctx(32));
+    }
+    for (name, del) in [("far", "1 1048577"), ("near", "1048577 1"), ("short", "1 1048576")] {
+        writeln!(s, "case list-more-delete-{name}\n{}gl glNewList 1048577 0x1300\ngl glColor4ub 1 2 3 4\ngl glEndList\nglr glIsList b i 1048577\ngl glDeleteLists {del}\nglr glIsList b i 1048577\nglerr\nend", ctx(32));
+    }
 }
 
 /// glPushAttrib / glPopAttrib of each group the review of 84b05c8 (3.3) found left out, with the

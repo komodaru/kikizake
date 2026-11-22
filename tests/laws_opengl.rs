@@ -1135,3 +1135,49 @@ mod attrib_pop {
         }
     }
 }
+
+/// glDeleteLists of a range however wide (the review of 84b05c8, 5: lists past 2^20 names of
+/// the first stayed) and a proxy glTexImage, which runs at once and is not kept in a list
+/// (GL 1.1 3.8.3; the review's 3.5): the model's answers against the rules
+mod lists_far {
+    use super::*;
+    fn run(body: &str) -> Vec<String> {
+        let text = format!("case p\nglctx 32 choose 0x38 0 32 0 0 32 8\n{body}\nglerr\nend\n");
+        let c = kikizake::case::parse_cases(&text);
+        c.first().map_or_else(Vec::new, |c| kikizake::model::run_case(c).unwrap_or_else(|e| vec![format!("{e:?}")]))
+    }
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(256))]
+        #[test]
+        fn deleted_lists_are_their_range(first in 1u32.., range in prop_oneof![0i64..4, 1_048_570i64..1_048_600, 0i64..=0x7fff_ffff], offs in proptest::collection::vec(prop_oneof![0u32..8, 1_048_570u32..1_048_600, any::<u32>()], 1..6)) {
+            // (lists named first + off, list 0 not being one)
+            let ids: Vec<u32> = offs.iter().map(|&o| first.wrapping_add(o)).filter(|&k| k != 0).collect();
+            prop_assume!(!ids.is_empty());
+            let make: String = ids.iter().map(|k| format!("gl glNewList {k} 0x1300\ngl glColor4ub 1 2 3 4\ngl glEndList\n")).collect();
+            let ask: String = ids.iter().map(|k| format!("glr glIsList b i {k}\n")).collect();
+            let got = run(&format!("{make}gl glDeleteLists {first} {range}\n{ask}"));
+            let want: Vec<String> = std::iter::once("glctx ok 1".to_string())
+                .chain(ids.iter().map(|&k| format!("ret {}", u8::from(u64::from(k.wrapping_sub(first)) >= u64::try_from(range).unwrap_or(0)))))
+                .chain(std::iter::once("glerr 0".to_string()))
+                .collect();
+            prop_assert_eq!(got, want);
+        }
+
+        #[test]
+        fn proxy_images_run_outside_lists(a in 0u32..4, b in 0u32..4, execute: bool) {
+            // (PROXY_TEXTURE_2D: the executor's gltex of any target but TEXTURE_1D is glTexImage2D)
+            let target = "0x8064";
+            let image = |n: u32| {
+                let side = 1u32 << n;
+                format!("gltex {target} 0 4 {side} {side} 0 0x1908 0x1401 21 {}", side * side * 4)
+            };
+            let q = format!("gltexq level {target} 0 0x1000 i 1");
+            let mode = if execute { "0x1301" } else { "0x1300" };
+            let got = run(&format!("gl glNewList 1 {mode}\n{}\n{q}\ngl glEndList\n{q}\n{}\n{q}\ngl glCallList 1\n{q}", image(a), image(b)));
+            // (the proxy holds the size of the last image given it, a list's call giving none)
+            let (sa, sb) = (1u32 << a, 1u32 << b);
+            let want = vec!["glctx ok 1".to_string(), format!("texq {sa}"), format!("texq {sa}"), format!("texq {sb}"), format!("texq {sb}"), "glerr 0".to_string()];
+            prop_assert_eq!(got, want);
+        }
+    }
+}
