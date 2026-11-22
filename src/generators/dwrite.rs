@@ -1016,4 +1016,13 @@ fn targeted(s: &mut String, r: &mut XorShift32) {
             }
         }
     }
+    // (a vertical font's vhea without its vmtx, and vmtx without vhea: what a face makes of
+    // them, asked as the file cases ask)
+    let probe = "dwinfo\ndwmetrics\ndwcmap 0x41 0x61\ndwglyph 0 0 1 2\ndwglyph 1 0 1 2\ndwgdiglyph 12 1 0 0 1\ndwrun aliased 12 0 40 1 0";
+    let mut vf = font(0x0fd0_0000);
+    vf.vertical = true;
+    for gone in [*b"vmtx", *b"vhea"] {
+        let t: Vec<_> = crate::ttf::tables_of(&vf.bytes()).into_iter().filter(|x| x.0 != gone).collect();
+        writeln!(s, "case file-vertical-no-{}\ndwfont {}\n{probe}\nend", String::from_utf8_lossy(&gone), hex(&crate::ttf::assemble(t)));
+    }
 }
