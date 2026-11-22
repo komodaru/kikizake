@@ -819,23 +819,43 @@ fn snapped(vp: [f32; 6], q: &[f32; 4]) -> Sub {
     Sub { x: snap256(vx + (q[0] / q[3] + 1.0) * (vw * 0.5)), y: snap256(vy + (1.0 - q[1] / q[3]) * (vh * 0.5)) }
 }
 
-/// a vertex the model can draw with: every coordinate finite (a w not positive is clipped as
-/// any other, D3DRASTER.CLIPW.POINTLINE)
-fn drawable_w(v: &Vert) -> Res<()> {
-    if v.pos.iter().any(|x| !x.is_finite()) {
+/// whether a point's or a line's vertex leaves it to draw
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Drawn {
+    /// drawn by the clipping as any other (a w not positive, D3DRASTER.CLIPW.POINTLINE; a w
+    /// infinite, D3DRASTER.CLIPW.NANPL)
+    Clip,
+    /// (D3DRASTER.CLIPW.NANPL) a coordinate NaN: the point or line draws nothing
+    Nothing,
+}
+
+/// a vertex of a point or a line: NaN anywhere takes the primitive away, an infinite w is clipped
+/// as a finite one (probe-clip-w-point-nan, -line-nan, -line-inf); any other coordinate infinite
+/// is not measured
+fn drawable_w(v: &Vert) -> Res<Drawn> {
+    if v.pos.iter().any(|x| x.is_nan()) {
+        hit(clause::D3DRASTER_CLIPW_NANPL);
+        return Ok(Drawn::Nothing);
+    }
+    if v.pos[..3].iter().any(|x| x.is_infinite()) || v.pos[3] == f32::NEG_INFINITY {
         return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
+    }
+    if v.pos[3] == f32::INFINITY {
+        hit(clause::D3DRASTER_CLIPW_NANPL);
     }
     if !(v.pos[3] > 0.0) {
         hit(clause::D3DRASTER_CLIPW_POINTLINE);
     }
-    Ok(())
+    Ok(Drawn::Clip)
 }
 
 /// (MEASURED, WARP: probe-points-*, every pixel) a point inside the clip volume lights the
 /// one pixel (ceil(x) - 1, ceil(y) - 1) of its snapped position, in the vertex's color
 fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) -> Res<()> {
     hit(clause::D3DRASTER_POINT);
-    drawable_w(&v)?;
+    if drawable_w(&v)? == Drawn::Nothing {
+        return Ok(());
+    }
     let q = v.pos;
     if !(-q[3] <= q[0] && q[0] <= q[3] && -q[3] <= q[1] && q[1] <= q[3]) {
         hit(clause::D3DRASTER_CLIP);
@@ -1307,8 +1327,15 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
     let mode = LineMode::of(d)?;
     let mut ls: Vec<Line> = Vec::new();
     for s in segs {
-        drawable_w(&s.a)?;
-        drawable_w(&s.b)?;
+        if drawable_w(&s.a)? == Drawn::Nothing || drawable_w(&s.b)? == Drawn::Nothing {
+            continue;
+        }
+        // (an end at w = +infinity with the other outside the clip volume, so clipped: not
+        // measured)
+        let within = |q: &[f32; 4]| -q[3] <= q[0] && q[0] <= q[3] && -q[3] <= q[1] && q[1] <= q[3] && 0.0 <= q[2] && q[2] <= q[3];
+        if [(&s.a, &s.b), (&s.b, &s.a)].iter().any(|(e, o)| e.pos[3] == f32::INFINITY && !within(&o.pos)) {
+            return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
+        }
         let (za, zb) = (s.a.pos[2] / s.a.pos[3], s.b.pos[2] / s.b.pos[3]);
         let inside = |z: f32| (0.0..=1.0).contains(&z);
         let behind = !(s.a.pos[3] > 0.0 && s.b.pos[3] > 0.0);

@@ -124,6 +124,7 @@ tests/laws_d3dres.rs::a_shared_edge_is_drawn_once pbt D3DRASTER.TOPLEFT
 tests/laws_d3dres.rs::winding_does_not_change_coverage pbt D3DRASTER.CULL D3DRASTER.TOPLEFT
 tests/laws_d3dres.rs::a_covering_triangle_draws_every_pixel exhaustive D3DRASTER.DRAW
 tests/laws_d3dres.rs::nothing_behind_the_eye_draws exhaustive D3DRASTER.CLIPW.POINTLINE
+tests/laws_d3dres.rs::nan_takes_points_and_lines_away exhaustive D3DRASTER.CLIPW.NANPL
 tests/laws_dwrite.rs::aliased_translates pbt DW.RUN.ALIASED
 tests/laws_dwrite.rs::aliased_is_centers pbt DW.RUN.ALIASED
 tests/laws_dwrite.rs::gdi_round_grid pbt DW.GDI.METRICS DW.SHAPE.GDIPLACE

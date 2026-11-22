@@ -666,13 +666,14 @@ fn suite(d3d11: bool) -> String {
         read_rt(&mut s, 0, crate::dxgi!(2), 16, 16);
         writeln!(&mut s, "end");
     }
-    // points and lines with a coordinate not finite (NaN x, infinite w)
-    for (name, top, bad) in [("point-nan", 1u32, f32::NAN), ("line-nan", 2, f32::NAN), ("line-inf", 2, f32::INFINITY)] {
+    // points and lines with a coordinate not finite (NaN x, infinite x or w)
+    for (name, top, bad) in [("point-nan", 1u32, f32::NAN), ("line-nan", 2, f32::NAN), ("line-inf", 2, f32::INFINITY), ("point-infx", 1, f32::INFINITY), ("line-infx", 2, f32::INFINITY), ("line-neginfw", 2, f32::NEG_INFINITY), ("line-inf-out", 2, f32::INFINITY)] {
         begin(&mut s, dev, &format!("probe-clip-w-{name}"), 16, 16, 2, Prog::Ps);
         for (k, (x, y, w)) in (0u32..).zip([(-0.5f32, 0.5f32, 1.0f32), (0.25, -0.75, 1.0), (0.5, 0.25, 1.0)].into_iter()) {
             let c = color(k.wrapping_mul(5).wrapping_add(1));
             let (x, w) = match (k, name) {
-                (1, "line-inf") => (x, bad),
+                (1, "line-inf" | "line-neginfw" | "line-inf-out") => (x, bad),
+                (0, "line-inf-out") => (-1.5, w),
                 (1, _) => (bad, w),
                 _ => (x, w),
             };

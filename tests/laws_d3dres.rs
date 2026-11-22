@@ -193,6 +193,39 @@ fn nothing_behind_the_eye_draws() {
     }
 }
 
+/// (D3DRASTER.CLIPW.NANPL) over a grid of positions in front of the eye: a NaN in any coordinate
+/// of a point, or of either end of a line, lights nothing; a line's end at w = +infinity draws,
+/// its other end inside the clip volume, as the end (0, 0, 0, 1), the centre (one color, so
+/// the weights do not show)
+#[test]
+fn nan_takes_points_and_lines_away() {
+    let at = [-1.5f32, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5];
+    let mut front = Vec::new();
+    for &w in &[0.5f32, 1.0, 2.0] {
+        for &x in &at {
+            for &y in &at {
+                front.push([x * w, y * w, 0.5 * w, w]);
+            }
+        }
+    }
+    for a in &front {
+        for k in 0..4 {
+            let mut n = *a;
+            n[k] = f32::NAN;
+            assert!(draw_clip(1, &[n]).iter().all(|&r| r == 0), "point {n:?}");
+            for b in front.iter().step_by(5) {
+                assert!(draw_clip(2, &[n, *b]).iter().all(|&r| r == 0), "line {n:?} {b:?}");
+                assert!(draw_clip(2, &[*b, n]).iter().all(|&r| r == 0), "line {b:?} {n:?}");
+            }
+        }
+        let far = [a[0], a[1], a[2], f32::INFINITY];
+        let within = |q: &[f32; 4]| q[0].abs() <= q[3] && q[1].abs() <= q[3];
+        for b in front.iter().filter(|b| within(b)) {
+            assert_eq!(draw_clip(2, &[*b, far]), draw_clip(2, &[*b, [0.0, 0.0, 0.0, 1.0]]), "line {b:?} {far:?}");
+        }
+    }
+}
+
 /// the suites' cases with one word changed (to 0, 1, -1, a large or a nearby value): the models
 /// never panic and answer every case, or end where the x86 runtime dies
 #[test]
