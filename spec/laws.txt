@@ -379,4 +379,6 @@ tests/laws_opengl.rs::aa_line_rows_count_as_their_colors_step pbt GL.RASTER.TEXT
 tests/laws_opengl.rs::array_components_map_in_order pbt GL.ARRAY
 tests/laws_opengl.rs::array_colors_stay_in_order_near_the_table pbt GL.ARRAY
 tests/laws_opengl.rs::glp_values_read_back pbt GL.ARRAY
+tests/laws_opengl.rs::color_forms_act_as_their_float_form pbt GL.VARIANTS
+tests/laws_opengl.rs::raster_positions_read_back_near_where_given pbt GL.VARIANTS
 tests/laws_dd.rs::ramp_line_clip_stays_on_the_segment pbt D3D7.LINE
