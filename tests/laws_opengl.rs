@@ -1046,3 +1046,23 @@ proptest! {
         prop_assert!(want.iter().any(|l| l == "get b08 = 1"), "{:?}", want);
     }
 }
+
+proptest! {
+    // GL.POLYGON.SMOOTH, GL 1.1 2.6.1: a smooth triangle with a corner behind the eye is culled
+    // as front or as back facing, never both; culling the other face draws it as with no culling
+    #[test]
+    fn smooth_triangles_behind_the_eye_cull_one_face(x in -4i32..=4, y in -4i32..=4, z in 1i32..=4, cw in any::<bool>()) {
+        let tri = |cull: &str| {
+            let face = if cw { "gl glFrontFace 0x900\n" } else { "" };
+            let text = format!("case p\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glFrustum -1 1 -1 1 1 10\ngl glMatrixMode 0x1700\ngl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb41\n{face}{cull}gl glBegin 4\ngl glColor4ub 255 0 0 255\ngl glVertex3f -1 -1 -2\ngl glColor4ub 0 255 0 255\ngl glVertex3f 1 -0.5 -2\ngl glColor4ub 0 0 255 255\ngl glVertex3f {} {} {z}\ngl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024\nend\n", f64::from(x) / 4.0, f64::from(y) / 4.0);
+            let c = kikizake::case::parse_cases(&text);
+            c.first().map(|c| kikizake::model::run_case(c).map_err(|e| format!("{e:?}")))
+        };
+        let none = tri("").ok_or_else(|| TestCaseError::fail("no case"))?.map_err(TestCaseError::fail)?;
+        let back = tri("gl glEnable 0xb44\ngl glCullFace 0x405\n").ok_or_else(|| TestCaseError::fail("no case"))?.map_err(TestCaseError::fail)?;
+        let front = tri("gl glEnable 0xb44\ngl glCullFace 0x404\n").ok_or_else(|| TestCaseError::fail("no case"))?.map_err(TestCaseError::fail)?;
+        let clear = tri("gl glEnable 0xb44\ngl glCullFace 0x408\n").ok_or_else(|| TestCaseError::fail("no case"))?.map_err(TestCaseError::fail)?;
+        prop_assert!(back == none || front == none, "drawn neither way");
+        prop_assert!(back == clear || front == clear, "culled neither way");
+    }
+}

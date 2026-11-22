@@ -2918,13 +2918,12 @@ impl Ctx {
             return Err(Fail::Bad);
         }
         // (a corner at w <= 0: cut by the view volume as any other, MEASURED, golden opengl-32 /
-        // 64 raster-more-smooth-behind; culled, the area of corners past the eye not measured)
-        if clip.iter().any(|c| c[3] <= 0.0) && self.cap(CULL_FACE) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
+        // 64 raster-more-smooth-behind; culled by the area of the corners over their w as any,
+        // raster-rest-smooth-behind-*: the facing of the polygon cut by the view volume)
         // (culled as any polygon, then drawn antialiased: raster-open-6)
-        let w: Vec<[f64; 2]> = clip.iter().map(|c| [f64::from(c[0] * (1.0 / c[3])), f64::from(c[1] * (1.0 / c[3]))]).collect();
-        if self.culled_face(tri::signed_area(&w)) {
+        let behind = clip.iter().any(|c| c[3] <= 0.0);
+        let area = |clip: &[[f32; 4]]| tri::signed_area(&clip.iter().map(|c| [f64::from(c[0] * (1.0 / c[3])), f64::from(c[1] * (1.0 / c[3]))]).collect::<Vec<_>>());
+        if !behind && self.culled_face(area(&clip)) {
             return Ok(());
         }
         hit(clause::GL_POLYGON_SMOOTH);
@@ -2953,6 +2952,9 @@ impl Ctx {
         };
         let quad = quad && !cut;
         let clip: Vec<[f32; 4]> = corners.iter().map(|c| [c[0], c[1], c[2], c[3]]).collect();
+        if behind && self.culled_face(area(&clip)) {
+            return Ok(());
+        }
         let v: Vec<tri::Raster> = clip.iter().map(|c| tri::Raster::of(*c, self.viewport, HEIGHT)).collect();
         // (a corner on a sample row or column: the edge lines' ties, GL.RASTER.TIE)
         let side = f32::from(grid.side());
@@ -4137,12 +4139,15 @@ impl Ctx {
                     let scale = self.channel_scales();
                     let unit = |v: f32, s: f32| f64::from(v / s);
                     let (sa, da) = (unit(c[3], scale[3]), unit(tri::float(i64::from(d[3])), scale[3]));
-                    // (in channel units, float32: d df + c sf truncated, held to the channel)
+                    // (in channel units, float32: d df + c sf truncated, held to the channel;
+                    // channels under 8 bits plus one half or the dither threshold first, MEASURED,
+                    // golden opengl-32 / 64 raster-rest-aa-line-16-*)
+                    let store = if !bits.iter().take(3).any(|b| *b < 8) { 0.0 } else if dither { threshold } else { 0.5 };
                     let over = |k: usize| {
                         let (cv, dv, s) = (c.get(k).copied().unwrap_or(0.0), tri::float(i64::from(d.get(k).copied().unwrap_or(0))), scale.get(k).copied().unwrap_or(1.0));
                         let sf = tri::narrow(blend_factor(self.blend.0, unit(cv, s), sa, unit(dv, s), da));
                         let df = tri::narrow(blend_factor(self.blend.1, unit(cv, s), sa, unit(dv, s), da));
-                        let v = (dv * df + cv * sf).trunc();
+                        let v = (dv * df + cv * sf + store).trunc();
                         u32::try_from(tri::trunc(if v > s { s } else { v })).unwrap_or(0)
                     };
                     [over(0), over(1), over(2), if bits[3] == 0 { 0 } else { over(3) }]
