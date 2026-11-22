@@ -61210,3 +61210,119 @@ d9fvf 0x144
 d9draw 5 4 0xbf000000 0xbf000000 0x0 0x3f800000 0xffffffff 0x3e99999a 0x3e4ccccd 0x41780000 0xbf000000 0x0 0x3f800000 0xffffffff 0x3fcee556 0x3f6b4ca6 0xbf000000 0x41780000 0x0 0x3f800000 0xffffffff 0x3d76efc0 0x3f2387d3 0x41780000 0x41780000 0x0 0x3f800000 0xffffffff 0x3fb0366e 0x3fadd0a4
 d9rt
 end
+case clear-viewport-0
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 6 2 6 5 0x0 0x3f800000
+d9clear 1 0x88e5768d 0 0
+d9clear 1 0xe0ac7777 0 0 5 14 7 15 8 11 10 16
+d9rt
+end
+case clear-viewport-1
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 5 2 10 2 0x0 0x3f800000
+d9clear 1 0xeca34922 0 0
+d9clear 1 0x356e37c1 0 0 14 1 17 5 11 8 19 13
+d9rt
+end
+case clear-viewport-2
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 5 3 5 4 0x0 0x3f800000
+d9target 16 16 21
+d9clear 1 0 0 0
+d9clear 1 0xc5c03a4a 0 0
+d9clear 1 0x93aa7ace 0 0 6 1 11 2 14 12 16 14 12 0 18 5
+d9rt
+end
+case clear-viewport-3
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 2 2 4 3 0x0 0x3f800000
+d9clear 1 0xf94be816 0 0
+d9clear 1 0xd642c72 0 0 -1 5 2 12 2 10 4 15
+d9rt
+end
+case clear-viewport-4
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 3 6 4 1 0x0 0x3f800000
+d9clear 1 0x349b76ee 0 0
+d9clear 1 0x1295e26d 0 0 8 12 9 20
+d9rt
+end
+case clear-viewport-5
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 2 6 10 4 0x0 0x3f800000
+d9target 16 16 21
+d9clear 1 0 0 0
+d9clear 1 0xb17c41fd 0 0
+d9clear 1 0x113c56dc 0 0 14 5 15 7 -1 4 1 7
+d9rt
+end
+case clear-viewport-6
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 3 4 3 12 0x0 0x3f800000
+d9clear 1 0x1f33a1b6 0 0
+d9clear 1 0xbafd2b4 0 0 10 5 15 8
+d9rt
+end
+case clear-viewport-7
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 1 2 11 11 0x0 0x3f800000
+d9clear 1 0x79bf2c54 0 0
+d9clear 1 0x1a89ab8e 0 0 4 -1 11 5
+d9rt
+end
+case clear-viewport-8
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 4 2 4 8 0x0 0x3f800000
+d9target 16 16 21
+d9clear 1 0 0 0
+d9clear 1 0x85e2cabc 0 0
+d9clear 1 0x4a11b826 0 0 -1 10 0 13
+d9rt
+end
+case clear-viewport-9
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 5 3 2 9 0x0 0x3f800000
+d9clear 1 0xd4ec0c52 0 0
+d9clear 1 0xf9aabac1 0 0 11 -2 14 4 0 -2 1 3
+d9rt
+end
+case clear-viewport-10
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 4 4 11 8 0x0 0x3f800000
+d9clear 1 0x2be084d7 0 0
+d9clear 1 0x5435542a 0 0 11 12 14 14 4 6 7 13 7 10 12 16
+d9rt
+end
+case clear-viewport-11
+device swvp
+d9target 16 16 21
+d9clear 1 0 0 0
+d9viewport 0 1 11 10 0x0 0x3f800000
+d9target 16 16 21
+d9clear 1 0 0 0
+d9clear 1 0xf86d32b0 0 0
+d9clear 1 0x9958a80d 0 0 4 7 6 12
+d9rt
+end

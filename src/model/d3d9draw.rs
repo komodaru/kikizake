@@ -1196,6 +1196,12 @@ impl D3d9 {
                     }
                     _ => (0, 0, w, h),
                 };
+                // (D3D9.CLEAR: the rectangles clipped to the viewport, NULL the whole viewport)
+                let (vx0, vy0, vx1, vy1) = match self.draw.viewport {
+                    Some((x, y, vw, vh, _, _)) => (x, y, x + vw, y + vh),
+                    None => (0, 0, w, h),
+                };
+                let (sx0, sy0, sx1, sy1) = (sx0.max(vx0), sy0.max(vy0), sx1.min(vx1), sy1.min(vy1));
                 let all = [(0, 0, w, h)];
                 let list: &[(i32, i32, i32, i32)] = if rects.is_empty() { &all } else { &rects };
                 let fm = format(rt.fmt).ok_or(Fail::Bad)?;

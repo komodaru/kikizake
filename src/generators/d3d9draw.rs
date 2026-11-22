@@ -1191,6 +1191,26 @@ fn suite(v8: bool) -> String {
             s.push_str(&format!("d9fvf {FVF_TL_TEX:#x}\nd9draw 5 4 {} {} {} {}\nd9rt\nend\n", v(-0.5, -0.5, 0.0, !0, uv(0.0, 0.0)), v(15.5, -0.5, 0.0, !0, uv(1.0, 0.0)), v(-0.5, 15.5, 0.0, !0, uv(0.0, 1.0)), v(15.5, 15.5, 0.0, !0, uv(1.0, 1.0))));
         }
     }
+    // (D3D9.CLEAR) Clear under a viewport smaller than the target: the whole viewport, then
+    // rectangles crossing its edges; the viewport kept across a second target of the same size
+    // and reset by it (D3D9.TARGET); its own generator, so the cases before keep their values
+    let mut q = XorShift32::new(if v8 { 0xd8c1_ea00 } else { 0xd9c1_ea00 });
+    for i in 0..12 {
+        open(&mut s, &format!("clear-viewport-{i}"), 21, 16, 16);
+        let (x, y) = (q.range(0, 6), q.range(0, 6));
+        let (w, h) = (q.range(1, 16 - x), q.range(1, 16 - y));
+        writeln!(s, "d9clear 1 0 0 0\nd9viewport {x} {y} {w} {h} {} {}", fb(0.0), fb(1.0));
+        if i % 3 == 2 {
+            writeln!(s, "d9target 16 16 21\nd9clear 1 0 0 0");
+        }
+        writeln!(s, "d9clear 1 {:#x} 0 0", q.next());
+        let mut l = format!("d9clear 1 {:#x} 0 0", q.next());
+        for _ in 0..q.range(1, 3) {
+            let (x0, y0) = (q.range(-2, 14), q.range(-2, 14));
+            write!(l, " {x0} {y0} {} {}", x0 + q.range(1, 8), y0 + q.range(1, 8));
+        }
+        writeln!(s, "{l}\nd9rt\nend");
+    }
     s
 }
 
