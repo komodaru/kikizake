@@ -160,31 +160,18 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
             };
             hit(clause::D3DRASTER_LAYOUT);
             d.layout = None;
-            let needs = match name {
-                "vs" => 2,
-                "vsid" => 1,
-                // (MEASURED: against bytes that are no program (a broken checksum), refused,
-                // probe-layout-refused)
-                "bad" => {
+            let usable: Vec<bool> = fmts.iter().map(|f| format(*f).is_some_and(|f| !f.block() && !f.video() && f.num != Num::Typeless)).collect();
+            match layout_verdict(name, &usable).ok_or(Fail::Bad)? {
+                LayoutVerdict::Made => d.layout = Some(fmts.len()),
+                LayoutVerdict::NoProgram => {
                     hit(clause::D3DRASTER_LAYOUT_BAD);
                     out.push(format!("layout hr {E_INVALIDARG:08x}"));
-                    return Ok(());
                 }
-                // (MEASURED: against a pixel program given as a vertex one, refused,
-                // probe-layout-otherkind)
-                "ps" | "psflat" | "pspos" | "psprim" | "psld" | "psldu" | "pssample" | "pssamplec" => {
+                LayoutVerdict::PixelProgram => {
                     hit(clause::D3DRASTER_LAYOUT_SIG);
                     out.push(format!("layout hr {E_INVALIDARG:08x}"));
-                    return Ok(());
                 }
-                _ => return Err(Fail::Bad),
-            };
-            // every input of the program from an element, no element of an unknown format
-            let ok = fmts.len() >= needs && fmts.iter().all(|f| format(*f).is_some_and(|f| !f.block() && !f.video() && f.num != Num::Typeless));
-            if ok {
-                d.layout = Some(fmts.len());
-            } else {
-                out.push(format!("layout hr {E_INVALIDARG:08x}"));
+                LayoutVerdict::Unfed => out.push(format!("layout hr {E_INVALIDARG:08x}")),
             }
         }
         DrawOp::Target => {
@@ -699,7 +686,7 @@ impl Target<'_> {
         let at = (usize::try_from(px).unwrap_or(0), usize::try_from(py).unwrap_or(0), self.size.0 as usize);
         match self.samples {
             // (on a multisampled target every sample of the pixel, D3DRASTER.MS.LINES)
-            Some(pattern) => put_samples(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), None, out, &vec![true; pattern.len()]),
+            Some(pattern) => put_samples(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), None, out, &line_samples(false, &vec![false; pattern.len()])),
             None => output(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), out),
         }
     }
@@ -969,8 +956,97 @@ impl LineMode {
     }
 }
 
+/// what CreateInputLayout does with a layout against a program
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum LayoutVerdict {
+    /// made
+    Made,
+    /// (MEASURED: bytes that are no program, a broken checksum, refused E_INVALIDARG,
+    /// probe-layout-refused) D3DRASTER.LAYOUT.BAD
+    NoProgram,
+    /// (MEASURED: a pixel program given as a vertex one, refused E_INVALIDARG,
+    /// probe-layout-otherkind) D3DRASTER.LAYOUT.SIG
+    PixelProgram,
+    /// an input of the program from no element, or an element of a format no input takes:
+    /// refused E_INVALIDARG
+    Unfed,
+}
+
+/// the generator's programs CreateInputLayout is given, in the order of the mirror
+/// d3d11.layout's first argument
+pub const LAYOUT_PROGRAMS: [&str; 11] = ["vs", "vsid", "bad", "ps", "psflat", "pspos", "psprim", "psld", "psldu", "pssample", "pssamplec"];
+
+/// D3DRASTER.LAYOUT, LAYOUT.BAD, LAYOUT.SIG: an input layout of elements (each of a format an
+/// input takes or not) against the program `name`; None for a program the generator does not
+/// make
+pub fn layout_verdict(name: &str, usable: &[bool]) -> Option<LayoutVerdict> {
+    let needs = match name {
+        "vs" => 2,
+        "vsid" => 1,
+        "bad" => return Some(LayoutVerdict::NoProgram),
+        "ps" | "psflat" | "pspos" | "psprim" | "psld" | "psldu" | "pssample" | "pssamplec" => return Some(LayoutVerdict::PixelProgram),
+        _ => return None,
+    };
+    // every input of the program from an element, no element of an unknown format
+    Some(if usable.len() >= needs && usable.iter().all(|&u| u) { LayoutVerdict::Made } else { LayoutVerdict::Unfed })
+}
+
 /// half the width of a multisample line, in pixels
 const QUAD_HALF: f32 = 0.7;
+
+/// D3DRASTER.LINE: the major axis of a line from a to b: y when |dy| > |dx|
+fn major_of(a: Sub, b: Sub) -> Major {
+    if (b.y - a.y).abs() > (b.x - a.x).abs() { Major::Y } else { Major::X }
+}
+
+/// D3DRASTER.LINE, LINE.END: an aliased line from a to b (1/256 pixels) lights the pixel, by
+/// its major axis, its ends moved out of their diamonds and the crossing tests
+pub fn line_covers(a: (i64, i64), b: (i64, i64), px: (i64, i64)) -> bool {
+    let (a, b) = (Sub { x: a.0, y: a.1 }, Sub { x: b.0, y: b.1 });
+    Cover::of(a, b, major_of(a, b)).covers(px)
+}
+
+/// D3DRASTER.LINE.QUAD: a multisample line's corners a + n, b + n, b - n, a - n (n the normal
+/// of length 0.7, in f32), snapped
+pub fn quad_corners(a: (i64, i64), b: (i64, i64)) -> [(i64, i64); 4] {
+    let (ax, ay, bx, by) = (pixels(a.0), pixels(a.1), pixels(b.0), pixels(b.1));
+    let (dx, dy) = (bx - ax, by - ay);
+    let k = QUAD_HALF / (dx * dx + dy * dy).sqrt();
+    let (nx, ny) = (-dy * k, dx * k);
+    let q = |x: f32, y: f32| (snap256(x), snap256(y));
+    [q(ax + nx, ay + ny), q(bx + nx, by + ny), q(bx - nx, by - ny), q(ax - nx, ay - ny)]
+}
+
+/// D3DRASTER.LINE.ALPHA: an alpha antialiased line's corners a - o, a + o, b + o, b - o, o the
+/// normal (dy, -dx) 2 / length in f32 snapped to 1/256
+pub fn alpha_corners(a: (i64, i64), b: (i64, i64)) -> [(i64, i64); 4] {
+    let f = pixels;
+    let (dyf, ndx) = (f(b.1 - a.1), f(a.0 - b.0));
+    let len = (ndx * ndx + dyf * dyf).sqrt();
+    let k = 2.0 / len;
+    let (ox, oy) = (snap_even(dyf * k), snap_even(ndx * k));
+    [(a.0 - ox, a.1 - oy), (a.0 + ox, a.1 + oy), (b.0 + ox, b.1 + oy), (b.0 - ox, b.1 - oy)]
+}
+
+/// D3DRASTER.LINE.ALPHA: the coverage of an alpha antialiased line from a to b at the pixel:
+/// the distance s from the line, its plane in f32 (A, B, C = (dy, -dx, y0 dx - x0 dy) /
+/// sqrt(dx^2 + dy^2)), clamp((1.5 - |s|) 0.45, 0, 1)
+pub fn alpha_coverage(a: (i64, i64), b: (i64, i64), (px, py): (i64, i64)) -> f32 {
+    let f = pixels;
+    let (dyf, dx) = (f(b.1 - a.1), f(b.0 - a.0));
+    let (a0, b0) = (dyf, -dx);
+    let c0 = f(a.1) * dx - f(a.0) * dyf;
+    let inv = 1.0 / (b0 * b0 + dyf * dyf).sqrt();
+    let (a, b, c) = (inv * a0, inv * b0, inv * c0);
+    let s = a * (center_of(px)) + (b * (center_of(py)) + c);
+    ((1.5 - s.abs()) * f32::from_bits(0x3EE6_6666)).clamp(0.0, 1.0)
+}
+
+/// D3DRASTER.MS.LINES: the samples a line writes at a pixel it lights: with the multisample
+/// state those its quad covers, else every one
+pub fn line_samples(multisample: bool, covered: &[bool]) -> Vec<bool> {
+    if multisample { covered.to_vec() } else { vec![true; covered.len()] }
+}
 
 /// the major axis of a line: x when |dx| >= |dy|
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -1095,12 +1171,8 @@ impl Line {
 
     /// the quad's two triangles: corners in 1/256 pixels, and whether each is at b
     fn quad_tris(&self) -> [[((i64, i64), bool); 3]; 2] {
-        let (ax, ay, bx, by) = (pixels(self.a.x), pixels(self.a.y), pixels(self.b.x), pixels(self.b.y));
-        let (dx, dy) = (bx - ax, by - ay);
-        let k = QUAD_HALF / (dx * dx + dy * dy).sqrt();
-        let (nx, ny) = (-dy * k, dx * k);
-        let q = |x: f32, y: f32| (snap256(x), snap256(y));
-        let corner = [(q(ax + nx, ay + ny), false), (q(bx + nx, by + ny), true), (q(bx - nx, by - ny), true), (q(ax - nx, ay - ny), false)];
+        let c = quad_corners((self.a.x, self.a.y), (self.b.x, self.b.y));
+        let corner = [(c[0], false), (c[1], true), (c[2], true), (c[3], false)];
         [[0, 1, 2], [0, 2, 3]].map(|t| t.map(|i| corner[i]))
     }
 
@@ -1115,28 +1187,16 @@ impl Line {
     /// f32 snapped to 1/256 as o, the corners a - o, a + o, b + o, b - o as two triangles
     /// (0, 1, 2) and (0, 2, 3) by the top-left rule
     fn alpha_tris(&self) -> [[((i64, i64), bool); 3]; 2] {
-        let f = pixels;
-        let (dyf, ndx) = (f(self.b.y - self.a.y), f(self.a.x - self.b.x));
-        let len = (ndx * ndx + dyf * dyf).sqrt();
-        let k = 2.0 / len;
-        let (ox, oy) = (snap_even(dyf * k), snap_even(ndx * k));
-        let (a, b) = ((self.a.x, self.a.y), (self.b.x, self.b.y));
-        let corner = [((a.0 - ox, a.1 - oy), false), ((a.0 + ox, a.1 + oy), false), ((b.0 + ox, b.1 + oy), true), ((b.0 - ox, b.1 - oy), true)];
+        let c = alpha_corners((self.a.x, self.a.y), (self.b.x, self.b.y));
+        let corner = [(c[0], false), (c[1], false), (c[2], true), (c[3], true)];
         [[0, 1, 2], [0, 2, 3]].map(|t| t.map(|i| corner[i]))
     }
 
     /// (MEASURED, WARP: probe-linesaa-*, probe-lines-aa) the coverage of an alpha
     /// antialiased line at the pixel: the distance s from the line, its plane in f32 (A, B, C
     /// = (dy, -dx, y0 dx - x0 dy) / sqrt(dx^2 + dy^2)), clamp((1.5 - |s|) 0.45, 0, 1)
-    fn alpha_cover(&self, (px, py): (i64, i64)) -> f32 {
-        let f = pixels;
-        let (dyf, dx) = (f(self.b.y - self.a.y), f(self.b.x - self.a.x));
-        let (a0, b0) = (dyf, -dx);
-        let c0 = f(self.a.y) * dx - f(self.a.x) * dyf;
-        let inv = 1.0 / (b0 * b0 + dyf * dyf).sqrt();
-        let (a, b, c) = (inv * a0, inv * b0, inv * c0);
-        let s = a * (center_of(px)) + (b * (center_of(py)) + c);
-        ((1.5 - s.abs()) * f32::from_bits(0x3EE6_6666)).clamp(0.0, 1.0)
+    fn alpha_cover(&self, px: (i64, i64)) -> f32 {
+        alpha_coverage((self.a.x, self.a.y), (self.b.x, self.b.y), px)
     }
 
     /// the samples the triangles cover and the planes of the triangle covering the first
@@ -1310,7 +1370,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
             hit(clause::D3DRASTER_DEGENERATE);
             continue;
         }
-        let major = if (pb.y - pa.y).abs() > (pb.x - pa.x).abs() { Major::Y } else { Major::X };
+        let major = major_of(pa, pb);
         let cover = Cover::of(pa, pb, major);
         ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, iwa: 1.0 / a.pos[3], iwb: 1.0 / b.pos[3], lead: s.lead.color, prim: s.prim, front: s.front, w: (a.pos[3] == b.pos[3]).then_some(a.pos[3]), major, cover, z: [zs(&a), zs(&b)] });
     }
@@ -1330,7 +1390,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                     },
                     // (on a multisampled target the samples the quad covers, D3DRASTER.MS.LINES)
                     (LineMode::Quad, Some(pattern)) => match l.quad_at((px, py), pattern) {
-                        (mask, Some(p)) => (Some(p), Some(mask)),
+                        (mask, Some(p)) => (Some(p), Some(line_samples(true, &mask))),
                         (_, None) => continue,
                     },
                     (LineMode::Alpha, None) => match l.tris_at(l.alpha_tris(), (px, py), &[(0, 0)]).1 {
@@ -1340,7 +1400,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                     // (MEASURED, WARP: probe-rt-ms4-linesaa) on a multisampled target the
                     // pixel center tells, for every sample
                     (LineMode::Alpha, Some(pattern)) => match l.tris_at(l.alpha_tris(), (px, py), &[(0, 0)]).1 {
-                        Some(p) => (Some(p), Some(vec![true; pattern.len()])),
+                        Some(p) => (Some(p), Some(line_samples(false, &vec![false; pattern.len()]))),
                         None => continue,
                     },
                 };

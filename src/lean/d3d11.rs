@@ -1023,3 +1023,110 @@ pub static CLIP_MIRRORS: &[Mirror] = &[
         },
     },
 ];
+
+const LINE: &str = "spec/lean/Kikizake/D3d11/Line.lean";
+
+/// `n` lines' ends in 1/256 pixels of -40..40 pixels (one in three on a pixel center, one in
+/// three on a multiple of 1/4 pixel, equal ends now and then), and with `pixel` a pixel within
+/// two of a point along the line
+fn line_args(n: usize, pixel: bool, seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::Sample64::new(seed);
+    let coord = |rng: &mut crate::rng::Sample64| match rng.range(0, 2) {
+        0 => rng.range(-40, 40).saturating_mul(256).saturating_add(128),
+        1 => rng.range(-160, 160).saturating_mul(64),
+        _ => rng.range(-10_240, 10_240),
+    };
+    for _ in 0..n {
+        let (ax, ay) = (coord(&mut rng), coord(&mut rng));
+        let (bx, by) = if rng.chance(50) { (ax, ay) } else if rng.chance(3) { (ax.saturating_add(rng.range(-600, 600)), ay.saturating_add(rng.range(-600, 600))) } else { (coord(&mut rng), coord(&mut rng)) };
+        let mut v = vec![ax, ay, bx, by];
+        if pixel {
+            let t = rng.range(0, 256);
+            let at = |a: i64, b: i64| a.saturating_add(b.saturating_sub(a).saturating_mul(t).checked_div(256).unwrap_or(0)).div_euclid(256);
+            v.extend([at(ax, bx).saturating_add(rng.range(-2, 2)), at(ay, by).saturating_add(rng.range(-2, 2))]);
+        }
+        each(&v);
+    }
+}
+
+pub static LINE_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.linecovers",
+        lean: LINE,
+        domain: Domain::Sampled("300,000 aliased lines and pixels of line_args"),
+        inputs: |each| line_args(300_000, true, 0x11c0_d311, each),
+        model: |a| one(crate::model::d3draster::line_covers(pt(a, 0)?, pt(a, 2)?, pt(a, 4)?)),
+    },
+    Mirror {
+        name: "d3d11.quadcorners",
+        lean: LINE,
+        domain: Domain::Sampled("200,000 multisample lines of line_args"),
+        inputs: |each| line_args(200_000, false, 0x9ad0_d311, each),
+        model: |a| Some(crate::model::d3draster::quad_corners(pt(a, 0)?, pt(a, 2)?).iter().flat_map(|&(x, y)| [x, y]).collect()),
+    },
+    Mirror {
+        name: "d3d11.alphacorners",
+        lean: LINE,
+        domain: Domain::Sampled("200,000 alpha antialiased lines of line_args"),
+        inputs: |each| line_args(200_000, false, 0xa1c0_d311, each),
+        model: |a| Some(crate::model::d3draster::alpha_corners(pt(a, 0)?, pt(a, 2)?).iter().flat_map(|&(x, y)| [x, y]).collect()),
+    },
+    Mirror {
+        name: "d3d11.alphacover",
+        lean: LINE,
+        domain: Domain::Sampled("200,000 alpha antialiased lines and pixels of line_args; a NaN answer as the one quiet NaN"),
+        inputs: |each| line_args(200_000, true, 0xa1c1_d311, each),
+        model: |a| one(canon32(crate::model::d3draster::alpha_coverage(pt(a, 0)?, pt(a, 2)?, pt(a, 4)?))),
+    },
+    Mirror {
+        name: "d3d11.linesamples",
+        lean: LINE,
+        domain: Domain::Every("with the multisample state or not, every coverage of 0..8 samples and of 16"),
+        inputs: |each| {
+            for ms in 0..=1 {
+                for n in (0..=8u32).chain([16]) {
+                    for bits in 0..1u32 << n {
+                        let mut v = vec![ms];
+                        v.extend((0..n).map(|k| i64::from(bits >> k & 1)));
+                        each(&v);
+                    }
+                }
+            }
+        },
+        model: |a| {
+            let covered = a.get(1..)?.iter().map(|&c| Some(c != 0)).collect::<Option<Vec<bool>>>()?;
+            Some(crate::model::d3draster::line_samples(flag(a, 0)?, &covered).into_iter().map(i64::from).collect())
+        },
+    },
+];
+
+const LAYOUT: &str = "spec/lean/Kikizake/D3d11/Layout.lean";
+
+pub static LAYOUT_MIRRORS: &[Mirror] = &[Mirror {
+    name: "d3d11.layout",
+    lean: LAYOUT,
+    domain: Domain::Every("the 11 programs of LAYOUT_PROGRAMS and one other, every list of 0..8 elements of a format an input takes or not"),
+    inputs: |each| {
+        for p in 0..=11 {
+            for n in 0..=8u32 {
+                for bits in 0..1u32 << n {
+                    let mut v = vec![p];
+                    v.extend((0..n).map(|k| i64::from(bits >> k & 1)));
+                    each(&v);
+                }
+            }
+        }
+    },
+    model: |a| {
+        use crate::model::d3draster::{layout_verdict, LayoutVerdict, LAYOUT_PROGRAMS};
+        let name = LAYOUT_PROGRAMS.get(arg::<usize>(a, 0)?).copied().unwrap_or("other");
+        let usable = a.get(1..)?.iter().map(|&c| c != 0).collect::<Vec<bool>>();
+        one(match layout_verdict(name, &usable) {
+            None => -1,
+            Some(LayoutVerdict::Made) => 0,
+            Some(LayoutVerdict::NoProgram) => 1,
+            Some(LayoutVerdict::PixelProgram) => 2,
+            Some(LayoutVerdict::Unfed) => 3,
+        })
+    },
+}];

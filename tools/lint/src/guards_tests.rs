@@ -349,6 +349,22 @@ fn filter_arithmetic_stays_in_the_mirrored_functions() {
 }
 
 #[test]
+fn layout_stays_in_the_mirrored_function() {
+    let inlined = "fn draw() {\n    match name { \"vsid\" => 1, \"bad\" => refuse(), _ => 2 }\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in draw")).count(), 2, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", "fn layout_verdict() { match name { \"vsid\" => 1, \"bad\" => refuse(), _ => 2 } }\n").is_empty());
+}
+
+#[test]
+fn lines_stay_in_the_mirrored_functions() {
+    let inlined = "fn lines() {\n    let k = QUAD_HALF / len;\n    let a = s * f32::from_bits(0x3EE6_6666);\n    let k = 2.0 / len;\n    let y = (pb.y - pa.y).abs() > dx;\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in lines")).count(), 4, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", "fn quad_corners() { QUAD_HALF / len }\nfn alpha_coverage() { f32::from_bits(0x3EE6_6666) }\nfn alpha_corners() { 2.0 / len }\nfn major_of() { (b.y - a.y).abs() > dx }\n").is_empty());
+}
+
+#[test]
 fn clipping_stays_in_the_mirrored_functions() {
     let inlined = "fn triangle() {\n    let t = da / (da - db);\n    if zs.iter().all(|z| *z < 0.0) || far {}\n    if q.iter().any(|x| !x.is_finite()) {}\n    q.windows(2).skip(1).all(f);\n}\n";
     let r = rust("src/model/d3draster.rs", inlined);

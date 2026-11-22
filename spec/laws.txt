@@ -750,3 +750,12 @@ spec/lean/Kikizake/D3d9/Xyz.lean::inside_none lean D3D9.DRAW.XYZ.CLIP
 spec/lean/Kikizake/D3d9/Xyz.lean::pass_keeps lean D3D9.DRAW.XYZ.CLIP
 spec/lean/Kikizake/D3d9/Xyz.lean::rhw_keeps lean D3D9.DRAW.RHW
 spec/lean/Kikizake/D3d9/Xyz.lean::rhw_weights lean D3D9.DRAW.RHW
+spec/lean/Kikizake/D3d11/Line.lean::every_sample lean D3DRASTER.MS.LINES
+spec/lean/Kikizake/D3d11/Line.lean::four_corners lean D3DRASTER.LINE.QUAD D3DRASTER.LINE.ALPHA
+spec/lean/Kikizake/D3d11/Line.lean::alpha_symmetric lean D3DRASTER.LINE.ALPHA
+spec/lean/Kikizake/D3d11/Line.lean::horizontal_example lean D3DRASTER.LINE
+spec/lean/Kikizake/D3d11/Line.lean::end_pulled_back lean D3DRASTER.LINE.END D3DRASTER.LINE
+spec/lean/Kikizake/D3d11/Line.lean::alpha_on_line lean D3DRASTER.LINE.ALPHA
+spec/lean/Kikizake/D3d11/Layout.lean::no_program lean D3DRASTER.LAYOUT.BAD
+spec/lean/Kikizake/D3d11/Layout.lean::pixel_program lean D3DRASTER.LAYOUT.SIG
+spec/lean/Kikizake/D3d11/Layout.lean::made_vertex lean D3DRASTER.LAYOUT.SIG D3DRASTER.LAYOUT.BAD

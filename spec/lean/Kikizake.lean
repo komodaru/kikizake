@@ -49,3 +49,5 @@ import Kikizake.D3d11.Filter
 import Kikizake.D3d11.Merge
 import Kikizake.D3d11.Interp
 import Kikizake.D3d11.Clip
+import Kikizake.D3d11.Line
+import Kikizake.D3d11.Layout

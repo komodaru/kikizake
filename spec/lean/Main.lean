@@ -23,6 +23,8 @@ def mirrors : List Mirror :=
   D3d11.Merge.mirrors ++
   D3d11.Interp.mirrors ++
   D3d11.Clip.mirrors ++
+  D3d11.Line.mirrors ++
+  D3d11.Layout.mirrors ++
   DWrite.Advance.mirrors ++
   DWrite.Metrics.mirrors
 

@@ -87,6 +87,14 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // d3d11.notfinite, d3d11.clippedaway and d3d11.depthaway hold to
     // spec/lean/Kikizake/D3d11/Clip.lean)
     ("src/model/d3draster.rs", r"da\s*/\s*\(da\s*-\s*db\)|\*z\s*<\s*0\.0\)\s*\|\||!x\.is_finite\(\)|\.windows\(2\)\.skip\(1\)", &["clip_line", "clip_line_z", "clip_xy", "clip_z", "not_finite", "clipped_away", "depth_away"]),
+    // (a line's major axis, the multisample and alpha lines' corners and the alpha coverage are
+    // major_of, quad_corners, alpha_corners and alpha_coverage, which d3d11.linecovers,
+    // d3d11.quadcorners, d3d11.alphacorners and d3d11.alphacover hold to
+    // spec/lean/Kikizake/D3d11/Line.lean)
+    ("src/model/d3draster.rs", r"QUAD_HALF\s*/|0x3EE6_6666|2\.0\s*/\s*len\b|\.y\s*-\s*\w+\.y\)\.abs\(\)\s*>", &["major_of", "quad_corners", "alpha_corners", "alpha_coverage"]),
+    // (CreateInputLayout's verdict on the generator's programs is layout_verdict, which
+    // d3d11.layout holds to spec/lean/Kikizake/D3d11/Layout.lean)
+    ("src/model/d3draster.rs", r#""bad"\s*=>|"vsid"\s*=>\s*1"#, &["layout_verdict"]),
     // (a declaration's refusals are decl_ok's, which the Lean mirror d3d9.decl holds to
     // spec/lean/Kikizake/D3d9/Decl.lean)
     ("src/model/d3d9draw.rs", r"usage\s*==\s*8\s*&&|\(9,\s*0\)", &["decl_ok"]),
