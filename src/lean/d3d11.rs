@@ -758,7 +758,7 @@ fn canon32(x: f32) -> i64 {
 /// coordinate (in -1..2, a multiple of 2^-k in 0..1), a position in 1/256 pixels of -64..64, a
 /// pixel center, a viewport's size or any 32-bit pattern
 fn float_args(args: usize, n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     let mut pool = Vec::new();
     floats(4000, &mut rng, &mut |c| pool.push(i64::from(c)));
     for k in -64i64..=64 {
@@ -790,7 +790,7 @@ pub static INTERP_MIRRORS: &[Mirror] = &[
         lean: INTERP,
         domain: Domain::Sampled("200,000 lines: ends in 1/256 pixels of -2^20..2^20 (equal ones too), the coordinate and the ends' values from the floats of d3d11.plane"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x11e2_d311);
+            let mut rng = crate::rng::Sample64::new(0x11e2_d311);
             float_args(3, 200_000, 0x11e3_d311, &mut |v| {
                 let a = rng.range(-(1 << 20), 1 << 20);
                 let b = if rng.chance(20) { a } else if rng.chance(2) { a.saturating_add(rng.range(-600, 600)) } else { rng.range(-(1 << 20), 1 << 20) };
@@ -810,7 +810,7 @@ pub static INTERP_MIRRORS: &[Mirror] = &[
         domain: Domain::Sampled("every triple of 40 signed boundary floats (NaNs, infinities, both zeros), 200,000 triples of the floats of d3d11.plane"),
         inputs: |each| {
             let mut fs = Vec::new();
-            floats(0, &mut crate::rng::XorShift32::new(1), &mut |c| fs.push(i64::from(c)));
+            floats(0, &mut crate::rng::Sample64::new(1), &mut |c| fs.push(i64::from(c)));
             for &x in &fs {
                 for &y in &fs {
                     for &z in &fs {
@@ -852,7 +852,7 @@ pub static INTERP_MIRRORS: &[Mirror] = &[
         domain: Domain::Sampled("the 40 signed boundary floats and 300,000 of the floats of d3d11.plane"),
         inputs: |each| {
             let mut fs = Vec::new();
-            floats(0, &mut crate::rng::XorShift32::new(1), &mut |c| fs.push(i64::from(c)));
+            floats(0, &mut crate::rng::Sample64::new(1), &mut |c| fs.push(i64::from(c)));
             for &x in &fs {
                 each(&[x]);
             }
@@ -875,7 +875,7 @@ pub static INTERP_MIRRORS: &[Mirror] = &[
         lean: INTERP,
         domain: Domain::Sampled("200,000 viewports and made vertices (x, y, width, height, minz, maxz, x, y, z, w) of the floats of d3d11.plane, with and without depth clipping"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x3ade_d311);
+            let mut rng = crate::rng::Sample64::new(0x3ade_d311);
             float_args(10, 200_000, 0x3adf_d311, &mut |v| {
                 let mut w = v.to_vec();
                 w.push(i64::from(rng.chance(2)));

@@ -14,20 +14,20 @@ const DECL: &str = "spec/lean/Kikizake/D3d9/Decl.lean";
 const SHADE: &str = "spec/lean/Kikizake/D3d9/Shade.lean";
 const CLIP: &str = "spec/lean/Kikizake/D3d9/Clip.lean";
 /// a vertex position on the 1/16 grid over -3 .. 19 (the raster-* cases' grid), as binary32 bits
-fn grid16(rng: &mut crate::rng::XorShift32) -> i64 {
+fn grid16(rng: &mut crate::rng::Sample64) -> i64 {
     i64::from(to_f32(f64::from(i32::try_from(rng.range(-48, 19 * 16)).unwrap_or(0)) / 16.0).to_bits())
 }
 /// a pixel center of a vertex snapped to 1/256 pixel on -1 .. 17, as binary32 bits
-fn center(rng: &mut crate::rng::XorShift32) -> i64 {
+fn center(rng: &mut crate::rng::Sample64) -> i64 {
     i64::from(to_f32(f64::from(i32::try_from(rng.range(-256, 17 * 256)).unwrap_or(0)) / 256.0 + 0.5).to_bits())
 }
 /// an attribute: a channel value in 0..1 mostly, else any finite binary32
-fn attribute(rng: &mut crate::rng::XorShift32) -> i64 {
+fn attribute(rng: &mut crate::rng::Sample64) -> i64 {
     if rng.chance(4) {
-        let b = rng.next();
+        let b = rng.word();
         i64::from(if f32::from_bits(b).is_finite() { b } else { b & 0x3fff_ffff })
     } else {
-        i64::from(to_f32(f64::from(rng.next() % 0x0100_0001) / 16_777_216.0).to_bits())
+        i64::from(to_f32(f64::from(rng.word() % 0x0100_0001) / 16_777_216.0).to_bits())
     }
 }
 /// a binary64 rounded to binary32 (exact for these: on the 1/256 and 1/2^24 grids)
@@ -488,7 +488,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: SHADE,
         domain: Domain::Sampled("300,000 triangles of pixel centers on the 1/256 grid over -1 .. 17 (degenerate ones among them) and attributes in 0..1 or any finite binary32"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x9a0d_0001);
+            let mut rng = crate::rng::Sample64::new(0x9a0d_0001);
             for _ in 0..300_000 {
                 let mut v = [0i64; 9];
                 for (k, x) in v.iter_mut().enumerate() {
@@ -512,7 +512,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: SHADE,
         domain: Domain::Sampled("300,000 attributes, gradients (any finite binary32 or in -1..1), first vertices and pixel centers on the 1/256 grid over -1 .. 17"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x9a0d_0002);
+            let mut rng = crate::rng::Sample64::new(0x9a0d_0002);
             for _ in 0..300_000 {
                 let v = [attribute(&mut rng), attribute(&mut rng), attribute(&mut rng), center(&mut rng), center(&mut rng), center(&mut rng), center(&mut rng)];
                 each(&v);
@@ -528,7 +528,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: SHADE,
         domain: Domain::Sampled("300,000 triangles as d3d9.grad's and pixel centers on the 1/256 grid over -1 .. 17"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x9a0d_0003);
+            let mut rng = crate::rng::Sample64::new(0x9a0d_0003);
             for _ in 0..300_000 {
                 let mut v: Vec<i64> = (0..6).map(|_| center(&mut rng)).collect();
                 v.extend((0..3).map(|_| attribute(&mut rng)));
@@ -560,7 +560,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: CLIP,
         domain: Domain::Sampled("200,000 triangles on the 1/16 grid over -3 .. 19 with 19 attributes as d3d9.grad's, clipped to a 16 by 16 target's bounds as clip_bounds gives them (9 and 8, with and without perspective), and 20,000 on random sides"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xc11f_0001);
+            let mut rng = crate::rng::Sample64::new(0xc11f_0001);
             for i in 0..220_000 {
                 let vs: [[i64; 21]; 3] = std::array::from_fn(|_| {
                     let mut v = [0i64; 21];
@@ -608,7 +608,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: CLIP,
         domain: Domain::Sampled("200,000 triangles on the 1/16 grid over -3 .. 19, ties of x and of both coordinates among them, signed zeros"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xc11f_0002);
+            let mut rng = crate::rng::Sample64::new(0xc11f_0002);
             for _ in 0..200_000 {
                 let mut v: [i64; 6] = std::array::from_fn(|_| if rng.chance(8) { *rng.pick(&[0i64, 0x8000_0000]) } else { grid16(&mut rng) });
                 if rng.chance(4) {
@@ -631,7 +631,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: CLIP,
         domain: Domain::Sampled("targets 1 .. 64 square and not, 9 and 8, with and without perspective, 200,000 triangles on the 1/16 grid over -3 .. 67 with vertices at the size itself among them"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xc11f_0003);
+            let mut rng = crate::rng::Sample64::new(0xc11f_0003);
             for _ in 0..200_000 {
                 let (w, h) = (rng.range(1, 64), rng.range(1, 64));
                 let mut v = vec![w, h, i64::from(rng.chance(2)), i64::from(rng.chance(2))];
@@ -659,9 +659,9 @@ pub static MIRRORS: &[Mirror] = &[
             for k in -65_536..=65_536i32 {
                 each(&[i64::from(to_f32(f64::from(k) / 1024.0).to_bits())]);
             }
-            let mut rng = crate::rng::XorShift32::new(0xc11f_0004);
+            let mut rng = crate::rng::Sample64::new(0xc11f_0004);
             for _ in 0..200_000 {
-                let b = rng.next();
+                let b = rng.word();
                 let x = f32::from_bits(b);
                 if x.is_finite() && x.abs() < 1.0e15 {
                     each(&[i64::from(b)]);
