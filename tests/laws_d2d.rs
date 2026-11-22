@@ -535,6 +535,29 @@ proptest! {
         prop_assert!((a.abs() - len * f64::from(w)).abs() < 1e-3 * (1.0 + len * f64::from(w)), "{} {}", a, len * f64::from(w));
     }
 
+    /// Widen of one straight line through any transform that does not flatten it (an elliptic
+    /// pen when it is not a similarity): the image of the local rectangle, of area |det| times
+    /// the length times the width
+    #[test]
+    fn widened_lines_through_transforms_are_parallelograms(x1 in -32i32..32, y1 in -32i32..32, w in 1i32..32, m in proptest::collection::vec(-16i32..16, 4)) {
+        prop_assume!((x1, y1) != (0, 0));
+        let m: M = [m[0] as f32 / 8.0, m[1] as f32 / 8.0, m[2] as f32 / 8.0, m[3] as f32 / 8.0, 1.0, 2.0];
+        let det = f64::from(m[0]) * f64::from(m[3]) - f64::from(m[1]) * f64::from(m[2]);
+        prop_assume!(det.abs() > 0.05);
+        let p1 = (x1 as f32 / 4.0, y1 as f32 / 4.0);
+        let f = Fig { start: (0.0, 0.0), segs: vec![Seg::L(p1)], closed: false };
+        let w = w as f32 / 8.0;
+        let r = kikizake::model::d2dwiden::widen(&[f], false, &m, w, 0.25);
+        prop_assert!(r.is_ok());
+        let r = r.unwrap_or_default();
+        prop_assert_eq!(r.len(), 1);
+        let poly = Fig { closed: true, ..r[0].clone() };
+        let len = (f64::from(p1.0).powi(2) + f64::from(p1.1).powi(2)).sqrt();
+        let want = det.abs() * len * f64::from(w);
+        let a = shoelace(&[poly]);
+        prop_assert!((a.abs() - want).abs() < 1e-3 * (1.0 + want), "{} {}", a, want);
+    }
+
     /// Widen of any ellipse, however tight its ends against the pen (refinement arcs, cubics
     /// among them): every point and control point of the rails lies within the ellipse's box
     /// grown by the pen radius (the arcs bulge by at most 4/3 tan(turn/4) of it)

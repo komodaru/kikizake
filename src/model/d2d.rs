@@ -2741,7 +2741,7 @@ impl D2d {
                 if !w.is_finite() {
                     return Err(Fail::Unmodeled(open::D2D_RT));
                 }
-                if let Geom::Path { .. } | Geom::Ell(_) = g {
+                if let Geom::Path { .. } | Geom::Ell(_) | Geom::RRect(_) | Geom::Xf(..) = g {
                     // (MEASURED, D2D.STROKE.POLY: the widener's polygon of every figure, filled
                     // together by nonzero winding in device space, its arcs cut by the curve rasterizer;
                     // a circle's special case (D2D.WIDEN.ROUND) transformed and filled ALTERNATE)
@@ -2770,19 +2770,12 @@ impl D2d {
                     tg.keep_clipped(&before);
                     return Ok(());
                 }
-                // (a rectangle or a rounded rectangle has a stroke of its own: fitted so far
-                // as the widened figures, stroke_pieces)
-                let Some((_, figs, m0)) = g.lines() else {
-                    return Err(Fail::Unmodeled(open::D2D_RT));
-                };
-                if !w.is_finite() {
-                    return Err(Fail::Unmodeled(open::D2D_RT));
-                }
-                super::approx(open::D2D_RT)?;
-                let figs: Vec<Figure> = figs.iter().map(|f| Figure { pts: f.pts.iter().map(|&(x, y)| apply(&m0, x, y)).collect(), closed: f.closed }).collect();
-                let pieces: Vec<Figure> = figs.iter().flat_map(|f| stroke_pieces(f, w * 0.5)).collect();
+                // (MEASURED, D2D.STROKE.RECT: a rectangle geometry's stroke is DrawRectangle's)
+                let Geom::Rect(r) = g else { return Err(Fail::Unmodeled(open::D2D_RT)) };
+                hit(clause::D2D_STROKE_RECT);
+                let figs = rect_stroke(r, w);
                 let before = tg.px.clone();
-                fill_union(tg, pieces, &Paint::Solid(premultiply(c)))?;
+                fill(tg, &Geom::Path { wind: false, figs }, &Paint::Solid(premultiply(c)))?;
                 tg.keep_clipped(&before);
                 return Ok(());
             }
@@ -2901,7 +2894,7 @@ impl D2d {
                     // rectangle grown by half the width less the one shrunk by it, when that is
                     // not empty)
                     hit(clause::D2D_STROKE_RECT);
-                    rect_stroke([v[0].min(v[2]), v[1].min(v[3]), v[0].max(v[2]), v[1].max(v[3])], h)
+                    rect_stroke([v[0], v[1], v[2], v[3]], v[4])
                 };
                 let before = tg.px.clone();
                 fill(tg, &Geom::Path { wind: true, figs }, &Paint::Solid(premultiply(c)))?;
@@ -2960,165 +2953,29 @@ impl D2d {
     }
 }
 
-/// FillRectangle / FillGeometry with a solid color brush: the pixels whose centers the shape
-/// covers (aliased, or antialiased where every edge is on the pixel grid), source over
-/// a side of a stroke's center line: the normal (-dy, dx) points to the left one
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum Side {
-    Left,
-    Right,
-}
-
-impl Side {
-    fn sign(self) -> f32 {
-        match self {
-            Side::Left => 1.0,
-            Side::Right => -1.0,
-        }
+/// MEASURED (D2D.STROKE.RECT, from the clean-room notes): DrawRectangle's
+/// FastWidenAxisAlignedRectangleToRects, in f32 in the rectangle's own space: when |w| is
+/// wider or higher than it, the rectangle grown by |w| / 2; else the eight rectangles of the
+/// corners and sides between it grown and shrunk by |w| / 2, each at least empty
+fn rect_stroke([l, t, r, b]: [f32; 4], w: f32) -> Vec<Figure> {
+    // (the rectangle put in order as the geometry stores it)
+    let (l, r, t, b) = (lo(l, r), hi(l, r), lo(t, b), hi(t, b));
+    let aw = w.abs();
+    let hw = aw * 0.5;
+    let rect = |l: f32, t: f32, r: f32, b: f32| Figure { pts: vec![(l, t), (hi(r, l), t), (hi(r, l), hi(b, t)), (l, hi(b, t))], closed: true };
+    if aw > r - l || aw > b - t {
+        return vec![rect(l - hw, t - hw, r + hw, b + hw)];
     }
-}
-
-/// how a figure turns at a vertex: a join is on the side it turns away from
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum Turn {
-    /// the outside of the corner on this side
-    Corner(Side),
-    /// the segments in line: no join
-    Straight,
-}
-
-/// MEASURED (D2D.STROKE.RECT): a rectangle (in order) stroked with miter joins: grown by half
-/// the width h, less the one shrunk by h when that is not empty
-fn rect_stroke([l, t, r, b]: [f32; 4], h: f32) -> Vec<Figure> {
-    let mut figs = vec![Figure { pts: vec![(l - h, t - h), (r + h, t - h), (r + h, b + h), (l - h, b + h)], closed: true }];
-    if l + h < r - h && t + h < b - h {
-        figs.push(Figure { pts: vec![(l + h, t + h), (l + h, b - h), (r - h, b - h), (r - h, t + h)], closed: true });
-    }
-    figs
-}
-
-/// FITTED (D2D.RT, strokefit-*, strokemore-*, strokewide-*, strokelobe-*: all but six pixels
-/// of 168 cases, five of them one unit of the blend off): a figure of straight segments
-/// stroked with flat caps and miter joins (limit 10), in f32, as pieces fill_union paints:
-/// each segment the quad of its ends moved half the width h along its normal both ways; each
-/// join the wedge on its outer side from the two inner offset points over the segments' outer
-/// offset points and the miter (where the outer offset lines meet) between them, the miter cut
-/// square at 10 h from the vertex when longer; an open figure no join at its ends. (WPF's
-/// rails, one outline, a union of the pieces as one nonzero fill and a wedge split at the
-/// vertex all matched worse)
-fn stroke_pieces(fg: &Figure, h: f32) -> Vec<Figure> {
-    let mut p = fg.pts.clone();
-    p.dedup();
-    if fg.closed && p.len() > 1 && p.first() == p.last() {
-        p.pop();
-    }
-    let n = p.len();
-    if n < 2 {
-        return Vec::new();
-    }
-    let nrm = |u: (f32, f32), v: (f32, f32)| {
-        let (dx, dy) = (v.0 - u.0, v.1 - u.1);
-        let l = (dx * dx + dy * dy).sqrt();
-        (-dy / l * h, dx / l * h)
-    };
-    let at = |q: (f32, f32), d: (f32, f32), s: f32| (q.0 + s * d.0, q.1 + s * d.1);
-    let piece = |pts: Vec<(f32, f32)>| Figure { pts, closed: true };
-    let segs = if fg.closed { n } else { n - 1 };
-    let mut out = Vec::new();
-    for k in 0..segs {
-        let (a, b) = (p[k], p[(k + 1) % n]);
-        let n1 = nrm(a, b);
-        out.push(piece(vec![at(a, n1, 1.0), at(b, n1, 1.0), at(b, n1, -1.0), at(a, n1, -1.0)]));
-        if !fg.closed && k + 2 >= n {
-            continue;
-        }
-        let c = p[(k + 2) % n];
-        let n2 = nrm(b, c);
-        let cr = (b.0 - a.0) * (c.1 - b.1) - (b.1 - a.1) * (c.0 - b.0);
-        let turn = if cr > 0.0 {
-            Turn::Corner(Side::Right)
-        } else if cr < 0.0 {
-            Turn::Corner(Side::Left)
-        } else {
-            Turn::Straight
-        };
-        let side = match turn {
-            Turn::Corner(side) => side,
-            Turn::Straight => continue,
-        };
-        let s = side.sign();
-        let (p1, p2) = (at(b, n1, s), at(b, n2, s));
-        let (d1, d2) = ((b.0 - a.0, b.1 - a.1), (c.0 - b.0, c.1 - b.1));
-        let crs = |u: (f32, f32), v: (f32, f32)| u.0 * v.1 - u.1 * v.0;
-        // the miter: where the two outer offset lines meet, from the first one's point
-        let t = crs((p2.0 - p1.0, p2.1 - p1.1), d2) / crs(d1, d2);
-        let m = (p1.0 + d1.0 * t, p1.1 + d1.1 * t);
-        // (the wedge crosses itself at the vertex: its inner lobe winds -1, which covers as
-        // the pieces are filled each by itself, fill_union)
-        let mut wedge = vec![at(b, n2, -s), at(b, n1, -s), p1];
-        let (vx, vy) = (m.0 - b.0, m.1 - b.1);
-        let ml = (vx * vx + vy * vy).sqrt();
-        let lim = 10.0 * h;
-        if ml > lim {
-            let (dx, dy) = (vx / ml, vy / ml);
-            let cut = |q: (f32, f32)| {
-                let pq = (q.0 - b.0) * dx + (q.1 - b.1) * dy;
-                let t = (lim - pq) / (ml - pq);
-                (q.0 + t * (m.0 - q.0), q.1 + t * (m.1 - q.1))
-            };
-            wedge.extend([cut(p1), cut(p2)]);
-        } else {
-            wedge.push(m);
-        }
-        wedge.push(p2);
-        out.push(piece(wedge));
-    }
-    out
-}
-
-/// pieces filled each by itself with nonzero winding, the samples any of them covers painted
-/// once (a stroke's quads and wedges: a wedge's inner lobe winds -1 and still covers)
-fn fill_union(tg: &mut Target, pieces: Vec<Figure>, paint: &Paint) -> Res<()> {
-    let blend = Blend::Shader;
-    let frame = match tg.st.aa {
-        Antialias::Aliased => Frame::Aliased,
-        Antialias::PerPrimitive => Frame::Antialiased,
-    };
-    let mut polys = Vec::new();
-    for f in pieces {
-        let (_, ps) = fixed_polys(tg, &Geom::Path { wind: true, figs: vec![f] }, frame)?;
-        polys.push(ps);
-    }
-    match frame {
-        Frame::Antialiased => {
-            let mut m = vec![0u64; tg.w * tg.h];
-            for ps in &polys {
-                for (o, v) in m.iter_mut().zip(samples16(tg, ps, true)) {
-                    *o |= v;
-                }
-            }
-            put_coverage(tg, m.into_iter().map(u64::count_ones).collect(), paint, Blend::Shader);
-        }
-        Frame::Aliased | Frame::AliasedWarp => {
-            let mut m = vec![false; tg.w * tg.h];
-            for ps in &polys {
-                for (o, v) in m.iter_mut().zip(cover_aliased(tg, ps, true)) {
-                    *o |= v;
-                }
-            }
-            for (i, inside) in m.into_iter().enumerate() {
-                if inside {
-                    hit(clause::D2D_FILL_POLY);
-                    let src = paint.at(i % tg.w, i / tg.w);
-                    tg.px[i] = match blend {
-                        Blend::Warp => over_warp(src, tg.px[i]),
-                        Blend::Shader => over(src, tg.px[i]),
-                    };
-                }
-            }
-        }
-    }
-    Ok(())
+    vec![
+        rect(l - hw, t - hw, l + hw, t + hw),
+        rect(l + hw, t - hw, r - hw, t + hw),
+        rect(r - hw, t - hw, r + hw, t + hw),
+        rect(l - hw, t + hw, l + hw, b - hw),
+        rect(r - hw, t + hw, r + hw, b - hw),
+        rect(l - hw, b - hw, l + hw, b + hw),
+        rect(l + hw, b - hw, r - hw, b + hw),
+        rect(r - hw, b - hw, r + hw, b + hw),
+    ]
 }
 
 /// how a fill's pixels are blended: through d2d1's shaders (rounded / 255), or by WARP's own

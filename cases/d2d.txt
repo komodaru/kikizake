@@ -19384,3 +19384,78 @@ d2ell 0 8 6 1 1
 d2drawg 0 1.5 255 255 255 255
 d2read
 end
+case strkpen-0
+d2target 16 12
+d2xform 1 0 0.5 1 0 0
+d2ell 0 7 6 4 3
+d2drawg 0 2 255 255 255 255
+d2read
+end
+case strkpen-1
+d2target 16 12
+d2xform 2 0 0 0.75 0 0
+d2path 0 wind m 1 2 7 3 2 12 z
+d2drawg 0 1.5 255 255 255 255
+d2read
+end
+case strkpen-2
+d2target 16 12
+d2xform -1 0 0 1 16 0
+d2path 0 alt m 2 2 12 4 4 10 o
+d2drawg 0 2.5 255 255 255 255
+d2read
+end
+case strkpen-3
+d2target 16 12
+d2xform 1 0.25 -0.5 1 3 0
+d2path 0 alt m 1 1 12 2 3 3 o
+d2drawg 0 1 255 255 255 255
+d2read
+end
+case strkpen-4
+d2target 16 12
+d2xform 0.75 0 0.25 1.5 0 0
+d2rrect 0 2 2 14 6 2 1
+d2drawg 0 1.25 255 255 255 255
+d2read
+end
+case strkrect-0
+d2target 16 12
+d2aa per
+d2xform 1 0 0 1 0 0
+d2rect 0 2.5 2 12 9.5
+d2drawg 0 1.5 255 255 255 255
+d2read
+end
+case strkrect-1
+d2target 16 12
+d2aa per
+d2xform 1 0 0.5 1 0 0
+d2rect 0 2.5 2 12 9.5
+d2drawg 0 1 255 255 255 255
+d2read
+end
+case strkrect-2
+d2target 16 12
+d2aa aliased
+d2xform 1 0 0.5 1 0 0
+d2rect 0 2.5 2 12 9.5
+d2drawg 0 2 255 255 255 255
+d2read
+end
+case strkrect-3
+d2target 16 12
+d2aa per
+d2xform 1 0 0 1 0.25 0.5
+d2rect 0 2.5 2 12 9.5
+d2drawg 0 9 255 255 255 255
+d2read
+end
+case layercurve-0
+d2target 16 12
+d2ell 0 8 6 5 4
+d2layer 0 0 16 12 1 0
+d2fill 0 0 16 12 238 191 70 255
+d2poplayer
+d2read
+end

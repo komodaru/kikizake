@@ -979,4 +979,20 @@ fn probes(s: &mut String, r: &mut XorShift32) {
     for (i, (e, w)) in [("8 6 3 3", "2"), ("8 6 1 1", "1.5")].iter().enumerate() {
         writeln!(s, "case strkround-{i}\nd2target 16 12\nd2ell 0 {e}\nd2drawg 0 {w} 255 255 255 255\nd2read\nend");
     }
+    // the elliptic pen (a skew, a non-uniform scale, a reflection; curves and sharp corners
+    // under it), DrawGeometry of rectangles (antialiased, under a skew), and a layer's mask with
+    // curves (D2D.RT, still open)
+    for (i, (x, g, w)) in [
+        ("1 0 0.5 1 0 0", "d2ell 0 7 6 4 3", "2"),
+        ("2 0 0 0.75 0 0", "d2path 0 wind m 1 2 7 3 2 12 z", "1.5"),
+        ("-1 0 0 1 16 0", "d2path 0 alt m 2 2 12 4 4 10 o", "2.5"),
+        ("1 0.25 -0.5 1 3 0", "d2path 0 alt m 1 1 12 2 3 3 o", "1"),
+        ("0.75 0 0.25 1.5 0 0", "d2rrect 0 2 2 14 6 2 1", "1.25"),
+    ].iter().enumerate() {
+        writeln!(s, "case strkpen-{i}\nd2target 16 12\nd2xform {x}\n{g}\nd2drawg 0 {w} 255 255 255 255\nd2read\nend");
+    }
+    for (i, (x, aa, w)) in [("1 0 0 1 0 0", "per", "1.5"), ("1 0 0.5 1 0 0", "per", "1"), ("1 0 0.5 1 0 0", "aliased", "2"), ("1 0 0 1 0.25 0.5", "per", "9")].iter().enumerate() {
+        writeln!(s, "case strkrect-{i}\nd2target 16 12\nd2aa {aa}\nd2xform {x}\nd2rect 0 2.5 2 12 9.5\nd2drawg 0 {w} 255 255 255 255\nd2read\nend");
+    }
+    writeln!(s, "case layercurve-0\nd2target 16 12\nd2ell 0 8 6 5 4\nd2layer 0 0 16 12 1 0\nd2fill 0 0 16 12 238 191 70 255\nd2poplayer\nd2read\nend");
 }
