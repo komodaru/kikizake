@@ -619,7 +619,16 @@ enum Bd {
     B1,
     B8,
     B16,
+    /// s2.13 fixed point
+    B16S,
+    /// half
+    B16F,
+    /// s7.24 fixed point
+    B32S,
+    /// float
+    B32F,
     B5,
+    B10,
     B565,
 }
 
@@ -629,7 +638,12 @@ impl Bd {
             Bd::B1 => 0,
             Bd::B8 => 1,
             Bd::B16 => 2,
+            Bd::B16S => 3,
+            Bd::B16F => 4,
+            Bd::B32S => 6,
+            Bd::B32F => 7,
             Bd::B5 => 8,
+            Bd::B10 => 9,
             Bd::B565 => 10,
         }
     }
@@ -825,13 +839,15 @@ impl Quality {
         }
         match bd {
             Bd::B1 | Bd::B8 | Bd::B5 | Bd::B565 => base,
-            Bd::B16 => (208.0f32 - (q * 192.0) * q) as i32 as u8,
+            Bd::B10 => base.wrapping_add(8),
+            Bd::B16 | Bd::B16S | Bd::B16F => (208.0f32 - (q * 192.0) * q) as i32 as u8,
+            Bd::B32S | Bd::B32F => (255.0f32 - (q * 240.0) * q) as i32 as u8,
         }
     }
     fn overlap(self, bd: Bd) -> Overlap {
         let q = self.0;
         let idx = usize::from(q >= 0.9) + usize::from(q > 0.4);
-        if bd == Bd::B16 {
+        if matches!(bd, Bd::B16 | Bd::B16F | Bd::B32F) {
             return Overlap::None;
         }
         [Overlap::Two, Overlap::One, Overlap::None][idx]
@@ -1711,8 +1727,13 @@ fn write_headers(pl: &Plane, b: &mut Bits) {
         Cf::YOnly | Cf::Cmyk => {}
     }
     match pl.bd {
-        Bd::B16 => b.put(0, 8), // shift
-        Bd::B1 | Bd::B8 | Bd::B5 | Bd::B565 => {}
+        Bd::B16 | Bd::B16S => b.put(0, 8), // shift
+        Bd::B32S => b.put(SHIFT32, 8),
+        Bd::B32F => {
+            b.put(MANTISSA, 8);
+            b.put(EXP_BIAS as u32, 8);
+        }
+        Bd::B1 | Bd::B8 | Bd::B16F | Bd::B5 | Bd::B10 | Bd::B565 => {}
     }
     match &pl.qp {
         QpPlan::Uniform { dc, lp, hp } => {
@@ -2335,7 +2356,7 @@ fn reconstruct(pl: &Plane, planes: &mut [Vec<i32>], l: &Layout, lp_set: &[usize]
 /* ---------------------------------------------------------------------------------------- */
 /* pixel formats */
 
-/// the formats WIC hands this encoder as they are
+/// the formats WIC hands this encoder as they are (memo 4.1)
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Format {
     Bw,
@@ -2350,7 +2371,127 @@ pub enum Format {
     Pbgra,
     Rgb48,
     Rgba64,
+    Prgba64,
     Cmyk,
+    Bgr101010,
+    GrayFix16,
+    GrayHalf,
+    GrayFix32,
+    GrayFloat,
+    Rgb48Fixed,
+    Rgb48Half,
+    Rgb64Fixed,
+    Rgb64Half,
+    Rgb96Fixed,
+    Rgb128Fixed,
+    RgbFloat,
+    Rgba64Fixed,
+    Rgba64Half,
+    Rgba128Fixed,
+    RgbaFloat,
+    PrgbaFloat,
+    Cmyk64,
+    CmykA40,
+    CmykA80,
+}
+
+/// how a format keeps each channel
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Elem {
+    U8,
+    U16,
+    S16,
+    F16,
+    S32,
+    F32,
+}
+
+impl Elem {
+    fn bytes(self) -> usize {
+        match self {
+            Elem::U8 => 1,
+            Elem::U16 | Elem::S16 | Elem::F16 => 2,
+            Elem::S32 | Elem::F32 => 4,
+        }
+    }
+}
+
+/// the shift of an s7.24 value (nLenMantissaOrShift, jxrlib's default WIC leaves)
+const SHIFT32: u32 = 10;
+/// a float's mantissa bits and exponent bias (jxrlib's defaults WIC leaves)
+const MANTISSA: u32 = 13;
+const EXP_BIAS: i32 = 4;
+
+/// float2pixel: a float as a sign and magnitude integer of `MANTISSA` mantissa bits
+fn float2pixel(f: f32) -> i32 {
+    if f == 0.0 {
+        return 0;
+    }
+    let x = f.to_bits() as i32;
+    let mut e = (x >> 23) & 0xff;
+    let mut m = (x & 0x7f_ffff) | 0x80_0000;
+    if e == 0 {
+        m ^= 0x80_0000;
+        e += 1;
+    }
+    let mut e1 = e - 127 + EXP_BIAS;
+    if e1 <= 1 {
+        if e1 < 1 {
+            m >>= 1 - e1;
+        }
+        e1 = 1;
+        if m & 0x80_0000 == 0 {
+            e1 = 0;
+        }
+    }
+    m &= 0x7f_ffff;
+    let lm = MANTISSA as i32;
+    let h = (e1 << lm) + ((m + (1 << (23 - lm - 1))) >> (23 - lm));
+    let s = x >> 31;
+    (h ^ s) - s
+}
+
+/// pixel2float: back
+fn pixel2float(h: i32) -> f32 {
+    let lm = MANTISSA as i32;
+    let lmshift = 1i32 << lm;
+    let s = h >> 31;
+    let t = (h ^ s).wrapping_sub(s);
+    let mut e = ((t as u32) >> lm) as i32;
+    let mut m = (t & (lmshift - 1)) | lmshift;
+    if e == 0 {
+        m ^= lmshift;
+        e = 1;
+    }
+    e += 127 - EXP_BIAS;
+    while m < lmshift && e > 1 && m > 0 {
+        e -= 1;
+        m <<= 1;
+    }
+    if m < lmshift {
+        e = 0;
+    } else {
+        m ^= lmshift;
+    }
+    m <<= 23 - lm;
+    f32::from_bits(((s as u32) & 0x8000_0000) | ((e as u32) << 23) | m as u32)
+}
+
+/// a float through the encoder's integer and back (float2pixel then pixel2float)
+pub fn float_through(f: f32) -> f32 {
+    pixel2float(float2pixel(f))
+}
+
+/// forwardHalf: a half's sign and magnitude as an integer
+fn forward_half(h: i32) -> i32 {
+    let s = h >> 31;
+    ((h & 0x7fff) ^ s) - s
+}
+
+/// backwardHalf
+fn backward_half(h: i32) -> u16 {
+    let s = h >> 31;
+    (((h & 0x7fff) ^ s) - s) as u16
 }
 
 impl Format {
@@ -2368,7 +2509,28 @@ impl Format {
             "pbgra" => Format::Pbgra,
             "rgb48" => Format::Rgb48,
             "rgba64" => Format::Rgba64,
+            "prgba64" => Format::Prgba64,
             "cmyk" => Format::Cmyk,
+            "bgr101010" => Format::Bgr101010,
+            "grayfix16" => Format::GrayFix16,
+            "grayhalf" => Format::GrayHalf,
+            "grayfix32" => Format::GrayFix32,
+            "grayfloat" => Format::GrayFloat,
+            "rgb48fixed" => Format::Rgb48Fixed,
+            "rgb48half" => Format::Rgb48Half,
+            "rgb64fixed" => Format::Rgb64Fixed,
+            "rgb64half" => Format::Rgb64Half,
+            "rgb96fixed" => Format::Rgb96Fixed,
+            "rgb128fixed" => Format::Rgb128Fixed,
+            "rgbfloat" => Format::RgbFloat,
+            "rgba64fixed" => Format::Rgba64Fixed,
+            "rgba64half" => Format::Rgba64Half,
+            "rgba128fixed" => Format::Rgba128Fixed,
+            "rgbafloat" => Format::RgbaFloat,
+            "prgbafloat" => Format::PrgbaFloat,
+            "cmyk64" => Format::Cmyk64,
+            "cmyka40" => Format::CmykA40,
+            "cmyka80" => Format::CmykA80,
             _ => return None,
         })
     }
@@ -2376,11 +2538,15 @@ impl Format {
         match self {
             Format::Bw => 1,
             Format::Gray8 => 8,
-            Format::Gray16 | Format::Bgr555 | Format::Bgr565 => 16,
+            Format::Gray16 | Format::Bgr555 | Format::Bgr565 | Format::GrayFix16 | Format::GrayHalf => 16,
             Format::Bgr24 | Format::Rgb24 => 24,
-            Format::Bgr32 | Format::Bgra | Format::Pbgra | Format::Cmyk => 32,
-            Format::Rgb48 => 48,
-            Format::Rgba64 => 64,
+            Format::Bgr32 | Format::Bgra | Format::Pbgra | Format::Cmyk | Format::Bgr101010 | Format::GrayFix32 | Format::GrayFloat => 32,
+            Format::CmykA40 => 40,
+            Format::Rgb48 | Format::Rgb48Fixed | Format::Rgb48Half => 48,
+            Format::Rgba64 | Format::Prgba64 | Format::Rgb64Fixed | Format::Rgb64Half | Format::Rgba64Fixed | Format::Rgba64Half | Format::Cmyk64 => 64,
+            Format::CmykA80 => 80,
+            Format::Rgb96Fixed => 96,
+            Format::Rgb128Fixed | Format::RgbFloat | Format::Rgba128Fixed | Format::RgbaFloat | Format::PrgbaFloat => 128,
         }
     }
     /// the last byte of its WIC GUID {6fddc324-4e03-4bfe-b185-3d77768dc9xx}
@@ -2396,9 +2562,30 @@ impl Format {
             Format::Bgr32 => 0x0e,
             Format::Bgra => 0x0f,
             Format::Pbgra => 0x10,
+            Format::GrayFloat => 0x11,
+            Format::Rgb48Fixed => 0x12,
+            Format::GrayFix16 => 0x13,
+            Format::Bgr101010 => 0x14,
             Format::Rgb48 => 0x15,
             Format::Rgba64 => 0x16,
+            Format::Prgba64 => 0x17,
+            Format::Rgb96Fixed => 0x18,
+            Format::RgbaFloat => 0x19,
+            Format::PrgbaFloat => 0x1a,
+            Format::RgbFloat => 0x1b,
             Format::Cmyk => 0x1c,
+            Format::Rgba64Fixed => 0x1d,
+            Format::Rgba128Fixed => 0x1e,
+            Format::Cmyk64 => 0x1f,
+            Format::CmykA40 => 0x2c,
+            Format::CmykA80 => 0x2d,
+            Format::Rgba64Half => 0x3a,
+            Format::Rgb48Half => 0x3b,
+            Format::GrayHalf => 0x3e,
+            Format::GrayFix32 => 0x3f,
+            Format::Rgb64Fixed => 0x40,
+            Format::Rgb128Fixed => 0x41,
+            Format::Rgb64Half => 0x42,
         }
     }
     fn ext(self) -> (ExtCf, Bd) {
@@ -2406,20 +2593,74 @@ impl Format {
             Format::Bw => (ExtCf::YOnly, Bd::B1),
             Format::Gray8 => (ExtCf::YOnly, Bd::B8),
             Format::Gray16 => (ExtCf::YOnly, Bd::B16),
+            Format::GrayFix16 => (ExtCf::YOnly, Bd::B16S),
+            Format::GrayHalf => (ExtCf::YOnly, Bd::B16F),
+            Format::GrayFix32 => (ExtCf::YOnly, Bd::B32S),
+            Format::GrayFloat => (ExtCf::YOnly, Bd::B32F),
             Format::Bgr555 => (ExtCf::Rgb, Bd::B5),
             Format::Bgr565 => (ExtCf::Rgb, Bd::B565),
+            Format::Bgr101010 => (ExtCf::Rgb, Bd::B10),
             Format::Bgr24 | Format::Rgb24 | Format::Bgr32 | Format::Bgra | Format::Pbgra => (ExtCf::Rgb, Bd::B8),
-            Format::Rgb48 | Format::Rgba64 => (ExtCf::Rgb, Bd::B16),
-            Format::Cmyk => (ExtCf::Cmyk, Bd::B8),
+            Format::Rgb48 | Format::Rgba64 | Format::Prgba64 => (ExtCf::Rgb, Bd::B16),
+            Format::Rgb48Fixed | Format::Rgb64Fixed | Format::Rgba64Fixed => (ExtCf::Rgb, Bd::B16S),
+            Format::Rgb48Half | Format::Rgb64Half | Format::Rgba64Half => (ExtCf::Rgb, Bd::B16F),
+            Format::Rgb96Fixed | Format::Rgb128Fixed | Format::Rgba128Fixed => (ExtCf::Rgb, Bd::B32S),
+            Format::RgbFloat | Format::RgbaFloat | Format::PrgbaFloat => (ExtCf::Rgb, Bd::B32F),
+            Format::Cmyk | Format::CmykA40 => (ExtCf::Cmyk, Bd::B8),
+            Format::Cmyk64 | Format::CmykA80 => (ExtCf::Cmyk, Bd::B16),
         }
+    }
+    /// how each channel is kept, for the formats of whole channels past 8 bits and CMYK
+    fn elem(self) -> Option<Elem> {
+        Some(match self.ext().1 {
+            Bd::B16 => Elem::U16,
+            Bd::B16S => Elem::S16,
+            Bd::B16F => Elem::F16,
+            Bd::B32S => Elem::S32,
+            Bd::B32F => Elem::F32,
+            Bd::B8 if self.ext().0 == ExtCf::Cmyk => Elem::U8,
+            Bd::B1 | Bd::B8 | Bd::B5 | Bd::B10 | Bd::B565 => return None,
+        })
     }
     /// the planar alpha's bit depth, if it has alpha
     fn alpha(self) -> Option<Bd> {
         match self {
-            Format::Bgra | Format::Pbgra => Some(Bd::B8),
-            Format::Rgba64 => Some(Bd::B16),
-            Format::Bw | Format::Gray8 | Format::Gray16 | Format::Bgr555 | Format::Bgr565 | Format::Bgr24 | Format::Rgb24 | Format::Bgr32 | Format::Rgb48 | Format::Cmyk => None,
+            Format::Bgra | Format::Pbgra | Format::CmykA40 => Some(Bd::B8),
+            Format::Rgba64 | Format::Prgba64 | Format::CmykA80 => Some(Bd::B16),
+            Format::Rgba64Fixed => Some(Bd::B16S),
+            Format::Rgba64Half => Some(Bd::B16F),
+            Format::Rgba128Fixed => Some(Bd::B32S),
+            Format::RgbaFloat | Format::PrgbaFloat => Some(Bd::B32F),
+            Format::Bw | Format::Gray8 | Format::Gray16 | Format::Bgr555 | Format::Bgr565 | Format::Bgr24 | Format::Rgb24 | Format::Bgr32 | Format::Rgb48 | Format::Cmyk | Format::Bgr101010 | Format::GrayFix16 | Format::GrayHalf | Format::GrayFix32 | Format::GrayFloat | Format::Rgb48Fixed | Format::Rgb48Half | Format::Rgb64Fixed | Format::Rgb64Half | Format::Rgb96Fixed | Format::Rgb128Fixed | Format::RgbFloat | Format::Cmyk64 => None,
         }
+    }
+}
+
+/// channel `k` of pixel `i` of a row as the encoder takes it in (inputMBRow, before cShift)
+fn take(row: &[u8], e: Elem, n: usize, i: usize, k: usize) -> i32 {
+    let at = (i * n + k) * e.bytes();
+    let b = &row[at..at + e.bytes()];
+    match e {
+        Elem::U8 => i32::from(b[0]),
+        Elem::U16 => i32::from(u16::from_le_bytes([b[0], b[1]])),
+        Elem::S16 => i32::from(i16::from_le_bytes([b[0], b[1]])),
+        Elem::F16 => forward_half(i32::from(i16::from_le_bytes([b[0], b[1]]))),
+        Elem::S32 => i32::from_le_bytes([b[0], b[1], b[2], b[3]]) >> SHIFT32,
+        Elem::F32 => float2pixel(f32::from_le_bytes([b[0], b[1], b[2], b[3]])),
+    }
+}
+
+/// a channel back as the decoder writes it (outputMBRow, after the shift down)
+fn give(o: &mut [u8], e: Elem, n: usize, i: usize, k: usize, v: i32) {
+    let at = (i * n + k) * e.bytes();
+    let d = &mut o[at..at + e.bytes()];
+    match e {
+        Elem::U8 => d[0] = v.clamp(0, 255) as u8,
+        Elem::U16 => d.copy_from_slice(&(v.clamp(0, 65535) as u16).to_le_bytes()),
+        Elem::S16 => d.copy_from_slice(&(v.clamp(-32768, 32767) as i16).to_le_bytes()),
+        Elem::F16 => d.copy_from_slice(&backward_half(v).to_le_bytes()),
+        Elem::S32 => d.copy_from_slice(&(v << SHIFT32).to_le_bytes()),
+        Elem::F32 => d.copy_from_slice(&pixel2float(v).to_le_bytes()),
     }
 }
 
@@ -2473,9 +2714,34 @@ fn load(p: &Picture, pl: &Plane, l: &Layout) -> Vec<Vec<i32>> {
                     let s = &row[i * 3..];
                     rgb(i32::from(s[0]), i32::from(s[1]), i32::from(s[2]), 128).to_vec()
                 }
-                Format::Rgb48 | Format::Rgba64 => {
+                Format::Rgb48 | Format::Rgba64 | Format::Prgba64 => {
                     let n = p.fmt.bits() / 16;
                     rgb(u16_at(row, i * n), u16_at(row, i * n + 1), u16_at(row, i * n + 2), 1 << 15).to_vec()
+                }
+                Format::Bgr101010 => {
+                    // (as jxrlib: red the low ten bits)
+                    let s = &row[i * 4..];
+                    let (b0, b1, b2, b3) = (i32::from(s[0]), i32::from(s[1]), i32::from(s[2]), i32::from(s[3]));
+                    rgb(b0 + ((b1 & 3) << 8), (b1 >> 2) + ((b2 & 0xf) << 6), (b2 >> 4) + ((b3 & 0x3f) << 4), 512).to_vec()
+                }
+                Format::GrayFix16 | Format::GrayHalf | Format::GrayFix32 | Format::GrayFloat => {
+                    let e = p.fmt.elem().unwrap_or(Elem::U8);
+                    vec![take(row, e, 1, i, 0) << sh]
+                }
+                Format::Rgb48Fixed | Format::Rgb48Half | Format::Rgb64Fixed | Format::Rgb64Half | Format::Rgb96Fixed | Format::Rgb128Fixed | Format::RgbFloat | Format::Rgba64Fixed | Format::Rgba64Half | Format::Rgba128Fixed | Format::RgbaFloat | Format::PrgbaFloat => {
+                    let e = p.fmt.elem().unwrap_or(Elem::U8);
+                    let n = p.fmt.bits() / 8 / e.bytes();
+                    rgb(take(row, e, n, i, 0), take(row, e, n, i, 1), take(row, e, n, i, 2), 0).to_vec()
+                }
+                Format::Cmyk64 | Format::CmykA80 => {
+                    let n = p.fmt.bits() / 16;
+                    let t = |k: usize| take(row, Elem::U16, n, i, k) << sh;
+                    let (mut c, mut m, mut yy, mut k) = (t(0), t(1), t(2), t(3));
+                    yy -= c;
+                    c += ((yy + 1) >> 1) - m;
+                    m += (c >> 1) - k;
+                    k += (m + 1) >> 1;
+                    vec![((1 << 15) << sh) - m, c, -yy, k]
                 }
                 Format::Bgr555 => {
                     let v = u16_at(row, i);
@@ -2491,8 +2757,8 @@ fn load(p: &Picture, pl: &Plane, l: &Layout) -> Vec<Vec<i32>> {
                     g += r >> 1;
                     vec![g - (32 << sh), -r, b]
                 }
-                Format::Cmyk => {
-                    let s = &row[i * 4..];
+                Format::Cmyk | Format::CmykA40 => {
+                    let s = &row[i * (p.fmt.bits() / 8)..];
                     let (mut c, mut m, mut yy, mut k) = (i32::from(s[0]) << sh, i32::from(s[1]) << sh, i32::from(s[2]) << sh, i32::from(s[3]) << sh);
                     yy -= c;
                     c += ((yy + 1) >> 1) - m;
@@ -2517,9 +2783,20 @@ fn load_alpha(p: &Picture, l: &Layout, bd: Bd) -> Vec<Vec<i32>> {
         for x in 0..l.mbw * 16 {
             let i = x.min(p.w - 1);
             let pos = l.mb(y >> 4, x >> 4) as usize + idx_cc(y & 15, x & 15);
-            plane[pos] = match bd {
-                Bd::B16 => u16_at(row, i * 4 + 3) - (1 << 15),
-                Bd::B1 | Bd::B8 | Bd::B5 | Bd::B565 => i32::from(row[i * 4 + 3]) - 128,
+            let e = match bd {
+                Bd::B16 => Elem::U16,
+                Bd::B16S => Elem::S16,
+                Bd::B16F => Elem::F16,
+                Bd::B32S => Elem::S32,
+                Bd::B32F => Elem::F32,
+                Bd::B1 | Bd::B8 | Bd::B5 | Bd::B10 | Bd::B565 => Elem::U8,
+            };
+            let n = p.fmt.bits() / 8 / e.bytes();
+            let v = take(row, e, n, i, n - 1);
+            plane[pos] = match e {
+                Elem::U8 => v - 128,
+                Elem::U16 => v - (1 << 15),
+                Elem::S16 | Elem::F16 | Elem::S32 | Elem::F32 => v,
             };
         }
     }
@@ -2574,7 +2851,41 @@ fn output(p: &Picture, pl: &Plane, planes: &[Vec<i32>], l: &Layout, alpha: Optio
                         s[3] = clip8(a + 128);
                     }
                 }
-                Format::Rgb48 | Format::Rgba64 => {
+                Format::Bgr101010 => {
+                    let (r, g, b) = icc(v[0], v[1], v[2], (512 << sh) + round8);
+                    let px = ((r >> sh).clamp(0, 1023) as u32) + (((g >> sh).clamp(0, 1023) as u32) << 10) + (((b >> sh).clamp(0, 1023) as u32) << 20);
+                    o[4 * x..4 * x + 4].copy_from_slice(&px.to_le_bytes());
+                }
+                Format::GrayFix16 | Format::GrayHalf | Format::GrayFix32 | Format::GrayFloat => {
+                    let e = p.fmt.elem().unwrap_or(Elem::U8);
+                    give(o, e, 1, x, 0, (v[0] + round8) >> sh);
+                }
+                Format::Rgb48Fixed | Format::Rgb48Half | Format::Rgb64Fixed | Format::Rgb64Half | Format::Rgb96Fixed | Format::Rgb128Fixed | Format::RgbFloat | Format::Rgba64Fixed | Format::Rgba64Half | Format::Rgba128Fixed | Format::RgbaFloat | Format::PrgbaFloat => {
+                    let e = p.fmt.elem().unwrap_or(Elem::U8);
+                    let n = p.fmt.bits() / 8 / e.bytes();
+                    let (r, g, b) = icc(v[0], v[1], v[2], round8);
+                    give(o, e, n, x, 0, r >> sh);
+                    give(o, e, n, x, 1, g >> sh);
+                    give(o, e, n, x, 2, b >> sh);
+                    if let Some(a) = a {
+                        give(o, e, n, x, 3, a);
+                    }
+                }
+                Format::Cmyk64 | Format::CmykA80 => {
+                    let (mut c, mut m, mut yy, mut k) = (v[1], -v[0] + ((1 << 15) << sh), -v[2], v[3] + round16);
+                    k -= (m + 1) >> 1;
+                    m -= (c >> 1) - k;
+                    c -= ((yy + 1) >> 1) - m;
+                    yy += c;
+                    let n = p.fmt.bits() / 16;
+                    for (j, w) in [c, m, yy, k].into_iter().enumerate() {
+                        give(o, Elem::U16, n, x, j, w >> sh);
+                    }
+                    if let Some(a) = a {
+                        give(o, Elem::U16, n, x, 4, a + (1 << 15));
+                    }
+                }
+                Format::Rgb48 | Format::Rgba64 | Format::Prgba64 => {
                     let (r, g, b) = icc(v[0], v[1], v[2], ((1 << 15) << sh) + round16);
                     let n = p.fmt.bits() / 8;
                     let s = &mut o[x * n..];
@@ -2595,13 +2906,17 @@ fn output(p: &Picture, pl: &Plane, planes: &[Vec<i32>], l: &Layout, alpha: Optio
                     let px = (r >> (sh + 1)).clamp(0, 31) + ((g >> sh).clamp(0, 63) << 5) + ((b >> (sh + 1)).clamp(0, 31) << 11);
                     o[2 * x..2 * x + 2].copy_from_slice(&(px as u16).to_le_bytes());
                 }
-                Format::Cmyk => {
+                Format::Cmyk | Format::CmykA40 => {
                     let (mut c, mut m, mut yy, mut k) = (v[1], -v[0] + (128 << sh), -v[2], v[3] + round8);
                     k -= (m + 1) >> 1;
                     m -= (c >> 1) - k;
                     c -= ((yy + 1) >> 1) - m;
                     yy += c;
-                    let s = &mut o[x * 4..];
+                    let n = p.fmt.bits() / 8;
+                    let s = &mut o[x * n..];
+                    if let Some(a) = a {
+                        s[4] = clip8(a + 128);
+                    }
                     s[0] = clip8(c >> sh);
                     s[1] = clip8(m >> sh);
                     s[2] = clip8(yy >> sh);
@@ -2616,7 +2931,7 @@ fn output(p: &Picture, pl: &Plane, planes: &[Vec<i32>], l: &Layout, alpha: Optio
 /// the plane parameters of the image at a quality (memo 2, 3)
 fn image_plane(p: &Picture, q: u8, overlap: Overlap) -> Plane {
     let (ext, bd) = p.fmt.ext();
-    let scaled = q > 1;
+    let scaled = q > 1 && !matches!(bd, Bd::B32S | Bd::B32F);
     let (cf, nch) = match ext {
         ExtCf::YOnly => (Cf::YOnly, 1),
         ExtCf::Rgb => (Cf::Yuv444, 3),
@@ -2625,7 +2940,7 @@ fn image_plane(p: &Picture, q: u8, overlap: Overlap) -> Plane {
     let qp = if ext == ExtCf::Rgb {
         let [dc, lp, hp] = rgb_qps(q, scaled);
         let set = |i: [u8; 3]| QpSet { mode: ChMode::Independent, index: i.to_vec() };
-        if bd == Bd::B16 && q > 16 {
+        if matches!(bd, Bd::B16 | Bd::B16S) && q > 16 {
             let (lo, hi) = match overlap {
                 Overlap::None => (-38, -24),
                 Overlap::One => (-28, -18),

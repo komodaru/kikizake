@@ -478,10 +478,10 @@ proptest! {
 #[test]
 fn encoder_options_are_typed() {
     use wi::EncodeOption as O;
-    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("tiff", "TiffCompressionMethod=3", O::BlackWhite), ("tiff", "TiffCompressionMethod=4", O::Lossless), ("tiff", "TiffCompressionMethod=5", O::Lossless), ("tiff", "TiffCompressionMethod=8", O::OutOfRange), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless), ("wmp", "ImageQuality=1.0", O::WmpLossless), ("wmp", "ImageQuality=0.5", O::WmpQuality(0.5f32.to_bits())), ("jpeg", "ImageQuality=0.5", O::JpegQuality(50)), ("jpeg", "SuppressApp0=1", O::JpegNoApp0(true)), ("jpeg", "JpegYCrCbSubsampling=3", O::JpegChroma(kikizake::model::jpeg::Chroma::Full)), ("jpeg", "JpegYCrCbSubsampling=2", O::JpegChroma(kikizake::model::jpeg::Chroma::H2V1)), ("jpeg", "BitmapTransform=1", O::JpegTransform(1)), ("jpeg", "JpegYCrCbSubsampling=5", O::InvalidArg), ("jpeg", "JpegYCrCbSubsampling=4", O::JpegChroma(kikizake::model::jpeg::Chroma::H1V2)), ("png", "FilterOption=0", O::Lossless), ("png", "FilterOption=7", O::OutOfRange), ("gif", "InterlaceOption=1", O::Rejected), ("jpeg", "SuppressApp0=2", O::JpegNoApp0(true))] {
+    for (c, o, want) in [("png", "FilterOption=3", O::Lossless), ("tiff", "TiffCompressionMethod=2", O::BlackWhite), ("tiff", "TiffCompressionMethod=3", O::BlackWhite), ("tiff", "TiffCompressionMethod=4", O::Lossless), ("tiff", "TiffCompressionMethod=5", O::Lossless), ("tiff", "TiffCompressionMethod=8", O::OutOfRange), ("bmp", "EnableV5Header32bppBGRA=1", O::V5Header(true)), ("png", "ImageQuality=0.5", O::Rejected), ("wmp", "Lossless=1", O::WmpLossless), ("wmp", "ImageQuality=1.0", O::WmpLossless), ("wmp", "ImageQuality=0.5", O::WmpQuality(0.5f32.to_bits())), ("jpeg", "ImageQuality=0.5", O::JpegQuality(50)), ("jpeg", "SuppressApp0=1", O::JpegNoApp0(true)), ("jpeg", "JpegYCrCbSubsampling=3", O::JpegChroma(kikizake::model::jpeg::Chroma::Full)), ("jpeg", "JpegYCrCbSubsampling=2", O::JpegChroma(kikizake::model::jpeg::Chroma::H2V1)), ("jpeg", "BitmapTransform=1", O::JpegTransform(1)), ("jpeg", "JpegYCrCbSubsampling=5", O::InvalidArg), ("jpeg", "JpegYCrCbSubsampling=4", O::JpegChroma(kikizake::model::jpeg::Chroma::H1V2)), ("png", "FilterOption=0", O::Lossless), ("png", "FilterOption=7", O::OutOfRange), ("gif", "InterlaceOption=1", O::Rejected), ("jpeg", "SuppressApp0=2", O::JpegNoApp0(true)), ("bmp", "Overlap=1", O::Rejected), ("dds", "Quality=1", O::Rejected), ("gif", "ImageQuality=1", O::Rejected), ("wmp", "Quality=1", O::Default), ("wmp", "BitmapTransform=0", O::Default), ("tiff", "CompressionQuality=0.5", O::Default)] {
         assert_eq!(wi::option(c, o).ok(), Some(want), "{c} {o}");
     }
-    for (c, o) in [("wmp", "ImageQuality=1.5"), ("bmp", "Overlap=1"), ("dds", "Quality=1")] {
+    for (c, o) in [("wmp", "ImageQuality=1.5"), ("wmp", "Overlap=3"), ("jpeg", "BitmapTransform=2")] {
         assert!(matches!(wi::option(c, o), Err(kikizake::model::Fail::Unmodeled(_))), "{c} {o}");
     }
     assert!(matches!(wi::option("png", "FilterOption"), Err(kikizake::model::Fail::Bad)));
@@ -1090,3 +1090,18 @@ fn jpeg_440_chroma_is_interpolated() {
     }
 }
 
+
+proptest! {
+    /// JPEG XR's floats (model::jxr, jxrlib's float2pixel and pixel2float at WIC's 13-bit
+    /// mantissa and exponent bias 4): a normal float comes back rounded to 13 mantissa bits,
+    /// within half a unit of it, its sign kept; 0 is 0
+    #[test]
+    fn jxr_float_keeps_thirteen_bits(m in 0u32..(1 << 23), e in -2i32..60, neg in any::<bool>()) {
+        let f = f32::from_bits(((e + 127) as u32) << 23 | m) * if neg { -1.0 } else { 1.0 };
+        let g = kikizake::model::jxr::float_through(f);
+        let ulp = f64::from(f.abs()).log2().floor().exp2() / 8192.0;
+        prop_assert!((f64::from(g) - f64::from(f)).abs() <= ulp / 2.0 + 1e-30, "{f} -> {g}");
+        prop_assert_eq!(g.is_sign_negative(), neg);
+        prop_assert_eq!(kikizake::model::jxr::float_through(0.0), 0.0);
+    }
+}

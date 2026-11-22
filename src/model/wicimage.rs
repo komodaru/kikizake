@@ -453,6 +453,141 @@ fn gray16_to_wide(s: &Img, to: &'static str) -> Option<Res<Img>> {
     Some(Ok(o))
 }
 
+/// MEASURED (golden wicencode encwide-wmp-bgr48, -bgra64, -pbgra64, -bgra64fixed, -rgb96float:
+/// through JPEG XR, every byte): the formats in blue-first order into the red-first ones WMPhoto
+/// takes, the channels swapped; 64bppBGRAFixedPoint and 96bppRGBFloat into 24bppRGB as
+/// 64bppRGBAFixedPoint and 128bppRGBAFloat (alpha 1) go into 24bppBGR and 32bppBGRA
+fn wide_reorder(s: &Img, to: &'static str) -> Option<Res<Img>> {
+    if !matches!((s.fmt, to), ("bgr48", "rgb48") | ("bgra64", "rgba64") | ("pbgra64", "prgba64") | ("bgra64fixed", "rgb24") | ("rgb96float", "rgb24")) {
+        return None;
+    }
+    hit(clause::WIC_PAIR_WIDE);
+    let swap = |s: &Img, to: &'static str, size: usize, n: usize| {
+        let mut o = Img::new(s.w, s.h, to);
+        o.dpi = s.dpi;
+        o.px.clone_from(&s.px);
+        let st = s.stride();
+        for y in 0..s.h as usize {
+            for x in 0..s.w as usize {
+                let i = y * st + x * n * size;
+                for k in 0..size {
+                    o.px.swap(i + k, i + 2 * size + k);
+                }
+            }
+        }
+        o
+    };
+    let to_rgb24 = |b: &Img, n: usize| {
+        let mut o = Img::new(b.w, b.h, "rgb24");
+        o.dpi = b.dpi;
+        let (st, ost) = (b.stride(), o.stride());
+        for y in 0..b.h as usize {
+            for x in 0..b.w as usize {
+                let p = &b.px[y * st + x * n..];
+                let q = [p[2], p[1], p[0]];
+                o.px[y * ost + x * 3..y * ost + x * 3 + 3].copy_from_slice(&q);
+            }
+        }
+        o
+    };
+    Some(Ok(match (s.fmt, to) {
+        ("bgr48", "rgb48") => swap(s, to, 2, 3),
+        ("bgra64", "rgba64") => swap(s, to, 2, 4),
+        ("pbgra64", "prgba64") => swap(s, to, 2, 4),
+        ("bgra64fixed", "rgb24") => {
+            let f = swap(s, "rgba64fixed", 2, 4);
+            match wic_convert(&f, "bgr24") {
+                Ok(b) => to_rgb24(&b, 3),
+                Err(e) => return Some(Err(e)),
+            }
+        }
+        ("rgb96float", "rgb24") => {
+            let mut f = Img::new(s.w, s.h, "rgbafloat");
+            f.dpi = s.dpi;
+            let (st, fst) = (s.stride(), f.stride());
+            for y in 0..s.h as usize {
+                for x in 0..s.w as usize {
+                    f.px[y * fst + x * 16..y * fst + x * 16 + 12].copy_from_slice(&s.px[y * st + x * 12..y * st + x * 12 + 12]);
+                    f.px[y * fst + x * 16 + 12..y * fst + x * 16 + 16].copy_from_slice(&1.0f32.to_le_bytes());
+                }
+            }
+            match wic_convert(&f, "bgra") {
+                Ok(b) => to_rgb24(&b, 4),
+                Err(e) => return Some(Err(e)),
+            }
+        }
+        _ => return None,
+    }))
+}
+
+/// MEASURED (golden wicencode encwide-wmp-*: through JPEG XR, every byte of each file):
+/// 64bppRGBA into the wide formats past FORMATS. 48bppBGR and 64bppBGRA its channels swapped;
+/// the premultiplied ones each color (c * a) >> 16; 32bppBGR101010 each channel's high ten bits,
+/// blue the low ten; the fixed-point, half and float ones each color's linear16 value (s2.13
+/// that times 8192 rounded, s7.24 times 2^24 plus 0.5 in f32 truncated, half the nearest), alpha
+/// a / 65535 in f32 (a padding fourth channel too); the gray ones the luma (r * 0.2126 + g *
+/// 0.7152) + b * 0.0722 in f32 of those, 16bppGrayFixedPoint's of the s2.13 values (as through
+/// 64bppRGBAFixedPoint)
+fn rgba64_to_wide(s: &Img, to: &'static str) -> Option<Res<Img>> {
+    if s.fmt != "rgba64" {
+        return None;
+    }
+    let kind = match to {
+        "bgr48" | "bgra64" | "prgba64" | "pbgra64" | "bgr101010" => None,
+        _ => Some(wide_layout(to)?),
+    };
+    hit(clause::WIC_PAIR_WIDE);
+    let mut o = Img::new(s.w, s.h, to);
+    o.dpi = s.dpi;
+    let (st, ost) = (s.stride(), o.stride());
+    for y in 0..s.h as usize {
+        for x in 0..s.w as usize {
+            let at = |k: usize| {
+                let i = y * st + (x * 4 + k) * 2;
+                u16::from_le_bytes([s.px[i], s.px[i + 1]])
+            };
+            let c = [at(0), at(1), at(2), at(3)];
+            let words = |w: &[u16]| -> Vec<u8> { w.iter().flat_map(|w| w.to_le_bytes()).collect() };
+            let pm = |w: u16| ((u32::from(w) * u32::from(c[3])) >> 16) as u16;
+            let bytes: Vec<u8> = match (to, kind) {
+                ("bgr48", _) => words(&[c[2], c[1], c[0]]),
+                ("bgra64", _) => words(&[c[2], c[1], c[0], c[3]]),
+                ("prgba64", _) => words(&[pm(c[0]), pm(c[1]), pm(c[2]), c[3]]),
+                ("pbgra64", _) => words(&[pm(c[2]), pm(c[1]), pm(c[0]), c[3]]),
+                ("bgr101010", _) => {
+                    let t = |w: u16| u32::from(w) >> 6;
+                    (t(c[2]) | (t(c[1]) << 10) | (t(c[0]) << 20)).to_le_bytes().to_vec()
+                }
+                (_, None) => return Some(Err(Fail::Bad)),
+                (_, Some((n, kind))) => {
+                    let lin = [c[0], c[1], c[2]].map(linear16);
+                    let a = f32::from(c[3]) / 65535.0;
+                    let fix13 = |f: f32| ((f64::from(f) * 8192.0) + 0.5).floor() as i16;
+                    let luma = |v: [f32; 3]| (v[0] * 0.2126 + v[1] * 0.7152) + v[2] * 0.0722;
+                    let vals: Vec<f32> = match n {
+                        1 if kind == WideKind::Fix16 => vec![luma(lin.map(|f| f32::from(fix13(f)) / 8192.0))],
+                        1 => vec![luma(lin)],
+                        3 => lin.to_vec(),
+                        _ if to == "bgra64fixed" => vec![lin[2], lin[1], lin[0], a],
+                        _ => vec![lin[0], lin[1], lin[2], a],
+                    };
+                    vals.iter()
+                        .flat_map(|&f| match kind {
+                            WideKind::Half => crate::model::d3d9draw::f32_to_f16(f).to_le_bytes().to_vec(),
+                            WideKind::Fix16 => fix13(f).to_le_bytes().to_vec(),
+                            WideKind::Fix32 => ((f * 16_777_216.0f32 + 0.5f32) as i32).to_le_bytes().to_vec(),
+                            WideKind::Float => f.to_le_bytes().to_vec(),
+                        })
+                        .collect()
+                }
+            };
+            let nb = bytes.len();
+            o.px[y * ost + x * nb..y * ost + (x + 1) * nb].copy_from_slice(&bytes);
+        }
+    }
+    Some(Ok(o))
+}
+
 /// found clean-room (confirmed by golden wicencode fixpath-gray16-rgba64 and the cases of
 /// WIC.PAIR.WIDE): between 16bppGray, 48bppRGB and 64bppRGBA, and from the last two into
 /// 64bppRGBAFixedPoint: 16bppGray's level in each color as into 48bppRGB (gray16_rgb48);
@@ -825,6 +960,12 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
     if let Some(r) = wide_pair(s, to) {
         return r;
     }
+    if let Some(r) = rgba64_to_wide(s, to) {
+        return r;
+    }
+    if let Some(r) = wide_reorder(s, to) {
+        return r;
+    }
     if let Some(r) = wide_to_rgba64fixed(s, to) {
         return r;
     }
@@ -955,11 +1096,11 @@ pub fn wic_convert(s: &Img, to: &'static str) -> Res<Img> {
         }
         return Ok(o);
     }
-    // (a pair model::wic has no format for: the wide formats past its 23 (encwide-wmp-* make
-    // them from 64bppRGBA), not yet fitted; a palette other than the executor's: no case asks
-    // for one, so Fail::Bad, which a new case would show as a difference)
+    // (another pair of the wide formats past model::wic's 23, or a palette other than the
+    // executor's: no case asks for one, so Fail::Bad, which a new case would show as a
+    // difference)
     let (Some(fi), Some(ti)) = (crate::model::wic::format(s.fmt), crate::model::wic::format(to)) else {
-        return if bits_of(s.fmt) > 0 && bits_of(to) > 0 { Err(Fail::Unmodeled(open::WIC_PAIR_WIDE)) } else { Err(Fail::Bad) };
+        return Err(Fail::Bad);
     };
     if s.pal.is_some() && s.pal != Some(crate::model::wic::palette()) {
         return Err(Fail::Bad);
@@ -3006,6 +3147,10 @@ fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
 /* ---------------------------------------------------------------------------------------- */
 /* encoders */
 
+/// JPEG XR's native formats (WMPhoto's WmpPixelLookupEx, analyst memo 4.1; MEASURED golden
+/// wicencode encwide-wmp-*: each SetPixelFormat answers it)
+const WMP_NATIVE: &[&str] = &["bw", "gray8", "gray16", "grayfix16", "grayhalf", "grayfix32", "grayfloat", "bgr555", "bgr565", "bgr24", "rgb24", "bgr32", "bgr101010", "rgb48", "rgb48fixed", "rgb48half", "rgb64fixed", "rgb64half", "rgb96fixed", "rgb128fixed", "rgbfloat", "bgra", "pbgra", "rgba64", "prgba64", "rgba64fixed", "rgba64half", "rgba128fixed", "rgbafloat", "prgbafloat", "cmyk", "cmyka40", "cmyk64", "cmyka80"];
+
 /// the pixel formats each encoder takes as they are ("Native Pixel Formats Overview")
 pub fn encoder_formats(c: &str) -> &'static [&'static str] {
     match c {
@@ -3014,7 +3159,7 @@ pub fn encoder_formats(c: &str) -> &'static [&'static str] {
         "tiff" => &["idx1", "idx4", "idx8", "bw", "gray4", "gray8", "gray16", "bgr24", "bgra", "cmyk", "rgb48", "rgba64"],
         "gif" => &["idx8"],
         "jpeg" => &["gray8", "bgr24", "cmyk"],
-        "wmp" => &["bw", "gray8", "bgr555", "gray16", "bgr24", "rgb24", "bgr32", "bgra", "bgr101010", "rgb48", "rgba64", "cmyk", "rgbafloat", "rgbfloat", "cmyk64", "cmyka40", "cmyka80"],
+        "wmp" => WMP_NATIVE,
         "dds" => &["bgra", "pbgra"],
         _ => &[],
     }
@@ -3130,8 +3275,9 @@ fn encode_jpeg(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
 fn encode_wmp(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
     use crate::model::jxr;
 
+    // (SetPixelFormat leaves only WMP_NATIVE, each of which model::jxr has)
     let Some(fmt) = jxr::Format::from_name(i.fmt) else {
-        return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY));
+        return Err(Fail::Bad);
     };
     let q = match opts.wmp_quality {
         None => jxr::Quality::default_wic(),
@@ -3678,7 +3824,7 @@ impl WicImage {
                     "wmp" => encode_wmp(&img, opts)?,
                     "jpeg" => encode_jpeg(&img, opts)?,
                     "dds" => Encoded::Bytes(encode_dds(&img)?),
-                    _ => return Err(Fail::Unmodeled(open::WICIMAGE_ENCODE_LOSSY)),
+                    _ => return Err(Fail::Bad),
                 };
                 out.push(format!("wencode 00000000 {nf} ok"));
                 self.enc = Some(enc);
@@ -3920,13 +4066,18 @@ pub fn negotiate(cont: &str, f: &'static str) -> Option<&'static str> {
             "cmyk" => "cmyk",
             _ => "bgr24",
         },
+        // (WMPhoto's substitutions, analyst memo 4.2; MEASURED encwide-wmp-bgr48, -pbgra64,
+        // -bgra64, -bgra64fixed and -rgb96float: 48bppRGB, 64bppPRGBA, 64bppRGBA, and 24bppRGB for
+        // a format it has no row for)
         "wmp" => match f {
+            _ if WMP_NATIVE.contains(&f) => f,
             "gray2" | "gray4" | "alpha8" => "gray8",
-            "rgb32" => "rgb24",
             "rgba" => "bgra",
             "prgba" => "pbgra",
-            _ if f.starts_with("idx") => "rgb24",
-            _ => f,
+            "bgra64" => "rgba64",
+            "bgr48" => "rgb48",
+            "pbgra64" => "prgba64",
+            _ => "rgb24",
         },
         "dds" => "bgra",
         _ => return None,
