@@ -760,3 +760,18 @@ spec/lean/Kikizake/D3d11/Line.lean::alpha_on_line lean D3DRASTER.LINE.ALPHA
 spec/lean/Kikizake/D3d11/Layout.lean::no_program lean D3DRASTER.LAYOUT.BAD
 spec/lean/Kikizake/D3d11/Layout.lean::pixel_program lean D3DRASTER.LAYOUT.SIG
 spec/lean/Kikizake/D3d11/Layout.lean::made_vertex lean D3DRASTER.LAYOUT.SIG D3DRASTER.LAYOUT.BAD
+spec/lean/Kikizake/D3d9/Aniso.lean::count_pow2 lean D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Aniso.lean::footprint_count lean D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Aniso.lean::footprint_not_nan lean D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Aniso.lean::taps_bilinear lean D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Aniso.lean::taps_two lean D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Aniso.lean::taps_n lean D3D9.TEX.ANISON
+spec/lean/Kikizake/D3d9/Aniso.lean::walk_length lean D3D9.TEX.ANISON
+spec/lean/Kikizake/D3d9/Aniso.lean::average_same lean D3D9.TEX.ANISON
+spec/lean/Kikizake/D3d9/Aniso.lean::average_two lean D3D9.TEX.ANISON D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Gen.lean::normal_position lean D3D9.STAGE.TCIGEN
+spec/lean/Kikizake/D3d9/Gen.lean::world_then_view lean D3D9.STAGE.TCIGEN
+spec/lean/Kikizake/D3d9/Gen.lean::reflect_infinite lean D3D9.STAGE.TCIGEN
+spec/lean/Kikizake/D3d9/Gen.lean::quad_shared lean D3D9.STAGE.PROJFOOT
+spec/lean/Kikizake/D3d9/Gen.lean::projected lean D3D9.STAGE.PROJFOOT
+spec/lean/Kikizake/D3d9/Gen.lean::three_sets lean D3D9.STAGE.PROJFOOT

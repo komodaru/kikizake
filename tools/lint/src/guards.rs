@@ -111,6 +111,12 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // the Lean mirrors d3d9.linecut, xyz, clipxyz, xyzvertex, rhw hold to
     // spec/lean/Kikizake/D3d9/Line.lean and Xyz.lean)
     ("src/model/d3d9draw.rs", r"D3D9_DRAW_(LINECLIP(_NEAR)?|XYZ_CLIP|RHW)\b|\*=?\s*at\[11\]|/\s*at32\[11\]|1\.0\s*/\s*[cq]\[3\]", &["line_cut", "transform_xyz", "clip_xyz", "xyz_vertex", "rhw_attrs", "rhw_value"]),
+    // (the anisotropic footprint, its taps and their averaging, the generated coordinates and the
+    // projected footprint are aniso_footprint, aniso_taps, pair_average, camera_space,
+    // camera_normal, tex_gen, quad_origin and quad_duv, which the Lean mirrors d3d9.footprint,
+    // taps, pairavg, camera, normal, texgen, quad, quadduv hold to spec/lean/Kikizake/D3d9/Aniso.lean
+    // and Gen.lean)
+    ("src/model/d3d9draw.rs", r"D3D9_TEX_ANISO(2|N)\b|m2\.sqrt\(\)|\(r\[2\]\s*-\s*1\.0\)|e\(r0,\s*c0\)|&\s*1\)\s*as\s+f32", &["aniso_footprint", "aniso_taps", "tex_gen", "camera_normal"]),
     // (blending on targets of other formats is blend_float and factor_f32, which d3d9.blendf holds
     // to spec/lean/Kikizake/D3d9/Blend.lean)
     ("src/model/d3d9draw.rs", r"D3D9_BLEND_FORMAT|\.min\(\s*1\.0\s*-|\|x\|\s*x\.clamp\(0\.0,\s*1\.0\)\s*as\s*f32", &["blend_float", "factor_f32"]),

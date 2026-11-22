@@ -115,6 +115,10 @@ fn unconfined_uses_are_found() {
     let r = rust("src/model/d3d9draw.rs", "fn rhw_attrs(at: A) -> A { at[k] * at[11] }\nfn triangle(&mut self) { at[k] *= at[11]; }\n");
     assert!(r.len() == 1 && r[0].contains("in triangle"), "{r:?}");
     assert!(!rust("src/model/d3d9draw.rs", "fn triangle(&mut self) { let rhw = 1.0 / q[3]; }").is_empty());
+    // (the footprint's root only in aniso_footprint, the sphere map only in tex_gen)
+    let r = rust("src/model/d3d9draw.rs", "fn aniso_footprint(a: A) -> f32 { m2.sqrt() }\nfn sample(&self) { let m = m2.sqrt(); }\n");
+    assert!(r.len() == 1 && r[0].contains("in sample"), "{r:?}");
+    assert!(!rust("src/model/d3d9draw.rs", "fn vertices(&self) { let m = (r[2] - 1.0) * (r[2] - 1.0); }").is_empty());
     // (the FVF and the declaration only through set_fvf, set_decl)
     assert!(!rust("src/model/d3d9draw.rs", "fn op(&mut self) { self.draw.fvf = 0; }").is_empty());
     assert!(rust("src/model/d3d9draw.rs", "fn op(&mut self) { (self.draw.fvf, self.draw.decl, self.draw.decl_from) = set_decl(e); if self.draw.fvf == 0 {} }").is_empty());

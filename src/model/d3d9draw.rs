@@ -794,7 +794,7 @@ pub fn coord_row(tex: &[u32], sizes: &[usize], set: usize) -> Option<([f32; 4], 
 
 /// TEXCOORDINDEX's generation mode (its high word)
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum TexGen {
+pub enum TexGen {
     Passthru,
     Normal,
     Position,
@@ -805,7 +805,7 @@ enum TexGen {
 impl TexGen {
     /// (4 SPHEREMAP; the generators write no mode past it; MEASURED d3d8draw tci-xyz-3:
     /// Direct3D 8, which has no SPHEREMAP, passes the set through for it)
-    fn of(tci: u32, v8: bool) -> TexGen {
+    pub fn of(tci: u32, v8: bool) -> TexGen {
         match tci >> 16 {
             0 => TexGen::Passthru,
             4 if v8 => TexGen::Passthru,
@@ -1497,6 +1497,161 @@ pub fn rhw_attrs(at: [f32; ATTRS]) -> [f32; ATTRS] {
 /// by the interpolated rhw, in f32
 pub fn rhw_value(at32: [f32; ATTRS]) -> [f64; ATTRS] {
     std::array::from_fn(|k| f64::from(if PERSP.contains(&k) { at32[k] / at32[11] } else { at32[k] }))
+}
+
+/// D3D9.TEX.ANISO2: the footprint of derivatives a (ddx) and b (ddy) in texture coordinates on a
+/// w x h texture, in f32 one rounding an operation: (r, the major axis's direction, the tap count
+/// n of MAXANISOTROPY `limit`); r <= 1 filters bilinearly
+pub fn aniso_footprint(a: [f32; 2], b: [f32; 2], (w, h): (f32, f32), limit: u32) -> (f32, [f32; 2], u32) {
+    let (a, b) = ([a[0] * w, a[1] * h], [b[0] * w, b[1] * h]);
+    let x2 = a[0] * a[0] + a[1] * a[1];
+    let y2 = b[0] * b[0] + b[1] * b[1];
+    let area = (a[0] * b[1] - a[1] * b[0]).abs();
+    // (a tie takes ddy as the major axis)
+    let (m2, dir) = if x2 > y2 { (x2, a) } else { (y2, b) };
+    let m = m2.sqrt();
+    let inv = 1.0 / m;
+    let axis = dir.map(|c| c * inv);
+    // (the tap count: MAXANISOTROPY taken down to a power of 2, at most 16)
+    let n: u32 = match limit {
+        0..=1 => 1,
+        2..=3 => 2,
+        4..=7 => 4,
+        8..=15 => 8,
+        _ => 16,
+    };
+    let nf: f32 = n.to_string().parse().unwrap_or(1.0);
+    let mut r = m2 / area;
+    let clamped = r > nf;
+    if clamped {
+        r = nf;
+    }
+    let minor = if clamped { m / r } else { area / m };
+    if minor < 1.0 {
+        r = (r * minor).max(1.0);
+    }
+    let nan0 = |x: f32| if x.is_nan() { 0.0 } else { x };
+    (nan0(r), axis.map(nan0), n)
+}
+
+/// D3D9.TEX.ANISO2, ANISON: where the taps of footprint (r, axis, n) around (u, v) fall, in f32:
+/// r <= 1 none; r <= 2 two at the center plus and less 0.5 (r - 1) axis; past 2 n taps, step =
+/// f32(1/(n + 1)) r, the first at the center plus (-0.5 r + step) axis, each next a step on
+pub fn aniso_taps((u, v): (f32, f32), r: f32, axis: [f32; 2], n: u32, (w, h): (f32, f32)) -> Vec<(f32, f32)> {
+    if r.is_nan() || r <= 1.0 {
+        return Vec::new();
+    }
+    if r <= 2.0 {
+        // (MEASURED aniso-*, aniso-axis-*: two taps, 0.5 (r - 1) along the axis each way)
+        hit(clause::D3D9_TEX_ANISO2);
+        let hh = 0.5 * (r - 1.0);
+        let off = [hh * axis[0] / w, hh * axis[1] / h];
+        return vec![(u + off[0], v + off[1]), (u - off[0], v - off[1])];
+    }
+    // (MEASURED aniso-axis-*, aniso-*: n taps, the step 1/(n + 1) in f32 times r, the first at
+    // -r/2 plus a step, a step added for each)
+    hit(clause::D3D9_TEX_ANISON);
+    let k = 1.0 / n.saturating_add(1).to_string().parse::<f32>().unwrap_or(1.0);
+    let step = k * r;
+    let start = -0.5 * r + step;
+    let d = [axis[0] / w, axis[1] / h];
+    let sv = [d[0] * step, d[1] * step];
+    let (mut qu, mut qv) = (u + d[0] * start, v + d[1] * start);
+    let mut taps = Vec::new();
+    for _ in 0..n {
+        taps.push((qu, qv));
+        (qu, qv) = (qu + sv[0], qv + sv[1]);
+    }
+    taps
+}
+
+/// D3D9.TEX.ANISON: the taps' sums averaged in pairs of neighbors (truncating) until one is left
+/// (MEASURED aniso-axis-*: summing them all misses pixels); None for no taps or a count not a
+/// power of two
+pub fn pair_average(mut vals: Vec<[i64; 4]>) -> Option<[i64; 4]> {
+    while vals.len() > 1 {
+        vals = vals.chunks(2).map(|p| match p {
+            [a, b] => {
+                let mut o = [0i64; 4];
+                for ((o, x), y) in o.iter_mut().zip(a).zip(b) {
+                    *o = (x + y) / 2;
+                }
+                Some(o)
+            }
+            _ => None,
+        }).collect::<Option<_>>()?;
+    }
+    vals.first().copied()
+}
+
+/// D3D9.STAGE.TCIGEN: a position in camera space: the row vector (p, 1) times WORLD, then times
+/// VIEW, each entry a sum from 0 in f32
+pub fn camera_space(p: [f32; 3], world: [f32; 16], view: [f32; 16]) -> [f32; 4] {
+    let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
+    xv(xv([p[0], p[1], p[2], 1.0], world), view)
+}
+
+/// D3D9.STAGE.TCIGEN: a normal in camera space: through the inverse transpose of WORLD VIEW's upper
+/// 3 x 3 (its cofactors over the determinant), in f32, normalized when `normalize`
+pub fn camera_normal(n: [f32; 3], world: [f32; 16], view: [f32; 16], normalize: bool) -> [f32; 3] {
+    let (a, b) = (world, view);
+    let wv: [f32; 9] = std::array::from_fn(|i| (0..3).fold(0.0f32, |s, k| s + a[i / 3 * 4 + k] * b[k * 4 + i % 3]));
+    // (the cofactors: the inverse transpose up to 1 / det)
+    let e = |r: usize, c: usize| wv[r * 3 + c];
+    let cof: [f32; 9] = std::array::from_fn(|i| {
+        let (r, c) = (i / 3, i % 3);
+        let (r0, r1, c0, c1) = ((r + 1) % 3, (r + 2) % 3, (c + 1) % 3, (c + 2) % 3);
+        e(r0, c0) * e(r1, c1) - e(r0, c1) * e(r1, c0)
+    });
+    let det = e(0, 0) * cof[0] + e(0, 1) * cof[1] + e(0, 2) * cof[2];
+    // n' = n (M^-1)^T: (M^-1)^T = cof / det, row vector times it
+    let t: [f32; 3] = std::array::from_fn(|j| (0..3).fold(0.0f32, |s, k| s + n[k] * cof[k * 3 + j]) / det);
+    if normalize {
+        let l = (t[0] * t[0] + t[1] * t[1] + t[2] * t[2]).sqrt();
+        t.map(|x| x / l)
+    } else {
+        t
+    }
+}
+
+/// D3D9.STAGE.TCIGEN: the coordinates generated from camera-space position c and normal nn:
+/// CAMERASPACENORMAL (Nx, Ny); CAMERASPACEPOSITION (Px, Py); CAMERASPACEREFLECTIONVECTOR R = 2 (E.N)
+/// N - E, E = -P / |P| under LOCALVIEWER, else (0, 0, 1); SPHEREMAP (Rx / m + 1/2, Ry / m + 1/2), m
+/// = 2 sqrt(Rx^2 + Ry^2 + (Rz - 1)^2); as the row (g, 1)
+pub fn tex_gen(texgen: TexGen, c: [f32; 4], nn: [f32; 3], local: bool) -> [f32; 4] {
+    let pl = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
+    // (MEASURED tci-gen-4, -5: without LOCALVIEWER E = (0, 0, 1))
+    let e = if local { [-c[0] / pl, -c[1] / pl, -c[2] / pl] } else { [0.0, 0.0, 1.0] };
+    let en = e[0] * nn[0] + e[1] * nn[1] + e[2] * nn[2];
+    let r = [2.0 * en * nn[0] - e[0], 2.0 * en * nn[1] - e[1], 2.0 * en * nn[2] - e[2]];
+    let g: [f32; 3] = match texgen {
+        TexGen::Passthru => [0.0; 3],
+        TexGen::Normal => nn,
+        TexGen::Position => [c[0], c[1], c[2]],
+        TexGen::Reflection => r,
+        TexGen::SphereMap => {
+            let m = 2.0 * (r[0] * r[0] + r[1] * r[1] + (r[2] - 1.0) * (r[2] - 1.0)).sqrt();
+            [r[0] / m + 0.5, r[1] / m + 0.5, 0.0]
+        }
+    };
+    [g[0], g[1], g[2], 1.0]
+}
+
+/// D3D9.STAGE.PROJFOOT: the offset from pixel (px, py) to its 2 x 2 quad's top-left pixel
+pub fn quad_origin(px: i32, py: i32) -> (f32, f32) {
+    let bit = |v: i32| if v & 1 == 0 { 0.0 } else { -1.0 };
+    (bit(px), bit(py))
+}
+
+/// D3D9.STAGE.PROJFOOT: each set's footprint from the quad's top-left pixel's attributes c against
+/// its right (r) and lower (d) neighbours': Direct3D 10's coarse derivatives of s/q and t/q, in f64
+/// ((ds/dx, ds/dy), (dt/dx, dt/dy))
+pub fn quad_duv(c: &[f64; ATTRS], r: &[f64; ATTRS], d: &[f64; ATTRS]) -> [((f64, f64), (f64, f64)); NSET] {
+    let mut out = [((0.0, 0.0), (0.0, 0.0)); NSET];
+    for (o, ((c, r), d)) in out.iter_mut().zip(st_of(c).iter().zip(&st_of(r)).zip(&st_of(d))) {
+        *o = ((r[0] - c[0], d[0] - c[0]), (r[1] - c[1], d[1] - c[1]));
+    }
+    out
 }
 
 /// a line's snapped ends (1/256 pixel, Direct3D 9's pixel centers at whole pixels)
@@ -2221,79 +2376,22 @@ impl D3d9 {
                 let ((dudx, dudy), (dvdx, dvdy)) = self.draw.duv[self.tex_set(st).at()];
                 let f = |a: f64| a as f32;
                 let (w, h) = (tx.w as f32, tx.h as f32);
-                let (a, b) = ([f(dudx) * w, f(dvdx) * h], [f(dudy) * w, f(dvdy) * h]);
-                let x2 = a[0] * a[0] + a[1] * a[1];
-                let y2 = b[0] * b[0] + b[1] * b[1];
-                let area = (a[0] * b[1] - a[1] * b[0]).abs();
-                // (a tie takes ddy as the major axis)
-                let (m2, dir) = if x2 > y2 { (x2, a) } else { (y2, b) };
-                let m = m2.sqrt();
-                let inv = 1.0 / m;
-                let axis = dir.map(|c| c * inv);
-                // (the tap count: MAXANISOTROPY taken down to a power of 2, at most 16)
-                let limit = self.samp(st, 10);
-                let n: u32 = match limit {
-                    0..=1 => 1,
-                    2..=3 => 2,
-                    4..=7 => 4,
-                    8..=15 => 8,
-                    _ => 16,
-                };
-                let nf = n as f32;
-                let mut r = m2 / area;
-                let clamped = r > nf;
-                if clamped {
-                    r = nf;
-                }
-                let minor = if clamped { m / r } else { area / m };
-                if minor < 1.0 {
-                    r = (r * minor).max(1.0);
-                }
-                let nan0 = |x: f32| if x.is_nan() { 0.0 } else { x };
-                let (r, axis) = (nan0(r), axis.map(nan0));
+                let (r, axis, n) = aniso_footprint([f(dudx), f(dvdx)], [f(dudy), f(dvdy)], (w, h), self.samp(st, 10));
                 if r > 1.0 {
-                    let (u, v) = (f(u), f(v));
                     let (mu, mv) = (self.samp(st, 1), self.samp(st, 2));
                     // (each tap's weighted sum truncated to a 64th of 1/255; to 32nds or 128ths,
                     // or rounded, misses pixels)
                     const TAP: i64 = BILERP_ONE / 64;
-                    let tap = |tu: f32, tv: f32| -> Res<[i64; 4]> {
+                    let tap = |(tu, tv): (f32, f32)| -> Res<[i64; 4]> {
                         let Weighted::Bytes(t) = self.bilinear_sum(st, tx, f64::from(tu) * f64::from(w), f64::from(tv) * f64::from(h), mu, mv)? else {
                             // (texels other than 8-bit ones: no case)
                             return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
                         };
                         Ok(t.map(|x| x / TAP))
                     };
-                    let mut vals: Vec<[i64; 4]> = Vec::new();
-                    if r <= 2.0 {
-                        // (MEASURED aniso-*, aniso-axis-*: two taps, 0.5 (r - 1) along the
-                        // axis each way)
-                        hit(clause::D3D9_TEX_ANISO2);
-                        let hh = 0.5 * (r - 1.0);
-                        let off = [hh * axis[0] / w, hh * axis[1] / h];
-                        vals.push(tap(u + off[0], v + off[1])?);
-                        vals.push(tap(u - off[0], v - off[1])?);
-                    } else {
-                        // (MEASURED aniso-axis-*, aniso-*: n taps, the step 1/(n + 1) in f32
-                        // times r, the first at -r/2 plus a step, a step added for each)
-                        hit(clause::D3D9_TEX_ANISON);
-                        let k = 1.0 / (n + 1) as f32;
-                        let step = k * r;
-                        let start = -0.5 * r + step;
-                        let d = [axis[0] / w, axis[1] / h];
-                        let sv = [d[0] * step, d[1] * step];
-                        let (mut qu, mut qv) = (u + d[0] * start, v + d[1] * start);
-                        for _ in 0..n {
-                            vals.push(tap(qu, qv)?);
-                            (qu, qv) = (qu + sv[0], qv + sv[1]);
-                        }
-                    }
-                    // (MEASURED aniso-axis-*: the taps averaged in pairs of neighbors, truncated,
-                    // until one is left; summing them all misses pixels)
-                    while vals.len() > 1 {
-                        vals = vals.chunks(2).map(|p| std::array::from_fn(|k| (p[0][k] + p[1][k]) / 2)).collect();
-                    }
-                    return Ok(vals[0].map(|s| ((s / 64) as f32 / 255.0) as f64));
+                    let vals: Vec<[i64; 4]> = aniso_taps((f(u), f(v)), r, axis, n, (w, h)).into_iter().map(tap).collect::<Res<_>>()?;
+                    let s = pair_average(vals).ok_or(Fail::Bad)?;
+                    return Ok(s.map(|s| ((s / 64) as f32 / 255.0) as f64));
                 }
                 TexFilter::Linear
             }
@@ -2551,22 +2649,7 @@ impl D3d9 {
                                 // (the vertex's normal through the inverse transpose of world
                                 // then view, normalized under NORMALIZENORMALS; none: 0)
                                 let nn = if fvf & 0x10 != 0 { self.camera_normal([w[pos], w[pos + 1], w[pos + 2]].map(f32::from_bits)) } else { [0.0f32; 3] };
-                                let pl = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
-                                // (MEASURED tci-gen-4, -5: without LOCALVIEWER E = (0, 0, 1))
-                                let e = if self.rs(142) != 0 { [-c[0] / pl, -c[1] / pl, -c[2] / pl] } else { [0.0, 0.0, 1.0] };
-                                let en = e[0] * nn[0] + e[1] * nn[1] + e[2] * nn[2];
-                                let r = [2.0 * en * nn[0] - e[0], 2.0 * en * nn[1] - e[1], 2.0 * en * nn[2] - e[2]];
-                                let g: [f32; 3] = match texgen {
-                                    TexGen::Passthru => [0.0; 3],
-                                    TexGen::Normal => nn,
-                                    TexGen::Position => [c[0], c[1], c[2]],
-                                    TexGen::Reflection => r,
-                                    TexGen::SphereMap => {
-                                        let m = 2.0 * (r[0] * r[0] + r[1] * r[1] + (r[2] - 1.0) * (r[2] - 1.0)).sqrt();
-                                        [r[0] / m + 0.5, r[1] / m + 0.5, 0.0]
-                                    }
-                                };
-                                [g[0], g[1], g[2], 1.0]
+                                tex_gen(texgen, c, nn, self.rs(142) != 0)
                             }
                         };
                         match keys[k].xform {
@@ -2613,33 +2696,14 @@ impl D3d9 {
     fn camera_space(&self, p: [f32; 3]) -> [f32; 4] {
         let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
         let m = |t: u32| *self.draw.xform.get(&t).unwrap_or(&id);
-        let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
-        xv(xv([p[0], p[1], p[2], 1.0], m(256)), m(2))
+        camera_space(p, m(256), m(2))
     }
 
-    /// a normal in camera space: through the inverse transpose of world then view's upper 3 x 3,
-    /// in f32, normalized under NORMALIZENORMALS
+    /// a normal in camera space (camera_normal), normalized under NORMALIZENORMALS
     fn camera_normal(&self, n: [f32; 3]) -> [f32; 3] {
         let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
         let m = |t: u32| *self.draw.xform.get(&t).unwrap_or(&id);
-        let (a, b) = (m(256), m(2));
-        let wv: [f32; 9] = std::array::from_fn(|i| (0..3).fold(0.0f32, |s, k| s + a[i / 3 * 4 + k] * b[k * 4 + i % 3]));
-        // (the cofactors: the inverse transpose up to 1 / det)
-        let e = |r: usize, c: usize| wv[r * 3 + c];
-        let cof: [f32; 9] = std::array::from_fn(|i| {
-            let (r, c) = (i / 3, i % 3);
-            let (r0, r1, c0, c1) = ((r + 1) % 3, (r + 2) % 3, (c + 1) % 3, (c + 2) % 3);
-            e(r0, c0) * e(r1, c1) - e(r0, c1) * e(r1, c0)
-        });
-        let det = e(0, 0) * cof[0] + e(0, 1) * cof[1] + e(0, 2) * cof[2];
-        // n' = n (M^-1)^T: (M^-1)^T = cof / det, row vector times it
-        let t: [f32; 3] = std::array::from_fn(|j| (0..3).fold(0.0f32, |s, k| s + n[k] * cof[k * 3 + j]) / det);
-        if self.rs(143) != 0 {
-            let l = (t[0] * t[0] + t[1] * t[1] + t[2] * t[2]).sqrt();
-            t.map(|x| x / l)
-        } else {
-            t
-        }
+        camera_normal(n, m(256), m(2), self.rs(143) != 0)
     }
 
     /// a set through a stage's TEXTURETRANSFORMFLAGS (MEASURED tci-gen2-4, -5, tci-ttf-*):
@@ -2894,11 +2958,8 @@ impl D3d9 {
 
                             }
                         };
-                        for i in 0..Q_AT.len() {
-                            let (ox, oy) = (-((px & 1) as f32), -((py & 1) as f32));
-                            let (c, r, d) = (st_of(&attr(ox, oy))[i], st_of(&attr(ox + 1.0, oy))[i], st_of(&attr(ox, oy + 1.0))[i]);
-                            self.draw.duv[i] = ((r[0] - c[0], d[0] - c[0]), (r[1] - c[1], d[1] - c[1]));
-                        }
+                        let (ox, oy) = quad_origin(px, py);
+                        self.draw.duv = quad_duv(&attr(ox, oy), &attr(ox + 1.0, oy), &attr(ox, oy + 1.0));
                     }
                     self.pixel(px, py, at[0], diffuse, specular, st_of(&at))?;
                 }

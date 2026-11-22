@@ -16,6 +16,8 @@ const CLIP: &str = "spec/lean/Kikizake/D3d9/Clip.lean";
 const DRAW: &str = "spec/lean/Kikizake/D3d9/Draw.lean";
 const LINE: &str = "spec/lean/Kikizake/D3d9/Line.lean";
 const XYZ: &str = "spec/lean/Kikizake/D3d9/Xyz.lean";
+const ANISO: &str = "spec/lean/Kikizake/D3d9/Aniso.lean";
+const GEN: &str = "spec/lean/Kikizake/D3d9/Gen.lean";
 /// a vertex position on the 1/16 grid over -3 .. 19 (the raster-* cases' grid), as binary32 bits
 fn grid16(rng: &mut crate::rng::Sample64) -> i64 {
     i64::from(to_f32(f64::from(i32::try_from(rng.range(-48, 19 * 16)).unwrap_or(0)) / 16.0).to_bits())
@@ -962,7 +964,214 @@ pub static MIRRORS: &[Mirror] = &[
             Some(d3d9draw::rhw_attrs(at).into_iter().map(canon32).chain(d3d9draw::rhw_value(at).into_iter().map(|x| canon32(to_f32(x)))).collect())
         },
     },
+    Mirror {
+        name: "d3d9.footprint",
+        lean: ANISO,
+        domain: Domain::Sampled("300,000 derivatives on the 1/1024 grid in -1/4 .. 1/4 or any finite binary32 (zeros and axis-aligned ones among them), textures of 1 .. 256 texels each way, MAXANISOTROPY 0 .. 20"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xa150_0001);
+            for _ in 0..300_000 {
+                let mut d: [i64; 4] = std::array::from_fn(|_| if rng.chance(16) { attribute(&mut rng) } else { i64::from(to_f32(f64::from(i32::try_from(rng.range(-256, 256)).unwrap_or(0)) / 1024.0).to_bits()) });
+                if rng.chance(8) {
+                    if let Some(x) = usize::try_from(rng.range(0, 3)).ok().and_then(|k| d.get_mut(k)) {
+                        *x = 0;
+                    }
+                }
+                let size = |rng: &mut crate::rng::Sample64| i64::from(to_f32(f64::from(i32::try_from(if rng.chance(2) { 1i64 << rng.range(0, 8) } else { rng.range(1, 256) }).unwrap_or(1))).to_bits());
+                each(&[d[0], d[1], d[2], d[3], size(&mut rng), size(&mut rng), rng.range(0, 20)]);
+            }
+        },
+        model: |a| {
+            let f = |i| bits32(a, i);
+            let (r, axis, n) = d3d9draw::aniso_footprint([f(0)?, f(1)?], [f(2)?, f(3)?], (f(4)?, f(5)?), arg(a, 6)?);
+            Some(vec![canon32(r), canon32(axis[0]), canon32(axis[1]), i64::from(n)])
+        },
+    },
+    Mirror {
+        name: "d3d9.taps",
+        lean: ANISO,
+        domain: Domain::Sampled("300,000 centers on the 1/1024 grid in 0..1, r in 0 .. 17 on the 1/64 grid (1 and 2 themselves among them), unit axes of any direction, every tap count, textures of 1 .. 256 texels each way"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xa150_0002);
+            let b = |x: f32| i64::from(x.to_bits());
+            for _ in 0..300_000 {
+                let g = |rng: &mut crate::rng::Sample64, lo: i64, hi: i64, s: f64| to_f32(f64::from(i32::try_from(rng.range(lo, hi)).unwrap_or(0)) / s);
+                let r = if rng.chance(8) { *rng.pick(&[0.0f32, 1.0, 2.0, 0.5]) } else { g(&mut rng, 0, 17 * 64, 64.0) };
+                let (x, y) = (g(&mut rng, -1024, 1024, 1024.0), g(&mut rng, -1024, 1024, 1024.0));
+                let l = (x * x + y * y).sqrt();
+                let (ax, ay) = if l > 0.0 { (x * (1.0 / l), y * (1.0 / l)) } else { (1.0, 0.0) };
+                let n = *rng.pick(&[1i64, 2, 4, 8, 16]);
+                let size = |rng: &mut crate::rng::Sample64| to_f32(f64::from(i32::try_from(rng.range(1, 256)).unwrap_or(1)));
+                each(&[b(g(&mut rng, 0, 1024, 1024.0)), b(g(&mut rng, 0, 1024, 1024.0)), b(r), b(ax), b(ay), n, b(size(&mut rng)), b(size(&mut rng))]);
+            }
+        },
+        model: |a| {
+            let f = |i| bits32(a, i);
+            let t = d3d9draw::aniso_taps((f(0)?, f(1)?), f(2)?, [f(3)?, f(4)?], arg(a, 5)?, (f(6)?, f(7)?));
+            Some(t.iter().flat_map(|q| [canon32(q.0), canon32(q.1)]).collect())
+        },
+    },
+    Mirror {
+        name: "d3d9.pairavg",
+        lean: ANISO,
+        domain: Domain::Sampled("0 to 17 taps of four sums each in 0 .. 2^24, 100,000 lists; -1 for no taps or a count no power of two"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xa150_0003);
+            for _ in 0..100_000 {
+                let k = if rng.chance(2) { *rng.pick(&[1i64, 2, 4, 8, 16]) } else { rng.range(0, 17) };
+                let v: Vec<i64> = (0..4 * k).map(|_| rng.range(0, 1 << 24)).collect();
+                each(&v);
+            }
+        },
+        model: |a| {
+            let v: Vec<[i64; 4]> = a.chunks_exact(4).filter_map(|c| if let [p, q, r, s] = c { Some([*p, *q, *r, *s]) } else { None }).collect();
+            Some(d3d9draw::pair_average(v).map_or(vec![-1], |s| s.to_vec()))
+        },
+    },
+    Mirror {
+        name: "d3d9.camera",
+        lean: GEN,
+        domain: Domain::Sampled("100,000 positions as d3d9.xyz's through WORLD and VIEW of identities, scales and translations, rotations of the 1/16 grid and entries any binary32 in -2..2"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x6e40_0001);
+            for _ in 0..100_000 {
+                let mut v: Vec<i64> = (0..3).map(|_| position(&mut rng)).collect();
+                v.extend(matrix(&mut rng));
+                v.extend(matrix(&mut rng));
+                each(&v);
+            }
+        },
+        model: |a| {
+            let f = |i| bits32(a, i);
+            let m = |k: usize| -> Option<[f32; 16]> {
+                let mut r = [0f32; 16];
+                for (i, x) in r.iter_mut().enumerate() {
+                    *x = f(3 + 16 * k + i)?;
+                }
+                Some(r)
+            };
+            Some(d3d9draw::camera_space([f(0)?, f(1)?, f(2)?], m(0)?, m(1)?).into_iter().map(canon32).collect())
+        },
+    },
+    Mirror {
+        name: "d3d9.normal",
+        lean: GEN,
+        domain: Domain::Sampled("100,000 normals in -1..1 on the 1/256 grid or any finite binary32, normalized and not, through WORLD and VIEW as d3d9.camera's"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x6e40_0002);
+            for _ in 0..100_000 {
+                let mut v = vec![i64::from(rng.chance(2))];
+                v.extend((0..3).map(|_| if rng.chance(8) { attribute(&mut rng) } else { i64::from(to_f32(f64::from(i32::try_from(rng.range(-256, 256)).unwrap_or(0)) / 256.0).to_bits()) }));
+                v.extend(matrix(&mut rng));
+                v.extend(matrix(&mut rng));
+                each(&v);
+            }
+        },
+        model: |a| {
+            let f = |i| bits32(a, i);
+            let m = |k: usize| -> Option<[f32; 16]> {
+                let mut r = [0f32; 16];
+                for (i, x) in r.iter_mut().enumerate() {
+                    *x = f(4 + 16 * k + i)?;
+                }
+                Some(r)
+            };
+            Some(d3d9draw::camera_normal([f(1)?, f(2)?, f(3)?], m(0)?, m(1)?, arg::<i64>(a, 0)? != 0).into_iter().map(canon32).collect())
+        },
+    },
+    Mirror {
+        name: "d3d9.texgen",
+        lean: GEN,
+        domain: Domain::Sampled("every mode 0..4, LOCALVIEWER and not, 200,000 camera-space positions as d3d9.xyz's (the origin among them) and normals as d3d9.normal's"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x6e40_0003);
+            for _ in 0..200_000 {
+                let mut v = vec![rng.range(0, 4), i64::from(rng.chance(2))];
+                let origin = rng.chance(32);
+                v.extend((0..3).map(|_| if origin { 0 } else { position(&mut rng) }));
+                v.push(i64::from(1f32.to_bits()));
+                v.extend((0..3).map(|_| if rng.chance(8) { attribute(&mut rng) } else { i64::from(to_f32(f64::from(i32::try_from(rng.range(-256, 256)).unwrap_or(0)) / 256.0).to_bits()) }));
+                each(&v);
+            }
+        },
+        model: |a| {
+            let f = |i| bits32(a, i);
+            let g = d3d9draw::TexGen::of(arg::<u32>(a, 0)?.checked_shl(16)?, false);
+            Some(d3d9draw::tex_gen(g, [f(2)?, f(3)?, f(4)?, f(5)?], [f(6)?, f(7)?, f(8)?], arg::<i64>(a, 1)? != 0).into_iter().map(canon32).collect())
+        },
+    },
+    Mirror {
+        name: "d3d9.quad",
+        lean: GEN,
+        domain: Domain::Every("pixels -64..64 each way"),
+        inputs: |each| every(&[(-64, 64), (-64, 64)], each),
+        model: |a| {
+            let o = d3d9draw::quad_origin(arg(a, 0)?, arg(a, 1)?);
+            let k = |x: f32| if x == 0.0 { 0 } else { -1 };
+            Some(vec![k(o.0), k(o.1)])
+        },
+    },
+    Mirror {
+        name: "d3d9.quadduv",
+        lean: GEN,
+        domain: Domain::Sampled("100,000 quads of three attribute vectors (binary32 values as binary64: in 0..1 or any finite, q in 1/64 .. 4 or any finite)"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x6e40_0004);
+            for _ in 0..100_000 {
+                let mut v = Vec::with_capacity(114);
+                for _ in 0..3 {
+                    for k in 0..19 {
+                        let x = if (16..19).contains(&k) && rng.chance(2) {
+                            to_f32(f64::from(i32::try_from(rng.range(1, 256)).unwrap_or(1)) / 64.0)
+                        } else {
+                            f32::from_bits(u32::try_from(attribute(&mut rng)).unwrap_or(0))
+                        };
+                        v.extend(f64_halves(f64::from(x)));
+                    }
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let at = |k: usize| -> Option<[f64; d3d9draw::ATTRS]> {
+                let mut r = [0f64; d3d9draw::ATTRS];
+                for (i, x) in r.iter_mut().enumerate() {
+                    *x = arg_f64(a, 2 * (19 * k + i))?;
+                }
+                Some(r)
+            };
+            if a.len() != 114 {
+                return None;
+            }
+            let d = d3d9draw::quad_duv(&at(0)?, &at(1)?, &at(2)?);
+            Some(d.iter().flat_map(|((p, q), (r, s))| [*p, *q, *r, *s]).flat_map(f64_halves).collect())
+        },
+    },
 ];
+
+/// a position in -4..4 on the 1/256 grid mostly, else any finite binary32, as bits
+fn position(rng: &mut crate::rng::Sample64) -> i64 {
+    if rng.chance(8) { attribute(rng) } else { i64::from(to_f32(f64::from(i32::try_from(rng.range(-1024, 1024)).unwrap_or(0)) / 256.0).to_bits()) }
+}
+
+/// a transform's 16 entries as bits: an identity, a scale and translation, a rotation about z on
+/// the 1/16 grid, or entries any binary32 in -2..2
+fn matrix(rng: &mut crate::rng::Sample64) -> [i64; 16] {
+    let g = |rng: &mut crate::rng::Sample64| to_f32(f64::from(i32::try_from(rng.range(-32, 32)).unwrap_or(0)) / 16.0);
+    let m: [f32; 16] = match rng.range(0, 3) {
+        0 => std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 }),
+        1 => {
+            let (sx, sy, sz, tx, ty, tz) = (g(rng), g(rng), g(rng), g(rng), g(rng), g(rng));
+            [sx, 0.0, 0.0, 0.0, 0.0, sy, 0.0, 0.0, 0.0, 0.0, sz, 0.0, tx, ty, tz, 1.0]
+        }
+        2 => {
+            let (c, s) = (g(rng), g(rng));
+            [c, s, 0.0, 0.0, -s, c, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, g(rng), g(rng), g(rng), 1.0]
+        }
+        _ => std::array::from_fn(|_| to_f32(f64::from(rng.word() % 0x0100_0001) / 4_194_304.0 - 2.0)),
+    };
+    m.map(|x| i64::from(x.to_bits()))
+}
 
 /// the elements' pairs one after the other
 fn flat(e: &[(u32, u32)]) -> impl Iterator<Item = i64> + '_ {
