@@ -1001,4 +1001,7 @@ fn probes(s: &mut String, r: &mut XorShift32) {
     writeln!(s, "case pareahuge-3\nd2path 0 alt m -200000000 -200000000 200000000 200000000 200000000 -200000000 -200000000 200000000 z\nd2area 0\nend");
     writeln!(s, "case tesshuge-0\nd2path 0 alt m -300000 -300000 300000 -300000 0 300000 z\nd2tess 0\nend");
     writeln!(s, "case strkinf-0\nd2target 16 12\nd2path 0 alt m 2 2 12 4 4 10 z\nd2drawg 0 inf 255 255 255 255\nd2read\nend");
+    writeln!(s, "case pareahuge-4\nd2ell 0 200000000 100000000 300000000 150000000\nd2area 0\nend");
+    writeln!(s, "case tesshuge-1\nd2path 0 alt m -1e13 -1e13 1e13 -1e13 0 1e13 z\nd2tess 0\nend");
+    writeln!(s, "case strknan-0\nd2target 16 12\nd2path 0 alt m 2 2 12 4 4 10 z\nd2drawg 0 NaN 255 255 255 255\nd2read\nend");
 }

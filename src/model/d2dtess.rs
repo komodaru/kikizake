@@ -289,8 +289,9 @@ fn workspace(g: &Geom, tol: f32, ext: f64) -> Res<(bool, Vec<Vec<Pt>>)> {
                 }
             }
         }
-        // (Tessellate and Outline keep to 2^24 workspace units: past it, the spec's open D2D.SIMP)
-        if pts.iter().any(|p| !(p.0.abs() < 16777216.0 && p.1.abs() < 16777216.0)) {
+        // (the workspace holds integers to 2^48: the exact fractions reach that far; past it
+        // the spec's open D2D.SIMP)
+        if pts.iter().any(|p| !(p.0.abs() <= 281474976710656.0 && p.1.abs() <= 281474976710656.0)) {
             return Err(bad());
         }
         all.push(pts.iter().map(|p| (p.0 as I, p.1 as I)).collect());

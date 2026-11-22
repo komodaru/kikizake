@@ -937,11 +937,39 @@ fn scanner_area(g: &Geom, tol: f32) -> Res<Measure> {
     // (beyond about 1.8e8 the workspace is centered and scaled to 2^48 instead: not modelled)
     let big = 2f64.powi(48);
     let inside = (f64::from(bb[0]) - 1.0) * AREA_SCALE * 1.5 > -big && (f64::from(bb[1]) - 1.0) * AREA_SCALE * 1.5 > -big && (f64::from(bb[2]) + 1.0) * AREA_SCALE * 1.5 < big && (f64::from(bb[3]) + 1.0) * AREA_SCALE * 1.5 < big;
-    let Some((wind, figs)) = area_figures(g, tol, ext).filter(|_| inside) else {
-        return Err(Fail::Unmodeled(open::D2D_AREA_CURVE));
+    // (MEASURED, D2D.AREA.HUGE, from the clean-room notes: beyond that each axis is centered
+    // and scaled to 2^48 by itself, SetWithScaleFactor)
+    let (figs, inv2) = if inside {
+        let Some(f) = area_figures(g, tol, ext) else {
+            return Err(Fail::Unmodeled(open::D2D_AREA_CURVE));
+        };
+        (f, (1.0 / AREA_SCALE) * (1.0 / AREA_SCALE))
+    } else {
+        // (a figure with curves there, its flattening tolerance per axis: the spec's open
+        // D2D.AREA.CURVE, asked by pareahuge-4)
+        let Geom::Path { wind, figs } = g else {
+            return Err(Fail::Unmodeled(open::D2D_AREA_CURVE));
+        };
+        hit(clause::D2D_AREA_HUGE);
+        let axis = |lo: f32, hi: f32| {
+            let (lo, hi) = (f64::from(lo), f64::from(hi));
+            let c = 0.5 * hi + 0.5 * lo;
+            let d = (hi - lo) * 1.5 + 2.0;
+            if d > f64::from_bits(0x0300000000000001) {
+                let scale = big / d;
+                let inv = 1.0 / scale;
+                ((scale * c + 0.5).floor() * inv, scale, inv)
+            } else {
+                (c, 1.0, 1.0)
+            }
+        };
+        let ((cx, sx, ix), (cy, sy, iy)) = (axis(bb[0], bb[2]), axis(bb[1], bb[3]));
+        let r = |u: f64| (if u >= 0.0 { u + 0.5 } else { u - 0.5 }).trunc();
+        let ws = |p: P| (r((f64::from(p.0) - cx) * sx), r((f64::from(p.1) - cy) * sy));
+        ((*wind, figs.iter().map(|f| f.pts.iter().map(|&p| ws(p)).collect()).collect()), ix * iy)
     };
-    let inv = 1.0 / AREA_SCALE;
-    let a = if let [f] = figs.as_slice() && simple_polygon(f) {
+    let (wind, figs) = figs;
+    let a = if inside && let [f] = figs.as_slice() && simple_polygon(f) {
         let n = f.len();
         (0..n).map(|i| f[i].0 * f[(i + 1) % n].1 - f[(i + 1) % n].0 * f[i].1).sum::<f64>().abs() * 0.5
     } else {
@@ -952,7 +980,7 @@ fn scanner_area(g: &Geom, tol: f32) -> Res<Measure> {
         if acc < 0.0 { 0.0 } else { acc * 0.5 }
     };
     hit(clause::D2D_AREA_POLY);
-    Ok(Measure::Value(((inv * inv) * a) as f32))
+    Ok(Measure::Value((inv2 * a) as f32))
 }
 
 /// what ComputeArea / ComputeLength answer
@@ -2760,7 +2788,13 @@ impl D2d {
                 if tg.fault.is_some() {
                     return Ok(());
                 }
-                if !w.is_finite() {
+                if w.is_infinite() {
+                    // (MEASURED, D2D.STROKE.INF, strkinf-0: a width of infinity draws nothing)
+                    hit(clause::D2D_STROKE_INF);
+                    return Ok(());
+                }
+                if w.is_nan() {
+                    // (a width not a number: the spec's open D2D.RT, asked by strknan-0)
                     return Err(Fail::Unmodeled(open::D2D_RT));
                 }
                 if let Geom::Path { .. } | Geom::Ell(_) | Geom::RRect(_) | Geom::Xf(..) = g {
