@@ -4,8 +4,6 @@
 use super::{Fail, Res};
 use crate::spec::{open, OpenId};
 
-/// the forms of those calls the model follows
-const MEASURED: [&str; 17] = ["glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glNormal3f", "glTexCoord1f", "glTexCoord2f", "glTexCoord3f", "glTexCoord4f", "glRasterPos2i", "glRasterPos2f", "glColorMask"];
 
 /// the open clause of a function the model does not follow, by its name
 pub fn of(name: &str) -> Option<OpenId> {
@@ -18,8 +16,6 @@ pub fn of(name: &str) -> Option<OpenId> {
         "glCopyPixels" => open::GL_COPYPIXELS,
         "glPolygonStipple" | "glGetPolygonStipple" => open::GL_POLYGON_STIPPLE_PATTERN,
         "glPixelMapfv" | "glPixelMapuiv" | "glPixelMapusv" | "glGetPixelMapfv" | "glGetPixelMapuiv" | "glGetPixelMapusv" => open::GL_PIXELMAP,
-        "glFogi" | "glFogiv" | "glRotated" | "glScaled" | "glTranslated" | "glLoadMatrixd" | "glMultMatrixd" | "glIndexd" | "glIndexf" | "glIndexs" | "glIndexub" | "glIndexdv" | "glIndexfv" | "glIndexiv" | "glIndexsv" | "glIndexubv" | "glRectd" | "glRects" | "glRectdv" | "glRectfv" | "glRectiv" | "glRectsv" => open::GL_VARIANTS,
-        n if ["glColor", "glVertex", "glNormal", "glTexCoord", "glRasterPos"].iter().any(|p| n.starts_with(p)) && !MEASURED.contains(&n) => open::GL_VARIANTS,
         _ => return None,
     })
 }

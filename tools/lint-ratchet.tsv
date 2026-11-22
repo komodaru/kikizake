@@ -164,7 +164,7 @@ file	src/model/cmyk.rs	cast_possible_wrap	3
 file	src/model/cmyk.rs	cast_precision_loss	3
 file	src/model/cmyk.rs	cast_sign_loss	12
 file	src/model/cmyk.rs	indexing_slicing	43
-file	src/model/d2d.rs	arithmetic_side_effects	231
+file	src/model/d2d.rs	arithmetic_side_effects	223
 file	src/model/d2d.rs	as_conversions	128
 file	src/model/d2d.rs	cast_possible_truncation	61
 file	src/model/d2d.rs	cast_possible_wrap	10
@@ -172,7 +172,7 @@ file	src/model/d2d.rs	cast_precision_loss	32
 file	src/model/d2d.rs	cast_sign_loss	30
 file	src/model/d2d.rs	eq_op	2
 file	src/model/d2d.rs	float_cmp	15
-file	src/model/d2d.rs	indexing_slicing	181
+file	src/model/d2d.rs	indexing_slicing	175
 file	src/model/d2d.rs	map_err_ignore	2
 file	src/model/d2d.rs	misrefactored_assign_op	1
 file	src/model/d2d.rs	same_name_method	1
@@ -191,8 +191,8 @@ file	src/model/d2dtess.rs	cast_precision_loss	8
 file	src/model/d2dtess.rs	float_cmp	1
 file	src/model/d2dtess.rs	indexing_slicing	102
 file	src/model/d2dtess.rs	iter_over_hash_type	1
-file	src/model/d2dwiden.rs	as_conversions	4
-file	src/model/d2dwiden.rs	cast_possible_truncation	3
+file	src/model/d2dwiden.rs	as_conversions	3
+file	src/model/d2dwiden.rs	cast_possible_truncation	2
 file	src/model/d2dwiden.rs	float_cmp	2
 file	src/model/d3d11.rs	arithmetic_side_effects	8
 file	src/model/d3d11.rs	as_conversions	6

@@ -278,6 +278,8 @@ pub mod list;
 pub mod texdraw;
 #[path = "opengl_array.rs"]
 pub mod array;
+#[path = "opengl_forms.rs"]
+pub mod forms;
 use crate::case::{num, Op};
 use crate::spec::hit;
 use e::*;
@@ -480,6 +482,8 @@ pub struct Ctx {
     /// the current raster position in window coordinates, None when invalid (initially the window
     /// origin at depth 0), and its color
     pub raster: Option<[f64; 3]>,
+    /// the raster position glGet gives (window x, y, z and the clip w)
+    pub raster_get: [f32; 4],
     pub raster_color: [f32; 4],
     /// the raster position's eye z, for fog on images
     pub raster_eye: f64,
@@ -600,6 +604,7 @@ impl Ctx {
             zoom: (1.0, 1.0),
             raster: Some([0.0; 3]),
             raster_color: [1.0; 4],
+            raster_get: [0.0, 0.0, 0.0, 1.0],
             raster_eye: 0.0,
             raster_tex: [0.0, 0.0, 1.0],
             frag_tex: None,
@@ -741,8 +746,8 @@ impl Ctx {
             0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],
             0xb04 => c4([1.0; 4]),
             0xb05 => vec![F(1.0)],
-            0xb07 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],
-            0xb08 => vec![B(true)],
+            0xb07 => self.raster_get.iter().map(|x| F(*x)).collect(),
+            0xb08 => vec![B(self.raster.is_some())],
             0xb09 => vec![F(0.0)],
             0xb11 => vec![F(self.point_size)],
             0xb21 => vec![F(self.line_width)],
@@ -883,7 +888,7 @@ impl Ctx {
 /// precision, truncated; out of range the conversion's "integer indefinite" 0x80000000)
 pub fn color_to_int(c: f32) -> i64 {
     hit(clause::GL_GET_MAP);
-    float_to_int(c * 2_147_482_496.0f32)
+    float_to_int((c * 2_147_482_496.0f32).floor())
 }
 
 /// a float to an integer as the x86 conversion instructions do: truncated, 0x80000000 when out of range or NaN
@@ -1094,7 +1099,7 @@ fn mat_mul(a: &[f32; 16], b: &[f32; 16]) -> [f32; 16] {
     r
 }
 
-const BEGIN_OK: &[&str] = &["glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glIndexi", "glTexCoord1f", "glTexCoord2f", "glTexCoord3f", "glTexCoord4f", "glEnd"];
+const BEGIN_OK: &[&str] = &["glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glIndexi", "glIndexf", "glTexCoord1f", "glTexCoord2f", "glTexCoord3f", "glTexCoord4f", "glEnd"];
 
 crate::model::words! {
     /// the commands that run on the current context
@@ -1216,14 +1221,7 @@ impl Gl {
                 for k in 0..16 {
                     m[k] = parse_float(&t[2 + k])? as f32;
                 }
-                if ctx.in_begin.is_some() {
-                    ctx.error(INVALID_OPERATION);
-                } else {
-                    hit(clause::GL_MATRIX_LOAD);
-                    let i = ctx.mi();
-                    let top = ctx.stacks[i].top_mut();
-                    *top = if t[1] == "load" { m } else { mat_mul(top, &m) };
-                }
+                ctx.load_matrix(&m, t[1] == "load");
             }
             CtxOp::Glfogv => {
                 if t.len() < 3 || t.len() > 6 {
@@ -1354,6 +1352,7 @@ impl Gl {
                 };
                 out.push(format!("q {shown}"));
             }
+            CtxOp::Glp if t.get(1).is_some_and(|n| forms::parse(n).is_some_and(|f| f.vector) || matches!(n.as_str(), "glLoadMatrixd" | "glMultMatrixd" | "glFogiv")) => ctx.form_glp(t)?,
             CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf | CtxOp::Wglx => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
@@ -1567,6 +1566,18 @@ impl Ctx {
             }
             return self.array_call(name, a);
         }
+        // (the other forms as their float ones: GL.VARIANTS)
+        if forms::routed(name) {
+            hit(clause::GL_VARIANTS);
+            let f = forms::parse(name).ok_or(Fail::Bad)?;
+            let v: Vec<f64> = a.iter().map(|x| forms::raw(f.ty, *x)).collect();
+            let (n, args) = forms::canonical(f, &v).ok_or(Fail::Bad)?;
+            return self.call(n, &args);
+        }
+        if let Some((n, args)) = forms::other(name, a) {
+            hit(clause::GL_VARIANTS);
+            return self.call(n, &args);
+        }
         if let Some(gap) = gaps::call(name) {
             return Err(Fail::Unmodeled(gap));
         }
@@ -1734,6 +1745,10 @@ impl Ctx {
             "glIndexi" => {
                 hit(clause::GL_COLORINDEX);
                 self.index = int(a, 0) as f32;
+            }
+            "glIndexf" => {
+                hit(clause::GL_COLORINDEX);
+                self.index = tri::narrow(fl(a, 0));
             }
             "glClearIndex" => {
                 hit(clause::GL_COLORINDEX);
@@ -1925,21 +1940,30 @@ impl Ctx {
                     }
                 }
             }
-            "glRasterPos2i" | "glRasterPos2f" => {
+            "glRasterPos2i" | "glRasterPos2f" | "glRasterPos4f" => {
                 // (MEASURED, golden opengl-32 other-calls-0: the position through the matrices
                 // and the viewport; one outside the view volume is invalid and images at it draw
-                // nothing: GL.RASTER.POS)
+                // nothing: GL.RASTER.POS; z and w of the other forms, gap-forms-0)
                 hit(clause::GL_RASTER_POS);
-                let v = [fl(a, 0), fl(a, 1), 0.0];
-                let e = xform(self.top(0), [v[0], v[1], v[2], 1.0]);
+                let (z, w) = if name == "glRasterPos4f" { (fl(a, 2), fl(a, 3)) } else { (0.0, 1.0) };
+                let v = [fl(a, 0), fl(a, 1), z];
+                let e = xform(self.top(0), [v[0], v[1], v[2], w]);
                 // (under a projection: inside the view volume of its w, then times 1 / w and
                 // its depth in float32 as a vertex's, golden opengl-32 persp-more-9)
-                let c = self.clip_coords(Obj::at(v));
+                let c = self.clip_coords(Obj { xyz: v, w, ..Obj::at(v) });
                 if c[3] != 1.0 {
                     hit(clause::GL_RASTER_PERSPECTIVE);
                 }
                 let inside = c[3] > 0.0 && c[..3].iter().all(|v| (-c[3]..=c[3]).contains(v));
+                // (MEASURED, golden opengl-32 / 64 gap-forms-0: glGet gives where the rasterizer
+                // has it, tri::Raster, unbiased, y back up the window less 1/256, and the clip w)
+                let clip = c;
                 let c = c.map(|v| v * (1.0 / c[3]));
+                if inside {
+                    let tri::Raster([rx, ry]) = tri::Raster::of(clip, self.viewport, HEIGHT);
+                    let h = tri::RASTER_BIAS + tri::float(HEIGHT);
+                    self.raster_get = [rx - tri::RASTER_BIAS, (h - ry) - 1.0 / 256.0, self.window_z(c[2]), clip[3]];
+                }
                 let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
                 let (x, y) = (f64::from(c[0]), f64::from(c[1]));
                 self.raster = inside.then(|| [(x + 1.0) * vw / 2.0 + vx, (y + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(c[2]))]);
@@ -2381,6 +2405,49 @@ impl Ctx {
             *self.stacks.get_mut(m).ok_or(Fail::Bad)?.top_mut() = top;
         }
         drawn
+    }
+
+    /// glLoadMatrixf (`load`) or glMultMatrixf
+    fn load_matrix(&mut self, m: &[f32; 16], load: bool) {
+        if self.in_begin.is_some() {
+            self.error(INVALID_OPERATION);
+        } else {
+            hit(clause::GL_MATRIX_LOAD);
+            let i = self.mi();
+            let top = self.stacks[i].top_mut();
+            *top = if load { *m } else { mat_mul(top, m) };
+        }
+    }
+
+    /// a glp line of the other forms' vector calls, glLoadMatrixd, glMultMatrixd and glFogiv
+    /// (GL.VARIANTS): their values as the float calls take them
+    fn form_glp(&mut self, t: &[String]) -> Res<()> {
+        hit(clause::GL_VARIANTS);
+        let name = t.get(1).map_or("", String::as_str);
+        if let Some(f) = forms::parse(name) {
+            let v = array::glp_values(t, f.ty)?.ok_or(Fail::Bad)?;
+            let (n, args) = forms::canonical(f, &v).ok_or(Fail::Bad)?;
+            return self.call(n, &args);
+        }
+        match name {
+            "glLoadMatrixd" | "glMultMatrixd" => {
+                let v = array::glp_values(t, array::DOUBLE)?.ok_or(Fail::Bad)?;
+                let m: [f32; 16] = std::array::from_fn(|k| v.get(k).map_or(0.0, |x| tri::narrow(*x)));
+                self.load_matrix(&m, name == "glLoadMatrixd");
+            }
+            "glFogiv" => {
+                let pname = t.get(3).and_then(|v| num(v)).and_then(|v| u32::try_from(v & 0xFFFF_FFFF).ok()).ok_or(Fail::Bad)?;
+                let v = array::glp_values(t, INT)?.ok_or(Fail::Bad)?;
+                if self.in_begin.is_some() {
+                    self.error(INVALID_OPERATION);
+                } else {
+                    let f = forms::fog_ints(pname, &v);
+                    self.fog_param(pname, &f, true);
+                }
+            }
+            _ => return Err(Fail::Bad),
+        }
+        Ok(())
     }
 
     /// the edge flag a vertex takes: GL_TRIANGLES, GL_QUADS and GL_POLYGON's only, strips and

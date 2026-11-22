@@ -998,3 +998,51 @@ proptest! {
     }
 }
 
+
+/// one OpenGL case's lines in an ortho 0..16 window, after `body`
+fn gl_lines(body: &str) -> Vec<String> {
+    let text = format!("case p\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700\n{body}\nend\n");
+    let c = kikizake::case::parse_cases(&text);
+    c.first().map_or_else(Vec::new, |c| kikizake::model::run_case(c).unwrap_or_else(|e| vec![format!("{e:?}")]))
+}
+
+proptest! {
+    // GL.VARIANTS: a short or int color, by value or by pointer, is the float color its values
+    // map to as the color arrays map them, alpha 1
+    #[test]
+    fn color_forms_act_as_their_float_form(s in proptest::array::uniform3(any::<i16>()), i in proptest::array::uniform3(any::<i32>())) {
+        use kikizake::model::opengl::array::color_component;
+        const INT: u32 = 0x1404;
+        let get = "glget f 0xb00 4\nglget i 0xb00 4";
+        let float = |ty: u32, v: [f64; 3]| {
+            let [r, g, b] = v.map(|x| color_component(ty, x));
+            gl_lines(&format!("gl glColor4f {r} {g} {b} 1\n{get}"))
+        };
+        let [s0, s1, s2] = s;
+        let want = float(SHORT, s.map(f64::from));
+        prop_assert_eq!(&gl_lines(&format!("gl glColor3s {s0} {s1} {s2}\n{get}")), &want);
+        prop_assert_eq!(&gl_lines(&format!("glp glColor3sv - s {s0} {s1} {s2}\n{get}")), &want);
+        let [i0, i1, i2] = i;
+        let want = float(INT, i.map(f64::from));
+        prop_assert_eq!(&gl_lines(&format!("gl glColor3i {i0} {i1} {i2}\n{get}")), &want);
+        prop_assert_eq!(&gl_lines(&format!("glp glColor3iv - i {i0} {i1} {i2}\n{get}")), &want);
+    }
+
+    // GL.VARIANTS, GL.RASTER.POS: every form of a raster position reads back within the
+    // rasterizer's 1/256 steps of where it was given, valid, at the middle depth, w 1
+    #[test]
+    fn raster_positions_read_back_near_where_given(x in 0i32..16, y in 0i32..16) {
+        let get = "glget f 0xb07 4\nglget i 0xb08 1";
+        let want = gl_lines(&format!("gl glRasterPos2f {x} {y}\n{get}"));
+        prop_assert_eq!(&gl_lines(&format!("gl glRasterPos2s {x} {y}\n{get}")), &want);
+        prop_assert_eq!(&gl_lines(&format!("gl glRasterPos3d {x} {y} 0\n{get}")), &want);
+        prop_assert_eq!(&gl_lines(&format!("glp glRasterPos2iv - i {x} {y}\n{get}")), &want);
+        let line = want.iter().find(|l| l.starts_with("get b07")).ok_or_else(|| TestCaseError::fail("no b07"))?;
+        let v: Vec<f32> = line.split_whitespace().skip(3).filter_map(|h| u32::from_str_radix(h, 16).ok().map(f32::from_bits)).collect();
+        prop_assert_eq!(v.len(), 4);
+        let near = |got: f32, want: i32| (f64::from(got) - f64::from(want)).abs() <= 1.0 / 128.0;
+        prop_assert!(v.first().is_some_and(|g| near(*g, x)) && v.get(1).is_some_and(|g| near(*g, y)), "{:?}", v);
+        prop_assert_eq!(v.get(2..), Some(&[0.5f32, 1.0][..]));
+        prop_assert!(want.iter().any(|l| l == "get b08 = 1"), "{:?}", want);
+    }
+}

@@ -6,7 +6,8 @@ use super::e::{BYTE, FLOAT, INT, INVALID_ENUM, INVALID_OPERATION, INVALID_VALUE,
 use super::{Ctx, Fail, Res, A};
 use crate::spec::{clause, hit};
 
-const DOUBLE: u32 = 0x140a;
+/// GL_DOUBLE
+pub const DOUBLE: u32 = 0x140a;
 /// one slot's bytes and the slots the executor keeps (runner/opengl.c pslot)
 const SLOT: usize = 4096;
 const SLOTS: u8 = 16;
@@ -379,6 +380,14 @@ pub fn glp_bytes(t: &[String]) -> Res<Option<Vec<u8>>> {
         return Err(Fail::Bad);
     }
     Ok(Some(out))
+}
+
+/// a glp line's values read back as numbers of type `ty` from the executor's layout, None for
+/// obuf or null
+pub fn glp_values(t: &[String], ty: u32) -> Res<Option<Vec<f64>>> {
+    let Some(bytes) = glp_bytes(t)? else { return Ok(None) };
+    let w = type_size(ty).ok_or(Fail::Bad)?;
+    Ok(Some(bytes.chunks_exact(w).map(|c| read(ty, c)).collect::<Res<Vec<f64>>>()?))
 }
 
 /// the layouts of glInterleavedArrays (GL 1.1 table 2.5): texture coordinates, color (size and
