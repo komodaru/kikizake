@@ -1,9 +1,10 @@
 //! GDI+'s mirrors (spec/lean/Kikizake/GdiPlus/).
 use super::{arg, every, one, sampled, Domain, Mirror};
-use crate::model::gdiplus::{self, Depth, Pf};
+use crate::model::gdiplus::{self, Depth, Pf, Round};
 
 const CONV: &str = "spec/lean/Kikizake/GdiPlus/Conv.lean";
 const BLEND: &str = "spec/lean/Kikizake/GdiPlus/Blend.lean";
+const MATRIX: &str = "spec/lean/Kikizake/GdiPlus/Matrix.lean";
 
 /// the formats the mirror converts, by their place in `Pf` (the indexed ones and 16bppGrayScale
 /// convert through tables and refusals the Lean file does not hold)
@@ -69,6 +70,52 @@ fn pairs(each: &mut dyn FnMut(&[i64])) {
                 }
             });
         }
+    }
+}
+
+/// a NaN as the one quiet NaN
+fn canon(x: f32) -> i64 {
+    if x.is_nan() { 0x7fc0_0000 } else { i64::from(x.to_bits()) }
+}
+
+fn rounding(d: i64) -> Round {
+    if d == 0 { Round::Nearest } else { Round::Down }
+}
+
+/// the f32 arguments from `from` on
+fn floats<const N: usize>(a: &[i64], from: usize) -> Option<[f32; N]> {
+    let mut v = [0f32; N];
+    for (i, x) in v.iter_mut().enumerate() {
+        *x = f32::from_bits(arg::<u32>(a, from.checked_add(i)?)?);
+    }
+    Some(v)
+}
+
+/// the special values: zeros, 1, 2, 3, 0.5, 0.1, the smallest subnormal, the largest finite
+/// value, infinity, a NaN (each signed by the draw)
+const SPECIAL: [u32; 11] = [0, 0x3f80_0000, 0x4000_0000, 0x4040_0000, 0x3f00_0000, 0x3dcc_cccd, 1, 0x7f7f_ffff, 0x7f80_0000, 0x7fc0_0000, 0x0080_0000];
+
+/// rounding (0 to nearest, 1 down) and n f32 bit patterns, drawn from three pools: any pattern, a
+/// value of magnitude 2^-7 ..= 2^13, small integers and the special values (where sums cancel to
+/// exact zeros)
+fn draws(n: usize, count: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut v = vec![0i64; n.saturating_add(1)];
+    for k in 0..count {
+        if let Some(d) = v.first_mut() {
+            *d = i64::from(u8::from(k % 2 == 1));
+        }
+        for x in v.iter_mut().skip(1) {
+            let sign = if rng.chance(2) { 0x8000_0000 } else { 0 };
+            let b = match rng.range(0, 3) {
+                0 => rng.next(),
+                1 => u32::try_from(rng.range(0x3c00_0000, 0x4600_0000)).unwrap_or(0) | sign,
+                2 => f32::from(u8::try_from(rng.range(0, 6)).unwrap_or(0)).to_bits() | sign,
+                _ => *rng.pick(&SPECIAL) | sign,
+            };
+            *x = i64::from(b);
+        }
+        each(&v);
     }
 }
 
@@ -193,6 +240,65 @@ pub static MIRRORS: &[Mirror] = &[
                 -1 => Some(vec![i64::try_from(p.len()).ok()?, i64::from(flags)]),
                 k => one(*p.get(usize::try_from(k).ok()?)?),
             }
+        },
+    },
+    Mirror {
+        name: "gp.round",
+        lean: MATRIX,
+        domain: Domain::Sampled("add, sub, mul and div to nearest and down: 400,000 pairs of any patterns, moderate values, small integers and special values"),
+        inputs: |each| {
+            for op in 0..4 {
+                draws(2, 100_000, 0x6d70_0000 ^ op, &mut |v| {
+                    let mut w = vec![i64::from(op)];
+                    w.extend_from_slice(v);
+                    each(&w);
+                });
+            }
+        },
+        model: |a| {
+            let r = rounding(arg(a, 1)?);
+            let [x, y] = floats::<2>(a, 2)?;
+            one(canon(match arg::<u8>(a, 0)? {
+                0 => r.add(x, y),
+                1 => r.sub(x, y),
+                2 => r.mul(x, y),
+                3 => r.div(x, y),
+                _ => return None,
+            }))
+        },
+    },
+    Mirror {
+        name: "gp.matmul",
+        lean: MATRIX,
+        domain: Domain::Sampled("150,000 pairs of matrices, to nearest and down, of any patterns, moderate values, small integers and special values"),
+        inputs: |each| draws(12, 150_000, 0x6d71_0000, each),
+        model: |a| {
+            let m = floats::<12>(a, 1)?;
+            let x: [f32; 6] = m.get(..6)?.try_into().ok()?;
+            let y: [f32; 6] = m.get(6..)?.try_into().ok()?;
+            Some(gdiplus::mul_in(rounding(arg(a, 0)?), &x, &y).iter().map(|&v| canon(v)).collect())
+        },
+    },
+    Mirror {
+        name: "gp.matpoint",
+        lean: MATRIX,
+        domain: Domain::Sampled("150,000 matrices and points, to nearest and down, of any patterns, moderate values, small integers and special values"),
+        inputs: |each| draws(8, 150_000, 0x6d72_0000, each),
+        model: |a| {
+            let m = floats::<8>(a, 1)?;
+            let x: [f32; 6] = m.get(..6)?.try_into().ok()?;
+            let (px, py) = gdiplus::transform_in(rounding(arg(a, 0)?), &x, *m.get(6)?, *m.get(7)?);
+            Some(vec![canon(px), canon(py)])
+        },
+    },
+    Mirror {
+        name: "gp.matinv",
+        lean: MATRIX,
+        domain: Domain::Sampled("150,000 matrices, to nearest and down, of any patterns, moderate values, small integers and special values (singular ones among them)"),
+        inputs: |each| draws(6, 150_000, 0x6d73_0000, each),
+        model: |a| {
+            let m = floats::<6>(a, 1)?;
+            Some(gdiplus::inverse(rounding(arg(a, 0)?), &m).map_or_default(|e| e.iter().map(|&v| canon(v)).collect()))
         },
     },
 ];

@@ -9,6 +9,7 @@ def mirrors : List Mirror :=
   D3d9.Pixel.mirrors ++ D3d9.Raster.mirrors ++ D3d9.Fvf.mirrors ++ D3d9.Stage.mirrors ++ D3d9.Fog.mirrors ++
   F32.mirrors ++
   GdiPlus.Blend.mirrors ++
+  GdiPlus.Matrix.mirrors ++
   D3d11.Raster.mirrors ++ D3d11.Draw.mirrors ++ D3d11.Texture.mirrors ++
   D3d11.Desc.mirrors ++
   DWrite.Advance.mirrors
