@@ -303,6 +303,7 @@ spec/tla/GdiMap.tla::Next tla GDI.MAP.MODE GDI.MAP.METRIC GDI.MAP.EXT GDI.MAP.OR
 spec/tla/GdiWorld.tla::Next tla GDI.XFORM.GMODE GDI.XFORM.SET GDI.XFORM.SINGULAR GDI.XFORM.GET GDI.XFORM.MODIFY GDI.XFORM.COMBINE
 spec/tla/GdiModes.tla::Next tla GDI.STATE.OLD GDI.PATH.MITER
 spec/tla/DxgiSwapChain.tla::Next tla DXGI.BUFFER DXGI.PRESENT DXGI.PRESENT.TEST DXGI.PRESENT.RESTART DXGI.RESIZE DXGI.LATENCY DXGI.CHAIN.SIZE
+spec/tla/DxgiFactory.tla::Next tla DXGI.FACTORY DXGI.FACTORY.DEBUG DXGI.WARP DXGI.TEARING DXGI.ADAPTERS DXGI.ADAPTER.PREF
 spec/lean/Kikizake/GdiPlus/Conv.lean::expand_truncate lean GP.CONV.EXPAND GP.CONV.TRUNCATE
 spec/lean/Kikizake/GdiPlus/Conv.lean::expand_close lean GP.CONV.EXPAND
 spec/lean/Kikizake/GdiPlus/Conv.lean::premultiply_nearest lean GP.CONV.PREMULTIPLY

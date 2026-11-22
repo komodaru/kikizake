@@ -23,5 +23,6 @@ differently. So a model that breaks a clause on any short sequence fails, withou
 | D3D9Groups, D3D8Groups | CreateStateBlock of each type, a state set after it, the block applied (D3D9.SB.TYPES, D3D8.SB.GROUPS): each type's states as Windows' create-1..3 answers list them, written by states.py | 1,563 / 876 (1) |
 | D3DSbMisuse | Begin twice, End without Begin, Apply/Capture/Create while recording, types 0 and 4, Release while recording, on Direct3D 9 and 8 (D3D9.SB.MISUSE, SB.BADTYPE) | 289,286 (4) |
 | DxgiSwapChain | CreateSwapChainForHwnd, GetBuffer, Present, ResizeBuffers, Set/GetMaximumFrameLatency, GetFrameLatencyWaitableObject (DXGI.BUFFER, PRESENT, PRESENT.TEST, PRESENT.RESTART, RESIZE, LATENCY, CHAIN.SIZE) | 211,932 (3) |
+| DxgiFactory | CreateDXGIFactory2, EnumWarpAdapter, CheckFeatureSupport (ALLOW_TEARING), EnumAdapters1, EnumAdapterByGpuPreference (DXGI.FACTORY, FACTORY.DEBUG, WARP, TEARING, ADAPTERS, ADAPTER.PREF): what the windows-2025 runner answers, nofactory before a factory | 40,495 (3) |
 
 D3D9StateBlock models documented use; D3DSbMisuse the measured misuse. Comments cannot hold `*)`.
