@@ -1470,11 +1470,16 @@ fn ramp_writes(spans: &mut crate::model::ramp::Spans, st: &States, tri: &Tri, pr
     let inside = |v: &[(i64, i64)]| v.iter().all(|&(x, y)| (0..w.wrapping_mul(16)).contains(&x) && (0..h.wrapping_mul(16)).contains(&y));
     match (prim, st.fill) {
         (Prim::Line, _) => {
+            // MEASURED (d3d7dev outlines-2-ramp): no guard band, an end off the viewport cut at
+            // its side first (ramp::clip_line), the ends then snapped as any line's,
+            // trunc(16·x + 1/2) (clean-room notes D.1)
             let [a, b0, _] = tri.v;
-            let e = [a, b0];
-            if !inside(&e) {
-                return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
-            }
+            let tl = |v: (i64, i64)| -> Res<Tl> { Ok(Tl { sx: px16(v.0)?, sy: px16(v.1)?, sz: tri.z, rhw: 1.0, c: 0 }) };
+            let (fw, fh) = (f32::from(i16::try_from(w).ok().ok_or(Fail::Bad)?), f32::from(i16::try_from(h).ok().ok_or(Fail::Bad)?));
+            let Some(ends) = ramp::clip_line([tl(a)?, tl(b0)?], fw, fh) else { return Ok(Vec::new()) };
+            let snap = |v: f32| crate::model::d3dim::trunc(v * 16.0 + 0.5).ok_or(Fail::Bad);
+            let [p, q] = ends;
+            let e = [(snap(p.sx)?, snap(p.sy)?), (snap(q.sx)?, snap(q.sy)?)];
             hit(clause::D3D7_LINE);
             b.pixels(&crate::model::d3dim::line(e, st.lastpixel)?, w, h, Kind::Tri)?;
         }

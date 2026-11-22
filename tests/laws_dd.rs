@@ -237,6 +237,32 @@ proptest! {
         }
     }
 
+    /// the ramp device's line clip (ClipSingleLine, no guard band): ends inside stay as they
+    /// are, clipped ends lie in the viewport (on its closed sides) and near the segment, and a
+    /// line wholly off one side is dropped
+    #[test]
+    fn ramp_line_clip_stays_on_the_segment(v in prop::array::uniform4(-300i64..500)) {
+        use kikizake::model::ramp::{clip_line, Tl};
+        let tl = |x: i64, y: i64| Tl { sx: x as f32 / 16.0, sy: y as f32 / 16.0, sz: 0.5, rhw: 1.0, c: 0 };
+        let (a, b) = (tl(v[0], v[1]), tl(v[2], v[3]));
+        let (w, h) = (12.0f32, 12.0f32);
+        let inside = |t: &Tl| (0.0..w).contains(&t.sx) && (0.0..h).contains(&t.sy);
+        let out = clip_line([a, b], w, h);
+        if (a.sx < 0.0 && b.sx < 0.0) || (a.sx >= w && b.sx >= w) || (a.sy < 0.0 && b.sy < 0.0) || (a.sy >= h && b.sy >= h) {
+            prop_assert!(out.is_none(), "{v:?}");
+        }
+        let Some([p, q]) = out else { return Ok(()) };
+        for (orig, got) in [(a, p), (b, q)] {
+            if inside(&orig) {
+                prop_assert!(orig.sx == got.sx && orig.sy == got.sy, "{v:?}");
+            }
+            prop_assert!((0.0..=w).contains(&got.sx) && (0.0..=h).contains(&got.sy), "{v:?}: {got:?}");
+            let (dx, dy) = (b.sx - a.sx, b.sy - a.sy);
+            let cross = ((got.sx - a.sx) * dy - (got.sy - a.sy) * dx).abs() / (dx * dx + dy * dy).sqrt().max(1e-3);
+            prop_assert!(cross < 1e-2, "{v:?}: {got:?} off the segment by {cross}");
+        }
+    }
+
     /// the software line's colour words (clean-room notes D.3): one word per walked pixel, the
     /// first within a step of the start's bytes << 8, each step the same f32 gradient, never
     /// below 0 nor past the larger end's word by more than one gradient, and flat (equal ends)
@@ -472,7 +498,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 1, 0), ("d3d7shade", 0, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 0, 0), ("d3d7shade", 0, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);

@@ -391,85 +391,123 @@ struct Cv {
     tl: Tl,
 }
 
+/// the viewport w × h at the origin in clip space (D3DFE: x = (sx − 0) / w · cw, y = (sy − h) /
+/// −h · cw), its outcodes and the planes Left, Right, Bottom, Top in the order they are cut
+struct View {
+    w: f32,
+    h: f32,
+}
+
+type Plane = (u32, fn(&Cv) -> f32);
+const PLANES: [Plane; 4] = [(LEFT, |c| c.x), (RIGHT, |c| c.w - c.x), (BOTTOM, |c| c.y), (TOP, |c| c.w - c.y)];
+
+impl View {
+    fn code(&self, t: &Tl) -> u32 {
+        [(t.sx < 0.0, LEFT), (t.sx >= self.w, RIGHT), (t.sy < 0.0, TOP), (t.sy >= self.h, BOTTOM)].iter().filter(|p| p.0).fold(0, |a, p| a | p.1)
+    }
+
+    fn clip_space(&self, t: &Tl, flags: u32) -> Cv {
+        let cw = 1.0 / t.rhw;
+        Cv { x: (t.sx * cw) * (1.0 / self.w), y: ((t.sy - self.h) * cw) * (1.0 / -self.h), z: t.sz * cw, w: cw, flags, tl: *t }
+    }
+
+    /// back to the screen: a vertex cut on a side snapped onto it
+    fn screen(&self, c: &Cv) -> Tl {
+        let iw = 1.0 / c.w;
+        if c.flags == 0 {
+            return Tl { rhw: iw, ..c.tl };
+        }
+        let sx = match c.flags & (LEFT | RIGHT) {
+            LEFT => 0.0,
+            RIGHT => self.w,
+            _ => (((c.x * self.w) * iw) + 0.0).clamp(0.0, self.w),
+        };
+        let sy = match c.flags & (TOP | BOTTOM) {
+            TOP => 0.0,
+            BOTTOM => self.h,
+            _ => (((c.y * -self.h) * iw) + self.h).clamp(0.0, self.h),
+        };
+        Tl { sx, sy, sz: iw * c.z, rhw: iw, c: c.tl.c }
+    }
+}
+
+/// the vertex where a (inside) to b (outside) crosses a plane, lerped from the outside vertex
+/// (the index and the alpha as integers, truncated)
+fn cut(plane: Plane, a: &Cv, b: &Cv) -> Cv {
+    let (p, dist) = plane;
+    let (di, dout) = (dist(a), dist(b));
+    let t = dout / (dout - di);
+    let l = |pi: f32, po: f32| (pi - po) * t + po;
+    let li = |ci: u32, co: u32| -> u32 {
+        let (fi, fo) = (f32_u(ci), f32_u(co));
+        d3dim::trunc((fi - fo) * t + fo).and_then(|v| u32::try_from(v).ok()).unwrap_or(0)
+    };
+    let c = li(a.tl.c >> 24, b.tl.c >> 24) << 24 | li(a.tl.c & 0xff_ffff, b.tl.c & 0xff_ffff) & 0xff_ffff;
+    Cv { x: l(a.x, b.x), y: l(a.y, b.y), z: l(a.z, b.z), w: l(a.w, b.w), flags: (a.flags & b.flags) | p, tl: Tl { c, ..a.tl } }
+}
+
+/// the ends the ramp device sets up for one TL line in a viewport w × h at the origin
+/// (ClipSingleLine; the ramp device has no guard band, so any end off the viewport is cut):
+/// itself when inside, else each end outside a plane replaced by the crossing, Left, Right,
+/// Bottom, Top, a new end snapped to its side; None when the line misses the viewport
+pub fn clip_line(v: [Tl; 2], w: f32, h: f32) -> Option<[Tl; 2]> {
+    let view = View { w, h };
+    let codes = v.map(|t| view.code(&t));
+    let any = codes.iter().fold(0, |a, &c| a | c);
+    if any == 0 {
+        return Some(v);
+    }
+    let [(t0, c0), (t1, c1)] = [(v[0], codes[0]), (v[1], codes[1])];
+    let (mut a, mut b) = (view.clip_space(&t0, c0), view.clip_space(&t1, c1));
+    for plane in PLANES {
+        if any & plane.0 == 0 {
+            continue;
+        }
+        let inside = |c: &Cv| !(plane.1)(c).is_sign_negative();
+        match (inside(&a), inside(&b)) {
+            (true, true) => {}
+            (false, false) => return None,
+            (true, false) => b = cut(plane, &a, &b),
+            (false, true) => a = cut(plane, &b, &a),
+        }
+    }
+    Some([view.screen(&a), view.screen(&b)])
+}
+
 /// the triangles the ramp device rasterizes for one TL triangle in a viewport w × h at the
 /// origin: itself when inside, else its polygon clipped Left, Right, Bottom, Top (each pass
 /// emitting the previous vertex, a new one lerped from the outside vertex) and drawn as the fan
 /// (v[i], v[i+1], v[0]); a new vertex snapped to the side it was cut on
 pub fn clip(v: [Tl; 3], w: f32, h: f32) -> Vec<[Tl; 3]> {
-    let (ox, oy) = (0.0f32, h);
-    let (sxs, sys) = (w, -h);
-    let (ixs, iys) = (1.0 / w, 1.0 / -h);
-    let code = |t: &Tl| {
-        [(t.sx < 0.0, LEFT), (t.sx >= w, RIGHT), (t.sy < 0.0, TOP), (t.sy >= h, BOTTOM)].iter().filter(|p| p.0).fold(0, |a, p| a | p.1)
-    };
-    let codes = v.map(|t| code(&t));
+    let view = View { w, h };
+    let codes = v.map(|t| view.code(&t));
     let any = codes.iter().fold(0, |a, &c| a | c);
     if any == 0 {
         return vec![v];
     }
-    let mut poly: Vec<Cv> = v
-        .iter()
-        .zip(codes)
-        .map(|(t, flags)| {
-            let cw = 1.0 / t.rhw;
-            Cv { x: ((t.sx - ox) * cw) * ixs, y: ((t.sy - oy) * cw) * iys, z: t.sz * cw, w: cw, flags, tl: *t }
-        })
-        .collect();
-    let planes: [(u32, fn(&Cv) -> f32); 4] = [(LEFT, |c| c.x), (RIGHT, |c| c.w - c.x), (BOTTOM, |c| c.y), (TOP, |c| c.w - c.y)];
-    for (plane, dist) in planes {
-        if any & plane == 0 || poly.is_empty() {
+    let mut poly: Vec<Cv> = v.iter().zip(codes).map(|(t, flags)| view.clip_space(t, flags)).collect();
+    for plane in PLANES {
+        if any & plane.0 == 0 || poly.is_empty() {
             continue;
         }
-        let inside = |c: &Cv| !dist(c).is_sign_negative();
+        let inside = |c: &Cv| !(plane.1)(c).is_sign_negative();
         let mut out = Vec::new();
         let Some(&last) = poly.last() else { break };
         let mut prev = last;
         for &cur in &poly {
-            let cut = |a: &Cv, b: &Cv| {
-                // a inside, b outside: from the outside vertex
-                let (di, dout) = (dist(a), dist(b));
-                let t = dout / (dout - di);
-                let l = |pi: f32, po: f32| (pi - po) * t + po;
-                // (the index and the alpha lerped as integers, truncated)
-                let li = |ci: u32, co: u32| -> u32 {
-                    let (fi, fo) = (f32_u(ci), f32_u(co));
-                    d3dim::trunc((fi - fo) * t + fo).and_then(|v| u32::try_from(v).ok()).unwrap_or(0)
-                };
-                let c = li(a.tl.c >> 24, b.tl.c >> 24) << 24 | li(a.tl.c & 0xff_ffff, b.tl.c & 0xff_ffff) & 0xff_ffff;
-                Cv { x: l(a.x, b.x), y: l(a.y, b.y), z: l(a.z, b.z), w: l(a.w, b.w), flags: (a.flags & b.flags) | plane, tl: Tl { c, ..a.tl } }
-            };
             if inside(&prev) {
                 out.push(prev);
                 if !inside(&cur) {
-                    out.push(cut(&prev, &cur));
+                    out.push(cut(plane, &prev, &cur));
                 }
             } else if inside(&cur) {
-                out.push(cut(&cur, &prev));
+                out.push(cut(plane, &cur, &prev));
             }
             prev = cur;
         }
         poly = out;
     }
-    let screen: Vec<Tl> = poly
-        .iter()
-        .map(|c| {
-            let iw = 1.0 / c.w;
-            if c.flags == 0 {
-                return Tl { rhw: iw, ..c.tl };
-            }
-            let sx = match c.flags & (LEFT | RIGHT) {
-                LEFT => 0.0,
-                RIGHT => w,
-                _ => (((c.x * sxs) * iw) + ox).clamp(0.0, w),
-            };
-            let sy = match c.flags & (TOP | BOTTOM) {
-                TOP => 0.0,
-                BOTTOM => h,
-                _ => (((c.y * sys) * iw) + oy).clamp(0.0, h),
-            };
-            Tl { sx, sy, sz: iw * c.z, rhw: iw, c: c.tl.c }
-        })
-        .collect();
+    let screen: Vec<Tl> = poly.iter().map(|c| view.screen(c)).collect();
     let mut fan = Vec::new();
     if let Some(&v0) = screen.first() {
         for p in screen.windows(2).skip(1) {
