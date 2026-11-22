@@ -897,19 +897,31 @@ proptest! {
     }
 
     // GL.TEX.GEN: the eye plane is kept times the inverse modelview, so the inverse undoes
-    // the matrix: M^-1 M is the identity for a matrix of rotation, scale and translation
+    // the matrix to float32's precision: M^-1 M is the identity for a matrix of rotation, scale
+    // and translation (the affine path) and with a last row other than 0 0 0 1 (the general one)
     #[test]
-    fn eye_plane_inverse_undoes_the_modelview(angle in -3.0f32..3.0, sx in 0.25f32..4.0, sy in 0.25f32..4.0, sz in 0.25f32..4.0, t in proptest::array::uniform3(-8.0f32..8.0)) {
+    fn eye_plane_inverse_undoes_the_modelview(angle in -3.0f32..3.0, sx in 0.25f32..4.0, sy in 0.25f32..4.0, sz in 0.25f32..4.0, t in proptest::array::uniform3(-8.0f32..8.0), w in proptest::array::uniform3(-0.25f32..0.25)) {
         let (c, s) = (angle.cos(), angle.sin());
-        let m: [f32; 16] = [c * sx, s * sx, 0.0, 0.0, -s * sy, c * sy, 0.0, 0.0, 0.0, 0.0, sz, 0.0, t[0], t[1], t[2], 1.0];
-        let inv = kikizake::model::opengl::tex::invert(&m).ok_or_else(|| TestCaseError::fail("singular"))?;
-        for r in 0..4 {
-            for col in 0..4 {
-                let v: f64 = (0..4).map(|k| inv[k * 4 + r] * f64::from(m[col * 4 + k])).sum();
-                let want = if r == col { 1.0 } else { 0.0 };
-                prop_assert!((v - want).abs() < 1e-9, "({r}, {col}) {v}");
+        for last in [[0.0, 0.0, 0.0], w] {
+            let m: [f32; 16] = [c * sx, s * sx, 0.0, last[0], -s * sy, c * sy, 0.0, last[1], 0.0, 0.0, sz, last[2], t[0], t[1], t[2], 1.0];
+            let inv = kikizake::model::opengl::tex::invert(&m).ok_or_else(|| TestCaseError::fail("singular"))?;
+            for r in 0..4 {
+                for col in 0..4 {
+                    let v: f64 = (0..4).map(|k| f64::from(inv[k * 4 + r]) * f64::from(m[col * 4 + k])).sum();
+                    let want = if r == col { 1.0 } else { 0.0 };
+                    prop_assert!((v - want).abs() < 1e-3, "({r}, {col}) {v}");
+                }
             }
         }
+    }
+
+    // GL.TEX.GEN: a singular modelview (a zero scale) has no inverse, and the plane is kept
+    #[test]
+    fn singular_modelviews_have_no_inverse(k in 0usize..3, s in -4.0f32..4.0) {
+        let mut m = [1.0f32, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0];
+        m[k * 5] = 0.0;
+        m[12] = s;
+        prop_assert!(kikizake::model::opengl::tex::invert(&m).is_none());
     }
 
     // GL.RASTER.TEXTURE.PRIM: an antialiased line's rows each count their pixels from 0 and its

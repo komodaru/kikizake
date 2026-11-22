@@ -197,6 +197,10 @@ fn inner(l: &Level, one_d: bool) -> (u32, u32) {
 /// the levels a texture object samples, if it is complete (GL 1.1 3.8.8; texture.md 4.1)
 fn complete(o: &Object, one_d: bool) -> Option<Vec<&Level>> {
     let first = o.levels.first()?.as_ref()?;
+    // (a paletted level draws as no texture: MEASURED, golden opengl-32 / 64 tex-open-more-paletted)
+    if first.base == Base::Index {
+        return None;
+    }
     let (w0, h0) = inner(first, one_d);
     if w0 == 0 || h0 == 0 {
         return None;
@@ -383,6 +387,8 @@ pub fn env(mode: Env, base: Base, c: [f32; 4], t: [f32; 4], cc: [f32; 4], scale:
         (Env::Blend, Base::Intensity) => [mix(r, tr, cr), mix(g, tr, cg), mix(b, tr, cb), mix(a, tr, ca)],
         (Env::Blend, Base::Rgb) => [mix(r, tr, cr), mix(g, tg, cg), mix(b, tb, cb), a],
         (Env::Blend, Base::Rgba) => [mix(r, tr, cr), mix(g, tg, cg), mix(b, tb, cb), a * ta],
+        // (a paletted texture is never bound: complete)
+        (Env::Modulate | Env::Replace | Env::Decal | Env::Blend, Base::Index) => c,
     }
 }
 

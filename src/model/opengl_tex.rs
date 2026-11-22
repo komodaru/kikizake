@@ -123,6 +123,10 @@ pub enum Base {
     Intensity,
     Rgb,
     Rgba,
+    /// GL_EXT_paletted_texture's color indices (MEASURED, golden opengl-32 / 64
+    /// tex-open-more-paletted: taken from COLOR_INDEX, no component sizes, read back undefined,
+    /// the texture drawing as none, GL.TEX.FORMAT)
+    Index,
 }
 
 /// How a level keeps its texels: bytes of the four channels up to 8 bits a channel, floats of the
@@ -195,6 +199,8 @@ impl Level {
             (Store::Floats, Base::Alpha) => [0.0, 0.0, 0.0, a],
             (Store::Floats, Base::Rgb) => [r, g, b, 1.0],
             (Store::Floats, Base::Rgba) => t,
+            // (its texels undefined)
+            (Store::Bytes | Store::Floats, Base::Index) => t,
         }
     }
 
@@ -209,6 +215,7 @@ impl Level {
             (Store::Bytes | Store::Floats, Base::LuminanceAlpha) => [0, 0, 0, 24, 24, 0],
             (Store::Bytes | Store::Floats, Base::Alpha) => [0, 0, 0, 24, 0, 0],
             (Store::Bytes | Store::Floats, Base::Intensity) => [0, 0, 0, 0, 0, 24],
+            (Store::Bytes | Store::Floats, Base::Index) => [0; 6],
         }
     }
 }
@@ -242,6 +249,8 @@ fn reduce(base: Base, store: Store, c: [f32; 4]) -> [f32; 4] {
         (Store::Floats, Base::Alpha) => [0.0, 0.0, 0.0, a],
         (Store::Floats, Base::Rgb) => [r, g, b, 0.0],
         (Store::Floats, Base::Rgba) => [r, g, b, a],
+        // (indices kept as nothing GL_RGBA reads back: undefined, GL.UNDEFINED)
+        (Store::Bytes | Store::Floats, Base::Index) => [f32::NAN; 4],
     }
 }
 
@@ -804,15 +813,19 @@ impl Ctx {
 
     /// glTexGen's planes: the eye plane times the inverse modelview as a row vector, p' = p M^-1
     /// (MEASURED, golden opengl-32 / 64 on a real machine tex-open-more-eye: a translated,
-    /// scaled modelview; GL.TEX.GEN); a singular modelview not measured (GL.RASTER.MODE)
+    /// scaled modelview; GL.TEX.GEN)
     fn tex_gen(&mut self, coord: u32, pname: u32, v: &[f64]) -> Res<Result<(), Bad>> {
         if pname != EYE_PLANE || v.len() != 4 {
             return Ok(self.tex.set_gen(coord, pname, v));
         }
         let m = self.stacks.first().map_or(super::IDENTITY, |s| *s.top());
-        let Some(inv) = invert(&m) else { return Err(Fail::Unmodeled(open::GL_RASTER_MODE)) };
-        // (column k of the inverse: entries k*4 .. k*4 + 3 of the column-major array)
-        let plane: Vec<f64> = inv.chunks_exact(4).map(|col| col.iter().zip(v).map(|(a, p)| a * p).sum()).collect();
+        // (MEASURED, golden opengl-32 / 64 tex-open-more-eye-singular: under a singular
+        // modelview the plane kept as given, no error)
+        let Some(inv) = invert(&m) else { return Ok(self.tex.set_gen(coord, pname, v)) };
+        // (column k of the inverse: entries k*4 .. k*4 + 3 of the column-major array; each
+        // entry of p M^-1 summed in float32 from p0 on)
+        let p: Vec<f32> = v.iter().map(|x| super::tri::narrow(*x)).collect();
+        let plane: Vec<f64> = inv.chunks_exact(4).map(|col| f64::from(col.iter().zip(&p).fold(0.0f32, |s, (a, p)| s + p * a))).collect();
         Ok(self.tex.set_gen(coord, pname, &plane))
     }
 
@@ -962,13 +975,12 @@ impl Ctx {
         }
         let Some(l) = usize::try_from(level).ok().filter(|l| *l < LEVELS) else { return Ok(Err(Bad::Value)) };
         let index = matches!(src, Source::Image { f: COLOR_INDEX, .. });
-        let Some((base, store)) = internal(ifmt) else {
-            // (the paletted formats only from color indices: MEASURED, golden opengl-32
-            // tex-open-format-32, INVALID_OPERATION from RGBA)
-            if paletted(ifmt) && index {
-                return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-            }
-            return Ok(Err(if paletted(ifmt) { Bad::Operation } else { Bad::Enum }));
+        // (the paletted formats only from color indices: MEASURED, golden opengl-32
+        // tex-open-format-32, INVALID_OPERATION from RGBA; tex-open-more-paletted from them)
+        let (base, store) = match internal(ifmt) {
+            Some(k) => k,
+            None if paletted(ifmt) && index => (Base::Index, Store::Bytes),
+            None => return Ok(Err(if paletted(ifmt) { Bad::Operation } else { Bad::Enum })),
         };
         let Ok(border) = u32::try_from(b & 0xFFFF_FFFF) else { return Ok(Err(Bad::Value)) };
         if border > 1 {
@@ -1114,38 +1126,77 @@ fn names(t: &[String]) -> Res<Vec<u32>> {
     t.iter().skip(1).map(|x| num(x).and_then(|v| u32::try_from(v & 0xFFFF_FFFF).ok()).ok_or(Fail::Bad)).collect()
 }
 
-/// the inverse of a column-major 4 by 4 matrix (Gauss-Jordan with partial pivots, in f64),
-/// column-major too; none when singular
-pub fn invert(m: &[f32; 16]) -> Option<[f64; 16]> {
-    // (rows of [M | I]: row r holds M's row r, then the identity's)
-    let mut rows: [[f64; 8]; 4] = std::array::from_fn(|r| std::array::from_fn(|c| if c < 4 { m.get(c.wrapping_mul(4).wrapping_add(r)).map_or(0.0, |x| f64::from(*x)) } else if c.wrapping_sub(4) == r { 1.0 } else { 0.0 }));
-    for col in 0..4usize {
-        let pivot = (col..4).max_by(|a, b| {
-            let at = |r: usize| rows.get(r).and_then(|row| row.get(col)).map_or(0.0, |x: &f64| x.abs());
-            at(*a).total_cmp(&at(*b))
-        })?;
-        rows.swap(col, pivot);
-        let p = *rows.get(col)?;
-        let d = *p.get(col)?;
-        if d.to_bits() & 0x7FFF_FFFF_FFFF_FFFF == 0 {
+/// the inverse of a column-major 4 by 4 matrix as Windows takes it for eye planes, column-major
+/// too, in float32; none when singular (MEASURED, golden opengl-32 / 64 tex-eye-more-*: a
+/// matrix whose last row is 0 0 0 1 by the cofactors of its 3 by 3 part times 1 / det, the
+/// translation then -(M3^-1 t); any other by the 4 by 4 cofactors times 1 / det: GL.TEX.GEN)
+pub fn invert(m: &[f32; 16]) -> Option<[f32; 16]> {
+    let [a00, a10, a20, a30, a01, a11, a21, a31, a02, a12, a22, a32, a03, a13, a23, a33] = *m;
+    let rows = [[a00, a01, a02, a03], [a10, a11, a12, a13], [a20, a21, a22, a23], [a30, a31, a32, a33]];
+    let affine = [a30, a31, a32].iter().all(|v| v.to_bits() & 0x7FFF_FFFF == 0) && a33.to_bits() == 1.0f32.to_bits();
+    let inv: [[f32; 4]; 4] = if affine {
+        let x = [[a00, a01, a02], [a10, a11, a12], [a20, a21, a22]];
+        let cof = |r: usize, k: usize| -> Option<f32> {
+            let [r1, r2] = others3(r);
+            let [k1, k2] = others3(k);
+            let at = |i: usize, j: usize| x.get(i).and_then(|row| row.get(j)).copied();
+            let v = at(r1, k1)? * at(r2, k2)? - at(r1, k2)? * at(r2, k1)?;
+            Some(if r.wrapping_add(k).is_multiple_of(2) { v } else { -v })
+        };
+        let det = a00 * cof(0, 0)? + a01 * cof(0, 1)? + a02 * cof(0, 2)?;
+        if det.to_bits() & 0x7FFF_FFFF == 0 {
             return None;
         }
-        let p: [f64; 8] = p.map(|x| x / d);
-        for (r, row) in rows.iter_mut().enumerate() {
-            if r == col {
-                *row = p;
-                continue;
-            }
-            let f = *row.get(col)?;
-            for (x, y) in row.iter_mut().zip(p) {
-                *x -= f * y;
-            }
+        let rd = 1.0 / det;
+        let row = |r: usize| -> Option<[f32; 4]> {
+            let [i0, i1, i2] = [cof(0, r)? * rd, cof(1, r)? * rd, cof(2, r)? * rd];
+            Some([i0, i1, i2, -(i0 * a03 + i1 * a13 + i2 * a23)])
+        };
+        [row(0)?, row(1)?, row(2)?, [0.0, 0.0, 0.0, 1.0]]
+    } else {
+        let cof = |r: usize, c: usize| -> Option<f32> {
+            let pick = |i: usize| -> Option<[f32; 3]> {
+                let row = rows.get(i)?;
+                let [j0, j1, j2] = others4(c);
+                Some([*row.get(j0)?, *row.get(j1)?, *row.get(j2)?])
+            };
+            let [i0, i1, i2] = others4(r);
+            let v = det3([pick(i0)?, pick(i1)?, pick(i2)?]);
+            Some(if r.wrapping_add(c).is_multiple_of(2) { v } else { -v })
+        };
+        let det = 0.0 + a00 * cof(0, 0)? + a01 * cof(0, 1)? + a02 * cof(0, 2)? + a03 * cof(0, 3)?;
+        if det.to_bits() & 0x7FFF_FFFF == 0 {
+            return None;
         }
+        let rd = 1.0 / det;
+        let row = |r: usize| -> Option<[f32; 4]> { Some([cof(0, r)? * rd, cof(1, r)? * rd, cof(2, r)? * rd, cof(3, r)? * rd]) };
+        [row(0)?, row(1)?, row(2)?, row(3)?]
+    };
+    let [[i00, i01, i02, i03], [i10, i11, i12, i13], [i20, i21, i22, i23], [i30, i31, i32, i33]] = inv;
+    Some([i00, i10, i20, i30, i01, i11, i21, i31, i02, i12, i22, i32, i03, i13, i23, i33])
+}
+
+/// the indices of a 3 by 3 matrix other than `i`
+fn others3(i: usize) -> [usize; 2] {
+    match i {
+        0 => [1, 2],
+        1 => [0, 2],
+        _ => [0, 1],
     }
-    let mut out = [0.0f64; 16];
-    for (k, o) in out.iter_mut().enumerate() {
-        // (column k / 4, row k % 4 of the right half)
-        *o = *rows.get(k % 4)?.get(4usize.wrapping_add(k / 4))?;
+}
+
+/// the indices of a 4 by 4 matrix other than `i`
+fn others4(i: usize) -> [usize; 3] {
+    match i {
+        0 => [1, 2, 3],
+        1 => [0, 2, 3],
+        2 => [0, 1, 3],
+        _ => [0, 1, 2],
     }
-    Some(out)
+}
+
+/// a 3 by 3 determinant along its first row, each product rounded, in float32
+fn det3(r: [[f32; 3]; 3]) -> f32 {
+    let [[a00, a01, a02], [a10, a11, a12], [a20, a21, a22]] = r;
+    a00 * (a11 * a22 - a12 * a21) - a01 * (a10 * a22 - a12 * a20) + a02 * (a10 * a21 - a11 * a20)
 }

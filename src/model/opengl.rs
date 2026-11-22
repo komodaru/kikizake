@@ -1647,8 +1647,13 @@ impl Ctx {
                         let len = (x * x + y * y + z * z).sqrt();
                         let mut m = IDENTITY;
                         if len > 0.0 {
-                            let (x, y, z) = (x / len, y / len, z / len);
-                            let (s, c) = (ang * (std::f32::consts::PI / 180.0)).sin_cos();
+                            // (MEASURED, golden opengl-32 / 64 tex-eye-more-rot, -rot-only: the axis
+                            // times 1 / len, the angle's sine and cosine in double of its float32
+                            // radians, rounded)
+                            let r = 1.0 / len;
+                            let (x, y, z) = (x * r, y * r, z * r);
+                            let (s, c) = f64::from(ang * (std::f32::consts::PI / 180.0)).sin_cos();
+                            let (s, c) = (tri::narrow(s), tri::narrow(c));
                             let k = 1.0 - c;
                             // (MEASURED, golden opengl-32 matrix-*: in floats, the diagonal as xx + (1 - xx) c)
                             let (xx, yy, zz, xy, yz, zx) = (x * x, y * y, z * z, x * y, y * z, z * x);
@@ -2990,7 +2995,7 @@ impl Ctx {
                 // points, other polygons or cut ones not measured)
                 // (GL_POLYGON_OFFSET_POINT on the corners alike, raster-open-54)
                 let offset_line = ((face == POLY_LINE && self.cap(POLYGON_OFFSET_LINE)) || (face == POLY_POINT && self.cap(POLYGON_OFFSET_POINT))) && self.cap(DEPTH_TEST) && self.pf.depth > 0;
-                if offset_line && (cut != at || (face == POLY_POINT && q.len() != 3)) {
+                if offset_line && cut != at {
                     return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                 }
                 self.line_z_offset = 0.0;
@@ -3034,9 +3039,12 @@ impl Ctx {
                     .collect();
                 if face == POLY_POINT {
                     hit(clause::GL_POINT);
-                    for ((w, c), e) in win.into_iter().zip(edges.iter().chain(std::iter::repeat(&true))) {
+                    // (MEASURED, golden opengl-32 / 64 raster-more-offset-point-quad: a corner
+                    // offset as the edge from it, raster-open-55's fan rule)
+                    for (k, ((w, c), e)) in win.into_iter().zip(edges.iter().chain(std::iter::repeat(&true))).enumerate() {
+                        let off = if offset_line { edge_offset(k) } else { 0.0 };
                         if *e {
-                            self.point([w[0], w[1], f64::from(tri::narrow(w[2]) + self.line_z_offset)], c)?;
+                            self.point([w[0], w[1], f64::from(tri::narrow(w[2]) + off)], c)?;
                         }
                     }
                     self.line_z_offset = 0.0;
