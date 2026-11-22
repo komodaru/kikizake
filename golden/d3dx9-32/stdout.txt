@@ -1,6 +1,6 @@
 kikizake d3dx9
 case cpu
-cpu AuthenticAMD feda3203 178bfbff 219c07a9
+cpu GenuineIntel fefa3203 1f8bfbff f1bf2fb9
 case fvf-0
 fvfsize 12
 fvfdecl 1 00000000 00000002
