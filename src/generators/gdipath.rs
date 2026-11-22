@@ -158,5 +158,30 @@ pub fn path() -> String {
     for (x, y, rad, a) in [(0, 0, 178, "49.25"), (16, 16, 62, "32.75"), (16, 16, 107, "41.25"), (16, 16, 108, "-144"), (16, 16, 112, "52.25"), (16, 16, 112, "127.75")] {
         writeln!(s, "case anglearc-turn-{rad}-{a}\ndib 0 32 32 8\nbeginpath 0\nanglearc 0 {x} {y} {rad} {a} 360\ngetpos 0\nendpath 0\ngetpath 0\nend");
     }
+    // (added after, their own stream) Ellipse's boxes past 65536 pixels, to the 28.4 limit and
+    // past it: the widths where 0.5522847498 and the irrational floor apart (82800, 160117, ..)
+    // and their neighbours, both directions; through the 1/16 mapping (GetPath shows the 28.4
+    // points, the logical coordinates 16 times the device's within 32 bits), then in pixels
+    // (GetPath rounds them), on to 2^31
+    let big: [i64; 18] = [65537, 82799, 82800, 82801, 131072, 160117, 165599, 237434, 392068, 1 << 20, 1 << 24, (1 << 27) - 2, 1 << 27, (1 << 27) + 2, (1 << 28) - 64, 171081, 430442, 612486];
+    let mut r = XorShift32::new(0x0e11_b16e);
+    for (i, &w) in big.iter().enumerate() {
+        let h = big[big.len() - 1 - i];
+        let (ox, oy) = (r.range(-3, 3), r.range(-3, 3));
+        let (l, t) = (ox - w / 2, oy - h / 2);
+        for dir in [1, 2] {
+            writeln!(s, "case ellipsebig-{i}-{dir}\ndib 0 8 8 8\nmapmode 0 8\nwinext 0 16 16\nvpext 0 1 1\narcdir 0 {dir}\nbeginpath 0\nellipse 0 {} {} {} {}\nendpath 0\ngetpath 0\nend", 16 * l, 16 * t, 16 * (l + w), 16 * (t + h));
+        }
+    }
+    // (the first widths where 0.5522847498's inset and the irrational's round to another
+    // pixel: 171081, 430442, 612486, square; then past the 28.4 limit)
+    let px: [(i64, i64); 9] = [(171081, 171081), (430442, 430442), (612486, 612486), (82800, (1 << 31) - 2), (1 << 27, 1 << 28), ((1 << 28) - 2, 1 << 27), (1 << 28, 82800), (1 << 30, 1 << 30), ((1 << 31) - 2, 65537)];
+    for (i, &(w, h)) in px.iter().enumerate() {
+        let (ox, oy) = (r.range(-3, 3), r.range(-3, 3));
+        let (l, t) = (ox - w / 2, oy - h / 2);
+        for dir in [1, 2] {
+            writeln!(s, "case ellipsebigpx-{i}-{dir}\ndib 0 8 8 8\narcdir 0 {dir}\nbeginpath 0\nellipse 0 {l} {t} {} {}\nendpath 0\ngetpath 0\nend", l + w, t + h);
+        }
+    }
     s
 }
