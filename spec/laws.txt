@@ -247,3 +247,4 @@ tests/laws_opengl.rs::nearest_texels_stay_in_the_level pbt GL.RASTER.TEXTURE.FIL
 tests/laws_opengl.rs::linear_texels_are_neighbours pbt GL.RASTER.TEXTURE.FILTER
 tests/laws_opengl.rs::lambda_follows_log2_of_rho pbt GL.RASTER.TEXTURE.FILTER
 tests/laws_opengl.rs::replace_takes_the_texel_and_white_modulates_nothing pbt GL.RASTER.TEXTURE
+tests/laws_opengl.rs::list_names_are_fresh_runs pbt GL.LIST

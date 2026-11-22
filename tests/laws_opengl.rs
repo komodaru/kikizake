@@ -875,4 +875,24 @@ proptest! {
         let m = env(Env::Modulate, Base::Rgba, c, [1.0; 4], [0.0; 4], scale);
         prop_assert_eq!(m, c);
     }
+
+    /// GL 1.1 5.4: glGenLists gives n names in one run none of which names a list, the lowest
+    /// such run from 1, each then a list (GL.LIST)
+    #[test]
+    fn list_names_are_fresh_runs(held in proptest::collection::btree_set(1u32..40, 0..20), n in 1u32..6) {
+        use kikizake::model::opengl::list::Lists;
+        let mut l = Lists::default();
+        for k in &held {
+            l.lists.insert(*k, Vec::new());
+        }
+        let first = l.gen_names(n);
+        prop_assert!(first >= 1);
+        for v in first..first + n {
+            prop_assert!(!held.contains(&v));
+            prop_assert!(l.lists.contains_key(&v));
+        }
+        for start in 1..first {
+            prop_assert!((start..start + n).any(|v| held.contains(&v)));
+        }
+    }
 }

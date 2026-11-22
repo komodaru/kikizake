@@ -10,7 +10,6 @@ const MEASURED: [&str; 17] = ["glColor4ub", "glColor3ub", "glColor3f", "glColor4
 /// the open clause of a function the model does not follow, by its name
 pub fn of(name: &str) -> Option<OpenId> {
     Some(match name {
-        "glNewList" | "glEndList" | "glCallList" | "glCallLists" | "glGenLists" | "glDeleteLists" | "glIsList" | "glListBase" => open::GL_LIST,
         "glVertexPointer" | "glNormalPointer" | "glColorPointer" | "glIndexPointer" | "glTexCoordPointer" | "glEdgeFlagPointer" | "glEnableClientState" | "glDisableClientState" | "glArrayElement" | "glDrawArrays" | "glDrawElements" | "glInterleavedArrays" | "glGetPointerv" | "glPushClientAttrib" | "glPopClientAttrib" | "glEdgeFlag" | "glEdgeFlagv" => open::GL_ARRAY,
         "glMap1f" | "glMap1d" | "glMap2f" | "glMap2d" | "glMapGrid1f" | "glMapGrid2f" | "glMapGrid1d" | "glMapGrid2d" | "glEvalCoord1f" | "glEvalCoord2f" | "glEvalCoord1d" | "glEvalCoord2d" | "glEvalCoord1fv" | "glEvalCoord2fv" | "glEvalCoord1dv" | "glEvalCoord2dv" | "glEvalPoint1" | "glEvalPoint2" | "glEvalMesh1" | "glEvalMesh2" | "glGetMapfv" | "glGetMapdv" | "glGetMapiv" => open::GL_EVAL,
         "glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer" | "glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" => open::GL_SELECT,

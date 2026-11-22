@@ -5,9 +5,9 @@
 use std::collections::BTreeMap;
 
 use super::e::{INVALID_ENUM, INVALID_OPERATION, INVALID_VALUE};
-use super::{Fail, Gl, Res};
+use super::{tri, Fail, Gl, Res};
 use crate::case::{num, Op};
-use crate::spec::{clause, hit, open};
+use crate::spec::{clause, hit};
 
 const COMPILE: u32 = 0x1300;
 const COMPILE_AND_EXECUTE: u32 = 0x1301;
@@ -19,13 +19,22 @@ const NESTING: u32 = 64;
 pub struct Compiling {
     pub name: u32,
     pub mode: u32,
-    pub lines: Vec<Vec<String>>,
+    pub lines: Vec<Line>,
+}
+
+/// A line a list keeps: the executor's tokens and, for an image, the unpacking it was compiled
+/// under (GL 1.1 5.4: client data are read at compile time; MEASURED, golden opengl-32 / 64
+/// gap-list-2, GL_UNPACK_ROW_LENGTH changed after compiling leaves the image as it was)
+#[derive(Clone, Debug)]
+pub struct Line {
+    pub tok: Vec<String>,
+    pub unpack: Option<[i64; 6]>,
 }
 
 /// The display lists of a context.
 #[derive(Clone, Debug, Default)]
 pub struct Lists {
-    pub lists: BTreeMap<u32, Vec<Vec<String>>>,
+    pub lists: BTreeMap<u32, Vec<Line>>,
     pub compiling: Option<Compiling>,
     pub base: u32,
     /// how deep calls run lists now (0: none)
@@ -34,7 +43,7 @@ pub struct Lists {
 
 impl Lists {
     /// glGenLists: n names in one run, the lowest free run from 1, each an empty list
-    fn gen_names(&mut self, n: u32) -> u32 {
+    pub fn gen_names(&mut self, n: u32) -> u32 {
         let mut first = 1u32;
         let mut k = 1u32;
         while k.wrapping_sub(first) < n {
@@ -90,15 +99,23 @@ fn call_names(t: &[String]) -> Res<Result<Vec<u32>, u32>> {
     let v = ints(t.get(..5).ok_or(Fail::Bad)?, 3)?;
     let (n, ty) = (*v.first().ok_or(Fail::Bad)?, low32(*v.get(1).ok_or(Fail::Bad)?));
     let el = t.get(5).map(String::as_str).ok_or(Fail::Bad)?;
-    let size: usize = match el {
-        "b" | "ub" => 1,
-        "s" | "us" => 2,
-        "i" | "ui" => 4,
-        _ => return Err(Fail::Unmodeled(open::GL_LIST)),
-    };
     let mut bytes = Vec::new();
-    for x in ints(t, 6)? {
-        bytes.extend(x.to_le_bytes().iter().take(size));
+    if el == "f" {
+        for x in t.iter().skip(6) {
+            let v: f32 = x.parse().ok().ok_or(Fail::Bad)?;
+            bytes.extend(v.to_le_bytes());
+        }
+    } else {
+        let size: usize = match el {
+            "b" | "ub" => 1,
+            "s" | "us" => 2,
+            "i" | "ui" => 4,
+            // (the executor's element types only)
+            _ => return Err(Fail::Bad),
+        };
+        for x in ints(t, 6)? {
+            bytes.extend(x.to_le_bytes().iter().take(size));
+        }
     }
     let Ok(n) = usize::try_from(n) else { return Ok(Err(INVALID_VALUE)) };
     let at = |k: usize, w: usize| -> Vec<u8> { (0..w).map(|j| k.checked_mul(w).and_then(|o| o.checked_add(j)).and_then(|i| bytes.get(i)).copied().unwrap_or(0)).collect() };
@@ -112,8 +129,13 @@ fn call_names(t: &[String]) -> Res<Result<Vec<u32>, u32>> {
             0x1403 => i64::from(u16::from_le_bytes(b(2).try_into().unwrap_or([0; 2]))),
             0x1404 => i64::from(i32::from_le_bytes(b(4).try_into().unwrap_or([0; 4]))),
             0x1405 => i64::from(u32::from_le_bytes(b(4).try_into().unwrap_or([0; 4]))),
-            0x1407..=0x1409 => return Err(Fail::Unmodeled(open::GL_LIST)),
-            0x1406 => return Err(Fail::Unmodeled(open::GL_LIST)),
+            // (GL_2_BYTES, 3, 4: the bytes high first, MEASURED, golden opengl-32 / 64 gap-list-1)
+            0x1407..=0x1409 => {
+                let w = usize::try_from(ty.saturating_sub(0x1405)).unwrap_or(0);
+                b(w).iter().fold(0i64, |v, x| v.saturating_mul(256).saturating_add(i64::from(*x)))
+            }
+            // (GL_FLOAT: the float's value, gap-list-1)
+            0x1406 => tri::trunc(f32::from_le_bytes(b(4).try_into().unwrap_or([0; 4]))),
             _ => return Ok(Err(INVALID_ENUM)),
         };
         names.push(low32(value));
@@ -133,7 +155,8 @@ impl Gl {
             Kind::Compiled => {
                 let Some(c) = ctx.lists.compiling.as_mut().filter(|_| !replaying) else { return Ok(false) };
                 hit(clause::GL_LIST);
-                c.lines.push(t.to_vec());
+                let image = matches!(t.first().map(String::as_str), Some("gldraw" | "gltex" | "gltexsub"));
+                c.lines.push(Line { tok: t.to_vec(), unpack: image.then_some(ctx.unpack) });
                 Ok(c.mode == COMPILE)
             }
             Kind::Lists => self.list_command(t, out, replaying),
@@ -221,7 +244,7 @@ impl Gl {
             }
             "glListBase" => {
                 if let Some(c) = ctx.lists.compiling.as_mut().filter(|_| !replaying) {
-                    c.lines.push(t.to_vec());
+                    c.lines.push(Line { tok: t.to_vec(), unpack: None });
                     if c.mode == COMPILE {
                         return Ok(true);
                     }
@@ -235,7 +258,7 @@ impl Gl {
             }
             "glCallList" | "glCallLists" => {
                 if let Some(c) = ctx.lists.compiling.as_mut().filter(|_| !replaying) {
-                    c.lines.push(t.to_vec());
+                    c.lines.push(Line { tok: t.to_vec(), unpack: None });
                     if c.mode == COMPILE {
                         return Ok(true);
                     }
@@ -263,15 +286,26 @@ impl Gl {
     /// a list's lines run again, up to GL_MAX_LIST_NESTING deep; an unknown list nothing
     fn call_list(&mut self, name: u32, out: &mut Vec<String>) -> Res<()> {
         let Some(ctx) = self.ctx.as_mut() else { return Ok(()) };
+        // (past GL_MAX_LIST_NESTING the call is not made, no error: MEASURED, golden opengl-32 /
+        // 64 gap-list-1, a list calling itself runs 64 deep)
         if ctx.lists.depth >= NESTING {
-            return Err(Fail::Unmodeled(open::GL_LIST));
+            return Ok(());
         }
         let Some(lines) = ctx.lists.lists.get(&name).cloned() else { return Ok(()) };
         ctx.lists.depth = ctx.lists.depth.saturating_add(1);
         let mut r = Ok(());
-        for tok in lines {
-            let op = Op { line: 0, tok };
-            if let Err(e) = self.op(&op, out) {
+        for line in lines {
+            let op = Op { line: 0, tok: line.tok };
+            // (an image unpacked as it was at compile time)
+            let kept = match (line.unpack, self.ctx.as_mut()) {
+                (Some(u), Some(ctx)) => Some(std::mem::replace(&mut ctx.unpack, u)),
+                _ => None,
+            };
+            let done = self.op(&op, out);
+            if let (Some(u), Some(ctx)) = (kept, self.ctx.as_mut()) {
+                ctx.unpack = u;
+            }
+            if let Err(e) = done {
                 r = Err(e);
                 break;
             }
