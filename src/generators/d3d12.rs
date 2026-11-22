@@ -870,6 +870,32 @@ pub fn d3d12() -> String {
         }
         writeln!(s, "case {name}\ndevice12\n{}\nfeature12 0\nend", rootsig_lines(&l));
     }
+    // (added after) 2D footprints of widths and heights near 2^32 (GetCopyableFootprints does not
+    // check a 2D texture's size): whether a width rounded up to whole blocks, a row size and a row
+    // pitch past 32 bits wrap, for blocks, plain elements, pairs, video planes and depth planes
+    for (name, first_count, d) in [
+        ("bc1-ffffffff", (0u32, 1u32), Desc::tex(3, 0xffff_ffff, 4, 1, 1, 71)),
+        ("bc1-fffffffd", (0, 1), Desc::tex(3, 0xffff_fffd, 4, 1, 1, 71)),
+        ("bc1-fffffffc", (0, 1), Desc::tex(3, 0xffff_fffc, 4, 1, 1, 71)),
+        ("bc1-80000000-mips2", (0, 2), Desc::tex(3, 0x8000_0000, 4, 1, 2, 71)),
+        ("bc7-fffffff1", (0, 1), Desc::tex(3, 0xffff_fff1, 8, 1, 1, 98)),
+        ("bc1-h-fffffffd", (0, 1), Desc::tex(3, 4, 0xffff_fffd, 1, 1, 71)),
+        ("r8-ffffffff", (0, 1), Desc::tex(3, 0xffff_ffff, 2, 1, 1, 61)),
+        ("r8-ffffff01-mips2", (0, 2), Desc::tex(3, 0xffff_ff01, 2, 1, 2, 61)),
+        ("rgba32f-10000000", (0, 1), Desc::tex(3, 0x1000_0000, 2, 1, 1, 2)),
+        ("rgba8-40000000-mips3", (0, 3), Desc::tex(3, 0x4000_0000, 2, 1, 3, 28)),
+        ("rgba8-40000000-a2", (0, 2), Desc::tex(3, 0x4000_0000, 2, 2, 1, 28)),
+        ("rgba8-ffffffff-mips0", (0, 3), Desc::tex(3, 0xffff_ffff, 2, 1, 0, 28)),
+        ("rgbg-fffffffe", (0, 1), Desc::tex(3, 0xffff_fffe, 2, 1, 1, 68)),
+        ("yuy2-fffffffe", (0, 1), Desc::tex(3, 0xffff_fffe, 2, 1, 1, 107)),
+        ("nv12-fffffffe", (0, 2), Desc::tex(3, 0xffff_fffe, 2, 1, 1, 103)),
+        ("p010-80000000", (0, 2), Desc::tex(3, 0x8000_0000, 2, 1, 1, 104)),
+        ("d24s8-ffffffff", (0, 2), Desc::tex(3, 0xffff_ffff, 2, 1, 1, 45)),
+        ("d32s8-40000000", (0, 2), Desc::tex(3, 0x4000_0000, 2, 1, 1, 20)),
+    ] {
+        let (first, count) = first_count;
+        writeln!(s, "case fp-wide-{name}\ndevice12\nfootprint12 {first} {count} 0 {}\nend", desc_str(&d));
+    }
 
     s
 }
