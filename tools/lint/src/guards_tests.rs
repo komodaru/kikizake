@@ -103,6 +103,25 @@ fn unconfined_uses_are_found() {
     let check = "pub fn check_hr(f: u32) -> u32 { 0x8876_086a }\nfn draw_op(&mut self) { out.push(format!(\"{:08x}\", 0x0876_086f)); }\n";
     let r = rust("src/model/d3d9draw.rs", check);
     assert!(r.len() == 1 && r[0].contains("in draw_op"), "{r:?}");
+    // (the shading arithmetic only in grad9, plane10)
+    let r = rust("src/model/d3d9draw.rs", "fn grad9(x: X) -> f32 { d1 * (y[2] - y[0]) }\nfn draw(&self) { let g = d1 * (y[2] - y[0]); }\n");
+    assert!(r.len() == 1 && r[0].contains("in draw"), "{r:?}");
+    // (a point's pixel only in point_pixel, a pixel's packing only in pack)
+    let r = rust("src/model/d3d9draw.rs", "fn point_pixel(x: f32) -> i64 { (x - 0.5).ceil() as i64 }\nfn points(&self) { let px = (x - 0.5).ceil() as i64; }\n");
+    assert!(r.len() == 1 && r[0].contains("in points"), "{r:?}");
+    assert!(!rust("src/model/d3d9draw.rs", "fn encode_x(&self) { ch.iter().filter(|c| c.c != b'x' || x_alpha); }").is_empty());
+    // (the perspective weights only in rhw_attrs, rhw_value; the divide by w only in transform_xyz,
+    // xyz_vertex)
+    let r = rust("src/model/d3d9draw.rs", "fn rhw_attrs(at: A) -> A { at[k] * at[11] }\nfn triangle(&mut self) { at[k] *= at[11]; }\n");
+    assert!(r.len() == 1 && r[0].contains("in triangle"), "{r:?}");
+    assert!(!rust("src/model/d3d9draw.rs", "fn triangle(&mut self) { let rhw = 1.0 / q[3]; }").is_empty());
+    // (the footprint's root only in aniso_footprint, the sphere map only in tex_gen)
+    let r = rust("src/model/d3d9draw.rs", "fn aniso_footprint(a: A) -> f32 { m2.sqrt() }\nfn sample(&self) { let m = m2.sqrt(); }\n");
+    assert!(r.len() == 1 && r[0].contains("in sample"), "{r:?}");
+    assert!(!rust("src/model/d3d9draw.rs", "fn vertices(&self) { let m = (r[2] - 1.0) * (r[2] - 1.0); }").is_empty());
+    // (the FVF and the declaration only through set_fvf, set_decl)
+    assert!(!rust("src/model/d3d9draw.rs", "fn op(&mut self) { self.draw.fvf = 0; }").is_empty());
+    assert!(rust("src/model/d3d9draw.rs", "fn op(&mut self) { (self.draw.fvf, self.draw.decl, self.draw.decl_from) = set_decl(e); if self.draw.fvf == 0 {} }").is_empty());
     // (the draw's checks, filters, palette texels, stencil states, DXT, a level's bytes, the stage
     // plan and the bump arithmetic each in their pure function, which the Lean mirrors hold)
     let inlined = [
@@ -113,6 +132,12 @@ fn unconfined_uses_are_found() {
         ("fn fill_bytes(w: usize) -> usize { w.div_ceil(4) * b }", "create_level"),
         ("fn stages(&self) { let r = self.tss(st, 2) & 0xf == 2; }", "stage_plan"),
         ("fn stages(&self) { t[k] = ((c * l * 255.0).round_ties_even() / 255.0) as f64; }", "bump_scale"),
+        ("fn blend(&self) { let s = s.map(|x| x.clamp(0.0, 1.0) as f32); let f = s[3].min(1.0 - d[3]); }", "blend_float"),
+        ("fn sample(&self) { let near64 = |x: f64| ((x * 64.0).round() / 64.0).floor() as i64; }", "point_at"),
+        ("fn bilinear_sum(&self) { let fx = ((x - x0) * q as f64).floor() as i64; let w = (q - fx) * (q - fy); }", "bilinear_at"),
+        ("fn triangle(&mut self) { if !slots.contains(&k) { slots.push(k); } }", "tci_slots"),
+        ("fn triangle(&mut self) { let r = if set < ntex { t } else { [0.0, 0.0, 1.0, 0.0] }; }", "coord_row"),
+        ("fn ttf(&self) -> [f64; 3] { if ttf & 0x100 != 0 { [t[0], t[1], t[count - 1]] } else { t } }", "tex_transform"),
     ];
     for (code, only) in inlined {
         let r = rust("src/model/d3d9draw.rs", code);
@@ -240,6 +265,8 @@ fn optimize_rgb_testing_the_dot_below_zero_is_found() {
     assert!(r[0].starts_with("src/model/dxtenc.rs:2: forbidden in optimize_rgb: neither build"), "{r:?}");
     assert_eq!(rust("src/model/dxtenc.rs", "fn optimize_rgb() { if dot < F::of(0) { } }").len(), 1);
     assert!(rust("src/model/dxtenc.rs", "fn optimize_rgb() { if !(fsteps > dot) { n - 1 } else { t } }").is_empty());
+    assert_eq!(rust("src/model/dxtenc.rs", "fn optimize_rgb() { let i = (dot + h).store().trunc_i(); }").len(), 1);
+    assert!(rust("src/model/dxtenc.rs", "fn optimize_rgb() { let i = step_index(dot, fsteps, n); }").is_empty());
     // (the alpha fit and the indices of encode_bc1 do test it)
     assert!(rust("src/model/dxtenc.rs", "fn optimize_alpha() { let i = if dot <= F::of(0.0) { 0 } else { t }; }").is_empty());
 }
@@ -268,6 +295,12 @@ fn conversions_inlined_past_their_proven_functions_are_found() {
     assert_eq!(rust("src/model/bptc.rs", "fn bc6h() { let m = BC6H_MODES.iter().position(|x| x.0 == m); }").len(), 1);
     assert_eq!(rust("src/model/bptc.rs", "fn bc7() { let m = (0..8).find(|_| s.take(1) == 1); }").len(), 1);
     assert!(rust("src/model/bptc.rs", "fn bc7() { let m = bc7_mode(b[0]); }").is_empty());
+    assert_eq!(rust("src/model/d3dx9.rs", "fn yuy2_pair() { let y = 16.0 + q((65.481 * r + 128.553 * g) / 255.0); }").len(), 1);
+    assert!(rust("src/model/d3dx9.rs", "fn yuy2_pair() { yuy2_bytes(c0, c1) }").is_empty());
+    assert_eq!(rust("src/model/d3dx9.rs", "fn yuv_d3dx() {\n    let s = t.wrapping_sub(a);\n    let c = y * 0.00456621;\n}\n").len(), 2);
+    assert!(rust("src/model/d3dx9.rs", "fn yuv_d3dx() { yuv_rgb(y, u, v) }").is_empty());
+    assert_eq!(rust("src/model/d3dx9.rs", "fn dxt_d3dx() { let c = a + (b - a) * (1.0 / 3.0); }").len(), 1);
+    assert!(rust("src/model/d3dx9.rs", "fn dxt_d3dx() { let c = dxt_colour(c0, c1, idx); }").is_empty());
 }
 
 #[test]
@@ -285,6 +318,14 @@ fn gdiplus_gamma64_stays_in_the_mirrored_function() {
     assert_eq!(r.iter().filter(|b| b.contains("forbidden in mix: x86-64's gamma corrected word")).count(), 4, "{r:?}");
     assert_eq!(r.iter().filter(|b| b.contains("forbidden in new: a gamma corrected source's rest")).count(), 1, "{r:?}");
     assert!(rust("src/model/gdiplus.rs", "fn mix() { let w = mix64(rounding(), s, d, self.rest); }\nfn new() { let rest = gamma_rest(rd, sa); }\n").is_empty());
+}
+
+#[test]
+fn gdiplus_dither_place_stays_in_the_mirrored_functions() {
+    let inlined = "fn fill_area() {\n    let odd_end = (a1 - a0) % 2 == 1;\n    let c = (at + left - ox).rem_euclid(4) as u32;\n}\n";
+    let r = rust("src/model/gdiplus.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in fill_area: a gamma corrected texture's dither place")).count(), 2, "{r:?}");
+    assert!(rust("src/model/gdiplus.rs", "fn fill_area() { let c = dither_column(x86, ox, &cells, x0, x1, x); let r = dither_row(oy, y); }\n").is_empty());
 }
 
 #[test]
@@ -309,4 +350,149 @@ fn filter_arithmetic_stays_in_the_mirrored_functions() {
     let r = rust("src/model/d3draster.rs", inlined);
     assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in sample")).count(), 3, "{r:?}");
     assert!(rust("src/model/d3draster.rs", "fn split() { let s = c * n as f32 - 0.5; }\nfn level() { let w = (lod.fract() * 256.0).round(); }\n").is_empty());
+}
+
+#[test]
+fn layout_stays_in_the_mirrored_function() {
+    let inlined = "fn draw() {\n    let v = match name { \"bad\" => return Some(LayoutVerdict::NoProgram), _ => 2 };\n    if usable.len() >= needs {}\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in draw")).count(), 2, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", "fn layout_verdict() { match name { \"bad\" => return Some(LayoutVerdict::NoProgram), _ => 2 }; if usable.len() >= needs {} }\n").is_empty());
+}
+
+#[test]
+fn lines_stay_in_the_mirrored_functions() {
+    let inlined = "fn lines() {\n    let k = QUAD_HALF / len;\n    let a = s * f32::from_bits(0x3EE6_6666);\n    let k = 2.0 / len;\n    let y = (pb.y - pa.y).abs() > dx;\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in lines")).count(), 4, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", "fn quad_corners() { QUAD_HALF / len }\nfn alpha_coverage() { f32::from_bits(0x3EE6_6666) }\nfn alpha_corners() { 2.0 / len }\nfn major_of() { (b.y - a.y).abs() > dx }\n").is_empty());
+}
+
+#[test]
+fn clipping_stays_in_the_mirrored_functions() {
+    let inlined = "fn triangle() {\n    let t = da / (da - db);\n    if zs.iter().all(|z| *z < 0.0) || far {}\n    if q.iter().any(|x| !x.is_finite()) {}\n    q.windows(2).skip(1).all(f);\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in triangle")).count(), 4, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", "fn clip_xy() { let t = da / (da - db); }\nfn depth_away() { zs.iter().all(|z| *z < 0.0) || far }\nfn not_finite() { q.iter().any(|x| !x.is_finite()) }\nfn clipped_away() { q.windows(2).skip(1).all(f) }\n").is_empty());
+}
+
+#[test]
+fn interpolation_stays_in_the_mirrored_functions() {
+    let inlined = "fn triangle() {\n    let z = p.plane(p.zs, cx, cy).max(lo).min(hi);\n    let d = minz + q[2] * (1.0 / q[3]) * (maxz - minz);\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in triangle")).count(), 2, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", "fn clamp_range() { z.max(lo).min(hi) }\nfn vertex_depth() { minz + z * (1.0 / w) * (maxz - minz) }\n").is_empty());
+}
+
+#[test]
+fn mirror_samples_from_the_32_bit_generator_are_found() {
+    let old = "fn values(each: &mut dyn FnMut(&[i64])) {\n    let mut rng = crate::rng::XorShift32::new(1);\n    each(&[rng.range(0, i64::MAX)]);\n}\n";
+    let r = rust("src/lean/gdiplus.rs", old);
+    assert!(r.iter().any(|m| m.starts_with("src/lean/gdiplus.rs:2: lean-sampler")), "{r:?}");
+    assert!(rust("src/lean/gdiplus.rs", "fn f() { let mut rng = crate::rng::Sample64::new(1); }").is_empty());
+    // (the generators keep XorShift32: the goldens were made with its sequence)
+    assert!(rust("src/generators/gdi.rs", old).is_empty());
+}
+
+#[test]
+fn zips_in_tests_are_found() {
+    // (the review's test: with every place line gone, the zip compared nothing and passed)
+    let old = "fn placements() {\n    let places: Vec<&String> = out.iter().filter(|l| l.starts_with(\"place \")).collect();\n    for (em, l) in (1..=200u16).zip(places) {\n        assert_eq!(l, &want(em));\n    }\n}\n";
+    let r = test_rust("tests/laws_dwrite_face.rs", old);
+    assert_eq!(r.len(), 1, "{r:?}");
+    assert!(r[0].starts_with("tests/laws_dwrite_face.rs:3: zip-unchecked"), "{r:?}");
+    assert!(!test_rust("tests/x.rs", "fn f() { assert!(a.iter().zip(&b).all(|(x, y)| x == y)); }").is_empty());
+    assert!(test_rust("tests/x.rs", "fn f() { for (em, l) in zip_eq(1..=200u16, places) {} }\n// a.zip(b) in a comment\n").is_empty());
+}
+
+#[test]
+fn recording_names_read_apart_are_found() {
+    let old = "pub fn check_dir() {\n    let suite = n.rsplit_once('-').map_or(n.as_str(), |(s, _)| s);\n}\n";
+    assert!(rust("src/calls.rs", old).iter().any(|m| m.contains("forbidden in check_dir")), "{:?}", rust("src/calls.rs", old));
+    assert!(rust("src/calls.rs", "impl RecName {\n    pub fn parse(s: &str) { let (suite, arch) = s.rsplit_once('-'); }\n}\n").is_empty());
+}
+
+#[test]
+fn view_levels_read_apart_are_found() {
+    // (the review's Load: level 0 of the resource, whatever the view's most detailed level)
+    let old = "fn shade(m: &D3dres) -> Res<[u32; 4]> {\n    let (w, h, _) = r.size(0);\n    texel(r, 0, v.format(), px as u32, py as u32)?\n}\n";
+    let r = rust("src/model/d3draster.rs", old);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in shade")).count(), 2, "{r:?}");
+    assert!(!rust("src/model/d3draster.rs", "fn shade() { let b = v.words.get(2); }\n").is_empty());
+    assert!(rust("src/model/d3draster.rs", "fn shade() {\n    let reach = view_reach(dev, v, r);\n    let (w, h, _) = r.size(reach.mip);\n    texel(r, sub, v.format(), x, y)?\n}\n").is_empty());
+}
+
+#[test]
+fn attribute_groups_with_a_rest_are_found() {
+    let old = "fn pop_attrib(&mut self, mask: u32, s: Ctx) {\n    let Ctx { color, normal, .. } = s;\n}\n";
+    assert!(rust("src/model/opengl.rs", old).iter().any(|b| b.contains("forbidden in pop_attrib")));
+    assert!(rust("src/model/opengl.rs", "fn pop_attrib(&mut self, mask: u32, s: Ctx) {\n    let Ctx { color, normal } = s;\n}\n").is_empty());
+    assert!(rust("src/model/opengl_list.rs", "pub fn pop(&mut self, saved: &Lists) { let Lists { base, .. } = saved; }").iter().any(|b| b.contains("forbidden in pop")));
+    // (the readbacks of the review: zoom 1 and raster coordinates 0 whatever was set)
+    let get = "fn get(&self, p: u32) -> Vec<V> {\n    match p {\n        0xd16 | 0xd17 => vec![F(1.0)],\n        0xb06 => vec![F(0.0), F(0.0), F(0.0), F(1.0)],\n    }\n}\n";
+    assert_eq!(rust("src/model/opengl.rs", get).iter().filter(|b| b.contains("forbidden: glGet")).count(), 2);
+    let color = "fn get(&self, p: u32) -> Vec<V> {\n    match p {\n        0xb04 => c4([1.0; 4]),\n        0xb05 => vec![F(1.0)],\n    }\n}\n";
+    assert_eq!(rust("src/model/opengl.rs", color).iter().filter(|b| b.contains("forbidden: glGet")).count(), 2);
+}
+
+#[test]
+fn options_read_token_by_token_are_found() {
+    let old = "fn op() {\n    for o in &t[first..] {\n        match option(cont, o)? {\n        }\n    }\n    let e = Encoded::Decodes(\"wmp\", img);\n}\n";
+    assert_eq!(rust("src/model/wicimage.rs", old).iter().filter(|b| b.contains("Bag::write")).count(), 3);
+    assert!(rust("src/model/wicimage.rs", "fn op() {\n    let bag = Bag::write(cont, &t[first..])?;\n    for (o, _) in bag.last() {}\n}\n").is_empty());
+}
+
+#[test]
+fn list_cuts_and_proxies_compiled_are_found() {
+    let cut = "fn run() {\n    for k in 0..u32::try_from(range.min(1 << 20)).unwrap_or(0) {}\n}\n";
+    assert!(rust("src/model/opengl_list.rs", cut).iter().any(|b| b.contains("glDeleteLists")));
+    let old = "fn kind(t: &[String]) -> Kind {\n    match op {\n        \"glmat\" | \"glfogv\" | \"gldraw\" | \"gltex\" => Kind::Compiled,\n        _ => Kind::Immediate,\n    }\n}\n";
+    assert!(rust("src/model/opengl_list.rs", old).iter().any(|b| b.contains("proxy")));
+    let new = "fn kind(t: &[String]) -> Kind {\n    match op {\n        \"gltex\" if proxy(t) => Kind::Immediate,\n        \"glmat\" | \"glfogv\" | \"gldraw\" | \"gltex\" | \"gltexsub\" => Kind::Compiled,\n        _ => Kind::Immediate,\n    }\n}\n";
+    assert!(rust("src/model/opengl_list.rs", new).is_empty(), "{:?}", rust("src/model/opengl_list.rs", new));
+    assert!(rust("src/model/opengl_list.rs", "fn run() { ctx.lists.lists.retain(|&k, _| u64::from(k.wrapping_sub(first)) >= range); }\n").is_empty());
+}
+
+#[test]
+fn float_shifts_past_31_are_found() {
+    assert!(rust("src/model/jxr.rs", "fn float2pixel() {\n    m >>= 1 - e1;\n}\n").iter().any(|b| b.contains("wrapping_shr")));
+    assert!(rust("src/model/jxr.rs", "fn float2pixel() {\n    m = m.wrapping_shr(u32::try_from(1 - e1).unwrap_or(u32::MAX));\n}\n").is_empty());
+}
+
+#[test]
+fn nodev_gates_apart_are_found() {
+    let c = "static void op_a(void) {\n    if (!on12) { out(\"nodev\\n\"); return; }\n}\nstatic void op_more(void) {\n    keep();\n}\nstatic const struct kz_op ops[] = {\n    { \"a12\", op_a },\n    { \"more12\", op_more },\n    { 0 },\n};\n";
+    let old = "fn op() {\n    match t0 {\n        \"a12\" | \"more12\" if !self.dev => {\n        }\n    }\n}\n";
+    let b = nodev_gates("runner/x.c", c, "ops", "src/model/x.rs", old, "!self.dev");
+    assert_eq!(b.len(), 1, "{b:?}");
+    assert!(b[0].contains("more12"));
+    let new = old.replace(" | \"more12\"", "");
+    assert!(nodev_gates("runner/x.c", c, "ops", "src/model/x.rs", &new, "!self.dev").is_empty());
+    let less = old.replace("\"a12\" | ", "");
+    assert_eq!(nodev_gates("runner/x.c", c, "ops", "src/model/x.rs", &less, "!self.dev").len(), 2);
+}
+
+#[test]
+fn view_slots_and_removed_views_keep_the_executors_order() {
+    let old = "fn view() {\n    if kind == 3 && !dev.d3d11() {\n        out.push(\"uav none\".into());\n        return Ok(());\n    }\n    if !check {\n        self.views.empty(v);\n    }\n}\nfn op() {\n    match name {\n        \"read\" => {\n            return Ok(true);\n        }\n        \"tex\" | \"buf\" | \"srv\" | \"rtv\" if dev.d3d11() => {}\n    }\n}\n";
+    let r = rust("src/model/d3dres.rs", old);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: the executor empties the view slot")).count(), 1, "{r:?}");
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: on a removed device a view of an empty slot")).count(), 1, "{r:?}");
+    let new = "fn view() {\n    if !check {\n        self.views.empty(v);\n    }\n    if kind == 3 && !dev.d3d11() {\n        out.push(\"uav none\".into());\n        return Ok(());\n    }\n}\nfn op() {\n    match name {\n        \"read\" => {\n            return Ok(true);\n        }\n        \"srv\" | \"rtv\" if self.res.at(slot(t, 2)?).is_none() => {\n            return Ok(true);\n        }\n        \"tex\" | \"buf\" if dev.d3d11() => {}\n        \"srv\" | \"rtv\" if dev.d3d11() => {}\n    }\n}\n";
+    assert!(rust("src/model/d3dres.rs", new).is_empty(), "{:?}", rust("src/model/d3dres.rs", new));
+}
+
+#[test]
+fn current_sources_set_apart_are_found() {
+    // (a source set without set_cur keeps the decoder's frame it replaced as its own)
+    let old = "fn flipper(&mut self) {\n    self.cur = Some(flip(c, o));\n}\n";
+    assert!(rust("src/model/wicimage.rs", old).iter().any(|b| b.contains("confined")), "{:?}", rust("src/model/wicimage.rs", old));
+    assert!(rust("src/model/wicimage.rs", "fn flipper(&mut self) {\n    self.set_cur(flip(c, o));\n}\n").is_empty());
+}
+
+#[test]
+fn wmp_frames_by_their_options_are_found() {
+    let old = "fn op() {\n    match cont {\n        \"wmp\" if self.from == Some(\"wmp\") && bag.last().next().is_none() && nf == c.fmt => {}\n    }\n    let o = if rcw && i.fmt == \"gray8\" { a } else { b };\n}\n";
+    assert_eq!(rust("src/model/wicimage.rs", old).iter().filter(|b| b.contains("turned()")).count(), 2);
+    assert!(rust("src/model/wicimage.rs", "fn op() {\n    match cont {\n        \"wmp\" if self.from == Some(\"wmp\") && nf == c.fmt => {}\n    }\n}\n").is_empty());
 }

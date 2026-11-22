@@ -1,5 +1,7 @@
 //! Laws of the OpenGL model: what the GL 1.1 specification states as properties, whatever
 //! Windows' measured details turn out to be.
+mod pairs;
+use pairs::zip_eq;
 use kikizake::compare::line_matches;
 use kikizake::model::opengl::e::*;
 use kikizake::model::opengl::tri::{self, Sub, Vertex};
@@ -639,7 +641,7 @@ proptest! {
         prop_assert_eq!(plain.len(), moved.len());
         // (the plane's slopes, as depths has them, bounded by the moves seen)
         let scale = f64::from(1u32 << 31);
-        for (p, q) in plain.iter().zip(&moved) {
+        for (p, q) in zip_eq(plain.iter(), &moved) {
             prop_assert_eq!((p.0, p.1), (q.0, q.1));
             let shift = f64::from(q.2 .0.wrapping_sub(p.2 .0));
             let first = f64::from(moved[0].2 .0.wrapping_sub(plain[0].2 .0));
@@ -1059,12 +1061,12 @@ fn color_plane_holds(v: [(i16, i16); 3], c: [[u8; 4]; 3]) -> Result<(), TestCase
     // 1/256 step outside the triangle, each corner's weight at least -1 / its height, so a color
     // at most its spread over the least height past the corners')
     let slack = heights.iter().map(|h| 1.0 / h).fold(0.0, f64::max);
-    let near = |a: [f64; 4], b: [f64; 4]| a.iter().zip(b).all(|(x, y)| (x - y).abs() < 1e-6);
+    let near = |a: [f64; 4], b: [f64; 4]| zip_eq(a.iter(), b).all(|(x, y)| (x - y).abs() < 1e-6);
     for (x, y) in tri::pixels(&v, 16, 16) {
         let (cx, cy) = ((x * 256 + 128) as f64, (y * 256 + 128) as f64);
         let l1 = ((cx - p0.0) * (p2.1 - p0.1) - (p2.0 - p0.0) * (cy - p0.1)) / area;
         let l2 = ((p1.0 - p0.0) * (cy - p0.1) - (cx - p0.0) * (p1.1 - p0.1)) / area;
-        for (l, h) in [1.0 - l1 - l2, l1, l2].iter().zip(heights) {
+        for (l, h) in zip_eq([1.0 - l1 - l2, l1, l2].iter(), heights) {
             prop_assert!(*l >= -1.0 / h - 1e-12, "pixel {:?} {} past an edge", (x, y), -l * h);
         }
         let at = tri::plane(v, c, x, y);
@@ -1092,4 +1094,90 @@ fn color_plane_holds(v: [(i16, i16); 3], c: [[u8; 4]; 3]) -> Result<(), TestCase
 fn color_plane_allows_the_edge_rounding() {
     let r = color_plane_holds([(-15288, -30920), (5968, 0), (7616, 32512)], [[0, 55, 0, 0], [0, 0, 0, 0], [0, 55, 0, 0]]);
     assert!(r.is_ok(), "{r:?}");
+}
+
+/// GL.ATTRIB.POP: glPopAttrib gives back the groups pushed and leaves the others as changed:
+/// the current texture coordinates, raster position and index (CURRENT_BIT), the line stipple
+/// and width (LINE_BIT), the list base (LIST_BIT), the clear index and index mask
+/// (COLOR_BUFFER_BIT), the pixel zoom, index shift and depth scale (PIXEL_MODE_BIT), every mask
+/// of the five, random values (the review of 84b05c8, 3.3)
+mod attrib_pop {
+    use super::*;
+    /// (group bit, the state set from value v, what glGet reads of it)
+    fn groups(v: u32) -> [(u32, String, &'static str); 5] {
+        let f = |k: u32| f64::from(v.wrapping_add(k) % 61) / 8.0;
+        [
+            (0x1, format!("gl glTexCoord4f {} {} {} {}\ngl glRasterPos2f {} {}\ngl glIndexf {}", f(1), f(2), f(3), f(4), f(5), f(6), f(7)), "glget f 0xb03 4\nglget f 0xb07 4\nglget f 0xb06 4\nglget f 0xb01 1"),
+            (0x4, format!("gl glLineStipple {} {:#x}\ngl glLineWidth {}", v % 255 + 1, v % 65536, f(8) + 1.0), "glget i 0xb25 1\nglget i 0xb26 1\nglget f 0xb21 1"),
+            (0x20000, format!("gl glListBase {}", v % 1000), "glget i 0xb32 1"),
+            (0x4000, format!("gl glClearIndex {}\ngl glIndexMask {}", f(9), v % 256), "glget f 0xc20 1\nglget i 0xc21 1"),
+            (0x20, format!("gl glPixelZoom {} {}\ngl glPixelTransferi 0xd12 {}\ngl glPixelTransferf 0xd1e {}", f(10), f(11), v % 7, f(12)), "glget f 0xd16 1\nglget f 0xd17 1\nglget i 0xd12 1\nglget f 0xd1e 1"),
+        ]
+    }
+    fn reads(set: &str) -> Vec<String> {
+        let gets: Vec<&str> = groups(0).iter().map(|g| g.2).collect();
+        let text = format!("case p\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700\n{set}\n{}\nglerr\nend\n", gets.join("\n"));
+        let c = kikizake::case::parse_cases(&text);
+        c.first().map_or_else(Vec::new, |c| kikizake::model::run_case(c).unwrap_or_else(|e| vec![format!("{e:?}")]))
+    }
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(256))]
+        #[test]
+        fn popped_groups_come_back(mask in 0u32..32, a: u32, b: u32) {
+            prop_assume!(a % 61 != b % 61 && a % 1000 != b % 1000);
+            let (ga, gb) = (groups(a), groups(b));
+            let bits: u32 = ga.iter().enumerate().filter(|(i, _)| mask >> i & 1 == 1).map(|(_, g)| g.0).sum();
+            let set = |g: &[(u32, String, &str); 5]| g.iter().map(|x| x.1.as_str()).collect::<Vec<_>>().join("\n");
+            let popped = reads(&format!("{}\ngl glPushAttrib {bits:#x}\n{}\ngl glPopAttrib", set(&ga), set(&gb)));
+            // (what each group reads when it holds a's values, or b's)
+            let want: String = (0..5).map(|i| if mask >> i & 1 == 1 { ga[i].1.clone() } else { gb[i].1.clone() }).collect::<Vec<_>>().join("\n");
+            prop_assert_eq!(popped, reads(&want), "mask {:#x}", bits);
+        }
+    }
+}
+
+/// glDeleteLists of a range however wide (the review of 84b05c8, 5: lists past 2^20 names of
+/// the first stayed) and a proxy glTexImage, which runs at once and is not kept in a list
+/// (GL 1.1 3.8.3; the review's 3.5): the model's answers against the rules
+mod lists_far {
+    use super::*;
+    fn run(body: &str) -> Vec<String> {
+        let text = format!("case p\nglctx 32 choose 0x38 0 32 0 0 32 8\n{body}\nglerr\nend\n");
+        let c = kikizake::case::parse_cases(&text);
+        c.first().map_or_else(Vec::new, |c| kikizake::model::run_case(c).unwrap_or_else(|e| vec![format!("{e:?}")]))
+    }
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(256))]
+        #[test]
+        fn deleted_lists_are_their_range(first in 1u32.., range in prop_oneof![0i64..4, 1_048_570i64..1_048_600, 0i64..=0x7fff_ffff], offs in proptest::collection::vec(prop_oneof![0u32..8, 1_048_570u32..1_048_600, any::<u32>()], 1..6)) {
+            // (lists named first + off, list 0 not being one)
+            let ids: Vec<u32> = offs.iter().map(|&o| first.wrapping_add(o)).filter(|&k| k != 0).collect();
+            prop_assume!(!ids.is_empty());
+            let make: String = ids.iter().map(|k| format!("gl glNewList {k} 0x1300\ngl glColor4ub 1 2 3 4\ngl glEndList\n")).collect();
+            let ask: String = ids.iter().map(|k| format!("glr glIsList b i {k}\n")).collect();
+            let got = run(&format!("{make}gl glDeleteLists {first} {range}\n{ask}"));
+            let want: Vec<String> = std::iter::once("glctx ok 1".to_string())
+                .chain(ids.iter().map(|&k| format!("ret {}", u8::from(u64::from(k.wrapping_sub(first)) >= u64::try_from(range).unwrap_or(0)))))
+                .chain(std::iter::once("glerr 0".to_string()))
+                .collect();
+            prop_assert_eq!(got, want);
+        }
+
+        #[test]
+        fn proxy_images_run_outside_lists(a in 0u32..4, b in 0u32..4, execute: bool) {
+            // (PROXY_TEXTURE_2D: the executor's gltex of any target but TEXTURE_1D is glTexImage2D)
+            let target = "0x8064";
+            let image = |n: u32| {
+                let side = 1u32 << n;
+                format!("gltex {target} 0 4 {side} {side} 0 0x1908 0x1401 21 {}", side * side * 4)
+            };
+            let q = format!("gltexq level {target} 0 0x1000 i 1");
+            let mode = if execute { "0x1301" } else { "0x1300" };
+            let got = run(&format!("gl glNewList 1 {mode}\n{}\n{q}\ngl glEndList\n{q}\n{}\n{q}\ngl glCallList 1\n{q}", image(a), image(b)));
+            // (the proxy holds the size of the last image given it, a list's call giving none)
+            let (sa, sb) = (1u32 << a, 1u32 << b);
+            let want = vec!["glctx ok 1".to_string(), format!("texq {sa}"), format!("texq {sa}"), format!("texq {sb}"), format!("texq {sb}"), "glerr 0".to_string()];
+            prop_assert_eq!(got, want);
+        }
+    }
 }

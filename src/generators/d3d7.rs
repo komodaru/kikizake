@@ -363,6 +363,25 @@ pub fn d3d7bad<const K: usize>() -> String {
     format!("# kikizake suite d3d7bad{K}: one Direct3D 7 HAL state past its enumeration (SPEC.md). Made by `kikizake gen d3d7bad{K}`.\n# x86 only\n{}", badstate_case(7, d, name, set))
 }
 
+/// triangles inside the target whose walk (crate::model::d3dim, the model's) runs on past the
+/// right side of the last row, so past the surface's end (the rows unpadded): each in a suite
+/// of its own, as the memory after the surface may be written (D3D7.TRI.CLIP)
+const SPILL: [(u32, &str, &str); 5] = [
+    (7, "rgb 565 20 63", "0x50cb407a 317 993 76 255 223 523"),
+    (7, "mmx 24 16 246", "0x146ba3fb 224 0 241 3923 232 3922"),
+    (7, "rgb 24 32 187", "0x529d5d90 352 1669 504 2987 176 16"),
+    (2, "ramp 565 24 30", "0x3c49d269 318 100 379 466 372 478"),
+    (2, "ramp 565 36 12", "0xdebcafd7 528 0 421 75 562 182"),
+];
+
+/// one SPILL triangle on a fresh device
+pub fn d3d7spill<const K: usize>() -> String {
+    let (v, dev, tri) = SPILL.get(K).copied().unwrap_or(SPILL[0]);
+    let mut s = format!("# kikizake suite d3d7spill{K}: one Direct3D triangle whose walk runs past the surface's end (SPEC.md). Made by `kikizake gen d3d7spill{K}`.\n# x86 only\n");
+    writeln!(s, "case spill-{v}-{}\nd3d {v}\nd3ddev {dev}\nd3drs set 22 1\nd3dclear 0xff000000\nd3dtri {tri}\nd3ddump\nend", dev.replace(' ', "-"));
+    s
+}
+
 /// colors: Gouraud shading, dithering, blending (every factor), the z functions, the alpha
 /// test, fog, fill modes, on every device that draws
 pub fn d3d7shade() -> String {
@@ -1058,6 +1077,58 @@ pub fn d3d7dev() -> String {
         writeln!(s, "case farline-{v}-{d}\nd3d {v}\nd3ddev {d} 565 12 12");
         for p in ["8 8 70000 40", "-70000 90 170 30", "16 16 90 66000", "-66000 -66000 170 170", "90 -80000 100 90000"] {
             writeln!(s, "d3dclear 0\nd3dline 0xffffffff {p}\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
+    // lines of two colours (D3D7.GOURAUD: a soft line's colours stepped from its start, the
+    // HAL's planes) on every drawer, and on the software ones with an end past the guard band,
+    // where the front end's clip (clean-room notes D.1) would start the walk at a cut end of its
+    // own colour (D3D7.TRI.CLIP)
+    let mut r = XorShift32::new(0x00d3_d71c);
+    let colour = |r: &mut XorShift32| 0xff00_0000 | (r.next() & 0xff_ffff);
+    let far = |r: &mut XorShift32| {
+        let (far, along) = (r.range(66_000, 400_000), r.range(-400_000, 400_000));
+        match r.range(0, 3) {
+            0 => (far.wrapping_neg(), along),
+            1 => (far, along),
+            2 => (along, far.wrapping_neg()),
+            _ => (along, far),
+        }
+    };
+    for &(v, d) in DRAWERS {
+        let fmt = if d == "ramp" { "565" } else { "32" };
+        writeln!(s, "case linecolour-{v}-{d}\nd3d {v}\nd3ddev {d} {fmt} 12 12");
+        for _ in 0..8 {
+            let (c0, c1) = (colour(&mut r), colour(&mut r));
+            let (x0, y0, x1, y1) = (r.range(-40, 231), r.range(-40, 231), r.range(-40, 231), r.range(-40, 231));
+            writeln!(s, "d3dclear 0\nd3dline 0x{c0:08x}/0x{c1:08x} {x0} {y0} {x1} {y1}\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
+    for &(v, d) in DRAWERS.iter().filter(|(_, d)| matches!(*d, "rgb" | "mmx")) {
+        writeln!(s, "case farcolour-{v}-{d}\nd3d {v}\nd3ddev {d} 32 12 12");
+        for _ in 0..12 {
+            let (c0, c1) = (colour(&mut r), colour(&mut r));
+            let (x1, y1) = (r.range(0, 191), r.range(0, 191));
+            let (x0, y0) = far(&mut r);
+            let ((xa, ya, ca), (xb, yb, cb)) = if r.chance(2) { ((x0, y0, c0), (x1, y1, c1)) } else { ((x1, y1, c1), (x0, y0, c0)) };
+            writeln!(s, "d3dclear 0\nd3dline 0x{ca:08x}/0x{cb:08x} {xa} {ya} {xb} {yb}\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
+    // D3D7.TRI.CLIP still asked: the wireframe of a triangle with a vertex past the guard band
+    // (the front end cuts the triangle first), and a vertex past 2^20 pixels
+    for (v, d) in [(7, "rgb"), (7, "mmx"), (3, "rgb"), (2, "rgb"), (3, "mmx")] {
+        writeln!(s, "case farwire-{v}-{d}\nd3d {v}\nd3ddev {d} 32 12 12\nd3drs set 22 1\nd3drs set 8 2");
+        for p in ["8 8 70000 40 40 170", "8 8 40 170 -70000 90", "16 16 170 30 90 66000", "-66000 -66000 170 30 90 170"] {
+            writeln!(s, "d3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff {p}\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
+    for &(v, d) in DRAWERS {
+        writeln!(s, "case hugevert-{v}-{d}\nd3d {v}\nd3ddev {d} 565 12 12\nd3drs set 22 1");
+        for p in ["8 8 20000000 40 40 170", "8 8 40 170 -20000000 90", "16 16 170 30 90 20000000"] {
+            writeln!(s, "d3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff {p}\nd3ddump");
         }
         writeln!(s, "end");
     }

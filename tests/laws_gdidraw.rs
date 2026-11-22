@@ -1,6 +1,8 @@
 //! Laws of the GDI drawing models beyond BitBlt (lines, regions, paths, transforms, blends,
 //! DDBs): what the documentation states as properties, proptest and exhaustive over small
 //! domains.
+mod pairs;
+use pairs::zip_eq;
 use proptest::prelude::*;
 use kikizake::case::parse_cases;
 use kikizake::model::gdiblend::{alpha, mix};
@@ -628,8 +630,8 @@ proptest! {
         let m = |p: (i32, i32)| (p.0, 32 * y - p.1);
         prop_assert_eq!(m(a.start), b.start);
         prop_assert_eq!(a.beziers.len(), b.beziers.len());
-        for (g, h) in a.beziers.iter().zip(&b.beziers) {
-            for (p, q) in g.iter().zip(h) {
+        for (g, h) in zip_eq(a.beziers.iter(), &b.beziers) {
+            for (p, q) in zip_eq(g.iter(), h) {
                 let p = m(*p);
                 prop_assert!((p.0 - q.0).abs() <= 1 && (p.1 - q.1).abs() <= 1, "{:?} vs {:?}", p, q);
             }

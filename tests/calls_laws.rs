@@ -2,6 +2,8 @@
 //! its output was flushed and in whatever order shirusu's export lists the events; a calls file
 //! reads back as written; a faithful executor passes check_ops and any one wrong argument is
 //! found; the JSON reader reads what a writer writes.
+mod pairs;
+use pairs::zip_eq;
 use kikizake::calls::{self, Api, Call, Handle, LastError, Ret, Val};
 use kikizake::json::{self, Json};
 use proptest::prelude::*;
@@ -81,7 +83,7 @@ fn jsonl_cut(cases: &[(String, Vec<Vec<Call>>, Vec<String>)], perm: &[usize], ke
         ev.push(format!("{{\"phase\":\"leave\",\"api\":\"gdi32!{api}\",\"call_id\":{id},\"fields\":{{{leave}}}}}"));
     };
     for (k, (name, chunks, outs)) in cases.iter().enumerate() {
-        for (j, (calls, out)) in chunks.iter().zip(outs).enumerate() {
+        for (j, (calls, out)) in zip_eq(chunks.iter(), outs).enumerate() {
             for c in calls {
                 let a: Vec<String> = c.args.iter().enumerate().map(|(i, v)| field(&format!("a{i}"), v)).collect();
                 let Ret::Value(r) = &c.ret else { unreachable!("not generated") };
@@ -207,7 +209,7 @@ proptest! {
         prop_assert_eq!(got.header.other, 0);
         let got = got.cases;
         prop_assert_eq!(got.len(), cs.len());
-        for (g, (name, chunks, _)) in got.iter().zip(&cs) {
+        for (g, (name, chunks, _)) in zip_eq(got.iter(), &cs) {
             prop_assert_eq!(&g.name, name);
             let want: Vec<Call> = chunks.iter().flatten().cloned().collect();
             prop_assert_eq!(&g.calls, &want);
@@ -217,7 +219,7 @@ proptest! {
         let r = calls::Recording { header: header.clone(), cases: got.clone() };
         let back = calls::parse(&calls::format(&r)).unwrap();
         prop_assert_eq!(back.cases.len(), got.len());
-        for (b, g) in back.cases.iter().zip(&got) {
+        for (b, g) in zip_eq(back.cases.iter(), &got) {
             prop_assert_eq!(&b.calls, &renumber(&g.calls));
         }
         prop_assert_eq!(&back.header, &header);
@@ -234,7 +236,7 @@ proptest! {
         let want = calls::from_jsonl(&whole, Some(&stdout)).unwrap();
         prop_assert_eq!(got.cases.len(), want.cases.len());
         let mut cut = 0;
-        for (g, x) in got.cases.iter().zip(&want.cases) {
+        for (g, x) in zip_eq(got.cases.iter(), &want.cases) {
             prop_assert_eq!(&g.name, &x.name);
             prop_assert_eq!(&g.calls, &x.calls);
             match g.out {

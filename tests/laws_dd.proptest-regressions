@@ -8,3 +8,5 @@ cc 4adc7ba751c40bcfed87716d23d73ad5ab4adcbb6fb9dbd78babf4f08be2e8c7 # shrinks to
 cc ed94f7c2e8c7333cd75e82a3666ae2c1fc25c3156db98ac22b502649b40281b4 # shrinks to seed = 1, c = 0, f = "32"
 cc f2817111f36fcf20cf668f284bc628b3171edfaea9619197f84360f5e07e6cbc # shrinks to v = [173, 366, 556, 174]
 cc 1348abd46756f6242918a436be31b6997bfec9624b739b45b04982f75152b34d # shrinks to v = [48, 16, 0, 0, 181, 176], z = 0, zw = 0, c = [0, 0, 0, 0, 0, 0]
+cc 0ac2f245539575cd9fc150b4cd176e30ef65e9a05f9f8ca60bbe0696e268a96f # shrinks to far = -69600, side = 1, inner = [79, 42], mmx = false
+cc bcbb9028d6ddeda1e933d62379b593b3cf92a336c892745771e2e3f854b0f69f # shrinks to v = [192, 0, 192, 0]

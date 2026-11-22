@@ -1,11 +1,12 @@
 //! GDI's mirrors (spec/lean/Kikizake/Gdi/).
 use super::{arg, every, one, sampled, Domain, Mirror};
-use crate::model::{gdi, gdiblend, gdixform};
+use crate::model::{bezier, gdi, gdiblend, gdixform};
 
 const BLEND: &str = "spec/lean/Kikizake/Gdi/Blend.lean";
 const STRETCH: &str = "spec/lean/Kikizake/Gdi/Stretch.lean";
 const XFORM: &str = "spec/lean/Kikizake/Gdi/Xform.lean";
 const GRADIENT: &str = "spec/lean/Kikizake/Gdi/Gradient.lean";
+const HFD: &str = "spec/lean/Kikizake/Gdi/Hfd.lean";
 
 pub static MIRRORS: &[Mirror] = &[
     Mirror {
@@ -99,6 +100,17 @@ pub static MIRRORS: &[Mirror] = &[
                 2 => one(*gdiblend::DITHER3.get(y)?.get(x)?),
                 _ => None,
             }
+        },
+    },
+    Mirror {
+        name: "gdi.flatten",
+        lean: HFD,
+        domain: Domain::Sampled("four 28.4 control points in -4000..4000 (within the 32 bit flattener's reach)"),
+        inputs: |each| sampled(&[(-4000, 4000); 8], 100_000, 0x4fd3_0001, each),
+        model: |a| {
+            let p = |i: usize| -> Option<(i32, i32)> { Some((arg(a, 2 * i)?, arg(a, 2 * i + 1)?)) };
+            let f = bezier::flatten([p(0)?, p(1)?, p(2)?, p(3)?])?;
+            Some(f.iter().flat_map(|q| [i64::from(q.0), i64::from(q.1)]).collect())
         },
     },
 ];

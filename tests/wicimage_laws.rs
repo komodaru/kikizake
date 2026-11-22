@@ -1,6 +1,8 @@
 //! Laws of the WIC bitmap source model (src/model/wicimage.rs): what the documentation states as
 //! properties, exhaustive over small domains or property-based, whatever Windows' measured
 //! details turn out to be.
+mod pairs;
+use pairs::zip_eq;
 use proptest::prelude::*;
 use kikizake::model::wicimage::{self as wi, Img};
 
@@ -610,7 +612,7 @@ proptest! {
         prop_assert_eq!(&j.bytes[..2], &[0xff, 0xd8]);
         prop_assert_eq!(&j.bytes[j.bytes.len() - 2..], &[0xff, 0xd9]);
         prop_assert_eq!(j.px.len(), px.len());
-        let worst = px.iter().zip(&j.px).map(|(a, b)| a.abs_diff(*b)).max().unwrap_or(0);
+        let worst = zip_eq(px.iter(), &j.px).map(|(a, b)| a.abs_diff(*b)).max().unwrap_or(0);
         prop_assert!(worst <= if color { 4 } else { 2 }, "worst {}", worst);
     }
 }
@@ -768,7 +770,7 @@ fn fixed_point_goes_back_where_it_came_from() {
     }
     let f = wi::wic_convert(&i, "rgba64fixed").unwrap();
     let b = wi::wic_convert(&f, "bgra").unwrap();
-    for (k, (&got, &was)) in b.px.iter().zip(&i.px).enumerate() {
+    for (k, (&got, &was)) in zip_eq(b.px.iter(), &i.px).enumerate() {
         match k % 4 {
             3 => assert_eq!(got, was),
             _ => assert!(got == was || got + 1 == was, "{k}: {was} back as {got}"),
@@ -931,7 +933,7 @@ proptest! {
         let lossy = jxr::encode_at(&p, index, ov);
         let got = jxr_values(name, w, h, stride, &lossy.decoded);
         if matches!(name, "gray8" | "bgr24" | "rgb24" | "bgr32" | "bgra" | "pbgra" | "cmyk") {
-            let worst = src.iter().zip(&got).map(|(a, b)| (a - b).abs()).max().unwrap_or(0);
+            let worst = zip_eq(src.iter(), &got).map(|(a, b)| (a - b).abs()).max().unwrap_or(0);
             prop_assert!(worst <= 2 * i64::from(index) + 2, "{} {}x{} index {}: off by {}", name, w, h, index, worst);
         }
         if matches!(name, "bgra" | "pbgra" | "rgba64") {
@@ -955,7 +957,7 @@ proptest! {
     fn icm_transforms_stay_near(r in any::<u8>(), g in any::<u8>(), b in any::<u8>()) {
         use kikizake::model::icm::{transform, Space};
         let same = transform(Space::Srgb, Space::Srgb).rgb8([r, g, b]);
-        for (x, y) in same.iter().zip([r, g, b]) {
+        for (x, y) in zip_eq(same.iter(), [r, g, b]) {
             prop_assert!(x.abs_diff(y) <= 3, "{same:?} {r} {g} {b}");
         }
         for (f, t) in [(Space::Srgb, Space::Adobe), (Space::Adobe, Space::Srgb), (Space::Adobe, Space::Adobe), (Space::Srgb, Space::Srgb)] {
@@ -964,7 +966,7 @@ proptest! {
             prop_assert_eq!(x.rgb8([0; 3]), [0; 3]);
             let e8 = x.rgb8([r, g, b]);
             let e16 = x.rgb16([r, g, b].map(|v| u16::from(v) * 257));
-            for (a, (w, v)) in e8.iter().zip(e16.into_iter().zip([r, g, b])) {
+            for (a, (w, v)) in zip_eq(e8.iter(), zip_eq(e16, [r, g, b])) {
                 prop_assert!(v < 32 || (i32::from(*a) - i32::from(w >> 8)).abs() <= 5, "{e8:?} {e16:?}");
             }
         }
@@ -1072,7 +1074,7 @@ proptest! {
         let t = kikizake::model::cmyk::from_rgb().ok_or_else(|| TestCaseError::fail("no CMYK table"))?;
         let got = t.cmyk8(c);
         let want = rgb_to_cmyk_float_reference(c);
-        for (g, w) in got.iter().zip(want) {
+        for (g, w) in zip_eq(got.iter(), want) {
             prop_assert!((f64::from(*g) - w).abs() <= 34.0, "{c:?}: {got:?} against {want:?}");
         }
         prop_assert_eq!(t.cmyk16([65535; 3]), [0, 14, 6, 0]);
@@ -1089,7 +1091,7 @@ proptest! {
         let t = kikizake::model::cmyk::to_rgb().ok_or_else(|| TestCaseError::fail("no CMYK table"))?;
         let got = t.bgr8(c);
         let want = cmyk_float_reference(c);
-        for (g, w) in got.iter().zip(want) {
+        for (g, w) in zip_eq(got.iter(), want) {
             prop_assert!((f64::from(*g) - w).abs() <= 28.0, "{c:?}: {got:?} against {want:?}");
         }
         prop_assert_eq!(t.rgb16([0; 4]), [65535, 65362, 65033]);
@@ -1197,5 +1199,131 @@ proptest! {
         prop_assert_eq!(px(2, 0), cut >= 43);
         prop_assert_eq!(px(1, 0), cut >= 43);
         prop_assert_eq!(px(0, 1), cut >= 45);
+    }
+}
+
+/// float2pixel at every exponent (the review of 84b05c8, 5): the JPEG XR integer of a float
+/// is odd in its sign, grows with the float while the denormalizing shift 1 - e1 is below 32,
+/// and past it shifts by the count mod 32 as x86's SAR does (float-shift-* answer which)
+#[test]
+fn float2pixel_at_every_shift() {
+    use kikizake::model::jxr::float2pixel;
+    // (jxrlib's float2pixel in 64-bit arithmetic, the shift's count taken mod 32)
+    let reference = |f: f32| -> i64 {
+        if f == 0.0 {
+            return 0;
+        }
+        let x = i64::from(f.to_bits());
+        let (mut e, mut m) = ((x >> 23) & 0xff, (x & 0x7f_ffff) | 0x80_0000);
+        if e == 0 {
+            m ^= 0x80_0000;
+            e = 1;
+        }
+        let mut e1 = e - 127 + 4;
+        if e1 <= 1 {
+            if e1 < 1 {
+                m >>= (1 - e1) & 31;
+            }
+            e1 = i64::from(m & 0x80_0000 != 0);
+        }
+        let h = (e1 << 13) + (((m & 0x7f_ffff) + (1 << 9)) >> 10);
+        if f.is_sign_negative() { -h } else { h }
+    };
+    let mut last = (0i64, false);
+    for e in 0u32..255 {
+        for m in [0u32, 1, 0x1ff, 0x200, 0x3ff, 0x40_0000, 0x7f_fdff, 0x7f_fe00, 0x7f_ffff] {
+            let f = f32::from_bits(e << 23 | m);
+            let (p, n) = (i64::from(float2pixel(f)), i64::from(float2pixel(-f)));
+            assert_eq!(p, reference(f), "{f:e}");
+            assert_eq!(n, -p, "{f:e}");
+            // (exponents 124 - e of 31 or less: no wrap, the integers in order)
+            let wraps = 124 - i64::from(e.max(1)) >= 32;
+            if !wraps && last.1 {
+                assert!(p >= last.0, "{f:e}: {p} < {}", last.0);
+            }
+            last = (p, !wraps);
+        }
+    }
+}
+
+/// options written again (the review of 84b05c8, 3.4): an encoder given a name twice encodes as
+/// given its last value alone, where the first one was written, as IWICBitmapFrameEncode's
+/// Initialize reads the property bag; a value the bag refuses fails whatever comes after
+mod options_again {
+    use super::*;
+    const WMP: [&str; 12] = ["ImageQuality=1", "ImageQuality=0.5", "ImageQuality=0.8", "Lossless=1", "Lossless=0", "BitmapTransform=0", "BitmapTransform=2", "BitmapTransform=9", "Overlap=0", "Overlap=2", "Subsampling=1", "Subsampling=3"];
+    const JPEG: [&str; 6] = ["ImageQuality=1", "ImageQuality=0.5", "BitmapTransform=0", "BitmapTransform=8", "JpegYCrCbSubsampling=0", "JpegYCrCbSubsampling=3"];
+    fn encode(c: &str, opts: &[&str], seed: u32) -> String {
+        let text = format!("case o\nwbits bgra 6 4 {seed}\nwencode {c} {}\nwredecode\nwframe 0\nwinfo\nwpixels\nend\n", opts.join(" "));
+        kikizake::model::run("wicencode", &kikizake::case::parse_cases(&text))
+    }
+    /// each name once, at its first place, holding its last value
+    fn last(opts: &[&str]) -> Vec<String> {
+        let mut v: Vec<String> = Vec::new();
+        for o in opts {
+            let name = o.split('=').next().unwrap_or("");
+            match v.iter_mut().find(|w| w.split('=').next() == Some(name)) {
+                Some(w) => *w = (*o).to_string(),
+                None => v.push((*o).to_string()),
+            }
+        }
+        v
+    }
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(64))]
+        #[test]
+        fn the_last_value_of_a_name_is_encoded(jpeg: bool, picks in proptest::collection::vec(0usize..12, 1..5), seed: u32) {
+            let (c, all): (&str, &[&str]) = if jpeg { ("jpeg", &JPEG) } else { ("wmp", &WMP) };
+            let opts: Vec<&str> = picks.iter().map(|&i| all[i % all.len()]).collect();
+            let once = last(&opts);
+            let once: Vec<&str> = once.iter().map(String::as_str).collect();
+            prop_assert_eq!(encode(c, &opts, seed), encode(c, &once, seed), "{:?}", opts);
+        }
+
+        #[test]
+        fn a_refused_write_fails_whatever_follows(at in 0usize..3, picks in proptest::collection::vec(0usize..12, 0..3), seed: u32) {
+            // (TIFF's compression is no option of JPEG XR's: the bag refuses it)
+            let mut opts: Vec<&str> = picks.iter().map(|&i| WMP[i]).collect();
+            opts.insert(at.min(opts.len()), "TiffCompressionMethod=1");
+            let got = encode("wmp", &opts, seed);
+            prop_assert!(got.lines().any(|l| l == "wencode 80004005 bgra option"), "{:?}: {}", opts, got);
+        }
+    }
+}
+
+/// a JPEG XR decoder's frame written again by JPEG XR's encoder with no option keeps the frame's
+/// pixels (WICIMAGE.ENCODE.WMP.FRAME), and a quarter turned 8bppGray file's frame copies
+/// nothing when taller than wide (WICIMAGE.ENCODE.WMP.TURNTALL), whatever the size, quality and seed
+mod wmp_frames {
+    use super::*;
+    fn run(text: &str) -> Vec<String> {
+        kikizake::model::run("wicencode", &kikizake::case::parse_cases(text)).lines().map(str::to_string).collect()
+    }
+    fn pixels(out: &[String]) -> Vec<String> {
+        out.iter().skip_while(|l| !l.starts_with("wpixels")).take_while(|l| !l.starts_with("case") && *l != "done").cloned().collect()
+    }
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(48))]
+        #[test]
+        fn a_frame_written_again_keeps_its_pixels(f in prop_oneof![Just("bgra"), Just("gray8"), Just("bgr24")], w in 1u32..12, h in 1u32..12, q in prop_oneof![Just(" ImageQuality=0.5"), Just(" Lossless=1"), Just("")], o in prop_oneof![Just(""), Just(" ImageQuality=0.5"), Just(" ImageQuality=0.9"), Just(" Lossless=1"), Just(" Overlap=0")], seed: u32) {
+            let first = format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp{q}\nwredecode\nwframe 0\nwpixels\nend\n");
+            let again = format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp{q}\nwredecode\nwframe 0\nwencode wmp{o}\nwredecode\nwframe 0\nwpixels\nend\n");
+            prop_assert_eq!(pixels(&run(&first)), pixels(&run(&again)));
+        }
+
+        #[test]
+        fn a_quarter_turned_tall_file_copies_nothing(w in 1u32..12, h in 1u32..12, f in prop_oneof![Just("gray8"), Just("gray16"), Just("bgra")], t in prop_oneof![Just(1u32), Just(9), Just(2)], q in prop_oneof![Just("Lossless=1"), Just("ImageQuality=1"), Just("ImageQuality=0.5")], again: bool, seed: u32) {
+            // (written once, or its frame written again by JPEG XR's encoder with the turn)
+            let text = if again {
+                format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp {q}\nwredecode\nwframe 0\nwencode wmp BitmapTransform={t}\nwredecode\nwframe 0\nwinfo\nwpixels\nend\n")
+            } else {
+                format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp {q} BitmapTransform={t}\nwredecode\nwframe 0\nwinfo\nwpixels\nend\n")
+            };
+            let out = run(&text);
+            let (tw, th) = if t & 1 != 0 { (h, w) } else { (w, h) };
+            prop_assert!(out.iter().any(|l| *l == format!("winfo 00000000 {tw} {th} {f} 0.000 0.000")), "{:?}", out);
+            let fails = t & 1 != 0 && w < h;
+            prop_assert_eq!(out.iter().any(|l| l.starts_with("wpixels 88982f48")), fails, "{:?}", out);
+        }
     }
 }

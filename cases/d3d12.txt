@@ -22942,3 +22942,27 @@ case fp-wrap-1d-rgba32f-a2048
 device12
 footprint12 0 3 0 2 0 0x4000 1 0x800 1 2 1 0 0 0
 end
+case rootsig-more-nodev
+rootsig12+ cbv 0 0 0 0 cbv 1 0 0 0 cbv 2 0 0 0 cbv 3 0 0 0 cbv 4 0 0 0 cbv 5 0 0 0 cbv 6 0 0 0 cbv 7 0 0 0 cbv 8 0 0 0 cbv 9 0 0 0 cbv 10 0 0 0 cbv 11 0 0 0 cbv 12 0 0 0 cbv 13 0 0 0 cbv 14 0 0 0 cbv 15 0 0
+rootsig12+ 0 cbv 16 0 0 0 cbv 17 0 0 0 cbv 18 0 0 0 cbv 19 0 0 0 cbv 20 0 0 0 cbv 21 0 0 0 cbv 22 0 0 0 cbv 23 0 0 0 cbv 24 0
+device12
+rootsig12 1 0 0 0 cbv 25 0 0 0 cbv 26 0 0 0 cbv 27 0 0 0 cbv 28 0 0 0 cbv 29 0 0 0 cbv 30 0 0 0 cbv 31 0 0 0 cbv 32 0 0 0 cbv 33 0 0 0 cbv 34 0 0 0 cbv 35 0 0 0 cbv 36 0 0 0 cbv 37 0 0 0 cbv 38 0 0 0 cbv 39 0 0 0
+feature12 0
+end
+case rootsig-more-nodev-kept
+rootsig12+ cbv 0 0 0 0 cbv 1 0 0 0 cbv 2 0 0 0 cbv 3 0 0 0 cbv 4 0 0 0 cbv 5 0 0 0 cbv 6 0 0 0 cbv 7 0 0 0 cbv 8 0 0 0 cbv 9 0 0 0 cbv 10 0 0 0 cbv 11 0 0 0 cbv 12 0 0 0 cbv 13 0 0 0 cbv 14 0 0 0 cbv 15 0 0
+rootsig12+ 0 cbv 16 0 0 0 cbv 17 0 0 0 cbv 18 0 0 0 cbv 19 0 0 0 cbv 20 0 0 0 cbv 21 0 0 0 cbv 22 0 0 0 cbv 23 0 0 0 cbv 24 0
+rootsig12 1 0 0 0 cbv 25 0 0 0 cbv 26 0 0 0 cbv 27 0 0 0 cbv 28 0 0 0 cbv 29 0 0 0 cbv 30 0 0 0 cbv 31 0 0 0 cbv 32 0 0 0 cbv 33 0 0 0 cbv 34 0 0 0 cbv 35 0 0 0 cbv 36 0 0 0 cbv 37 0 0 0 cbv 38 0 0 0 cbv 39 0 0 0
+device12
+rootsig12 1 0 0 0 cbv 25 0 0 0 cbv 26 0 0 0 cbv 27 0 0 0 cbv 28 0 0 0 cbv 29 0 0 0 cbv 30 0 0 0 cbv 31 0 0 0 cbv 32 0 0 0 cbv 33 0 0 0 cbv 34 0 0 0 cbv 35 0 0 0 cbv 36 0 0 0 cbv 37 0 0 0 cbv 38 0 0 0 cbv 39 0 0 0
+feature12 0
+end
+case rootsig-more-nodev-then
+rootsig12+ cbv 0 0 0 0 cbv 1 0 0 0 cbv 2 0 0 0 cbv 3 0 0 0 cbv 4 0 0 0 cbv 5 0 0 0 cbv 6 0 0 0 cbv 7 0 0 0 cbv 8 0 0 0 cbv 9 0 0 0 cbv 10 0 0 0 cbv 11 0 0 0 cbv 12 0 0 0 cbv 13 0 0 0 cbv 14 0 0 0 cbv 15 0 0
+rootsig12+ 0 cbv 16 0 0 0 cbv 17 0 0 0 cbv 18 0 0 0 cbv 19 0 0 0 cbv 20 0 0 0 cbv 21 0 0 0 cbv 22 0 0 0 cbv 23 0 0 0 cbv 24 0
+device12
+rootsig12+ cbv 0 0 0 0 cbv 1 0 0 0 cbv 2 0 0 0 cbv 3 0 0 0 cbv 4 0 0 0 cbv 5 0 0 0 cbv 6 0 0 0 cbv 7 0 0 0 cbv 8 0 0 0 cbv 9 0 0 0 cbv 10 0 0 0 cbv 11 0 0 0 cbv 12 0 0 0 cbv 13 0 0 0 cbv 14 0 0 0 cbv 15 0 0
+rootsig12+ 0 cbv 16 0 0 0 cbv 17 0 0 0 cbv 18 0 0 0 cbv 19 0 0 0 cbv 20 0 0 0 cbv 21 0 0 0 cbv 22 0 0 0 cbv 23 0 0 0 cbv 24 0
+rootsig12 1 0 0 0 cbv 25 0 0 0 cbv 26 0 0 0 cbv 27 0 0 0 cbv 28 0 0 0 cbv 29 0 0 0 cbv 30 0 0 0 cbv 31 0 0 0 cbv 32 0 0 0 cbv 33 0 0 0 cbv 34 0 0 0 cbv 35 0 0 0 cbv 36 0 0 0 cbv 37 0 0 0 cbv 38 0 0 0 cbv 39 0 0 0
+feature12 0
+end

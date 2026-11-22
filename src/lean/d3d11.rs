@@ -320,7 +320,7 @@ fn res_dev(a: &[i64]) -> Option<crate::model::d3dres::Dev> {
 /// `n` descriptions of the values above on every device, their format's facts from the tables
 /// (or, one in five, made up)
 fn descs(n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     for _ in 0..n {
         let (dk, lv) = *rng.pick(&DEVS);
         let mut v = vec![dk, lv, *rng.pick(&DIMS), *rng.pick(&SIZES), *rng.pick(&SIZES), *rng.pick(&DEPTHS), *rng.pick(&MIPS), rng.range(0, 133), *rng.pick(&USAGES), *rng.pick(&BINDS), *rng.pick(&CPUS), *rng.pick(&MISCS), *rng.pick(&COUNTS), *rng.pick(&QS), rng.range(0, 1)];
@@ -446,7 +446,7 @@ const VIEW_VALS: [i64; 20] = [0, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 63, 64, 6
 /// five, made up)
 fn views(n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
     use crate::model::d3dres_check as c;
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     for _ in 0..n {
         let (dk, lv) = *rng.pick(&DEVS);
         let kind = if rng.chance(50) { 4 } else { rng.range(0, 3) };
@@ -532,7 +532,7 @@ const TEXTURE_SIZES: [i64; 14] = [0, 1, 2, 3, 4, 5, 7, 8, 64, 255, 16384, (1 << 
 
 /// each of FLOATS, signed; then `n` of: a coordinate in -1..2, of 0..1 as a multiple of 2^-k,
 /// or any 32-bit pattern
-fn floats(n: usize, rng: &mut crate::rng::XorShift32, each: &mut dyn FnMut(u32)) {
+fn floats(n: usize, rng: &mut crate::rng::Sample64, each: &mut dyn FnMut(u32)) {
     for &x in &FLOATS {
         each(x);
         each(x | 1 << 31);
@@ -552,7 +552,7 @@ fn floats(n: usize, rng: &mut crate::rng::XorShift32, each: &mut dyn FnMut(u32))
 
 /// coordinates and texture sizes
 fn coords(seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     let mut cs = Vec::new();
     floats(60_000, &mut rng, &mut |c| cs.push(i64::from(c)));
     for c in cs {
@@ -564,7 +564,7 @@ fn coords(seed: u32, each: &mut dyn FnMut(&[i64])) {
 
 /// three floats: of FLOATS each with each, then texel values and weights, then any patterns
 fn triples(seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     let mut fs = Vec::new();
     floats(0, &mut rng, &mut |c| fs.push(i64::from(c)));
     for &a in &fs {
@@ -585,8 +585,8 @@ fn triples(seed: u32, each: &mut dyn FnMut(&[i64])) {
 /// lods: whole and half levels, near a 1/256 boundary and its half, anywhere in 0..20, the
 /// special values, any patterns; every last level to 15, point and linear
 fn lods(seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
-    let put = |x: f64, rng: &mut crate::rng::XorShift32, each: &mut dyn FnMut(&[i64])| {
+    let mut rng = crate::rng::Sample64::new(seed);
+    let put = |x: f64, rng: &mut crate::rng::Sample64, each: &mut dyn FnMut(&[i64])| {
         let h = super::f64_halves(x);
         let (hi, lo) = (h.first().copied().unwrap_or(0), h.get(1).copied().unwrap_or(0));
         let (hi, lo) = if x.is_nan() { (0x7ff8_0000, 0) } else { (hi, lo) };
@@ -670,7 +670,7 @@ pub static FILTER_MIRRORS: &[Mirror] = &[
         lean: FILTER,
         domain: Domain::Sampled("every function 0..9 with every pair of 40 signed boundary floats, and with 100,000 pairs of coordinates or any patterns"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x5c3b_d311);
+            let mut rng = crate::rng::Sample64::new(0x5c3b_d311);
             let mut fs = Vec::new();
             floats(200_000, &mut rng, &mut |c| fs.push(i64::from(c)));
             for f in 0..10 {
@@ -702,7 +702,7 @@ pub static MERGE_MIRRORS: &[Mirror] = &[Mirror {
     lean: MERGE,
     domain: Domain::Sampled("every DXGI format's components with every mask 0..15 (and 16, 0xffffffff) over 40 pairs of elements each: zeros, ones, alternating bits, any bytes"),
     inputs: |each| {
-        let mut rng = crate::rng::XorShift32::new(0x3e26_d311);
+        let mut rng = crate::rng::Sample64::new(0x3e26_d311);
         for id in 0..=200u32 {
             let Some(f) = crate::model::dxgifmt::format(id) else { continue };
             let bits: u32 = f.comps.iter().sum();
@@ -715,7 +715,7 @@ pub static MERGE_MIRRORS: &[Mirror] = &[Mirror {
                         v.extend([i64::from(b), i64::from(c)]);
                     }
                     v.push(i64::from(len));
-                    let byte = |rng: &mut crate::rng::XorShift32| match k {
+                    let byte = |rng: &mut crate::rng::Sample64| match k {
                         0 => 0,
                         1 => 0xff,
                         2 => 0x55,
@@ -744,5 +744,389 @@ pub static MERGE_MIRRORS: &[Mirror] = &[Mirror {
             return None;
         }
         Some(crate::model::d3drules::merge(&comps, &old, &new, mask).into_iter().map(i64::from).collect())
+    },
+}];
+
+const INTERP: &str = "spec/lean/Kikizake/D3d11/Interp.lean";
+
+/// a NaN as the one quiet NaN
+fn canon32(x: f32) -> i64 {
+    if x.is_nan() { 0x7fc0_0000 } else { i64::from(x.to_bits()) }
+}
+
+/// `n` calls of `args` binary32 arguments: each one of the boundary floats (signed), a
+/// coordinate (in -1..2, a multiple of 2^-k in 0..1), a position in 1/256 pixels of -64..64, a
+/// pixel center, a viewport's size or any 32-bit pattern
+fn float_args(args: usize, n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::Sample64::new(seed);
+    let mut pool = Vec::new();
+    floats(4000, &mut rng, &mut |c| pool.push(i64::from(c)));
+    for k in -64i64..=64 {
+        pool.push(i64::from(crate::model::d3draster::pixels(k.saturating_mul(256).saturating_add(rng.range(0, 255))).to_bits()));
+        pool.push(i64::from((f64::from(i32::try_from(k).unwrap_or(0)) + 0.5).to_string().parse::<f32>().unwrap_or(0.0).to_bits()));
+    }
+    for s in [1, 2, 3, 16, 64, 640, 4096] {
+        pool.push(i64::from(f32::from(u16::try_from(s).unwrap_or(1)).to_bits()));
+    }
+    for _ in 0..n {
+        let v: Vec<i64> = (0..args).map(|_| *rng.pick(&pool)).collect();
+        each(&v);
+    }
+}
+
+pub static INTERP_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.plane",
+        lean: INTERP,
+        domain: Domain::Sampled("200,000 triangles of 11 binary32 arguments (vertices, values, the point), each a boundary float, a coordinate, a 16.8 position, a pixel center, a size or any pattern; a NaN answer as the one quiet NaN"),
+        inputs: |each| float_args(11, 200_000, 0x91a2_d311, each),
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            one(canon32(crate::model::d3draster::plane_value([f(0)?, f(1)?, f(2)?], [f(3)?, f(4)?, f(5)?], [f(6)?, f(7)?, f(8)?], f(9)?, f(10)?)))
+        },
+    },
+    Mirror {
+        name: "d3d11.lineplane",
+        lean: INTERP,
+        domain: Domain::Sampled("200,000 lines: ends in 1/256 pixels of -2^20..2^20 (equal ones too), the coordinate and the ends' values from the floats of d3d11.plane"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x11e2_d311);
+            float_args(3, 200_000, 0x11e3_d311, &mut |v| {
+                let a = rng.range(-(1 << 20), 1 << 20);
+                let b = if rng.chance(20) { a } else if rng.chance(2) { a.saturating_add(rng.range(-600, 600)) } else { rng.range(-(1 << 20), 1 << 20) };
+                let mut w = vec![a, b];
+                w.extend_from_slice(v);
+                each(&w);
+            });
+        },
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            one(canon32(crate::model::d3draster::line_value(arg(a, 0)?, arg(a, 1)?, f(2)?, f(3)?, f(4)?)))
+        },
+    },
+    Mirror {
+        name: "d3d11.clamprange",
+        lean: INTERP,
+        domain: Domain::Sampled("every triple of 40 signed boundary floats (NaNs, infinities, both zeros), 200,000 triples of the floats of d3d11.plane"),
+        inputs: |each| {
+            let mut fs = Vec::new();
+            floats(0, &mut crate::rng::Sample64::new(1), &mut |c| fs.push(i64::from(c)));
+            for &x in &fs {
+                for &y in &fs {
+                    for &z in &fs {
+                        each(&[x, y, z]);
+                    }
+                }
+            }
+            float_args(3, 200_000, 0xc1a3_d311, each);
+        },
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            one(canon32(crate::model::d3draster::clamp_range(f(0)?, f(1)?, f(2)?)))
+        },
+    },
+    Mirror {
+        name: "d3d11.vertexdepth",
+        lean: INTERP,
+        domain: Domain::Sampled("200,000 quadruples (minz, maxz, z, w) of the floats of d3d11.plane"),
+        inputs: |each| float_args(4, 200_000, 0xde97_d311, each),
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            one(canon32(crate::model::d3draster::vertex_depth(f(0)?, f(1)?, f(2)?, f(3)?)))
+        },
+    },
+    Mirror {
+        name: "d3d11.viewport",
+        lean: INTERP,
+        domain: Domain::Sampled("200,000 viewports and clip positions (x, y, width, height, x, y, w) of the floats of d3d11.plane"),
+        inputs: |each| float_args(7, 200_000, 0x7e9a_d311, each),
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            let (x, y) = crate::model::d3draster::viewport_xy([f(0)?, f(1)?, f(2)?, f(3)?, 0.0, 1.0], &[f(4)?, f(5)?, 0.0, f(6)?]);
+            Some(vec![x, y])
+        },
+    },
+    Mirror {
+        name: "d3d11.vp10",
+        lean: INTERP,
+        domain: Domain::Sampled("the 40 signed boundary floats and 300,000 of the floats of d3d11.plane"),
+        inputs: |each| {
+            let mut fs = Vec::new();
+            floats(0, &mut crate::rng::Sample64::new(1), &mut |c| fs.push(i64::from(c)));
+            for &x in &fs {
+                each(&[x]);
+            }
+            float_args(1, 300_000, 0x7010_d311, each);
+        },
+        model: |a| one(canon32(crate::model::d3draster::vp10(f32::from_bits(arg(a, 0)?)))),
+    },
+    Mirror {
+        name: "d3d11.cliplerp",
+        lean: INTERP,
+        domain: Domain::Sampled("200,000 quadruples (the two distances, the two values) of the floats of d3d11.plane"),
+        inputs: |each| float_args(4, 200_000, 0xc11e_d311, each),
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            one(canon32(crate::model::d3draster::clip_lerp(f(0)?, f(1)?, f(2)?, f(3)?)))
+        },
+    },
+    Mirror {
+        name: "d3d11.madescreen",
+        lean: INTERP,
+        domain: Domain::Sampled("200,000 viewports and made vertices (x, y, width, height, minz, maxz, x, y, z, w) of the floats of d3d11.plane, with and without depth clipping"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x3ade_d311);
+            float_args(10, 200_000, 0x3adf_d311, &mut |v| {
+                let mut w = v.to_vec();
+                w.push(i64::from(rng.chance(2)));
+                each(&w);
+            });
+        },
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            let ((x, y), z, rhw) = crate::model::d3draster::made_screen([f(0)?, f(1)?, f(2)?, f(3)?, f(4)?, f(5)?], &[f(6)?, f(7)?, f(8)?, f(9)?], flag(a, 10)?);
+            Some(vec![x, y, canon32(z), canon32(rhw)])
+        },
+    },
+];
+
+const CLIP: &str = "spec/lean/Kikizake/D3d11/Clip.lean";
+
+/// `n` calls of `args` binary32 clip-space values: mostly multiples of 1/8 in -4..4 (so that
+/// vertices fall on a plane, behind the eye and at w = 0 too), one in 16 a float of
+/// d3d11.plane; `flags` flags (0 or 1) after them
+fn clip_args(args: usize, flags: usize, n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::Sample64::new(seed);
+    let mut pool = Vec::new();
+    float_args(1, 4000, seed ^ 0x5a5a_5a5a, &mut |v| pool.extend_from_slice(v));
+    for _ in 0..n {
+        let mut v: Vec<i64> = (0..args)
+            .map(|_| {
+                if rng.chance(16) {
+                    *rng.pick(&pool)
+                } else {
+                    let k = i32::try_from(rng.range(-32, 32)).unwrap_or(0);
+                    i64::from((f64::from(k) / 8.0).to_string().parse::<f32>().unwrap_or(0.0).to_bits())
+                }
+            })
+            .collect();
+        for _ in 0..flags {
+            v.push(rng.range(0, 1));
+        }
+        each(&v);
+    }
+}
+
+/// four binary32 arguments from `i` on
+fn vec4(a: &[i64], i: usize) -> Option<[f32; 4]> {
+    let f = |k: usize| arg::<u32>(a, i.checked_add(k)?).map(f32::from_bits);
+    Some([f(0)?, f(1)?, f(2)?, f(3)?])
+}
+
+pub static CLIP_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.cliptri",
+        lean: CLIP,
+        domain: Domain::Sampled("200,000 triangles (positions and colors of the values of clip_args), with and without depth clipping; a NaN answer as the one quiet NaN"),
+        inputs: |each| clip_args(24, 1, 200_000, 0xc11f_d311, each),
+        model: |a| {
+            if a.len() != 25 {
+                return None;
+            }
+            let v = |k: usize| Some((vec4(a, k.checked_mul(8)?)?, vec4(a, k.checked_mul(8)?.checked_add(4)?)?));
+            let Some(p) = crate::model::d3draster::clip_tri_values([v(0)?, v(1)?, v(2)?], flag(a, 24)?) else { return Some(vec![0]) };
+            let mut out = vec![1, i64::try_from(p.len()).ok()?];
+            for (pos, color, made, along) in p {
+                out.extend(pos.iter().chain(color.iter()).map(|&x| canon32(x)));
+                out.extend([i64::from(made), i64::from(along)]);
+            }
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "d3d11.clipxy",
+        lean: CLIP,
+        domain: Domain::Sampled("200,000 triangles' positions of the values of clip_args, clipped to the x and y planes, then (the flag) to the depth range"),
+        inputs: |each| clip_args(12, 1, 200_000, 0xc1f0_d311, each),
+        model: |a| {
+            if a.len() != 13 {
+                return None;
+            }
+            let p = crate::model::d3draster::clip_xy([vec4(a, 0)?, vec4(a, 4)?, vec4(a, 8)?]);
+            let p = if flag(a, 12)? { crate::model::d3draster::clip_z(p) } else { p };
+            let mut out = vec![i64::try_from(p.len()).ok()?];
+            out.extend(p.iter().flat_map(|q| q.map(canon32)));
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "d3d11.clipline",
+        lean: CLIP,
+        domain: Domain::Sampled("200,000 lines' ends (positions and colors of the values of clip_args), clipped to the x and y planes or (the flag) to the depth range"),
+        inputs: |each| clip_args(16, 1, 200_000, 0xc11a_d311, each),
+        model: |a| {
+            if a.len() != 17 {
+                return None;
+            }
+            let e = |i: usize| Some((vec4(a, i)?, vec4(a, i.checked_add(4)?)?));
+            let Some([p, q]) = crate::model::d3draster::clip_line_values(e(0)?, e(8)?, flag(a, 16)?) else { return Some(vec![0]) };
+            let mut out = vec![1];
+            out.extend([p.0, p.1, q.0, q.1].iter().flat_map(|v| v.map(canon32)));
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "d3d11.clippedaway",
+        lean: CLIP,
+        domain: Domain::Sampled("200,000 viewports (x, y of -2..2, sizes 1..64) and triangles' positions of the values of clip_args, clipped to the x and y planes"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xa3a7_d311);
+            clip_args(12, 0, 200_000, 0xa3a8_d311, &mut |v| {
+                let f = |x: i64| i64::from(f32::from(i16::try_from(x).unwrap_or(0)).to_bits());
+                let mut w = vec![f(rng.range(-2, 2)), f(rng.range(-2, 2)), f(rng.range(1, 64)), f(rng.range(1, 64))];
+                w.extend_from_slice(v);
+                each(&w);
+            });
+        },
+        model: |a| {
+            if a.len() != 16 {
+                return None;
+            }
+            let [vx, vy, vw, vh] = vec4(a, 0)?;
+            let p = crate::model::d3draster::clip_xy([vec4(a, 4)?, vec4(a, 8)?, vec4(a, 12)?]);
+            one(crate::model::d3draster::clipped_away([vx, vy, vw, vh, 0.0, 1.0], &p))
+        },
+    },
+    Mirror {
+        name: "d3d11.notfinite",
+        lean: CLIP,
+        domain: Domain::Sampled("200,000 triangles' positions of the values of clip_args"),
+        inputs: |each| clip_args(12, 0, 200_000, 0x0f17_d311, each),
+        model: |a| {
+            if a.len() != 12 {
+                return None;
+            }
+            one(crate::model::d3draster::not_finite([vec4(a, 0)?, vec4(a, 4)?, vec4(a, 8)?]))
+        },
+    },
+    Mirror {
+        name: "d3d11.depthaway",
+        lean: CLIP,
+        domain: Domain::Sampled("100,000 triples and 100,000 pairs of depths of the values of clip_args"),
+        inputs: |each| {
+            clip_args(3, 0, 100_000, 0xde9a_d311, each);
+            clip_args(2, 0, 100_000, 0xde9b_d311, each);
+        },
+        model: |a| {
+            let zs = a.iter().map(|&x| u32::try_from(x).ok().map(f32::from_bits)).collect::<Option<Vec<f32>>>()?;
+            one(crate::model::d3draster::depth_away(&zs))
+        },
+    },
+];
+
+const LINE: &str = "spec/lean/Kikizake/D3d11/Line.lean";
+
+/// `n` lines' ends in 1/256 pixels of -40..40 pixels (one in three on a pixel center, one in
+/// three on a multiple of 1/4 pixel, equal ends now and then), and with `pixel` a pixel within
+/// two of a point along the line
+fn line_args(n: usize, pixel: bool, seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::Sample64::new(seed);
+    let coord = |rng: &mut crate::rng::Sample64| match rng.range(0, 2) {
+        0 => rng.range(-40, 40).saturating_mul(256).saturating_add(128),
+        1 => rng.range(-160, 160).saturating_mul(64),
+        _ => rng.range(-10_240, 10_240),
+    };
+    for _ in 0..n {
+        let (ax, ay) = (coord(&mut rng), coord(&mut rng));
+        let (bx, by) = if rng.chance(50) { (ax, ay) } else if rng.chance(3) { (ax.saturating_add(rng.range(-600, 600)), ay.saturating_add(rng.range(-600, 600))) } else { (coord(&mut rng), coord(&mut rng)) };
+        let mut v = vec![ax, ay, bx, by];
+        if pixel {
+            let t = rng.range(0, 256);
+            let at = |a: i64, b: i64| a.saturating_add(b.saturating_sub(a).saturating_mul(t).checked_div(256).unwrap_or(0)).div_euclid(256);
+            v.extend([at(ax, bx).saturating_add(rng.range(-2, 2)), at(ay, by).saturating_add(rng.range(-2, 2))]);
+        }
+        each(&v);
+    }
+}
+
+pub static LINE_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.linecovers",
+        lean: LINE,
+        domain: Domain::Sampled("300,000 aliased lines and pixels of line_args"),
+        inputs: |each| line_args(300_000, true, 0x11c0_d311, each),
+        model: |a| one(crate::model::d3draster::line_covers(pt(a, 0)?, pt(a, 2)?, pt(a, 4)?)),
+    },
+    Mirror {
+        name: "d3d11.quadcorners",
+        lean: LINE,
+        domain: Domain::Sampled("200,000 multisample lines of line_args"),
+        inputs: |each| line_args(200_000, false, 0x9ad0_d311, each),
+        model: |a| Some(crate::model::d3draster::quad_corners(pt(a, 0)?, pt(a, 2)?).iter().flat_map(|&(x, y)| [x, y]).collect()),
+    },
+    Mirror {
+        name: "d3d11.alphacorners",
+        lean: LINE,
+        domain: Domain::Sampled("200,000 alpha antialiased lines of line_args"),
+        inputs: |each| line_args(200_000, false, 0xa1c0_d311, each),
+        model: |a| Some(crate::model::d3draster::alpha_corners(pt(a, 0)?, pt(a, 2)?).iter().flat_map(|&(x, y)| [x, y]).collect()),
+    },
+    Mirror {
+        name: "d3d11.alphacover",
+        lean: LINE,
+        domain: Domain::Sampled("200,000 alpha antialiased lines and pixels of line_args; a NaN answer as the one quiet NaN"),
+        inputs: |each| line_args(200_000, true, 0xa1c1_d311, each),
+        model: |a| one(canon32(crate::model::d3draster::alpha_coverage(pt(a, 0)?, pt(a, 2)?, pt(a, 4)?))),
+    },
+    Mirror {
+        name: "d3d11.linesamples",
+        lean: LINE,
+        domain: Domain::Every("with the multisample state or not, every coverage of 0..8 samples and of 16"),
+        inputs: |each| {
+            for ms in 0..=1 {
+                for n in (0..=8u32).chain([16]) {
+                    for bits in 0..1u32 << n {
+                        let mut v = vec![ms];
+                        v.extend((0..n).map(|k| i64::from(bits >> k & 1)));
+                        each(&v);
+                    }
+                }
+            }
+        },
+        model: |a| {
+            let covered = a.get(1..)?.iter().map(|&c| Some(c != 0)).collect::<Option<Vec<bool>>>()?;
+            Some(crate::model::d3draster::line_samples(flag(a, 0)?, &covered).into_iter().map(i64::from).collect())
+        },
+    },
+];
+
+const LAYOUT: &str = "spec/lean/Kikizake/D3d11/Layout.lean";
+
+pub static LAYOUT_MIRRORS: &[Mirror] = &[Mirror {
+    name: "d3d11.layout",
+    lean: LAYOUT,
+    domain: Domain::Every("the 11 programs of LAYOUT_PROGRAMS and one other, every list of 0..8 elements of a format an input takes or not"),
+    inputs: |each| {
+        for p in 0..=11 {
+            for n in 0..=8u32 {
+                for bits in 0..1u32 << n {
+                    let mut v = vec![p];
+                    v.extend((0..n).map(|k| i64::from(bits >> k & 1)));
+                    each(&v);
+                }
+            }
+        }
+    },
+    model: |a| {
+        use crate::model::d3draster::{layout_verdict, LayoutVerdict, LAYOUT_PROGRAMS};
+        let name = LAYOUT_PROGRAMS.get(arg::<usize>(a, 0)?).copied().unwrap_or("other");
+        let usable = a.get(1..)?.iter().map(|&c| c != 0).collect::<Vec<bool>>();
+        one(match layout_verdict(name, &usable) {
+            None => -1,
+            Some(LayoutVerdict::Made) => 0,
+            Some(LayoutVerdict::NoProgram) => 1,
+            Some(LayoutVerdict::PixelProgram) => 2,
+            Some(LayoutVerdict::Unfed) => 3,
+        })
     },
 }];

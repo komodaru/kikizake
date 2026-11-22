@@ -8,7 +8,7 @@ const METRICS: &str = "spec/lean/Kikizake/DWrite/Metrics.lean";
 /// `n` argument lists in the ranges, each argument one of its range's ends, 0, 1 or -1 (where
 /// the range holds them) one time in four, else uniform in it
 fn edged(ranges: &[(i64, i64)], n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     for _ in 0..n {
         let v: Vec<i64> = ranges
             .iter()

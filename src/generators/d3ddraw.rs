@@ -683,6 +683,7 @@ fn suite(d3d11: bool) -> String {
         read_rt(&mut s, 0, crate::dxgi!(2), 16, 16);
         writeln!(&mut s, "end");
     }
+    hazards(&mut s, dev);
     // the last case ends the executor: on Direct3D 11 a patch list, on 10 an integer view sampled
     if !d3d11 {
         writeln!(&mut s, "case probe-filter-r8g8b8a8-uint\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0");
@@ -1332,4 +1333,47 @@ fn probes(s: &mut String, dev: &str) {
     writeln!(s, "draw 4 3 32");
     read_rt(s, 0, crate::dxgi!(28), 16, 16);
     writeln!(s, "end");
+}
+
+/// a texture both drawn into and read (the review of 84b05c8, 3.1, 3.2): its mip 0 cleared red,
+/// mip 1 blue; Texture2D.Load through views of either level, the level bound as a target before
+/// or after it is bound to be read, or the other level, or in a call the runtime refuses
+fn hazards(s: &mut String, dev: &str) {
+    let (red, blue) = (format!("{} 0 0 {}", fb(1.0), fb(1.0)), format!("0 0 {} {}", fb(1.0), fb(1.0)));
+    let draw = |s: &mut String| {
+        writeln!(s, "shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2", hex(&shader(Prog::Vs)), hex(&shader(Prog::Psld)));
+        writeln!(s, "viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0", fb(4.0), fb(4.0), fb(1.0));
+        for (x, y) in [(-1.0f32, 1.0f32), (1.0, 1.0), (-1.0, -1.0), (1.0, -1.0)] {
+            writeln!(s, "vtx {} {} {} {} 0 0 0 {}", fb(x), fb(y), fb(0.5), fb(1.0), fb(1.0));
+        }
+        writeln!(s, "draw 5 4 32\nread 0 0 16 4 1\nend");
+    };
+    // (slot 0 the target read back; texture 1 of two levels, its RTVs 2 (mip 0) and 3 (mip 1);
+    // SRV 5 of mip 0, 6 of mip 1)
+    let setup = |s: &mut String, name: &str| {
+        writeln!(s, "case hazard-{name}\n{dev}\ntex 0 2 4 4 1 1 28 0 0x20 0 0 1 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0");
+        writeln!(s, "tex 1 2 4 4 1 2 28 0 0x28 0 0 1 0\nrtv 2 1 28 4 0\nrtv 3 1 28 4 1\nclear 2 {red}\nclear 3 {blue}\nsrv 5 1 28 4 0 1\nsrv 6 1 28 4 1 1");
+    };
+    let cases: [(&str, &str); 8] = [
+        // (the target bound, then the view of the level it draws into: the view is not bound)
+        ("rt-then-srv", "target 2\ntsrv 5\ntarget 0"),
+        // (the view bound, then its level as the target: the view is unbound)
+        ("srv-then-rt", "tsrv 5\ntarget 2\ntarget 0"),
+        // (the other level: both stay)
+        ("rt-other-mip", "target 3\ntsrv 5\ntarget 0"),
+        ("srv-other-mip", "tsrv 5\ntarget 3\ntarget 0"),
+        // (the call the runtime refuses: a target and a depth view of other sample counts, on
+        // Direct3D 11 nothing changes, on 10 the target alone is bound)
+        ("srv-then-refused", "tex 4 2 4 4 1 1 40 0 0x40 0 0 4 0\ndsv 7 4 nodesc\ntsrv 5\ntarget 2 7\ntarget 0"),
+        // (Load through a view whose most detailed level is 1: that level, 2 by 2)
+        ("load-mip1", "target 0\ntsrv 6"),
+        ("load-mip0", "target 0\ntsrv 5"),
+        // (the view of mip 1 bound while mip 1 is the target, then the target back: unbound)
+        ("srv-mip1-then-rt", "tsrv 6\ntarget 3\ntarget 0"),
+    ];
+    for (name, ops) in cases {
+        setup(s, name);
+        writeln!(s, "{ops}");
+        draw(s);
+    }
 }

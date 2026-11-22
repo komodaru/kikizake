@@ -383,3 +383,146 @@ fn polygon_grid() {
     assert!(twice.inside(gp::FillMode::Winding, 1.0, 1.0));
     assert!(!twice.inside(gp::FillMode::Alternate, 1.0, 1.0));
 }
+
+/// run a case on both executors: its lines after the bitmap's read in `fmt`
+fn texture_case(arch: u32, fmt: &str, setup: &str, paint: &str) -> Vec<String> {
+    kikizake::model::set_arch(arch);
+    // (a target of every channel value pattern: gpfill of two translucent colors, then the paint)
+    let text = format!(
+        "case p\ngpbitmap 0 16 16 {fmt}\ngpfill 0 0 0 16 7 0x80c04020 copy 0\ngpfill 0 3 0 9 16 0x40208040 over 0\n{setup}{paint}gpread 0 {fmt}\nend\n"
+    );
+    let c = &kikizake::case::parse_cases(&text)[0];
+    let out = kikizake::model::run_case(c).unwrap_or_default();
+    kikizake::model::set_arch(32);
+    out
+}
+
+/// a case's answers from its brush's on
+fn from_brush(out: &[String]) -> Vec<String> {
+    out.iter().skip_while(|l| !l.starts_with("brush")).cloned().collect()
+}
+
+/// the lines that make 8 x 8 bitmap 1 of 32bppPARGB hold texels `f(x, y)` (straight ARGB, set as
+/// SetPixel premultiplies them)
+fn texture_lines(w: u32, h: u32, f: &dyn Fn(u32, u32) -> u32) -> String {
+    let mut s = format!("gpbitmap 1 {w} {h} 32bppPARGB\n");
+    for y in 0..h {
+        for x in 0..w {
+            s += &format!("gpset 1 {x} {y} 0x{:08x}\n", f(x, y));
+        }
+    }
+    s
+}
+
+/// GP.BRUSH.TEXTURE.PAINT: a texture brush composites, antialiases and gamma corrects as a hatch
+/// brush does: a Tile texture of a two-color hatch style's 8 x 8 pattern paints what that hatch
+/// paints, on every format (dithered, 16-bit channel, indexed), under every CompositingQuality,
+/// smoothing and pixel offset mode, copy and over, on both executors; Clamp past its tile is a
+/// transparent texel: a Clamp texture paints what a Tile texture twice its size, transparent past
+/// the same texels, paints (a 64bpp destination comes back through premultiplication there)
+#[test]
+fn textures_composite_as_hatches() {
+    let styles: Vec<usize> = (0..53).filter(|&st| gp::HATCH[st * 64..st * 64 + 64].iter().all(|&w| w == 0 || w == 255)).collect();
+    assert!(styles.len() > 40, "{styles:?}");
+    let colors = [(0xff20_40c0u32, 0xffe0_a010u32), (0x80c0_2040, 0x40ff_ff00), (0xc000_80ff, 0x0000_0000)];
+    let mut n = 0u32;
+    for arch in [32, 64] {
+        for f in Pf::ALL {
+            for (k, &st) in styles.iter().enumerate().step_by(7) {
+                let (fore, back) = colors[k % 3];
+                let tex = texture_lines(8, 8, &|x, y| if gp::HATCH[st * 64 + usize::try_from(y * 8 + x).unwrap_or(0)] == 255 { fore } else { back });
+                for (q, sm, po) in [(0, 0, 0), (2, 0, 0), (3, 4, 2), (1, 5, 4), (3, 2, 0), (4, 3, 4), (2, 5, 1)] {
+                    for mode in ["copy", "over"] {
+                        let rect = "1.25 0.5 13.375 14.75";
+                        let hatch = texture_case(arch, f.name(), "", &format!("gpbrush 0 hatch {st} 0x{fore:08x} 0x{back:08x}\ngppaint 0 0 {rect} {mode} {q} {sm} {po} 0 0\n"));
+                        let texture = texture_case(arch, f.name(), &tex, &format!("gpbrush 0 texture 1 0\ngppaint 0 0 {rect} {mode} {q} {sm} {po} 0 0\n"));
+                        assert_eq!(from_brush(&hatch), from_brush(&texture), "{arch} {} style {st} q {q} sm {sm} po {po} {mode}", f.name());
+                        n = n.saturating_add(1);
+                    }
+                }
+            }
+        }
+    }
+    assert!(n > 1000);
+    // (Clamp: the 8 x 8 tile at (0, 0), transparent past it)
+    let texel = |x: u32, y: u32| if (x + 2 * y) % 3 == 0 { 0xc0ff_4000 } else { 0xff10_20f0 };
+    let small = texture_lines(8, 8, &texel);
+    let big = texture_lines(16, 16, &|x, y| if x < 8 && y < 8 { texel(x, y) } else { 0 });
+    for arch in [32, 64] {
+        for f in Pf::ALL {
+            for (q, sm, po) in [(0, 0, 0), (3, 0, 0), (2, 4, 2), (3, 5, 0)] {
+                for mode in ["copy", "over"] {
+                    let paint = |wrap: u32| format!("gpbrush 0 texture 1 {wrap}\ngppaint 0 0 -0.5 0.25 16.5 15.5 {mode} {q} {sm} {po} 3 5\n");
+                    let clamp = texture_case(arch, f.name(), &small, &paint(4));
+                    let tile = texture_case(arch, f.name(), &big, &paint(0));
+                    assert_eq!(from_brush(&clamp), from_brush(&tile), "{arch} {} q {q} sm {sm} po {po} {mode}", f.name());
+                }
+            }
+        }
+    }
+}
+
+/// run case text on x86; its answers
+fn answers(text: &str) -> Vec<String> {
+    let c = &kikizake::case::parse_cases(&format!("case p\n{text}end\n"))[0];
+    kikizake::model::run_case(c).unwrap_or_default()
+}
+
+/// the pixels of the last read of a case's answers in a 32-bit format (little-endian bytes)
+fn read32(out: &[String], h: usize) -> Vec<u32> {
+    let rows = out.get(out.len().saturating_sub(h)..).unwrap_or(&[]);
+    rows.iter()
+        .flat_map(|r| {
+            (0..r.len() / 8).map(move |k| {
+                let b = |i: usize| u32::from_str_radix(r.get(k * 8 + 2 * i..k * 8 + 2 * i + 2).unwrap_or("00"), 16).unwrap_or(0);
+                b(0) | b(1) << 8 | b(2) << 16 | b(3) << 24
+            })
+        })
+        .collect()
+}
+
+/// GP.FILL.BUFFER: on a 16-bit channel bitmap a fill works on a 32bppARGB copy of the whole
+/// bitmap, on an indexed one on a 32bppPARGB copy written back as the nearest entry to the
+/// premultiplied color; written back when the rectangle starts inside the bitmap with a width and
+/// height of 0 or more (every pixel then makes the trip), else the bitmap as it was: every such
+/// format, rectangle inside, past the edges, starting outside, empty and negative, copy and over,
+/// with and without gamma correction (16-bit channels), against the same fill of a 32-bit bitmap
+/// written from the same bytes
+#[test]
+fn wide_and_indexed_fills_work_on_a_copy() {
+    let rects = [(1, 0, 3, 2), (-1, -1, 9, 9), (4, 2, 0, 0), (2, 1, 0, 5), (5, 0, 2, 2), (0, 3, 2, 2), (1, 1, -1, 2), (1, 1, 2, -1), (-2, 0, 3, 3)];
+    let mut tripped = 0u32;
+    for f in [Pf::Rgb48, Pf::Argb64, Pf::Pargb64, Pf::I1, Pf::I4, Pf::I8] {
+        let name = f.name();
+        let wide = !matches!(f, Pf::I1 | Pf::I4 | Pf::I8);
+        for (seed, &(x, y, w, h)) in rects.iter().enumerate() {
+            for c in ["0x80c04020", "0xff2040e0", "0x00ffffff"] {
+                for (mode, q) in [("copy", 0), ("over", 0), ("over", 2), ("over", 3)] {
+                    if !wide && q != 0 {
+                        continue;
+                    }
+                    let write = format!("gpwrite 0 {name} seed {}\n", seed + 3);
+                    let fill = format!("gpfill 0 {x} {y} {w} {h} {c} {mode} {q}\n");
+                    let before = answers(&format!("gpbitmap 0 5 3 {name}\n{write}gpread 0 32bppARGB\n"));
+                    let after = answers(&format!("gpbitmap 0 5 3 {name}\n{write}{fill}gpread 0 32bppARGB\n"));
+                    let trip = x <= x + w && y <= y + h && w >= 0 && h >= 0 && x < 5 && y < 3;
+                    let want = if !trip {
+                        read32(&before, 3)
+                    } else if wide {
+                        // (the same bytes into a 32bppARGB bitmap, filled, read back through the format)
+                        let c = answers(&format!("gpbitmap 0 5 3 32bppARGB\n{write}{fill}gpread 0 32bppARGB\n"));
+                        read32(&c, 3).iter().map(|&v| gp::convert(f, Pf::Argb32, gp::convert(Pf::Argb32, f, u64::from(v), &[]).unwrap_or(0), &[]).ok().and_then(|v| u32::try_from(v).ok()).unwrap_or(0)).collect()
+                    } else {
+                        // (into 32bppPARGB, filled, each premultiplied color's nearest entry)
+                        let c = answers(&format!("gpbitmap 0 5 3 32bppPARGB\n{write}{fill}gpread 0 32bppPARGB\n"));
+                        read32(&c, 3).iter().map(|&v| gp::convert(f, Pf::Argb32, from_argb(f, v).unwrap_or(0), &[]).ok().and_then(|v| u32::try_from(v).ok()).unwrap_or(0)).collect()
+                    };
+                    tripped += u32::from(trip);
+                    assert_eq!(read32(&after, 3), want, "{name} {x} {y} {w} {h} {c} {mode} {q}");
+                    assert_eq!(want.len(), 15);
+                }
+            }
+        }
+    }
+    assert!(tripped > 100);
+}

@@ -16,6 +16,7 @@ mod f32;
 mod dwrite;
 mod dxgi;
 mod gdi;
+mod gdiglyph;
 mod gdiplus;
 pub mod ledger;
 
@@ -46,6 +47,7 @@ pub fn mirrors() -> Vec<&'static Mirror> {
     // (one API a line)
     let all: &[&[Mirror]] = &[
         gdi::MIRRORS,
+        gdiglyph::MIRRORS,
         gdiplus::MIRRORS,
         d3d12::MIRRORS,
         dxgi::MIRRORS,
@@ -56,6 +58,10 @@ pub fn mirrors() -> Vec<&'static Mirror> {
         d3d11::VIEW_MIRRORS,
         d3d11::FILTER_MIRRORS,
         d3d11::MERGE_MIRRORS,
+        d3d11::INTERP_MIRRORS,
+        d3d11::CLIP_MIRRORS,
+        d3d11::LINE_MIRRORS,
+        d3d11::LAYOUT_MIRRORS,
         dwrite::MIRRORS,
         f32::MIRRORS,
     ];
@@ -114,7 +120,7 @@ pub fn sampled(ranges: &[(i64, i64)], n: usize, seed: u32, each: &mut dyn FnMut(
         let v: Vec<i64> = e.iter().zip(ranges).map(|(&k, r)| if k == 0 { r.0 } else { r.1 }).collect();
         each(&v);
     });
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     let mut v: Vec<i64> = ranges.iter().map(|r| r.0).collect();
     for _ in 0..n {
         for (x, r) in v.iter_mut().zip(ranges) {
@@ -122,6 +128,33 @@ pub fn sampled(ranges: &[(i64, i64)], n: usize, seed: u32, each: &mut dyn FnMut(
         }
         each(&v);
     }
+}
+
+/// why an argument's samples do not cover their range (None: they do): spanning more than 2^33,
+/// fewer than one in 1000 lie past its lowest 2^32 values; spanning past 2^32 below 0 and above,
+/// fewer than one in 100 on either side (tests/verification.rs
+/// sampled_mirrors_reach_their_whole_ranges)
+pub fn uncovered(v: &[i64]) -> Option<String> {
+    let (lo, hi) = (*v.iter().min()?, *v.iter().max()?);
+    let n = v.len();
+    const WIDE: i128 = 1 << 32;
+    const BELOW: i128 = -WIDE;
+    let wide = WIDE;
+    let from_lo = |x: i64| i128::from(x).checked_sub(i128::from(lo)).unwrap_or(0);
+    if from_lo(hi) > 1i128 << 33 {
+        let past = v.iter().filter(|&&x| from_lo(x) >= wide).count();
+        if past.saturating_mul(1000) < n {
+            return Some(format!("{past} of {n} samples past {lo} + 2^32 in {lo}..={hi}"));
+        }
+    }
+    if i128::from(lo) < BELOW && i128::from(hi) > wide {
+        let below = v.iter().filter(|&&x| x < 0).count();
+        let above = n.saturating_sub(below);
+        if below.min(above).saturating_mul(100) < n {
+            return Some(format!("{below} of {n} samples below 0, {above} not, in {lo}..={hi}"));
+        }
+    }
+    None
 }
 
 /// per mirror: (name, calls, first differences)

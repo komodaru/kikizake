@@ -209,6 +209,17 @@ fn decode565<F: Real>(w: u16) -> C3<F> {
     [u(w >> 11 & 31, 31.0), u(w >> 5 & 63, 63.0), u(w & 31, 31.0)]
 }
 
+/// a point's step in OptimizeRGB's Newton round: the last (n - 1) where the dot is not below
+/// the steps' count (a NaN too), else trunc(dot + 0.5), the sum stored; no test below 0 on
+/// either build: an index below 0 (a dot at or below -1.5) reads outside the table, the build's
+/// Below (D3DX9.LOAD.FORMAT on x86, D3DX9.LOAD.NEGFAULT on x64)
+pub fn step_index<F: Real>(dot: F, fsteps: F, n: usize) -> Result<usize, Below> {
+    if !(fsteps > dot) {
+        return Ok(n.saturating_sub(1));
+    }
+    usize::try_from((dot + F::of(0.5)).store().trunc_i()).ok().ok_or(F::BELOW)
+}
+
 /// the endpoints of the block's points (luminance-weighted colours)
 fn optimize_rgb<F: Real>(pts: &[C3<F>; 16], steps: Steps) -> Result<(C3<F>, C3<F>), Below> {
     let eps = F::of((0.25 / 64.0) * (0.25 / 64.0));
@@ -275,17 +286,11 @@ fn optimize_rgb<F: Real>(pts: &[C3<F>; 16], steps: Steps) -> Result<(C3<F>, C3<F
         let (mut dx, mut dy) = ([F::of(0.0); 3], [F::of(0.0); 3]);
         for p in pts {
             let dot = (((p[1] - x[1]) * d[1] + (p[0] - x[0]) * d[0]) + (p[2] - x[2]) * d[2]).store();
-            let i = if !(fsteps > dot) {
-                n - 1
-            } else {
-                // (no test below 0 on either build: a dot at or below -1.5 indexes outside the
-                // table, D3DX9.LOAD.FORMAT on x86, D3DX9.LOAD.NEGFAULT on x64)
-                match usize::try_from((dot + F::of(0.5)).store().trunc_i()) {
-                    Ok(i) => i,
-                    Err(_) => {
-                        F::chop(false);
-                        return Err(F::BELOW);
-                    }
+            let i = match step_index(dot, fsteps, n) {
+                Ok(i) => i,
+                Err(b) => {
+                    F::chop(false);
+                    return Err(b);
                 }
             };
             let diff: C3<F> = std::array::from_fn(|k| (st[i][k] - p[k]).store());

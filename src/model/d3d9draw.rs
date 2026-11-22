@@ -309,11 +309,8 @@ pub fn encode(f: &Fmt, rgba: [f64; 4]) -> Vec<u8> {
 /// a pixel's bytes, the unused X bits the alpha (Clear) or 0 (a draw: MEASURED, d3d9draw
 /// blend-fmt-X8R8G8B8-*)
 pub fn encode_x(f: &Fmt, rgba: [f64; 4], x_alpha: bool) -> Vec<u8> {
-    let mut w: u128 = 0;
+    let mut raws = Vec::with_capacity(f.ch.len());
     for c in &f.ch {
-        if c.c == b'x' && !x_alpha {
-            continue;
-        }
         let v = match c.c {
             b'r' | b'l' | b'u' => rgba[0],
             b'g' | b'v' => rgba[1],
@@ -331,9 +328,21 @@ pub fn encode_x(f: &Fmt, rgba: [f64; 4], x_alpha: bool) -> Vec<u8> {
             }
             _ => unorm(v, c.bits),
         };
-        w |= (raw as u128) << c.shift;
+        raws.push(raw);
     }
-    w.to_le_bytes()[..f.bytes].to_vec()
+    pack(&f.ch, &raws, x_alpha).to_le_bytes()[..f.bytes].to_vec()
+}
+
+/// a pixel's channels' raw values put together at their shifts; the unused X bits 0 unless
+/// `x_alpha` (D3D9.DRAW.XZERO: a draw writes 0 there, Clear the alpha, D3D9.RT.UNORM)
+pub fn pack(ch: &[Ch], raws: &[u64], x_alpha: bool) -> u128 {
+    ch.iter().zip(raws).filter(|(c, _)| c.c != b'x' || x_alpha).fold(0, |w, (c, &r)| w | u128::from(r) << c.shift)
+}
+
+/// D3D9.RASTER.CLIP, RASTER.TOPLEFT: a screen coordinate snapped to 1/256 pixel, to nearest even
+/// (the value in 1/256ths)
+pub fn snap256(v: f32) -> i64 {
+    round_even(f64::from(v) * 256.0) as i64
 }
 
 pub fn round_even(x: f64) -> f64 {
@@ -458,6 +467,37 @@ pub enum BlendOp {
     Max,
 }
 
+/// the call that set the vertex declaration
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum DeclFrom {
+    /// SetFVF, or none set yet
+    #[default]
+    Fvf,
+    /// SetVertexDeclaration
+    Declaration,
+}
+
+/// D3D9.FVF.SET, FVF.GET, DECL.GET: SetFVF(f) as GetFVF and GetVertexDeclaration then answer
+/// (fvf, declaration, its origin), from what they answered before. MEASURED fvf-decl-order-*:
+/// an FVF of 0 changes nothing with no declaration or one SetVertexDeclaration set, and else sets
+/// a declaration of no elements; fvf-*: any other FVF its runtime declaration
+pub fn set_fvf(f: u32, now: (u32, Option<Vec<(u32, u32)>>, DeclFrom)) -> Res<(u32, Option<Vec<(u32, u32)>>, DeclFrom)> {
+    hit(clause::D3D9_FVF_SET);
+    Ok(match (f, now) {
+        (0, (fvf, None, from)) => (fvf, None, from),
+        (0, (fvf, Some(d), DeclFrom::Declaration)) => (fvf, Some(d), DeclFrom::Declaration),
+        (0, (_, Some(_), DeclFrom::Fvf)) => (0, Some(Vec::new()), DeclFrom::Fvf),
+        (f, _) => (f, fvf_runtime_decl(f)?, DeclFrom::Fvf),
+    })
+}
+
+/// D3D9.FVF.GET, DECL.GET: SetVertexDeclaration of a declaration CreateVertexDeclaration took:
+/// GetFVF then answers the FVF it converts to, 0 when none (MEASURED fvf-decl-order-*, decl-*)
+pub fn set_decl(e: Vec<(u32, u32)>) -> (u32, Option<Vec<(u32, u32)>>, DeclFrom) {
+    hit(clause::D3D9_FVF_GET);
+    (super::d3dx9::decl_fvf(&e).unwrap_or(0), Some(e), DeclFrom::Declaration)
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct Draw {
     pub rt: Option<Surface>,
@@ -469,6 +509,8 @@ pub struct Draw {
     pub fvf: u32,
     /// the vertex declaration GetVertexDeclaration answers (None: no declaration)
     pub decl: Option<Vec<(u32, u32)>>,
+    /// which call set the declaration (D3D9.FVF.SET: SetFVF(0) keeps one SetVertexDeclaration set)
+    pub decl_from: DeclFrom,
     pub scissor: Option<(i32, i32, i32, i32)>,
     /// the triangle being drawn is counterclockwise on screen (two-sided stencil)
     pub ccw: bool,
@@ -669,7 +711,7 @@ struct Regs {
 
 /// the attributes a vertex carries through clipping: z, diffuse (r, g, b, a), specular, u, v
 /// z, diffuse, specular, (u, v), rhw, a second (u, v)
-const ATTRS: usize = 19;
+pub const ATTRS: usize = 19;
 /// the attributes perspective divides (all but z and rhw)
 const PERSP: [usize; 17] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18];
 /// how many sets of texture coordinates a vertex carries for the stages (TexSet)
@@ -686,14 +728,73 @@ fn st_of(at: &[f64; ATTRS]) -> [[f64; 2]; NSET] {
 /// what tells sets apart: the TEXCOORDINDEX, and the stage whose texture matrix transforms it
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub struct SetKey {
-    tci: u32,
+    pub tci: u32,
     /// (TEXTURETRANSFORMFLAGS, the stage), when not 0
-    xform: Option<(u32, u32)>,
+    pub xform: Option<(u32, u32)>,
+}
+
+/// a stage's set through its texture matrix a (TEXTURETRANSFORMFLAGS ttf on untransformed
+/// vertices; MEASURED tci-gen2-4, -5, tci-ttf-*; D3D9.STAGE.TEXXFORM): the row v times a in f32,
+/// each sum from 0 in the order of v; the first two of it, and the count's last where PROJECTED
+/// divides by it (1 where not), but not COUNT2 on Direct3D 8 (tci-ttf-5); COUNT1 leaves v as it
+/// is on Direct3D 9 and takes (the first, 0) on Direct3D 8; none for a count but 1 .. 4;
+/// spec/lean/Kikizake/D3d9/Coord.lean `texTransform`
+pub fn tex_transform(ttf: u32, v8: bool, v: [f32; 4], a: [f32; 16]) -> Option<[f64; 3]> {
+    let t: [f32; 4] = std::array::from_fn(|j| v.iter().zip(a.iter().skip(j).step_by(4)).fold(0.0f32, |s, (x, m)| s + x * m));
+    let [t0, t1, ..] = t;
+    let [v0, v1, ..] = v;
+    let count = ttf & 0xff;
+    Some(match count {
+        1 if v8 => [t0 as f64, 0.0, 1.0],
+        1 => [v0 as f64, v1 as f64, 1.0],
+        2 if v8 => [t0 as f64, t1 as f64, 1.0],
+        2..=4 if ttf & 0x100 != 0 => [t0 as f64, t1 as f64, *t.get(usize::try_from(count - 1).ok()?)? as f64],
+        2..=4 => [t0 as f64, t1 as f64, 1.0],
+        _ => return None,
+    })
+}
+
+/// the sets of coordinates a draw's stages read (MEASURED tci-multi-*, tci-three-*: each enabled
+/// stage reads its own set, those of the same TEXCOORDINDEX and texture matrix one;
+/// D3D9.STAGE.TCI): stage 0's, then each next stage's up to the first COLOROP DISABLE, where
+/// new; none past NSET (the generators read at most three sets);
+/// spec/lean/Kikizake/D3d9/Coord.lean `slots`
+pub fn tci_slots(keys: [SetKey; 8], cops: [u32; 8]) -> Option<Vec<SetKey>> {
+    let [first, ..] = keys;
+    let mut slots = vec![first];
+    for (k, _) in keys.iter().zip(cops).skip(1).take_while(|&(_, c)| c != 1) {
+        if !slots.contains(k) {
+            slots.push(*k);
+        }
+    }
+    (slots.len() <= NSET).then_some(slots)
+}
+
+/// a vertex's set of coordinates `set` among its sets (tex: the words from its first set on;
+/// sizes: each set's count), as a texture matrix's row vector: its coordinates, then 1, then 0,
+/// past the sets (0, 0, 1, 0); and as passed through, (0, 0) for a set past them or of one
+/// coordinate (MEASURED texcoordindex-*; D3D9.STAGE.TCI); none where tex is short of the sets;
+/// Coord.lean `row`
+pub fn coord_row(tex: &[u32], sizes: &[usize], set: usize) -> Option<([f32; 4], [f32; 4])> {
+    let Some(&n) = sizes.get(set) else {
+        return Some(([0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 1.0, 0.0]));
+    };
+    let o: usize = sizes.get(..set)?.iter().sum();
+    let mut r = [0.0f32; 4];
+    for (k, x) in r.iter_mut().enumerate() {
+        *x = match k.cmp(&n) {
+            std::cmp::Ordering::Less => f32::from_bits(*tex.get(o.checked_add(k)?)?),
+            std::cmp::Ordering::Equal => 1.0,
+            std::cmp::Ordering::Greater => 0.0,
+        };
+    }
+    let [_, _, z, q] = r;
+    Some((r, if n >= 2 { r } else { [0.0, 0.0, z, q] }))
 }
 
 /// TEXCOORDINDEX's generation mode (its high word)
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum TexGen {
+pub enum TexGen {
     Passthru,
     Normal,
     Position,
@@ -704,7 +805,7 @@ enum TexGen {
 impl TexGen {
     /// (4 SPHEREMAP; the generators write no mode past it; MEASURED d3d8draw tci-xyz-3:
     /// Direct3D 8, which has no SPHEREMAP, passes the set through for it)
-    fn of(tci: u32, v8: bool) -> TexGen {
+    pub fn of(tci: u32, v8: bool) -> TexGen {
         match tci >> 16 {
             0 => TexGen::Passthru,
             4 if v8 => TexGen::Passthru,
@@ -739,10 +840,10 @@ impl TexSet {
 
 /// a vertex of a clipped polygon: its position and attributes, in f32
 #[derive(Clone, Copy)]
-struct PolyVtx {
-    x: f32,
-    y: f32,
-    at: [f32; ATTRS],
+pub struct PolyVtx {
+    pub x: f32,
+    pub y: f32,
+    pub at: [f32; ATTRS],
 }
 
 impl Vtx {
@@ -786,14 +887,7 @@ impl Planes {
     }
 
     fn plane(&self, a: [f32; 3], cx: f32, cy: f32) -> f32 {
-        let ([x0, x1, x2], [y0, y1, y2]) = (self.xs, self.ys);
-        let area = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
-        let r = 1.0 / area;
-        let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
-        let gx = (d1 * (y2 - y0) - d2 * (y1 - y0)) * r;
-        let gy = (d2 * (x1 - x0) - d1 * (x2 - x0)) * r;
-        let c = (a[0] - gx * x0) - gy * y0;
-        (c + gy * cy) + gx * cx
+        plane10(self.xs, self.ys, a, cx, cy)
     }
 
     fn at(&self, cx: f32, cy: f32) -> [f64; ATTRS] {
@@ -805,8 +899,95 @@ impl Planes {
     }
 }
 
+/// D3D9.SHADE.GOURAUD: an attribute's gradients (d/dx, d/dy) over a triangle at the pixel
+/// centers x, y (positions plus half a pixel), in f32: d/dx = ((a1 - a0)(y2 - y0) - (a2 - a0)(y1 -
+/// y0)) / area, d/dy = ((a2 - a0)(x1 - x0) - (a1 - a0)(x2 - x0)) / area
+pub fn grad9(x: [f32; 3], y: [f32; 3], a: [f32; 3]) -> (f32, f32) {
+    let area = (x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]);
+    let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
+    ((d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) / area, (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) / area)
+}
+
+/// D3D9.SHADE.GOURAUD: the attribute at the pixel center (sx, sy), v0 + d/dy (y - y0) + d/dx
+/// (x - x0) in that order, in f32
+pub fn at9(a0: f32, (dx, dy): (f32, f32), x0: f32, y0: f32, sx: f32, sy: f32) -> f32 {
+    a0 + dy * (sy - y0) + dx * (sx - x0)
+}
+
+/// what a primitive type draws of nv vertices: lines (2 LINELIST, 3 LINESTRIP) or triangles,
+/// each with its first (flat shading) vertex first (D3D9.DRAW.ASSEMBLY: 4 TRIANGLELIST three
+/// vertices each, 5 TRIANGLESTRIP each next vertex with the two before, every other one turned to
+/// keep the winding, 6 TRIANGLEFAN each next pair with the first); None for the others
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Prims {
+    Segs(Vec<(usize, usize)>),
+    Tris(Vec<[usize; 3]>),
+}
+
+pub fn assemble(ty: u32, nv: usize) -> Option<Prims> {
+    Some(match ty {
+        2 => Prims::Segs((0..nv / 2).map(|i| (2 * i, 2 * i + 1)).collect()),
+        3 => Prims::Segs((0..nv.saturating_sub(1)).map(|i| (i, i + 1)).collect()),
+        4 | 5 | 6 => {
+            hit(clause::D3D9_DRAW_ASSEMBLY);
+            Prims::Tris(match ty {
+                4 => (0..nv / 3).map(|i| [3 * i, 3 * i + 1, 3 * i + 2]).collect(),
+                5 => (0..nv.saturating_sub(2)).map(|i| if i % 2 == 0 { [i, i + 1, i + 2] } else { [i, i + 2, i + 1] }).collect(),
+                _ => (0..nv.saturating_sub(2)).map(|i| [i + 1, i + 2, 0]).collect(),
+            })
+        }
+        _ => return None,
+    })
+}
+
+/// D3D9.DRAW.STRIDE: the words each of nv vertices is read from, out of DrawPrimitiveUP's: the
+/// stride the words' count over nv, each vertex's first `size` (the FVF's) words (MEASURED
+/// stride-*: the words past them unread); None for a stride short of the size, which the
+/// generators write none of
+pub fn vertex_words(words: &[u32], nv: usize, size: usize) -> Option<Vec<&[u32]>> {
+    let stride = words.len().checked_div(nv)?;
+    if stride < size || stride == 0 || words.len() % nv != 0 {
+        return None;
+    }
+    if stride > size {
+        hit(clause::D3D9_DRAW_STRIDE);
+    }
+    words.chunks(stride).map(|c| c.get(..size)).collect()
+}
+
+/// D3D9.DRAW.POINTS: the pixel a point lights, x and y each to the nearest pixel center, halves
+/// down: ceil(x - 0.5) in f32
+pub fn point_pixel(x: f32, y: f32) -> (i64, i64) {
+    ((x - 0.5).ceil() as i64, (y - 0.5).ceil() as i64)
+}
+
+/// D3D9.SHADE.FLAT, SHADE.GOURAUD: the colors a pixel takes, the first vertex's with flat
+/// shading, else the interpolated ones
+pub fn shaded<T>(flat: bool, first: T, interpolated: T) -> T {
+    if flat {
+        hit(clause::D3D9_SHADE_FLAT);
+        first
+    } else {
+        hit(clause::D3D9_SHADE_GOURAUD);
+        interpolated
+    }
+}
+
+/// Direct3D 10's attribute plane (D3DRASTER.INTERP, D3D9.TEX.QUAD, D3D9.DRAW.XYZ):
+/// gx = (d1 (y2 - y0) - d2 (y1 - y0)) (1 / A), gy = (d2 (x1 - x0) - d1 (x2 - x0)) (1 / A),
+/// C = (a0 - gx x0) - gy y0, the value (C + gy cy) + gx cx, in f32
+pub fn plane10(x: [f32; 3], y: [f32; 3], a: [f32; 3], cx: f32, cy: f32) -> f32 {
+    let area = (x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]);
+    let r = 1.0 / area;
+    let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
+    let gx = (d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) * r;
+    let gy = (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) * r;
+    let c = (a[0] - gx * x[0]) - gy * y[0];
+    (c + gy * cy) + gx * cx
+}
+
 /// the triangle's vertex of least x, then least y (the first of equals)
-fn least_x(c: &[PolyVtx; 3]) -> usize {
+pub fn least_x(c: &[PolyVtx; 3]) -> usize {
     (0..3).min_by(|&i, &j| (c[i].x, c[i].y).partial_cmp(&(c[j].x, c[j].y)).unwrap_or(std::cmp::Ordering::Equal)).unwrap_or(0)
 }
 
@@ -983,6 +1164,47 @@ enum Setup {
 /// one in the bilinear filter's weights (32nds of a texel each way)
 const BILERP_ONE: i64 = 1024;
 
+/// point filtering's texel of the texel coordinate x (u times the width): x rounded to the
+/// nearest 64th, then taken down (MEASURED d3d8draw filter2-3-4 takes texel 2 at 1.99375; 1/16,
+/// 1/32 break d3d9draw filter2-3-*, 1/128 misses it; D3D9.TEX.POINT);
+/// spec/lean/Kikizake/D3d9/Filter.lean `pointAt`
+pub fn point_at(x: f64) -> i64 {
+    ((x * 64.0).round() / 64.0).floor() as i64
+}
+
+/// linear filtering's first texel of the texel coordinate x and the next one's weight in 32nds of
+/// a texel: x - 0.5 taken down, its fraction times 32 taken down (MEASURED filter-*, filter2-*,
+/// filter-uv-*; D3D9.TEX.LINEAR); Filter.lean `bilinearAt`
+pub fn bilinear_at(x: f64) -> (i64, i64) {
+    let x = x - 0.5;
+    let x0 = x.floor();
+    (x0 as i64, ((x - x0) * 32.0).floor() as i64)
+}
+
+/// the weights of the texels (x0, y0), (x0 + 1, y0), (x0, y0 + 1), (x0 + 1, y0 + 1) of the next
+/// ones' weights fx, fy (in 32nds, BILERP_ONE in all); Filter.lean `weights`
+pub fn bilinear_weights(fx: i64, fy: i64) -> [i64; 4] {
+    const Q: i64 = 32;
+    const _: () = assert!(Q * Q == BILERP_ONE);
+    [(Q - fx) * (Q - fy), fx * (Q - fy), (Q - fx) * fy, fx * fy]
+}
+
+/// 8-bit texels' (0..255) weighted sum, in 1/BILERP_ONE of 255; Filter.lean `bytesSum`
+pub fn bilinear_bytes(t: [u64; 4], w: [i64; 4]) -> i64 {
+    t.iter().zip(w).map(|(&t, w)| t as i64 * w).sum()
+}
+
+/// an 8-bit weighted sum truncated to a whole 255th (MEASURED filter-*: the sum truncated), f32;
+/// Filter.lean `unit`
+pub fn bilinear_unit(v: i64) -> f64 {
+    ((v / BILERP_ONE) as f32 / 255.0) as f64
+}
+
+/// other texels' weighted sum, in f64; Filter.lean `floatSum`
+pub fn bilinear_float(t: [f64; 4], w: [i64; 4]) -> f64 {
+    t.iter().zip(w).map(|(&t, w)| t * w as f64).sum::<f64>() / BILERP_ONE as f64
+}
+
 /// a bilinear filter's weighted sum
 enum Weighted {
     /// of 8-bit texels, in 1/BILERP_ONE of 255
@@ -1143,6 +1365,295 @@ fn clip_line(a: (f32, f32), b: (f32, f32), max: (f32, f32)) -> Option<((f32, f32
     Some((at(t0), at(t1)))
 }
 
+/// D3D9.DRAW.LINECLIP, LINECLIP_NEAR: the line of pretransformed ends a, b on a w x h target as
+/// it is rasterized: (the ends snapped, the segment drawn: past the target cut to it in f32 and
+/// snapped again) in 1/256 pixel; None: nothing drawn
+pub fn line_cut(a: (f32, f32), b: (f32, f32), w: i32, h: i32, v8: bool) -> Option<((i128, i128), (i128, i128), (i128, i128), (i128, i128))> {
+    let inside = |v: &(f32, f32)| (-0.5..=w as f32 - 0.5).contains(&v.0) && (-0.5..=h as f32 - 0.5).contains(&v.1);
+    let snap = |v: f32| i128::from(snap256(v));
+    let l = Seg9 { a: (snap(a.0), snap(a.1)), b: (snap(b.0), snap(b.1)) };
+    if l.a == l.b {
+        return None;
+    }
+    // (the segment rasterized: a line past the target cut to it in f32 and snapped again)
+    let r = match (inside(&a), inside(&b)) {
+        (true, true) => {
+            Seg9 { a: l.a, b: l.b }
+        }
+        (ia, ib) => {
+            let unsnap = |p: (i128, i128)| (p.0 as f32 / 256.0, p.1 as f32 / 256.0);
+            let (mut pa, mut pb) = (unsnap(l.a), unsnap(l.b));
+            if !ia && !ib {
+                // (MEASURED line-both-*: past the target at both ends, an end past it only
+                // on the right or bottom side and by at most half a pixel is moved onto it)
+                hit(clause::D3D9_DRAW_LINECLIP_NEAR);
+                let (rx, by) = (w as f32 - 0.5, h as f32 - 0.5);
+                for p in [&mut pa, &mut pb] {
+                    let past = p.0 > rx || p.1 > by;
+                    let near = p.0 >= -0.5 && p.1 >= -0.5 && p.0 <= rx + 0.5 && p.1 <= by + 0.5;
+                    if past && near {
+                        *p = (p.0.min(rx), p.1.min(by));
+                    }
+                }
+            }
+            // (MEASURED points-lines-2 of d3d8draw: Direct3D 8's right (bottom) edge at the
+            // size itself where an end is at the width (height), as D3D9.RASTER.CLIP8SIDE)
+            let side = |size: i32, at: bool| if v8 && at { size as f32 } else { size as f32 - 0.5 };
+            let (wf, hf) = (w as f32, h as f32);
+            let max = (side(w, pa.0 == wf || pb.0 == wf), side(h, pa.1 == hf || pb.1 == hf));
+            if max != (wf - 0.5, hf - 0.5) {
+                hit(clause::D3D9_RASTER_CLIP8SIDE);
+            }
+            let Some((ca, cb)) = clip_line(pa, pb, max) else {
+                hit(clause::D3D9_DRAW_LINECLIP);
+                return None;
+            };
+            let snap = |v: f32| i128::from(snap256(v));
+            let r = Seg9 { a: (snap(ca.0), snap(ca.1)), b: (snap(cb.0), snap(cb.1)) };
+            // (MEASURED line-clip-*, line-random-*, line-end-*-clip, line-corner-*,
+            // line-both-*: a line past the target cut to it in f32, t = (edge - a) / (b - a),
+            // a + t (b - a), D3D9.DRAW.LINECLIP)
+            hit(clause::D3D9_DRAW_LINECLIP);
+            r
+        }
+    };
+    if r.a == r.b {
+        return None;
+    }
+    Some((l.a, l.b, r.a, r.b))
+}
+
+/// D3D9.DRAW.XYZ: an untransformed position through WORLD, VIEW, PROJECTION (m: the three, the
+/// product WORLD VIEW first, then times PROJECTION, each entry a sum from 0 in f32) as a row vector,
+/// divided by w, through the viewport (vx, vy, vw, vh, z0, z1): (x, y, z, rhw, the clip-space
+/// position)
+pub fn transform_xyz(p: [f32; 3], m: [[f32; 16]; 3], vp: (i32, i32, i32, i32, f32, f32)) -> (f32, f32, f32, f32, [f32; 4]) {
+    let mul = |a: [f32; 16], b: [f32; 16]| -> [f32; 16] { std::array::from_fn(|i| (0..4).fold(0.0f32, |s, k| s + a[i / 4 * 4 + k] * b[k * 4 + i % 4])) };
+    let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
+    let c = xv([p[0], p[1], p[2], 1.0], mul(mul(m[0], m[1]), m[2]));
+    let (vx, vy, vw, vh, z0, z1) = vp;
+    let rhw = 1.0 / c[3];
+    let (x, y, z) = (c[0] * rhw, c[1] * rhw, c[2] * rhw);
+    let (hw, hh) = (vw as f32 / 2.0, vh as f32 / 2.0);
+    (vx as f32 + (1.0 + x) * hw, vy as f32 + (1.0 - y) * hh, z0 + z * (z1 - z0), rhw, c)
+}
+
+/// D3D9.DRAW.XYZ.CLIP: an untransformed triangle (clip-space positions, attributes) clipped in clip
+/// space to the planes half a pixel in from a vw x vh viewport's edges (the positions shifted by
+/// (w / vw, -w / vh), then -w <= x <= w, -w <= y <= w in turn, Sutherland-Hodgman, each new vertex
+/// a + (b - a) t, t = da / (da - db), in f32); None: no vertex outside, nothing clipped
+pub fn clip_xyz(poly: &[([f32; 4], [f32; ATTRS])], vw: i32, vh: i32) -> Option<Vec<([f32; 4], [f32; ATTRS])>> {
+    let sh = |c: &[f32; 4]| [c[0] + c[3] / vw as f32, c[1] - c[3] / vh as f32, c[2], c[3]];
+    let dist = |q: &[f32; 4], plane: usize| match plane {
+        0 => q[3] + q[0],
+        1 => q[3] - q[0],
+        2 => q[3] + q[1],
+        _ => q[3] - q[1],
+    };
+    let mut poly: Vec<([f32; 4], [f32; ATTRS])> = poly.iter().map(|(c, at)| (sh(c), *at)).collect();
+    if !poly.iter().any(|(q, _)| (0..4).any(|p| dist(q, p) < 0.0)) {
+        return None;
+    }
+    hit(clause::D3D9_DRAW_XYZ_CLIP);
+    for plane in 0..4 {
+        let mut out = Vec::new();
+        for (i, &p) in poly.iter().enumerate() {
+            let Some(&q) = poly.get((i + 1) % poly.len()) else { continue };
+            let (dp, dq) = (dist(&p.0, plane), dist(&q.0, plane));
+            if dp >= 0.0 {
+                out.push(p);
+            }
+            if (dp >= 0.0) != (dq >= 0.0) {
+                let t = dp / (dp - dq);
+                out.push((std::array::from_fn(|k| p.0[k] + (q.0[k] - p.0[k]) * t), std::array::from_fn(|k| p.1[k] + (q.1[k] - p.1[k]) * t)));
+            }
+        }
+        poly = out;
+    }
+    Some(poly)
+}
+
+/// D3D9.DRAW.XYZ.CLIP: a clipped vertex (shifted clip-space position q) on the screen of viewport
+/// (vx, vy, vw, vh): x, y, rhw = 1 / w, and its clip-space position unshifted
+pub fn xyz_vertex(q: [f32; 4], vp: (i32, i32, i32, i32)) -> (f32, f32, f32, [f32; 4]) {
+    let (vx, vy, vw, vh) = vp;
+    let rhw = 1.0 / q[3];
+    (
+        vx as f32 - 0.5 + (1.0 + q[0] * rhw) * (vw as f32 / 2.0),
+        vy as f32 - 0.5 + (1.0 - q[1] * rhw) * (vh as f32 / 2.0),
+        rhw,
+        [q[0] - q[3] / vw as f32, q[1] + q[3] / vh as f32, q[2], q[3]],
+    )
+}
+
+/// D3D9.DRAW.RHW: a pretransformed vertex's attributes for perspective-correct interpolation:
+/// every one but z (0) and rhw itself (11) times rhw, in f32
+pub fn rhw_attrs(at: [f32; ATTRS]) -> [f32; ATTRS] {
+    hit(clause::D3D9_DRAW_RHW);
+    std::array::from_fn(|k| if PERSP.contains(&k) { at[k] * at[11] } else { at[k] })
+}
+
+/// D3D9.DRAW.RHW: the value at a pixel of the attributes interpolated so: each but z and rhw divided
+/// by the interpolated rhw, in f32
+pub fn rhw_value(at32: [f32; ATTRS]) -> [f64; ATTRS] {
+    std::array::from_fn(|k| f64::from(if PERSP.contains(&k) { at32[k] / at32[11] } else { at32[k] }))
+}
+
+/// D3D9.TEX.ANISO2: the footprint of derivatives a (ddx) and b (ddy) in texture coordinates on a
+/// w x h texture, in f32 one rounding an operation: (r, the major axis's direction, the tap count
+/// n of MAXANISOTROPY `limit`); r <= 1 filters bilinearly
+pub fn aniso_footprint(a: [f32; 2], b: [f32; 2], (w, h): (f32, f32), limit: u32) -> (f32, [f32; 2], u32) {
+    let (a, b) = ([a[0] * w, a[1] * h], [b[0] * w, b[1] * h]);
+    let x2 = a[0] * a[0] + a[1] * a[1];
+    let y2 = b[0] * b[0] + b[1] * b[1];
+    let area = (a[0] * b[1] - a[1] * b[0]).abs();
+    // (a tie takes ddy as the major axis)
+    let (m2, dir) = if x2 > y2 { (x2, a) } else { (y2, b) };
+    let m = m2.sqrt();
+    let inv = 1.0 / m;
+    let axis = dir.map(|c| c * inv);
+    // (the tap count: MAXANISOTROPY taken down to a power of 2, at most 16)
+    let n: u32 = match limit {
+        0..=1 => 1,
+        2..=3 => 2,
+        4..=7 => 4,
+        8..=15 => 8,
+        _ => 16,
+    };
+    let nf: f32 = n.to_string().parse().unwrap_or(1.0);
+    let mut r = m2 / area;
+    let clamped = r > nf;
+    if clamped {
+        r = nf;
+    }
+    let minor = if clamped { m / r } else { area / m };
+    if minor < 1.0 {
+        r = (r * minor).max(1.0);
+    }
+    let nan0 = |x: f32| if x.is_nan() { 0.0 } else { x };
+    (nan0(r), axis.map(nan0), n)
+}
+
+/// D3D9.TEX.ANISO2, ANISON: where the taps of footprint (r, axis, n) around (u, v) fall, in f32:
+/// r <= 1 none; r <= 2 two at the center plus and less 0.5 (r - 1) axis; past 2 n taps, step =
+/// f32(1/(n + 1)) r, the first at the center plus (-0.5 r + step) axis, each next a step on
+pub fn aniso_taps((u, v): (f32, f32), r: f32, axis: [f32; 2], n: u32, (w, h): (f32, f32)) -> Vec<(f32, f32)> {
+    if r.is_nan() || r <= 1.0 {
+        return Vec::new();
+    }
+    if r <= 2.0 {
+        // (MEASURED aniso-*, aniso-axis-*: two taps, 0.5 (r - 1) along the axis each way)
+        hit(clause::D3D9_TEX_ANISO2);
+        let hh = 0.5 * (r - 1.0);
+        let off = [hh * axis[0] / w, hh * axis[1] / h];
+        return vec![(u + off[0], v + off[1]), (u - off[0], v - off[1])];
+    }
+    // (MEASURED aniso-axis-*, aniso-*: n taps, the step 1/(n + 1) in f32 times r, the first at
+    // -r/2 plus a step, a step added for each)
+    hit(clause::D3D9_TEX_ANISON);
+    let k = 1.0 / n.saturating_add(1).to_string().parse::<f32>().unwrap_or(1.0);
+    let step = k * r;
+    let start = -0.5 * r + step;
+    let d = [axis[0] / w, axis[1] / h];
+    let sv = [d[0] * step, d[1] * step];
+    let (mut qu, mut qv) = (u + d[0] * start, v + d[1] * start);
+    let mut taps = Vec::new();
+    for _ in 0..n {
+        taps.push((qu, qv));
+        (qu, qv) = (qu + sv[0], qv + sv[1]);
+    }
+    taps
+}
+
+/// D3D9.TEX.ANISON: the taps' sums averaged in pairs of neighbors (truncating) until one is left
+/// (MEASURED aniso-axis-*: summing them all misses pixels); None for no taps or a count not a
+/// power of two
+pub fn pair_average(mut vals: Vec<[i64; 4]>) -> Option<[i64; 4]> {
+    while vals.len() > 1 {
+        vals = vals.chunks(2).map(|p| match p {
+            [a, b] => {
+                let mut o = [0i64; 4];
+                for ((o, x), y) in o.iter_mut().zip(a).zip(b) {
+                    *o = (x + y) / 2;
+                }
+                Some(o)
+            }
+            _ => None,
+        }).collect::<Option<_>>()?;
+    }
+    vals.first().copied()
+}
+
+/// D3D9.STAGE.TCIGEN: a position in camera space: the row vector (p, 1) times WORLD, then times
+/// VIEW, each entry a sum from 0 in f32
+pub fn camera_space(p: [f32; 3], world: [f32; 16], view: [f32; 16]) -> [f32; 4] {
+    let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
+    xv(xv([p[0], p[1], p[2], 1.0], world), view)
+}
+
+/// D3D9.STAGE.TCIGEN: a normal in camera space: through the inverse transpose of WORLD VIEW's upper
+/// 3 x 3 (its cofactors over the determinant), in f32, normalized when `normalize`
+pub fn camera_normal(n: [f32; 3], world: [f32; 16], view: [f32; 16], normalize: bool) -> [f32; 3] {
+    let (a, b) = (world, view);
+    let wv: [f32; 9] = std::array::from_fn(|i| (0..3).fold(0.0f32, |s, k| s + a[i / 3 * 4 + k] * b[k * 4 + i % 3]));
+    // (the cofactors: the inverse transpose up to 1 / det)
+    let e = |r: usize, c: usize| wv[r * 3 + c];
+    let cof: [f32; 9] = std::array::from_fn(|i| {
+        let (r, c) = (i / 3, i % 3);
+        let (r0, r1, c0, c1) = ((r + 1) % 3, (r + 2) % 3, (c + 1) % 3, (c + 2) % 3);
+        e(r0, c0) * e(r1, c1) - e(r0, c1) * e(r1, c0)
+    });
+    let det = e(0, 0) * cof[0] + e(0, 1) * cof[1] + e(0, 2) * cof[2];
+    // n' = n (M^-1)^T: (M^-1)^T = cof / det, row vector times it
+    let t: [f32; 3] = std::array::from_fn(|j| (0..3).fold(0.0f32, |s, k| s + n[k] * cof[k * 3 + j]) / det);
+    if normalize {
+        let l = (t[0] * t[0] + t[1] * t[1] + t[2] * t[2]).sqrt();
+        t.map(|x| x / l)
+    } else {
+        t
+    }
+}
+
+/// D3D9.STAGE.TCIGEN: the coordinates generated from camera-space position c and normal nn:
+/// CAMERASPACENORMAL (Nx, Ny); CAMERASPACEPOSITION (Px, Py); CAMERASPACEREFLECTIONVECTOR R = 2 (E.N)
+/// N - E, E = -P / |P| under LOCALVIEWER, else (0, 0, 1); SPHEREMAP (Rx / m + 1/2, Ry / m + 1/2), m
+/// = 2 sqrt(Rx^2 + Ry^2 + (Rz - 1)^2); as the row (g, 1)
+pub fn tex_gen(texgen: TexGen, c: [f32; 4], nn: [f32; 3], local: bool) -> [f32; 4] {
+    let pl = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
+    // (MEASURED tci-gen-4, -5: without LOCALVIEWER E = (0, 0, 1))
+    let e = if local { [-c[0] / pl, -c[1] / pl, -c[2] / pl] } else { [0.0, 0.0, 1.0] };
+    let en = e[0] * nn[0] + e[1] * nn[1] + e[2] * nn[2];
+    let r = [2.0 * en * nn[0] - e[0], 2.0 * en * nn[1] - e[1], 2.0 * en * nn[2] - e[2]];
+    let g: [f32; 3] = match texgen {
+        TexGen::Passthru => [0.0; 3],
+        TexGen::Normal => nn,
+        TexGen::Position => [c[0], c[1], c[2]],
+        TexGen::Reflection => r,
+        TexGen::SphereMap => {
+            let m = 2.0 * (r[0] * r[0] + r[1] * r[1] + (r[2] - 1.0) * (r[2] - 1.0)).sqrt();
+            [r[0] / m + 0.5, r[1] / m + 0.5, 0.0]
+        }
+    };
+    [g[0], g[1], g[2], 1.0]
+}
+
+/// D3D9.STAGE.PROJFOOT: the offset from pixel (px, py) to its 2 x 2 quad's top-left pixel
+pub fn quad_origin(px: i32, py: i32) -> (f32, f32) {
+    let bit = |v: i32| if v & 1 == 0 { 0.0 } else { -1.0 };
+    (bit(px), bit(py))
+}
+
+/// D3D9.STAGE.PROJFOOT: each set's footprint from the quad's top-left pixel's attributes c against
+/// its right (r) and lower (d) neighbours': Direct3D 10's coarse derivatives of s/q and t/q, in f64
+/// ((ds/dx, ds/dy), (dt/dx, dt/dy))
+pub fn quad_duv(c: &[f64; ATTRS], r: &[f64; ATTRS], d: &[f64; ATTRS]) -> [((f64, f64), (f64, f64)); NSET] {
+    let mut out = [((0.0, 0.0), (0.0, 0.0)); NSET];
+    for (o, ((c, r), d)) in out.iter_mut().zip(st_of(c).iter().zip(&st_of(r)).zip(&st_of(d))) {
+        *o = ((r[0] - c[0], d[0] - c[0]), (r[1] - c[1], d[1] - c[1]));
+    }
+    out
+}
+
 /// a line's snapped ends (1/256 pixel, Direct3D 9's pixel centers at whole pixels)
 struct Seg9 {
     a: (i128, i128),
@@ -1167,7 +1678,7 @@ enum Side {
 /// vertices then clamped into the viewport (the clean-room notes: WARP clamps them to its clip
 /// space's -w ..= w, so a new vertex past a side not clipped lands on it; MEASURED clip8-*,
 /// raster-3, -54, -90 of d3d8draw: on a side clipped at the size itself, Direct3D 8's, there)
-fn clip_polygon(poly: &[PolyVtx], x1: f32, y1: f32, sides: [bool; 4]) -> Vec<PolyVtx> {
+pub fn clip_polygon(poly: &[PolyVtx], x1: f32, y1: f32, sides: [bool; 4]) -> Vec<PolyVtx> {
     let mut poly: Vec<(PolyVtx, bool)> = poly.iter().map(|v| (*v, false)).collect();
     for (si, side) in [Side::Left, Side::Right, Side::Top, Side::Bottom].into_iter().enumerate() {
         if !sides[si] {
@@ -1203,9 +1714,27 @@ fn clip_polygon(poly: &[PolyVtx], x1: f32, y1: f32, sides: [bool; 4]) -> Vec<Pol
     }).collect()
 }
 
+/// D3D9.RASTER.CLIP, CLIP8, CLIP8SIDE: where a triangle is clipped, (the right side, the bottom
+/// side, the sides (left, right, top, bottom) some vertex is strictly outside of: x < 0, x > the
+/// width, y < 0, y > the height; the clean-room notes, MEASURED clip8-*). The right and bottom
+/// sides half a pixel in, at the size itself with perspective (MEASURED rhw-6) and on Direct3D 8
+/// with a vertex at the width (height) itself (d3d8draw raster-77, -96 and 17 more)
+pub fn clip_bounds(pts: [(f32, f32); 3], w: i32, h: i32, v8: bool, persp: bool) -> (f32, f32, [bool; 4]) {
+    let (wf, hf): (f32, f32) = (w.to_string().parse().unwrap_or(f32::NAN), h.to_string().parse().unwrap_or(f32::NAN));
+    let at_w = v8 && pts.iter().any(|v| v.0 == wf);
+    let at_h = v8 && pts.iter().any(|v| v.1 == hf);
+    if at_w || at_h {
+        hit(clause::D3D9_RASTER_CLIP8SIDE);
+    }
+    hit(clause::D3D9_RASTER_CLIP8);
+    let edge = if persp { 0.0 } else { 0.5 };
+    let (ex, ey) = (if at_w { 0.0 } else { edge }, if at_h { 0.0 } else { edge });
+    (wf - ex, hf - ey, [pts.iter().any(|v| v.0 < 0.0), pts.iter().any(|v| v.0 > wf), pts.iter().any(|v| v.1 < 0.0), pts.iter().any(|v| v.1 > hf)])
+}
+
 /// a convex polygon of n vertices cut into the strip v1 v2 v0 v3 v(n-1) v4 v(n-2) ... (MEASURED:
 /// d3d9draw shade-clip-*, no other order fits all 16)
-fn strip(n: usize) -> Vec<[usize; 3]> {
+pub fn strip(n: usize) -> Vec<[usize; 3]> {
     let mut order = vec![0];
     let (mut lo, mut hi) = (1, n.saturating_sub(1));
     while lo <= hi {
@@ -1575,9 +2104,8 @@ impl D3d9 {
                 }
             }
             "d9fvf" => {
-                self.draw.fvf = n(op, 1)? as u32;
-                hit(clause::D3D9_FVF_SET);
-                self.draw.decl = fvf_runtime_decl(self.draw.fvf)?;
+                let now = (self.draw.fvf, self.draw.decl.take(), self.draw.decl_from);
+                (self.draw.fvf, self.draw.decl, self.draw.decl_from) = set_fvf(n(op, 1)? as u32, now)?;
             }
             "d9getfvf" => {
                 hit(clause::D3D9_FVF_GET);
@@ -1659,9 +2187,7 @@ impl D3d9 {
                 let e: Vec<(u32, u32)> = w.chunks(2).map(|p| (p[0], p[1])).collect();
                 hit(clause::D3D9_DECL_CREATE);
                 if decl_ok(&e)? {
-                    // (SetVertexDeclaration: GetFVF answers 0 after it, MEASURED: decl-*)
-                    self.draw.fvf = 0;
-                    self.draw.decl = Some(e);
+                    (self.draw.fvf, self.draw.decl, self.draw.decl_from) = set_decl(e);
                 } else {
                     // (the declaration set before stays)
                     out.push("decl hr 80004005".into());
@@ -1815,7 +2341,7 @@ impl D3d9 {
         // (MEASURED, filter-*, filter2-*, filter-uv-*: weights in 32nds of a texel taken
         // down, the weighted sum of 8-bit texels truncated)
         Ok(match self.bilinear_sum(st, tx, x, y, mu, mv)? {
-            Weighted::Bytes(v) => v.map(|v| ((v / BILERP_ONE) as f32 / 255.0) as f64),
+            Weighted::Bytes(v) => v.map(bilinear_unit),
             Weighted::Float(c) => c,
         })
     }
@@ -1823,21 +2349,15 @@ impl D3d9 {
     /// the bilinear filter's weighted sum at texel coordinates (x, y): of 8-bit texels in
     /// 1/BILERP_ONE, before it is truncated, or of other texels' values
     fn bilinear_sum(&self, st: u32, tx: &Surface, x: f64, y: f64, mu: u32, mv: u32) -> Res<Weighted> {
-        let (x, y) = (x - 0.5, y - 0.5);
-        let (x0, y0) = (x.floor(), y.floor());
-        const Q: i64 = 32;
-        const _: () = assert!(Q * Q == BILERP_ONE);
-        let q = Q;
-        let (fx, fy) = (((x - x0) * q as f64).floor() as i64, ((y - y0) * q as f64).floor() as i64);
-        let (x0, y0) = (x0 as i64, y0 as i64);
+        let ((x0, fx), (y0, fy)) = (bilinear_at(x), bilinear_at(y));
         let t = [self.texel(st, tx, x0, y0, mu, mv)?, self.texel(st, tx, x0 + 1, y0, mu, mv)?, self.texel(st, tx, x0, y0 + 1, mu, mv)?, self.texel(st, tx, x0 + 1, y0 + 1, mu, mv)?];
-        let w = [(q - fx) * (q - fy), fx * (q - fy), (q - fx) * fy, fx * fy];
+        let w = bilinear_weights(fx, fy);
         let fm = format(tx.fmt).ok_or(Fail::Bad)?;
         let bytes = fm.kind == Kind::Int && fm.ch.iter().all(|c| c.bits == 8 && !matches!(c.c, b'u' | b'v' | b'w' | b'q'));
         Ok(if bytes {
-            Weighted::Bytes(std::array::from_fn(|k| (0..4).map(|i| unorm(t[i][k], 8) as i64 * w[i]).sum()))
+            Weighted::Bytes(std::array::from_fn(|k| bilinear_bytes(t.map(|c| unorm(c[k], 8)), w)))
         } else {
-            Weighted::Float(std::array::from_fn(|k| (0..4).map(|i| t[i][k] * w[i] as f64).sum::<f64>() / (q * q) as f64))
+            Weighted::Float(std::array::from_fn(|k| bilinear_float(t.map(|c| c[k]), w)))
         })
     }
 
@@ -1856,79 +2376,22 @@ impl D3d9 {
                 let ((dudx, dudy), (dvdx, dvdy)) = self.draw.duv[self.tex_set(st).at()];
                 let f = |a: f64| a as f32;
                 let (w, h) = (tx.w as f32, tx.h as f32);
-                let (a, b) = ([f(dudx) * w, f(dvdx) * h], [f(dudy) * w, f(dvdy) * h]);
-                let x2 = a[0] * a[0] + a[1] * a[1];
-                let y2 = b[0] * b[0] + b[1] * b[1];
-                let area = (a[0] * b[1] - a[1] * b[0]).abs();
-                // (a tie takes ddy as the major axis)
-                let (m2, dir) = if x2 > y2 { (x2, a) } else { (y2, b) };
-                let m = m2.sqrt();
-                let inv = 1.0 / m;
-                let axis = dir.map(|c| c * inv);
-                // (the tap count: MAXANISOTROPY taken down to a power of 2, at most 16)
-                let limit = self.samp(st, 10);
-                let n: u32 = match limit {
-                    0..=1 => 1,
-                    2..=3 => 2,
-                    4..=7 => 4,
-                    8..=15 => 8,
-                    _ => 16,
-                };
-                let nf = n as f32;
-                let mut r = m2 / area;
-                let clamped = r > nf;
-                if clamped {
-                    r = nf;
-                }
-                let minor = if clamped { m / r } else { area / m };
-                if minor < 1.0 {
-                    r = (r * minor).max(1.0);
-                }
-                let nan0 = |x: f32| if x.is_nan() { 0.0 } else { x };
-                let (r, axis) = (nan0(r), axis.map(nan0));
+                let (r, axis, n) = aniso_footprint([f(dudx), f(dvdx)], [f(dudy), f(dvdy)], (w, h), self.samp(st, 10));
                 if r > 1.0 {
-                    let (u, v) = (f(u), f(v));
                     let (mu, mv) = (self.samp(st, 1), self.samp(st, 2));
                     // (each tap's weighted sum truncated to a 64th of 1/255; to 32nds or 128ths,
                     // or rounded, misses pixels)
                     const TAP: i64 = BILERP_ONE / 64;
-                    let tap = |tu: f32, tv: f32| -> Res<[i64; 4]> {
+                    let tap = |(tu, tv): (f32, f32)| -> Res<[i64; 4]> {
                         let Weighted::Bytes(t) = self.bilinear_sum(st, tx, f64::from(tu) * f64::from(w), f64::from(tv) * f64::from(h), mu, mv)? else {
                             // (texels other than 8-bit ones: no case)
                             return Err(Fail::Unmodeled(open::D3D9_TEX_FILTER));
                         };
                         Ok(t.map(|x| x / TAP))
                     };
-                    let mut vals: Vec<[i64; 4]> = Vec::new();
-                    if r <= 2.0 {
-                        // (MEASURED aniso-*, aniso-axis-*: two taps, 0.5 (r - 1) along the
-                        // axis each way)
-                        hit(clause::D3D9_TEX_ANISO2);
-                        let hh = 0.5 * (r - 1.0);
-                        let off = [hh * axis[0] / w, hh * axis[1] / h];
-                        vals.push(tap(u + off[0], v + off[1])?);
-                        vals.push(tap(u - off[0], v - off[1])?);
-                    } else {
-                        // (MEASURED aniso-axis-*, aniso-*: n taps, the step 1/(n + 1) in f32
-                        // times r, the first at -r/2 plus a step, a step added for each)
-                        hit(clause::D3D9_TEX_ANISON);
-                        let k = 1.0 / (n + 1) as f32;
-                        let step = k * r;
-                        let start = -0.5 * r + step;
-                        let d = [axis[0] / w, axis[1] / h];
-                        let sv = [d[0] * step, d[1] * step];
-                        let (mut qu, mut qv) = (u + d[0] * start, v + d[1] * start);
-                        for _ in 0..n {
-                            vals.push(tap(qu, qv)?);
-                            (qu, qv) = (qu + sv[0], qv + sv[1]);
-                        }
-                    }
-                    // (MEASURED aniso-axis-*: the taps averaged in pairs of neighbors, truncated,
-                    // until one is left; summing them all misses pixels)
-                    while vals.len() > 1 {
-                        vals = vals.chunks(2).map(|p| std::array::from_fn(|k| (p[0][k] + p[1][k]) / 2)).collect();
-                    }
-                    return Ok(vals[0].map(|s| ((s / 64) as f32 / 255.0) as f64));
+                    let vals: Vec<[i64; 4]> = aniso_taps((f(u), f(v)), r, axis, n, (w, h)).into_iter().map(tap).collect::<Res<_>>()?;
+                    let s = pair_average(vals).ok_or(Fail::Bad)?;
+                    return Ok(s.map(|s| ((s / 64) as f32 / 255.0) as f64));
                 }
                 TexFilter::Linear
             }
@@ -1938,11 +2401,7 @@ impl D3d9 {
         match filter {
             TexFilter::Point => {
                 hit(clause::D3D9_TEX_POINT);
-                // (MEASURED: the texel coordinate rounded to the nearest 64th, then taken down:
-                // d3d8draw filter2-3-4 takes texel 2 at 1.99375; 1/16, 1/32 break d3d9draw filter2-3-*,
-                // 1/128 misses it)
-                let near64 = |x: f64| ((x * 64.0).round() / 64.0).floor() as i64;
-                self.texel(st, tx, near64(x), near64(y), mu, mv)
+                self.texel(st, tx, point_at(x), point_at(y), mu, mv)
             }
             TexFilter::Linear => {
                 hit(clause::D3D9_TEX_LINEAR);
@@ -2131,17 +2590,8 @@ impl D3d9 {
         // is ignored)
         // (MEASURED tci-multi-*, tci-three-*: each enabled stage reads its own set, those of
         // the same TEXCOORDINDEX and texture matrix one; D3D9.STAGE.TCI)
-        let mut slots = vec![self.set_key(0)];
-        for st in (1..8u32).take_while(|&st| self.tss(st, 1) != 1) {
-            let k = self.set_key(st);
-            if !slots.contains(&k) {
-                slots.push(k);
-            }
-        }
-        if slots.len() > NSET {
-            // (the generators read at most three sets)
-            return Err(Fail::Bad);
-        }
+        const STAGES: [u32; 8] = [0, 1, 2, 3, 4, 5, 6, 7];
+        let slots = tci_slots(STAGES.map(|st| self.set_key(st)), STAGES.map(|st| self.tss(st, 1))).ok_or(Fail::Bad)?;
         let keys: [SetKey; NSET] = std::array::from_fn(|i| slots.get(i).copied().unwrap_or(slots[0]));
         self.draw.slots = slots;
         let tcis = keys.map(|k| k.tci);
@@ -2162,18 +2612,11 @@ impl D3d9 {
             // their footprint from the 2 x 2 quad, D3D9.STAGE.PROJFOOT)
             hit(clause::D3D9_STAGE_PROJFOOT);
         }
-        let stride = words.len() / nv;
-        if stride < size {
-            // (the generators write no stride short of the FVF's size)
-            return Err(Fail::Bad);
-        }
-        if stride > size {
-            // (MEASURED stride-*: the vertices that far apart, the words past the FVF's unread)
-            hit(clause::D3D9_DRAW_STRIDE);
-        }
-        let vs: Vec<Vtx> = words
-            .chunks(stride)
-            .map(|w| {
+        let sizes: Vec<usize> = (0..ntex).map(tsize).collect();
+        let vs: Vec<Vtx> = vertex_words(words, nv, size)
+            .ok_or(Fail::Bad)?
+            .into_iter()
+            .map(|w| -> Res<Vtx> {
                 let mut i = pos + (fvf >> 4 & 1) as usize * 3 + (fvf >> 5 & 1) as usize;
                 let mut take = |on: bool| {
                     let v = if on { Some(w[i]) } else { None };
@@ -2185,19 +2628,10 @@ impl D3d9 {
                 // (the sets the stages' TEXCOORDINDEX name, D3D9.STAGE.TCI: (0, 0) past the
                 // vertex's sets; as a row vector for a texture matrix its coordinates, then 1,
                 // then 0)
-                let tc4: [[f32; 4]; NSET] = sets.map(|set| {
-                    if set < ntex {
-                        let o = i + (0..set).map(tsize).sum::<usize>();
-                        std::array::from_fn(|k| match k.cmp(&tsize(set)) {
-                            std::cmp::Ordering::Less => f32::from_bits(w[o + k]),
-                            std::cmp::Ordering::Equal => 1.0,
-                            std::cmp::Ordering::Greater => 0.0,
-                        })
-                    } else {
-                        [0.0, 0.0, 1.0, 0.0]
-                    }
-                });
-                let passed: [[f32; 4]; NSET] = std::array::from_fn(|k| if sets[k] < ntex && tsize(sets[k]) >= 2 { tc4[k] } else { [0.0, 0.0, tc4[k][2], tc4[k][3]] });
+                let tex = w.get(i..).ok_or(Fail::Bad)?;
+                let [r0, r1, r2] = sets.map(|set| coord_row(tex, &sizes, set));
+                let rows = [r0.ok_or(Fail::Bad)?, r1.ok_or(Fail::Bad)?, r2.ok_or(Fail::Bad)?];
+                let passed: [[f32; 4]; NSET] = rows.map(|r| r.1);
                 if pos == 3 {
                     let p = [w[0], w[1], w[2]].map(f32::from_bits);
                     // (MEASURED tci-xyz-*, tci-gen-*: coordinates generated from the camera-space
@@ -2206,7 +2640,7 @@ impl D3d9 {
                     // CAMERASPACEREFLECTIONVECTOR R = 2 (E.N) N - E, E = -P / |P| (LOCALVIEWER);
                     // SPHEREMAP from R, m = 2 sqrt(Rx^2 + Ry^2 + (Rz - 1)^2), (Rx / m + 1/2,
                     // Ry / m + 1/2); D3D9.STAGE.TCIGEN)
-                    let uv: [[f64; 3]; NSET] = std::array::from_fn(|k| {
+                    let uv: [Res<[f64; 3]>; NSET] = std::array::from_fn(|k| {
                         let v: [f32; 4] = match TexGen::of(tcis[k], self.v8) {
                             TexGen::Passthru => passed[k],
                             texgen => {
@@ -2215,56 +2649,37 @@ impl D3d9 {
                                 // (the vertex's normal through the inverse transpose of world
                                 // then view, normalized under NORMALIZENORMALS; none: 0)
                                 let nn = if fvf & 0x10 != 0 { self.camera_normal([w[pos], w[pos + 1], w[pos + 2]].map(f32::from_bits)) } else { [0.0f32; 3] };
-                                let pl = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
-                                // (MEASURED tci-gen-4, -5: without LOCALVIEWER E = (0, 0, 1))
-                                let e = if self.rs(142) != 0 { [-c[0] / pl, -c[1] / pl, -c[2] / pl] } else { [0.0, 0.0, 1.0] };
-                                let en = e[0] * nn[0] + e[1] * nn[1] + e[2] * nn[2];
-                                let r = [2.0 * en * nn[0] - e[0], 2.0 * en * nn[1] - e[1], 2.0 * en * nn[2] - e[2]];
-                                let g: [f32; 3] = match texgen {
-                                    TexGen::Passthru => [0.0; 3],
-                                    TexGen::Normal => nn,
-                                    TexGen::Position => [c[0], c[1], c[2]],
-                                    TexGen::Reflection => r,
-                                    TexGen::SphereMap => {
-                                        let m = 2.0 * (r[0] * r[0] + r[1] * r[1] + (r[2] - 1.0) * (r[2] - 1.0)).sqrt();
-                                        [r[0] / m + 0.5, r[1] / m + 0.5, 0.0]
-                                    }
-                                };
-                                [g[0], g[1], g[2], 1.0]
+                                tex_gen(texgen, c, nn, self.rs(142) != 0)
                             }
                         };
                         match keys[k].xform {
                             Some((t, st)) => self.ttf(t, st, v),
-                            None => [v[0] as f64, v[1] as f64, 1.0],
+                            None => Ok([v[0] as f64, v[1] as f64, 1.0]),
                         }
                     });
+                    let [u0, u1, u2] = uv;
+                    let uv = [u0?, u1?, u2?];
                     let (x, y, z, rhw, clip) = self.transform(p);
-                    return Vtx { x, y, z: z as f64, rhw: rhw as f64, diffuse, specular, uv, clip: Some(clip) };
+                    return Ok(Vtx { x, y, z: z as f64, rhw: rhw as f64, diffuse, specular, uv, clip: Some(clip) });
                 }
                 let uv = passed.map(|v| [v[0] as f64, v[1] as f64, 1.0]);
-                Vtx { x: f32::from_bits(w[0]), y: f32::from_bits(w[1]), z: fl(w[2]), rhw: fl(w[3]), diffuse, specular, uv, clip: None }
+                Ok(Vtx { x: f32::from_bits(w[0]), y: f32::from_bits(w[1]), z: fl(w[2]), rhw: fl(w[3]), diffuse, specular, uv, clip: None })
             })
-            .collect();
+            .collect::<Res<_>>()?;
         if ty == 1 {
             return self.points(&vs);
         }
-        // the triangles, each with its first (flat shading) vertex first
-        let tris: Vec<[usize; 3]> = match ty {
-            4 => (0..nv / 3).map(|i| [3 * i, 3 * i + 1, 3 * i + 2]).collect(),
-            5 => (0..nv.saturating_sub(2)).map(|i| if i % 2 == 0 { [i, i + 1, i + 2] } else { [i, i + 2, i + 1] }).collect(),
-            6 => (0..nv.saturating_sub(2)).map(|i| [i + 1, i + 2, 0]).collect(),
-            2 | 3 => {
-                let segs: Vec<(usize, usize)> = if ty == 2 { (0..nv / 2).map(|i| (2 * i, 2 * i + 1)).collect() } else { (0..nv.saturating_sub(1)).map(|i| (i, i + 1)).collect() };
+        match assemble(ty, nv).ok_or(Fail::Bad)? {
+            Prims::Segs(segs) => {
                 for (i, j) in segs {
                     self.line(vs[i], vs[j])?;
                 }
-                return Ok(());
             }
-            _ => return Err(Fail::Bad),
-        };
-        hit(clause::D3D9_DRAW_ASSEMBLY);
-        for t in tris {
-            self.triangle(vs[t[0]], vs[t[1]], vs[t[2]])?;
+            Prims::Tris(tris) => {
+                for t in tris {
+                    self.triangle(vs[t[0]], vs[t[1]], vs[t[2]])?;
+                }
+            }
         }
         Ok(())
     }
@@ -2281,33 +2696,14 @@ impl D3d9 {
     fn camera_space(&self, p: [f32; 3]) -> [f32; 4] {
         let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
         let m = |t: u32| *self.draw.xform.get(&t).unwrap_or(&id);
-        let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
-        xv(xv([p[0], p[1], p[2], 1.0], m(256)), m(2))
+        camera_space(p, m(256), m(2))
     }
 
-    /// a normal in camera space: through the inverse transpose of world then view's upper 3 x 3,
-    /// in f32, normalized under NORMALIZENORMALS
+    /// a normal in camera space (camera_normal), normalized under NORMALIZENORMALS
     fn camera_normal(&self, n: [f32; 3]) -> [f32; 3] {
         let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
         let m = |t: u32| *self.draw.xform.get(&t).unwrap_or(&id);
-        let (a, b) = (m(256), m(2));
-        let wv: [f32; 9] = std::array::from_fn(|i| (0..3).fold(0.0f32, |s, k| s + a[i / 3 * 4 + k] * b[k * 4 + i % 3]));
-        // (the cofactors: the inverse transpose up to 1 / det)
-        let e = |r: usize, c: usize| wv[r * 3 + c];
-        let cof: [f32; 9] = std::array::from_fn(|i| {
-            let (r, c) = (i / 3, i % 3);
-            let (r0, r1, c0, c1) = ((r + 1) % 3, (r + 2) % 3, (c + 1) % 3, (c + 2) % 3);
-            e(r0, c0) * e(r1, c1) - e(r0, c1) * e(r1, c0)
-        });
-        let det = e(0, 0) * cof[0] + e(0, 1) * cof[1] + e(0, 2) * cof[2];
-        // n' = n (M^-1)^T: (M^-1)^T = cof / det, row vector times it
-        let t: [f32; 3] = std::array::from_fn(|j| (0..3).fold(0.0f32, |s, k| s + n[k] * cof[k * 3 + j]) / det);
-        if self.rs(143) != 0 {
-            let l = (t[0] * t[0] + t[1] * t[1] + t[2] * t[2]).sqrt();
-            t.map(|x| x / l)
-        } else {
-            t
-        }
+        camera_normal(n, m(256), m(2), self.rs(143) != 0)
     }
 
     /// a set through a stage's TEXTURETRANSFORMFLAGS (MEASURED tci-gen2-4, -5, tci-ttf-*):
@@ -2315,33 +2711,17 @@ impl D3d9 {
     /// first two taken, PROJECTED their q the count's last (but COUNT2's on Direct3D 8);
     /// COUNT1 the set as it is on Direct3D 9, (the matrix's first, 0) on Direct3D 8; as
     /// (s, t, q), q divided per pixel
-    fn ttf(&self, ttf: u32, st: u32, v: [f32; 4]) -> [f64; 3] {
+    fn ttf(&self, ttf: u32, st: u32, v: [f32; 4]) -> Res<[f64; 3]> {
         hit(clause::D3D9_STAGE_TEXXFORM);
         let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
         let a = *self.draw.xform.get(&(16 + st)).unwrap_or(&id);
-        let t: [f32; 4] = std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j]));
-        let count = (ttf & 0xff) as usize;
-        match count {
-            1 if self.v8 => [t[0] as f64, 0.0, 1.0],
-            1 => [v[0] as f64, v[1] as f64, 1.0],
-            // (Direct3D 8: PROJECTED with COUNT2 divides by nothing, tci-ttf-5)
-            2 if self.v8 => [t[0] as f64, t[1] as f64, 1.0],
-            _ if ttf & 0x100 != 0 => [t[0] as f64, t[1] as f64, t[count - 1] as f64],
-            _ => [t[0] as f64, t[1] as f64, 1.0],
-        }
+        tex_transform(ttf, self.v8, v, a).ok_or(Fail::Bad)
     }
 
     fn transform(&self, p: [f32; 3]) -> (f32, f32, f32, f32, [f32; 4]) {
         let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
         let m = |t: u32| *self.draw.xform.get(&t).unwrap_or(&id);
-        let mul = |a: [f32; 16], b: [f32; 16]| -> [f32; 16] { std::array::from_fn(|i| (0..4).fold(0.0f32, |s, k| s + a[i / 4 * 4 + k] * b[k * 4 + i % 4])) };
-        let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
-        let c = xv([p[0], p[1], p[2], 1.0], mul(mul(m(256), m(2)), m(3)));
-        let (vx, vy, vw, vh, z0, z1) = self.viewport();
-        let rhw = 1.0 / c[3];
-        let (x, y, z) = (c[0] * rhw, c[1] * rhw, c[2] * rhw);
-        let (hw, hh) = (vw as f32 / 2.0, vh as f32 / 2.0);
-        (vx as f32 + (1.0 + x) * hw, vy as f32 + (1.0 - y) * hh, z0 + z * (z1 - z0), rhw, c)
+        transform_xyz(p, [m(256), m(2), m(3)], self.viewport())
     }
 
     /// a line of pretransformed vertices: as WARP's Direct3D 10 rasterizer draws them
@@ -2359,57 +2739,8 @@ impl D3d9 {
             // (the generators draw lines of pretransformed vertices of rhw 1 only)
             return Err(Fail::Bad);
         }
-        let inside = |v: &Vtx| (-0.5..=w as f32 - 0.5).contains(&v.x) && (-0.5..=h as f32 - 0.5).contains(&v.y);
-        let snap = |v: f32| round_even(v as f64 * 256.0) as i128;
-        let l = Seg9 { a: (snap(a.x), snap(a.y)), b: (snap(b.x), snap(b.y)) };
-        if l.a == l.b {
-            return Ok(());
-        }
-        // (the segment rasterized: a line past the target cut to it in f32 and snapped again)
-        let r = match (inside(&a), inside(&b)) {
-            (true, true) => {
-                Seg9 { a: l.a, b: l.b }
-            }
-            (ia, ib) => {
-                let unsnap = |p: (i128, i128)| (p.0 as f32 / 256.0, p.1 as f32 / 256.0);
-                let (mut pa, mut pb) = (unsnap(l.a), unsnap(l.b));
-                if !ia && !ib {
-                    // (MEASURED line-both-*: past the target at both ends, an end past it only
-                    // on the right or bottom side and by at most half a pixel is moved onto it)
-                    hit(clause::D3D9_DRAW_LINECLIP_NEAR);
-                    let (rx, by) = (w as f32 - 0.5, h as f32 - 0.5);
-                    for p in [&mut pa, &mut pb] {
-                        let past = p.0 > rx || p.1 > by;
-                        let near = p.0 >= -0.5 && p.1 >= -0.5 && p.0 <= rx + 0.5 && p.1 <= by + 0.5;
-                        if past && near {
-                            *p = (p.0.min(rx), p.1.min(by));
-                        }
-                    }
-                }
-                // (MEASURED points-lines-2 of d3d8draw: Direct3D 8's right (bottom) edge at the
-                // size itself where an end is at the width (height), as D3D9.RASTER.CLIP8SIDE)
-                let side = |size: i32, at: bool| if self.v8 && at { size as f32 } else { size as f32 - 0.5 };
-                let (wf, hf) = (w as f32, h as f32);
-                let max = (side(w, pa.0 == wf || pb.0 == wf), side(h, pa.1 == hf || pb.1 == hf));
-                if max != (wf - 0.5, hf - 0.5) {
-                    hit(clause::D3D9_RASTER_CLIP8SIDE);
-                }
-                let Some((ca, cb)) = clip_line(pa, pb, max) else {
-                    hit(clause::D3D9_DRAW_LINECLIP);
-                    return Ok(());
-                };
-                let snap = |v: f32| round_even(f64::from(v) * 256.0) as i128;
-                let r = Seg9 { a: (snap(ca.0), snap(ca.1)), b: (snap(cb.0), snap(cb.1)) };
-                // (MEASURED line-clip-*, line-random-*, line-end-*-clip, line-corner-*,
-                // line-both-*: a line past the target cut to it in f32, t = (edge - a) / (b - a),
-                // a + t (b - a), D3D9.DRAW.LINECLIP)
-                hit(clause::D3D9_DRAW_LINECLIP);
-                r
-            }
-        };
-        if r.a == r.b {
-            return Ok(());
-        }
+        let Some((la, lb, ra, rb)) = line_cut((a.x, a.y), (b.x, b.y), w, h, self.v8) else { return Ok(()) };
+        let (l, r) = (Seg9 { a: la, b: lb }, Seg9 { a: ra, b: rb });
         hit(clause::D3D9_DRAW_LINES);
         // (WARP's aliased line in Direct3D 10's coordinates, half a pixel on: D3D9.DRAW.LINES,
         // D3D9.DRAW.LINEEND, its ties D3D9.DRAW.POINTSLINES)
@@ -2449,7 +2780,7 @@ impl D3d9 {
         hit(clause::D3D9_DRAW_POINTS);
         for v in vs {
             // (a point's attributes are its vertex's: nothing to divide by rhw)
-            let (x, y) = ((v.x - 0.5).ceil() as i64, (v.y - 0.5).ceil() as i64);
+            let (x, y) = point_pixel(v.x, v.y);
             if (0..w as i64).contains(&x) && (0..h as i64).contains(&y) {
                 self.pixel(x as i32, y as i32, v.z, v.diffuse, v.specular, v.uv.map(|t| [t[0] / t[2], t[1] / t[2]]))?;
             }
@@ -2485,42 +2816,19 @@ impl D3d9 {
             // half a pixel in, x = vx - 0.5 .. vx + w - 0.5 (as pretransformed vertices are,
             // D3D9.RASTER.CLIP), each new vertex a + (b - a) t; the polygon cut into a fan)
             let (vx, vy, vw, vh, ..) = self.viewport();
-            let sh = |c: &[f32; 4]| [c[0] + c[3] / vw as f32, c[1] - c[3] / vh as f32, c[2], c[3]];
-            let dist = |q: &[f32; 4], plane: usize| match plane {
-                0 => q[3] + q[0],
-                1 => q[3] - q[0],
-                2 => q[3] + q[1],
-                _ => q[3] - q[1],
-            };
-            let mut poly: Vec<([f32; 4], [f32; ATTRS])> = vs.iter().zip(&clips).map(|(v, c)| (sh(c), v.attrs())).collect();
-            if poly.iter().any(|(q, _)| (0..4).any(|p| dist(q, p) < 0.0)) {
-                hit(clause::D3D9_DRAW_XYZ_CLIP);
-                for plane in 0..4 {
-                    let mut out = Vec::new();
-                    for i in 0..poly.len() {
-                        let (p, q) = (poly[i], poly[(i + 1) % poly.len()]);
-                        let (dp, dq) = (dist(&p.0, plane), dist(&q.0, plane));
-                        if dp >= 0.0 {
-                            out.push(p);
-                        }
-                        if (dp >= 0.0) != (dq >= 0.0) {
-                            let t = dp / (dp - dq);
-                            out.push((std::array::from_fn(|k| p.0[k] + (q.0[k] - p.0[k]) * t), std::array::from_fn(|k| p.1[k] + (q.1[k] - p.1[k]) * t)));
-                        }
-                    }
-                    poly = out;
-                }
+            let poly: Vec<([f32; 4], [f32; ATTRS])> = vs.iter().zip(&clips).map(|(v, c)| (*c, v.attrs())).collect();
+            if let Some(poly) = clip_xyz(&poly, vw, vh) {
                 let vtx = |(q, at): ([f32; 4], [f32; ATTRS])| {
-                    let rhw = 1.0 / q[3];
+                    let (x, y, rhw, clip) = xyz_vertex(q, (vx, vy, vw, vh));
                     Vtx {
-                        x: vx as f32 - 0.5 + (1.0 + q[0] * rhw) * (vw as f32 / 2.0),
-                        y: vy as f32 - 0.5 + (1.0 - q[1] * rhw) * (vh as f32 / 2.0),
+                        x,
+                        y,
                         z: at[0] as f64,
                         rhw: rhw as f64,
                         diffuse: std::array::from_fn(|k| at[1 + k] as f64),
                         specular: std::array::from_fn(|k| at[5 + k] as f64),
                         uv: std::array::from_fn(|i| [at[UV_AT[i]] as f64, at[UV_AT[i] + 1] as f64, at[Q_AT[i]] as f64]),
-                        clip: Some([q[0] - q[3] / vw as f32, q[1] + q[3] / vh as f32, q[2], q[3]]),
+                        clip: Some(clip),
                     }
                 };
                 let flat = (a.diffuse, a.specular);
@@ -2547,11 +2855,7 @@ impl D3d9 {
         // 9 does, but with a vertex at the target's width (height) itself it clips the right
         // (bottom) side at the size, not half a pixel in: raster-77, -96 and 17 more,
         // D3D9.RASTER.CLIP8SIDE)
-        let at_w = self.v8 && pts.iter().any(|v| v.0 == w as f32);
-        let at_h = self.v8 && pts.iter().any(|v| v.1 == h as f32);
-        if clipped && (at_w || at_h) {
-            hit(clause::D3D9_RASTER_CLIP8SIDE);
-        }
+        let (x1, y1, sides) = clip_bounds(pts, w, h, self.v8, persp);
         let flat = self.rs(9) == 1;
         let mut clipr = (0, 0, w, h);
         if !self.v8 && self.rs(174) != 0 {
@@ -2561,18 +2865,11 @@ impl D3d9 {
             }
         }
         let corners = vs.map(|v| {
-            let mut at = v.attrs();
-            if persp {
-                // (the attributes times rhw, interpolated in screen space, then divided by the
-                // interpolated rhw)
-                hit(clause::D3D9_DRAW_RHW);
-                for k in PERSP {
-                    at[k] *= at[11];
-                }
-            }
-            PolyVtx { x: v.x, y: v.y, at }
+            // (the attributes times rhw, interpolated in screen space, then divided by the
+            // interpolated rhw)
+            PolyVtx { x: v.x, y: v.y, at: if persp { rhw_attrs(v.attrs()) } else { v.attrs() } }
         });
-        let snap = |v: &PolyVtx| (round_even(v.x as f64 * 256.0) as i64, round_even(v.y as f64 * 256.0) as i64);
+        let snap = |v: &PolyVtx| (snap256(v.x), snap256(v.y));
         // the pieces drawn: the triangle itself, or the clipped polygon's vertices snapped to
         // 1/256 pixel and cut into a strip (MEASURED: d3d9draw shade-clip-*, d3d8draw prims-3,
         // shade-9: the polygon as clipped to x = -0.5, size - 0.5, y = -0.5, size - 0.5 in turn,
@@ -2584,15 +2881,7 @@ impl D3d9 {
             // clip-decide-*, which diagonal cuts a quadrilateral)
             let first = least_x(&corners);
             let turned: [PolyVtx; 3] = std::array::from_fn(|k| corners[(first + k) % 3]);
-            // (MEASURED rhw-6: with perspective, the right and bottom sides at the size itself)
-            let edge = if persp { 0.0 } else { 0.5 };
-            let ex = if at_w { 0.0 } else { edge };
-            let ey = if at_h { 0.0 } else { edge };
-            // (the clean-room notes, MEASURED clip8-*: the sides some vertex is outside of,
-            // x < 0, x > the width, y < 0, y > the height, strictly, D3D9.RASTER.CLIP8)
-            hit(clause::D3D9_RASTER_CLIP8);
-            let sides = [pts.iter().any(|v| v.0 < 0.0), pts.iter().any(|v| v.0 > w as f32), pts.iter().any(|v| v.1 < 0.0), pts.iter().any(|v| v.1 > h as f32)];
-            let poly: Vec<PolyVtx> = clip_polygon(&turned, w as f32 - ex, h as f32 - ey, sides)
+            let poly: Vec<PolyVtx> = clip_polygon(&turned, x1, y1, sides)
                 .iter()
                 .map(|v| {
                     let (x, y) = snap(v);
@@ -2621,11 +2910,7 @@ impl D3d9 {
             // (D3D10's pixel centers), each attribute's gradients over the area and then
             // v0 + d/dy (y - y0) + d/dx (x - x0), in that order
             let (x, y) = (piece.map(|v| v.x + 0.5), piece.map(|v| v.y + 0.5));
-            let area32 = (x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]);
-            let grads: [(f32, f32); ATTRS] = std::array::from_fn(|k| {
-                let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
-                ((d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) / area32, (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) / area32)
-            });
+            let grads: [(f32, f32); ATTRS] = std::array::from_fn(|k| grad9(x, y, piece.map(|v| v.at[k])));
             self.draw.duv = UV_AT.map(|k| ((grads[k].0 as f64, grads[k].1 as f64), (grads[k + 1].0 as f64, grads[k + 1].1 as f64)));
             // (MEASURED filter-other-4-*, -5-*: a draw that filters with PYRAMIDALQUAD or
             // GAUSSIANQUAD has its attributes set up as Direct3D 10's rasterizer does, the planes
@@ -2650,30 +2935,15 @@ impl D3d9 {
                     }
                     let (sx, sy) = (px as f32 + 0.5, py as f32 + 0.5);
                     let at32: [f32; ATTRS] = std::array::from_fn(|k| match setup {
-                        Setup::Warp9 => {
-                            let (dx, dy) = grads[k];
-                            piece[0].at[k] + dy * (sy - y[0]) + dx * (sx - x[0])
-                        }
-                        Setup::D3d10 => {
-                            let r = 1.0 / area32;
-                            let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
-                            let gx = (d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) * r;
-                            let gy = (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) * r;
-                            let c = (piece[0].at[k] - gx * x[0]) - gy * y[0];
-                            (c + gy * sy) + gx * sx
-                        }
+                        Setup::Warp9 => at9(piece[0].at[k], grads[k], x[0], y[0], sx, sy),
+                        Setup::D3d10 => plane10(x, y, piece.map(|v| v.at[k]), sx, sy),
                     });
                     let at: [f64; ATTRS] = match &planes {
                         Some(p) => p.at(sx, sy),
-                        None => std::array::from_fn(|k| if persp && PERSP.contains(&k) { (at32[k] / at32[11]) as f64 } else { at32[k] as f64 }),
+                        None if persp => rhw_value(at32),
+                        None => at32.map(f64::from),
                     };
-                    let (diffuse, specular) = if flat {
-                        hit(clause::D3D9_SHADE_FLAT);
-                        (a.diffuse, a.specular)
-                    } else {
-                        hit(clause::D3D9_SHADE_GOURAUD);
-                        (std::array::from_fn(|k| at[1 + k]), std::array::from_fn(|k| at[5 + k]))
-                    };
+                    let (diffuse, specular) = shaded(flat, (a.diffuse, a.specular), (std::array::from_fn(|k| at[1 + k]), std::array::from_fn(|k| at[5 + k])));
                     if !persp {
                         // (the footprint as Direct3D 10's coarse derivatives, the quad's top-left
                         // pixel's s/q, t/q against its right and lower neighbours': projected
@@ -2684,22 +2954,12 @@ impl D3d9 {
                                 // (the clean-room notes and MEASURED aniso-4, -5, -17, -20, -27,
                                 // aniso-axis-11: the quad's values as the pixel shader's planes
                                 // give them, C + gy y + gx x, Direct3D 10's setup)
-                                None => std::array::from_fn(|k| {
-                                    let r = 1.0 / area32;
-                                    let (d1, d2) = (piece[1].at[k] - piece[0].at[k], piece[2].at[k] - piece[0].at[k]);
-                                    let gx = (d1 * (y[2] - y[0]) - d2 * (y[1] - y[0])) * r;
-                                    let gy = (d2 * (x[1] - x[0]) - d1 * (x[2] - x[0])) * r;
-                                    let c = (piece[0].at[k] - gx * x[0]) - gy * y[0];
-                                    f64::from((c + gy * (sy + oy)) + gx * (sx + ox))
-                                }),
+                                None => std::array::from_fn(|k| f64::from(plane10(x, y, piece.map(|v| v.at[k]), sx + ox, sy + oy))),
 
                             }
                         };
-                        for i in 0..Q_AT.len() {
-                            let (ox, oy) = (-((px & 1) as f32), -((py & 1) as f32));
-                            let (c, r, d) = (st_of(&attr(ox, oy))[i], st_of(&attr(ox + 1.0, oy))[i], st_of(&attr(ox, oy + 1.0))[i]);
-                            self.draw.duv[i] = ((r[0] - c[0], d[0] - c[0]), (r[1] - c[1], d[1] - c[1]));
-                        }
+                        let (ox, oy) = quad_origin(px, py);
+                        self.draw.duv = quad_duv(&attr(ox, oy), &attr(ox + 1.0, oy), &attr(ox, oy + 1.0));
                     }
                     self.pixel(px, py, at[0], diffuse, specular, st_of(&at))?;
                 }
@@ -2780,69 +3040,33 @@ impl D3d9 {
         if fm.ch.iter().any(|c| c.c == b'x') {
             hit(clause::D3D9_DRAW_XZERO);
         }
+
         let px = encode_x(&fm, new, false);
         self.draw.rt.as_mut().ok_or(Fail::Empty)?.set(x, y, &px);
         Ok(())
     }
 
-    fn blend_float(&self, s: [f64; 4], d: [f64; 4]) -> Res<[f64; 4]> {
-        let s = s.map(|x| x.clamp(0.0, 1.0) as f32);
-        let d = d.map(|x| x as f32);
-        let c = blend_color(self.v8, self.rs(193));
+    /// the blend states (blend_float's)
+    fn blend_states(&self) -> BlendStates {
         if self.v8 && [19, 20].iter().any(|&i| matches!(self.rs(i), 14 | 15)) {
             hit(clause::D3D9_BLEND_FACTOR);
         }
-        let bf = argb(c).map(|v| v as f32);
-        let factor = |f: u32, k: usize| -> Res<f32> {
-            Ok(match f {
-                1 => 0.0,
-                2 => 1.0,
-                3 => s[k],
-                4 => 1.0 - s[k],
-                5 => s[3],
-                6 => 1.0 - s[3],
-                7 => d[3],
-                8 => 1.0 - d[3],
-                9 => d[k],
-                10 => 1.0 - d[k],
-                11 if k < 3 => s[3].min(1.0 - d[3]),
-                11 => 1.0,
-                14 => bf[k],
-                15 => 1.0 - bf[k],
-                _ => return Err(Fail::Bad),
-            })
-        };
-        let separate = !self.v8 && self.rs(206) != 0;
-        let mut out = [0.0; 4];
-        for k in 0..4 {
-            let alpha = separate && k == 3;
-            let (mut sf, mut df, op) = if alpha { (self.rs(207), self.rs(208), self.rs(209)) } else { (self.rs(19), self.rs(20), self.rs(171)) };
-            if [sf, df].iter().any(|f| matches!(f, 12 | 13)) {
-                if alpha {
-                    hit(clause::D3D9_BLEND_BOTHALPHA);
-                    let zero = |f: u32| if matches!(f, 12 | 13) { 1 } else { f };
-                    (sf, df) = (zero(sf), zero(df));
-                } else {
-                    (sf, df) = if sf == 12 || sf != 13 && df == 12 { (5, 6) } else { (6, 5) };
-                }
-            }
-            let (a, b) = (s[k] * factor(sf, k)?, d[k] * factor(df, k)?);
-            out[k] = match blend_op(op) {
-                BlendOp::Add => a + b,
-                BlendOp::Sub => a - b,
-                BlendOp::RevSub => b - a,
-                BlendOp::Min => s[k].min(d[k]),
-                BlendOp::Max => s[k].max(d[k]),
-            } as f64;
+        BlendStates {
+            src: self.rs(19),
+            dst: self.rs(20),
+            op: self.rs(171),
+            separate: !self.v8 && self.rs(206) != 0,
+            src_alpha: self.rs(207),
+            dst_alpha: self.rs(208),
+            op_alpha: self.rs(209),
+            factor: blend_color(self.v8, self.rs(193)),
         }
-        Ok(out)
     }
 
     fn blend(&self, fmt: u32, s: [f64; 4], d: [f64; 4]) -> Res<[f64; 4]> {
         let fm = format(fmt).ok_or(Fail::Bad)?;
         if fm.kind != Kind::Int || fm.ch.iter().any(|c| c.c != b'x' && (c.bits != 8 || !matches!(c.c, b'r' | b'g' | b'b' | b'a'))) {
-            hit(clause::D3D9_BLEND_FORMAT);
-            return self.blend_float(s, d);
+            return blend_float(s, d, &self.blend_states()).ok_or(Fail::Bad);
         }
         let (s, d) = (s.map(|x| unorm(x, 8) as i64), d.map(|x| unorm(x, 8) as i64));
         let c = blend_color(self.v8, self.rs(193));
@@ -2892,6 +3116,73 @@ pub fn blend_op(op: u32) -> BlendOp {
             BlendOp::Max
         }
     }
+}
+
+/// what blending reads of the render states: SRCBLEND, DESTBLEND, BLENDOP, (9)
+/// SEPARATEALPHABLENDENABLE and the alpha's SRCBLENDALPHA, DESTBLENDALPHA, BLENDOPALPHA, and
+/// the BLENDFACTOR color (blend_color)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct BlendStates {
+    pub src: u32,
+    pub dst: u32,
+    pub op: u32,
+    pub separate: bool,
+    pub src_alpha: u32,
+    pub dst_alpha: u32,
+    pub op_alpha: u32,
+    pub factor: u32,
+}
+
+/// a blend factor (D3DBLEND) of channel k in f32, of the clamped source s, the destination d and
+/// the BLENDFACTOR color's channels bf; none outside the enumeration and for the BOTH ones
+/// (both_alpha turns them first)
+fn factor_f32(f: u32, k: usize, s: [f32; 4], d: [f32; 4], bf: [f32; 4]) -> Option<f32> {
+    let (sk, dk, bk) = (*s.get(k)?, *d.get(k)?, *bf.get(k)?);
+    Some(match f {
+        1 => 0.0,
+        2 => 1.0,
+        3 => sk,
+        4 => 1.0 - sk,
+        5 => s[3],
+        6 => 1.0 - s[3],
+        7 => d[3],
+        8 => 1.0 - d[3],
+        9 => dk,
+        10 => 1.0 - dk,
+        11 if k < 3 => s[3].min(1.0 - d[3]),
+        11 => 1.0,
+        14 => bk,
+        15 => 1.0 - bk,
+        _ => return None,
+    })
+}
+
+/// blending on a target of any format but 8-bit unsigned ones (MEASURED d3d9draw blend-fmt-*,
+/// 95 cases; D3D9.BLEND.FORMAT): in f32, the source clamped to 0..1, the destination as read,
+/// source * its factor OP destination * its factor, MIN and MAX of the two alone; the alpha by
+/// the separate states where they are on; the result written as the format writes; none for a
+/// factor outside the enumeration; spec/lean/Kikizake/D3d9/Blend.lean `blendFloat`
+pub fn blend_float(s: [f64; 4], d: [f64; 4], b: &BlendStates) -> Option<[f64; 4]> {
+    hit(clause::D3D9_BLEND_FORMAT);
+    let s = s.map(|x| x.clamp(0.0, 1.0) as f32);
+    let d = d.map(|x| x as f32);
+    let bf = argb(b.factor).map(|v| v as f32);
+    let mut out = [0.0; 4];
+    for (k, o) in out.iter_mut().enumerate() {
+        let alpha = b.separate && k == 3;
+        let (sf, df, op) = if alpha { (b.src_alpha, b.dst_alpha, b.op_alpha) } else { (b.src, b.dst, b.op) };
+        let (sf, df) = both_alpha(sf, df, alpha);
+        let (sk, dk) = (*s.get(k)?, *d.get(k)?);
+        let (x, y) = (sk * factor_f32(sf, k, s, d, bf)?, dk * factor_f32(df, k, s, d, bf)?);
+        *o = f64::from(match blend_op(op) {
+            BlendOp::Add => x + y,
+            BlendOp::Sub => x - y,
+            BlendOp::RevSub => y - x,
+            BlendOp::Min => sk.min(dk),
+            BlendOp::Max => sk.max(dk),
+        });
+    }
+    Some(out)
 }
 
 /// the BLENDFACTOR color blends take: Direct3D 8 has no BLENDFACTOR state, yet BLENDFACTOR and

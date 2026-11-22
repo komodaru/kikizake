@@ -349,27 +349,75 @@ pub fn gaps(c: &Clause, e: &Evidence, learn: &BTreeMap<String, String>) -> Vec<S
     v
 }
 
-/// one line per clause: id, status, cases same/differ/unmodeled/unanswered, laws, gaps
+/// what Windows says of a clause's cases: one of them differs, they agree, or none was answered
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Windows {
+    Differs,
+    Agrees,
+    Unanswered,
+}
+
+impl Windows {
+    pub fn of(e: &Evidence) -> Windows {
+        match (e.differ, e.same) {
+            (1.., _) => Windows::Differs,
+            (0, 1..) => Windows::Agrees,
+            (0, 0) => Windows::Unanswered,
+        }
+    }
+    pub fn name(self) -> &'static str {
+        match self {
+            Windows::Differs => "differs",
+            Windows::Agrees => "agrees",
+            Windows::Unanswered => "-",
+        }
+    }
+}
+
+/// a clause's formal proofs of the specification, by kind (FORMAL_KINDS: a Lean theorem, an
+/// exhaustive law, a Kani harness, a TLA+ law), apart from how far they reach the Rust models
+/// (implementation_reach) and from what Windows says (Windows): the review of 84b05c8, 6
+pub fn proofs(laws: &[Law]) -> String {
+    let kinds: Vec<&str> = FORMAL_KINDS.iter().copied().filter(|k| laws.iter().any(|l| l.kind == *k)).collect();
+    if kinds.is_empty() { "-".to_string() } else { kinds.join("+") }
+}
+
+/// one line per clause: id, status, its three kinds of evidence apart (the proofs of the
+/// specification, how far they reach the Rust models, what Windows says), the cases' counts,
+/// the laws, the gaps
 pub fn table(dir: &Path) -> std::io::Result<String> {
     let t = trace(dir)?;
     let learn = learn();
     let lean = crate::lean::ledger::reaches(Path::new(env!("CARGO_MANIFEST_DIR")))?;
-    let mut s = String::from("# clause status same differ unmodeled unanswered laws(exhaustive/pbt) impl | gaps\n# impl: how far the formal laws reach the models' functions (every: over the domain; sampled: a Lean theorem whose definitions the models match on samples; spec-only: of the specification alone; -: no formal law)\n");
-    let mut per: BTreeMap<&str, [usize; 11]> = BTreeMap::new();
+    let mut s = String::from("# clause status proof impl windows | same differ unmodeled unanswered laws(exhaustive/pbt) | gaps
+# proof: the formal laws proving the specification (lean, exhaustive, kani, tla; -: none)
+# impl: how far they reach the models' Rust functions (every: over the domain; sampled: a Lean theorem whose definitions the models match on samples; spec-only: of the specification alone; -: no formal law)
+# windows: what the Windows answers say of the clause's cases (agrees, differs; -: none answered)
+");
+    let mut per: BTreeMap<&str, [usize; 14]> = BTreeMap::new();
     let none = Evidence::default();
     for c in crate::spec::clauses() {
         let e = t.get(&c.id).unwrap_or(&none);
         let ex = e.laws.iter().filter(|l| l.kind == "exhaustive").count();
         let g = gaps(&c, e, &learn);
         let reach = implementation_reach(&e.laws, &lean);
-        s += &format!("{:28} {:9} {:6} {:3} {:5} {:5} {}/{} {:9} | {}\n", c.id, c.status, e.same, e.differ, e.unmodeled, e.unanswered, ex, e.laws.len() - ex, reach.map_or("-", |r| r.name()), g.join("; "));
+        let win = Windows::of(e);
+        s += &format!("{:28} {:9} {:22} {:9} {:7} | {:6} {:3} {:5} {:5} {}/{} | {}\n", c.id, c.status, proofs(&e.laws), reach.map_or("-", |r| r.name()), win.name(), e.same, e.differ, e.unmodeled, e.unanswered, ex, e.laws.len() - ex, g.join("; "));
         let p = per.entry(c.file).or_default();
-        let [.., every, sampled, spec_only] = p;
+        let [.., lean_proven, every, sampled, spec_only, agrees, differs] = p;
+        if e.laws.iter().any(|l| l.kind == "lean") {
+            *lean_proven = lean_proven.saturating_add(1);
+        }
         match reach {
             Some(crate::lean::ledger::Reach::Every) => *every = every.saturating_add(1),
             Some(crate::lean::ledger::Reach::Sampled) => *sampled = sampled.saturating_add(1),
             Some(crate::lean::ledger::Reach::SpecOnly) => *spec_only = spec_only.saturating_add(1),
             None => {}
+        }
+        match win {
+            Windows::Agrees => *agrees = agrees.saturating_add(1),
+            Windows::Differs => *differs = differs.saturating_add(1),
+            Windows::Unanswered => {}
         }
         p[0] += 1;
         p[match c.status.as_str() {
@@ -386,9 +434,9 @@ pub fn table(dir: &Path) -> std::io::Result<String> {
             p[7] += 1;
         }
     }
-    s += "# per API: clauses doc measured assumed open excluded with-a-law with-gaps impl-every impl-sampled spec-only\n";
+    s += "# per API: clauses doc measured assumed open excluded with-a-law with-gaps | lean-proven | impl-every impl-sampled spec-only | windows-agrees windows-differs\n";
     for (f, p) in per {
-        s += &format!("# {f:10} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4}\n", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10]);
+        s += &format!("# {f:10} {:4} {:4} {:4} {:4} {:4} {:4} {:4} {:4} | {:4} | {:4} {:4} {:4} | {:4} {:4}\n", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12], p[13]);
     }
     Ok(s)
 }

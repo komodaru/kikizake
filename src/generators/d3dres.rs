@@ -546,6 +546,8 @@ fn suite(d3d11: bool) -> String {
     writeln!(s, "case life-view-slot-reuse\n{dev}\n{}\n{}\nrtv 0 0 nodesc\nrtv 0 1 nodesc\nclear 0 {green}\n{}\n{}\nend", t("0"), t("1"), read(0), read(1));
     writeln!(s, "case life-failed-create\n{dev}\n{}\nrtv 0 0 nodesc\n{}\nclear 0 {green}\n{}\nsrv 1 0 nodesc\nend", t("0"), tex2("0", 0, 4, 1, 1, 28, 0, SRV | RTV, 0, 0, (1, 0)), read(0));
     writeln!(s, "case life-copy-after-reuse\n{dev}\n{}\nrtv 1 0 nodesc\n{}\n{}\nclear 1 {red}\ncopy 2 0\n{}\nend", t("0"), t("0"), t("2"), read(2));
+    removed_calls(&mut s, dev, d3d11);
+    sequences(&mut s, dev, d3d11);
     // (an immutable texture made without initial data crashes the x86 WARP: give it some)
     let s = s.lines().map(immutable_init).collect::<Vec<_>>().join("\n") + "\n";
     isolate_x86_crashes(&s, d3d11)
@@ -631,4 +633,86 @@ fn immutable_init(l: &str) -> String {
     let rb = format(f).map_or(16, |f| f.row_bytes(w.min(1 << 16)) as u64);
     let rows = format(f).map_or(1, |f| f.rows(ht.min(1 << 16)) as u64);
     format!("{l} init 1 {rb} {}", rb * rows)
+}
+
+/// what a removed device answers to the calls the probe-removed case leaves out (D3DRES.REMOVED.OPS,
+/// spec/tla/D3DResCalls.tla): checks, views and copies of an empty slot, clears of an empty view
+/// slot, and a new device after
+fn removed_calls(s: &mut String, dev: &str, d3d11: bool) {
+    let t = tex2("0", 2, 2, 1, 1, 28, 0, SRV | RTV, 0, 0, (1, 0));
+    let uav = if d3d11 { "uav 6 7 nodesc\nuav 6 0 check nodesc\nclearuav 7 u 0 0 0 0\n" } else { "" };
+    // (Direct3D 10: a UAV line in a view slot that holds a render target view)
+    writeln!(s, "case probe-uav-slot\n{dev}\n{t}\nrtv 0 0 nodesc\nclear 0 0x3f800000 0 0 0x3f800000\nuav 0 0 nodesc\nclear 0 0 0x3f800000 0 0x3f800000\nread 0 0 8 2 1\nend");
+    writeln!(s, "case probe-removed-calls\n{dev}\n{t} init 1 8 16\nupdate 0 0 5 8 16 0 0 0 3 1 1\n{}\nbuf check 16 0 1 0 0 0\nsrv 5 0 check nodesc\nrtv 5 0 check nodesc\nsrv 6 7 nodesc\nrtv 6 7 nodesc\n{uav}update 7 0 5 8 16\ncopy 7 0\ncopy 0 7\ncopysub 7 0 0 0 0 0 0\nresolve 7 0 0 0 28\nclear 7 0 0 0 0\ncleards 7 0 0 0\nread 7 0 8 2 1\nread 0 0 8 2 1\n{dev}\nread 0 0 8 2 1\n{t} init 1 8 16\nread 0 0 8 2 1\nend", tex2("check", 2, 2, 1, 1, 28, 0, SRV | RTV, 0, 0, (1, 0)));
+}
+
+/// the descriptions of the sequence cases (spec/tla/D3DResCopy.tla's Descs, in its order): 2 by 2
+/// R8G8B8A8_UNORM of one level, two levels, 4 samples, immutable; B8G8R8A8_UNORM; R8G8B8A8_UINT;
+/// a 16-byte vertex buffer; a 4-wide 1D texture; a staging texture. Each made with the initial
+/// data of the seed `seed` (pitches 8 and 16) but the multisampled one, which is cleared to
+/// magenta through a render target view of its slot. With the read lines of each subresource
+/// (and of subresource 1 of those with one)
+fn seq_desc(k: usize, slot: u32, seed: u32) -> (String, Vec<String>) {
+    let t = |mips: u32, f: u32, usage: u32, bind: u32, cpu: u32, count: u32| tex2(&slot.to_string(), 2, 2, 1, mips, f, usage, bind, cpu, 0, (count, 0));
+    let init = format!(" init {seed} 8 16");
+    let square = vec![format!("read {slot} 0 8 2 1"), format!("read {slot} 1 8 2 1")];
+    match k {
+        0 => (t(1, 28, 0, SRV | RTV, 0, 1) + &init, square),
+        1 => (t(2, 28, 0, SRV | RTV, 0, 1) + &init, vec![format!("read {slot} 0 8 2 1"), format!("read {slot} 1 4 1 1"), format!("read {slot} 2 8 2 1")]),
+        2 => (format!("{}\nrtv {slot} {slot} nodesc\nclear {slot} 0x3f800000 0 0x3f800000 0x3f800000", t(1, 28, 0, RTV, 0, 4)), square),
+        3 => (t(1, 28, 1, SRV, 0, 1) + &init, square),
+        4 => (t(1, 87, 0, SRV | RTV, 0, 1) + &init, square),
+        5 => (t(1, 30, 0, SRV | RTV, 0, 1) + &init, square),
+        6 => (format!("buf {slot} 16 0 1 0 0 0 init {seed}"), vec![format!("read {slot} 0 16 1 1"), format!("read {slot} 1 16 1 1")]),
+        7 => (format!("tex {slot} 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init {seed} 16 16"), vec![format!("read {slot} 0 16 1 1"), format!("read {slot} 1 16 1 1")]),
+        _ => (t(1, 28, 3, 0, CPU_R, 1) + &init, square),
+    }
+}
+
+/// the sequence cases' calls between slots 0 and 1 (spec/tla/D3DResCopy.tla's Next): updates of
+/// either slot, CopyResource, CopySubresourceRegion and ResolveSubresource either way
+pub fn seq_ops() -> Vec<String> {
+    let mut v = Vec::new();
+    let boxes = ["", " 0 0 0 1 1 1", " 1 0 0 2 2 1", " 1 0 0 1 2 1", " 0 0 0 3 1 1", " 0 1 0 2 3 1"];
+    for k in 0..2 {
+        for sub in 0..2 {
+            for b in boxes {
+                v.push(format!("update {k} {sub} 5 8 16{b}"));
+            }
+        }
+    }
+    let regions = [("0 0", ""), ("0 0", " 0 0 0 1 1 1"), ("1 0", " 0 0 0 1 1 1"), ("0 1", " 1 1 0 2 2 1"), ("0 0", " 1 0 0 1 2 1"), ("0 0", " 0 0 0 3 1 1"), ("1 1", "")];
+    for (d, s) in [(0, 1), (1, 0)] {
+        v.push(format!("copy {d} {s}"));
+        for ds in 0..2 {
+            for ss in 0..2 {
+                for (at, b) in regions {
+                    v.push(format!("copysub {d} {ds} {at} 0 {s} {ss}{b}"));
+                }
+            }
+        }
+        for (ds, ss) in [(0, 0), (1, 0), (0, 1)] {
+            for f in [28, 30, 87] {
+                v.push(format!("resolve {d} {ds} {s} {ss} {f}"));
+            }
+        }
+    }
+    v
+}
+
+/// two resources of the sequence descriptions and two calls between them, every subresource
+/// read after each (MEASURED by these: the D3DResCopy spec's sequences)
+fn sequences(s: &mut String, dev: &str, d3d11: bool) {
+    let mut r = XorShift32::new(if d3d11 { 0x5e90_0011 } else { 0x5e90_0010 });
+    let ops = seq_ops();
+    for i in 0..300 {
+        let (a, ra) = seq_desc(usize::try_from(r.range(0, 8)).unwrap_or(0), 0, 1);
+        let (b, rb) = seq_desc(usize::try_from(r.range(0, 8)).unwrap_or(0), 1, 2);
+        let reads: Vec<String> = ra.into_iter().chain(rb).collect();
+        writeln!(s, "case seq-{i}\n{dev}\n{a}\n{b}\n{}", reads.join("\n"));
+        for _ in 0..2 {
+            writeln!(s, "{}\n{}", r.pick(&ops), reads.join("\n"));
+        }
+        writeln!(s, "end");
+    }
 }

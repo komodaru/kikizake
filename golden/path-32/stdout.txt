@@ -26778,4 +26778,2814 @@ pt -53 -73 4
 pt -53 -73 4
 pt -53 -72 4
 pt -53 -72 4
+case ellipsebig-0-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 524240 40 6
+pt 524240 -2706089 4
+pt 289509 -4899840 4
+pt -48 -4899840 4
+pt -289605 -4899840 4
+pt -524336 -2706089 4
+pt -524336 40 4
+pt -524336 2706169 4
+pt -289605 4899920 4
+pt -48 4899920 4
+pt 289509 4899920 4
+pt 524240 2706169 4
+pt 524240 40 5
+case ellipsebig-0-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 524240 40 6
+pt 524240 2706170 4
+pt 289509 4899920 4
+pt -48 4899920 4
+pt -289605 4899920 4
+pt -524336 2706170 4
+pt -524336 40 4
+pt -524336 -2706090 4
+pt -289605 -4899840 4
+pt -48 -4899840 4
+pt 289509 -4899840 4
+pt 524240 -2706090 4
+pt 524240 40 5
+case ellipsebig-1-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 662336 -24 6
+pt 662336 -1901832 4
+pt 365777 -3443552 4
+pt -48 -3443552 4
+pt -365873 -3443552 4
+pt -662432 -1901832 4
+pt -662432 -24 4
+pt -662432 1901784 4
+pt -365873 3443504 4
+pt -48 3443504 4
+pt 365777 3443504 4
+pt 662336 1901784 4
+pt 662336 -24 5
+case ellipsebig-1-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 662336 -24 6
+pt 662336 1901785 4
+pt 365777 3443504 4
+pt -48 3443504 4
+pt -365873 3443504 4
+pt -662432 1901785 4
+pt -662432 -24 4
+pt -662432 -1901833 4
+pt -365873 -3443552 4
+pt -48 -3443552 4
+pt 365777 -3443552 4
+pt 662336 -1901833 4
+pt 662336 -24 5
+case ellipsebig-2-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 662352 16 6
+pt 662352 -755863 4
+pt 365790 -1368624 4
+pt -40 -1368624 4
+pt -365870 -1368624 4
+pt -662432 -755863 4
+pt -662432 16 4
+pt -662432 755895 4
+pt -365870 1368656 4
+pt -40 1368656 4
+pt 365790 1368656 4
+pt 662352 755895 4
+pt 662352 16 5
+case ellipsebig-2-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 662352 16 6
+pt 662352 755896 4
+pt 365790 1368656 4
+pt -40 1368656 4
+pt -365870 1368656 4
+pt -662432 755896 4
+pt -662432 16 4
+pt -662432 -755864 4
+pt -365870 -1368624 4
+pt -40 -1368624 4
+pt 365790 -1368624 4
+pt 662352 -755864 4
+pt 662352 16 5
+case ellipsebig-3-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 662352 -2147483648 6
+pt 662352 -2147483392 4
+pt 365786 -2147483136 4
+pt -48 -2147483136 4
+pt -365882 -2147483136 4
+pt -662448 -2147483392 4
+pt -662448 -2147483648 4
+pt -662448 2147483392 4
+pt -365882 2147483136 4
+pt -48 2147483136 4
+pt 365786 2147483136 4
+pt 662352 2147483392 4
+pt 662352 -2147483648 5
+case ellipsebig-3-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 662352 -2147483648 6
+pt 662352 2147483392 4
+pt 365786 2147483136 4
+pt -48 2147483136 4
+pt -365882 2147483136 4
+pt -662448 2147483392 4
+pt -662448 -2147483648 4
+pt -662448 -2147483392 4
+pt -365882 -2147483136 4
+pt -48 -2147483136 4
+pt 365786 -2147483136 4
+pt 662352 -2147483392 4
+pt 662352 -2147483648 5
+case ellipsebig-4-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebig-4-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebig-5-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebig-5-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebig-6-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1324800 24 6
+pt 1324800 -593011200 4
+pt 731675 -1073741760 4
+pt 16 -1073741760 4
+pt -731643 -1073741760 4
+pt -1324768 -593011200 4
+pt -1324768 24 4
+pt -1324768 593011264 4
+pt -731643 1073741824 4
+pt 16 1073741824 4
+pt 731675 1073741824 4
+pt 1324800 593011264 4
+pt 1324800 24 5
+case ellipsebig-6-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1324800 24 6
+pt 1324800 593011264 4
+pt 731675 1073741824 4
+pt 16 1073741824 4
+pt -731643 1073741824 4
+pt -1324768 593011264 4
+pt -1324768 24 4
+pt -1324768 -593011200 4
+pt -731643 -1073741760 4
+pt 16 -1073741760 4
+pt 731675 -1073741760 4
+pt 1324800 -593011200 4
+pt 1324800 24 5
+case ellipsebig-7-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1899472 40 6
+pt 1899472 -74126360 4
+pt 1049054 -134217680 4
+pt 8 -134217680 4
+pt -1049038 -134217680 4
+pt -1899456 -74126360 4
+pt -1899456 40 4
+pt -1899456 74126440 4
+pt -1049038 134217760 4
+pt 8 134217760 4
+pt 1049054 134217760 4
+pt 1899472 74126440 4
+pt 1899472 40 5
+case ellipsebig-7-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1899472 40 6
+pt 1899472 74126440 4
+pt 1049054 134217760 4
+pt 8 134217760 4
+pt -1049038 134217760 4
+pt -1899456 74126440 4
+pt -1899456 40 4
+pt -1899456 -74126360 4
+pt -1049038 -134217680 4
+pt 8 -134217680 4
+pt 1049054 -134217680 4
+pt 1899472 -74126360 4
+pt 1899472 40 5
+case ellipsebig-8-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 3136512 -8 6
+pt 3136512 -4632903 4
+pt 1732238 -8388608 4
+pt -24 -8388608 4
+pt -1732286 -8388608 4
+pt -3136560 -4632903 4
+pt -3136560 -8 4
+pt -3136560 4632887 4
+pt -1732286 8388592 4
+pt -24 8388592 4
+pt 1732238 8388592 4
+pt 3136512 4632887 4
+pt 3136512 -8 5
+case ellipsebig-8-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 3136512 -8 6
+pt 3136512 4632888 4
+pt 1732238 8388592 4
+pt -24 8388592 4
+pt -1732286 8388592 4
+pt -3136560 4632888 4
+pt -3136560 -8 4
+pt -3136560 -4632904 4
+pt -1732286 -8388608 4
+pt -24 -8388608 4
+pt 1732238 -8388608 4
+pt 3136512 -4632904 4
+pt 3136512 -8 5
+case ellipsebig-9-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 8388544 24 6
+pt 8388544 -1732237 4
+pt 4632840 -3136512 4
+pt -56 -3136512 4
+pt -4632952 -3136512 4
+pt -8388656 -1732237 4
+pt -8388656 24 4
+pt -8388656 1732285 4
+pt -4632952 3136560 4
+pt -56 3136560 4
+pt 4632840 3136560 4
+pt 8388544 1732285 4
+pt 8388544 24 5
+case ellipsebig-9-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 8388544 24 6
+pt 8388544 1732286 4
+pt 4632840 3136560 4
+pt -56 3136560 4
+pt -4632952 3136560 4
+pt -8388656 1732286 4
+pt -8388656 24 4
+pt -8388656 -1732238 4
+pt -4632952 -3136512 4
+pt -56 -3136512 4
+pt 4632840 -3136512 4
+pt 8388544 -1732238 4
+pt 8388544 24 5
+case ellipsebig-10-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217760 -40 6
+pt 134217760 -1049085 4
+pt 74126440 -1899504 4
+pt 40 -1899504 4
+pt -74126360 -1899504 4
+pt -134217680 -1049085 4
+pt -134217680 -40 4
+pt -134217680 1049005 4
+pt -74126360 1899424 4
+pt 40 1899424 4
+pt 74126440 1899424 4
+pt 134217760 1049005 4
+pt 134217760 -40 5
+case ellipsebig-10-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217760 -40 6
+pt 134217760 1049006 4
+pt 74126440 1899424 4
+pt 40 1899424 4
+pt -74126360 1899424 4
+pt -134217680 1049006 4
+pt -134217680 -40 4
+pt -134217680 -1049086 4
+pt -74126360 -1899504 4
+pt 40 -1899504 4
+pt 74126440 -1899504 4
+pt 134217760 -1049086 4
+pt 134217760 -40 5
+case ellipsebig-11-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1073741824 32 6
+pt 1073741824 -731626 4
+pt 593011264 -1324752 4
+pt 24 -1324752 4
+pt -593011200 -1324752 4
+pt -1073741760 -731626 4
+pt -1073741760 32 4
+pt -1073741760 731690 4
+pt -593011200 1324816 4
+pt 24 1324816 4
+pt 593011264 1324816 4
+pt 1073741824 731690 4
+pt 1073741824 32 5
+case ellipsebig-11-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1073741824 32 6
+pt 1073741824 731691 4
+pt 593011264 1324816 4
+pt 24 1324816 4
+pt -593011200 1324816 4
+pt -1073741760 731691 4
+pt -1073741760 32 4
+pt -1073741760 -731627 4
+pt -593011200 -1324752 4
+pt 24 -1324752 4
+pt 593011264 -1324752 4
+pt 1073741824 -731627 4
+pt 1073741824 32 5
+case ellipsebig-12-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1073741760 -48 6
+pt 1073741760 -707485 4
+pt 593011200 -1280976 4
+pt -40 -1280976 4
+pt -593011264 -1280976 4
+pt -1073741824 -707485 4
+pt -1073741824 -48 4
+pt -1073741824 707389 4
+pt -593011264 1280880 4
+pt -40 1280880 4
+pt 593011200 1280880 4
+pt 1073741760 707389 4
+pt 1073741760 -48 5
+case ellipsebig-12-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1073741760 -48 6
+pt 1073741760 707390 4
+pt 593011200 1280880 4
+pt -40 1280880 4
+pt -593011264 1280880 4
+pt -1073741824 707390 4
+pt -1073741824 -48 4
+pt -1073741824 -707486 4
+pt -593011264 -1280976 4
+pt -40 -1280976 4
+pt 593011200 -1280976 4
+pt 1073741760 -707486 4
+pt 1073741760 -48 5
+case ellipsebig-13-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebig-13-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebig-14-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 2147483136 -48 6
+pt 2147483136 -365881 4
+pt 2147483392 -662448 4
+pt -2147483648 -662448 4
+pt -2147483392 -662448 4
+pt -2147483136 -365881 4
+pt -2147483136 -48 4
+pt -2147483136 365785 4
+pt -2147483392 662352 4
+pt -2147483648 662352 4
+pt 2147483392 662352 4
+pt 2147483136 365785 4
+pt 2147483136 -48 5
+case ellipsebig-14-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 2147483136 -48 6
+pt 2147483136 365786 4
+pt 2147483392 662352 4
+pt -2147483648 662352 4
+pt -2147483392 662352 4
+pt -2147483136 365786 4
+pt -2147483136 -48 4
+pt -2147483136 -365882 4
+pt -2147483392 -662448 4
+pt -2147483648 -662448 4
+pt 2147483392 -662448 4
+pt 2147483136 -365882 4
+pt 2147483136 -48 5
+case ellipsebig-15-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1368592 8 6
+pt 1368592 -365821 4
+pt 755832 -662384 4
+pt -48 -662384 4
+pt -755928 -662384 4
+pt -1368688 -365821 4
+pt -1368688 8 4
+pt -1368688 365837 4
+pt -755928 662400 4
+pt -48 662400 4
+pt 755832 662400 4
+pt 1368592 365837 4
+pt 1368592 8 5
+case ellipsebig-15-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1368592 8 6
+pt 1368592 365838 4
+pt 755832 662400 4
+pt -48 662400 4
+pt -755928 662400 4
+pt -1368688 365838 4
+pt -1368688 8 4
+pt -1368688 -365822 4
+pt -755928 -662384 4
+pt -48 -662384 4
+pt 755832 -662384 4
+pt 1368592 -365822 4
+pt 1368592 8 5
+case ellipsebig-16-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 3443520 -16 6
+pt 3443520 -365840 4
+pt 1901801 -662400 4
+pt -8 -662400 4
+pt -1901817 -662400 4
+pt -3443536 -365840 4
+pt -3443536 -16 4
+pt -3443536 365808 4
+pt -1901817 662368 4
+pt -8 662368 4
+pt 1901801 662368 4
+pt 3443520 365808 4
+pt 3443520 -16 5
+case ellipsebig-16-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 3443520 -16 6
+pt 3443520 365809 4
+pt 1901801 662368 4
+pt -8 662368 4
+pt -1901817 662368 4
+pt -3443536 365809 4
+pt -3443536 -16 4
+pt -3443536 -365841 4
+pt -1901817 -662400 4
+pt -8 -662400 4
+pt 1901801 -662400 4
+pt 3443520 -365841 4
+pt 3443520 -16 5
+case ellipsebig-17-1
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 4899840 -16 6
+pt 4899840 -289572 4
+pt 2706090 -524304 4
+pt -40 -524304 4
+pt -2706170 -524304 4
+pt -4899920 -289572 4
+pt -4899920 -16 4
+pt -4899920 289540 4
+pt -2706170 524272 4
+pt -40 524272 4
+pt 2706090 524272 4
+pt 4899840 289540 4
+pt 4899840 -16 5
+case ellipsebig-17-2
+mapmode 1
+ext 1 1 1
+ext 1 1 1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 4899840 -16 6
+pt 4899840 289541 4
+pt 2706090 524272 4
+pt -40 524272 4
+pt -2706170 524272 4
+pt -4899920 289541 4
+pt -4899920 -16 4
+pt -4899920 -289573 4
+pt -2706170 -524304 4
+pt -40 -524304 4
+pt 2706090 -524304 4
+pt 4899840 -289573 4
+pt 4899840 -16 5
+case ellipsebigpx-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 85537 2 6
+pt 85537 -47240 4
+pt 47240 -85538 4
+pt -3 -85538 4
+pt -47245 -85538 4
+pt -85543 -47240 4
+pt -85543 2 4
+pt -85543 47244 4
+pt -47245 85542 4
+pt -3 85542 4
+pt 47240 85542 4
+pt 85537 47244 4
+pt 85537 2 5
+case ellipsebigpx-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 85537 2 6
+pt 85537 47245 4
+pt 47240 85542 4
+pt -3 85542 4
+pt -47245 85542 4
+pt -85543 47245 4
+pt -85543 2 4
+pt -85543 -47240 4
+pt -47245 -85538 4
+pt -3 -85538 4
+pt 47240 -85538 4
+pt 85537 -47240 4
+pt 85537 2 5
+case ellipsebigpx-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 215223 -3 6
+pt 215223 -118866 4
+pt 118866 -215224 4
+pt 3 -215224 4
+pt -118861 -215224 4
+pt -215218 -118866 4
+pt -215218 -3 4
+pt -215218 118860 4
+pt -118861 215217 4
+pt 3 215217 4
+pt 118866 215217 4
+pt 215223 118860 4
+pt 215223 -3 5
+case ellipsebigpx-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 215223 -3 6
+pt 215223 118860 4
+pt 118866 215217 4
+pt 3 215217 4
+pt -118861 215217 4
+pt -215218 118860 4
+pt -215218 -3 4
+pt -215218 -118867 4
+pt -118861 -215224 4
+pt 3 -215224 4
+pt 118866 -215224 4
+pt 215223 -118867 4
+pt 215223 -3 5
+case ellipsebigpx-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 306240 -2 6
+pt 306240 -169136 4
+pt 169131 -306245 4
+pt -2 -306245 4
+pt -169136 -306245 4
+pt -306245 -169136 4
+pt -306245 -2 4
+pt -306245 169131 4
+pt -169136 306240 4
+pt -2 306240 4
+pt 169131 306240 4
+pt 306240 169131 4
+pt 306240 -2 5
+case ellipsebigpx-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 306240 -2 6
+pt 306240 169131 4
+pt 169131 306240 4
+pt -2 306240 4
+pt -169136 306240 4
+pt -306245 169131 4
+pt -306245 -2 4
+pt -306245 -169136 4
+pt -169136 -306245 4
+pt -2 -306245 4
+pt 169131 -306245 4
+pt 306240 -169136 4
+pt 306240 -2 5
+case ellipsebigpx-3-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 41399 -2 6
+pt 41399 -2 4
+pt 22864 -2 4
+pt 0 -2 4
+pt -22865 -2 4
+pt -41400 -2 4
+pt -41400 -2 4
+pt -41400 -3 4
+pt -22865 -3 4
+pt 0 -3 4
+pt 22864 -3 4
+pt 41399 -3 4
+pt 41399 -2 5
+case ellipsebigpx-3-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 41399 -2 6
+pt 41399 -3 4
+pt 22864 -3 4
+pt 0 -3 4
+pt -22865 -3 4
+pt -41400 -3 4
+pt -41400 -2 4
+pt -41400 -2 4
+pt -22865 -2 4
+pt 0 -2 4
+pt 22864 -2 4
+pt 41399 -2 4
+pt 41399 -2 5
+case ellipsebigpx-4-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebigpx-4-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebigpx-5-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebigpx-5-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebigpx-6-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebigpx-6-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebigpx-7-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebigpx-7-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipsebigpx-8-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -3 -2 6
+pt -3 -18099 4
+pt -3 -32770 4
+pt -2 -32770 4
+pt -2 -32770 4
+pt -2 -18099 4
+pt -2 -2 4
+pt -2 18095 4
+pt -2 32766 4
+pt -2 32766 4
+pt -3 32766 4
+pt -3 18095 4
+pt -3 -2 5
+case ellipsebigpx-8-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -3 -2 6
+pt -3 18095 4
+pt -3 32766 4
+pt -2 32766 4
+pt -2 32766 4
+pt -2 18095 4
+pt -2 -2 4
+pt -2 -18099 4
+pt -2 -32770 4
+pt -2 -32770 4
+pt -3 -32770 4
+pt -3 -18099 4
+pt -3 -2 5
+case ellipsewrap-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217717 7 6
+pt -134217717 5 4
+pt -134217719 3 4
+pt -134217721 3 4
+pt -134217724 3 4
+pt -134217726 5 4
+pt -134217726 7 4
+pt -134217726 8 4
+pt -134217724 10 4
+pt -134217721 10 4
+pt -134217719 10 4
+pt -134217717 8 4
+pt -134217717 7 5
+case ellipsewrap-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217717 7 6
+pt -134217717 8 4
+pt -134217719 10 4
+pt -134217721 10 4
+pt -134217724 10 4
+pt -134217726 8 4
+pt -134217726 7 4
+pt -134217726 5 4
+pt -134217724 3 4
+pt -134217721 3 4
+pt -134217719 3 4
+pt -134217717 5 4
+pt -134217717 7 5
+case ellipsewrap-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 -134217721 6
+pt 10 -134217724 4
+pt 8 -134217726 4
+pt 7 -134217726 4
+pt 5 -134217726 4
+pt 3 -134217724 4
+pt 3 -134217721 4
+pt 3 -134217719 4
+pt 5 -134217717 4
+pt 7 -134217717 4
+pt 8 -134217717 4
+pt 10 -134217719 4
+pt 10 -134217721 5
+case ellipsewrap-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 -134217721 6
+pt 10 -134217719 4
+pt 8 -134217717 4
+pt 7 -134217717 4
+pt 5 -134217717 4
+pt 3 -134217719 4
+pt 3 -134217721 4
+pt 3 -134217724 4
+pt 5 -134217726 4
+pt 7 -134217726 4
+pt 8 -134217726 4
+pt 10 -134217724 4
+pt 10 -134217721 5
+case ellipsewrap-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217724 7 6
+pt -134217724 5 4
+pt -134217726 3 4
+pt 134217728 3 4
+pt 134217725 3 4
+pt 134217723 5 4
+pt 134217723 7 4
+pt 134217723 8 4
+pt 134217725 10 4
+pt 134217728 10 4
+pt -134217726 10 4
+pt -134217724 8 4
+pt -134217724 7 5
+case ellipsewrap-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217724 7 6
+pt -134217724 8 4
+pt -134217726 10 4
+pt 134217728 10 4
+pt 134217725 10 4
+pt 134217723 8 4
+pt 134217723 7 4
+pt 134217723 5 4
+pt 134217725 3 4
+pt 134217728 3 4
+pt -134217726 3 4
+pt -134217724 5 4
+pt -134217724 7 5
+case ellipsewrap-3-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 134217728 6
+pt 10 134217725 4
+pt 8 134217723 4
+pt 7 134217723 4
+pt 5 134217723 4
+pt 3 134217725 4
+pt 3 134217728 4
+pt 3 -134217726 4
+pt 5 -134217724 4
+pt 7 -134217724 4
+pt 8 -134217724 4
+pt 10 -134217726 4
+pt 10 134217728 5
+case ellipsewrap-3-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 134217728 6
+pt 10 -134217726 4
+pt 8 -134217724 4
+pt 7 -134217724 4
+pt 5 -134217724 4
+pt 3 -134217726 4
+pt 3 134217728 4
+pt 3 134217725 4
+pt 5 134217723 4
+pt 7 134217723 4
+pt 8 134217723 4
+pt 10 134217725 4
+pt 10 134217728 5
+case ellipsewrap-4-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217724 7 6
+pt -134217724 5 4
+pt -134217726 3 4
+pt 134217728 3 4
+pt 134217725 3 4
+pt 134217723 5 4
+pt 134217723 7 4
+pt 134217723 8 4
+pt 134217725 10 4
+pt 134217728 10 4
+pt -134217726 10 4
+pt -134217724 8 4
+pt -134217724 7 5
+case ellipsewrap-4-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217724 7 6
+pt -134217724 8 4
+pt -134217726 10 4
+pt 134217728 10 4
+pt 134217725 10 4
+pt 134217723 8 4
+pt 134217723 7 4
+pt 134217723 5 4
+pt 134217725 3 4
+pt 134217728 3 4
+pt -134217726 3 4
+pt -134217724 5 4
+pt -134217724 7 5
+case ellipsewrap-5-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 134217728 6
+pt 10 134217725 4
+pt 8 134217723 4
+pt 7 134217723 4
+pt 5 134217723 4
+pt 3 134217725 4
+pt 3 134217728 4
+pt 3 -134217726 4
+pt 5 -134217724 4
+pt 7 -134217724 4
+pt 8 -134217724 4
+pt 10 -134217726 4
+pt 10 134217728 5
+case ellipsewrap-5-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 134217728 6
+pt 10 -134217726 4
+pt 8 -134217724 4
+pt 7 -134217724 4
+pt 5 -134217724 4
+pt 3 -134217726 4
+pt 3 134217728 4
+pt 3 134217725 4
+pt 5 134217723 4
+pt 7 134217723 4
+pt 8 134217723 4
+pt 10 134217725 4
+pt 10 134217728 5
+case ellipsewrap-6-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 12 7 6
+pt 12 5 4
+pt 10 3 4
+pt 8 3 4
+pt 5 3 4
+pt 3 5 4
+pt 3 7 4
+pt 3 8 4
+pt 5 10 4
+pt 8 10 4
+pt 10 10 4
+pt 12 8 4
+pt 12 7 5
+case ellipsewrap-6-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 12 7 6
+pt 12 8 4
+pt 10 10 4
+pt 8 10 4
+pt 5 10 4
+pt 3 8 4
+pt 3 7 4
+pt 3 5 4
+pt 5 3 4
+pt 8 3 4
+pt 10 3 4
+pt 12 5 4
+pt 12 7 5
+case ellipsewrap-7-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 8 6
+pt 10 5 4
+pt 8 3 4
+pt 7 3 4
+pt 5 3 4
+pt 3 5 4
+pt 3 8 4
+pt 3 10 4
+pt 5 12 4
+pt 7 12 4
+pt 8 12 4
+pt 10 10 4
+pt 10 8 5
+case ellipsewrap-7-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 8 6
+pt 10 10 4
+pt 8 12 4
+pt 7 12 4
+pt 5 12 4
+pt 3 10 4
+pt 3 8 4
+pt 3 5 4
+pt 5 3 4
+pt 7 3 4
+pt 8 3 4
+pt 10 5 4
+pt 10 8 5
+case ellipsewrap-8-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 8 7 6
+pt 8 5 4
+pt 6 3 4
+pt 5 3 4
+pt 3 3 4
+pt 1 5 4
+pt 1 7 4
+pt 1 8 4
+pt 3 10 4
+pt 5 10 4
+pt 6 10 4
+pt 8 8 4
+pt 8 7 5
+case ellipsewrap-8-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 8 7 6
+pt 8 8 4
+pt 6 10 4
+pt 5 10 4
+pt 3 10 4
+pt 1 8 4
+pt 1 7 4
+pt 1 5 4
+pt 3 3 4
+pt 5 3 4
+pt 6 3 4
+pt 8 5 4
+pt 8 7 5
+case ellipsewrap-9-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 5 6
+pt 10 3 4
+pt 8 1 4
+pt 7 1 4
+pt 5 1 4
+pt 3 3 4
+pt 3 5 4
+pt 3 6 4
+pt 5 8 4
+pt 7 8 4
+pt 8 8 4
+pt 10 6 4
+pt 10 5 5
+case ellipsewrap-9-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 5 6
+pt 10 6 4
+pt 8 8 4
+pt 7 8 4
+pt 5 8 4
+pt 3 6 4
+pt 3 5 4
+pt 3 3 4
+pt 5 1 4
+pt 7 1 4
+pt 8 1 4
+pt 10 3 4
+pt 10 5 5
+case ellipsewrap-10-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -2 7 6
+pt -2 5 4
+pt -4 3 4
+pt -5 3 4
+pt -7 3 4
+pt -9 5 4
+pt -9 7 4
+pt -9 8 4
+pt -7 10 4
+pt -5 10 4
+pt -4 10 4
+pt -2 8 4
+pt -2 7 5
+case ellipsewrap-10-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -2 7 6
+pt -2 8 4
+pt -4 10 4
+pt -5 10 4
+pt -7 10 4
+pt -9 8 4
+pt -9 7 4
+pt -9 5 4
+pt -7 3 4
+pt -5 3 4
+pt -4 3 4
+pt -2 5 4
+pt -2 7 5
+case ellipsewrap-11-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217717 7 6
+pt -134217717 5 4
+pt -134217719 3 4
+pt -134217721 3 4
+pt -134217724 3 4
+pt -134217726 5 4
+pt -134217726 7 4
+pt -134217726 8 4
+pt -134217724 10 4
+pt -134217721 10 4
+pt -134217719 10 4
+pt -134217717 8 4
+pt -134217717 7 5
+case ellipsewrap-11-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217717 7 6
+pt -134217717 8 4
+pt -134217719 10 4
+pt -134217721 10 4
+pt -134217724 10 4
+pt -134217726 8 4
+pt -134217726 7 4
+pt -134217726 5 4
+pt -134217724 3 4
+pt -134217721 3 4
+pt -134217719 3 4
+pt -134217717 5 4
+pt -134217717 7 5
+case ellipsewrap-12-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217724 7 6
+pt 134217724 5 4
+pt 134217725 3 4
+pt 134217727 3 4
+pt -134217727 3 4
+pt -134217726 5 4
+pt -134217726 7 4
+pt -134217726 8 4
+pt -134217727 10 4
+pt 134217727 10 4
+pt 134217725 10 4
+pt 134217724 8 4
+pt 134217724 7 5
+case ellipsewrap-12-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217724 7 6
+pt 134217724 8 4
+pt 134217725 10 4
+pt 134217727 10 4
+pt -134217727 10 4
+pt -134217726 8 4
+pt -134217726 7 4
+pt -134217726 5 4
+pt -134217727 3 4
+pt 134217727 3 4
+pt 134217725 3 4
+pt 134217724 5 4
+pt 134217724 7 5
+case ellipsewrap-13-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217725 7 6
+pt 134217725 5 4
+pt 134217726 3 4
+pt 134217728 3 4
+pt -134217727 3 4
+pt -134217726 5 4
+pt -134217726 7 4
+pt -134217726 8 4
+pt -134217727 10 4
+pt 134217728 10 4
+pt 134217726 10 4
+pt 134217725 8 4
+pt 134217725 7 5
+case ellipsewrap-13-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217725 7 6
+pt 134217725 8 4
+pt 134217726 10 4
+pt 134217728 10 4
+pt -134217727 10 4
+pt -134217726 8 4
+pt -134217726 7 4
+pt -134217726 5 4
+pt -134217727 3 4
+pt 134217728 3 4
+pt 134217726 3 4
+pt 134217725 5 4
+pt 134217725 7 5
+case ellipsewrap-14-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217726 7 6
+pt 134217726 5 4
+pt 134217727 3 4
+pt -134217728 3 4
+pt -134217727 3 4
+pt -134217726 5 4
+pt -134217726 7 4
+pt -134217726 8 4
+pt -134217727 10 4
+pt -134217728 10 4
+pt 134217727 10 4
+pt 134217726 8 4
+pt 134217726 7 5
+case ellipsewrap-14-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217726 7 6
+pt 134217726 8 4
+pt 134217727 10 4
+pt -134217728 10 4
+pt -134217727 10 4
+pt -134217726 8 4
+pt -134217726 7 4
+pt -134217726 5 4
+pt -134217727 3 4
+pt -134217728 3 4
+pt 134217727 3 4
+pt 134217726 5 4
+pt 134217726 7 5
+case ellipsewrap-15-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217727 7 6
+pt 134217727 5 4
+pt 134217728 3 4
+pt -134217727 3 4
+pt -134217727 3 4
+pt -134217726 5 4
+pt -134217726 7 4
+pt -134217726 8 4
+pt -134217727 10 4
+pt -134217727 10 4
+pt 134217728 10 4
+pt 134217727 8 4
+pt 134217727 7 5
+case ellipsewrap-15-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217727 7 6
+pt 134217727 8 4
+pt 134217728 10 4
+pt -134217727 10 4
+pt -134217727 10 4
+pt -134217726 8 4
+pt -134217726 7 4
+pt -134217726 5 4
+pt -134217727 3 4
+pt -134217727 3 4
+pt 134217728 3 4
+pt 134217727 5 4
+pt 134217727 7 5
+case ellipsewrap-16-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 134217727 6
+pt 10 -134217727 4
+pt 8 -134217726 4
+pt 7 -134217726 4
+pt 5 -134217726 4
+pt 3 -134217727 4
+pt 3 134217727 4
+pt 3 134217725 4
+pt 5 134217724 4
+pt 7 134217724 4
+pt 8 134217724 4
+pt 10 134217725 4
+pt 10 134217727 5
+case ellipsewrap-16-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 134217727 6
+pt 10 134217725 4
+pt 8 134217724 4
+pt 7 134217724 4
+pt 5 134217724 4
+pt 3 134217725 4
+pt 3 134217727 4
+pt 3 -134217727 4
+pt 5 -134217726 4
+pt 7 -134217726 4
+pt 8 -134217726 4
+pt 10 -134217727 4
+pt 10 134217727 5
+case ellipsewrap-17-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 134217728 6
+pt 10 -134217727 4
+pt 8 -134217726 4
+pt 7 -134217726 4
+pt 5 -134217726 4
+pt 3 -134217727 4
+pt 3 134217728 4
+pt 3 134217726 4
+pt 5 134217725 4
+pt 7 134217725 4
+pt 8 134217725 4
+pt 10 134217726 4
+pt 10 134217728 5
+case ellipsewrap-17-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 134217728 6
+pt 10 134217726 4
+pt 8 134217725 4
+pt 7 134217725 4
+pt 5 134217725 4
+pt 3 134217726 4
+pt 3 134217728 4
+pt 3 -134217727 4
+pt 5 -134217726 4
+pt 7 -134217726 4
+pt 8 -134217726 4
+pt 10 -134217727 4
+pt 10 134217728 5
+case ellipsewrap-18-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 -134217728 6
+pt 10 -134217727 4
+pt 8 -134217726 4
+pt 7 -134217726 4
+pt 5 -134217726 4
+pt 3 -134217727 4
+pt 3 -134217728 4
+pt 3 134217727 4
+pt 5 134217726 4
+pt 7 134217726 4
+pt 8 134217726 4
+pt 10 134217727 4
+pt 10 -134217728 5
+case ellipsewrap-18-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 -134217728 6
+pt 10 134217727 4
+pt 8 134217726 4
+pt 7 134217726 4
+pt 5 134217726 4
+pt 3 134217727 4
+pt 3 -134217728 4
+pt 3 -134217727 4
+pt 5 -134217726 4
+pt 7 -134217726 4
+pt 8 -134217726 4
+pt 10 -134217727 4
+pt 10 -134217728 5
+case ellipsewrap-19-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217727 134217728 6
+pt 134217727 134217728 4
+pt 134217727 -134217728 4
+pt 134217728 -134217728 4
+pt 134217728 -134217728 4
+pt -134217728 134217728 4
+pt -134217728 134217728 4
+pt -134217728 134217727 4
+pt 134217728 134217727 4
+pt 134217728 134217727 4
+pt 134217727 134217727 4
+pt 134217727 134217727 4
+pt 134217727 134217728 5
+case ellipsewrap-19-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217727 134217728 6
+pt 134217727 134217727 4
+pt 134217727 134217727 4
+pt 134217728 134217727 4
+pt 134217728 134217727 4
+pt -134217728 134217727 4
+pt -134217728 134217728 4
+pt -134217728 134217728 4
+pt 134217728 -134217728 4
+pt 134217728 -134217728 4
+pt 134217727 -134217728 4
+pt 134217727 134217728 4
+pt 134217727 134217728 5
+case ellipseedge-0-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217727 7 6
+pt 134217727 5 4
+pt 104172066 3 4
+pt 67108865 3 4
+pt 30045664 3 4
+pt 3 5 4
+pt 3 7 4
+pt 3 8 4
+pt 30045664 10 4
+pt 67108865 10 4
+pt 104172066 10 4
+pt 134217727 8 4
+pt 134217727 7 5
+case ellipseedge-0-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217727 7 6
+pt 134217727 8 4
+pt 104172066 10 4
+pt 67108865 10 4
+pt 30045664 10 4
+pt 3 8 4
+pt 3 7 4
+pt 3 5 4
+pt 30045664 3 4
+pt 67108865 3 4
+pt 104172066 3 4
+pt 134217727 5 4
+pt 134217727 7 5
+case ellipseedge-0-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 67108865 6
+pt 10 30045664 4
+pt 8 3 4
+pt 7 3 4
+pt 5 3 4
+pt 3 30045664 4
+pt 3 67108865 4
+pt 3 104172066 4
+pt 5 134217727 4
+pt 7 134217727 4
+pt 8 134217727 4
+pt 10 104172066 4
+pt 10 67108865 5
+case ellipseedge-0-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 67108865 6
+pt 10 104172066 4
+pt 8 134217727 4
+pt 7 134217727 4
+pt 5 134217727 4
+pt 3 104172066 4
+pt 3 67108865 4
+pt 3 30045664 4
+pt 5 3 4
+pt 7 3 4
+pt 8 3 4
+pt 10 30045664 4
+pt 10 67108865 5
+case ellipseedge-0-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217719 7 6
+pt 134217719 5 4
+pt 104172058 3 4
+pt 67108857 3 4
+pt 30045656 3 4
+pt -5 5 4
+pt -5 7 4
+pt -5 8 4
+pt 30045656 10 4
+pt 67108857 10 4
+pt 104172058 10 4
+pt 134217719 8 4
+pt 134217719 7 5
+case ellipseedge-0-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217719 7 6
+pt 134217719 8 4
+pt 104172058 10 4
+pt 67108857 10 4
+pt 30045656 10 4
+pt -5 8 4
+pt -5 7 4
+pt -5 5 4
+pt 30045656 3 4
+pt 67108857 3 4
+pt 104172058 3 4
+pt 134217719 5 4
+pt 134217719 7 5
+case ellipseedge-1-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217728 7 6
+pt -134217728 5 4
+pt 104172067 3 4
+pt 67108866 3 4
+pt 30045664 3 4
+pt 3 5 4
+pt 3 7 4
+pt 3 8 4
+pt 30045664 10 4
+pt 67108866 10 4
+pt 104172067 10 4
+pt -134217728 8 4
+pt -134217728 7 5
+case ellipseedge-1-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217728 7 6
+pt -134217728 8 4
+pt 104172067 10 4
+pt 67108866 10 4
+pt 30045664 10 4
+pt 3 8 4
+pt 3 7 4
+pt 3 5 4
+pt 30045664 3 4
+pt 67108866 3 4
+pt 104172067 3 4
+pt -134217728 5 4
+pt -134217728 7 5
+case ellipseedge-1-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 67108866 6
+pt 10 30045664 4
+pt 8 3 4
+pt 7 3 4
+pt 5 3 4
+pt 3 30045664 4
+pt 3 67108866 4
+pt 3 104172067 4
+pt 5 -134217728 4
+pt 7 -134217728 4
+pt 8 -134217728 4
+pt 10 104172067 4
+pt 10 67108866 5
+case ellipseedge-1-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 67108866 6
+pt 10 104172067 4
+pt 8 -134217728 4
+pt 7 -134217728 4
+pt 5 -134217728 4
+pt 3 104172067 4
+pt 3 67108866 4
+pt 3 30045664 4
+pt 5 3 4
+pt 7 3 4
+pt 8 3 4
+pt 10 30045664 4
+pt 10 67108866 5
+case ellipseedge-1-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217720 7 6
+pt 134217720 5 4
+pt 104172059 3 4
+pt 67108858 3 4
+pt 30045656 3 4
+pt -5 5 4
+pt -5 7 4
+pt -5 8 4
+pt 30045656 10 4
+pt 67108858 10 4
+pt 104172059 10 4
+pt 134217720 8 4
+pt 134217720 7 5
+case ellipseedge-1-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217720 7 6
+pt 134217720 8 4
+pt 104172059 10 4
+pt 67108858 10 4
+pt 30045656 10 4
+pt -5 8 4
+pt -5 7 4
+pt -5 5 4
+pt 30045656 3 4
+pt 67108858 3 4
+pt 104172059 3 4
+pt 134217720 5 4
+pt 134217720 7 5
+case ellipseedge-2-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217727 7 6
+pt -134217727 5 4
+pt 104172068 3 4
+pt 67108866 3 4
+pt 30045664 3 4
+pt 3 5 4
+pt 3 7 4
+pt 3 8 4
+pt 30045664 10 4
+pt 67108866 10 4
+pt 104172068 10 4
+pt -134217727 8 4
+pt -134217727 7 5
+case ellipseedge-2-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217727 7 6
+pt -134217727 8 4
+pt 104172068 10 4
+pt 67108866 10 4
+pt 30045664 10 4
+pt 3 8 4
+pt 3 7 4
+pt 3 5 4
+pt 30045664 3 4
+pt 67108866 3 4
+pt 104172068 3 4
+pt -134217727 5 4
+pt -134217727 7 5
+case ellipseedge-2-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 67108866 6
+pt 10 30045664 4
+pt 8 3 4
+pt 7 3 4
+pt 5 3 4
+pt 3 30045664 4
+pt 3 67108866 4
+pt 3 104172068 4
+pt 5 -134217727 4
+pt 7 -134217727 4
+pt 8 -134217727 4
+pt 10 104172068 4
+pt 10 67108866 5
+case ellipseedge-2-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 67108866 6
+pt 10 104172068 4
+pt 8 -134217727 4
+pt 7 -134217727 4
+pt 5 -134217727 4
+pt 3 104172068 4
+pt 3 67108866 4
+pt 3 30045664 4
+pt 5 3 4
+pt 7 3 4
+pt 8 3 4
+pt 10 30045664 4
+pt 10 67108866 5
+case ellipseedge-2-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217721 7 6
+pt 134217721 5 4
+pt 104172060 3 4
+pt 67108858 3 4
+pt 30045656 3 4
+pt -5 5 4
+pt -5 7 4
+pt -5 8 4
+pt 30045656 10 4
+pt 67108858 10 4
+pt 104172060 10 4
+pt 134217721 8 4
+pt 134217721 7 5
+case ellipseedge-2-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217721 7 6
+pt 134217721 8 4
+pt 104172060 10 4
+pt 67108858 10 4
+pt 30045656 10 4
+pt -5 8 4
+pt -5 7 4
+pt -5 5 4
+pt 30045656 3 4
+pt 67108858 3 4
+pt 104172060 3 4
+pt 134217721 5 4
+pt 134217721 7 5
+case ellipseedge-3-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-3-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-3-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-3-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-3-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-3-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-4-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217724 7 6
+pt -134217724 5 4
+pt -104172063 3 4
+pt -67108861 3 4
+pt -30045659 3 4
+pt 2 5 4
+pt 2 7 4
+pt 2 8 4
+pt -30045659 10 4
+pt -67108861 10 4
+pt -104172063 10 4
+pt -134217724 8 4
+pt -134217724 7 5
+case ellipseedge-4-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217724 7 6
+pt -134217724 8 4
+pt -104172063 10 4
+pt -67108861 10 4
+pt -30045659 10 4
+pt 2 8 4
+pt 2 7 4
+pt 2 5 4
+pt -30045659 3 4
+pt -67108861 3 4
+pt -104172063 3 4
+pt -134217724 5 4
+pt -134217724 7 5
+case ellipseedge-4-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 -67108861 6
+pt 10 -30045659 4
+pt 8 2 4
+pt 7 2 4
+pt 5 2 4
+pt 3 -30045659 4
+pt 3 -67108861 4
+pt 3 -104172063 4
+pt 5 -134217724 4
+pt 7 -134217724 4
+pt 8 -134217724 4
+pt 10 -104172063 4
+pt 10 -67108861 5
+case ellipseedge-4-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 -67108861 6
+pt 10 -104172063 4
+pt 8 -134217724 4
+pt 7 -134217724 4
+pt 5 -134217724 4
+pt 3 -104172063 4
+pt 3 -67108861 4
+pt 3 -30045659 4
+pt 5 2 4
+pt 7 2 4
+pt 8 2 4
+pt 10 -30045659 4
+pt 10 -67108861 5
+case ellipseedge-4-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217724 7 6
+pt 134217724 5 4
+pt -104172071 3 4
+pt -67108869 3 4
+pt -30045667 3 4
+pt -6 5 4
+pt -6 7 4
+pt -6 8 4
+pt -30045667 10 4
+pt -67108869 10 4
+pt -104172071 10 4
+pt 134217724 8 4
+pt 134217724 7 5
+case ellipseedge-4-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217724 7 6
+pt 134217724 8 4
+pt -104172071 10 4
+pt -67108869 10 4
+pt -30045667 10 4
+pt -6 8 4
+pt -6 7 4
+pt -6 5 4
+pt -30045667 3 4
+pt -67108869 3 4
+pt -104172071 3 4
+pt 134217724 5 4
+pt 134217724 7 5
+case ellipseedge-5-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217723 7 6
+pt -134217723 5 4
+pt -104172062 3 4
+pt -67108860 3 4
+pt -30045659 3 4
+pt 2 5 4
+pt 2 7 4
+pt 2 8 4
+pt -30045659 10 4
+pt -67108860 10 4
+pt -104172062 10 4
+pt -134217723 8 4
+pt -134217723 7 5
+case ellipseedge-5-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -134217723 7 6
+pt -134217723 8 4
+pt -104172062 10 4
+pt -67108860 10 4
+pt -30045659 10 4
+pt 2 8 4
+pt 2 7 4
+pt 2 5 4
+pt -30045659 3 4
+pt -67108860 3 4
+pt -104172062 3 4
+pt -134217723 5 4
+pt -134217723 7 5
+case ellipseedge-5-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 -67108860 6
+pt 10 -30045659 4
+pt 8 2 4
+pt 7 2 4
+pt 5 2 4
+pt 3 -30045659 4
+pt 3 -67108860 4
+pt 3 -104172062 4
+pt 5 -134217723 4
+pt 7 -134217723 4
+pt 8 -134217723 4
+pt 10 -104172062 4
+pt 10 -67108860 5
+case ellipseedge-5-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 -67108860 6
+pt 10 -104172062 4
+pt 8 -134217723 4
+pt 7 -134217723 4
+pt 5 -134217723 4
+pt 3 -104172062 4
+pt 3 -67108860 4
+pt 3 -30045659 4
+pt 5 2 4
+pt 7 2 4
+pt 8 2 4
+pt 10 -30045659 4
+pt 10 -67108860 5
+case ellipseedge-5-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217725 7 6
+pt 134217725 5 4
+pt -104172070 3 4
+pt -67108868 3 4
+pt -30045667 3 4
+pt -6 5 4
+pt -6 7 4
+pt -6 8 4
+pt -30045667 10 4
+pt -67108868 10 4
+pt -104172070 10 4
+pt 134217725 8 4
+pt 134217725 7 5
+case ellipseedge-5-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 134217725 7 6
+pt 134217725 8 4
+pt -104172070 10 4
+pt -67108868 10 4
+pt -30045667 10 4
+pt -6 8 4
+pt -6 7 4
+pt -6 5 4
+pt -30045667 3 4
+pt -67108868 3 4
+pt -104172070 3 4
+pt 134217725 5 4
+pt 134217725 7 5
+case ellipseedge-6-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1 7 6
+pt 1 5 4
+pt 1 3 4
+pt 2 3 4
+pt 2 3 4
+pt 2 5 4
+pt 2 7 4
+pt 2 8 4
+pt 2 10 4
+pt 2 10 4
+pt 1 10 4
+pt 1 8 4
+pt 1 7 5
+case ellipseedge-6-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 1 7 6
+pt 1 8 4
+pt 1 10 4
+pt 2 10 4
+pt 2 10 4
+pt 2 8 4
+pt 2 7 4
+pt 2 5 4
+pt 2 3 4
+pt 2 3 4
+pt 1 3 4
+pt 1 5 4
+pt 1 7 5
+case ellipseedge-6-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 2 6
+pt 10 2 4
+pt 8 2 4
+pt 7 2 4
+pt 5 2 4
+pt 3 2 4
+pt 3 2 4
+pt 3 1 4
+pt 5 1 4
+pt 7 1 4
+pt 8 1 4
+pt 10 1 4
+pt 10 2 5
+case ellipseedge-6-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 2 6
+pt 10 1 4
+pt 8 1 4
+pt 7 1 4
+pt 5 1 4
+pt 3 1 4
+pt 3 2 4
+pt 3 2 4
+pt 5 2 4
+pt 7 2 4
+pt 8 2 4
+pt 10 2 4
+pt 10 2 5
+case ellipseedge-6-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -7 7 6
+pt -7 5 4
+pt -7 3 4
+pt -6 3 4
+pt -6 3 4
+pt -6 5 4
+pt -6 7 4
+pt -6 8 4
+pt -6 10 4
+pt -6 10 4
+pt -7 10 4
+pt -7 8 4
+pt -7 7 5
+case ellipseedge-6-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -7 7 6
+pt -7 8 4
+pt -7 10 4
+pt -6 10 4
+pt -6 10 4
+pt -6 8 4
+pt -6 7 4
+pt -6 5 4
+pt -6 3 4
+pt -6 3 4
+pt -7 3 4
+pt -7 5 4
+pt -7 7 5
+case ellipseedge-7-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 2 7 6
+pt 2 5 4
+pt 2 3 4
+pt 2 3 4
+pt 2 3 4
+pt 2 5 4
+pt 2 7 4
+pt 2 8 4
+pt 2 10 4
+pt 2 10 4
+pt 2 10 4
+pt 2 8 4
+pt 2 7 5
+case ellipseedge-7-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 2 7 6
+pt 2 8 4
+pt 2 10 4
+pt 2 10 4
+pt 2 10 4
+pt 2 8 4
+pt 2 7 4
+pt 2 5 4
+pt 2 3 4
+pt 2 3 4
+pt 2 3 4
+pt 2 5 4
+pt 2 7 5
+case ellipseedge-7-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 2 6
+pt 10 2 4
+pt 8 2 4
+pt 7 2 4
+pt 5 2 4
+pt 3 2 4
+pt 3 2 4
+pt 3 2 4
+pt 5 2 4
+pt 7 2 4
+pt 8 2 4
+pt 10 2 4
+pt 10 2 5
+case ellipseedge-7-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 2 6
+pt 10 2 4
+pt 8 2 4
+pt 7 2 4
+pt 5 2 4
+pt 3 2 4
+pt 3 2 4
+pt 3 2 4
+pt 5 2 4
+pt 7 2 4
+pt 8 2 4
+pt 10 2 4
+pt 10 2 5
+case ellipseedge-7-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -6 7 6
+pt -6 5 4
+pt -6 3 4
+pt -6 3 4
+pt -6 3 4
+pt -6 5 4
+pt -6 7 4
+pt -6 8 4
+pt -6 10 4
+pt -6 10 4
+pt -6 10 4
+pt -6 8 4
+pt -6 7 5
+case ellipseedge-7-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -6 7 6
+pt -6 8 4
+pt -6 10 4
+pt -6 10 4
+pt -6 10 4
+pt -6 8 4
+pt -6 7 4
+pt -6 5 4
+pt -6 3 4
+pt -6 3 4
+pt -6 3 4
+pt -6 5 4
+pt -6 7 5
+case ellipseedge-8-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-8-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-8-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-8-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-8-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-8-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 0
+case ellipseedge-9-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 3 7 6
+pt 3 5 4
+pt 3 3 4
+pt 3 3 4
+pt 3 3 4
+pt 3 5 4
+pt 3 7 4
+pt 3 8 4
+pt 3 10 4
+pt 3 10 4
+pt 3 10 4
+pt 3 8 4
+pt 3 7 5
+case ellipseedge-9-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 3 7 6
+pt 3 8 4
+pt 3 10 4
+pt 3 10 4
+pt 3 10 4
+pt 3 8 4
+pt 3 7 4
+pt 3 5 4
+pt 3 3 4
+pt 3 3 4
+pt 3 3 4
+pt 3 5 4
+pt 3 7 5
+case ellipseedge-9-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 3 6
+pt 10 3 4
+pt 8 3 4
+pt 7 3 4
+pt 5 3 4
+pt 3 3 4
+pt 3 3 4
+pt 3 3 4
+pt 5 3 4
+pt 7 3 4
+pt 8 3 4
+pt 10 3 4
+pt 10 3 5
+case ellipseedge-9-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 3 6
+pt 10 3 4
+pt 8 3 4
+pt 7 3 4
+pt 5 3 4
+pt 3 3 4
+pt 3 3 4
+pt 3 3 4
+pt 5 3 4
+pt 7 3 4
+pt 8 3 4
+pt 10 3 4
+pt 10 3 5
+case ellipseedge-9-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -5 7 6
+pt -5 5 4
+pt -5 3 4
+pt -5 3 4
+pt -5 3 4
+pt -5 5 4
+pt -5 7 4
+pt -5 8 4
+pt -5 10 4
+pt -5 10 4
+pt -5 10 4
+pt -5 8 4
+pt -5 7 5
+case ellipseedge-9-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -5 7 6
+pt -5 8 4
+pt -5 10 4
+pt -5 10 4
+pt -5 10 4
+pt -5 8 4
+pt -5 7 4
+pt -5 5 4
+pt -5 3 4
+pt -5 3 4
+pt -5 3 4
+pt -5 5 4
+pt -5 7 5
+case ellipseedge-10-0-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 4 7 6
+pt 4 5 4
+pt 4 3 4
+pt 4 3 4
+pt 3 3 4
+pt 3 5 4
+pt 3 7 4
+pt 3 8 4
+pt 3 10 4
+pt 4 10 4
+pt 4 10 4
+pt 4 8 4
+pt 4 7 5
+case ellipseedge-10-0-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 4 7 6
+pt 4 8 4
+pt 4 10 4
+pt 4 10 4
+pt 3 10 4
+pt 3 8 4
+pt 3 7 4
+pt 3 5 4
+pt 3 3 4
+pt 4 3 4
+pt 4 3 4
+pt 4 5 4
+pt 4 7 5
+case ellipseedge-10-1-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 4 6
+pt 10 3 4
+pt 8 3 4
+pt 7 3 4
+pt 5 3 4
+pt 3 3 4
+pt 3 4 4
+pt 3 4 4
+pt 5 4 4
+pt 7 4 4
+pt 8 4 4
+pt 10 4 4
+pt 10 4 5
+case ellipseedge-10-1-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt 10 4 6
+pt 10 4 4
+pt 8 4 4
+pt 7 4 4
+pt 5 4 4
+pt 3 4 4
+pt 3 4 4
+pt 3 3 4
+pt 5 3 4
+pt 7 3 4
+pt 8 3 4
+pt 10 3 4
+pt 10 4 5
+case ellipseedge-10-2-1
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -4 7 6
+pt -4 5 4
+pt -4 3 4
+pt -4 3 4
+pt -5 3 4
+pt -5 5 4
+pt -5 7 4
+pt -5 8 4
+pt -5 10 4
+pt -4 10 4
+pt -4 10 4
+pt -4 8 4
+pt -4 7 5
+case ellipseedge-10-2-2
+arcdir 1
+beginpath 1
+ret 1
+endpath 1
+path 13
+pt -4 7 6
+pt -4 8 4
+pt -4 10 4
+pt -4 10 4
+pt -5 10 4
+pt -5 8 4
+pt -5 7 4
+pt -5 5 4
+pt -5 3 4
+pt -4 3 4
+pt -4 3 4
+pt -4 5 4
+pt -4 7 5
 done

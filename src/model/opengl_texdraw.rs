@@ -518,13 +518,20 @@ impl Ctx {
 
     /// the texture coordinates of a vertex through the texture matrix, as (s, t, q)
     pub(super) fn tex_coords(&self, v: &Obj) -> [f32; 3] {
+        let [s, t, _, q] = self.tex_coords4(v);
+        [s, t, q]
+    }
+
+    /// the texture coordinates of a vertex through the texture matrix, all four (s, t, r, q:
+    /// the raster position's, as glGet gives them)
+    pub(super) fn tex_coords4(&self, v: &Obj) -> [f32; 4] {
         let m = self.stacks.get(2).map_or(&super::IDENTITY, |s| s.top());
         let [s, t, r, q] = v.tc;
         let row = |k: usize| {
             let e = |i: usize| m.get(i.saturating_mul(4).saturating_add(k)).copied().unwrap_or(0.0);
             ((e(0) * s + e(1) * t) + e(2) * r) + e(3) * q
         };
-        [row(0), row(1), row(3)]
+        [row(0), row(1), row(2), row(3)]
     }
 
     /// the texture coordinates along a line from `a` to `b` (window positions `wa`, `wb`)

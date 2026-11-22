@@ -359,12 +359,22 @@ struct Target {
 
 /// a device that was made
 struct Device {
+    /// whether a span has written past the surface's end (the ramp device's dies of it when
+    /// released)
+    heap: Heap,
     family: Family,
     /// the interface version that made it: 1 to 3 run d3dim.dll, 7 d3dim700.dll
     ver: Ver,
     rt: Target,
     /// the ramp device's span buffer (crate::model::ramp)
     spans: crate::model::ramp::Spans,
+}
+
+/// the memory after a ramp target
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Heap {
+    Intact,
+    Overrun,
 }
 
 #[derive(Default)]
@@ -385,6 +395,16 @@ fn n32(op: &Op, i: usize) -> Res<u32> {
 }
 
 /// a color list "c" or "c0/c1/c2"
+/// a line's colours: one, or one an end (c0/c1)
+fn line_colors(s: &str) -> Res<[u32; 2]> {
+    let cs: Vec<u32> = s.split('/').map(|c| num(c).and_then(|v| u32::try_from(v).ok()).ok_or(Fail::Bad)).collect::<Res<_>>()?;
+    match cs.as_slice() {
+        &[c] => Ok([c; 2]),
+        &[a, b] => Ok([a, b]),
+        _ => Err(Fail::Bad),
+    }
+}
+
 fn colors(s: &str) -> Res<[u32; 3]> {
     let cs: Vec<u32> = s.split('/').map(|c| num(c).and_then(|v| u32::try_from(v).ok()).ok_or(Fail::Bad)).collect::<Res<_>>()?;
     match cs.as_slice() {
@@ -529,11 +549,21 @@ impl D3d7 {
         self.state(st.id()).unwrap_or(0)
     }
 
+    /// the device released (a new interface or device, or the case's end): MEASURED (d3d7spill3,
+    /// 4: exit 139 after the dump) the process dies when a ramp span wrote past the target's end
+    pub fn release(&mut self) -> Res<()> {
+        match self.dev.as_ref().map(|d| d.heap) {
+            Some(Heap::Overrun) => Err(Fail::Crash),
+            Some(Heap::Intact) | None => Ok(()),
+        }
+    }
+
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
         match t[0].as_str() {
             "d3d" => {
                 let v = Ver::parse(n(op, 1)?).ok_or(Fail::Bad)?;
+                self.release()?;
                 *self = D3d7::default();
                 // MEASURED: the x86-64 DirectDraw has no Direct3D interfaces
                 hit(clause::D3D7_X64);
@@ -586,6 +616,7 @@ impl D3d7 {
             out.push("nodev".into());
             return Ok(true);
         };
+        self.release()?;
         self.dev = None;
         self.rs.clear();
         hit(clause::D3D7_DEVICE);
@@ -636,7 +667,7 @@ impl D3d7 {
         let k = usize::try_from(w * h).map_err(|_| Fail::Bad)?;
         // MEASURED (v1 golden): a new target holds zeros
         let rt = Target { w, h, fmt, px: vec![0; k], depth, z: vec![0; if depth.is_some() { k } else { 0 }] };
-        self.dev = Some(Device { family, ver, spans: crate::model::ramp::Spans::default(), rt });
+        self.dev = Some(Device { heap: Heap::Intact, family, ver, spans: crate::model::ramp::Spans::default(), rt });
         if depth.is_some() {
             // MEASURED: ZENABLE is on when the target had a z-buffer
             self.rs.insert(Rs::ZEnable.id(), 1);
@@ -708,8 +739,8 @@ impl D3d7 {
                 clear(ver, d, c, z, r, out)?;
             }
             "d3dline" => {
-                // a line list of one line
-                let c = n32(op, 1)?;
+                // a line list of one line, one colour or one an end (c0/c1)
+                let [c, c1] = line_colors(t.get(1).ok_or(Fail::Bad)?)?;
                 let mut v = [(0i64, 0i64); 2];
                 for (k, p) in v.iter_mut().enumerate() {
                     *p = (n(op, 2 + 2 * k)?, n(op, 3 + 2 * k)?);
@@ -723,12 +754,23 @@ impl D3d7 {
                 }
                 let st = States::read(self)?;
                 let d = self.dev.as_mut().ok_or(Fail::Bad)?;
-                let tri = Tri { v: [v[0], v[1], v[1]], c: [c; 3], spec: [0; 3], z: 0.5 };
+                let tri = Tri { v: [v[0], v[1], v[1]], c: [c, c1, c1], spec: [0; 3], z: 0.5 };
+                let col = |x: u32| bgra(if st.flat { c } else { x });
                 let writes = match d.family {
                     Family::Ramp => {
                         let fmt = d.rt.fmt;
-                        ramp_writes(&mut d.spans, &st, &tri, Prim::Line, d.rt.w, d.rt.h, fmt)?
+                        ramp_writes(&mut d.spans, &mut d.heap, &st, &tri, Prim::Line, d.rt.w, d.rt.h, fmt)?
                     }
+                    // MEASURED (d3d7dev farcolour-7-*, farline-7-*): d3dim700's front end cuts a
+                    // line with an end past the guard band at the band (clean-room notes D.1)
+                    Family::Soft { .. } if d.ver == Ver::V7 && !in_guard(&v) => match guard_clip([(v[0], col(c)), (v[1], col(c1))])? {
+                        Some((e, cs)) => soft_line(&st, e, cs, d.rt.w, d.rt.h)?,
+                        None => Vec::new(),
+                    },
+                    // (two colours: each end its own, the walk's or the planes' (D3D7.GOURAUD);
+                    // d3dim.dll's lines past the guard band too: the walk whole, MEASURED d3d7dev
+                    // farcolour-2-*, -3-*)
+                    Family::Soft { .. } | Family::Hw { .. } if c != c1 => line_writes(d.family, &st, [(v[0], col(c), [0; 4]), (v[1], col(c1), [0; 4])], d.rt.w, d.rt.h)?,
                     Family::Soft { .. } | Family::Hw { .. } => cover_writes(&line(d.family, v, st.lastpixel, d.rt.w, d.rt.h)?, d.rt.w),
                 };
                 paint(d, &st, &tri, &writes)?;
@@ -999,6 +1041,21 @@ impl States {
 
 /// which pixels a triangle covers
 fn coverage(family: Family, v: [(i64, i64); 3], w: i64, h: i64) -> Res<Vec<bool>> {
+    // MEASURED (d3d7dev hugevert-7-hal, -tnl): WARP cuts a triangle at the viewport first and
+    // draws the polygon as a fan (crate::model::warp::cut_tri, clean-room notes F.6)
+    if let Family::Hw { .. } = family {
+        match crate::model::warp::cut_tri(v, w, h)? {
+            crate::model::warp::TriCut::Whole => {}
+            crate::model::warp::TriCut::Gone => {
+                hit(clause::D3D7_TRI_HW);
+                return Ok(vec![false; usize::try_from(w.wrapping_mul(h)).ok().ok_or(Fail::Bad)?]);
+            }
+            crate::model::warp::TriCut::Fan(p) => {
+                hit(clause::D3D7_TRI_HW);
+                return fan_coverage(&p, w, h);
+            }
+        }
+    }
     let area = (v[1].0 - v[0].0) * (v[2].1 - v[0].1) - (v[2].0 - v[0].0) * (v[1].1 - v[0].1);
     let (a, b, c) = if area > 0 { (v[0], v[1], v[2]) } else { (v[0], v[2], v[1]) };
     let edges = [(a, b), (b, c), (c, a)];
@@ -1124,11 +1181,12 @@ pub fn f32_past(t: (i64, i64), b: (i64, i64), first: i64, k: i64, round: SlopeRo
 /// pixel of centre (ceil(x - 1/2), ceil(y - 1/2)) when |x - cx| + |y - cy| < 1/2, or on the
 /// diamond's corner; the start's pixel is drawn, the last one's drawn with LASTPIXEL and taken out
 /// without. A corner at the last end of a line within 1/4 pixel of the diagonal, ends outside the
-/// target are clipped there (D3D7.LINE, outlines-*), past the guard band not asked (D3D7.TRI.CLIP); the HAL's: crate::model::warp (D3D7.LINE.HW)
+/// target are clipped there (D3D7.LINE, outlines-*), and past the guard band the target holds the
+/// walk of the whole line (farline-*); the HAL's: crate::model::warp (D3D7.LINE.HW)
 pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64) -> Res<Vec<bool>> {
-    // (a soft line with an end past the guard band: the front end clips it, not asked,
-    // D3D7.TRI.CLIP; the ramp device's lines go through crate::model::ramp)
-    let other = Fail::Unmodeled(open::D3D7_TRI_CLIP);
+    // (MEASURED, d3d7dev farline-*: a soft line with an end past the guard band −4096..4095,
+    // which the front end clips there (clean-room notes D.1), has in the target the pixels of
+    // its walk whole; the ramp device's lines go through crate::model::ramp)
     match family {
         Family::Ramp => return Err(Fail::Bad),
         Family::Soft { .. } => {}
@@ -1137,15 +1195,119 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
             return crate::model::warp::line(v, w, h);
         }
     }
-    let (xs, ys) = (-4096 * 16..4096 * 16, -4096 * 16..4096 * 16);
-    if !v.iter().all(|(x, y)| xs.contains(x) && ys.contains(y)) {
-        return Err(other);
-    }
     let mut cover = vec![false; usize::try_from(w * h).map_err(|_| Fail::Bad)?];
     hit(clause::D3D7_LINE);
     for (x, y) in crate::model::d3dim::line(v.map(|(x, y)| (snap16(x), snap16(y))), lastpixel)? {
         if (0..w).contains(&x) && (0..h).contains(&y) {
             *cover.get_mut(usize::try_from(y * w + x).map_err(|_| Fail::Bad)?).ok_or(Fail::Bad)? = true;
+        }
+    }
+    Ok(cover)
+}
+
+/// a TL end as the front end's clipper holds it: x, y in pixels and the colour's bytes B, G, R,
+/// A as floats
+#[derive(Clone, Copy)]
+struct ClipEnd {
+    x: f32,
+    y: f32,
+    c: [f32; 4],
+}
+
+/// the guard band's sides, in pixels (d3dim700's caps: −4096..4095)
+const GB_LO: f32 = -4096.0;
+const GB_HI: f32 = 4095.0;
+
+/// the guard-band planes in the order ClipSingleLine cuts them (Left, Right, Top, Bottom): each
+/// end's distance inside it (negative outside) and the end moved onto it
+const GB_PLANES: [(fn(&ClipEnd) -> f32, fn(&mut ClipEnd)); 4] = [
+    (|e| e.x - GB_LO, |e| e.x = GB_LO),
+    (|e| GB_HI - e.x, |e| e.x = GB_HI),
+    (|e| e.y - GB_LO, |e| e.y = GB_LO),
+    (|e| GB_HI - e.y, |e| e.y = GB_HI),
+];
+
+/// d3dim700's cut of a software line at the guard band (clean-room notes D.1, ClipSingleLine
+/// with the guard band): MEASURED (d3d7dev farcolour-7-*: 24 of 24 lines of two colours,
+/// farline-7-*) for each plane an end outside replaced by the crossing, t = dout / (dout − din)
+/// and every value (pi − po) · t + po in f32 from the outside end, the cut coordinate set onto
+/// the side, the colour's bytes truncated; the ends then snapped as any line's, trunc(16·x + 1/2)
+/// (in 28.4); None when the line lies wholly outside one side
+pub fn guard_clip(ends: [((i64, i64), [u8; 4]); 2]) -> Res<Option<([(i64, i64); 2], [[u8; 4]; 2])>> {
+    let bad = || Fail::Bad;
+    let sixteenth = f32::from_bits(0x3d80_0000);
+    let px = |v: i64| crate::model::d3dim::f32_of(v).map(|v| v * sixteenth).ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+    let end = |((x, y), c): ((i64, i64), [u8; 4])| -> Res<ClipEnd> { Ok(ClipEnd { x: px(x)?, y: px(y)?, c: c.map(f32::from) }) };
+    let [e0, e1] = ends;
+    let mut p = [end(e0)?, end(e1)?];
+    for (dist, onto) in GB_PLANES {
+        let [a, b] = p;
+        let (da, db) = (dist(&a), dist(&b));
+        let (inside, outside, out_first) = match (da >= 0.0, db >= 0.0) {
+            (true, true) => continue,
+            (false, false) => return Ok(None),
+            (true, false) => (a, b, false),
+            (false, true) => (b, a, true),
+        };
+        let (din, dout) = (dist(&inside), dist(&outside));
+        let t = dout / (dout - din);
+        let l = |pi: f32, po: f32| (pi - po) * t + po;
+        let mut c = [0f32; 4];
+        for ((o, &ci), &co) in c.iter_mut().zip(&inside.c).zip(&outside.c) {
+            *o = l(ci, co);
+        }
+        let mut cut = ClipEnd { x: l(inside.x, outside.x), y: l(inside.y, outside.y), c };
+        onto(&mut cut);
+        p = if out_first { [cut, inside] } else { [inside, cut] };
+    }
+    let snap = |v: f32| crate::model::d3dim::trunc(v * 16.0 + 0.5).ok_or_else(bad);
+    let byte = |v: f32| crate::model::d3dim::trunc(v).and_then(|v| u8::try_from(v).ok()).ok_or_else(bad);
+    let [a, b] = p;
+    let bytes = |e: &ClipEnd| -> Res<[u8; 4]> {
+        let [c0, c1, c2, c3] = e.c;
+        Ok([byte(c0)?, byte(c1)?, byte(c2)?, byte(c3)?])
+    };
+    Ok(Some(([(snap(a.x)?, snap(a.y)?), (snap(b.x)?, snap(b.y)?)], [bytes(&a)?, bytes(&b)?])))
+}
+
+/// whether every vertex (in 16ths) lies in the software guard band −4096..4095
+fn in_guard(v: &[(i64, i64)]) -> bool {
+    let band = -4096 * 16..=4095 * 16;
+    v.iter().all(|(x, y)| band.contains(x) && band.contains(y))
+}
+
+/// the pixels a fan of WARP's (vertices in 256ths of a pixel, x + 1/2) covers: each triangle
+/// (p0, pi, pi+1) by the top-left rule at the pixel centres (as coverage)
+fn fan_coverage(p: &[(i128, i128)], w: i64, h: i64) -> Res<Vec<bool>> {
+    let bad = || Fail::Bad;
+    let n = usize::try_from(w.wrapping_mul(h)).ok().ok_or_else(bad)?;
+    let wu = usize::try_from(w).ok().ok_or_else(bad)?.max(1);
+    let mut cover = vec![false; n];
+    let Some(&p0) = p.first() else { return Ok(cover) };
+    let cross = |(ax, ay): (i128, i128), (bx, by): (i128, i128), (sx, sy): (i128, i128)| {
+        let (dx, dy) = (bx.wrapping_sub(ax), by.wrapping_sub(ay));
+        (dx, dy, dx.wrapping_mul(sy.wrapping_sub(ay)).wrapping_sub(dy.wrapping_mul(sx.wrapping_sub(ax))))
+    };
+    for pair in p.get(1..).unwrap_or(&[]).windows(2) {
+        let &[p1, p2] = pair else { continue };
+        let (_, _, area) = cross(p0, p1, p2);
+        let (a, b, c) = match area.cmp(&0) {
+            std::cmp::Ordering::Equal => continue,
+            std::cmp::Ordering::Greater => (p0, p1, p2),
+            std::cmp::Ordering::Less => (p0, p2, p1),
+        };
+        let edges = [(a, b), (b, c), (c, a)];
+        for (k, o) in cover.iter_mut().enumerate() {
+            let (px, py) = (k.checked_rem(wu).and_then(|v| i128::try_from(v).ok()).ok_or_else(bad)?, k.checked_div(wu).and_then(|v| i128::try_from(v).ok()).ok_or_else(bad)?);
+            let centre = (px.wrapping_mul(256).wrapping_add(128), py.wrapping_mul(256).wrapping_add(128));
+            let ins = edges.iter().all(|&(ea, eb)| {
+                let (dx, dy, e) = cross(ea, eb, centre);
+                let topleft = dy < 0 || (dy == 0 && dx > 0);
+                e > 0 || (e == 0 && topleft)
+            });
+            if ins {
+                *o = true;
+            }
         }
     }
     Ok(cover)
@@ -1264,8 +1426,11 @@ fn at(x: i64, y: i64, w: i64, h: i64) -> Res<Option<usize>> {
 /// colours stepped in f32 along the major axis (crate::model::d3dim::LineWalk); the HAL the
 /// same cycle from the vertex of the least x, each edge's plane its own (warp::LinePlane), a tie
 /// in x not measured (D3D7.STATES.OTHER)
-fn edge_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64) -> Res<Vec<Write>> {
+fn edge_writes(family: Family, ver: Ver, st: &States, tri: &Tri, w: i64, h: i64) -> Res<Vec<Write>> {
     hit(clause::D3D7_WIREFRAME);
+    // MEASURED (d3d7dev farwire-*): a vertex past the software guard band, d3dim700 cuts each
+    // edge at the band as it cuts a line (guard_clip); d3dim.dll walks the whole edges
+    let cut = ver == Ver::V7 && matches!(family, Family::Soft { .. }) && !in_guard(&tri.v);
     let [first, ..] = tri.c;
     // (vertex, its colour's bytes) in drawing order
     let ends: Vec<((i64, i64), [u8; 4], [u8; 4])> = tri.v.iter().zip(&tri.c).zip(&tri.spec).map(|((&p, &c), &sp)| (p, bgra(if st.flat { first } else { c }), bgra(sp))).collect();
@@ -1288,32 +1453,65 @@ fn edge_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64) -> Res<Ve
     let cycle: Vec<_> = ends.iter().cycle().skip(start).take(4).collect();
     for pair in cycle.windows(2) {
         let &[&(pa, ca, sa), &(pb, cb, sb)] = pair else { return Err(Fail::Bad) };
-        let e = [pa, pb];
-        let cover = line(family, e, st.lastpixel, w, h)?;
-        match family {
-            Family::Soft { .. } | Family::Ramp => {
-                let walk = crate::model::d3dim::walk_line(e.map(|(x, y)| (snap16(x), snap16(y))), st.lastpixel)?;
-                for (&(x, y), &c) in walk.px.iter().zip(&walk.colours(ca, cb)?) {
-                    let Some(k) = at(x, y, w, h)? else { continue };
-                    if cover.get(k).copied().unwrap_or(false) {
-                        out.push(Write { k, x, y, c: words(c) });
-                    }
-                }
+        if cut {
+            if let Some((e, cs)) = guard_clip([(pa, ca), (pb, cb)])? {
+                out.extend(soft_line(st, e, cs, w, h)?);
             }
-            Family::Hw { .. } if !cover.contains(&true) => {}
-            Family::Hw { .. } => {
-                let plane = |a: [u8; 4], b: [u8; 4], i: usize| -> Res<crate::model::warp::LinePlane> {
-                    let (Some(&p), Some(&q)) = (a.get(i), b.get(i)) else { return Err(Fail::Bad) };
-                    crate::model::warp::LinePlane::new(e, [p, q])
-                };
-                let (r, g, b) = (plane(ca, cb, 2)?, plane(ca, cb, 1)?, plane(ca, cb, 0)?);
-                let (sr, sg, sbl, sf) = (plane(sa, sb, 2)?, plane(sa, sb, 1)?, plane(sa, sb, 0)?, plane(sa, sb, 3)?);
-                let wu = usize::try_from(w).ok().ok_or(Fail::Bad)?.max(1);
-                for (k, _) in cover.iter().enumerate().filter(|&(_, &c)| c) {
-                    let (x, y) = (i64::try_from(k % wu).ok().ok_or(Fail::Bad)?, i64::try_from(k / wu).ok().ok_or(Fail::Bad)?);
-                    let mix = hal_mix(st, [r.at(x, y)?, g.at(x, y)?, b.at(x, y)?], [sr.at(x, y)?, sg.at(x, y)?, sbl.at(x, y)?], sf.at(x, y)?);
-                    out.push(Write { k, x, y, c: Col::Unit(mix) });
+            continue;
+        }
+        out.extend(line_writes(family, st, [(pa, ca, sa), (pb, cb, sb)], w, h)?);
+    }
+    Ok(out)
+}
+
+/// a software line's pixels in the target from its ends in 28.4 and their colours' bytes: its
+/// walk (D3D7.LINE) with the colours stepped from the start (clean-room notes D.3)
+fn soft_line(st: &States, e: [(i64, i64); 2], c: [[u8; 4]; 2], w: i64, h: i64) -> Res<Vec<Write>> {
+    hit(clause::D3D7_LINE);
+    let walk = crate::model::d3dim::walk_line(e, st.lastpixel)?;
+    let [ca, cb] = c;
+    let mut out = Vec::new();
+    for (&(x, y), &c) in walk.px.iter().zip(&walk.colours(ca, cb)?) {
+        let Some(k) = at(x, y, w, h)? else { continue };
+        out.push(Write { k, x, y, c: words(c) });
+    }
+    Ok(out)
+}
+
+/// the pixels of one line from end a to end b (its position, colour and specular bytes B, G, R,
+/// A): the software rasterizers' walk with its colours stepped from the start (D3D7.GOURAUD,
+/// clean-room notes D.3), the HAL's planes along the major axis (D.4)
+fn line_writes(family: Family, st: &States, ends: [((i64, i64), [u8; 4], [u8; 4]); 2], w: i64, h: i64) -> Res<Vec<Write>> {
+    let [(pa, ca, sa), (pb, cb, sb)] = ends;
+    let e = [pa, pb];
+    let cover = line(family, e, st.lastpixel, w, h)?;
+    let mut out = Vec::new();
+    match family {
+        Family::Soft { .. } | Family::Ramp => out = soft_line(st, e.map(|(x, y)| (snap16(x), snap16(y))), [ca, cb], w, h)?,
+        Family::Hw { .. } if !cover.contains(&true) => {}
+        Family::Hw { .. } => {
+            // (WARP cuts the line at the viewport first, its attributes as floats: clean-room
+            // notes F, MEASURED d3d7dev linecolour-7-tnl, a pixel the cut moves onto 42.500126)
+            let unit = |c: [u8; 4], sp: [u8; 4]| -> Res<[f32; 8]> {
+                let mut o = [0f32; 8];
+                for (v, b) in o.iter_mut().zip(c.iter().chain(&sp)) {
+                    *v = f32::from(*b) / 255.0;
                 }
+                Ok(o)
+            };
+            let Some(cut) = crate::model::warp::cut_line(e, [unit(ca, sa)?, unit(cb, sb)?], w, h)? else { return Ok(out) };
+            let [a0, a1] = cut.a;
+            let plane = |i: usize| -> Res<crate::model::warp::LinePlane> {
+                let (Some(&p), Some(&q)) = (a0.get(i), a1.get(i)) else { return Err(Fail::Bad) };
+                crate::model::warp::LinePlane::from_fixed(cut.v, [p, q])
+            };
+            let (r, g, b) = (plane(2)?, plane(1)?, plane(0)?);
+            let (sr, sg, sbl, sf) = (plane(6)?, plane(5)?, plane(4)?, plane(7)?);
+            let wu = usize::try_from(w).ok().ok_or(Fail::Bad)?.max(1);
+            for (k, _) in cover.iter().enumerate().filter(|&(_, &c)| c) {
+                let (x, y) = (i64::try_from(k % wu).ok().ok_or(Fail::Bad)?, i64::try_from(k / wu).ok().ok_or(Fail::Bad)?);
+                let mix = hal_mix(st, [r.at(x, y)?, g.at(x, y)?, b.at(x, y)?], [sr.at(x, y)?, sg.at(x, y)?, sbl.at(x, y)?], sf.at(x, y)?);
+                out.push(Write { k, x, y, c: Col::Unit(mix) });
             }
         }
     }
@@ -1489,11 +1687,11 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
     let writes = match (st.fill, family) {
         (_, Family::Ramp) => {
             let fmt = rt.fmt;
-            ramp_writes(&mut dev.spans, st, tri, Prim::Tri, w, h, fmt)?
+            ramp_writes(&mut dev.spans, &mut dev.heap, st, tri, Prim::Tri, w, h, fmt)?
         }
         (Fill::Solid, Family::Soft { .. }) => soft_writes(family, st, tri, w, h, rt.fmt)?,
         (Fill::Point, Family::Soft { .. } | Family::Hw { .. }) => point_writes(family, dev.ver, st, tri, w, h)?,
-        (Fill::Wireframe, Family::Soft { .. } | Family::Hw { .. }) => edge_writes(family, st, tri, w, h)?,
+        (Fill::Wireframe, Family::Soft { .. } | Family::Hw { .. }) => edge_writes(family, dev.ver, st, tri, w, h)?,
         (Fill::Solid, Family::Hw { .. }) => cover_writes(&coverage(family, v, w, h)?, w),
     };
     paint(dev, st, tri, &writes)
@@ -1506,24 +1704,37 @@ enum Prim {
     Line,
 }
 
+/// where a span's pixel lands in memory
+enum Walked {
+    /// in the target: its index
+    In(usize),
+    /// in a row's padding past its right side
+    Padding,
+    /// past the surface's last byte
+    PastEnd,
+}
+
 /// the address of pixel (x, y) as a span walks it (past the right side on into the row's padding
-/// and the next row): its index in the target, or None past the row's end; past the surface's
-/// end not worked out (D3D7.TRI.CLIP)
-fn walked(x: i64, y: i64, w: i64, h: i64, fmt: Fmt) -> Res<Option<usize>> {
+/// and the next row, past the last row into the memory after the surface); one across a row's
+/// end (a 24-bit pixel half in the padding) not worked out (D3D7.TRI.CLIP)
+fn walked(x: i64, y: i64, w: i64, h: i64, fmt: Fmt) -> Res<Walked> {
     let bad = || Fail::Bad;
     let b = i64::try_from(fmt.bytes()).ok().ok_or_else(bad)?;
     let p = crate::model::ddraw::pitch(w, u32::try_from(fmt.bytes()).ok().ok_or_else(bad)?.wrapping_mul(8));
     let a = y.checked_mul(p).and_then(|r| r.checked_add(x.checked_mul(b)?)).ok_or_else(bad)?;
     let (row, at) = (a.div_euclid(p), a.rem_euclid(p));
     let end = w.wrapping_mul(b);
-    if a < 0 || a.wrapping_add(b) > h.wrapping_mul(p) || at.rem_euclid(b) != 0 || (at < end && at.wrapping_add(b) > end) {
+    if a < 0 || at.rem_euclid(b) != 0 || (at < end && at.wrapping_add(b) > end) {
         return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+    }
+    if a.wrapping_add(b) > h.wrapping_mul(p) {
+        return Ok(Walked::PastEnd);
     }
     let col = at.div_euclid(b);
     if col >= w {
-        return Ok(None);
+        return Ok(Walked::Padding);
     }
-    Ok(Some(usize::try_from(row.wrapping_mul(w).wrapping_add(col)).ok().ok_or_else(bad)?))
+    Ok(Walked::In(usize::try_from(row.wrapping_mul(w).wrapping_add(col)).ok().ok_or_else(bad)?))
 }
 
 /// a ramp draw (crate::model::ramp, from the clean-room notes on d3dim.dll): MEASURED (d3d7rast
@@ -1532,7 +1743,7 @@ fn walked(x: i64, y: i64, w: i64, h: i64, fmt: Fmt) -> Res<Option<usize>> {
 /// set up and walked by d3dim700's rules; lines, wireframe edges and points as 1-pixel spans;
 /// every pixel index 0 (0x8000 in both colour words with z on, the alpha in red's word
 /// without) plus the span's specular words, whatever the buffer held there
-fn ramp_writes(spans: &mut crate::model::ramp::Spans, st: &States, tri: &Tri, prim: Prim, w: i64, h: i64, fmt: Fmt) -> Res<Vec<Write>> {
+fn ramp_writes(spans: &mut crate::model::ramp::Spans, heap: &mut Heap, st: &States, tri: &Tri, prim: Prim, w: i64, h: i64, fmt: Fmt) -> Res<Vec<Write>> {
     use crate::model::ramp::{self, Batch, Fill as RFill, Kind, Shading, Tl};
     let [c0, _, _] = tri.c;
     let alpha = c0 >> 24;
@@ -1546,7 +1757,7 @@ fn ramp_writes(spans: &mut crate::model::ramp::Spans, st: &States, tri: &Tri, pr
     let fog = st.fog.map(|fc| [0u32, 8, 16].map(|sh| u16::try_from(fc >> sh & 255).unwrap_or(0)));
     let sh = Shading { fill, i: 0x8000, j: alpha << 16, gouraud, specular: st.specular, fog };
     let mut b = Batch::begin(spans, sh);
-    let px16 = |v: i64| i16::try_from(v).map(|v| f32::from(v) / 16.0).ok().ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+    let px16 = |v: i64| i32::try_from(v).map(|v| crate::model::gppath::to32(crate::model::gdiplus::Round::Nearest, f64::from(v)) / 16.0).ok().ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
     let inside = |v: &[(i64, i64)]| v.iter().all(|&(x, y)| (0..w.wrapping_mul(16)).contains(&x) && (0..h.wrapping_mul(16)).contains(&y));
     match (prim, st.fill) {
         (Prim::Line, _) => {
@@ -1605,7 +1816,14 @@ fn ramp_writes(spans: &mut crate::model::ramp::Spans, st: &States, tri: &Tri, pr
     b.end()?;
     let mut out = Vec::with_capacity(b.out.len());
     for q in &b.out {
-        let Some(k) = walked(q.x, q.y, w, h, fmt)? else { continue };
+        let k = match walked(q.x, q.y, w, h, fmt)? {
+            Walked::In(k) => k,
+            Walked::Padding => continue,
+            Walked::PastEnd => {
+                *heap = Heap::Overrun;
+                continue;
+            }
+        };
         let [cb, cg, cr] = q.c.map(|v| Fix88(u32::from(v)));
         out.push(Write { k, x: q.x, y: q.y, c: Col::Words([cr, cg, cb]) });
     }
@@ -1651,7 +1869,7 @@ fn soft_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt)
         // −4096..4095, past 2048 pixels too, and past it (the front end's clip at the guard band
         // leaves the pixels in the target as the walk of the whole triangle has them); past 2^20
         // pixels not asked)
-        let px = |v: i64| crate::model::d3dim::f32_of(v).map(|v| v / 16.0).ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+        let px = |v: i64| i32::try_from(v).map(|v| crate::model::gppath::to32(crate::model::gdiplus::Round::Nearest, f64::from(v)) / 16.0).ok().ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
         Ok(crate::model::d3dim::Vert { x: px(tri.v[i].0)?, y: px(tri.v[i].1)?, c: [ch(0), ch(8), ch(16), ch(24)] })
     };
     let clip = crate::model::d3dim::Clip { l: 0, t: 0, r: w, b: h };
@@ -1679,7 +1897,8 @@ fn soft_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt)
         // (a pixel past the surface's last byte writes the memory after it: d3d7edge-32 died in
         // the case after whole-rgb-short, whose triangle 36 did; one across a row's end is not
         // measured)
-        let Some(k) = walked(q.x, q.y, w, h, fmt)? else { continue };
+        // (MEASURED, d3d7spill0..2: a pixel past the surface's end lost, the case run on)
+        let Walked::In(k) = walked(q.x, q.y, w, h, fmt)? else { continue };
         let f = |i: usize| Fix88(u32::from(q.c[i]));
         out.push(Write { k, x: q.x, y: q.y, c: Col::Words([f(2), f(1), f(0)]) });
     }

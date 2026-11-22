@@ -113,8 +113,9 @@ fn stroke_and_fill_is_the_fill_then_the_closed_outline() {
 
 /// GDI.SHAPE.ELLIPSEPEN, GDI.SHAPE.ROUNDPEN: Ellipse and RoundRect with a pen draw the path's
 /// figure (counterclockwise) as StrokePath does with the null brush, as StrokeAndFillPath does
-/// with a brush; every box in 0..10 given left to right and top to bottom, more than a pixel
-/// each way, RoundRect corners 1..6
+/// with a brush; every box of corners in 0..=10 given left to right and top to bottom, a pixel
+/// or more each way (left < right, top < bottom), for Ellipse; RoundRect's corner ellipses
+/// (1, 1), (3, 2), (6, 6) and (2, 5) on the boxes whose four coordinates sum even, half of them
 #[test]
 fn ellipse_and_round_rect_draw_their_path() {
     for l in 0..10 {

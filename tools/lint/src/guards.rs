@@ -29,6 +29,11 @@
 //! * `kani-gates` (review of 8480456, 5.1): an API stable in the build's Rust but not in Kani's
 //!   compiler (`KANI_GATES`) is used only with its feature turned on for Kani in src/lib.rs
 //!   (`#![cfg_attr(kani, feature(..))]`), so the proofs compile whatever the generators use.
+//! * `lean-sampler` (review of 84b05c8, 4.1): the Lean mirrors' samples (src/lean/) come from
+//!   rng::Sample64, never the cases' XorShift32, whose 32-bit draws left all but the lowest 2^32
+//!   values of a 64-bit domain out.
+//! * `zip-unchecked` (review of 84b05c8, 4.3): tests/*.rs pair sequences with pairs::zip_eq, not
+//!   `.zip(`, so an output missing its lines fails instead of comparing nothing.
 //! * `header-unflushed` (review of 8480456, 4): runner/main.c writes a case's header out at once
 //!   (`oflush()` right after it), so a stop inside a case names that case.
 use std::path::Path;
@@ -40,6 +45,9 @@ use crate::code::{code_only, line_of};
 
 /// (file, what (a regular expression), the functions it may appear in): `confined`
 pub const CONFINED: &[(&str, &str, &[&str])] = &[
+    // (the current source and which decoder's frame it is change together, golden wmpframe-*:
+    // a frame of JPEG XR's written again by JPEG XR's encoder keeps its pixels)
+    ("src/model/wicimage.rs", r"self\.cur\s*=\s*|self\.from\s*=\s*", &["set_cur", "op"]),
     ("src/model/ddraw.rs", r"\.px\[", &["get", "pixel", "set", "put"]),
     ("src/model/d3dx9.rs", r"\bf16_(sse|one|x64|x64_tail)\s*\(", &["half"]),
     // (a stage argument's selector and modifiers are stage_arg's, which the Lean mirror d3d9.arg
@@ -69,13 +77,72 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // split, level and past_depth, which the Lean mirrors d3d11.split, d3d11.level and
     // d3d11.pastdepth hold to spec/lean/Kikizake/D3d11/Filter.lean)
     ("src/model/d3draster.rs", r"as\s+f32\s*-\s*0\.5|\.fract\(\)\s*\*\s*256|\+\s*0\.5\)\.floor\(\)|index\(dw\)\s*<=", &["split", "level", "past_depth"]),
+    // (a triangle's and a line's planes, a depth's clamp and a vertex's depth are plane_value,
+    // line_value, clamp_range and vertex_depth, which d3d11.plane, d3d11.lineplane,
+    // d3d11.clamprange and d3d11.vertexdepth hold to spec/lean/Kikizake/D3d11/Interp.lean)
+    ("src/model/d3draster.rs", r"\.max\(lo\)\.min\(hi\)|\(1\.0\s*/\s*[\w.]+(\[3\])?\)\s*\*\s*\(maxz\s*-\s*minz\)|\(a\[0\]\s*-\s*gx\s*\*\s*x0\)|1\.0\s*/\s*\(b\s*-\s*a\)", &["plane_value", "line_value", "clamp_range", "vertex_depth"]),
+    // (the f32 clippings, a triangle's coordinates not finite, what the clipping leaves with no
+    // area and depths wholly out of range are clip_line, clip_line_z, clip_xy, clip_z,
+    // not_finite, clipped_away and depth_away, which d3d11.clipline, d3d11.clipxy,
+    // d3d11.notfinite, d3d11.clippedaway and d3d11.depthaway hold to
+    // spec/lean/Kikizake/D3d11/Clip.lean)
+    ("src/model/d3draster.rs", r"da\s*/\s*\(da\s*-\s*db\)|\*z\s*<\s*0\.0\)\s*\|\||!x\.is_finite\(\)|\.windows\(2\)\.skip\(1\)", &["clip_line", "clip_line_z", "clip_xy", "clip_z", "not_finite", "clipped_away", "depth_away"]),
+    // (a line's major axis, the multisample and alpha lines' corners and the alpha coverage are
+    // major_of, quad_corners, alpha_corners and alpha_coverage, which d3d11.linecovers,
+    // d3d11.quadcorners, d3d11.alphacorners and d3d11.alphacover hold to
+    // spec/lean/Kikizake/D3d11/Line.lean)
+    ("src/model/d3draster.rs", r"QUAD_HALF\s*/|0x3EE6_6666|2\.0\s*/\s*len\b|\.y\s*-\s*\w+\.y\)\.abs\(\)\s*>", &["major_of", "quad_corners", "alpha_corners", "alpha_coverage"]),
+    // (CreateInputLayout's verdict on the generator's programs is layout_verdict, which
+    // d3d11.layout holds to spec/lean/Kikizake/D3d11/Layout.lean)
+    // (string literals are blanked before matching, so the verdicts are what it confines: a
+    // program named, how many inputs it needs, and the check that every one is fed)
+    ("src/model/d3draster.rs", r"=>\s*return\s+Some\(LayoutVerdict::|usable\.len\(\)\s*>=\s*needs", &["layout_verdict"]),
     // (a declaration's refusals are decl_ok's, which the Lean mirror d3d9.decl holds to
     // spec/lean/Kikizake/D3d9/Decl.lean)
     ("src/model/d3d9draw.rs", r"usage\s*==\s*8\s*&&|\(9,\s*0\)", &["decl_ok"]),
+    // (the shading, clipping and snapping arithmetic is grad9, at9, plane10, clip_bounds and
+    // snap256, which the Lean mirrors d3d9.grad, at, plane, clipbounds, snap hold bit for bit to
+    // spec/lean/Kikizake/D3d9/Shade.lean and Clip.lean)
+    ("src/model/d3d9draw.rs", r"\*\s*\(y\[2\]\s*-\s*y\[0\]\)|1\.0\s*/\s*area|\*\s*256\.0\)|D3D9_RASTER_CLIP8\b|D3D9_SHADE_(FLAT|GOURAUD)", &["grad9", "plane10", "snap256", "clip_bounds", "shaded"]),
+    // (the primitives a draw assembles, the words each vertex is read from, the pixel a point
+    // lights and a pixel's packing are assemble, vertex_words, point_pixel and pack, which the Lean
+    // mirrors d3d9.assemble, vertices, pointpixel, pack hold to spec/lean/Kikizake/D3d9/Draw.lean)
+    ("src/model/d3d9draw.rs", r"D3D9_DRAW_(ASSEMBLY|STRIDE)\b|-\s*0\.5\)\.ceil\(\)|\|\|\s*x_alpha\b|chunks\(stride\)", &["assemble", "vertex_words", "point_pixel", "pack"]),
+    // (a line's cut, an untransformed vertex's transform and clipping and the perspective-correct
+    // attributes are line_cut, transform_xyz, clip_xyz, xyz_vertex, rhw_attrs and rhw_value, which
+    // the Lean mirrors d3d9.linecut, xyz, clipxyz, xyzvertex, rhw hold to
+    // spec/lean/Kikizake/D3d9/Line.lean and Xyz.lean)
+    ("src/model/d3d9draw.rs", r"D3D9_DRAW_(LINECLIP(_NEAR)?|XYZ_CLIP|RHW)\b|\*=?\s*at\[11\]|/\s*at32\[11\]|1\.0\s*/\s*[cq]\[3\]", &["line_cut", "transform_xyz", "clip_xyz", "xyz_vertex", "rhw_attrs", "rhw_value"]),
+    // (the anisotropic footprint, its taps and their averaging, the generated coordinates and the
+    // projected footprint are aniso_footprint, aniso_taps, pair_average, camera_space,
+    // camera_normal, tex_gen, quad_origin and quad_duv, which the Lean mirrors d3d9.footprint,
+    // taps, pairavg, camera, normal, texgen, quad, quadduv hold to spec/lean/Kikizake/D3d9/Aniso.lean
+    // and Gen.lean)
+    ("src/model/d3d9draw.rs", r"D3D9_TEX_ANISO(2|N)\b|m2\.sqrt\(\)|\(r\[2\]\s*-\s*1\.0\)|e\(r0,\s*c0\)|&\s*1\)\s*as\s+f32", &["aniso_footprint", "aniso_taps", "tex_gen", "camera_normal"]),
+    // (blending on targets of other formats is blend_float and factor_f32, which d3d9.blendf holds
+    // to spec/lean/Kikizake/D3d9/Blend.lean)
+    ("src/model/d3d9draw.rs", r"D3D9_BLEND_FORMAT|\.min\(\s*1\.0\s*-|\|x\|\s*x\.clamp\(0\.0,\s*1\.0\)\s*as\s*f32", &["blend_float", "factor_f32"]),
+    // (point and linear filtering's coordinates, weights and sums are point_at, bilinear_at,
+    // bilinear_weights, bilinear_bytes, bilinear_unit and bilinear_float, which d3d9.point,
+    // d3d9.bilinear, d3d9.bibytes and d3d9.bifloat hold to spec/lean/Kikizake/D3d9/Filter.lean)
+    ("src/model/d3d9draw.rs", r"\*\s*64\.0\)\.round\(\)|\*\s*(32\.0|q\s+as\s+f64)\)\.floor\(\)|/\s*BILERP_ONE|\(q\s*-\s*fx\)|\(Q\s*-\s*fx\)", &["point_at", "bilinear_at", "bilinear_weights", "bilinear_unit", "bilinear_float"]),
+    // (the sets of coordinates the stages read and a set's row are tci_slots and coord_row, which
+    // d3d9.slots and d3d9.row hold to spec/lean/Kikizake/D3d9/Coord.lean)
+    ("src/model/d3d9draw.rs", r"slots\.contains\(|Ordering::Equal\s*=>\s*1\.0|\[0\.0,\s*0\.0,\s*1\.0,\s*0\.0\]", &["tci_slots", "coord_row"]),
+    // (a stage's texture matrix is tex_transform, which d3d9.ttf holds to
+    // spec/lean/Kikizake/D3d9/Coord.lean)
+    ("src/model/d3d9draw.rs", r"ttf\s*&\s*0x100|\[count\s*-\s*1\]|count\s*-\s*1\)", &["tex_transform"]),
 ];
 
 /// (file, what (a regular expression), why): `forbidden`
 pub const FORBIDDEN: &[(&str, &str, &str)] = &[
+    ("src/model/wicimage.rs", r#"self\.from\s*==\s*Some\(\s*"wmp"\s*\)\s*&&\s*bag\b|if\s+rcw\s*&&\s*i\.fmt\s*==\s*"gray8""#, "a JPEG XR frame written again by JPEG XR's encoder keeps its pixels whatever its options (wmpframe-opt-*), and which turned files copy is turned()'s, of the width and height (wmpturn-size-*)"),
+    ("src/model/wicimage.rs", r#"for\s+\w+\s+in\s+&?t\s*\[\s*first\s*\.\.\s*\]|\bmatch\s+option\s*\(\s*cont\s*,\s*o\s*\)|Decodes\s*\(\s*"wmp"\s*,\s*img\s*\)"#, "an encoder's options are Bag::write's, each name's last value as Initialize reads them (a name given twice), and a lossless JPEG XR file is turned by its BitmapTransform as a lossy one is (review of 84b05c8, 3.4)"),
+    ("src/model/opengl_list.rs", r"1\s*<<\s*20|0x10_?0000|1_?048_?576", "glDeleteLists deletes every list of its range, however wide (list-more-delete-*), not the first 2^20 names (review of 84b05c8, 5)"),
+    ("src/model/opengl_list.rs", r#""gltex"\s*\|\s*"glmat"|"glmat"\s*\|\s*"glfogv"\s*\|\s*"gldraw"\s*\|\s*"gltex"\s*=>\s*Kind::Compiled\s*,\s*\n\s*_\s*=>"#, "a glTexImage of a proxy target runs at once, outside the list (GL 1.1 3.8.3; list-more-proxy-*): its gltex arm comes before the compiled ones (review of 84b05c8, 3.5)"),
+    ("src/model/jxr.rs", r">>=?\s*\(?\s*1\s*-\s*e1", "float2pixel's shift by 1 - e1 reaches 32 and more (float-shift-*): it is a wrapping_shr, x86's SAR count mod 32, not Rust's >>, which panics there in a debug build (review of 84b05c8, 5)"),
+    ("src/model/d3d9draw.rs", r"draw\.(fvf|decl|decl_from)\s*=[^=]", "the FVF and the declaration change together through set_fvf and set_decl, which spec/tla/D3D9Fvf.tla's replay holds to fvf-decl-order-*; one set on its own leaves the other stale"),
+    ("src/model/opengl.rs", r"0xd16\s*\|\s*0xd17\s*=>|0xd1[01]\s*=>\s*vec!\[B\(false\)\]|0xd1[23]\s*=>\s*i\(0\)|0xb06\s*=>\s*vec!\[F\(0\.0\)|0xd1e\s*=>\s*vec!\[F\(1\.0\)\]|0xb04\s*=>\s*c4\(\[1\.0;\s*4\]\)|0xb05\s*=>\s*vec!\[F\(1\.0\)\]", "glGet reads the state glPixelZoom, glPixelTransfer and glRasterPos set (the pixel mode and raster position the attribute stack gives back), not its initial value (review of 84b05c8, 3.3; the raster color: golden attrib-more-current-pushed-line)"),
     ("src/model/gdiplus.rs", r"\*\s*\(\s*256\s*-\s*wt\s*\)|\(\s*2\s*\*\s*\(\s*c0\b", "a hatch texel's mix and an antialiased pixel's share are the pure hatch_mix and coverage_share the Lean mirrors gp.hatch_mix, gp.coverage_share hold equal to spec/lean/Kikizake/GdiPlus/Blend.lean; a copy inlined in paint escapes them"),
     ("src/model/jpeg.rs", r"Chroma::H1V2\s*=>\s*repeat\s*\(", "4:4:0's chroma rows are interpolated 3:1 (opt-jpeg-subs-*-4), not repeated"),
     ("src/calls.rs", r"\[\s*(open|close)\s*\+|\[\s*\.\.\s*open\s*\]", "a call line is split (split_once, rsplit_once), not sliced at positions found apart: \") = (\" panicked (review of 8480456, 5.4)"),
@@ -88,11 +155,49 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
     ("src/model/d3draster.rs", r"d\.rast\[1\]\s*==\s*[23]\s*&&|p[xy]\s*>=\s*d\.scissor|\(s\.[xy]\s*-\s*1\)\.div_euclid|rem_euclid\(\s*2\s*\*\s*size|\(256\s*-\s*w[uv]?\)|2\s*=>\s*(a|reference)\s*<|let\s+top_left\s*=|Topo::TriStripAdj\s*=>\s*\(\[", "culling, the scissor test, a point's pixel, the address modes, the comparison functions, the 8-bit filters, the top-left rule and the topologies' vertices are the pure functions of d3drules.rs the Lean mirrors hold equal to spec/lean/Kikizake/D3d11/; a copy inlined in d3draster.rs escapes them"),
     ("src/model/d3d9draw.rs", r"if\s+self\.v8\s*\{\s*0xffff_ffff\s*\}|Self::blend_op\b|let\s+e\s*=\s*\(q\.0\s*-\s*p\.0\)", "the blend color, blend operation and top-left rule are the pure blend_color, blend_op and covers the Lean mirrors hold equal to spec/lean/Kikizake/D3d9/Raster.lean; a copy inlined elsewhere escapes them"),
     ("src/model/d3d9draw.rs", r"a1\[i\]\s*\*\s*a2\[i\]|a1\[i\]\s*\+\s*a2\[i\]", "the stage operations' formulas are stage_value's, which the Lean mirror d3d9.stage holds bit for bit to spec/lean/Kikizake/D3d9/Stage.lean; a copy inlined elsewhere escapes it"),
+    ("src/model/d3dres.rs", r#""uav none"\.into\(\)\);\s*return\s+Ok\(\(\)\);\s*\}\s*if\s+!check\s*\{\s*self\.views\.empty"#, "the executor empties the view slot before it answers Direct3D 10's \"uav none\" (runner/d3dres.c op_view; spec/tla/D3DResCalls.tla, probe-uav-slot): answering first kept the old view"),
+    ("src/model/d3dres.rs", r#""buf"\s*\|\s*"srv""#, "on a removed device a view of an empty slot is still the executor's nores (spec/tla/D3DResCalls.tla, probe-removed-calls): views have their own removed arm after the nores one, not the resources' arm"),
     ("src/model/d3d9draw.rs", r"\(-\(z\s*\*\s*density\)\)\.exp\(\)|\(1\.0\s*-\s*f\)\s*\*\s*fc\[", "the fog factor and blend are fog_factor, fog_exp_arg and fog_blend, which the Lean mirrors d3d9.fog* hold to spec/lean/Kikizake/D3d9/Fog.lean; a copy inlined elsewhere escapes them"),
 ];
 
 /// (file, function, what (a regular expression), why): `forbidden` inside one function only
 pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
+    (
+        "src/model/opengl.rs",
+        "pop_attrib",
+        r"\.\.\s*\}",
+        "glPopAttrib names every field of Ctx with its group (or why it has none), so a new field does not compile until it is placed: a rest pattern (..) let the current texture coordinates, raster position, line stipple and list base go unrestored (review of 84b05c8, 3.3)",
+    ),
+    (
+        "src/model/opengl_tex.rs",
+        "pop",
+        r"\.\.\s*\}",
+        "Tex::pop names every field of Tex with its group (TEXTURE_BIT, CURRENT_BIT or none): a rest pattern (..) hides a new one (review of 84b05c8, 3.3)",
+    ),
+    (
+        "src/model/opengl_list.rs",
+        "pop",
+        r"\.\.\s*\}",
+        "Lists::pop names every field of Lists (the base LIST_BIT's): a rest pattern (..) hides a new one (review of 84b05c8, 3.3)",
+    ),
+    (
+        "src/model/d3draster.rs",
+        "shade",
+        r"\btexel\s*\(\s*r\s*,\s*0\s*,|\br\.size\s*\(\s*0\s*\)|\bv\.words\b|\bv\.u\s*\(",
+        "a view's levels and slices are view_reach's (Load, Sample and the binding hazards alike): reading the resource's level 0, or the view's union words apart, took a view's most detailed level for the resource's (review of 84b05c8, 3.2)",
+    ),
+    (
+        "src/calls.rs",
+        "check_dir",
+        r"\brsplit_once\s*\(",
+        "a recording's suite and architecture come from RecName::parse, of the file's name and the header's alike, which check_dir compares (review of 84b05c8, 4.2: a 32-bit recording under the 64-bit name passed)",
+    ),
+    (
+        "src/model/gdiplus.rs",
+        "fill_area",
+        r"\bodd_end\b|rem_euclid\s*\(\s*4\s*\)",
+        "a gamma corrected texture's dither place is the pure dither_column and dither_row, which the Lean mirror gp.dither_place holds equal to spec/lean/Kikizake/GdiPlus/Dither.lean; a run walk inlined in fill_area escapes them",
+    ),
     (
         "src/model/gdiplus.rs",
         "mix",
@@ -112,6 +217,12 @@ pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
         "neither build's OptimizeRGB tests the dot below 0: x64 faults on the index -1 (zero-extended, 16 GiB past the table), x86 reads below it (Below; loadtex-dxt-negindex)",
     ),
     (
+        "src/model/dxtenc.rs",
+        "optimize_rgb",
+        r"F::BELOW|trunc_i\s*\(",
+        "a point's step and the fault below 0 are step_index, which tests/laws_dxtenc.rs proves for every f32 dot; an index taken inline in optimize_rgb escapes it",
+    ),
+    (
         "src/model/dxgiconv.rs",
         "decode_block",
         r"171\s*\*|\*\s*257\b|\*\s*32767\b|\+\s*[23]\s*\)\s*/\s*[57]",
@@ -128,6 +239,24 @@ pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
         "clear_depth",
         r"\bto_unorm\s*\(|\.clamp\s*\(",
         "a UNORM depth clear is unorm_depth, which tests/laws_conv.rs proves for every float; a conversion inlined in clear_depth escapes it",
+    ),
+    (
+        "src/model/d3dx9.rs",
+        "dxt_d3dx",
+        r"1\.0 / 3\.0|1\.0 / 15\.0|1\.0 / 255\.0|1\.0 / 31",
+        "a DXT texel's colour and alpha are dxt_colour, dxt3_alpha and dxt5_alpha, which tests/laws_d3dx9_dxt.rs proves over every block; a reading inlined in dxt_d3dx escapes them",
+    ),
+    (
+        "src/model/d3dx9.rs",
+        "yuy2_pair",
+        r"65\.481|37\.797|93\.786",
+        "YUY2's Y, U and V are yuy2_bytes, which tests/laws_d3dx9_yuv.rs proves for every colour; a formula inlined in yuy2_pair escapes it",
+    ),
+    (
+        "src/model/d3dx9.rs",
+        "yuv_d3dx",
+        r"0\.00456621|wrapping_sub",
+        "a YUV pixel's chroma and colour are chroma_tap and yuv_rgb, which tests/laws_d3dx9_yuv.rs proves over their domains; arithmetic inlined in yuv_d3dx escapes them",
     ),
     (
         "src/model/bptc.rs",
@@ -222,6 +351,50 @@ pub fn kani_gates(sources: &[(String, String)], lib: &str) -> Vec<String> {
     bad
 }
 
+/// (executor, its op table, model, its guard): the ops a device-less executor answers `nodev`
+/// to are the model's: the C ops whose function begins with `if (!on12) { out("nodev\n"); ...`
+/// and the names of the model's `... if !self.dev =>` arm (the review of 84b05c8, 5: rootsig12+
+/// answered nodev in the model and kept its tokens in the executor)
+pub const NODEV_GATES: &[(&str, &str, &str, &str)] = &[("runner/d3d12.c", "d3d12_ops", "src/model/d3d12.rs", "!self.dev")];
+
+/// the ops of `table` in `c` whose function tests `gate` (as `if (gate) { out("nodev\n")`),
+/// and the names of the arm of `rs` guarded `if <guard> =>`: the two differing, each name apart
+pub fn nodev_gates(c_rel: &str, c: &str, table: &str, rs_rel: &str, rs: &str, guard: &str) -> Vec<String> {
+    let mut bad = Vec::new();
+    let Some(body) = c.split_once(&format!("{table}[] = {{")).and_then(|(_, r)| r.split_once("};")).map(|(b, _)| b) else {
+        return vec![format!("{c_rel}: nodev-gates: no table {table}")];
+    };
+    let mut gated = std::collections::BTreeSet::new();
+    let mut ops = std::collections::BTreeSet::new();
+    for entry in body.split('{').skip(1) {
+        let Some((name, f)) = entry.split_once(',') else { continue };
+        let (name, f) = (name.trim().trim_end_matches(['}', ' ']).trim_matches('"'), f.trim().trim_end_matches(['}', ',', ' ', '\n']).trim());
+        if name == "0" || name.is_empty() {
+            continue;
+        }
+        ops.insert(name.to_string());
+        // (the op's function, to its first closing brace at the line's start)
+        let Some(func) = c.split_once(&format!("static void {f}(void) {{")).and_then(|(_, r)| r.split_once("\n}")).map(|(b, _)| b) else {
+            bad.push(format!("{c_rel}: nodev-gates: {name}'s function {f} not found"));
+            continue;
+        };
+        if func.contains("if (!on12) { out(\"nodev\\n\"); return; }") {
+            gated.insert(name.to_string());
+        }
+    }
+    let arm = rs.lines().find(|l| l.trim_end().ends_with(&format!("if {guard} => {{")));
+    let Some(arm) = arm else { return vec![format!("{rs_rel}: nodev-gates: no arm guarded {guard}")] };
+    let model: std::collections::BTreeSet<String> = arm.split('"').skip(1).step_by(2).map(str::to_string).collect();
+    for n in gated.difference(&model) {
+        bad.push(format!("{rs_rel}: nodev-gates: the executor answers nodev to {n} without a device ({c_rel}); the model's `if {guard}` arm does not name it"));
+    }
+    for n in model.difference(&gated) {
+        let why = if ops.contains(n) { "the executor's function runs it without a device" } else { "the executor has no such op" };
+        bad.push(format!("{rs_rel}: nodev-gates: the model answers nodev to {n} without a device, but {why} ({c_rel})"));
+    }
+    bad
+}
+
 /// (file, capacity): the cuts allowed
 pub const CUTS: &[(&str, &str)] = &[("runner/main.c", "MAXTOK")];
 static WAIT: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"(?m)^\s*(ID3D12CommandQueue_Signal|ID3D12Fence_SetEventOnCompletion|WaitForSingleObject)\s*\("));
@@ -295,6 +468,9 @@ pub fn rust(rel: &str, text: &str) -> Vec<String> {
         }
     }
     bad.extend(confined(rel, &code, text));
+    if rel.starts_with("src/lean/") {
+        bad.extend(code.match_indices("XorShift32").map(|(at, _)| format!("{rel}:{}: lean-sampler: a mirror's samples come from rng::Sample64 (64 bits a draw), not the cases' 32-bit XorShift32", line_of(text, at))));
+    }
     // (string literals kept: a match arm is known by its string)
     let with_strings = code_only(text, true);
     for &(file, pat, why) in FORBIDDEN.iter().filter(|f| f.0 == rel) {
@@ -337,6 +513,14 @@ pub fn rust(rel: &str, text: &str) -> Vec<String> {
         }
     }
     bad
+}
+
+/// `zip-unchecked`: a test (tests/*.rs) pairs two sequences with pairs::zip_eq, which fails on
+/// unequal lengths, never `.zip(`, which stops at the shorter and so compares nothing of an
+/// output that lost its lines (the review of 84b05c8, 4.3)
+pub fn test_rust(rel: &str, text: &str) -> Vec<String> {
+    let code = code_only(text, false);
+    code.match_indices(".zip(").map(|(at, _)| format!("{rel}:{}: zip-unchecked: pairs::zip_eq(a, b) (equal lengths or the test fails), not a.zip(b), which stops at the shorter", line_of(text, at))).collect()
 }
 
 /// C with its comments blanked (string literals kept), positions kept
@@ -442,6 +626,10 @@ pub fn check(root: &Path) -> Result<(), String> {
             bad.push(format!("{f}: listed in MODEL_USES_GENERATORS but gone: take its line out"));
         }
     }
+    for &(c_rel, table, rs_rel, guard) in NODEV_GATES {
+        let read = |f: &str| std::fs::read_to_string(root.join(f)).map_err(|e| format!("{f}: {e}"));
+        bad.extend(nodev_gates(c_rel, &read(c_rel)?, table, rs_rel, &read(rs_rel)?, guard));
+    }
     // (files outside src/ that a forbidden construction names)
     for f in FORBIDDEN.iter().map(|f| f.0).filter(|f| !f.starts_with("src/")) {
         match std::fs::read_to_string(root.join(f)) {
@@ -451,6 +639,22 @@ pub fn check(root: &Path) -> Result<(), String> {
             }
             Err(e) => bad.push(format!("{f}: {e}")),
         }
+    }
+    // (the tests' comparisons: tests/*.rs)
+    let tests = root.join("tests");
+    let mut nt = 0usize;
+    for e in std::fs::read_dir(&tests).map_err(|e| format!("{}: {e}", tests.display()))? {
+        let p = e.map_err(|e| format!("{}: {e}", tests.display()))?.path();
+        if p.extension().and_then(|x| x.to_str()) != Some("rs") {
+            continue;
+        }
+        let rel = p.strip_prefix(root).map_err(|e| e.to_string())?.to_string_lossy().replace('\\', "/");
+        let text = std::fs::read_to_string(&p).map_err(|e| format!("{rel}: {e}"))?;
+        bad.extend(test_rust(&rel, &text));
+        nt = nt.saturating_add(1);
+    }
+    if nt == 0 {
+        bad.push("tests/: no tests found".into());
     }
     let lib = std::fs::read_to_string(root.join("src/lib.rs")).map_err(|e| format!("src/lib.rs: {e}"))?;
     bad.extend(kani_gates(&rust_sources, &lib));

@@ -1,6 +1,8 @@
 //! Laws of the Direct3D 9 / 8 drawing and D3DX 9 models (exhaustive over small domains,
 //! property-based elsewhere): what the documentation states as properties, whatever Windows'
 //! measured details turn out to be.
+mod pairs;
+use pairs::zip_eq;
 use kikizake::case::parse_cases;
 use kikizake::model::d3d9draw::*;
 use kikizake::model::d3dx9::{decl_fvf, decl_size, fvf_decl, fvf_size};
@@ -254,7 +256,7 @@ fn tiny_halves_round_the_sum_first() {
     let windows = [1u16, 1, 2, 3, 4, 5, 9, 0x10];
     // (what the shift of the mantissa, plus 0xfff, gave: the model before)
     let shift = [0u16, 0, 1, 2, 3, 4, 8, 0xf];
-    for ((&x, &w), &sh) in x.iter().zip(&windows).zip(&shift) {
+    for ((&x, &w), &sh) in zip_eq(zip_eq(x.iter(), &windows), &shift) {
         assert_eq!(f16_sse(x), w, "{x:#x}");
         let shifted = ((0x80_0000 | x & 0x7f_ffff) >> (113 - (x >> 23))).wrapping_add(0xfff) >> 13;
         assert_eq!(shifted, u32::from(sh), "{x:#x}");

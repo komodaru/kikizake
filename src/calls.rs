@@ -279,6 +279,46 @@ impl CasesHash {
     }
 }
 
+/// the architecture a recording was made on
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Arch {
+    X86,
+    X64,
+}
+
+/// what a recording records: `<suite>-32` or `<suite>-64`, a file's name (without .txt) and its
+/// header's name alike
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct RecName {
+    pub suite: String,
+    pub arch: Arch,
+}
+
+impl RecName {
+    pub fn parse(s: &str) -> Result<RecName, String> {
+        let (suite, arch) = s.rsplit_once('-').ok_or_else(|| format!("{s:?} is not <suite>-32 or <suite>-64"))?;
+        let arch = match arch {
+            "32" => Arch::X86,
+            "64" => Arch::X64,
+            _ => return Err(format!("{s:?}: no architecture {arch:?} (32 or 64)")),
+        };
+        if suite.is_empty() || !suite.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_') {
+            return Err(format!("{s:?}: no suite {suite:?}"));
+        }
+        Ok(RecName { suite: suite.to_string(), arch })
+    }
+}
+
+impl fmt::Display for RecName {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let bits = match self.arch {
+            Arch::X86 => 32,
+            Arch::X64 => 64,
+        };
+        write!(f, "{}-{bits}", self.suite)
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Header {
     /// <suite>-<arch>
@@ -1071,7 +1111,27 @@ pub fn check_dir(dir: &std::path::Path, root: &std::path::Path) -> Check {
                 continue;
             }
         };
-        let suite = n.rsplit_once('-').map_or(n.as_str(), |(s, _)| s);
+        // (the file's name and the header's say the same suite and architecture: the review of
+        // 84b05c8, 4.2: a 32-bit recording copied to the 64-bit name passed as the 64-bit one)
+        let file = match RecName::parse(n) {
+            Ok(f) => f,
+            Err(e) => {
+                ch.ops.push(format!("{n}: the file's name: {e}"));
+                continue;
+            }
+        };
+        match RecName::parse(&rec.header.name) {
+            Ok(h) if h == file => {}
+            Ok(h) => {
+                ch.ops.push(format!("{n}: its header says it records {h}, not {file}"));
+                continue;
+            }
+            Err(e) => {
+                ch.ops.push(format!("{n}: its header's name: {e}"));
+                continue;
+            }
+        }
+        let suite = file.suite.as_str();
         let Ok(text) = std::fs::read_to_string(root.join(format!("cases/{suite}.txt"))) else {
             ch.info.push((n.clone(), "no such suite".into()));
             continue;

@@ -1,5 +1,7 @@
 //! Laws of the Direct3D 10/11 models (conversions, the rasterizer), apart from Windows' answers:
 //! exhaustive over the small formats, properties over the rest.
+mod pairs;
+use pairs::zip_eq;
 use kikizake::case::parse_cases;
 use kikizake::generators::d3ddraw::{shader, Prog};
 use kikizake::generators::dxbc::hex;
@@ -84,7 +86,7 @@ proptest! {
         let big = r.max(g).max(b);
         // (the shared exponent: every channel within an ulp of the largest's 9-bit mantissa)
         let ulp = 2f32.powi((big.log2().floor() as i32) - 8).max(2f32.powi(-24));
-        for (x, y) in [r, g, b].iter().zip(back) {
+        for (x, y) in zip_eq([r, g, b].iter(), back) {
             prop_assert!((x - y).abs() <= ulp * 1.01, "{} {} ulp {}", x, y, ulp);
         }
     }
@@ -443,4 +445,63 @@ fn a_reused_slot_keeps_its_new_texture() {
         let got = run_case(&parse_cases(&format!("case p\n{text}end\n"))[0]).unwrap();
         assert_eq!(got.last().map(String::as_str), Some("00000000"), "{dev}: {got:?}");
     }
+}
+
+/// D3DRASTER.HAZARD, D3DRASTER.LD.VIEW, over every view of a 2-level, 3-slice array texture and
+/// both orders (2 levels, every slice range, every level range): Load through the bound view
+/// reads zeros exactly when a subresource it reaches is the target's; else its own most
+/// detailed level of its first slice (the review of 84b05c8, 3.1, 3.2)
+#[test]
+fn a_view_drawn_into_is_unbound() {
+    let f = |v: f32| format!("{:#x}", v.to_bits());
+    let color = |slice: u32, mip: u32| [(slice + 1) as f32 / 4.0, (mip + 1) as f32 / 4.0, 0.0, 1.0];
+    let byte = |c: f32| (c * 255.0).round() as u8;
+    let mut srvs = Vec::new();
+    for mip in 0..2u32 {
+        for levels in 1..=2 - mip {
+            for first in 0..3u32 {
+                for size in 1..=3 - first {
+                    srvs.push((mip, levels, first, size));
+                }
+            }
+        }
+    }
+    let mut rtvs = Vec::new();
+    for mip in 0..2u32 {
+        for first in 0..3u32 {
+            for size in 1..=3 - first {
+                rtvs.push((mip, first, size));
+            }
+        }
+    }
+    let mut n = 0;
+    for &(sm, sl, sf, ss) in &srvs {
+        for &(rm, rf, rs) in &rtvs {
+            for srv_first in [true, false] {
+                let mut s = String::from("case h\ndevice11\ntex 0 2 4 4 1 1 28 0 0x20 0 0 1 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntex 1 2 4 4 3 2 28 0 0x28 0 0 1 0\n");
+                for slice in 0..3 {
+                    for mip in 0..2 {
+                        let c = color(slice, mip);
+                        s += &format!("rtv 9 1 28 5 {mip} {slice} 1\nclear 9 {} {} {} {}\n", f(c[0]), f(c[1]), f(c[2]), f(c[3]));
+                    }
+                }
+                s += &format!("srv 5 1 28 5 {sm} {sl} {sf} {ss}\nrtv 2 1 28 5 {rm} {rf} {rs}\n");
+                s += if srv_first { "tsrv 5\ntarget 2\n" } else { "target 2\ntsrv 5\n" };
+                s += &format!("target 0\nshader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\n", hex(&shader(Prog::Vs)), hex(&shader(Prog::Psld)));
+                s += &format!("viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0\n", f(4.0), f(4.0), f(1.0));
+                for (x, y) in [(-1.0f32, 1.0f32), (1.0, 1.0), (-1.0, -1.0), (1.0, -1.0)] {
+                    s += &format!("vtx {} {} {} {} 0 0 0 {}\n", f(x), f(y), f(0.5), f(1.0), f(1.0));
+                }
+                s += "draw 5 4 32\nread 0 0 16 4 1\nend\n";
+                let out = run_case(&parse_cases(&s)[0]).unwrap();
+                let first_px = out.iter().rev().nth(3).unwrap()[..8].to_string();
+                let meet = sm < rm + 1 && rm < sm + sl && sf < rf + rs && rf < sf + ss;
+                let c = color(sf, sm);
+                let want = if meet { "00000000".to_string() } else { format!("{:02x}{:02x}{:02x}{:02x}", byte(c[0]), byte(c[1]), byte(c[2]), byte(c[3])) };
+                assert_eq!(first_px, want, "srv {sm} {sl} {sf} {ss}, rtv {rm} {rf} {rs}, srv first {srv_first}");
+                n += 1;
+            }
+        }
+    }
+    assert_eq!(n, 18 * 12 * 2);
 }

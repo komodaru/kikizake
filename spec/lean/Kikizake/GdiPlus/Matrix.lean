@@ -155,6 +155,15 @@ def floorNat (x : Nat) : Nat := let (s, n, d) := Float.toRat F x; if s then 0 el
 def mix64 (r : Ops) (s d rest : Nat) : Nat :=
   floorNat (r.add (r.mul (r.add (r.div (F32.ofNat s) k8192) (r.mul (r.div (F32.ofNat d) k8192) rest)) k8192) half) % 65536
 
+/-- GP.MATRIX.INVERT: a determinant past the largest float (2^127 squared) is infinite to nearest and
+inverts to zeros; rounded down it stays the largest float, its reciprocal finite; a determinant
+whose reciprocal is infinite (2^-70 squared) has no inverse either way -/
+theorem inverse_nonfinite :
+    inverse nearest [0x7f000000, 0, 0, 0x7f000000, one, 0] = some [0, 0x80000000, 0x80000000, 0, 0x80000000, 0] ∧
+    inverse down [0x7f000000, 0, 0, 0x7f000000, one, 0] = some [half, 0x80000000, 0x80000000, half, 0xbf000000, 0x80000000] ∧
+    inverse nearest [0x1c800000, 0, 0, 0x1c800000, 0, 0] = none ∧ inverse down [0x1c800000, 0, 0, 0x1c800000, 0, 0] = none := by
+  decide
+
 /-- GP.FILL.GAMMA.X64: rounding down, an opaque source's word (alpha word 8192) replaces the
 destination's, a clear one (alpha word 0) leaves it, at every multiple of 1024 -/
 theorem gamma64_ends : ∀ k : Fin 9,

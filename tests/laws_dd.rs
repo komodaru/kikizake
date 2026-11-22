@@ -1,6 +1,8 @@
 //! Properties of the DirectDraw and Direct3D 1/2/3/7 models (src/model/ddraw.rs, d3d7.rs) that
 //! hold whatever the measured details: exhaustive over small domains, property-based elsewhere.
 //! With Windows' answers they are what cargo-mutants counts on to catch mutants of the models.
+mod pairs;
+use pairs::zip_eq;
 use proptest::prelude::*;
 use kikizake::case::{parse_cases, parse_output, tokens};
 use kikizake::model::d3d7::{clear_z, f32_past, SlopeRound, gouraud_channel, line, pixel, rs_default, tri_z, tri_z_write, Depth, Family, Fmt, Ver};
@@ -155,6 +157,22 @@ proptest! {
         }
     }
 
+    /// the software walk of a triangle inside the target (d3dim700's NoClip walker, spans
+    /// unclamped): no pixel left of the target's left side, above or below it, nor more than one
+    /// column past its right side, so a span reaches at most the first byte after a row (D3D7.TRI.CLIP:
+    /// the 24-bit pixel across a row's end is never reached; d3d7spill*: column w on the last row)
+    #[test]
+    fn soft_walk_overruns_by_one_column_at_most(v in prop::array::uniform6(0i64..=320), w in 1i64..=20, h in 1i64..=20) {
+        use kikizake::model::d3dim::{raster, Clip, Vert};
+        let (wx, hy) = (w * 16, h * 16);
+        let vert = |i: usize| Vert { x: (v[2 * i] % (wx + 1)) as f32 / 16.0, y: (v[2 * i + 1] % (hy + 1)) as f32 / 16.0, c: [0x80; 4] };
+        let clip = Clip { l: 0, t: 0, r: w, b: h };
+        let Some(r) = raster([vert(0), vert(1), vert(2)], clip, false).unwrap() else { return Ok(()) };
+        for q in &r.px {
+            prop_assert!((0..=w).contains(&q.x) && (0..h).contains(&q.y), "{v:?} {w}x{h}: ({}, {})", q.x, q.y);
+        }
+    }
+
     /// the software rasterizers' Gouraud spans (crate::model::d3dim, D3D7.GOURAUD): each pixel's
     /// 8.8 colour, inside or across the target, lies within the f32 error and the truncated
     /// per-pixel step of the exact colour plane at that pixel (a level and an eighth, plus the
@@ -248,7 +266,9 @@ proptest! {
         let (w, h) = (12.0f32, 12.0f32);
         let inside = |t: &Tl| (0.0..w).contains(&t.sx) && (0.0..h).contains(&t.sy);
         let out = clip_line([a, b], w, h);
-        if (a.sx < 0.0 && b.sx < 0.0) || (a.sx >= w && b.sx >= w) || (a.sy < 0.0 && b.sy < 0.0) || (a.sy >= h && b.sy >= h) {
+        // (both ends on the right or bottom side itself, outside by the outcodes but on the
+        // plane: kept, with no pixel in the target either way)
+        if (a.sx < 0.0 && b.sx < 0.0) || (a.sx > w && b.sx > w) || (a.sy < 0.0 && b.sy < 0.0) || (a.sy > h && b.sy > h) {
             prop_assert!(out.is_none(), "{v:?}");
         }
         let Some([p, q]) = out else { return Ok(()) };
@@ -260,6 +280,90 @@ proptest! {
             let (dx, dy) = (b.sx - a.sx, b.sy - a.sy);
             let cross = ((got.sx - a.sx) * dy - (got.sy - a.sy) * dx).abs() / (dx * dx + dy * dy).sqrt().max(1e-3);
             prop_assert!(cross < 1e-2, "{v:?}: {got:?} off the segment by {cross}");
+        }
+    }
+
+    /// a software line with an end past the guard band (d3d7dev farline-*: its walk whole): in a
+    /// 12 × 12 target at most one pixel per column of its major axis, each within a pixel of the
+    /// exact segment, and one in every major column the segment crosses well inside the target
+    #[test]
+    fn far_soft_lines_stay_on_the_segment(far in -400_000i64..400_000, side in 0usize..4, inner in prop::array::uniform2(0i64..192), mmx in any::<bool>()) {
+        use kikizake::model::d3d7::{line, Family};
+        let (fx, fy) = [(-66_000 - far.abs(), far), (66_000 + far.abs(), far), (far, -66_000 - far.abs()), (far, 66_000 + far.abs())][side];
+        let (a, b) = ((fx, fy), (inner[0], inner[1]));
+        let cover = line(Family::Soft { mmx }, [a, b], true, 12, 12).unwrap();
+        let px: Vec<(i64, i64)> = cover.iter().enumerate().filter(|&(_, &c)| c).map(|(k, _)| (k as i64 % 12, k as i64 / 12)).collect();
+        let xmajor = (b.0 - a.0).abs() >= (b.1 - a.1).abs();
+        let (ax, ay, bx, by) = (a.0 as f64 / 16.0, a.1 as f64 / 16.0, b.0 as f64 / 16.0, b.1 as f64 / 16.0);
+        let len = ((bx - ax).powi(2) + (by - ay).powi(2)).sqrt();
+        let mut seen = std::collections::BTreeSet::new();
+        for &(x, y) in &px {
+            prop_assert!(seen.insert(if xmajor { x } else { y }), "{a:?} {b:?}: two pixels in one major column");
+            // (a software line's pixel centres on the whole coordinates: d3dim700's (v + 7) >> 4)
+            let (cx, cy) = (x as f64, y as f64);
+            let d = ((cx - ax) * (by - ay) - (cy - ay) * (bx - ax)).abs() / len;
+            prop_assert!(d < 1.0, "{a:?} {b:?}: ({x}, {y}) {d} off the segment");
+        }
+        // (a major column whose centre the segment crosses at least a pixel inside the target
+        // on both axes, short of the inner end)
+        for m in 1..11i64 {
+            let c = m as f64;
+            let (s0, s1, e) = if xmajor { (ax, bx, (ay, by)) } else { (ay, by, (ax, bx)) };
+            let t = (c - s0) / (s1 - s0);
+            let o = e.0 + t * (e.1 - e.0);
+            let short = if xmajor { (c - bx).abs() > 1.0 } else { (c - by).abs() > 1.0 };
+            if (0.0..1.0).contains(&t) && (0.5..10.5).contains(&o) && short {
+                prop_assert!(seen.contains(&m), "{a:?} {b:?}: column {m} missed");
+            }
+        }
+    }
+
+    /// d3dim700's cut of a line at the guard band (d3d7dev farcolour-7-*): the ends it keeps lie
+    /// in the band (in 28.4, after the snap), on the segment within a 16th, an end inside kept
+    /// as it is, and each cut colour between the ends' bytes
+    #[test]
+    fn guard_cut_stays_on_the_segment(a in prop::array::uniform2(-400_000i64..400_000), b in prop::array::uniform2(-2000i64..2000), ca in any::<[u8; 4]>(), cb in any::<[u8; 4]>()) {
+        use kikizake::model::d3d7::guard_clip;
+        let (pa, pb) = ((a[0], a[1]), (b[0], b[1]));
+        let Some((e, cs)) = guard_clip([(pa, ca), (pb, cb)]).unwrap() else {
+            prop_assert!(false, "{pa:?} {pb:?}: a line with an end inside dropped");
+            return Ok(());
+        };
+        // (trunc(16·x + 1/2) toward zero: an end left of or above 0 a 16th nearer it)
+        let snap = |v: i64| if v < 0 { v + 1 } else { v };
+        prop_assert!(e[1] == (snap(pb.0), snap(pb.1)), "{pa:?} {pb:?}: the inside end moved to {:?}", e[1]);
+        prop_assert!(cs[1] == cb);
+        let band = -4096 * 16..=4095 * 16;
+        prop_assert!(band.contains(&e[0].0) && band.contains(&e[0].1), "{pa:?} {pb:?}: {:?}", e[0]);
+        let (dx, dy) = ((pb.0 - pa.0) as f64, (pb.1 - pa.1) as f64);
+        let cross = (((e[0].0 - pa.0) as f64) * dy - ((e[0].1 - pa.1) as f64) * dx).abs() / (dx * dx + dy * dy).sqrt().max(1.0);
+        prop_assert!(cross <= 1.0 + 1e-3 * (dx.abs() + dy.abs()) / 16.0, "{pa:?} {pb:?}: {:?} off by {cross} 16ths", e[0]);
+        for k in 0..4 {
+            prop_assert!(cs[0][k] >= ca[k].min(cb[k]) && cs[0][k] <= ca[k].max(cb[k]), "{pa:?} {pb:?} channel {k}");
+        }
+    }
+
+    /// WARP's line clip (clean-room notes F): ends inside the viewport (x + 1/2 in 0..w) kept
+    /// exactly, cut ends on the viewport's closed sides and within a 256th or so of the segment,
+    /// and an attribute cut between its ends' values
+    #[test]
+    fn warp_line_cut_stays_on_the_segment(v in prop::array::uniform4(-2000i64..2000), a in prop::array::uniform2(0.0f32..1.0)) {
+        use kikizake::model::warp::cut_line;
+        let (p, q) = ((v[0], v[1]), (v[2], v[3]));
+        let Some(c) = cut_line([p, q], [[a[0]], [a[1]]], 12, 12).unwrap() else { return Ok(()) };
+        let fx = |n: i64| i128::from(n) * 16 + 128;
+        for (k, orig) in [p, q].into_iter().enumerate() {
+            let inside = (0..=12 * 256).contains(&fx(orig.0)) && (0..=12 * 256).contains(&fx(orig.1));
+            let got = c.v[k];
+            if inside {
+                prop_assert!(got == (fx(orig.0), fx(orig.1)) || got.0.abs_diff(fx(orig.0)) <= 1 && got.1.abs_diff(fx(orig.1)) <= 1, "{v:?}: {got:?}");
+            }
+            prop_assert!((-1..=12 * 256 + 1).contains(&got.0) && (-1..=12 * 256 + 1).contains(&got.1), "{v:?}: {got:?} off the viewport");
+            let (dx, dy) = ((fx(q.0) - fx(p.0)) as f64, (fx(q.1) - fx(p.1)) as f64);
+            let cross = (((got.0 - fx(p.0)) as f64) * dy - ((got.1 - fx(p.1)) as f64) * dx).abs() / (dx * dx + dy * dy).sqrt().max(1.0);
+            prop_assert!(cross <= 2.0, "{v:?}: {got:?} off the segment by {cross} 256ths");
+            let [x] = c.a[k];
+            prop_assert!(x >= a[0].min(a[1]) - 1e-6 && x <= a[0].max(a[1]) + 1e-6, "{v:?}: {x}");
         }
     }
 
@@ -498,7 +602,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 5, 0), ("d3d7shade", 0, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 0, 0), ("d3d7shade", 0, 0), ("d3d7edge", 0, 0), ("d3d7rast", 0, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -722,8 +826,8 @@ fn lines_cross_each_column_once() {
                 let (Ok(on), Ok(off), Ok(back)) = (line(family, [a, b], true, w, h), line(family, [a, b], false, w, h), line(family, [b, a], true, w, h)) else { continue };
                 drawn += 1;
                 // off draws a subset of on, missing at most one pixel
-                assert!(on.iter().zip(&off).all(|(&n, &f)| n || !f), "{a:?} {b:?}");
-                assert!(on.iter().zip(&off).filter(|(n, f)| n != f).count() <= 1, "{a:?} {b:?}");
+                assert!(zip_eq(on.iter(), &off).all(|(&n, &f)| n || !f), "{a:?} {b:?}");
+                assert!(zip_eq(on.iter(), &off).filter(|(n, f)| n != f).count() <= 1, "{a:?} {b:?}");
                 if dx == 0 && dy == 0 {
                     assert!(on.iter().all(|&c| !c));
                     continue;

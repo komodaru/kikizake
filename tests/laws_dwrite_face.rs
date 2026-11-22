@@ -2,6 +2,8 @@
 //! DW.GDI.INVALID, DW.SHAPE.*, DW.LAYOUT.NAME) over the whole domain each law names: every
 //! signature, every glyph index, every BMP character, every table and pair of tables removed
 //! from the generated fonts (kind exhaustive).
+mod pairs;
+use pairs::zip_eq;
 use kikizake::generators::dwrite::{font, CHARS};
 use kikizake::ttf::{analyze, assemble, glyph_of, parse, tables_of, FileType};
 
@@ -84,7 +86,7 @@ fn analyze_needs_the_directory_for_every_count() {
     }
     let names = [(FileType::TrueType, "supported 1 file 2 face 1 faces 1"), (FileType::Cff, "supported 1 file 1 face 0 faces 1"), (FileType::Unknown, "supported 0 file 0 face 6 faces 0")];
     let base = font(0).bytes();
-    for (sig, (_, want)) in [[0u8, 1, 0, 0], *b"OTTO", *b"wOFF"].iter().zip(names) {
+    for (sig, (_, want)) in zip_eq([[0u8, 1, 0, 0], *b"OTTO", *b"wOFF"].iter(), names) {
         let mut b = base.clone();
         b[..4].copy_from_slice(sig);
         let out = run(&format!("dwfont {}", hex(&b)));
@@ -221,7 +223,7 @@ fn placements_are_the_scaled_advance() {
         }
         let out = run(&lines);
         let places: Vec<&String> = out.iter().filter(|l| l.starts_with("place ")).collect();
-        for (em, l) in (1..=200u16).zip(places) {
+        for (em, l) in zip_eq(1..=200u16, places) {
             let s = f32::from(em) / f32::from(p.upm);
             let want: String = cs.iter().map(|&c| format!(" {:08x}/00000000/00000000", (f32::from(p.hmtx[usize::from(glyph_of(&p, c))].0) * s).to_bits())).collect();
             assert_eq!(l, &format!("place hr 00000000{want}"), "{seed} {em}");

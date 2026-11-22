@@ -15,7 +15,7 @@ use crate::spec::{clause, open};
 use super::d3d11::{normalize, Kind};
 use super::d3drules::{self as rules, covers as tri_covers, sample_pattern, sample_sub, Pick, Topo, Verdict};
 use super::d3dres::{slot, texel, D3dres, Dev, Resource, View, E_INVALIDARG};
-use super::objects::Id;
+use super::objects::{Id, Objects};
 use super::dxgiconv::{decode_f, encode, encode_bits, to_unorm};
 use super::dxgifmt::{format, Format, Num};
 use super::{Fail, Res};
@@ -86,6 +86,17 @@ fn known(b: &[u8]) -> Option<(&'static str, bool)> {
     S.with(|s| s.find(b).map(|p| (p.name(), p.vertex())))
 }
 
+/// whether reading through view `read` and writing through `write` meet in a subresource and
+/// plane (Reach::meets; views of other resources never do)
+fn meets(views: &Objects<View>, resources: &Objects<Resource>, dev: Dev, read: Id<View>, write: Id<View>) -> bool {
+    let (Ok(r), Ok(w)) = (views.get(read), views.get(write)) else { return false };
+    if r.res != w.res {
+        return false;
+    }
+    let Ok(res) = resources.get(r.res) else { return false };
+    super::d3dres::view_reach(dev, r, res).meets(&super::d3dres::view_reach(dev, w, res))
+}
+
 pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>) -> Res<()> {
     let t = op.tok.as_slice();
     let d = &mut m.draw;
@@ -149,31 +160,18 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
             };
             hit(clause::D3DRASTER_LAYOUT);
             d.layout = None;
-            let needs = match name {
-                "vs" => 2,
-                "vsid" => 1,
-                // (MEASURED: against bytes that are no program (a broken checksum), refused,
-                // probe-layout-refused)
-                "bad" => {
+            let usable: Vec<bool> = fmts.iter().map(|f| format(*f).is_some_and(|f| !f.block() && !f.video() && f.num != Num::Typeless)).collect();
+            match layout_verdict(name, &usable).ok_or(Fail::Bad)? {
+                LayoutVerdict::Made => d.layout = Some(fmts.len()),
+                LayoutVerdict::NoProgram => {
                     hit(clause::D3DRASTER_LAYOUT_BAD);
                     out.push(format!("layout hr {E_INVALIDARG:08x}"));
-                    return Ok(());
                 }
-                // (MEASURED: against a pixel program given as a vertex one, refused,
-                // probe-layout-otherkind)
-                "ps" | "psflat" | "pspos" | "psprim" | "psld" | "psldu" | "pssample" | "pssamplec" => {
+                LayoutVerdict::PixelProgram => {
                     hit(clause::D3DRASTER_LAYOUT_SIG);
                     out.push(format!("layout hr {E_INVALIDARG:08x}"));
-                    return Ok(());
                 }
-                _ => return Err(Fail::Bad),
-            };
-            // every input of the program from an element, no element of an unknown format
-            let ok = fmts.len() >= needs && fmts.iter().all(|f| format(*f).is_some_and(|f| !f.block() && !f.video() && f.num != Num::Typeless));
-            if ok {
-                d.layout = Some(fmts.len());
-            } else {
-                out.push(format!("layout hr {E_INVALIDARG:08x}"));
+                LayoutVerdict::Unfed => out.push(format!("layout hr {E_INVALIDARG:08x}")),
             }
         }
         DrawOp::Target => {
@@ -219,6 +217,12 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
             };
             d.target = target;
             d.depth = depth;
+            // (a shader resource view that reaches what is now drawn into is unbound,
+            // OMSetRenderTargets; the call refused above (Bind::Keep) unbinds nothing)
+            if let Some(sv) = d.srv && [target, depth].into_iter().flatten().any(|w| meets(&m.views, &m.res, dev, sv, w)) {
+                hit(clause::D3DRASTER_HAZARD);
+                d.srv = None;
+            }
         }
         DrawOp::Viewport => {
             if t.len() != 7 {
@@ -235,7 +239,7 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
                     if *x < 0.0 && x.fract() != 0.0 {
                         hit(clause::D3DRASTER_VP10);
                     }
-                    *x = x.trunc();
+                    *x = vp10(*x);
                 }
             }
             hit(clause::D3DRASTER_VIEWPORT);
@@ -295,7 +299,14 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
                 return Err(Fail::Bad);
             }
             if let Some(i) = m.views.id(v).filter(|&i| m.views.get(i).is_ok_and(|x| x.kind == 0)) {
-                d.srv = Some(i);
+                // (one that reaches a bound target or depth view is bound as NULL,
+                // PSSetShaderResources)
+                if [d.target, d.depth].into_iter().flatten().any(|w| meets(&m.views, &m.res, dev, i, w)) {
+                    hit(clause::D3DRASTER_HAZARD);
+                    d.srv = None;
+                } else {
+                    d.srv = Some(i);
+                }
             } else {
                 out.push("tsrv noview".into());
             }
@@ -668,16 +679,14 @@ impl Target<'_> {
     /// a depth onto the viewport's range, clamped
     fn clamp_depth(&self, z: f32) -> f32 {
         let [_, _, _, _, minz, maxz] = self.vp;
-        let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
-        // (max and min, not clamp: a range of NaN leaves the value)
-        z.max(lo).min(hi)
+        clamp_range(minz, maxz, z)
     }
 
     fn put(&self, m: &mut D3dres, d: &Draw, (px, py): (i64, i64), z: f32, out: [u32; 4]) -> Res<()> {
         let at = (usize::try_from(px).unwrap_or(0), usize::try_from(py).unwrap_or(0), self.size.0 as usize);
         match self.samples {
             // (on a multisampled target every sample of the pixel, D3DRASTER.MS.LINES)
-            Some(pattern) => put_samples(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), None, out, &vec![true; pattern.len()]),
+            Some(pattern) => put_samples(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), None, out, &line_samples(false, &vec![false; pattern.len()])),
             None => output(m, self.dev, d, self.view, self.fmt, self.sub, self.dsv, at, Some(z), out),
         }
     }
@@ -773,8 +782,8 @@ fn snap256(v: f32) -> i64 {
 
 /// a clip position through the viewport transform, snapped
 fn snapped(vp: [f32; 6], q: &[f32; 4]) -> Sub {
-    let [vx, vy, vw, vh, _, _] = vp;
-    Sub { x: snap256(vx + (q[0] / q[3] + 1.0) * (vw * 0.5)), y: snap256(vy + (1.0 - q[1] / q[3]) * (vh * 0.5)) }
+    let (x, y) = viewport_xy(vp, q);
+    Sub { x, y }
 }
 
 /// whether a point's or a line's vertex leaves it to draw
@@ -947,8 +956,97 @@ impl LineMode {
     }
 }
 
+/// what CreateInputLayout does with a layout against a program
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum LayoutVerdict {
+    /// made
+    Made,
+    /// (MEASURED: bytes that are no program, a broken checksum, refused E_INVALIDARG,
+    /// probe-layout-refused) D3DRASTER.LAYOUT.BAD
+    NoProgram,
+    /// (MEASURED: a pixel program given as a vertex one, refused E_INVALIDARG,
+    /// probe-layout-otherkind) D3DRASTER.LAYOUT.SIG
+    PixelProgram,
+    /// an input of the program from no element, or an element of a format no input takes:
+    /// refused E_INVALIDARG
+    Unfed,
+}
+
+/// the generator's programs CreateInputLayout is given, in the order of the mirror
+/// d3d11.layout's first argument
+pub const LAYOUT_PROGRAMS: [&str; 11] = ["vs", "vsid", "bad", "ps", "psflat", "pspos", "psprim", "psld", "psldu", "pssample", "pssamplec"];
+
+/// D3DRASTER.LAYOUT, LAYOUT.BAD, LAYOUT.SIG: an input layout of elements (each of a format an
+/// input takes or not) against the program `name`; None for a program the generator does not
+/// make
+pub fn layout_verdict(name: &str, usable: &[bool]) -> Option<LayoutVerdict> {
+    let needs = match name {
+        "vs" => 2,
+        "vsid" => 1,
+        "bad" => return Some(LayoutVerdict::NoProgram),
+        "ps" | "psflat" | "pspos" | "psprim" | "psld" | "psldu" | "pssample" | "pssamplec" => return Some(LayoutVerdict::PixelProgram),
+        _ => return None,
+    };
+    // every input of the program from an element, no element of an unknown format
+    Some(if usable.len() >= needs && usable.iter().all(|&u| u) { LayoutVerdict::Made } else { LayoutVerdict::Unfed })
+}
+
 /// half the width of a multisample line, in pixels
 const QUAD_HALF: f32 = 0.7;
+
+/// D3DRASTER.LINE: the major axis of a line from a to b: y when |dy| > |dx|
+fn major_of(a: Sub, b: Sub) -> Major {
+    if (b.y - a.y).abs() > (b.x - a.x).abs() { Major::Y } else { Major::X }
+}
+
+/// D3DRASTER.LINE, LINE.END: an aliased line from a to b (1/256 pixels) lights the pixel, by
+/// its major axis, its ends moved out of their diamonds and the crossing tests
+pub fn line_covers(a: (i64, i64), b: (i64, i64), px: (i64, i64)) -> bool {
+    let (a, b) = (Sub { x: a.0, y: a.1 }, Sub { x: b.0, y: b.1 });
+    Cover::of(a, b, major_of(a, b)).covers(px)
+}
+
+/// D3DRASTER.LINE.QUAD: a multisample line's corners a + n, b + n, b - n, a - n (n the normal
+/// of length 0.7, in f32), snapped
+pub fn quad_corners(a: (i64, i64), b: (i64, i64)) -> [(i64, i64); 4] {
+    let (ax, ay, bx, by) = (pixels(a.0), pixels(a.1), pixels(b.0), pixels(b.1));
+    let (dx, dy) = (bx - ax, by - ay);
+    let k = QUAD_HALF / (dx * dx + dy * dy).sqrt();
+    let (nx, ny) = (-dy * k, dx * k);
+    let q = |x: f32, y: f32| (snap256(x), snap256(y));
+    [q(ax + nx, ay + ny), q(bx + nx, by + ny), q(bx - nx, by - ny), q(ax - nx, ay - ny)]
+}
+
+/// D3DRASTER.LINE.ALPHA: an alpha antialiased line's corners a - o, a + o, b + o, b - o, o the
+/// normal (dy, -dx) 2 / length in f32 snapped to 1/256
+pub fn alpha_corners(a: (i64, i64), b: (i64, i64)) -> [(i64, i64); 4] {
+    let f = pixels;
+    let (dyf, ndx) = (f(b.1 - a.1), f(a.0 - b.0));
+    let len = (ndx * ndx + dyf * dyf).sqrt();
+    let k = 2.0 / len;
+    let (ox, oy) = (snap_even(dyf * k), snap_even(ndx * k));
+    [(a.0 - ox, a.1 - oy), (a.0 + ox, a.1 + oy), (b.0 + ox, b.1 + oy), (b.0 - ox, b.1 - oy)]
+}
+
+/// D3DRASTER.LINE.ALPHA: the coverage of an alpha antialiased line from a to b at the pixel:
+/// the distance s from the line, its plane in f32 (A, B, C = (dy, -dx, y0 dx - x0 dy) /
+/// sqrt(dx^2 + dy^2)), clamp((1.5 - |s|) 0.45, 0, 1)
+pub fn alpha_coverage(a: (i64, i64), b: (i64, i64), (px, py): (i64, i64)) -> f32 {
+    let f = pixels;
+    let (dyf, dx) = (f(b.1 - a.1), f(b.0 - a.0));
+    let (a0, b0) = (dyf, -dx);
+    let c0 = f(a.1) * dx - f(a.0) * dyf;
+    let inv = 1.0 / (b0 * b0 + dyf * dyf).sqrt();
+    let (a, b, c) = (inv * a0, inv * b0, inv * c0);
+    let s = a * (center_of(px)) + (b * (center_of(py)) + c);
+    ((1.5 - s.abs()) * f32::from_bits(0x3EE6_6666)).clamp(0.0, 1.0)
+}
+
+/// D3DRASTER.MS.LINES: the samples a line writes at a pixel it lights: with the multisample
+/// state those its quad covers, else every one
+pub fn line_samples(multisample: bool, covered: &[bool]) -> Vec<bool> {
+    if multisample { covered.to_vec() } else { vec![true; covered.len()] }
+}
 
 /// the major axis of a line: x when |dx| >= |dy|
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -1073,12 +1171,8 @@ impl Line {
 
     /// the quad's two triangles: corners in 1/256 pixels, and whether each is at b
     fn quad_tris(&self) -> [[((i64, i64), bool); 3]; 2] {
-        let (ax, ay, bx, by) = (pixels(self.a.x), pixels(self.a.y), pixels(self.b.x), pixels(self.b.y));
-        let (dx, dy) = (bx - ax, by - ay);
-        let k = QUAD_HALF / (dx * dx + dy * dy).sqrt();
-        let (nx, ny) = (-dy * k, dx * k);
-        let q = |x: f32, y: f32| (snap256(x), snap256(y));
-        let corner = [(q(ax + nx, ay + ny), false), (q(bx + nx, by + ny), true), (q(bx - nx, by - ny), true), (q(ax - nx, ay - ny), false)];
+        let c = quad_corners((self.a.x, self.a.y), (self.b.x, self.b.y));
+        let corner = [(c[0], false), (c[1], true), (c[2], true), (c[3], false)];
         [[0, 1, 2], [0, 2, 3]].map(|t| t.map(|i| corner[i]))
     }
 
@@ -1093,28 +1187,16 @@ impl Line {
     /// f32 snapped to 1/256 as o, the corners a - o, a + o, b + o, b - o as two triangles
     /// (0, 1, 2) and (0, 2, 3) by the top-left rule
     fn alpha_tris(&self) -> [[((i64, i64), bool); 3]; 2] {
-        let f = pixels;
-        let (dyf, ndx) = (f(self.b.y - self.a.y), f(self.a.x - self.b.x));
-        let len = (ndx * ndx + dyf * dyf).sqrt();
-        let k = 2.0 / len;
-        let (ox, oy) = (snap_even(dyf * k), snap_even(ndx * k));
-        let (a, b) = ((self.a.x, self.a.y), (self.b.x, self.b.y));
-        let corner = [((a.0 - ox, a.1 - oy), false), ((a.0 + ox, a.1 + oy), false), ((b.0 + ox, b.1 + oy), true), ((b.0 - ox, b.1 - oy), true)];
+        let c = alpha_corners((self.a.x, self.a.y), (self.b.x, self.b.y));
+        let corner = [(c[0], false), (c[1], false), (c[2], true), (c[3], true)];
         [[0, 1, 2], [0, 2, 3]].map(|t| t.map(|i| corner[i]))
     }
 
     /// (MEASURED, WARP: probe-linesaa-*, probe-lines-aa) the coverage of an alpha
     /// antialiased line at the pixel: the distance s from the line, its plane in f32 (A, B, C
     /// = (dy, -dx, y0 dx - x0 dy) / sqrt(dx^2 + dy^2)), clamp((1.5 - |s|) 0.45, 0, 1)
-    fn alpha_cover(&self, (px, py): (i64, i64)) -> f32 {
-        let f = pixels;
-        let (dyf, dx) = (f(self.b.y - self.a.y), f(self.b.x - self.a.x));
-        let (a0, b0) = (dyf, -dx);
-        let c0 = f(self.a.y) * dx - f(self.a.x) * dyf;
-        let inv = 1.0 / (b0 * b0 + dyf * dyf).sqrt();
-        let (a, b, c) = (inv * a0, inv * b0, inv * c0);
-        let s = a * (center_of(px)) + (b * (center_of(py)) + c);
-        ((1.5 - s.abs()) * f32::from_bits(0x3EE6_6666)).clamp(0.0, 1.0)
+    fn alpha_cover(&self, px: (i64, i64)) -> f32 {
+        alpha_coverage((self.a.x, self.a.y), (self.b.x, self.b.y), px)
     }
 
     /// the samples the triangles cover and the planes of the triangle covering the first
@@ -1156,11 +1238,7 @@ impl Line {
     /// a value along the major axis at the pixel center, as for the color
     fn plane(&self, (px, py): (i64, i64), va: f32, vb: f32) -> f32 {
         let (a, b, c) = if self.major == Major::Y { (self.a.y, self.b.y, center_of(py)) } else { (self.a.x, self.b.x, center_of(px)) };
-        let (a, b) = (pixels(a), pixels(b));
-        let g = 1.0 / (b - a);
-        let grad = (vb - va) * g;
-        let c0 = va - grad * a;
-        c0 + grad * c
+        line_value(a, b, c, va, vb)
     }
 
     /// (MEASURED, WARP: probe-line-clip-z) the depth along the line: the ends' depths planed
@@ -1252,7 +1330,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         let inside = |z: f32| (0.0..=1.0).contains(&z);
         let behind = !(s.a.pos[3] > 0.0 && s.b.pos[3] > 0.0);
         let zclip = s.clip == SegClip::Line && !behind && d.rast[6] != 0 && !(inside(za) && inside(zb));
-        if zclip && (za < 0.0 && zb < 0.0 || za > 1.0 && zb > 1.0) {
+        if zclip && depth_away(&[za, zb]) {
             hit(clause::D3DRASTER_DEPTHCLIP);
             continue;
         }
@@ -1284,7 +1362,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         };
         let zs = |v: &Vert| {
             let [_, _, _, _, minz, maxz] = tg.vp;
-            minz + v.pos[2] * (1.0 / v.pos[3]) * (maxz - minz)
+            vertex_depth(minz, maxz, v.pos[2], v.pos[3])
         };
         let (pa, pb) = (snapped(tg.vp, &a.pos), snapped(tg.vp, &b.pos));
         if pa == pb {
@@ -1292,7 +1370,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
             hit(clause::D3DRASTER_DEGENERATE);
             continue;
         }
-        let major = if (pb.y - pa.y).abs() > (pb.x - pa.x).abs() { Major::Y } else { Major::X };
+        let major = major_of(pa, pb);
         let cover = Cover::of(pa, pb, major);
         ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, iwa: 1.0 / a.pos[3], iwb: 1.0 / b.pos[3], lead: s.lead.color, prim: s.prim, front: s.front, w: (a.pos[3] == b.pos[3]).then_some(a.pos[3]), major, cover, z: [zs(&a), zs(&b)] });
     }
@@ -1312,7 +1390,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                     },
                     // (on a multisampled target the samples the quad covers, D3DRASTER.MS.LINES)
                     (LineMode::Quad, Some(pattern)) => match l.quad_at((px, py), pattern) {
-                        (mask, Some(p)) => (Some(p), Some(mask)),
+                        (mask, Some(p)) => (Some(p), Some(line_samples(true, &mask))),
                         (_, None) => continue,
                     },
                     (LineMode::Alpha, None) => match l.tris_at(l.alpha_tris(), (px, py), &[(0, 0)]).1 {
@@ -1322,7 +1400,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
                     // (MEASURED, WARP: probe-rt-ms4-linesaa) on a multisampled target the
                     // pixel center tells, for every sample
                     (LineMode::Alpha, Some(pattern)) => match l.tris_at(l.alpha_tris(), (px, py), &[(0, 0)]).1 {
-                        Some(p) => (Some(p), Some(vec![true; pattern.len()])),
+                        Some(p) => (Some(p), Some(line_samples(false, &vec![false; pattern.len()]))),
                         None => continue,
                     },
                 };
@@ -1374,7 +1452,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         return Ok(());
     }
     // (MEASURED, WARP: probe-clip-w-nan, -inf) a coordinate NaN or infinite: nothing drawn
-    if tri.iter().any(|v| v.pos.iter().any(|x| !x.is_finite())) {
+    if not_finite(tri.map(|v| v.pos)) {
         hit(clause::D3DRASTER_CLIPW_NAN);
         return Ok(());
     }
@@ -1383,13 +1461,9 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         // planes in homogeneous coordinates takes it away; what is left with no area draws
         // nothing
         let poly = clip_xy(tri.map(|v| v.pos));
-        if poly.iter().all(|q| q[3] > 0.0) {
-            let q: Vec<Sub> = poly.iter().map(|q| snapped(vp, q)).collect();
-            let area = |a: Sub, b: Sub, c: Sub| rules::area((a.x, a.y), (b.x, b.y), (c.x, c.y));
-            if (1..q.len().saturating_sub(1)).all(|i| area(q[0], q[i], q[i + 1]) == 0) {
-                hit(clause::D3DRASTER_CLIPW_AWAY);
-                return Ok(());
-            }
+        if clipped_away(vp, &poly) {
+            hit(clause::D3DRASTER_CLIPW_AWAY);
+            return Ok(());
         }
         // (MEASURED, WARP: probe-clip-w2) what is left with an area: the pieces of the
         // homogeneous clipping (then 0 <= z <= w with depth clipping on), snapped and fanned
@@ -1446,7 +1520,6 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             return Ok(());
         }
         let [vx, vy, vw, vh, minz, maxz] = vp;
-        let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
         let covering = |c: (i64, i64)| pieces.iter().find(|(t, _, _)| tri_covers(*t, c));
         for py in 0..i64::from(rh) {
             for px in 0..i64::from(rw) {
@@ -1458,7 +1531,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 let at = (index(px), index(py), index(rw));
                 let Some(pattern) = samples else {
                     if let Some((_, p, cw)) = covering(c) {
-                        let z = p.plane(p.zs, cx, cy).max(lo).min(hi);
+                        let z = clamp_range(minz, maxz, p.plane(p.zs, cx, cy));
                         let out = shade(m, ps, tri, Some(p), lead, prim, *cw != (d.rast[2] != 0), (px, py), Some(z), d)?;
                         output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, Some(z), out)?;
                     }
@@ -1471,8 +1544,8 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                     if !mask.contains(&true) {
                         continue;
                     }
-                    let z = p.plane(p.zs, cx, cy).max(lo).min(hi);
-                    let each: Vec<f32> = pattern.iter().map(|&(ox, oy)| p.plane(p.zs, cx + sixteenths(ox), cy + sixteenths(oy)).max(lo).min(hi)).collect();
+                    let z = clamp_range(minz, maxz, p.plane(p.zs, cx, cy));
+                    let each: Vec<f32> = pattern.iter().map(|&(ox, oy)| clamp_range(minz, maxz, p.plane(p.zs, cx + sixteenths(ox), cy + sixteenths(oy)))).collect();
                     let out = shade(m, ps, tri, Some(p), lead, prim, *cw != (d.rast[2] != 0), (px, py), Some(z), d)?;
                     put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, Some(z), Some(&each), out, &mask)?;
                 }
@@ -1485,7 +1558,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let inside = |z: f32| (0.0..=1.0).contains(&z);
     let mut zclip = false;
     if d.rast[6] != 0 && !zs.iter().all(|z| inside(*z)) {
-        if zs.iter().all(|z| *z < 0.0) || zs.iter().all(|z| *z > 1.0) {
+        if depth_away(&zs) {
             hit(clause::D3DRASTER_DEPTHCLIP);
             return Ok(());
         }
@@ -1545,7 +1618,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let planes = unclipped.then(|| Planes::new(tri, |q| {
         let (x, y) = snap2(q);
         (pixels(x), pixels(y))
-    }, |q| minz + q[2] * (1.0 / q[3]) * (maxz - minz)));
+    }, |q| vertex_depth(minz, maxz, q[2], q[3])));
     // (MEASURED, WARP: probe-clip-z-pos) a triangle cut by the depth range takes its depth from
     // the whole triangle's plane (D3DRASTER.INTERP.DEPTH)
     let zplanes = zclip.then(|| {
@@ -1553,7 +1626,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         Planes::new(tri, |q| {
             let (x, y) = snap2(q);
             (pixels(x), pixels(y))
-        }, |q| minz + q[2] * (1.0 / q[3]) * (maxz - minz))
+        }, |q| vertex_depth(minz, maxz, q[2], q[3]))
     });
     // the pieces, turned for the edge tests, with their planes (the whole triangle's, or the
     // fan triangle's as it comes, D3DRASTER.INTERP.CLIP)
@@ -1569,8 +1642,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         if zz.iter().any(|x| *x != zz[0]) {
             None
         } else {
-            let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
-            Some(zz[0].max(lo).min(hi))
+            Some(clamp_range(minz, maxz, zz[0]))
         }
     };
     // the pixels: inside the target, the viewport and (when on) the scissor rectangle
@@ -1611,8 +1683,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 let z = z.or_else(|| {
                     let p = planes.as_ref().or(zplanes.as_ref()).or_else(|| here(c))?;
                     hit(clause::D3DRASTER_INTERP_DEPTH);
-                    let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
-                    Some(p.plane(p.zs, cx, cy).max(lo).min(hi))
+                    Some(clamp_range(minz, maxz, p.plane(p.zs, cx, cy)))
                 });
                 let out = shade(m, ps, tri, here(c), lead, prim, front, (px, py), z, d)?;
                 output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
@@ -1629,16 +1700,15 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             let pl = here((sample_sub(px, 0), sample_sub(py, 0))).or(p);
             // (MEASURED, WARP: probe-rt-ms4-zplane) a depth that varies: its plane at each
             // sample, for the depth test; at the pixel center for the shader
-            let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
             let q = planes.as_ref().or(zplanes.as_ref()).or(pl);
             let each: Option<Vec<f32>> = match (z, q) {
                 (None, Some(q)) => {
                     hit(clause::D3DRASTER_MS_ZPLANE);
-                    Some(pattern.iter().map(|&(ox, oy)| q.plane(q.zs, cx + sixteenths(ox), cy + sixteenths(oy)).max(lo).min(hi)).collect())
+                    Some(pattern.iter().map(|&(ox, oy)| clamp_range(minz, maxz, q.plane(q.zs, cx + sixteenths(ox), cy + sixteenths(oy)))).collect())
                 }
                 (Some(_), _) | (None, None) => None,
             };
-            let z = z.or_else(|| q.map(|q| q.plane(q.zs, cx, cy).max(lo).min(hi)));
+            let z = z.or_else(|| q.map(|q| clamp_range(minz, maxz, q.plane(q.zs, cx, cy))));
             let out = shade(m, ps, tri, pl, lead, prim, front, (px, py), z, d)?;
             put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, each.as_deref(), out, &mask)?;
         }
@@ -1790,15 +1860,7 @@ impl Planes {
     }
 
     fn plane(&self, a: [f32; 3], cx: f32, cy: f32) -> f32 {
-        let ([x0, x1, x2], [y0, y1, y2]) = (self.xs, self.ys);
-        // (the doubled area exact, from the 16.8 positions, then to f32)
-        let area = (f64::from(y2 - y0) * f64::from(x1 - x0) - f64::from(y0 - y1) * f64::from(x0 - x2)) as f32;
-        let r = 1.0 / area;
-        let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
-        let gx = (d1 * (y2 - y0) - d2 * (y1 - y0)) * r;
-        let gy = (d2 * (x1 - x0) - d1 * (x2 - x0)) * r;
-        let c = (a[0] - gx * x0) - gy * y0;
-        (c + gy * cy) + gx * cx
+        plane_value(self.xs, self.ys, a, cx, cy)
     }
 
     fn at(&self, cx: f32, cy: f32) -> [f32; 4] {
@@ -1806,6 +1868,56 @@ impl Planes {
         let q = 1.0 / self.plane(self.iw, cx, cy);
         [0, 1, 2, 3].map(|k| self.plane(self.aw.map(|a| a[k]), cx, cy) * q)
     }
+}
+
+/// D3DRASTER.INTERP.PLANE: an attribute's plane over a triangle (xs, ys its vertices in
+/// pixels, a its values) at (cx, cy): f32 gradients times 1 / the doubled area (exact in f64,
+/// then to f32), C = (a0 - gx x0) - gy y0, the value (C + gy cy) + gx cx
+pub fn plane_value(xs: [f32; 3], ys: [f32; 3], a: [f32; 3], cx: f32, cy: f32) -> f32 {
+    let ([x0, x1, x2], [y0, y1, y2]) = (xs, ys);
+    let area = (f64::from(y2 - y0) * f64::from(x1 - x0) - f64::from(y0 - y1) * f64::from(x0 - x2)) as f32;
+    let r = 1.0 / area;
+    let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
+    let gx = (d1 * (y2 - y0) - d2 * (y1 - y0)) * r;
+    let gy = (d2 * (x1 - x0) - d1 * (x2 - x0)) * r;
+    let c = (a[0] - gx * x0) - gy * y0;
+    (c + gy * cy) + gx * cx
+}
+
+/// D3DRASTER.LINE.COLOR, LINE.DEPTH: a value along a line's major axis (its ends a, b in 1/256
+/// pixels, values va, vb) at the coordinate c: gradient (vb - va) (1 / (b - a)), C = va -
+/// gradient a, C + gradient c, in f32
+pub fn line_value(a: i64, b: i64, c: f32, va: f32, vb: f32) -> f32 {
+    let (a, b) = (pixels(a), pixels(b));
+    let g = 1.0 / (b - a);
+    let grad = (vb - va) * g;
+    let c0 = va - grad * a;
+    c0 + grad * c
+}
+
+/// D3DRASTER.INTERP.DEPTH, LINE.DEPTH: a depth onto the viewport's range minz..maxz, clamped
+/// (max then min: a range of NaN leaves the value)
+pub fn clamp_range(minz: f32, maxz: f32, z: f32) -> f32 {
+    let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
+    z.max(lo).min(hi)
+}
+
+/// D3DRASTER.VIEWPORT: a clip position through the viewport transform (x, y, width, height),
+/// in 1/256 pixels rounded half to even: x + (x/w + 1) (width/2), y + (1 - y/w) (height/2)
+pub fn viewport_xy(vp: [f32; 6], q: &[f32; 4]) -> (i64, i64) {
+    let [vx, vy, vw, vh, _, _] = vp;
+    (snap256(vx + (q[0] / q[3] + 1.0) * (vw * 0.5)), snap256(vy + (1.0 - q[1] / q[3]) * (vh * 0.5)))
+}
+
+/// D3DRASTER.INTERP.DEPTH: a vertex's depth on the viewport's range, minz + z (1/w) (maxz -
+/// minz) in f32
+pub fn vertex_depth(minz: f32, maxz: f32, z: f32, w: f32) -> f32 {
+    minz + z * (1.0 / w) * (maxz - minz)
+}
+
+/// D3DRASTER.VP10: Direct3D 10's viewport origin and size, the executor's (INT) cast of them
+pub fn vp10(x: f32) -> f32 {
+    x.trunc()
 }
 
 /// D3D11_FILTER_REDUCTION_TYPE, the filter's bits 7 and 8
@@ -2018,7 +2130,7 @@ struct ClipVert {
 
 /// a value of a vertex the clipping makes, from the inside end: f32(((out - in) as f64 dIn) /
 /// (dIn - dOut) + in) (clip_tri, clip_seg)
-fn clip_lerp(din: f32, dout: f32, vi: f32, vo: f32) -> f32 {
+pub fn clip_lerp(din: f32, dout: f32, vi: f32, vo: f32) -> f32 {
     ((f64::from(vo - vi) * f64::from(din)) / f64::from(din - dout) + f64::from(vi)) as f32
 }
 
@@ -2118,7 +2230,7 @@ fn clip_pieces(poly: &[ClipVert], vp: [f32; 6], zclip: bool) -> Vec<([(i64, i64)
                 made_screen(vp, &c.pos, zclip)
             } else {
                 let s = snapped(vp, &c.pos);
-                ((s.x, s.y), minz + c.pos[2] * (1.0 / c.pos[3]) * (maxz - minz), 1.0 / c.pos[3])
+                ((s.x, s.y), vertex_depth(minz, maxz, c.pos[2], c.pos[3]), 1.0 / c.pos[3])
             }
         })
         .collect();
@@ -2144,7 +2256,7 @@ fn clip_pieces(poly: &[ClipVert], vp: [f32; 6], zclip: bool) -> Vec<([(i64, i64)
 /// max(w, the least normal f32), x and y clamped to -w'..w' (z to 0..w' with depth clipping),
 /// 1/w' by division, X = round_even(((x/w') W/2 + (W/2 + left)) 256), Y with -H/2 and H/2 + top;
 /// depth (z/w') (maxz - minz) + minz
-fn made_screen(vp: [f32; 6], q: &[f32; 4], zclip: bool) -> ((i64, i64), f32, f32) {
+pub fn made_screen(vp: [f32; 6], q: &[f32; 4], zclip: bool) -> ((i64, i64), f32, f32) {
     let [vx, vy, vw, vh, minz, maxz] = vp;
     let w = if f32::MIN_POSITIVE > q[3] { f32::MIN_POSITIVE } else { q[3] };
     let clamp = |v: f32| {
@@ -2159,9 +2271,45 @@ fn made_screen(vp: [f32; 6], q: &[f32; 4], zclip: bool) -> ((i64, i64), f32, f32
     ((snap((rhw * x) * sx + ox), snap((rhw * y) * sy + oy)), (rhw * z) * (maxz - minz) + minz, rhw)
 }
 
+/// D3DRASTER.DEPTHCLIP: depths (z / w) wholly in front of 0 or wholly past 1
+pub fn depth_away(zs: &[f32]) -> bool {
+    zs.iter().all(|z| *z < 0.0) || zs.iter().all(|z| *z > 1.0)
+}
+
+/// D3DRASTER.CLIPW.NAN: a triangle with a coordinate NaN or infinite
+pub fn not_finite(tri: [[f32; 4]; 3]) -> bool {
+    tri.iter().any(|q| q.iter().any(|x| !x.is_finite()))
+}
+
+/// D3DRASTER.CLIPW.AWAY: what the homogeneous clipping leaves (every w positive) has no area
+/// once snapped
+pub fn clipped_away(vp: [f32; 6], poly: &[[f32; 4]]) -> bool {
+    if !poly.iter().all(|q| q[3] > 0.0) {
+        return false;
+    }
+    let q: Vec<(i64, i64)> = poly.iter().map(|q| viewport_xy(vp, q)).collect();
+    let Some(&first) = q.first() else { return true };
+    q.windows(2).skip(1).all(|e| rules::area(first, e[0], e[1]) == 0)
+}
+
+/// D3DRASTER.CLIP: a triangle's vertices (position, color) clipped as clip_tri does: the
+/// polygon's vertices (position, color, made by the clipping, its edge on along a plane)
+pub fn clip_tri_values(tri: [([f32; 4], [f32; 4]); 3], zclip: bool) -> Option<Vec<([f32; 4], [f32; 4], bool, bool)>> {
+    let t = tri.map(|(pos, color)| Vert { pos, color });
+    clip_tri(&t, zclip).map(|p| p.iter().map(|c| (c.pos, c.color, c.made, c.along)).collect())
+}
+
+/// D3DRASTER.LINE, CLIPZ.LINE: a line's ends (position, color) clipped to the x and y planes
+/// (z false) or to the depth range (z true)
+pub fn clip_line_values(a: ([f32; 4], [f32; 4]), b: ([f32; 4], [f32; 4]), z: bool) -> Option<[([f32; 4], [f32; 4]); 2]> {
+    let (a, b) = (Vert { pos: a.0, color: a.1 }, Vert { pos: b.0, color: b.1 });
+    let r = if z { clip_line_z(a, b) } else { clip_line(a, b) };
+    r.map(|(a, b)| [(a.pos, a.color), (b.pos, b.color)])
+}
+
 /// a triangle clipped to -w <= x <= w and -w <= y <= w (Sutherland-Hodgman, in single
 /// precision: a new vertex a + (b - a) t, t the distance to the plane at a over the difference)
-fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
+pub fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
     let mut poly = tri.to_vec();
     for plane in 0..4 {
         let dist = |q: &[f32; 4]| match plane {
@@ -2191,7 +2339,7 @@ fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
 }
 
 /// a polygon clipped to 0 <= z <= w, as clip_xy
-fn clip_z(mut poly: Vec<[f32; 4]>) -> Vec<[f32; 4]> {
+pub fn clip_z(mut poly: Vec<[f32; 4]>) -> Vec<[f32; 4]> {
     for plane in 0..2 {
         let dist = |q: &[f32; 4]| if plane == 0 { q[2] } else { q[3] - q[2] };
         if poly.iter().all(|q| dist(q) >= 0.0) {
@@ -2270,12 +2418,19 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             };
             let v = m.views.get(sv)?;
             let r = m.res.get(v.res)?;
-            let (w, h, _) = r.size(0);
+            // (the view's level 0 and slice 0: its most detailed level, its first slice, of the
+            // resource's, ld's mip and array index 0 against the view, D3D11_TEX2D_SRV)
+            let reach = super::d3dres::view_reach(m.dev.ok_or(Fail::Bad)?, v, r);
+            if reach.mip != 0 || reach.first != 0 {
+                hit(clause::D3DRASTER_LD_VIEW);
+            }
+            let sub = reach.subs(r).first().copied().ok_or(Fail::Bad)?;
+            let (w, h, _) = r.size(reach.mip);
             if px >= w as i64 || py >= h as i64 {
                 hit(clause::D3DRASTER_LD_OUT);
                 [0; 4]
             } else {
-                texel(r, 0, v.format(), px as u32, py as u32)?
+                texel(r, sub, v.format(), px as u32, py as u32)?
             }
         }
         "pssample" | "pssamplec" => {
@@ -2294,59 +2449,36 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             let v = m.views.get(sv)?;
             let r = m.res.get(v.res)?;
             // (MEASURED, WARP: probe-filter-view-mips, -view-mips-mag) a view of its own range of
-            // levels: its most detailed level is level 0 for the span and the levels
-            let (base, mips) = match (v.words.get(1), v.words.get(2), v.words.get(3)) {
-                _ if r.d.mips == 1 => (0, 1),
-                (Some(&4), Some(&b), Some(&n)) if b < r.d.mips => (b, n.min(r.d.mips - b).max(1)),
+            // levels: its most detailed level is level 0 for the span and the levels; the levels
+            // and first slice are the view's reach (view_reach), as Load's
+            let reach = super::d3dres::view_reach(m.dev.ok_or(Fail::Bad)?, v, r);
+            let dim = v.dim();
+            match dim {
+                _ if r.d.mips == 1 => {}
+                4 => {}
                 // (MEASURED, WARP: probe-filter-1d-mips) a 1D texture's view through a Texture2D:
-                // its levels as one row
-                (Some(&2), Some(&b), Some(&n)) if b < r.d.mips => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips.saturating_sub(b)).max(1))
-                }
-                // (MEASURED, WARP: probe-filter-1darray-mips) a 1D array's view (TEXTURE1DARRAY)
-                // through a Texture2D: its first slice's levels as one row
-                (Some(&3), Some(&b), Some(&n)) if b < r.d.mips && v.words.get(4).is_some_and(|&f| f < r.d.da.max(1)) => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips.saturating_sub(b)).max(1))
-                }
-                // (MEASURED, WARP: probe-filter-array-mips) a 2D array's view from slice 0 through
-                // a Texture2D: slice 0's levels
-                // (MEASURED, WARP: probe-filter-array1-mips) from a later slice: that slice's
-                (Some(&5), Some(&b), Some(&n)) if b < r.d.mips && v.words.get(4).is_some_and(|&f| f < r.d.da.max(1)) => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips - b).max(1))
-                }
-                // (MEASURED, WARP: probe-filter-cube-mips) a cube's view through a Texture2D: face
-                // 0's levels, as a 2D array's
-                (Some(&9), Some(&b), Some(&n)) if b < r.d.mips => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips - b).max(1))
-                }
-                // (MEASURED, WARP: probe-filter-3d-mips) a 3D texture's view through a Texture2D:
-                // its first depth slice's levels
-                (Some(&8), Some(&b), Some(&n)) if b < r.d.mips => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips - b).max(1))
-                }
-                // (MEASURED, WARP: probe-filter-cubearray-mips) a cube array's view through a
-                // Texture2D: its first face's levels
-                (Some(&10), Some(&b), Some(&n)) if b < r.d.mips && v.words.get(4).is_some_and(|&f| f < r.d.da.max(1)) => {
-                    hit(clause::D3DRASTER_FILTER_ARRAY);
-                    (b, n.min(r.d.mips - b).max(1))
-                }
+                // its levels as one row; (probe-filter-1darray-mips) a 1D array's view
+                // (TEXTURE1DARRAY): its first slice's levels as one row; (probe-filter-array-mips)
+                // a 2D array's view from slice 0: slice 0's levels, (probe-filter-array1-mips)
+                // from a later slice: that slice's; (probe-filter-cube-mips) a cube's view: face
+                // 0's levels, as a 2D array's; (probe-filter-3d-mips) a 3D texture's view: its
+                // first depth slice's levels; (probe-filter-cubearray-mips) a cube array's view:
+                // its first face's levels
+                2 | 3 | 5 | 8 | 9 | 10 => hit(clause::D3DRASTER_FILTER_ARRAY),
                 // (other kinds of views of textures with mips: not measured)
-                // (a view's levels lie in its texture's: CreateShaderResourceView checks them)
                 _ => return Err(Fail::Bad),
-            };
+            }
+            // (a view's levels and slices lie in its texture's: CreateShaderResourceView checks them)
+            let arrayed = matches!(dim, 3 | 5 | 10);
+            if r.d.mips > 1 && (reach.mip >= r.d.mips || (arrayed && reach.first >= r.d.da.max(1))) {
+                return Err(Fail::Bad);
+            }
+            let (base, mips) = if r.d.mips == 1 { (0, 1) } else { (reach.mip, reach.mips.max(1)) };
             if base != 0 || mips != r.d.mips {
                 hit(clause::D3DRASTER_FILTER_VIEW);
             }
             // (the subresources of the view's first array slice)
-            let first = match v.words.get(1) {
-                Some(&3 | &5 | &10) => v.words.get(4).copied().unwrap_or(0) * r.d.mips,
-                _ => 0,
-            };
+            let first = if arrayed { reach.first * r.d.mips } else { 0 };
             let (w, h, _) = r.size(base);
             let uv_at = |x: i64, y: i64| -> Res<[f32; 2]> {
                 match planes {

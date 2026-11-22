@@ -1854,6 +1854,62 @@ pub fn wicencode() -> String {
         let bytes = if c == "png" || c == "tiff" { "" } else { "wbytes\n" };
         writeln!(s, "case optval-{k}-{c}\nwbits bgra 6 4 {}\nwencode {c} {o}\n{bytes}wredecode\nwframe 0\nwinfo\nwpixels\nend", 0x0b80_0000u32 + k as u32);
     }
+    // options together and given again (the review of 84b05c8, 3.4): a lossless JPEG XR file
+    // turned by each BitmapTransform (pictures not square, so a swapped width and height
+    // shows), and a name written twice, whose last value Initialize reads
+    let mut sets: Vec<(&str, String)> = Vec::new();
+    for t in [1, 2, 8, 16, 9] {
+        sets.push(("wmp", format!("Lossless=1 BitmapTransform={t}")));
+        sets.push(("wmp", format!("ImageQuality=1 BitmapTransform={t}")));
+    }
+    for o in [
+        "ImageQuality=1 ImageQuality=0.5", "ImageQuality=0.5 ImageQuality=1", "Lossless=1 Lossless=0", "Lossless=1 ImageQuality=0.5", "ImageQuality=0.5 Lossless=1",
+        "BitmapTransform=1 BitmapTransform=0", "Overlap=3 Overlap=0", "ImageQuality=1.5 ImageQuality=0.5", "Subsampling=4 Overlap=5", "Lossless=0 ImageQuality=1",
+    ] {
+        sets.push(("wmp", o.to_string()));
+    }
+    for o in ["BitmapTransform=2 BitmapTransform=0", "ImageQuality=0.5 ImageQuality=0.9", "ImageQuality=1.5 ImageQuality=0.9", "JpegYCrCbSubsampling=3 JpegYCrCbSubsampling=0"] {
+        sets.push(("jpeg", o.to_string()));
+    }
+    // floats whose JPEG XR mantissa shift (124 - their exponent) reaches 31, 32, 33 and past,
+    // and the least normal and a subnormal, from a TIFF of 32-bit gray floats (the review of
+    // 84b05c8, 5: float2pixel's shift past 31)
+    {
+        let exps = [124u32, 123, 122, 100, 94, 93, 92, 91, 90, 60, 1, 0];
+        let mut fl: Vec<f32> = exps.iter().map(|&e| f32::from_bits(e << 23 | 0x40_0000)).collect();
+        fl.extend([1e-11f32, -1e-11, f32::from_bits(92 << 23), -f32::from_bits(93 << 23 | 0x7f_ffff)]);
+        let px: Vec<u8> = fl.iter().flat_map(|f| f.to_le_bytes()).collect();
+        let im = TiffImage { w: 16, h: 1, photometric: 1, bits: 32, samples: 1, extra: None, planar: 1, rps: 1, px, map: vec![], res: None, format: 3 };
+        for (k, o) in ["", " ImageQuality=0.5", " ImageQuality=1"].into_iter().enumerate() {
+            let bytes = if k == 2 { "" } else { "wbytes\n" };
+            writeln!(s, "case float-shift-{k}\nwdecode {}\nwframe 0\nwencode wmp{o}\n{bytes}wredecode\nwframe 0\nwinfo\nwpixels\nend", hex(&tiff(false, std::slice::from_ref(&im))));
+        }
+    }
+    // a JPEG XR decoder's frame itself given to WriteSource (the review of 84b05c8, 6): a file
+    // written lossy and lossless, decoded again, its frame encoded by each encoder
+    for ((k, (o, c, f)), seed) in ["ImageQuality=0.5", "Lossless=1"].into_iter().flat_map(|o| ["wmp", "png", "tiff", "bmp"].into_iter().flat_map(move |c| ["bgra", "gray8", "bgr24"].into_iter().map(move |f| (o, c, f)))).enumerate().zip(0x0b82_0000u32..) {
+        writeln!(s, "case wmpframe-{k}-{c}-{f}\nwbits {f} 7 5 {seed}\nwencode wmp {o}\nwredecode\nwframe 0\nwencode {c}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
+    }
+    for ((k, (c, o)), seed) in sets.into_iter().enumerate().zip(0x0b81_0000u32..) {
+        for (f, w, h) in [("gray8", 2, 3), ("bgra", 6, 4)] {
+            writeln!(s, "case optset-{k}-{c}-{f}\nwbits {f} {w} {h} {seed}\nwencode {c} {o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
+        }
+    }
+    // (added after) a JPEG XR decoder's frame written again by JPEG XR's encoder with an option,
+    // or in another format (whether the frame's pixels are still kept, WICIMAGE.ENCODE.WMP.FRAME)
+    for ((k, (o, f, to)), seed) in [(" ImageQuality=0.5", "bgra", ""), (" ImageQuality=1", "bgra", ""), (" Lossless=1", "bgra", ""), (" BitmapTransform=2", "bgra", ""), (" Overlap=0", "bgra", ""), (" ImageQuality=0.9", "gray8", ""), ("", "bgra", " bgr24"), ("", "bgr24", " bgra")].into_iter().enumerate().zip(0x0b83_0000u32..) {
+        writeln!(s, "case wmpframe-opt-{k}\nwbits {f} 7 5 {seed}\nwencode wmp ImageQuality=0.5\nwredecode\nwframe 0\nwencode wmp{to}{o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
+    }
+    // (added after) quarter turned 8bppGray files of other sizes, lossy too, and of the other
+    // gray formats (WICIMAGE.ENCODE.WMP.TURNTALL: which of them copy)
+    for ((k, (f, w, h, o)), seed) in [("gray8", 16, 9, "Lossless=1 BitmapTransform=1"), ("gray8", 2, 3, "ImageQuality=0.5 BitmapTransform=1"), ("gray8", 5, 4, "ImageQuality=0.8 BitmapTransform=9"), ("gray8", 4, 4, "Lossless=1 BitmapTransform=1"), ("gray16", 3, 2, "Lossless=1 BitmapTransform=1"), ("bw", 9, 3, "Lossless=1 BitmapTransform=1"), ("bgr24", 3, 2, "Lossless=1 BitmapTransform=1"), ("gray8", 3, 2, "Lossless=1 BitmapTransform=2")].into_iter().enumerate().zip(0x0b84_0000u32..) {
+        writeln!(s, "case wmpturn-{k}-{f}\nwbits {f} {w} {h} {seed}\nwencode wmp {o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
+    }
+    // (added after) which quarter turned files copy, by size (WICIMAGE.ENCODE.WMP.TURNTALL:
+    // the taller than wide fail)
+    for ((f, w, h), seed) in ["gray8"].into_iter().flat_map(|f| (1u32..=6).flat_map(move |w| (1u32..=6).map(move |h| (f, w, h)))).chain(["bgra", "gray16"].into_iter().flat_map(|f| (1u32..=3).flat_map(move |w| (1u32..=3).map(move |h| (f, w, h))))).zip(0x0b85_0000u32..) {
+        writeln!(s, "case wmpturn-size-{f}-{w}x{h}\nwbits {f} {w} {h} {seed}\nwencode wmp Lossless=1 BitmapTransform=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
+    }
     s
 }
 

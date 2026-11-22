@@ -78,6 +78,15 @@ def texel (n : Nat) (b : List Nat) (t : Nat) : Option (List Nat) := do
     else do pure (alpha ((← le b 2 6) / 8 ^ t % 8) (← b[0]?) (← b[1]?))
   pure (col ++ [a])
 
+/-- D3D9.TEX.DXT: a DXT1 block of equal endpoints (c0 <= c1, three colors) and every index 3 is
+transparent black at all its texels; endpoints white over black (c0 > c1, four colors) at index
+3 are the third 85/256 of white taken down, opaque; no texel past the 16th -/
+theorem dxt1_blocks :
+    (∀ t, t < 16 → texel 1 [0, 0, 0, 0, 0xff, 0xff, 0xff, 0xff] t = some [0, 0, 0, 0]) ∧
+    (∀ t, t < 16 → texel 1 [0xff, 0xff, 0, 0, 0xff, 0xff, 0xff, 0xff] t = some [84, 84, 84, 255]) ∧
+    texel 1 [0, 0, 0, 0, 0, 0, 0, 0] 16 = none := by
+  decide
+
 /-- D3D9.TEX.DXT: DXT2/3's 4-bit alphas times 17 are the 8-bit ones of the same value
 (k / 15 = 17 k / 255), 0 to 255 -/
 theorem alpha4 (k : Nat) (h : k < 16) : k * 17 ≤ 255 ∧ k * 17 * 15 = k * 255 := by omega

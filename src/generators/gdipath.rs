@@ -158,5 +158,58 @@ pub fn path() -> String {
     for (x, y, rad, a) in [(0, 0, 178, "49.25"), (16, 16, 62, "32.75"), (16, 16, 107, "41.25"), (16, 16, 108, "-144"), (16, 16, 112, "52.25"), (16, 16, 112, "127.75")] {
         writeln!(s, "case anglearc-turn-{rad}-{a}\ndib 0 32 32 8\nbeginpath 0\nanglearc 0 {x} {y} {rad} {a} 360\ngetpos 0\nendpath 0\ngetpath 0\nend");
     }
+    // (added after, their own stream) Ellipse's boxes past 65536 pixels, to the 28.4 limit and
+    // past it: the widths where 0.5522847498 and the irrational floor apart (82800, 160117, ..)
+    // and their neighbours, both directions; through the 1/16 mapping (GetPath shows the 28.4
+    // points, the logical coordinates 16 times the device's within 32 bits), then in pixels
+    // (GetPath rounds them), on to 2^31
+    // (the widths, 2^20, 2^24, 2^27 - 2, 2^27, 2^27 + 2, 2^28 - 64 among them; the heights
+    // the same read backwards; a box about the origin, l = ox - w / 2)
+    let big: [i64; 18] = [65537, 82799, 82800, 82801, 131072, 160117, 165599, 237434, 392068, 1048576, 16777216, 134217726, 134217728, 134217730, 268435392, 171081, 430442, 612486];
+    let mut r = XorShift32::new(0x0e11_b16e);
+    // (x / 2, x 16: shifts that cannot overflow these i64s)
+    let half = |x: i64| x >> 1;
+    let fix = |x: i64| x.saturating_mul(16);
+    for (i, (&w, &h)) in big.iter().zip(big.iter().rev()).enumerate() {
+        let (ox, oy) = (r.range(-3, 3), r.range(-3, 3));
+        let (l, t) = (ox.saturating_sub(half(w)), oy.saturating_sub(half(h)));
+        for dir in [1, 2] {
+            writeln!(s, "case ellipsebig-{i}-{dir}\ndib 0 8 8 8\nmapmode 0 8\nwinext 0 16 16\nvpext 0 1 1\narcdir 0 {dir}\nbeginpath 0\nellipse 0 {} {} {} {}\nendpath 0\ngetpath 0\nend", fix(l), fix(t), fix(l.saturating_add(w)), fix(t.saturating_add(h)));
+        }
+    }
+    // (the first widths where 0.5522847498's inset and the irrational's round to another
+    // pixel: 171081, 430442, 612486, square; then past the 28.4 limit: 2^27, 2^28 - 2, 2^28,
+    // 2^30, 2^31 - 2)
+    let px: [(i64, i64); 9] = [(171081, 171081), (430442, 430442), (612486, 612486), (82800, 2147483646), (134217728, 268435456), (268435454, 134217728), (268435456, 82800), (1073741824, 1073741824), (2147483646, 65537)];
+    for (i, &(w, h)) in px.iter().enumerate() {
+        let (ox, oy) = (r.range(-3, 3), r.range(-3, 3));
+        let (l, t) = (ox.saturating_sub(half(w)), oy.saturating_sub(half(h)));
+        for dir in [1, 2] {
+            writeln!(s, "case ellipsebigpx-{i}-{dir}\ndib 0 8 8 8\narcdir 0 {dir}\nbeginpath 0\nellipse 0 {l} {t} {} {}\nendpath 0\ngetpath 0\nend", l.saturating_add(w), t.saturating_add(h));
+        }
+    }
+    // (added after) where a box past the 28.4 limit lands: small boxes with a corner or both
+    // past 2^27 (16 x past 32 bits), across and down, each corner order, and the sides about
+    // the largest box measured to record a figure (16 (w - 1) about 2^31 - 64): corners
+    // 2^27 + 2, 2^27 - 5, -2^27 - 5, 2^28 + 3, 2^30 + 1, -2^30 - 9; sides 2^27 - 4 .. 2^27 - 1
+    // from -2^27 + 3
+    let wrap: [(i64, i64, i64, i64); 20] = [(134217730, 3, 134217740, 11), (3, 134217730, 11, 134217740), (134217723, 3, 134217733, 11), (3, 134217723, 11, 134217733), (-134217733, 3, -134217723, 11), (3, -134217733, 11, -134217723), (268435459, 3, 268435469, 11), (3, 268435459, 11, 268435469), (1073741825, 3, 1073741833, 11), (3, 1073741825, 11, 1073741833), (-1073741833, 3, -1073741825, 11), (134217740, 11, 134217730, 3), (-134217725, 3, 134217724, 11), (-134217725, 3, 134217725, 11), (-134217725, 3, 134217726, 11), (-134217725, 3, 134217727, 11), (3, -134217725, 11, 134217724), (3, -134217725, 11, 134217725), (3, -134217725, 11, 134217726), (-134217727, -134217727, 134217727, 134217727)];
+    for (i, &(l, t, rr, b)) in wrap.iter().enumerate() {
+        for dir in [1, 2] {
+            writeln!(s, "case ellipsewrap-{i}-{dir}\ndib 0 8 8 8\narcdir 0 {dir}\nbeginpath 0\nellipse 0 {l} {t} {rr} {b}\nendpath 0\ngetpath 0\nend");
+        }
+    }
+    // (added after) the sides whose 28.4 width 16 (r - l), taken to 32 bits, is about 2^31,
+    // -2^31 and 0: k pixels wide for k = 2^27 - 3 .. 2^27 + 2 and 2^28 - 2 .. 2^28 + 2, across
+    // from 3, down from 3, and across from -2^29 - 5
+    let ks: [i64; 11] = [134217725, 134217726, 134217727, 134217728, 134217729, 134217730, 268435454, 268435455, 268435456, 268435457, 268435458];
+    for (i, &k) in ks.iter().enumerate() {
+        let boxes = [(3, 3, k.saturating_add(3), 11), (3, 3, 11, k.saturating_add(3)), (-536870917, 3, k.saturating_sub(536870917), 11)];
+        for (j, &(l, t, rr, b)) in boxes.iter().enumerate() {
+            for dir in [1, 2] {
+                writeln!(s, "case ellipseedge-{i}-{j}-{dir}\ndib 0 8 8 8\narcdir 0 {dir}\nbeginpath 0\nellipse 0 {l} {t} {rr} {b}\nendpath 0\ngetpath 0\nend");
+            }
+        }
+    }
     s
 }

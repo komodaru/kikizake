@@ -5,17 +5,26 @@ open Kikizake
 
 def mirrors : List Mirror :=
   Gdi.Blend.mirrors ++ Gdi.Stretch.mirrors ++ Gdi.Xform.mirrors ++ Gdi.Gradient.mirrors ++
+  Gdi.Hfd.mirrors ++
+  Gdi.Glyph.mirrors ++
+  Gdi.Arc.mirrors ++
   GdiPlus.Conv.mirrors ++ D3d12.Footprint.mirrors ++ D3d12.Alloc.mirrors ++ D3d12.Create.mirrors ++ D3d12.Copyable.mirrors ++ Dxgi.Args.mirrors ++
-  D3d9.Pixel.mirrors ++ D3d9.Raster.mirrors ++ D3d9.Fvf.mirrors ++ D3d9.Stage.mirrors ++ D3d9.Fog.mirrors ++ D3d9.Arg.mirrors ++ D3d9.Formats.mirrors ++ D3d9.Decl.mirrors ++
+  D3d9.Pixel.mirrors ++ D3d9.Raster.mirrors ++ D3d9.Fvf.mirrors ++ D3d9.Stage.mirrors ++ D3d9.Fog.mirrors ++ D3d9.Arg.mirrors ++ D3d9.Formats.mirrors ++ D3d9.Decl.mirrors ++ D3d9.Shade.mirrors ++ D3d9.Clip.mirrors ++ D3d9.Draw.mirrors ++ D3d9.Line.mirrors ++ D3d9.Xyz.mirrors ++ D3d9.Aniso.mirrors ++ D3d9.Gen.mirrors ++
   F32.mirrors ++
-  D3d9.Tex.mirrors ++ D3d9.Texel.mirrors ++ D3d9.Chain.mirrors ++
+  D3d9.Tex.mirrors ++ D3d9.Texel.mirrors ++ D3d9.Chain.mirrors ++ D3d9.Blend.mirrors ++ D3d9.Filter.mirrors ++ D3d9.Coord.mirrors ++
   GdiPlus.Blend.mirrors ++
   GdiPlus.Matrix.mirrors ++
+  GdiPlus.Flatten.mirrors ++
+  GdiPlus.Dither.mirrors ++
   D3d11.Raster.mirrors ++ D3d11.Draw.mirrors ++ D3d11.Texture.mirrors ++
   D3d11.Desc.mirrors ++
   D3d11.View.mirrors ++
   D3d11.Filter.mirrors ++
   D3d11.Merge.mirrors ++
+  D3d11.Interp.mirrors ++
+  D3d11.Clip.mirrors ++
+  D3d11.Line.mirrors ++
+  D3d11.Layout.mirrors ++
   DWrite.Advance.mirrors ++
   DWrite.Metrics.mirrors
 

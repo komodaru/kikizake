@@ -354,10 +354,7 @@ fn dxt_block<F: super::dxtenc::Real>(alpha: DxtAlpha, px: [[F; 4]; 16]) -> Resul
 }
 
 /// a pair of pixels into YUY2 as D3DX writes it (MEASURED load-into-YUY2, load-yuy2-probe):
-/// each Y 16 + (65.481 R + 128.553 G + 24.966 B) / 255, U and V the first pixel's
-/// 128 + (-37.797 R - 74.203 G + 112 B) / 255 and 128 + (112 R - 93.786 G - 18.214 B) / 255,
-/// of R, G, B in 0 .. 255 (a signed one as (s + 1) / 2; load-yuy2-from-*), each offset plus 1/2
-/// truncated toward 0
+/// R, G, B in 0 .. 255 (a signed one as (s + 1) / 2; load-yuy2-from-*) into yuy2_bytes
 fn yuy2_pair(p: &[[Sample; 4]]) -> [u8; 4] {
     let rgb = |s: &[Sample; 4]| -> [f64; 3] {
         std::array::from_fn(|k| match s[k] {
@@ -365,11 +362,18 @@ fn yuy2_pair(p: &[[Sample; 4]]) -> [u8; 4] {
             Sample::Signed(v) => f64::from(((v + 1.0) / 2.0).clamp(0.0, 1.0)) * 255.0,
         })
     };
+    let c0 = rgb(&p[0]);
+    yuy2_bytes(c0, p.get(1).map_or(c0, rgb))
+}
+
+/// two pixels' R, G, B (0 .. 255) as YUY2's Y0 U Y1 V (D3DX9.LOAD.YUY2): each Y
+/// 16 + (65.481 R + 128.553 G + 24.966 B) / 255, U and V the first pixel's
+/// 128 + (-37.797 R - 74.203 G + 112 B) / 255 and 128 + (112 R - 93.786 G - 18.214 B) / 255,
+/// each offset plus 1/2 truncated toward 0, in f64
+pub fn yuy2_bytes(c0: [f64; 3], c1: [f64; 3]) -> [u8; 4] {
     let q = |v: f64| (v + 0.5).trunc();
     let byte = |v: f64| u8::try_from(v as i64).unwrap_or(if v < 0.0 { 0 } else { 255 });
     let y = |c: [f64; 3]| byte(16.0 + q((65.481 * c[0] + 128.553 * c[1] + 24.966 * c[2]) / 255.0));
-    let c0 = rgb(&p[0]);
-    let c1 = p.get(1).map_or(c0, rgb);
     let u = byte(128.0 + q((-37.797 * c0[0] - 74.203 * c0[1] + 112.0 * c0[2]) / 255.0));
     let v = byte(128.0 + q((112.0 * c0[0] - 93.786 * c0[1] - 18.214 * c0[2]) / 255.0));
     [y(c0), u, y(c1), v]
@@ -461,50 +465,23 @@ fn dxt_d3dx(alpha: DxtAlpha, src: &[u8], w: i32, x: i32, y: i32) -> [f32; 4] {
     let Some(b) = src.get(bi..bi + bsz) else { return [0.0; 4] };
     let t = u32::try_from((y % 4) * 4 + x % 4).unwrap_or(0);
     let cb = &b[bsz - 8..];
-    let (c0, c1) = (u32::from(u16::from_le_bytes([cb[0], cb[1]])), u32::from(u16::from_le_bytes([cb[2], cb[3]])));
+    let (c0, c1) = (u16::from_le_bytes([cb[0], cb[1]]), u16::from_le_bytes([cb[2], cb[3]]));
     let idx = u32::from_le_bytes([cb[4], cb[5], cb[6], cb[7]]) >> (2 * t) & 3;
-    let unit = |c: u32, bits: u32| -> f32 {
-        let m = (1u16 << bits) - 1;
-        f32::from(u16::try_from(c).unwrap_or(0) & m) * (1.0 / f32::from(m))
-    };
-    let ex = |c: u32| [unit(c >> 11, 5), unit(c >> 5, 6), unit(c, 5)];
-    let (e0, e1) = (ex(c0), ex(c1));
-    let four = c0 > c1;
-    let mut c = [0.0f32, 0.0, 0.0, 1.0];
-    for k in 0..3 {
-        let (a, b) = (e0[k], e1[k]);
-        c[k] = match (idx, four) {
-            (0, _) => a,
-            (1, _) => b,
-            (2, true) => a + (b - a) * (1.0 / 3.0),
-            (3, true) => a + (b - a) * (2.0 / 3.0),
-            (2, false) => a + (b - a) * 0.5,
-            (_, false) | (_, true) => 0.0,
-        };
-    }
+    let [r, g, bl] = dxt_colour(c0, c1, idx);
+    let mut c = [r, g, bl, 1.0];
     let premultiplied = match alpha {
         DxtAlpha::Punch => {
-            c[3] = if !four && idx == 3 { 0.0 } else { 1.0 };
+            c[3] = if c0 <= c1 && idx == 3 { 0.0 } else { 1.0 };
             false
         }
         DxtAlpha::Explicit { premultiplied } => {
             let a4 = u64::from_le_bytes([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]]) >> (4 * t) & 15;
-            c[3] = f32::from(u8::try_from(a4).unwrap_or(0)) * (1.0 / 15.0);
+            c[3] = dxt3_alpha(u8::try_from(a4).unwrap_or(0));
             premultiplied
         }
         DxtAlpha::Interpolated { premultiplied } => {
-            let (a0, a1) = (f32::from(b[0]) * (1.0 / 255.0), f32::from(b[1]) * (1.0 / 255.0));
-            let mix = |k: u8, n: u8| (f32::from(n - k) * a0 + f32::from(k) * a1) * (1.0 / f32::from(n));
             let ai = u64::from_le_bytes([b[2], b[3], b[4], b[5], b[6], b[7], 0, 0]) >> (3 * t) & 7;
-            let ai = u8::try_from(ai).unwrap_or(0);
-            c[3] = match ai {
-                0 => a0,
-                1 => a1,
-                i if b[0] > b[1] => mix(i - 1, 7),
-                6 => 0.0,
-                7 => 1.0,
-                i => mix(i - 1, 5),
-            };
+            c[3] = dxt5_alpha(b[0], b[1], u8::try_from(ai).unwrap_or(0));
             premultiplied
         }
     };
@@ -514,6 +491,52 @@ fn dxt_d3dx(alpha: DxtAlpha, src: &[u8], w: i32, x: i32, y: i32) -> [f32; 4] {
         }
     }
     c
+}
+
+/// a DXT colour block's texel of index idx (0..3) as D3DX reads it, (r, g, b) in f32
+/// (D3DX9.LOAD.DXT): endpoints c * (1/31) and c * (1/63); four colours where c0 > c1, index 2
+/// a + (b - a) * (1/3), index 3 a + (b - a) * (2/3); else three, index 2 a + (b - a) * 0.5,
+/// index 3 black
+pub fn dxt_colour(c0: u16, c1: u16, idx: u32) -> [f32; 3] {
+    let unit = |c: u16, bits: u32| -> f32 {
+        let m = (1u16 << bits) - 1;
+        f32::from(c & m) * (1.0 / f32::from(m))
+    };
+    let ex = |c: u16| [unit(c >> 11, 5), unit(c >> 5, 6), unit(c, 5)];
+    let (e0, e1) = (ex(c0), ex(c1));
+    let four = c0 > c1;
+    std::array::from_fn(|k| {
+        let (a, b) = (e0[k], e1[k]);
+        match (idx, four) {
+            (0, _) => a,
+            (1, _) => b,
+            (2, true) => a + (b - a) * (1.0 / 3.0),
+            (3, true) => a + (b - a) * (2.0 / 3.0),
+            (2, false) => a + (b - a) * 0.5,
+            (_, false) | (_, true) => 0.0,
+        }
+    })
+}
+
+/// DXT3's alpha of 4 bits a4 as D3DX reads it: a4 * (1/15) in f32 (D3DX9.LOAD.DXT)
+pub fn dxt3_alpha(a4: u8) -> f32 {
+    f32::from(a4 & 15) * (1.0 / 15.0)
+}
+
+/// DXT5's alpha of index ai (0..7) between endpoints b0, b1 as D3DX reads it, in f32
+/// (D3DX9.LOAD.DXT): the endpoints b * (1/255); between them ((n - k) a0 + k a1) * (1/n), n 7
+/// where b0 > b1, else 5 with indices 6 and 7 for 0 and 1
+pub fn dxt5_alpha(b0: u8, b1: u8, ai: u8) -> f32 {
+    let (a0, a1) = (f32::from(b0) * (1.0 / 255.0), f32::from(b1) * (1.0 / 255.0));
+    let mix = |k: u8, n: u8| (f32::from(n.saturating_sub(k)) * a0 + f32::from(k) * a1) * (1.0 / f32::from(n));
+    match ai & 7 {
+        0 => a0,
+        1 => a1,
+        i if b0 > b1 => mix(i.saturating_sub(1), 7),
+        6 => 0.0,
+        7 => 1.0,
+        i => mix(i.saturating_sub(1), 5),
+    }
 }
 
 /// a UYVY or YUY2 pixel as D3DX reads it, (r, g, b, a): an even pixel its pair's U and V, an
@@ -537,17 +560,26 @@ fn yuv_d3dx(f: u32, src: &[u8], w: usize, i: usize) -> [f32; 4] {
     // bit arithmetic, not clamped: 256 seen, and a negative sum wraps to a huge one, the load-YUY2
     // magenta; a source row's ends repeat)
     let (u, v) = if x % 2 == 1 {
-        let tap = |k: fn(([u8; 2], u8, u8)) -> u8| {
-            let s = 9 * (u32::from(k(pair(p))) + u32::from(k(pair(p + 1)))) + 8;
-            i64::from(s.wrapping_sub(u32::from(k(pair(p - 1))) + u32::from(k(pair(p + 2)))) >> 4)
-        };
+        let tap = |k: fn(([u8; 2], u8, u8)) -> u8| chroma_tap(k(pair(p - 1)), k(pair(p)), k(pair(p + 1)), k(pair(p + 2)));
         (tap(|t| t.1), tap(|t| t.2))
     } else {
         (i64::from(u0), i64::from(v0))
     };
-    // (studio range BT.601 with D3DX's six digit constants, in f32)
-    let c = f32::from(i16::from(y) - 16) * 0.00456621f32;
-    let (d, e) = ((u - 128) as f32, (v - 128) as f32);
+    yuv_rgb(y, u, v)
+}
+
+/// an odd pixel's chroma from the pairs' a, b, c, d around it (D3DX9.LOAD.YUV):
+/// (-a + 9 b + 9 c - d + 8) >> 4 in unsigned 32-bit arithmetic, neither clamped nor saturated
+pub fn chroma_tap(a: u8, b: u8, c: u8, d: u8) -> i64 {
+    let s = u32::from(b).wrapping_add(u32::from(c)).wrapping_mul(9).wrapping_add(8);
+    i64::from(s.wrapping_sub(u32::from(a).wrapping_add(u32::from(d))) >> 4)
+}
+
+/// a pixel's Y, U, V as (r, g, b, a) (D3DX9.LOAD.YUV): studio range BT.601 with D3DX's six digit
+/// constants, in f32, each clamped to 0..1, alpha 1
+pub fn yuv_rgb(y: u8, u: i64, v: i64) -> [f32; 4] {
+    let c = f32::from(i16::from(y).wrapping_sub(16)) * 0.00456621f32;
+    let (d, e) = (u.wrapping_sub(128) as f32, v.wrapping_sub(128) as f32);
     let cl = |x: f32| x.clamp(0.0, 1.0);
     [cl(c + e * 0.00625893), cl((c - d * 0.00153632) - e * 0.00318811), cl(c + d * 0.00791071), 1.0]
 }

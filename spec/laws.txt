@@ -359,9 +359,10 @@ spec/tla/GdiPlusFill.tla::Next tla GP.FILL GP.FILL.NOGRAPHICS GP.FILL.RECT GP.FI
 spec/tla/GdiPlusMatrix.tla::Next tla GP.MATRIX GP.MATRIX.MUL GP.MATRIX.ORDER GP.MATRIX.POINT GP.MATRIX.INVERT
 spec/tla/GdiPlusObjects.tla::Next tla GP.BRUSH GP.BRUSH.HATCH.RANGE GP.BRUSH.TEXTURE GP.BRUSH.TEXTURE.STATUS GP.BRUSH.INFO GP.PEN.MAKE GP.PAINT GP.PAINT.NOBRUSH GP.PAINT.MODES GP.PAINT.NEGATIVE GP.ATTR GP.ATTR.FLAGS GP.DRAW.NOATTR GP.DRAW.SKIPGRAYS GP.DRAW.ALTGRAY GP.DRAW.ALTGRAY.TRANSLATE
 spec/tla/D3D12Make.tla::Next tla D3D12.MAKE.DESCHEAP D3D12.MAKE.QUEUE D3D12.MAKE.LIST D3D12.MAKE.QUERYHEAP D3D12.MAKE.FENCE D3D12.FEATURE.INCREMENT D3D12.CLEAR.REMOVED
+spec/tla/D3DResCalls.tla::Next tla D3DRES.NODEV D3DRES.CHECK D3DRES.X86CRASH D3DRES.REMOVED D3DRES.REMOVED.OPS
 spec/tla/GdiPlusPath.tla::Next tla GP.PATH.BUILD GP.PATH.CURVE GP.PATH.BOUNDS GP.PATH.FILLMODE GP.PATH.FLATTEN.ZERO
 spec/tla/GdiPlusPaint.tla::Next tla GP.PAINT.ALIASED GP.PAINT.AA GP.PAINT.HATCH GP.BRUSH.TEXTURE.PAINT GP.FILL.COPY GP.FILL.OVER
-spec/tla/GdiPlusPolygon.tla::Next tla GP.SHAPE.POLYGON
+spec/tla/GdiPlusPolygon.tla::Next tla GP.SHAPE.POLYGON GP.MATRIX.INVERT
 spec/lean/Kikizake/GdiPlus/Conv.lean::expand_truncate lean GP.CONV.EXPAND GP.CONV.TRUNCATE
 spec/lean/Kikizake/GdiPlus/Conv.lean::expand_close lean GP.CONV.EXPAND
 spec/lean/Kikizake/GdiPlus/Conv.lean::premultiply_nearest lean GP.CONV.PREMULTIPLY
@@ -472,6 +473,10 @@ tests/laws_opengl.rs::color_forms_act_as_their_float_form pbt GL.VARIANTS
 tests/laws_opengl.rs::raster_positions_read_back_near_where_given pbt GL.VARIANTS
 tests/laws_opengl.rs::smooth_triangles_behind_the_eye_cull_one_face pbt GL.POLYGON.SMOOTH
 tests/laws_dd.rs::ramp_line_clip_stays_on_the_segment pbt D3D7.LINE
+tests/laws_dd.rs::far_soft_lines_stay_on_the_segment pbt D3D7.LINE
+tests/laws_dd.rs::guard_cut_stays_on_the_segment pbt D3D7.LINE
+tests/laws_dd.rs::soft_walk_overruns_by_one_column_at_most pbt D3D7.TRI.CLIP
+tests/laws_dd.rs::warp_line_cut_stays_on_the_segment pbt D3D7.LINE.HW
 spec/lean/Kikizake/D3d11/Raster.lean::shared_edge lean D3DRASTER.TOPLEFT
 spec/lean/Kikizake/D3d11/Raster.lean::covers_turn lean D3DRASTER.TOPLEFT D3DRASTER.CULL
 spec/lean/Kikizake/D3d11/Raster.lean::degenerate lean D3DRASTER.DEGENERATE
@@ -507,9 +512,17 @@ spec/lean/Kikizake/GdiPlus/Matrix.lean::down_steps lean GP.MATRIX.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::down_products lean GP.MATRIX.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::down_comm lean GP.MATRIX.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::inverse_scale lean GP.MATRIX.X86 GP.MATRIX.X64
+spec/lean/Kikizake/GdiPlus/Matrix.lean::inverse_nonfinite lean GP.MATRIX.INVERT
+spec/lean/Kikizake/GdiPlus/Flatten.lean::ceil16_steps lean GP.PATH.FLATTEN
+spec/lean/Kikizake/GdiPlus/Flatten.lean::bezier32_steps lean GP.PATH.FLATTEN
+spec/lean/Kikizake/GdiPlus/Flatten.lean::flatten_arch lean GP.PATH.FLATTEN
+spec/lean/Kikizake/GdiPlus/Flatten.lean::bezier_big lean GP.PATH.FLATTEN.BIG
+spec/lean/Kikizake/GdiPlus/Dither.lean::places lean GP.PAINT.GAMMA.RUNS
 spec/lean/Kikizake/GdiPlus/Matrix.lean::gamma64_ends lean GP.FILL.GAMMA.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::gamma64_down lean GP.FILL.GAMMA.X64
 tests/laws_gdiplus.rs::fixed_palettes_hold_every_nearest_color exhaustive GP.CLONE.PALETTE
+tests/laws_gdiplus.rs::textures_composite_as_hatches exhaustive GP.BRUSH.TEXTURE.PAINT
+tests/laws_gdiplus.rs::wide_and_indexed_fills_work_on_a_copy exhaustive GP.FILL.BUFFER
 spec/lean/Kikizake/D3d11/Desc.lean::desc_size lean D3DRES.DESC.SIZE D3DRES.DESC
 spec/lean/Kikizake/D3d11/Desc.lean::desc_big lean D3DRES.DESC.BIG
 spec/lean/Kikizake/D3d11/Desc.lean::usage_ff lean D3DRES.DESC.USAGEFF
@@ -628,3 +641,137 @@ spec/lean/Kikizake/D3d9/Decl.lean::positiont lean D3D9.DECL.CREATE
 spec/lean/Kikizake/D3d9/Decl.lean::stream_apart lean D3D9.DECL.CREATE
 spec/lean/Kikizake/D3d11/Merge.lean::merge_none lean D3DRASTER.WRITEMASK
 spec/lean/Kikizake/D3d11/Merge.lean::merge_zero lean D3DRASTER.WRITEMASK
+spec/lean/Kikizake/D3d9/Blend.lean::blend_format lean D3D9.BLEND.FORMAT
+spec/lean/Kikizake/D3d9/Texel.lean::dxt1_blocks lean D3D9.TEX.DXT
+spec/lean/Kikizake/D3d9/Filter.lean::linear_whole lean D3D9.TEX.LINEAR
+spec/lean/Kikizake/D3d9/Filter.lean::linear_truncated lean D3D9.TEX.LINEAR
+spec/lean/Kikizake/D3d9/Filter.lean::point_nearest64 lean D3D9.TEX.POINT
+spec/lean/Kikizake/D3d9/Filter.lean::linear_centers lean D3D9.TEX.LINEAR
+spec/lean/Kikizake/D3d9/Coord.lean::slots_sets lean D3D9.STAGE.TCI
+spec/lean/Kikizake/D3d9/Coord.lean::row_sets lean D3D9.STAGE.TCI
+spec/lean/Kikizake/D3d9/Coord.lean::tex_transform lean D3D9.STAGE.TEXXFORM
+spec/lean/Kikizake/D3d9/Coord.lean::tex_transform_rows lean D3D9.STAGE.TEXXFORM
+tests/laws_dwrite_run.rs::nothing_lit_is_empty_bounds_at_the_origin exhaustive DW.RUN.EMPTY
+tests/laws_dwrite_run.rs::the_other_texture_is_empty exhaustive DW.RUN.TEXTURE
+tests/laws_dwrite_run.rs::grid_fit_draws_as_the_default exhaustive DW.RUN.FIT
+tests/laws_dwrite_run.rs::the_pen_moves_by_each_advance exhaustive DW.RUN.PEN
+tests/laws_dwrite_run.rs::gdi_metrics_round_through_pixels exhaustive DW.GDI.METRICS
+tests/laws_d3dx9_yuv.rs::yuy2_is_the_formula_for_every_colour exhaustive D3DX9.LOAD.YUY2
+tests/laws_d3dx9_yuv.rs::the_chroma_tap_for_every_four_bytes exhaustive D3DX9.LOAD.YUV
+tests/laws_d3dx9_yuv.rs::yuv_is_the_formula_for_every_sample exhaustive D3DX9.LOAD.YUV
+spec/tla/D3D9Fvf.tla::Next tla D3D9.FVF.SET D3D9.FVF.GET D3D9.DECL.GET
+tests/laws_d3dx9_load.rs::every_half_reads_as_its_value exhaustive D3DX9.LOAD.F16HALVES
+tests/laws_d3dx9_load.rs::each_place_takes_its_routine exhaustive D3DX9.LOAD.F16RANGE D3DX9.LOAD.F16HALVES
+tests/laws_d3dx9_load.rs::surfaces_of_formats_not_taken_are_invalid exhaustive D3DX9.LOAD
+tests/laws_d3dx9_dxt.rs::every_colour_block_texel exhaustive D3DX9.LOAD.DXT
+tests/laws_d3dx9_dxt.rs::every_alpha exhaustive D3DX9.LOAD.DXT
+tests/laws_d3dx9_dxt.rs::every_texel_of_each_format exhaustive D3DX9.LOAD.DXT
+spec/lean/Kikizake/D3d9/Shade.lean::gouraud lean D3D9.SHADE.GOURAUD
+spec/lean/Kikizake/D3d9/Shade.lean::gouraud_colors lean D3D9.SHADE.GOURAUD
+spec/lean/Kikizake/D3d9/Shade.lean::flat lean D3D9.SHADE.FLAT
+spec/lean/Kikizake/D3d9/Shade.lean::strip_cuts lean D3D9.RASTER.CLIP
+spec/lean/Kikizake/D3d9/Shade.lean::strip_examples lean D3D9.RASTER.CLIP
+spec/lean/Kikizake/D3d9/Clip.lean::no_sides lean D3D9.RASTER.CLIP
+spec/lean/Kikizake/D3d9/Clip.lean::pass_keeps lean D3D9.RASTER.CLIP
+spec/lean/Kikizake/D3d9/Clip.lean::snap_near lean D3D9.RASTER.CLIP
+spec/lean/Kikizake/D3d9/Clip.lean::d3d9_half_in lean D3D9.RASTER.CLIP8SIDE
+spec/lean/Kikizake/D3d9/Clip.lean::outside_sides lean D3D9.RASTER.CLIP8
+spec/lean/Kikizake/D3d11/Interp.lean::viewport_nan lean D3DRASTER.VIEWPORT
+spec/lean/Kikizake/D3d11/Interp.lean::vp10_toward_zero lean D3DRASTER.VP10
+spec/lean/Kikizake/D3d11/Interp.lean::plane_example lean D3DRASTER.INTERP.PLANE
+spec/lean/Kikizake/D3d11/Interp.lean::posw_example lean D3DRASTER.POSW.PLANE
+spec/lean/Kikizake/D3d11/Interp.lean::clamp_nan_range lean D3DRASTER.INTERP.DEPTH D3DRASTER.LINE.DEPTH
+spec/lean/Kikizake/D3d11/Interp.lean::vertex_depth_example lean D3DRASTER.INTERP.DEPTH
+spec/lean/Kikizake/D3d11/Interp.lean::made_least lean D3DRASTER.INTERP.CLIP
+spec/lean/Kikizake/D3d11/Interp.lean::line_example lean D3DRASTER.LINE.COLOR D3DRASTER.LINE.DEPTH
+tests/laws_dwrite_layout.rs::the_fallback_table_is_the_lookup exhaustive DW.FALLBACK.FONTS
+tests/laws_dwrite_layout.rs::the_fallback_pieces_for_every_short_text exhaustive DW.FALLBACK.MAP
+tests/laws_dwrite_layout.rs::fallback_layouts_take_each_fonts_metrics exhaustive DW.LAYOUT.FALLBACK
+tests/laws_d3dres.rs::a_view_drawn_into_is_unbound exhaustive D3DRASTER.HAZARD D3DRASTER.LD.VIEW
+tests/laws_opengl.rs::popped_groups_come_back pbt GL.ATTRIB.POP
+tests/laws_opengl.rs::deleted_lists_are_their_range pbt GL.LIST
+tests/laws_opengl.rs::proxy_images_run_outside_lists pbt GL.LIST GL.TEX.PROXY
+tests/wicimage_laws.rs::float2pixel_at_every_shift exhaustive WICIMAGE.ENCODE.LOSSY
+tests/wicimage_laws.rs::the_last_value_of_a_name_is_encoded pbt WICIMAGE.ENCODE.OPTIONS
+tests/wicimage_laws.rs::a_refused_write_fails_whatever_follows pbt WICIMAGE.ENCODE.OPTION.FOREIGN
+tests/laws_dxtenc.rs::the_step_of_every_dot exhaustive D3DX9.LOAD.NEGFAULT
+spec/lean/Kikizake/D3d9/Draw.lean::strip lean D3D9.DRAW.ASSEMBLY
+spec/lean/Kikizake/D3d9/Draw.lean::fan lean D3D9.DRAW.ASSEMBLY
+spec/lean/Kikizake/D3d9/Draw.lean::list lean D3D9.DRAW.ASSEMBLY
+spec/lean/Kikizake/D3d9/Draw.lean::within lean D3D9.DRAW.ASSEMBLY
+spec/lean/Kikizake/D3d9/Draw.lean::stride_read lean D3D9.DRAW.STRIDE
+spec/lean/Kikizake/D3d9/Draw.lean::nearest_pixel lean D3D9.DRAW.POINTS
+spec/lean/Kikizake/D3d9/Draw.lean::xzero lean D3D9.DRAW.XZERO
+spec/lean/Kikizake/D3d9/Draw.lean::xzero_any lean D3D9.DRAW.XZERO
+tests/wicimage_laws.rs::a_frame_written_again_keeps_its_pixels pbt WICIMAGE.ENCODE.WMP.FRAME
+tests/wicimage_laws.rs::a_quarter_turned_tall_file_copies_nothing pbt WICIMAGE.ENCODE.WMP.TURNTALL
+spec/lean/Kikizake/Gdi/Hfd.lean::value_nearest lean GDI.PATH.FLATTENHFD
+spec/lean/Kikizake/Gdi/Hfd.lean::flatten_far lean GDI.PATH.FLATTENHFD
+spec/lean/Kikizake/Gdi/Hfd.lean::flatten_keeps_the_end lean GDI.PATH.FLATTENHFD
+spec/lean/Kikizake/Gdi/Arc.lean::part_end lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Arc.lean::partial_ends lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Arc.lean::arc_thin lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Arc.lean::axes_exact lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Arc.lean::cos_sin_symmetric lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Arc.lean::arctan_mirror lean GDI.PATH.ARC
+spec/lean/Kikizake/Gdi/Glyph.lean::rows_dword_aligned lean GDI.TEXT.BITMAP GDI.TEXT.GRAY
+spec/lean/Kikizake/Gdi/Glyph.lean::bytes_length lean GDI.TEXT.BITMAP GDI.TEXT.GRAY
+spec/lean/Kikizake/Gdi/Glyph.lean::gray_levels lean GDI.TEXT.GRAY
+spec/lean/Kikizake/Gdi/Glyph.lean::dropout_strokes lean GDI.TEXT.BITMAP
+spec/lean/Kikizake/Gdi/Glyph.lean::shear_zero lean GDI.TEXT.ITALIC
+spec/lean/Kikizake/Gdi/Glyph.lean::shear_odd lean GDI.TEXT.ITALIC
+spec/lean/Kikizake/Gdi/Glyph.lean::italic_rows lean GDI.TEXT.ITALIC
+spec/lean/Kikizake/Gdi/Glyph.lean::italic_width lean GDI.TEXT.ITALIC
+spec/lean/Kikizake/Gdi/Glyph.lean::corners_sheared lean GDI.TEXT.ITALIC
+spec/lean/Kikizake/Gdi/Glyph.lean::text_cons lean GDI.TEXT.DRAW
+spec/lean/Kikizake/Gdi/Glyph.lean::char_rows lean GDI.TEXT.DRAW
+tests/laws_gdigradtri.rs::triangle_is_its_values_carried_as_flat_rectangles exhaustive GDI.GRAD.TRIANGLE
+spec/lean/Kikizake/D3d11/Clip.lean::depth_first lean D3DRASTER.CLIPZ.PIECES
+spec/lean/Kikizake/D3d11/Clip.lean::all_out lean D3DRASTER.CLIP D3DRASTER.DEPTHCLIP
+spec/lean/Kikizake/D3d11/Clip.lean::in_front lean D3DRASTER.DEPTHCLIP
+spec/lean/Kikizake/D3d11/Clip.lean::past_far lean D3DRASTER.DEPTHCLIP
+spec/lean/Kikizake/D3d11/Clip.lean::inside_whole lean D3DRASTER.CLIP
+spec/lean/Kikizake/D3d11/Clip.lean::depth_front lean D3DRASTER.DEPTHCLIP
+spec/lean/Kikizake/D3d11/Clip.lean::line_out lean D3DRASTER.CLIPZ.LINE
+spec/lean/Kikizake/D3d11/Clip.lean::point_away lean D3DRASTER.CLIPW.AWAY
+spec/lean/Kikizake/D3d11/Clip.lean::nan_not_finite lean D3DRASTER.CLIPW.NAN
+spec/lean/Kikizake/D3d9/Line.lean::point_unlit lean D3D9.DRAW.LINES
+spec/lean/Kikizake/D3d9/Line.lean::one_diamond lean D3D9.DRAW.LINES
+spec/lean/Kikizake/D3d9/Line.lean::lit_within lean D3D9.DRAW.LINES D3D9.DRAW.POINTSLINES
+spec/lean/Kikizake/D3d9/Line.lean::start_kept lean D3D9.DRAW.LINEEND
+spec/lean/Kikizake/D3d9/Line.lean::inside_kept lean D3D9.DRAW.LINECLIP
+spec/lean/Kikizake/D3d9/Line.lean::one_point lean D3D9.DRAW.LINECLIP
+spec/lean/Kikizake/D3d9/Line.lean::drawn_apart lean D3D9.DRAW.LINECLIP
+spec/lean/Kikizake/D3d9/Line.lean::cut_one_inside lean D3D9.DRAW.LINECLIP
+spec/lean/Kikizake/D3d9/Line.lean::cut_near lean D3D9.DRAW.LINECLIP_NEAR
+spec/lean/Kikizake/D3d9/Line.lean::near_keeps lean D3D9.DRAW.LINECLIP_NEAR
+spec/lean/Kikizake/D3d9/Xyz.lean::order lean D3D9.DRAW.XYZ
+spec/lean/Kikizake/D3d9/Xyz.lean::viewport lean D3D9.DRAW.XYZ
+spec/lean/Kikizake/D3d9/Xyz.lean::inside_none lean D3D9.DRAW.XYZ.CLIP
+spec/lean/Kikizake/D3d9/Xyz.lean::pass_keeps lean D3D9.DRAW.XYZ.CLIP
+spec/lean/Kikizake/D3d9/Xyz.lean::rhw_keeps lean D3D9.DRAW.RHW
+spec/lean/Kikizake/D3d9/Xyz.lean::rhw_weights lean D3D9.DRAW.RHW
+spec/lean/Kikizake/D3d11/Line.lean::every_sample lean D3DRASTER.MS.LINES
+spec/lean/Kikizake/D3d11/Line.lean::four_corners lean D3DRASTER.LINE.QUAD D3DRASTER.LINE.ALPHA
+spec/lean/Kikizake/D3d11/Line.lean::alpha_symmetric lean D3DRASTER.LINE.ALPHA
+spec/lean/Kikizake/D3d11/Line.lean::horizontal_example lean D3DRASTER.LINE
+spec/lean/Kikizake/D3d11/Line.lean::end_pulled_back lean D3DRASTER.LINE.END D3DRASTER.LINE
+spec/lean/Kikizake/D3d11/Line.lean::alpha_on_line lean D3DRASTER.LINE.ALPHA
+spec/lean/Kikizake/D3d11/Layout.lean::no_program lean D3DRASTER.LAYOUT.BAD
+spec/lean/Kikizake/D3d11/Layout.lean::pixel_program lean D3DRASTER.LAYOUT.SIG
+spec/lean/Kikizake/D3d11/Layout.lean::made_vertex lean D3DRASTER.LAYOUT.SIG D3DRASTER.LAYOUT.BAD
+spec/lean/Kikizake/D3d9/Aniso.lean::count_pow2 lean D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Aniso.lean::footprint_count lean D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Aniso.lean::footprint_not_nan lean D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Aniso.lean::taps_bilinear lean D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Aniso.lean::taps_two lean D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Aniso.lean::taps_n lean D3D9.TEX.ANISON
+spec/lean/Kikizake/D3d9/Aniso.lean::walk_length lean D3D9.TEX.ANISON
+spec/lean/Kikizake/D3d9/Aniso.lean::average_same lean D3D9.TEX.ANISON
+spec/lean/Kikizake/D3d9/Aniso.lean::average_two lean D3D9.TEX.ANISON D3D9.TEX.ANISO2
+spec/lean/Kikizake/D3d9/Gen.lean::normal_position lean D3D9.STAGE.TCIGEN
+spec/lean/Kikizake/D3d9/Gen.lean::world_then_view lean D3D9.STAGE.TCIGEN
+spec/lean/Kikizake/D3d9/Gen.lean::reflect_infinite lean D3D9.STAGE.TCIGEN
+spec/lean/Kikizake/D3d9/Gen.lean::quad_shared lean D3D9.STAGE.PROJFOOT
+spec/lean/Kikizake/D3d9/Gen.lean::projected lean D3D9.STAGE.PROJFOOT
+spec/lean/Kikizake/D3d9/Gen.lean::three_sets lean D3D9.STAGE.PROJFOOT

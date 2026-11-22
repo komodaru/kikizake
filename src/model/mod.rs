@@ -246,6 +246,10 @@ pub fn run_case_ended(case: &Case) -> (Res<Vec<String>>, Ended) {
 /// a model of one API: Ok(true) when it ran the line, Ok(false) when the line is not its own
 pub trait Api {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool>;
+    /// the case's end (the executor's reset releasing what it made): Fail::Crash when that kills it
+    fn end(&mut self) -> Res<()> {
+        Ok(())
+    }
 }
 
 impl Api for gdi::Gdi {
@@ -299,6 +303,9 @@ impl Api for d3d7::D3d7 {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         d3d7::D3d7::op(self, op, out)
     }
+    fn end(&mut self) -> Res<()> {
+        self.release()
+    }
 }
 
 impl Api for gdiplus::Gdiplus {
@@ -343,16 +350,23 @@ fn run_ops(case: &Case) -> (Res<Vec<String>>, Ended) {
     let mut out = Vec::new();
     let mut apis = apis();
     // (the executor's output reaches the file at its flushes, so a crash loses what came after
-    // the last: at a case's start, and before each Direct3D 10/11 resource ("tex", runner/
+    // the last: at a case's start, before each Direct3D 10/11 resource ("tex", runner/
     // d3dres.c op_tex))
     let mut flushed = 0;
     'line: for op in &case.ops {
         if op.tok.first().is_some_and(|t| t == "tex") {
             flushed = out.len();
         }
+        // (and after each Direct3D 7 dump, runner/d3d7.c op_d3dlock)
+        let dump = op.tok.first().is_some_and(|t| t == "d3ddump" || t == "d3dzdump");
         for a in apis.iter_mut() {
             match a.op(op, &mut out) {
-                Ok(true) => continue 'line,
+                Ok(true) => {
+                    if dump {
+                        flushed = out.len();
+                    }
+                    continue 'line;
+                }
                 Ok(false) => {}
                 Err(Fail::Empty) => {
                     out.push(format!("bad line {}", op.line));
@@ -366,6 +380,16 @@ fn run_ops(case: &Case) -> (Res<Vec<String>>, Ended) {
             }
         }
         return (Err(Fail::Bad), Ended::Next);
+    }
+    for a in apis.iter_mut() {
+        match a.end() {
+            Ok(()) => {}
+            Err(Fail::Crash) => {
+                out.truncate(flushed);
+                return (Ok(out), Ended::Crash);
+            }
+            Err(e) => return (Err(e), Ended::Next),
+        }
     }
     (Ok(out), Ended::Next)
 }

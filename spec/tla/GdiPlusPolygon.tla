@@ -9,7 +9,7 @@
    (x - s + i / 8, y - s + j / n) held, s 1/2 but 0 under a half pixel offset, rounded halves up
    (GP.PAINT.AA's share); a FillMode past 0 ..= 1 InvalidParameter, nothing filled. SourceCopy; the
    pixels and conversions are GdiPlusBitmap's (INSTANCE). Every behavior starts with a blank 4 x 3
-   32bppARGB bitmap and takes at most MaxOps fills, the first of one color and the next of another;
+   32bppARGB bitmap and takes at most MaxOps fills (some through a world transform), the first of one color and the next of another;
    after each, the bitmap is read. `kikizake tla` replays every state's log through the Rust model,
    whose fills go through its scan converter (GP.RASTER.FILL) (spec/tla/README.md). *)
 EXTENDS Integers, Sequences, FiniteSets, TLC
@@ -53,10 +53,20 @@ RECURSIVE WindFrom(_, _, _, _)
 WindFrom(ps, i, sx, sy) == IF i > Len(ps) THEN 0 ELSE Edge(ps, i, sx, sy) + WindFrom(ps, i + 1, sx, sy)
 Holds(ps, fm, sx, sy) == LET w == WindFrom(ps, 1, sx, sy) IN IF fm = 0 THEN w % 2 = 1 ELSE w # 0
 
-Fill(ps, fm, sm, po) ==
+\* a world transform: none, the identity, or one of no inverse (GP.MATRIX.INVERT: GdipSetWorldTransform
+\* refuses it InvalidParameter, nothing filled)
+One == "3f800000"
+Zero == "00000000"
+MatLine(wm) == CASE wm = "id" -> <<"> gpmatrix 0 0x" \o One \o " 0x" \o Zero \o " 0x" \o Zero \o " 0x" \o One \o " 0x" \o Zero \o " 0x" \o Zero,
+                                   "matrix 0", "elements 0 " \o One \o " " \o Zero \o " " \o Zero \o " " \o One \o " " \o Zero \o " " \o Zero>>
+                 [] wm = "sing" -> <<"> gpmatrix 0 0x" \o One \o " 0x" \o One \o " 0x" \o One \o " 0x" \o One \o " 0x" \o Zero \o " 0x" \o Zero,
+                                     "matrix 0", "elements 0 " \o One \o " " \o One \o " " \o One \o " " \o One \o " " \o Zero \o " " \o Zero>>
+                 [] OTHER -> <<>>
+
+Fill(ps, fm, sm, po, wm) ==
   LET c == B!FromArgb("32bppPARGB", Colors[(n % 2) + 1])
       half == po \in {2, 4}
-      call == "> gpshape 0 brush 0 - copy 0 " \o S(sm) \o " " \o S(po) \o " polygon " \o S(fm) \o " "
+      call == "> gpshape 0 brush 0 " \o (IF wm = "-" THEN "-" ELSE "0") \o " copy 0 " \o S(sm) \o " " \o S(po) \o " polygon " \o S(fm) \o " "
               \o S(Len(ps)) \o PtsFrom(ps, 1)
       rows == IF sm = 5 THEN 8 ELSE 4
       s == IF half THEN 0 ELSE 4
@@ -71,10 +81,11 @@ Fill(ps, fm, sm, po) ==
                      THEN B!Convert("32bppPARGB", "32bppARGB", [k \in 1..4 |-> share(c[k], cov(x, y))], <<>>)
                      ELSE bmp.px[i])
                ELSE IF in(x, y) THEN B!Convert("32bppPARGB", "32bppARGB", c, <<>>) ELSE bmp.px[i]]
-      b == IF fm \in {0, 1} THEN [bmp EXCEPT !.px = px] ELSE bmp
+      ok == fm \in {0, 1} /\ wm # "sing"
+      b == IF ok THEN [bmp EXCEPT !.px = px] ELSE bmp
   IN /\ bmp' = b
-     /\ log' = log \o <<"> gpbrush 0 solid 0x" \o B!Hex8(Colors[(n % 2) + 1]), "brush 0", call,
-                        IF fm \in {0, 1} THEN "shape 0 0" ELSE "shape 0 2">> \o B!Read(0, b, "32bppARGB")
+     /\ log' = log \o MatLine(wm) \o <<"> gpbrush 0 solid 0x" \o B!Hex8(Colors[(n % 2) + 1]), "brush 0", call,
+                        IF ok THEN "shape 0 0" ELSE "shape 0 2">> \o B!Read(0, b, "32bppARGB")
      /\ n' = n + 1
 
 \* polygons in eighths: a triangle, one past the bitmap, a bow tie, a square wound twice, a
@@ -89,7 +100,8 @@ Polys == {<<<<4, 2>>, <<28, 6>>, <<10, 22>>>>,
 Modes == {<<0, 0>>, <<0, 4>>, <<3, 2>>, <<4, 0>>, <<2, 4>>, <<5, 0>>, <<5, 2>>}
 
 Next == /\ n < MaxOps
-        /\ \E ps \in Polys, fm \in {0, 1, 2}, m \in Modes : Fill(ps, fm, m[1], m[2])
+        /\ \/ \E ps \in Polys, fm \in {0, 1, 2}, m \in Modes : Fill(ps, fm, m[1], m[2], "-")
+           \/ \E ps \in Polys, wm \in {"id", "sing"} : Fill(ps, 1, 0, 0, wm)
 
 Spec == Init /\ [][Next]_vars
 

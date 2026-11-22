@@ -330,21 +330,30 @@ static void op_d3dtri(void) {
     if (hr) out("tri end hr %08lx\n", hr);
 }
 
-/* d3dline <c> <x0> <y0> <x1> <y1>: BeginScene, a D3DTLVERTEX line list of one line (x, y in
- * 16ths of a pixel, z 0.5, rhw 1, the diffuse color ARGB), EndScene ("line <step> hr <hr>") */
+/* d3dline <c0>[/<c1>] <x0> <y0> <x1> <y1>: BeginScene, a D3DTLVERTEX line list of one line (x, y
+ * in 16ths of a pixel, z 0.5, rhw 1, the diffuse colors ARGB, one or one an end), EndScene
+ * ("line <step> hr <hr>") */
 static void op_d3dline(void) {
     D3DTLVERTEX v[2];
     memset(v, 0, sizeof v);
     if (ntok != 6) { bad = 1; return; }
     char *e;
-    DWORD c = (DWORD)strtoul(tok[1], &e, 0);
-    if (*e || e == tok[1]) bad = 1;
+    DWORD c[2];
+    c[0] = (DWORD)strtoul(tok[1], &e, 0);
+    if (e == tok[1]) bad = 1;
+    c[1] = c[0];
+    if (*e == '/') {
+        char *p = e + 1;
+        c[1] = (DWORD)strtoul(p, &e, 0);
+        if (e == p) bad = 1;
+    }
+    if (*e) bad = 1;
     for (int k = 0; k < 2; k++) {
         v[k].sx = num(2 + 2 * k) / 16.0f;
         v[k].sy = num(3 + 2 * k) / 16.0f;
         v[k].sz = 0.5f;
         v[k].rhw = 1.0f;
-        v[k].color = c;
+        v[k].color = c[k];
     }
     if (bad) return;
     if (!dev2 && !dev3 && !dev7) { out("nodev\n"); return; }
