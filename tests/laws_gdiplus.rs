@@ -526,3 +526,57 @@ fn wide_and_indexed_fills_work_on_a_copy() {
     }
     assert!(tripped > 100);
 }
+
+/// the pixels of the last read of a case's answers in a 16-bit format (little-endian bytes)
+fn read16(out: &[String], h: usize) -> Vec<u32> {
+    let rows = out.get(out.len().saturating_sub(h)..).unwrap_or(&[]);
+    rows.iter()
+        .flat_map(|r| {
+            (0..r.len() / 4).map(move |k| {
+                let b = |i: usize| u32::from_str_radix(r.get(k * 4 + 2 * i..k * 4 + 2 * i + 2).unwrap_or("00"), 16).unwrap_or(0);
+                b(0) | b(1) << 8
+            })
+        })
+        .collect()
+}
+
+/// GP.BRUSH.LINEAR.PAINT: a clear pixel of a line gradient over 16bppRGB555 is drawn on x86 (the
+/// unused top bit cleared, the color blended and dithered as any drawn pixel, whichever clear
+/// gradient it is) and left on x86-64; a clear solid brush leaves it on both, and copying writes it
+/// on both: 4 seeded bitmaps, gradients clear at both ends and at one, with and without the half
+/// pixel offset and antialiasing
+#[test]
+fn clear_gradient_pixels_over_555() {
+    let mut top = 0u32;
+    for arch in [32u32, 64] {
+        kikizake::model::set_arch(arch);
+        for seed in 1..=4 {
+            let setup = format!("gpbitmap 0 8 2 16bppRGB555\ngpwrite 0 16bppRGB555 seed {seed}\n");
+            let before = read16(&answers(&format!("{setup}gpread 0 16bppRGB555\n")), 2);
+            assert_eq!(before.len(), 16);
+            top += u32::try_from(before.iter().filter(|&&v| v & 0x8000 != 0).count()).unwrap_or(0);
+            for (sm, po) in [(0, 0), (0, 2), (4, 0)] {
+                let paint = |brush: &str, mode: &str| {
+                    let out = answers(&format!("{setup}{brush}gppaint 0 0 0 0 8 2 {mode} 0 {sm} {po} 0 0\ngpread 0 16bppRGB555\n"));
+                    read16(&out, 2)
+                };
+                let clear = "gpbrush 0 linear 0 0 7 0 0x00ff8040 0x0000ff00 0\n";
+                let drawn = paint(clear, "over");
+                if arch == 32 {
+                    assert!(drawn.iter().all(|&v| v & 0x8000 == 0), "{arch} seed {seed} sm {sm} po {po} {drawn:?}");
+                    assert_ne!(drawn, before, "{arch} seed {seed} sm {sm} po {po}");
+                    assert_eq!(paint("gpbrush 0 linear 3 1 -9 5 0x0012ab34 0x00fedcba 1\n", "over"), drawn, "{arch} seed {seed} sm {sm} po {po}");
+                } else {
+                    assert_eq!(drawn, before, "{arch} seed {seed} sm {sm} po {po}");
+                }
+                assert_eq!(paint("gpbrush 0 solid 0x00ff8040\n", "over"), before, "{arch} seed {seed} solid");
+                let copied = paint(clear, "copy");
+                assert!(copied.iter().all(|&v| v & 0x8000 == 0), "{arch} seed {seed} copy {copied:?}");
+                // (one end clear: its pixels as the clear ones, the rest blended)
+                let half = paint("gpbrush 0 linear 0 0 16 0 0x00000000 0xff00ff00 0\n", "over");
+                assert_eq!(half.first().map(|&v| v & 0x8000 != 0), before.first().map(|&v| arch == 64 && v & 0x8000 != 0), "{arch} seed {seed} first {half:?}");
+            }
+        }
+    }
+    assert!(top > 8, "{top}");
+}

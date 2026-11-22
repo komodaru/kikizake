@@ -1596,18 +1596,10 @@ impl Gdiplus {
             (None, Some("lines" | "polygon")) => path.pts.iter().map(|q| (q.x, q.y)).collect(),
             (None, _) => vec![],
         };
-        if !whole.is_empty() {
-            let d: Vec<(f32, f32)> = whole.iter().map(|&(x, y)| gpp::apply(r, &wtd, x, y)).collect();
-            let size = |k: fn(&(f32, f32)) -> f32| {
-                let (lo, hi) = d.iter().map(k).fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), v| (a.min(v), b.max(v)));
-                r.sub(hi, lo)
-            };
-            let wide = |v: f32| v.partial_cmp(&gpp::NEAR) == Some(std::cmp::Ordering::Greater);
-            if !wide(size(|q| q.0)) && !wide(size(|q| q.1)) {
-                hit(clause::GP_PEN_EMPTY);
-                out.push("shape 0 0".into());
-                return Ok(true);
-            }
+        if !whole.is_empty() && gpp::too_small(r, &wtd, &whole) {
+            hit(clause::GP_PEN_EMPTY);
+            out.push("shape 0 0".into());
+            return Ok(true);
         }
         let how = gpp::stroke(r, &pen, world.as_ref(), sm.rows().is_none(), super::gpwiden::pattern(&pen).is_some());
         // (MEASURED, golden gdiplusline pendash-5: DashStyleCustom with no dash array set is

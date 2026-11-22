@@ -1,6 +1,7 @@
 //! GDI+'s mirrors (spec/lean/Kikizake/GdiPlus/).
-use super::{arg, every, one, sampled, Domain, Mirror};
+use super::{arg, arg_f64, every, f64_halves, one, sampled, Domain, Mirror};
 use crate::model::gdiplus::{self, Depth, Pf, Round};
+use crate::model::gplinear::{self, Libm, Linear, Repeat, Span};
 use crate::model::gppath::{self, Kind, Path, Point};
 
 const CONV: &str = "spec/lean/Kikizake/GdiPlus/Conv.lean";
@@ -8,6 +9,13 @@ const BLEND: &str = "spec/lean/Kikizake/GdiPlus/Blend.lean";
 const MATRIX: &str = "spec/lean/Kikizake/GdiPlus/Matrix.lean";
 const FLATTEN: &str = "spec/lean/Kikizake/GdiPlus/Flatten.lean";
 const DITHER: &str = "spec/lean/Kikizake/GdiPlus/Dither.lean";
+const LINEAR: &str = "spec/lean/Kikizake/GdiPlus/Linear.lean";
+const RECOLOR: &str = "spec/lean/Kikizake/GdiPlus/Recolor.lean";
+const STROKE: &str = "spec/lean/Kikizake/GdiPlus/Stroke.lean";
+const ARC: &str = "spec/lean/Kikizake/GdiPlus/Arc.lean";
+const RASTER: &str = "spec/lean/Kikizake/GdiPlus/Raster.lean";
+const LINE: &str = "spec/lean/Kikizake/GdiPlus/Line.lean";
+const CHAIN: &str = "spec/lean/Kikizake/GdiPlus/Chain.lean";
 
 /// the formats the mirror converts, by their place in `Pf` (the indexed ones and 16bppGrayScale
 /// convert through tables and refusals the Lean file does not hold)
@@ -238,6 +246,139 @@ fn int_pairs(a: &[i64]) -> Option<[(i32, i32); 4]> {
         *p = (arg(xy, 0)?, arg(xy, 1)?);
     }
     Some(q)
+}
+
+/// libm's answers to a line brush of these points, as the platform gives them (atan2, sin, cos;
+/// 0 for a call not made)
+fn linear_libm(r: Round, p1: (i32, i32), p2: (i32, i32), wrap: i64) -> [f64; 3] {
+    let mut got = [0f64; 3];
+    let _made = gplinear::new_with(r, p1, p2, (0, 0), wrap, &mut |c| {
+        let v = gplinear::libm(c);
+        let k = match c {
+            Libm::Atan2(..) => 0,
+            Libm::Sin(_) => 1,
+            Libm::Cos(_) => 2,
+        };
+        if let Some(g) = got.get_mut(k) {
+            *g = v;
+        }
+        v
+    });
+    got
+}
+
+/// the point coordinates the line brush mirrors draw from: small, the goldens' size, and the
+/// int range
+const LINEAR_SPANS: [i64; 4] = [8, 600, 1 << 24, 2_147_483_647];
+
+/// `n` line brushes of each span: rounding, the two points and a WrapMode (-1 ..= 6)
+fn linear_points(n: usize, seed: u32, each: &mut dyn FnMut(Round, (i32, i32), (i32, i32), i64)) {
+    for (k, &m) in LINEAR_SPANS.iter().enumerate() {
+        let seed = seed.wrapping_add(u32::try_from(k).unwrap_or(0));
+        let lo = m.saturating_neg();
+        sampled(&[(0, 1), (lo, m), (lo, m), (lo, m), (lo, m), (-1, 6)], n, seed, &mut |v| {
+            let c = |i: usize| v.get(i).and_then(|&x| i32::try_from(x).ok()).unwrap_or(0);
+            each(rounding(v.first().copied().unwrap_or(0)), (c(1), c(2)), (c(3), c(4)), v.get(5).copied().unwrap_or(0));
+        });
+        // (lines along an axis and its diagonals, whose rectangles are made square)
+        sampled(&[(0, 1), (lo, m), (lo, m), (lo, m), (0, 3)], n / 4, seed ^ 0x55, &mut |v| {
+            let c = |i: usize| v.get(i).and_then(|&x| i32::try_from(x).ok()).unwrap_or(0);
+            let (x, y, d) = (c(1), c(2), c(3));
+            let p2 = match v.get(4).copied().unwrap_or(0) {
+                0 => (x.saturating_add(d), y),
+                1 => (x, y.saturating_add(d)),
+                2 => (x.saturating_add(d), y.saturating_add(d)),
+                _ => (x.saturating_add(d), y.saturating_sub(d)),
+            };
+            each(rounding(v.first().copied().unwrap_or(0)), (x, y), p2, 0);
+        });
+    }
+}
+
+/// AddEllipse (kind 0), AddArc (1) or AddPie (2) onto a new path, libm answered by `m`
+fn arc_case(path: &mut Path, r: Round, kind: i64, rect: (f32, f32, f32, f32), start: f32, sweep: f32, m: &mut dyn FnMut(gplinear::Libm) -> f64) -> Result<(), gppath::Refused> {
+    match kind {
+        0 => path.add_ellipse(r, rect),
+        1 => path.add_arc_with(r, rect, start, sweep, m),
+        _ => path.add_pie_with(r, rect, start, sweep, m),
+    }
+}
+
+/// a fill: rounding, the half pixel offset, a matrix or none, Winding, the rows (0 aliased), the
+/// bitmap's size, then (x, y, type) points of one to three figures of lines and Beziers on and
+/// about it, closed or not
+fn fills(count: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::Sample64::new(seed);
+    for k in 0..count {
+        let mut v = vec![i64::from(u8::from(k % 2 == 1)), rng.range(0, 1), i64::from(u8::from(rng.chance(2)))];
+        for i in 0..6 {
+            let e = path_element(&mut rng, i == 0 || i == 3);
+            // (the translation within a few pixels)
+            let e = if i >= 4 { (f32::from(i8::try_from(rng.range(-24, 24)).unwrap_or(0)) / 8.0).to_bits() } else { e };
+            v.push(i64::from(e));
+        }
+        v.push(rng.range(0, 1));
+        v.push(*rng.pick(&[0i64, 0, 1, 2, 4, 8]));
+        let (w, h) = (rng.range(1, 12), rng.range(1, 10));
+        v.extend([w, h]);
+        let at = |rng: &mut crate::rng::Sample64, m: i64| i64::from((f32::from(i16::try_from(rng.range(-16, m.saturating_mul(8).saturating_add(16))).unwrap_or(0)) / 8.0).to_bits());
+        for _ in 0..rng.range(1, 3) {
+            v.extend([at(&mut rng, w), at(&mut rng, h), 0]);
+            for _ in 0..rng.range(1, 4) {
+                if rng.chance(3) {
+                    for _ in 0..3 {
+                        v.extend([at(&mut rng, w), at(&mut rng, h), 3]);
+                    }
+                } else {
+                    v.extend([at(&mut rng, w), at(&mut rng, h), 1]);
+                }
+            }
+            if rng.chance(2) {
+                let n = v.len().saturating_sub(1);
+                if let Some(t) = v.get_mut(n) {
+                    *t |= 128;
+                }
+            }
+        }
+        each(&v);
+    }
+}
+
+/// a 28.4 coordinate about a bitmap of n pixels: mostly on and about it, sometimes far
+fn fixed(rng: &mut crate::rng::Sample64, n: i64) -> i64 {
+    match rng.range(0, 9) {
+        0 => rng.range(-1 << 20, 1 << 20),
+        1 => rng.range(-(1 << 30), 1 << 30),
+        2 => rng.range(-8, 8).saturating_add(rng.range(0, n).saturating_mul(16)),
+        _ => rng.range(-40, n.saturating_mul(16).saturating_add(40)),
+    }
+}
+
+/// a coverage's counts, row by row
+fn counts(c: &gppath::Coverage) -> Vec<i64> {
+    (0..c.h).flat_map(|y| (0..c.w).map(move |x| (x, y))).map(|(x, y)| i64::from(c.count(x, y))).collect()
+}
+
+/// the (x, y, type) path points from i on
+fn path_points(a: &[i64], i: usize) -> Option<Vec<Point>> {
+    let mut pts = Vec::new();
+    for p in a.get(i..)?.chunks(3) {
+        let t: u32 = arg(p, 2)?;
+        let kind = match t & 127 {
+            0 => Kind::Start,
+            1 => Kind::Line,
+            _ => Kind::Bezier,
+        };
+        pts.push(Point { x: f32::from_bits(arg(p, 0)?), y: f32::from_bits(arg(p, 1)?), kind, close: t >= 128, inner: false });
+    }
+    Some(pts)
+}
+
+fn round_flag(r: Round) -> i64 {
+    match r {
+        Round::Nearest => 0,
+        Round::Down => 1,
+    }
 }
 
 pub static MIRRORS: &[Mirror] = &[
@@ -553,6 +694,625 @@ pub static MIRRORS: &[Mirror] = &[
             let col = if tex { gdiplus::dither_column(arg::<u8>(a, 0)? != 0, arg(a, 2)?, &cells, arg(a, 4)?, arg(a, 5)?, arg(a, 6)?) } else { arg(a, 6)? };
             let row = gdiplus::dither_row(tex.then_some(arg(a, 3)?), arg(a, 7)?);
             Some(vec![i64::from(col), i64::from(row)])
+        },
+    },
+    Mirror {
+        name: "gp.linear",
+        lean: LINEAR,
+        domain: Domain::Sampled("to nearest and down: 30,000 pairs of points of each of four spans (8, 600, 2^24, the int range) and WrapModes -1 ..= 6, and lines along the axes and diagonals; libm's atan2, sin and cos as the platform answers them"),
+        inputs: |each| {
+            linear_points(30_000, 0x11ea_0001, &mut |r, p1, p2, wrap| {
+                let lib = linear_libm(r, p1, p2, wrap);
+                let mut v = vec![round_flag(r), i64::from(p1.0), i64::from(p1.1), i64::from(p2.0), i64::from(p2.1), wrap];
+                for x in lib {
+                    v.extend(f64_halves(x));
+                }
+                each(&v);
+            });
+        },
+        model: |a| {
+            let r = rounding(arg(a, 0)?);
+            let (la, ls, lc) = (arg_f64(a, 6)?, arg_f64(a, 8)?, arg_f64(a, 10)?);
+            let mut calls = Vec::new();
+            let got = gplinear::new_with(r, (arg(a, 1)?, arg(a, 2)?), (arg(a, 3)?, arg(a, 4)?), (0, 0), arg(a, 5)?, &mut |c| match c {
+                Libm::Atan2(y, x) => {
+                    calls.extend([y, x]);
+                    la
+                }
+                Libm::Sin(t) => {
+                    calls.push(t);
+                    ls
+                }
+                Libm::Cos(t) => {
+                    calls.push(t);
+                    lc
+                }
+            });
+            let st = match got {
+                Ok(_) => 0,
+                Err(gplinear::Refused::InvalidParameter) => 2,
+                Err(gplinear::Refused::OutOfMemory) => 3,
+            };
+            let mut out = vec![st];
+            out.extend(calls.into_iter().flat_map(f64_halves));
+            if let Ok(l) = got {
+                let (x, y, w, h) = l.rect;
+                out.extend([x, y, w, h].into_iter().chain(l.matrix).map(canon));
+                out.push(i64::from(l.repeat == Repeat::Mirror));
+            }
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "gp.linear_span",
+        lean: LINEAR,
+        domain: Domain::Sampled("to nearest and down, with and without the half pixel offset: the brushes of 6,000 pairs of points of each span, random colors, four pixels each of 0 ..= 64 and of the 34-bit range; an identity product"),
+        inputs: |each| {
+            let mut k = 0u32;
+            let mut rng = crate::rng::Sample64::new(0x11ea_0002);
+            let emit = |r: Round, l: &Linear, rng: &mut crate::rng::Sample64, each: &mut dyn FnMut(&[i64])| {
+                for half in [0, 1] {
+                    let (x, y, w, h) = l.rect;
+                    let mut v = vec![round_flag(r), half];
+                    v.extend([x, y, w, h].into_iter().chain(l.matrix).map(|f| i64::from(f.to_bits())));
+                    v.extend([i64::from(l.colors.0), i64::from(l.colors.1), i64::from(l.repeat == Repeat::Mirror)]);
+                    for big in [false, false, true, true] {
+                        let m = if big { 1i64 << 33 } else { 64 };
+                        v.extend([rng.range(-m, m), rng.range(-m, m)]);
+                    }
+                    each(&v);
+                }
+            };
+            linear_points(6_000, 0x11ea_0003, &mut |r, p1, p2, wrap| {
+                k = k.wrapping_add(1);
+                let colors = (u32::try_from(rng.range(0, 0xffff_ffff)).unwrap_or(0), u32::try_from(rng.range(0, 0xffff_ffff)).unwrap_or(0));
+                // (an opaque, a clear and a translucent end among them)
+                let colors = match k % 4 {
+                    0 => (colors.0 | 0xff00_0000, colors.1 & 0x00ff_ffff),
+                    1 => (colors.0 | 0xff00_0000, colors.1 | 0xff00_0000),
+                    _ => colors,
+                };
+                if let Ok(l) = gplinear::new(r, p1, p2, colors, wrap) {
+                    emit(r, &l, &mut rng, each);
+                }
+            });
+            for r in [Round::Nearest, Round::Down] {
+                for repeat in [Repeat::Tile, Repeat::Mirror] {
+                    let l = Linear { rect: (0.0, 0.0, 1_048_576.0, 1_048_576.0), matrix: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0], colors: (0xff20_4080, 0x80ff_8000), repeat };
+                    emit(r, &l, &mut rng, each);
+                }
+            }
+        },
+        model: |a| {
+            let r = rounding(arg(a, 0)?);
+            let f = floats::<10>(a, 2)?;
+            let repeat = if arg::<u8>(a, 14)? != 0 { Repeat::Mirror } else { Repeat::Tile };
+            let l = Linear { rect: (f[0], f[1], f[2], f[3]), matrix: [f[4], f[5], f[6], f[7], f[8], f[9]], colors: (arg(a, 12)?, arg(a, 13)?), repeat };
+            let Some(s) = Span::new(r, &l, arg::<u8>(a, 1)? != 0) else { return Some(vec![-1]) };
+            let (du, dv, u0, ta, tb) = s.parts();
+            let mut out = vec![i64::from(du), i64::from(dv), i64::from(u0)];
+            out.extend(ta.iter().chain(tb.iter()).flatten().map(|&v| i64::from(v)));
+            for px in a.get(15..)?.chunks(2) {
+                if let [x, y] = *px {
+                    out.push(i64::from(s.at(x, y)));
+                }
+            }
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "gp.recolor",
+        lean: RECOLOR,
+        domain: Domain::Sampled("300,000 straight colors through 5 x 5 matrices of special values, small steps and random bits"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x4ec0_0001);
+            for _ in 0..300_000 {
+                let mut v = vec![i64::from(rng.word())];
+                let style = rng.range(0, 3);
+                for i in 0..25 {
+                    let e = match style {
+                        // (near the identity: each entry 0 or 1 give or take a small step)
+                        0 => {
+                            let base = if i % 6 == 0 { 1.0f32 } else { 0.0 };
+                            (base + f32::from(i16::try_from(rng.range(-64, 64)).unwrap_or(0)) / 128.0).to_bits()
+                        }
+                        1 => *rng.pick(&SPECIAL),
+                        2 => (f32::from(i16::try_from(rng.range(-2000, 2000)).unwrap_or(0)) / 1000.0).to_bits(),
+                        _ => rng.word(),
+                    };
+                    v.push(i64::from(e));
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let m = floats::<25>(a, 1)?;
+            one(gdiplus::recolor(arg(a, 0)?, &gdiplus::ColorMatrix(m), gdiplus::MatrixFlags::Default))
+        },
+    },
+    Mirror {
+        name: "gp.sqrt32",
+        lean: STROKE,
+        domain: Domain::Sampled("to nearest and down: 200,000 binary32 values, the special ones and every exponent"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x5174_0001);
+            for d in [0, 1] {
+                for &x in &SPECIAL {
+                    each(&[d, i64::from(x)]);
+                    each(&[d, i64::from(x | 0x8000_0000)]);
+                }
+                for _ in 0..100_000 {
+                    each(&[d, i64::from(rng.word() & 0x7fff_ffff)]);
+                }
+            }
+        },
+        model: |a| one(canon(gppath::sqrt32(rounding(arg(a, 0)?), f32::from_bits(arg(a, 1)?)))),
+    },
+    Mirror {
+        name: "gp.axes",
+        lean: STROKE,
+        domain: Domain::Sampled("to nearest and down: 200,000 matrices of special values, small steps and rotations"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x5174_0002);
+            for k in 0..200_000u32 {
+                let mut v = vec![i64::from(k % 2)];
+                for i in 0..6 {
+                    v.push(i64::from(element(&mut rng, i == 0 || i == 3)));
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let (major, minor) = gppath::axes(rounding(arg(a, 0)?), &floats::<6>(a, 1)?);
+            Some(vec![canon(major), canon(minor)])
+        },
+    },
+    Mirror {
+        name: "gp.stroke",
+        lean: STROKE,
+        domain: Domain::Sampled("to nearest and down: 200,000 pens (widths about 1.5 and special, every alpha class, caps, dashes) with and without a world matrix, aliased or not, dashed or not"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x5174_0003);
+            let widths = [0.0f32, -1.0, 1.0, 1.5, 1.500_000_1, 1.499_999_9, 0.75, 2.0, 3.0, f32::NAN, f32::INFINITY];
+            for k in 0..200_000u32 {
+                let width = if rng.chance(2) { *rng.pick(&widths) } else { f32::from(i16::try_from(rng.range(-100, 400)).unwrap_or(0)) / 128.0 };
+                let color = match rng.range(0, 2) {
+                    0 => 0xff00_0000 | rng.word() & 0xff_ffff,
+                    1 => rng.word() & 0x00ff_ffff,
+                    _ => rng.word(),
+                };
+                let cap = |rng: &mut crate::rng::Sample64| if rng.chance(3) { rng.range(0, 255) } else { rng.range(0, 3) };
+                let mut v = vec![i64::from(k % 2), i64::from(color), i64::from(width.to_bits()), rng.range(0, 6), cap(&mut rng), cap(&mut rng), rng.range(0, 1), rng.range(0, 1), rng.range(0, 1)];
+                for i in 0..6 {
+                    v.push(i64::from(if rng.chance(4) { if i == 0 || i == 3 { 0x3f80_0000 } else { 0 } } else { element(&mut rng, i == 0 || i == 3) }));
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let r = rounding(arg(a, 0)?);
+            let mut pen = gppath::Pen::new(arg(a, 1)?, f32::from_bits(arg(a, 2)?));
+            pen.dash = arg(a, 3)?;
+            pen.start_cap = arg(a, 4)?;
+            pen.end_cap = arg(a, 5)?;
+            let world = if arg::<u8>(a, 8)? != 0 { Some(floats::<6>(a, 9)?) } else { None };
+            let s = gppath::stroke(r, &pen, world.as_ref(), arg::<u8>(a, 6)? != 0, arg::<u8>(a, 7)? != 0);
+            one(match s {
+                gppath::Stroke::OnePixel => 0,
+                gppath::Stroke::Diamond => 1,
+                gppath::Stroke::DashedPixel => 2,
+                gppath::Stroke::Wide => 3,
+            })
+        },
+    },
+    Mirror {
+        name: "gp.arc",
+        lean: ARC,
+        domain: Domain::Sampled("to nearest and down: 60,000 ellipses, arcs and pies of rectangles circular or not, empty, tiny and large, angles in eighths of a degree and random, sweeps past +-360 and 0; libm's sin, cos and atan2 as the platform answers them"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x4a2c_0001);
+            for k in 0..60_000u32 {
+                let r = rounding(i64::from(k % 2));
+                let kind = rng.range(0, 2);
+                let side = |rng: &mut crate::rng::Sample64| match rng.range(0, 5) {
+                    0 => 0.0f32,
+                    1 => -f32::from(i16::try_from(rng.range(1, 80)).unwrap_or(0)) / 8.0,
+                    2 => f32::from(i16::try_from(rng.range(1, 40)).unwrap_or(0)) / 1024.0,
+                    3 => f32::from(i16::try_from(rng.range(1, 32000)).unwrap_or(0)),
+                    _ => f32::from(i16::try_from(rng.range(1, 2000)).unwrap_or(0)) / 8.0,
+                };
+                let w = side(&mut rng);
+                let h = if rng.chance(3) { w } else { side(&mut rng) };
+                let (x, y) = (f32::from(i16::try_from(rng.range(-800, 800)).unwrap_or(0)) / 8.0, f32::from(i16::try_from(rng.range(-800, 800)).unwrap_or(0)) / 8.0);
+                let angle = |rng: &mut crate::rng::Sample64| match rng.range(0, 4) {
+                    0 => f32::from(i16::try_from(rng.range(-8, 8)).unwrap_or(0)) * 90.0,
+                    1 => f32::from(i16::try_from(rng.range(-8000, 8000)).unwrap_or(0)) / 8.0,
+                    2 => *rng.pick(&[0.0f32, -0.0, 360.0, -360.0, 360.5, -720.25, 1e-7, 89.999_99, f32::NAN]),
+                    3 => f32::from(i16::try_from(rng.range(-100, 100)).unwrap_or(0)) * 0.001,
+                    _ => f32::from_bits(rng.word()),
+                };
+                let (start, sweep) = (angle(&mut rng), angle(&mut rng));
+                let mut v: Vec<i64> = [x, y, w, h, start, sweep].iter().map(|f| i64::from(f.to_bits())).collect();
+                v.insert(0, kind);
+                v.insert(0, i64::from(k % 2));
+                let mut path = Path::of(0, Vec::new());
+                let mut answer = |c: gplinear::Libm| {
+                    let a = gplinear::libm(c);
+                    v.extend(f64_halves(a));
+                    a
+                };
+                let _made = arc_case(&mut path, r, kind, (x, y, w, h), start, sweep, &mut answer);
+                each(&v);
+            }
+        },
+        model: |a| {
+            let r = rounding(arg(a, 0)?);
+            let f = floats::<6>(a, 2)?;
+            let mut lib = Vec::new();
+            for p in a.get(8..)?.chunks(2) {
+                lib.push(arg_f64(p, 0)?);
+            }
+            let mut calls = Vec::new();
+            let mut k = 0usize;
+            let mut answer = |c: gplinear::Libm| {
+                match c {
+                    gplinear::Libm::Atan2(y, x) => calls.extend([y, x]),
+                    gplinear::Libm::Sin(t) | gplinear::Libm::Cos(t) => calls.push(t),
+                }
+                let v = lib.get(k).copied().unwrap_or(0.0);
+                k = k.saturating_add(1);
+                v
+            };
+            let mut path = Path::of(0, Vec::new());
+            let st = match arc_case(&mut path, r, arg(a, 1)?, (f[0], f[1], f[2], f[3]), f[4], f[5], &mut answer) {
+                Ok(()) => 0,
+                Err(_) => 2,
+            };
+            let mut out = vec![st];
+            out.extend(calls.into_iter().flat_map(f64_halves));
+            out.extend(path.pts.iter().flat_map(|p| [canon(p.x), canon(p.y), i64::from(p.type_byte())]));
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "gp.fill",
+        lean: RASTER,
+        domain: Domain::Sampled("to nearest and down: 60,000 fills of one to three figures of lines and Beziers on and about bitmaps up to 12 x 10, with and without a matrix and the half pixel offset, Alternate and Winding, aliased and 8 x 1, 2, 4, 8 antialiased"),
+        inputs: |each| fills(60_000, 0x4a57_0001, each),
+        model: |a| {
+            let r = rounding(arg(a, 0)?);
+            let po = if arg::<u8>(a, 1)? != 0 { gdiplus::PixelOffset::Half } else { gdiplus::PixelOffset::None };
+            let m = if arg::<u8>(a, 2)? == 0 { None } else { Some(floats::<6>(a, 3)?) };
+            let fm = if arg::<u8>(a, 9)? != 0 { gdiplus::FillMode::Winding } else { gdiplus::FillMode::Alternate };
+            let rows = match arg::<u32>(a, 10)? {
+                0 => None,
+                n => Some(n),
+            };
+            let (w, h) = (arg::<u32>(a, 11)?, arg::<u32>(a, 12)?);
+            let mut pts = Vec::new();
+            for p in a.get(13..)?.chunks(3) {
+                let t: u32 = arg(p, 2)?;
+                let kind = match t & 127 {
+                    0 => Kind::Start,
+                    1 => Kind::Line,
+                    _ => Kind::Bezier,
+                };
+                pts.push(Point { x: f32::from_bits(arg(p, 0)?), y: f32::from_bits(arg(p, 1)?), kind, close: t >= 128, inner: false });
+            }
+            let path = Path::of(0, pts);
+            let Ok(cov) = gppath::fill(r, &path, m.as_ref(), fm, rows, po, w, h) else { return Some(vec![-1]) };
+            Some((0..h).flat_map(|y| (0..w).map(move |x| (x, y))).map(|(x, y)| i64::from(cov.count(x, y))).collect())
+        },
+    },
+    Mirror {
+        name: "gp.dda",
+        lean: LINE,
+        domain: Domain::Sampled("to nearest and down: 300,000 segments between 28.4 points on, about and far from bitmaps up to 12 x 10, steep and shallow, diagonals and points, with and without the last pixel"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x11de_0001);
+            for k in 0..300_000u32 {
+                let (w, h) = (rng.range(1, 12), rng.range(1, 10));
+                let (x1, y1) = (fixed(&mut rng, w), fixed(&mut rng, h));
+                let (x2, y2) = match rng.range(0, 5) {
+                    0 => (x1, y1),
+                    1 => {
+                        let t = rng.range(-200, 200);
+                        (x1.saturating_add(t), y1.saturating_add(if rng.chance(2) { t } else { t.saturating_neg() }))
+                    }
+                    2 => (x1.saturating_add(rng.range(-3, 3)), y1.saturating_add(rng.range(-3, 3))),
+                    _ => (fixed(&mut rng, w), fixed(&mut rng, h)),
+                };
+                let c = |v: i64| v.clamp(-2_147_483_648, 2_147_483_647);
+                each(&[i64::from(k % 2), c(x1), c(y1), c(x2), c(y2), rng.range(0, 1), w, h]);
+            }
+        },
+        model: |a| {
+            let last = if arg::<u8>(a, 5)? != 0 { gppath::Last::Skipped } else { gppath::Last::Drawn };
+            let cov = gppath::segment(rounding(arg(a, 0)?), (arg(a, 1)?, arg(a, 2)?), (arg(a, 3)?, arg(a, 4)?), last, arg(a, 6)?, arg(a, 7)?).ok()?;
+            Some(counts(&cov))
+        },
+    },
+    Mirror {
+        name: "gp.sweep",
+        lean: LINE,
+        domain: Domain::Sampled("100,000 polylines of no to eight 28.4 points: repeats, straight runs, turns both ways and reversals onto the segment before, steps of every octant class"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x11de_0005);
+            for _ in 0..100_000u32 {
+                let (mut x, mut y) = (rng.range(-64, 64), rng.range(-64, 64));
+                let mut step = (rng.range(-48, 48), rng.range(-48, 48));
+                let mut v = Vec::new();
+                for _ in 0..rng.range(0, 8) {
+                    v.extend([x, y]);
+                    step = match rng.range(0, 5) {
+                        // (on, back the way it came, a repeat, a turn)
+                        0 => step,
+                        1 => (step.0.saturating_neg().saturating_mul(rng.range(1, 2)), step.1.saturating_neg().saturating_mul(rng.range(1, 2))),
+                        2 => (0, 0),
+                        _ => (rng.range(-48, 48), rng.range(-48, 48)),
+                    };
+                    (x, y) = (x.saturating_add(step.0), y.saturating_add(step.1));
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let pts = a.chunks_exact(2).map(|c| Some((i32::try_from(*c.first()?).ok()?, i32::try_from(*c.get(1)?).ok()?))).collect::<Option<Vec<_>>>()?;
+            Some(match gppath::sweep(&pts) {
+                None => vec![-1],
+                Some(q) => q.iter().flat_map(|&(x, y)| [i64::from(x), i64::from(y)]).collect(),
+            })
+        },
+    },
+    Mirror {
+        name: "gp.nominal",
+        lean: LINE,
+        domain: Domain::Sampled("100,000 sets of one to three polylines of one to six 28.4 points (repeats, turns of every octant class), closed or not, on bitmaps up to 10 x 8, aliased and 8 x 1, 2, 4, 8"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x11de_0002);
+            for _ in 0..100_000u32 {
+                let (w, h) = (rng.range(1, 10), rng.range(1, 8));
+                let mut v = vec![*rng.pick(&[0i64, 0, 1, 2, 4, 8]), w, h];
+                for _ in 0..rng.range(1, 3) {
+                    let n = rng.range(1, 6);
+                    v.extend([rng.range(0, 1), n]);
+                    let (mut x, mut y) = (rng.range(-16, w.saturating_mul(16).saturating_add(16)), rng.range(-16, h.saturating_mul(16).saturating_add(16)));
+                    for _ in 0..n {
+                        v.extend([x, y]);
+                        if !rng.chance(5) {
+                            x = x.saturating_add(rng.range(-48, 48));
+                            y = y.saturating_add(rng.range(-48, 48));
+                        }
+                    }
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let rows = match arg::<u32>(a, 0)? {
+                0 => None,
+                n => Some(n),
+            };
+            let mut figs = Vec::new();
+            let mut i = 3usize;
+            while i < a.len() {
+                let closed = arg::<u8>(a, i)? != 0;
+                let n: usize = arg(a, i.checked_add(1)?)?;
+                let from = i.checked_add(2)?;
+                let to = from.checked_add(n.checked_mul(2)?)?;
+                let pts = a.get(from..to)?.chunks(2).map(|p| Some((arg(p, 0)?, arg(p, 1)?))).collect::<Option<Vec<(i32, i32)>>>()?;
+                figs.push(gppath::Fig { pts, closed });
+                i = to;
+            }
+            Some(counts(&gppath::nominal(&figs, rows, arg(a, 1)?, arg(a, 2)?)))
+        },
+    },
+    Mirror {
+        name: "gp.outline",
+        lean: LINE,
+        domain: Domain::Sampled("to nearest and down: 60,000 paths of lines and Beziers through device matrices, stroked by the DDA with and without open figures' last pixels and by the nominal rasterizer aliased and 8 x 4, 8 x 8"),
+        inputs: |each| {
+            fills(60_000, 0x11de_0003, &mut |f| {
+                // (fills' rounding, offset, matrix, mode, rows, size, points: here how, rows, size, the device matrix)
+                let get = |i: usize| f.get(i).copied().unwrap_or(0);
+                let how = get(1).saturating_add(get(9).saturating_mul(2)).rem_euclid(3);
+                let mut v = vec![get(0), how, *[0i64, 4, 8].get(usize::try_from(get(10).rem_euclid(3)).unwrap_or(0)).unwrap_or(&0), get(11), get(12)];
+                let m = if get(2) == 0 { [0x3f80_0000i64, 0, 0, 0x3f80_0000, 0, 0] } else { [get(3), get(4), get(5), get(6), get(7), get(8)] };
+                // (28.4: each element times 16)
+                v.extend(m.iter().map(|&e| i64::from((f32::from_bits(u32::try_from(e).unwrap_or(0)) * 16.0).to_bits())));
+                v.extend(f.get(13..).unwrap_or(&[]));
+                each(&v);
+            });
+        },
+        model: |a| {
+            let r = rounding(arg(a, 0)?);
+            let (w, h): (u32, u32) = (arg(a, 3)?, arg(a, 4)?);
+            let m = floats::<6>(a, 5)?;
+            let path = Path::of(0, path_points(a, 11)?);
+            let cov = match arg::<u8>(a, 1)? {
+                2 => {
+                    let rows = match arg::<u32>(a, 2)? {
+                        0 => None,
+                        n => Some(n),
+                    };
+                    gppath::outline_nominal(r, &path, &m, rows, w, h)
+                }
+                k => gppath::outline_dda(r, &path, &m, if k == 1 { gppath::Last::Skipped } else { gppath::Last::Drawn }, w, h),
+            };
+            Some(cov.map_or_else(|_| vec![-1], |c| counts(&c)))
+        },
+    },
+    Mirror {
+        name: "gp.too_small",
+        lean: LINE,
+        domain: Domain::Sampled("to nearest and down: 200,000 sets of two to four points apart by 0, about 5.96e-4 and more, through matrices"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x11de_0004);
+            for k in 0..200_000u32 {
+                let mut v = vec![i64::from(k % 2)];
+                let plain = rng.chance(2);
+                for i in 0..6 {
+                    v.push(i64::from(if plain { if i == 0 || i == 3 { 0x3f80_0000 } else { 0 } } else { path_element(&mut rng, i == 0 || i == 3) }));
+                }
+                let base = (f32::from(i16::try_from(rng.range(-800, 800)).unwrap_or(0)) / 8.0, f32::from(i16::try_from(rng.range(-800, 800)).unwrap_or(0)) / 8.0);
+                for _ in 0..rng.range(2, 4) {
+                    let off = |rng: &mut crate::rng::Sample64| match rng.range(0, 3) {
+                        0 => 0.0f32,
+                        1 => f32::from(i16::try_from(rng.range(-1200, 1200)).unwrap_or(0)) * 1e-6,
+                        _ => f32::from(i16::try_from(rng.range(-100, 100)).unwrap_or(0)) * 1e-3,
+                    };
+                    let (dx, dy) = (off(&mut rng), off(&mut rng));
+                    v.extend([i64::from((base.0 + dx).to_bits()), i64::from((base.1 + dy).to_bits())]);
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let m = floats::<6>(a, 1)?;
+            let mut pts = Vec::new();
+            for p in a.get(7..)?.chunks(2) {
+                pts.push((f32::from_bits(arg(p, 0)?), f32::from_bits(arg(p, 1)?)));
+            }
+            one(i64::from(gppath::too_small(rounding(arg(a, 0)?), &m, &pts)))
+        },
+    },
+    Mirror {
+        name: "gp.chain",
+        lean: CHAIN,
+        domain: Domain::Sampled("to nearest and down, every span kind, with and without the half pixel offset: 200,000 draws of source rectangles in and past images up to 8 x 8, signed sizes and 0, onto rectangles in and past bitmaps up to 12 x 12, flips and 1:1 copies among them"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xc4a1_0001);
+            for k in 0..200_000u32 {
+                let (iw, ih, bw, bh) = (rng.range(1, 8), rng.range(1, 8), rng.range(1, 12), rng.range(1, 12));
+                let src = [rng.range(-2, 6), rng.range(-2, 6), rng.range(-9, 10), rng.range(-9, 10)];
+                let dst = match rng.range(0, 3) {
+                    // (1:1, flipped, or anything)
+                    0 => [rng.range(-4, 12), rng.range(-4, 12), src[2], src[3]],
+                    1 => [rng.range(-4, 12), rng.range(-4, 12), src[2].saturating_neg(), src[3].saturating_mul(if rng.chance(2) { -1 } else { 1 })],
+                    _ => [rng.range(-6, 12), rng.range(-6, 12), rng.range(-14, 26), rng.range(-14, 26)],
+                };
+                let mut v = vec![i64::from(k % 2), rng.range(0, 4)];
+                v.extend(dst);
+                v.extend(src);
+                v.extend([iw, ih, bw, bh, rng.range(0, 1)]);
+                each(&v);
+            }
+        },
+        model: |a| {
+            use crate::model::gpimage::{chain, Front, Span as ImgSpan};
+            use crate::model::gpstretch::Kernel;
+            let span = match arg::<u8>(a, 1)? {
+                0 => ImgSpan::Nearest,
+                1 => ImgSpan::Bilinear,
+                2 => ImgSpan::Bicubic,
+                3 => ImgSpan::Stretch(Kernel::Tent),
+                _ => ImgSpan::Stretch(Kernel::Cubic),
+            };
+            let q = |i: usize| arg::<i64>(a, i);
+            let front = chain(rounding(arg(a, 0)?), span, [q(2)?, q(3)?, q(4)?, q(5)?], [q(6)?, q(7)?, q(8)?, q(9)?], (q(10)?, q(11)?), (q(12)?, q(13)?), q(14)? != 0);
+            Some(match front {
+                Err(_) => vec![-1],
+                Ok(Front::Empty) => vec![0],
+                Ok(Front::Draw(c)) => {
+                    let mut out = vec![1, c.top, c.rows];
+                    let (a0, a1, a2, a3) = c.sf;
+                    let (d0, d1, d2, d3) = c.d;
+                    out.extend([a0, a1, a2, a3].into_iter().chain(c.ms2).chain([d0, d1, d2, d3]).map(canon));
+                    out.extend([c.cols.start, c.cols.end, c.lines.start, c.lines.end]);
+                    out.push(match c.flip {
+                        None => 0,
+                        Some(crate::model::gpimage::Flip::X) => 1,
+                        Some(crate::model::gpimage::Flip::Y) => 2,
+                        Some(crate::model::gpimage::Flip::Both) => 3,
+                    });
+                    match c.copy {
+                        None => out.push(0),
+                        Some((x, y)) => out.extend([1, x, y]),
+                    }
+                    out
+                }
+            })
+        },
+    },
+    Mirror {
+        name: "gp.cubic",
+        lean: CHAIN,
+        domain: Domain::Every("the cubic's running integral at every entry -300 ..= 300"),
+        inputs: |each| every(&[(-300, 300)], each),
+        model: |a| one(crate::model::gpstretch::cubic(arg(a, 0)?)),
+    },
+    Mirror {
+        name: "gp.keys",
+        lean: CHAIN,
+        domain: Domain::Every("Keys' cubic tables in 1/65536 and 1/16384 at every entry 0 ..= 140"),
+        inputs: |each| {
+            for one in [65536, 16384] {
+                every(&[(one, one), (0, 140)], each);
+            }
+        },
+        model: |a| one(crate::model::gpimage::keys(f64::from(arg::<u32>(a, 0)?), arg(a, 1)?)),
+    },
+    Mirror {
+        name: "gp.render",
+        lean: CHAIN,
+        domain: Domain::Sampled("to nearest and down, x86 and x86-64, nearest, bilinear, HighQualityBilinear and HighQualityBicubic, with and without the half pixel offset: 100,000 draws of random images up to 6 x 6 in and past bitmaps up to 10 x 10, and 4,000 of images 24 wide stretched across 30 to 60 (the MMX columns), scales, flips, copies"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xc4a1_0002);
+            for k in 0..100_000u32 {
+                let (iw, ih, bw, bh) = (rng.range(1, 6), rng.range(1, 6), rng.range(1, 10), rng.range(1, 10));
+                let src = [rng.range(-1, 4), rng.range(-1, 4), rng.range(-7, 7), rng.range(-7, 7)];
+                let dst = match rng.range(0, 2) {
+                    0 => [rng.range(-3, 8), rng.range(-3, 8), src[2], src[3].saturating_mul(if rng.chance(2) { -1 } else { 1 })],
+                    _ => [rng.range(-4, 9), rng.range(-4, 9), rng.range(-12, 14), rng.range(-12, 14)],
+                };
+                let mut v = vec![i64::from(k % 2), rng.range(0, 1), *rng.pick(&[0i64, 1, 3, 4])];
+                v.extend(dst);
+                v.extend(src);
+                v.extend([iw, ih, bw, bh, rng.range(0, 1)]);
+                for _ in 0..iw.saturating_mul(ih) {
+                    // (premultiplied: each color at most its alpha)
+                    let a = rng.range(0, 255);
+                    let c = |rng: &mut crate::rng::Sample64| rng.range(0, a);
+                    v.push(a << 24 | c(&mut rng) << 16 | c(&mut rng) << 8 | c(&mut rng));
+                }
+                each(&v);
+            }
+            // (wide stretches of the cubic on x86: the MMX columns and StretchMiddleScanline2)
+            for k in 0..4_000u32 {
+                let (iw, ih) = (24, rng.range(1, 3));
+                let dw = rng.range(30, 60).saturating_mul(if k % 4 == 3 { -1 } else { 1 });
+                let mut v = vec![i64::from(k % 2), 1, 4, rng.range(-2, 2), 0, dw, rng.range(1, 3), 0, 0, iw, ih, iw, ih, 64, 4, rng.range(0, 1)];
+                for _ in 0..iw.saturating_mul(ih) {
+                    let a = rng.range(0, 255);
+                    let c = |rng: &mut crate::rng::Sample64| rng.range(0, a);
+                    v.push(a << 24 | c(&mut rng) << 16 | c(&mut rng) << 8 | c(&mut rng));
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            use crate::model::gpimage::{render, Draw, Span as ImgSpan};
+            use crate::model::gpstretch::Kernel;
+            let span = match arg::<u8>(a, 2)? {
+                0 => ImgSpan::Nearest,
+                1 => ImgSpan::Bilinear,
+                3 => ImgSpan::Stretch(Kernel::Tent),
+                4 => ImgSpan::Stretch(Kernel::Cubic),
+                _ => return None,
+            };
+            let q = |i: usize| arg::<i64>(a, i);
+            let (iw, ih) = (q(11)?, q(12)?);
+            let img: Vec<u32> = a.get(16..)?.iter().map(|&v| u32::try_from(v).ok()).collect::<Option<Vec<u32>>>()?;
+            let d = Draw { dst: [q(3)?, q(4)?, q(5)?, q(6)?], src: [q(7)?, q(8)?, q(9)?, q(10)?], image: (iw, ih), target: (q(13)?, q(14)?), half: q(15)? != 0 };
+            let texel = |x: i64, y: i64| -> crate::model::Res<u32> {
+                let inside = (0..iw).contains(&x) && (0..ih).contains(&y);
+                let i = y.checked_mul(iw).and_then(|v| v.checked_add(x)).and_then(|v| usize::try_from(v).ok());
+                Ok(if inside { i.and_then(|i| img.get(i)).copied().unwrap_or(0) } else { 0 })
+            };
+            Some(match render(rounding(arg(a, 0)?), span, &d, arg::<u8>(a, 1)? != 0, texel) {
+                Err(_) => vec![-1],
+                Ok(px) => px.iter().flat_map(|&(x, y, c)| [x, y, i64::from(c)]).collect(),
+            })
         },
     },
 ];

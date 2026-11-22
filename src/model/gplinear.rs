@@ -48,10 +48,11 @@ fn modf(r: Round, v: f32, m: f32) -> f32 {
     }
 }
 
+pub use super::gppath::{libm, Libm};
+
 /// x86-64's sin, under MXCSR's rounding down, just above 1 for an angle just under pi / 2
-/// (MEASURED, golden gdiplusbrush-64 lininfo-*: vertical lines)
-fn sin(r: Round, th: f64) -> f64 {
-    let s = th.sin();
+/// (MEASURED, golden gdiplusbrush-64 lininfo-*: vertical lines), from libm's answer s
+pub fn sin_quirk(r: Round, s: f64) -> f64 {
     match r {
         Round::Down if (s - 1.0).abs() < 1e-11 => {
             hit(clause::GP_BRUSH_LINEAR_SIN);
@@ -78,6 +79,11 @@ pub fn infer(r: Round, p: [(f32, f32); 3], (x, y, w, h): (f32, f32, f32, f32)) -
 
 /// GdipCreateLineBrushI
 pub fn new(r: Round, p1: (i32, i32), p2: (i32, i32), colors: (u32, u32), wrap: i64) -> Result<Linear, Refused> {
+    new_with(r, p1, p2, colors, wrap, &mut libm)
+}
+
+/// GdipCreateLineBrushI, libm's sin, cos and atan2 answered by `m`
+pub fn new_with(r: Round, p1: (i32, i32), p2: (i32, i32), colors: (u32, u32), wrap: i64, m: &mut dyn FnMut(Libm) -> f64) -> Result<Linear, Refused> {
     hit(clause::GP_BRUSH_LINEAR);
     if wrap == 4 {
         return Err(Refused::InvalidParameter);
@@ -111,7 +117,7 @@ pub fn new(r: Round, p1: (i32, i32), p2: (i32, i32), colors: (u32, u32), wrap: i
     let rect = (x, y, w, h);
     let pi = std::f64::consts::PI;
     let (dx, dy) = (r.sub(p2.0, p1.0), r.sub(p2.1, p1.1));
-    let angle = to32(r, div64(r, mul64(r, (dy as f64).atan2(dx as f64), 180.0), pi));
+    let angle = to32(r, div64(r, mul64(r, m(Libm::Atan2(f64::from(dy), f64::from(dx))), 180.0), pi));
     let a = modf(r, angle, 360.0);
     let (q, k) = if 90.0 > a {
         (0, a)
@@ -123,7 +129,8 @@ pub fn new(r: Round, p1: (i32, i32), p2: (i32, i32), colors: (u32, u32), wrap: i
         (3, r.sub(360.0, a))
     };
     let th = div64(r, mul64(r, k as f64, pi), 180.0);
-    let (s, c) = (sin(r, th), th.cos());
+    let s = sin_quirk(r, m(Libm::Sin(th)));
+    let c = m(Libm::Cos(th));
     let (xd, yd, wd, hd) = (x as f64, y as f64, w as f64, h as f64);
     let (kk, sp, cp, x0, y0) = match q {
         0 => (mul64(r, wd, s), s, c, xd, yd),
@@ -225,6 +232,10 @@ impl Span {
             }
         }
         Some(Span { du, dv, u0, a, b })
+    }
+    /// the DDA's steps and start (du, dv, u0) and the color tables a, b
+    pub fn parts(&self) -> (i32, i32, i32, &[[u32; 4]; 32], &[[u32; 4]; 32]) {
+        (self.du, self.dv, self.u0, &self.a, &self.b)
     }
     /// the premultiplied ARGB of device pixel (x, y)
     pub fn at(&self, x: i64, y: i64) -> u32 {

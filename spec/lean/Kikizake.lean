@@ -11,6 +11,13 @@ import Kikizake.GdiPlus.Blend
 import Kikizake.GdiPlus.Matrix
 import Kikizake.GdiPlus.Flatten
 import Kikizake.GdiPlus.Dither
+import Kikizake.GdiPlus.Linear
+import Kikizake.GdiPlus.Recolor
+import Kikizake.GdiPlus.Stroke
+import Kikizake.GdiPlus.Arc
+import Kikizake.GdiPlus.Raster
+import Kikizake.GdiPlus.Line
+import Kikizake.GdiPlus.Chain
 import Kikizake.D3d12.Footprint
 import Kikizake.D3d12.Alloc
 import Kikizake.D3d12.Create

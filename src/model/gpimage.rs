@@ -95,6 +95,16 @@ pub enum Front {
 }
 
 /// the rectangles (integers, sizes signed) of a draw onto a bw x bh bitmap from one ih high
+/// the larger, the second on a tie (the signed zeros among them), the other past a NaN
+fn most(a: f32, b: f32) -> f32 {
+    if b.is_nan() || a > b { a } else { b }
+}
+
+/// the smaller, the second on a tie (the signed zeros among them), the other past a NaN
+fn least(a: f32, b: f32) -> f32 {
+    if b.is_nan() || a < b { a } else { b }
+}
+
 pub fn chain(r: Round, span: Span, dst: [i64; 4], src: [i64; 4], (iw, ih): (i64, i64), (bw, bh): (i64, i64), half: bool) -> Res<Front> {
     let f = |v: i64| v as f32;
     let [dx, dy, dw, dh] = dst.map(f);
@@ -204,9 +214,9 @@ pub fn chain(r: Round, span: Span, dst: [i64; 4], src: [i64; 4], (iw, ih): (i64,
         left = r.sub(left, 0.0);
         ww = r.add(ww, 0.0);
         top = r.sub(top, mg);
-        let bot = r.add(r.add(r.add(mg, mg), hh), top).min(r.add(s.1, s.3));
-        let right = r.add(ww, left).min(r.add(s.0, s.2));
-        let (left, top) = (left.max(s.0), top.max(s.1));
+        let bot = least(r.add(r.add(r.add(mg, mg), hh), top), r.add(s.1, s.3));
+        let right = least(r.add(ww, left), r.add(s.0, s.2));
+        let (left, top) = (most(left, s.0), most(top, s.1));
         s = (left, top, r.sub(right, left), r.sub(bot, top));
         let b = invert_in(r, &q).ok_or(Fail::Bad)?;
         p = [apply(r, &b, left, top), apply(r, &b, r.add(s.2, left), top), apply(r, &b, left, r.add(s.3, top))];
@@ -221,8 +231,8 @@ pub fn chain(r: Round, span: Span, dst: [i64; 4], src: [i64; 4], (iw, ih): (i64,
         l[5] = r.add(l[5], r.add(r.mul(-0.5, l[1]), r.mul(-0.5, l[3])));
     }
     let (ya, yz) = (apply(r, &l, s1.0, s1.1).1, apply(r, &l, r.add(s1.2, s1.0), r.add(s1.3, s1.1)).1);
-    let oy = ya.min(yz);
-    let oh = r.sub(ya.max(yz), oy);
+    let oy = least(ya, yz);
+    let oh = r.sub(most(ya, yz), oy);
     let oh = if oh < NEAR { 0.0 } else { oh };
     let ratio = r.div(r.sub(r.add(oy, oh), oy).abs(), s1.3.abs());
     let mg = span.margin(r, ratio).ceil() as i64;
@@ -245,8 +255,8 @@ pub fn chain(r: Round, span: Span, dst: [i64; 4], src: [i64; 4], (iw, ih): (i64,
     let to16 = |v: f64| (v * 16.0 + 0.5).floor() / 16.0;
     let ex = |v: f32| to16(f64::from(v) + f64::from(c[4])).ceil() as i64;
     let ey = |v: f32| to16(f64::from(v) + f64::from(c[5])).ceil() as i64;
-    let (xl, xh) = (p[0].0.min(p[1].0), p[0].0.max(p[1].0));
-    let (yl, yh) = (p[0].1.min(p[2].1), p[0].1.max(p[2].1));
+    let (xl, xh) = (least(p[0].0, p[1].0), most(p[0].0, p[1].0));
+    let (yl, yh) = (least(p[0].1, p[2].1), most(p[0].1, p[2].1));
     // (CreateOutputSpan: an integer translation the copy span, whatever the mode, Clamp)
     let copy = integer_translate(r, &ms2).then(|| (-(r.add(ms2[4], 0.5).floor() as i64), -(r.add(ms2[5], 0.5).floor() as i64)));
     Ok(Front::Draw(Chain {

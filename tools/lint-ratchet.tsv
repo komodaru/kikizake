@@ -419,7 +419,7 @@ file	src/model/gpimage.rs	cast_sign_loss	3
 file	src/model/gpimage.rs	float_cmp	2
 file	src/model/gpimage.rs	indexing_slicing	7
 file	src/model/gplinear.rs	arithmetic_side_effects	9
-file	src/model/gplinear.rs	as_conversions	23
+file	src/model/gplinear.rs	as_conversions	21
 file	src/model/gplinear.rs	cast_possible_truncation	7
 file	src/model/gplinear.rs	cast_precision_loss	8
 file	src/model/gplinear.rs	cast_sign_loss	3
@@ -427,7 +427,7 @@ file	src/model/gplinear.rs	float_cmp	3
 file	src/model/gplinear.rs	indexing_slicing	13
 file	src/model/gplinear.rs	lossy_float_literal	2
 file	src/model/gppath.rs	arithmetic_side_effects	175
-file	src/model/gppath.rs	as_conversions	60
+file	src/model/gppath.rs	as_conversions	56
 file	src/model/gppath.rs	cast_possible_truncation	17
 file	src/model/gppath.rs	cast_precision_loss	19
 file	src/model/gppath.rs	cast_sign_loss	2

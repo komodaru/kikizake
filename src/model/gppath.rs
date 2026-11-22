@@ -83,12 +83,31 @@ pub fn div64(r: Round, a: f64, b: f64) -> f64 {
         }
     }
 }
-/// the CRT's sinf / cosf (the exact value in the mode's rounding)
-fn sinf(r: Round, a: f32) -> f32 {
-    to32(r, (a as f64).sin())
+/// a call of the CRT's libm, which the arithmetic around it takes as given (the spec/lean mirrors
+/// gp.linear and gp.arc answer it with the platform's results)
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Libm {
+    /// atan2(y, x)
+    Atan2(f64, f64),
+    Sin(f64),
+    Cos(f64),
 }
-fn cosf(r: Round, a: f32) -> f32 {
-    to32(r, (a as f64).cos())
+
+/// the platform's libm
+pub fn libm(c: Libm) -> f64 {
+    match c {
+        Libm::Atan2(y, x) => y.atan2(x),
+        Libm::Sin(t) => t.sin(),
+        Libm::Cos(t) => t.cos(),
+    }
+}
+
+/// the CRT's sinf / cosf: libm's binary64 answer in the mode's rounding
+fn sinf(r: Round, a: f32, m: &mut dyn FnMut(Libm) -> f64) -> f32 {
+    to32(r, m(Libm::Sin(f64::from(a))))
+}
+fn cosf(r: Round, a: f32, m: &mut dyn FnMut(Libm) -> f64) -> f32 {
+    to32(r, m(Libm::Cos(f64::from(a))))
 }
 
 /// RasterizerCeiling: v to 1/16 (v 16 + 1/2 floored), then that ceiled to an integer; past the
@@ -272,6 +291,10 @@ impl Path {
         Ok(())
     }
     pub fn add_arc(&mut self, r: Round, rect: (f32, f32, f32, f32), start: f32, sweep: f32) -> Result<(), Refused> {
+        self.add_arc_with(r, rect, start, sweep, &mut libm)
+    }
+    /// AddArc, libm answered by `m`
+    pub fn add_arc_with(&mut self, r: Round, rect: (f32, f32, f32, f32), start: f32, sweep: f32, m: &mut dyn FnMut(Libm) -> f64) -> Result<(), Refused> {
         let (sweep, close) = if sweep >= 360.0 {
             (360.0, true)
         } else if sweep <= -360.0 {
@@ -279,7 +302,7 @@ impl Path {
         } else {
             (sweep, false)
         };
-        let pts = arc_points(r, rect, start, sweep).ok_or(Refused::InvalidParameter)?;
+        let pts = arc_points(r, rect, start, sweep, m).ok_or(Refused::InvalidParameter)?;
         if !pts.is_empty() {
             self.add_beziers(r, &pts)?;
         }
@@ -289,9 +312,13 @@ impl Path {
         Ok(())
     }
     pub fn add_pie(&mut self, r: Round, rect: (f32, f32, f32, f32), start: f32, sweep: f32) -> Result<(), Refused> {
+        self.add_pie_with(r, rect, start, sweep, &mut libm)
+    }
+    /// AddPie, libm answered by `m`
+    pub fn add_pie_with(&mut self, r: Round, rect: (f32, f32, f32, f32), start: f32, sweep: f32, m: &mut dyn FnMut(Libm) -> f64) -> Result<(), Refused> {
         self.start_figure();
         self.add_lines(r, &[(r.add(r.mul(rect.2, 0.5), rect.0), r.add(r.mul(rect.3, 0.5), rect.1))])?;
-        self.add_arc(r, rect, start, sweep)?;
+        self.add_arc_with(r, rect, start, sweep, m)?;
         self.close_figure();
         Ok(())
     }
@@ -420,7 +447,7 @@ impl Path {
 }
 
 /// NormalizeAngle: degrees to the ellipse's parameter in radians
-fn normalize(r: Round, a: f32, w: f32, h: f32) -> f32 {
+fn normalize(r: Round, a: f32, w: f32, h: f32, m: &mut dyn FnMut(Libm) -> f64) -> f32 {
     let turns = |a: f32| r.sub(a, r.mul((r.div(a, 360.0) as i32) as f32, 360.0));
     let a = match a.partial_cmp(&0.0) {
         Some(std::cmp::Ordering::Greater) => turns(a),
@@ -446,7 +473,9 @@ fn normalize(r: Round, a: f32, w: f32, h: f32) -> f32 {
     };
     let t = to32(r, div64(r, mul64(r, b as f64, pi), 180.0)) as f64;
     // (the atan2 stored rounded down on either: x86-64's MXCSR, x86's x87 control word)
-    let f = to32(Round::Down, mul64(r, t.sin(), w as f64).atan2(mul64(r, h as f64, t.cos())));
+    let s = m(Libm::Sin(t));
+    let c = m(Libm::Cos(t));
+    let f = to32(Round::Down, m(Libm::Atan2(mul64(r, s, f64::from(w)), mul64(r, f64::from(h), c))));
     match q {
         1 => f,
         2 => r.sub(PI_F, f),
@@ -457,7 +486,7 @@ fn normalize(r: Round, a: f32, w: f32, h: f32) -> f32 {
 
 /// GetArcPoints: the Beziers of an arc (3 n + 1 points, n quarter pieces at most), none for a
 /// sweep of 0, None for an empty rectangle
-fn arc_points(r: Round, (x, y, w, h): (f32, f32, f32, f32), start: f32, sweep: f32) -> Option<Vec<(f32, f32)>> {
+fn arc_points(r: Round, (x, y, w, h): (f32, f32, f32, f32), start: f32, sweep: f32, lib: &mut dyn FnMut(Libm) -> f64) -> Option<Vec<(f32, f32)>> {
     hit(clause::GP_PATH_ARC);
     if w <= 0.0 || h <= 0.0 {
         return None;
@@ -467,8 +496,8 @@ fn arc_points(r: Round, (x, y, w, h): (f32, f32, f32, f32), start: f32, sweep: f
     }
     let dir: f32 = if sweep > 0.0 { 1.0 } else { -1.0 };
     let end = r.add(start, sweep);
-    let mut st = normalize(r, start, w, h);
-    let en = normalize(r, end, w, h);
+    let mut st = normalize(r, start, w, h, lib);
+    let en = normalize(r, end, w, h, lib);
     let mut span = if sweep.abs() >= 360.0 {
         TWO_PI_F
     } else {
@@ -487,13 +516,15 @@ fn arc_points(r: Round, (x, y, w, h): (f32, f32, f32, f32), start: f32, sweep: f
     let mut out = Vec::new();
     for i in 0..n {
         let half = if span as f64 > quarter { QUARTER_PI_F } else { r.mul(span, 0.5) };
-        let (c, s) = (cosf(r, half), sinf(r, half));
+        let c = cosf(r, half, lib);
+        let s = sinf(r, half, lib);
         let t = r.div(r.mul(r.sub(3.0, c), s), r.add(r.mul(c, 3.0), 3.0));
         let kx = r.div(r.sub(4.0, c), 3.0);
         let unit = if dir > 0.0 { [(c, -s), (kx, -t), (kx, t), (c, s)] } else { [(c, s), (kx, t), (kx, -t), (c, -s)] };
         let th = r.add(r.mul(dir, half), st);
         let th = r.mul(to32(r, div64(r, r.mul(th, 180.0) as f64, std::f64::consts::PI)), 0.017_453_292);
-        let (sn, cs) = (sinf(r, th), cosf(r, th));
+        let sn = sinf(r, th, lib);
+        let cs = cosf(r, th, lib);
         let m = [
             r.add(r.mul(cs, base[0]), r.mul(sn, base[2])),
             r.add(r.mul(sn, base[3]), r.mul(cs, base[1])),
@@ -1058,6 +1089,24 @@ pub fn line_aliased(r: Round, m: &Matrix, (x1, y1): (f32, f32), (x2, y2): (f32, 
     let mut cov = empty(w, h);
     dda(r, snap(x1, y1), snap(x2, y2), Last::Drawn, &mut cov)?;
     Ok(cov)
+}
+
+/// one segment between 28.4 points by the aliased one-pixel DDA into a w x h coverage
+pub fn segment(r: Round, p1: (i32, i32), p2: (i32, i32), last: Last, w: u32, h: u32) -> Res<Coverage> {
+    let mut cov = empty(w, h);
+    dda(r, p1, p2, last, &mut cov)?;
+    Ok(cov)
+}
+
+/// GP.PEN.EMPTY: points through the world to device matrix spanning at most NEAR both ways
+pub fn too_small(r: Round, m: &Matrix, pts: &[(f32, f32)]) -> bool {
+    let d: Vec<(f32, f32)> = pts.iter().map(|&(x, y)| apply(r, m, x, y)).collect();
+    let size = |k: fn(&(f32, f32)) -> f32| {
+        let (lo, hi) = d.iter().map(k).fold((f32::INFINITY, f32::NEG_INFINITY), |(a, b), v| (a.min(v), b.max(v)));
+        r.sub(hi, lo)
+    };
+    let wide = |v: f32| v.partial_cmp(&NEAR) == Some(std::cmp::Ordering::Greater);
+    !wide(size(|q| q.0)) && !wide(size(|q| q.1))
 }
 
 /// whether a one-pixel aliased segment draws its last pixel

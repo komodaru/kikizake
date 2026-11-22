@@ -520,11 +520,25 @@ spec/lean/Kikizake/GdiPlus/Flatten.lean::bezier32_steps lean GP.PATH.FLATTEN
 spec/lean/Kikizake/GdiPlus/Flatten.lean::flatten_arch lean GP.PATH.FLATTEN
 spec/lean/Kikizake/GdiPlus/Flatten.lean::bezier_big lean GP.PATH.FLATTEN.BIG
 spec/lean/Kikizake/GdiPlus/Dither.lean::places lean GP.PAINT.GAMMA.RUNS
+spec/lean/Kikizake/GdiPlus/Linear.lean::sin_up lean GP.BRUSH.LINEAR.SIN
+spec/lean/Kikizake/GdiPlus/Linear.lean::refusals lean GP.BRUSH.LINEAR
+spec/lean/Kikizake/GdiPlus/Linear.lean::horizontal lean GP.BRUSH.LINEAR
+spec/lean/Kikizake/GdiPlus/Linear.lean::horizontal_span lean GP.BRUSH.LINEAR.PAINT
+spec/lean/Kikizake/GdiPlus/Recolor.lean::examples lean GP.DRAW.MATRIX
+spec/lean/Kikizake/GdiPlus/Stroke.lean::axes_scale lean GP.PEN.WORLD
+spec/lean/Kikizake/GdiPlus/Stroke.lean::choices lean GP.PEN.ONEPIXEL
+spec/lean/Kikizake/GdiPlus/Arc.lean::ellipse_unit lean GP.PATH.ARC
+spec/lean/Kikizake/GdiPlus/Raster.lean::squares lean GP.RASTER.FILL
+spec/lean/Kikizake/GdiPlus/Line.lean::lines lean GP.PEN.ALIASED GP.PEN.NOMINAL GP.PEN.OUTLINE GP.PEN.EMPTY
+spec/lean/Kikizake/GdiPlus/Chain.lean::copies lean GP.DRAW.NEAREST
+spec/lean/Kikizake/GdiPlus/Chain.lean::ramp lean GP.DRAW.BILINEAR
+spec/lean/Kikizake/GdiPlus/Chain.lean::tables lean GP.DRAW.HQ_BILINEAR GP.DRAW.HQ_BICUBIC
 spec/lean/Kikizake/GdiPlus/Matrix.lean::gamma64_ends lean GP.FILL.GAMMA.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::gamma64_down lean GP.FILL.GAMMA.X64
 tests/laws_gdiplus.rs::fixed_palettes_hold_every_nearest_color exhaustive GP.CLONE.PALETTE
 tests/laws_gdiplus.rs::textures_composite_as_hatches exhaustive GP.BRUSH.TEXTURE.PAINT
 tests/laws_gdiplus.rs::wide_and_indexed_fills_work_on_a_copy exhaustive GP.FILL.BUFFER
+tests/laws_gdiplus.rs::clear_gradient_pixels_over_555 exhaustive GP.BRUSH.LINEAR.PAINT
 spec/lean/Kikizake/D3d11/Desc.lean::desc_size lean D3DRES.DESC.SIZE D3DRES.DESC
 spec/lean/Kikizake/D3d11/Desc.lean::desc_big lean D3DRES.DESC.BIG
 spec/lean/Kikizake/D3d11/Desc.lean::usage_ff lean D3DRES.DESC.USAGEFF

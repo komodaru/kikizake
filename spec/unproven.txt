@@ -1,25 +1,9 @@
 # The settled clauses (doc, measured) of trace::PROVEN_FILES that no formal law proves yet
 # (spec/laws.txt kinds exhaustive, kani, tla, lean). It only shrinks: prove a clause and take
 # its line out; a new clause comes proven (tests/spec.rs unproven_only_shrinks).
-GP.BRUSH.LINEAR
-GP.BRUSH.LINEAR.SIN
-GP.BRUSH.LINEAR.PAINT
-GP.PEN.ONEPIXEL
-GP.PEN.ALIASED
-GP.PEN.NOMINAL
 GP.PEN.WIDE
 GP.PEN.DASH
-GP.PEN.EMPTY
-GP.PEN.OUTLINE
-GP.PEN.WORLD
 GP.PEN.INSET
-GP.PATH.ARC
-GP.RASTER.FILL
-GP.DRAW.NEAREST
-GP.DRAW.BILINEAR
-GP.DRAW.HQ_BILINEAR
-GP.DRAW.HQ_BICUBIC
-GP.DRAW.MATRIX
 D3DRES.RESOLVE.MEAN
 D3DRASTER.SHADER
 D3DRASTER.DEPTH.ALONE

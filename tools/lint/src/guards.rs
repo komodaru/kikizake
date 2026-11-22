@@ -172,6 +172,36 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
 /// (file, function, what (a regular expression), why): `forbidden` inside one function only
 pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
     (
+        "src/model/gpimage.rs",
+        "chain",
+        r"\.(?:min|max)\s*\(\s*(?:r\.|s\.\d|yz|p\[)",
+        "the draw chain's float bounds go through most and least, which take the second on a tie of the signed zeros as the Lean mirror gp.chain does; f32::min and f32::max leave that tie to the code generator",
+    ),
+    (
+        "src/model/gdiplus.rs",
+        "pen_shape",
+        r"partial_cmp\s*\(\s*&gpp::NEAR|NEG_INFINITY",
+        "a stroke's too small test is gppath::too_small, which the Lean mirror gp.too_small holds equal to spec/lean/Kikizake/GdiPlus/Line.lean; a box test inlined in pen_shape escapes it",
+    ),
+    (
+        "src/model/gppath.rs",
+        "normalize",
+        r"\.atan2\s*\(|\.sin\s*\(\s*\)|\.cos\s*\(\s*\)",
+        "an arc calls libm through its injected m, which the Lean mirror gp.arc answers with the platform's results; a direct atan2, sin or cos escapes spec/lean/Kikizake/GdiPlus/Arc.lean",
+    ),
+    (
+        "src/model/gppath.rs",
+        "arc_points",
+        r"\.atan2\s*\(|\.sin\s*\(\s*\)|\.cos\s*\(\s*\)",
+        "an arc calls libm through its injected m, which the Lean mirror gp.arc answers with the platform's results; a direct atan2, sin or cos escapes spec/lean/Kikizake/GdiPlus/Arc.lean",
+    ),
+    (
+        "src/model/gplinear.rs",
+        "new_with",
+        r"\.atan2\s*\(|\.sin\s*\(\s*\)|\.cos\s*\(\s*\)",
+        "a line brush calls libm through its injected m, which the Lean mirror gp.linear answers with the platform's results; a direct atan2, sin or cos in new_with escapes spec/lean/Kikizake/GdiPlus/Linear.lean",
+    ),
+    (
         "src/model/opengl.rs",
         "pop_attrib",
         r"\.\.\s*\}",

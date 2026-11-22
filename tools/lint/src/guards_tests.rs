@@ -351,6 +351,38 @@ fn gdiplus_gamma64_stays_in_the_mirrored_function() {
 }
 
 #[test]
+fn gdiplus_draw_chain_bounds_take_the_second_on_a_tie() {
+    let std = "pub fn chain() {\n    let right = r.add(ww, left).min(r.add(s.0, s.2));\n    let (left, top) = (left.max(s.0), top.max(s.1));\n    let oy = ya.min(yz);\n    let xl = p[0].0.min(p[1].0);\n}\n";
+    let r = rust("src/model/gpimage.rs", std);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in chain: the draw chain's float bounds")).count(), 5, "{r:?}");
+    assert!(rust("src/model/gpimage.rs", "pub fn chain() { let right = least(r.add(ww, left), r.add(s.0, s.2)); let (first, last) = (first.max(0), last.min(ih)); }\n").is_empty());
+}
+
+#[test]
+fn gdiplus_too_small_strokes_stay_in_the_mirrored_function() {
+    let inlined = "fn pen_shape() {\n    let (lo, hi) = d.iter().fold((f32::INFINITY, f32::NEG_INFINITY), f);\n    let wide = |v: f32| v.partial_cmp(&gpp::NEAR) == Some(Greater);\n}\n";
+    let r = rust("src/model/gdiplus.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in pen_shape: a stroke's too small test")).count(), 2, "{r:?}");
+    assert!(rust("src/model/gdiplus.rs", "fn pen_shape() { if gpp::too_small(r, &wtd, &whole) {} }\n").is_empty());
+}
+
+#[test]
+fn gdiplus_arcs_call_libm_through_their_injection() {
+    let direct = "fn normalize() {\n    let f = (t.sin() * w).atan2(h * t.cos());\n}\nfn arc_points() {\n    let c = (half as f64).cos();\n}\n";
+    let r = rust("src/model/gppath.rs", direct);
+    assert_eq!(r.iter().filter(|b| b.contains("an arc calls libm")).count(), 4, "{r:?}");
+    assert!(rust("src/model/gppath.rs", "fn normalize() { let s = m(Libm::Sin(t)); }\nfn arc_points() { let c = cosf(r, half, lib); }\n").is_empty());
+}
+
+#[test]
+fn gdiplus_line_brush_calls_libm_through_its_injection() {
+    let direct = "fn new_with() {\n    let a = (dy as f64).atan2(dx as f64);\n    let s = th.sin();\n    let c = th.cos();\n}\n";
+    let r = rust("src/model/gplinear.rs", direct);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in new_with: a line brush calls libm")).count(), 3, "{r:?}");
+    assert!(rust("src/model/gplinear.rs", "fn new_with() { let a = m(Libm::Atan2(y, x)); let s = sin_quirk(r, m(Libm::Sin(th))); }\n").is_empty());
+}
+
+#[test]
 fn gdiplus_dither_place_stays_in_the_mirrored_functions() {
     let inlined = "fn fill_area() {\n    let odd_end = (a1 - a0) % 2 == 1;\n    let c = (at + left - ox).rem_euclid(4) as u32;\n}\n";
     let r = rust("src/model/gdiplus.rs", inlined);
