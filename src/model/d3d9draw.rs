@@ -411,7 +411,7 @@ impl Surface {
 
 /// D3DBLENDOP
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum BlendOp {
+pub enum BlendOp {
     Add,
     Sub,
     RevSub,
@@ -1214,6 +1214,25 @@ pub fn decl_ok(e: &[(u32, u32)]) -> Res<bool> {
     Ok(!twice && !apart && !transformed)
 }
 
+/// one 8-bit channel blended (MEASURED, d3d9draw blend-*): the source and destination each
+/// (value, whether its factor is ONE, the factor in 0..255). Each product x * f of two 8-bit
+/// numbers is x * f * 257 >> 8 in 1/256ths, a little under x * f / 255 (x * ONE is x exactly,
+/// d3d8draw blend-random-2); the two added or subtracted, rounded to 8 bits half up. With `exact`
+/// (D3D9.BLEND.TIE: SRCALPHASAT, separate alpha, a target without alpha) the exact sum in
+/// 255ths rounded to nearest. MIN and MAX ignore the factors
+pub fn blend8(op: BlendOp, (x, xone, fs): (i64, bool, i64), (y, yone, fd): (i64, bool, i64), exact: bool) -> i64 {
+    let prod = |v: i64, one: bool, f: i64| if one { v << 8 } else { v * f * 257 >> 8 };
+    let (a, b) = (prod(x, xone, fs), prod(y, yone, fd));
+    let n = match op {
+        BlendOp::Add => (a + b, x * fs + y * fd),
+        BlendOp::Sub => (a - b, x * fs - y * fd),
+        BlendOp::RevSub => (b - a, y * fd - x * fs),
+        BlendOp::Min => return x.min(y),
+        BlendOp::Max => return x.max(y),
+    };
+    if exact { ((2 * n.1.max(0) + 255) / 510).min(255) } else { (n.0.max(0) + 128 >> 8).min(255) }
+}
+
 /// D3DCMPFUNC
 pub fn cmp(f: u32, a: u64, b: u64) -> bool {
     match f {
@@ -1240,6 +1259,11 @@ pub fn stencil_op(op: u32, s: u8, refv: u8) -> u8 {
         8 => s.wrapping_sub(1),
         _ => s,
     }
+}
+
+/// D3D9.STENCIL: the new stencil value stored through the write mask (the other bits kept)
+pub fn stencil_write(s: u8, ns: u8, wmask: u8) -> u8 {
+    (s & !wmask) | (ns & wmask)
 }
 
 /// D3DTEXTUREADDRESS: a texel index (any integer) into 0..n, None for the border
@@ -2415,7 +2439,7 @@ impl D3d9 {
             let spass = cmp(self.rs(func), (refv & mask) as u64, (s & mask) as u64);
             let op = if !spass { self.rs(fail) } else if !zpass { self.rs(zfail) } else { self.rs(pass) };
             let ns = stencil_op(op, s, refv);
-            self.draw.stencil[k] = (s & !wmask) | (ns & wmask);
+            self.draw.stencil[k] = stencil_write(s, ns, wmask);
             if !spass {
                 return Ok(());
             }
@@ -2590,30 +2614,10 @@ impl D3d9 {
             }
             let op = Self::blend_op(op);
             let (fs, fd) = (factor(sf, k)?, factor(df, k)?);
-            // (ONE exactly: MEASURED, d3d8draw blend-random-2)
-            let prod = |x: i64, f: u32, v: i64| if f == 2 { x << 8 } else { x * v * 257 >> 8 };
-            let (a, b) = (prod(s[k], sf, fs), prod(d[k], df, fd));
-            let v = match op {
-                BlendOp::Add => a + b,
-                BlendOp::Sub => a - b,
-                BlendOp::RevSub => b - a,
-                BlendOp::Min => s[k].min(d[k]) << 8,
-                BlendOp::Max => s[k].max(d[k]) << 8,
-            };
-            let r = (v.max(0) + 128 >> 8).min(255);
-            let n = match op {
-                BlendOp::Add => Some(s[k] * fs + d[k] * fd),
-                BlendOp::Sub => Some(s[k] * fs - d[k] * fd),
-                BlendOp::RevSub => Some(d[k] * fd - s[k] * fs),
-                BlendOp::Min | BlendOp::Max => None,
-            };
-            let r = match n {
-                Some(n) if exact => {
-                    hit(clause::D3D9_BLEND_TIE);
-                    ((2 * n.max(0) + 255) / 510).min(255)
-                }
-                _ => r,
-            };
+            if exact && !matches!(op, BlendOp::Min | BlendOp::Max) {
+                hit(clause::D3D9_BLEND_TIE);
+            }
+            let r = blend8(op, (s[k], sf == 2, fs), (d[k], df == 2, fd), exact);
             out[k] = (r as f32 / 255.0) as f64;
         }
         Ok(out)

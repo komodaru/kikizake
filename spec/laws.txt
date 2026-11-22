@@ -312,6 +312,14 @@ spec/lean/Kikizake/D3d12/Alloc.lean::std_tiles_64k lean D3D12.ALLOC.SWIZZLE
 spec/lean/Kikizake/D3d12/Alloc.lean::swizzle_covers lean D3D12.ALLOC.SWIZZLE D3D12.ALLOC.TEXTURE
 spec/lean/Kikizake/D3d12/Alloc.lean::size_bounds lean D3D12.ALLOC.TEXTURE D3D12.ALLOC.MSAA D3D12.ALLOC.RT1D
 spec/lean/Kikizake/D3d12/Alloc.lean::small_tiles_4k lean D3D12.DESC.SMALL
+spec/lean/Kikizake/D3d9/Pixel.lean::cmp_pairs lean D3D9.ALPHATEST D3D9.STENCIL D3D9.DEPTH
+spec/lean/Kikizake/D3d9/Pixel.lean::stencil_ops lean D3D9.STENCIL
+spec/lean/Kikizake/D3d9/Pixel.lean::stencil_write_bits lean D3D9.STENCIL
+spec/lean/Kikizake/D3d9/Pixel.lean::address_inside lean D3D9.TEX.ADDRESS D3D9.TEX.ADDRESS.BAD D3D9.TEX.BORDER
+spec/lean/Kikizake/D3d9/Pixel.lean::address_modes lean D3D9.TEX.ADDRESS
+spec/lean/Kikizake/D3d9/Pixel.lean::prod_under lean D3D9.BLEND
+spec/lean/Kikizake/D3d9/Pixel.lean::blend8_holds lean D3D9.BLEND
+spec/lean/Kikizake/D3d9/Pixel.lean::exact_nearest lean D3D9.BLEND.TIE
 spec/lean/Kikizake/Dxgi/Args.lean::assoc_taken lean DXGI.ASSOC
 spec/lean/Kikizake/Dxgi/Args.lean::assoc_other_bits lean DXGI.ASSOC
 spec/lean/Kikizake/Dxgi/Args.lean::feature_only lean DXGI.FEATURE.ARGS
