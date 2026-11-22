@@ -506,3 +506,8 @@ tests/laws_d3d12_rootsig.rs::blobs_are_dxbc_of_one_rts0_part exhaustive D3D12.RO
 tests/laws_d3d12_rootsig.rs::root_signatures_cost_at_most_64 exhaustive D3D12.ROOTSIG.MAKE
 tests/laws_d3d12_rootsig.rs::features_answer_at_one_size exhaustive D3D12.FEATURE.SCAN
 tests/laws_d3d12_rootsig.rs::copies_give_every_byte_back exhaustive D3D12.COPY.ROUNDTRIP D3D12.COPY.D24
+spec/lean/Kikizake/D3d9/DeclFvf.lean::unpacked_refused lean D3DX9.DECLFVF.INVALID
+spec/lean/Kikizake/D3d9/DeclFvf.lean::stream_or_offset_unpacked lean D3DX9.DECLFVF.INVALID
+spec/lean/Kikizake/D3d9/DeclFvf.lean::out_of_turn_refused lean D3DX9.DECLFVF.INVALID
+spec/lean/Kikizake/D3d9/DeclFvf.lean::tex_refusal_refused lean D3DX9.DECLFVF.INVALID
+spec/lean/Kikizake/D3d9/DeclFvf.lean::refused_examples lean D3DX9.DECLFVF.INVALID
