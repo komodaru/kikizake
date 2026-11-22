@@ -356,10 +356,10 @@ fn unmodeled_cases_are_the_listed_ones() {
     now.dedup();
     let path = root.join("tests/wicimage_unmodeled.txt");
     if std::env::var("KIKIZAKE_BLESS").is_ok() {
-        std::fs::write(&path, now.join("\n") + "\n").unwrap();
+        std::fs::write(&path, now.iter().map(|n| format!("{n}\n")).collect::<String>()).unwrap();
         return;
     }
-    let listed: Vec<String> = std::fs::read_to_string(&path).unwrap_or_default().lines().map(String::from).collect();
+    let listed: Vec<String> = std::fs::read_to_string(&path).unwrap_or_default().lines().filter(|l| !l.is_empty()).map(String::from).collect();
     let new: Vec<&String> = now.iter().filter(|n| !listed.contains(n)).collect();
     let gone: Vec<&String> = listed.iter().filter(|n| !now.contains(n)).collect();
     assert!(new.is_empty() && gone.is_empty(), "unmodeled cases changed (KIKIZAKE_BLESS=1 after settling some):\nnewly unmodeled: {new:?}\nnow modeled: {gone:?}");
