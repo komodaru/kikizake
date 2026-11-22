@@ -1885,6 +1885,11 @@ pub fn wicencode() -> String {
             writeln!(s, "case float-shift-{k}\nwdecode {}\nwframe 0\nwencode wmp{o}\n{bytes}wredecode\nwframe 0\nwinfo\nwpixels\nend", hex(&tiff(false, std::slice::from_ref(&im))));
         }
     }
+    // a JPEG XR decoder's frame itself given to WriteSource (the review of 84b05c8, 6): a file
+    // written lossy and lossless, decoded again, its frame encoded by each encoder
+    for ((k, (o, c, f)), seed) in ["ImageQuality=0.5", "Lossless=1"].into_iter().flat_map(|o| ["wmp", "png", "tiff", "bmp"].into_iter().flat_map(move |c| ["bgra", "gray8", "bgr24"].into_iter().map(move |f| (o, c, f)))).enumerate().zip(0x0b82_0000u32..) {
+        writeln!(s, "case wmpframe-{k}-{c}-{f}\nwbits {f} 7 5 {seed}\nwencode wmp {o}\nwredecode\nwframe 0\nwencode {c}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
+    }
     for ((k, (c, o)), seed) in sets.into_iter().enumerate().zip(0x0b81_0000u32..) {
         for (f, w, h) in [("gray8", 2, 3), ("bgra", 6, 4)] {
             writeln!(s, "case optset-{k}-{c}-{f}\nwbits {f} {w} {h} {seed}\nwencode {c} {o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");

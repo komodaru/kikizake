@@ -9716,6 +9716,270 @@ wframe 0
 winfo
 wpixels
 end
+case wmpframe-0-wmp-bgra
+wbits bgra 7 5 193069056
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-1-wmp-gray8
+wbits gray8 7 5 193069057
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-2-wmp-bgr24
+wbits bgr24 7 5 193069058
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-3-png-bgra
+wbits bgra 7 5 193069059
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-4-png-gray8
+wbits gray8 7 5 193069060
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-5-png-bgr24
+wbits bgr24 7 5 193069061
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-6-tiff-bgra
+wbits bgra 7 5 193069062
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-7-tiff-gray8
+wbits gray8 7 5 193069063
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-8-tiff-bgr24
+wbits bgr24 7 5 193069064
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-9-bmp-bgra
+wbits bgra 7 5 193069065
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode bmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-10-bmp-gray8
+wbits gray8 7 5 193069066
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode bmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-11-bmp-bgr24
+wbits bgr24 7 5 193069067
+wencode wmp ImageQuality=0.5
+wredecode
+wframe 0
+wencode bmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-12-wmp-bgra
+wbits bgra 7 5 193069068
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-13-wmp-gray8
+wbits gray8 7 5 193069069
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-14-wmp-bgr24
+wbits bgr24 7 5 193069070
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode wmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-15-png-bgra
+wbits bgra 7 5 193069071
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-16-png-gray8
+wbits gray8 7 5 193069072
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-17-png-bgr24
+wbits bgr24 7 5 193069073
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode png
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-18-tiff-bgra
+wbits bgra 7 5 193069074
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-19-tiff-gray8
+wbits gray8 7 5 193069075
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-20-tiff-bgr24
+wbits bgr24 7 5 193069076
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode tiff
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-21-bmp-bgra
+wbits bgra 7 5 193069077
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode bmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-22-bmp-gray8
+wbits gray8 7 5 193069078
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode bmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpframe-23-bmp-bgr24
+wbits bgr24 7 5 193069079
+wencode wmp Lossless=1
+wredecode
+wframe 0
+wencode bmp
+wredecode
+wframe 0
+winfo
+wpixels
+end
 case optset-0-wmp-gray8
 wbits gray8 2 3 193003520
 wencode wmp Lossless=1 BitmapTransform=1

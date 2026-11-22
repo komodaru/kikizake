@@ -26,9 +26,9 @@ fn coords(each: &mut dyn FnMut(&[i64])) {
             each(&f64_halves(f64::from_bits(b)));
         }
     }
-    let mut rng = crate::rng::XorShift32::new(0xf11e_d009);
+    let mut rng = crate::rng::Sample64::new(0xf11e_d009);
     for _ in 0..100_000 {
-        let b = u64::from(rng.next()) << 32 | u64::from(rng.next());
+        let b = rng.next();
         each(&f64_halves(f64::from_bits(b)));
     }
 }
@@ -358,7 +358,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: FILTER,
         domain: Domain::Sampled("every weight 0..32 each way, with 60 samples of four 8-bit texels each, their ends included"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xb1b1_d009);
+            let mut rng = crate::rng::Sample64::new(0xb1b1_d009);
             for fx in 0..=32 {
                 for fy in 0..=32 {
                     for i in 0..60 {
@@ -388,7 +388,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: FILTER,
         domain: Domain::Sampled("every weight 0..32 each way, with 40 samples of four texels: f32 values in -2..2, 0, -0, 1, NaN, infinities and any binary64 bits"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xb1f1_d009);
+            let mut rng = crate::rng::Sample64::new(0xb1f1_d009);
             let special = [0.0f64, -0.0, 1.0, 0.5, f64::NAN, f64::INFINITY, f64::NEG_INFINITY, -1.0];
             for fx in 0..=32 {
                 for fy in 0..=32 {
@@ -398,7 +398,7 @@ pub static MIRRORS: &[Mirror] = &[
                             let x = match (i, rng.range(0, 2)) {
                                 (0, _) => -0.0,
                                 (_, 0) => special.get(usize::try_from(rng.range(0, 7)).unwrap_or(0)).copied().unwrap_or(0.0),
-                                (_, 1) => f64::from_bits(u64::from(rng.next()) << 32 | u64::from(rng.next())),
+                                (_, 1) => f64::from_bits(rng.next()),
                                 _ => f64::from(-2.0 + 4.0 * (f32::from(u16::try_from(rng.range(0, 0xffff)).unwrap_or(0)) / 65535.0)),
                             };
                             w.extend(f64_halves(x));

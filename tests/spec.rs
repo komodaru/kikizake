@@ -1,7 +1,7 @@
 //! The clauses (spec/) against the models and the suites: every clause is reached by some case
 //! (a documented rule no case exercises is a hole in the suite), the models name no clause the
 //! files lack, statuses are known, ids are unique.
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use kikizake::spec;
 
 #[test]
@@ -205,4 +205,34 @@ fn unresolved_only_shrinks() {
     let gone: Vec<_> = listed.difference(&now).collect();
     assert!(new.is_empty(), "clauses left unresolved (settle them: doc or measured, by Windows' answers):\n{}", new.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n"));
     assert!(gone.is_empty(), "settled clauses still listed in spec/unresolved.txt (take them out):\n{}", gone.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n"));
+}
+
+/// the ledger's three kinds of evidence apart (the review of 84b05c8, 6): the proofs column
+/// names only the formal kinds (a pbt law proves nothing), each one a clause's laws have; the
+/// windows column is what the answered cases say, a differing case outweighing agreeing ones
+#[test]
+fn ledger_keeps_proof_reach_and_windows_apart() {
+    use kikizake::trace::{proofs, Evidence, Windows, FORMAL_KINDS};
+    let laws = kikizake::trace::laws();
+    let mut by: BTreeMap<&str, Vec<kikizake::trace::Law>> = BTreeMap::new();
+    for l in &laws {
+        for c in &l.clauses {
+            by.entry(c.as_str()).or_default().push(l.clone());
+        }
+    }
+    for (c, ls) in &by {
+        let p = proofs(ls);
+        let want: Vec<&str> = FORMAL_KINDS.iter().copied().filter(|k| ls.iter().any(|l| l.kind == *k)).collect();
+        assert_eq!(p.split('+').filter(|k| *k != "-").collect::<Vec<_>>(), want, "{c}");
+        assert!(!p.contains("pbt"), "{c}: {p}");
+    }
+    for same in 0..3 {
+        for differ in 0..3 {
+            let e = Evidence { same, differ, ..Evidence::default() };
+            let w = Windows::of(&e);
+            assert_eq!(w == Windows::Differs, differ > 0);
+            assert_eq!(w == Windows::Agrees, differ == 0 && same > 0);
+            assert_eq!(w == Windows::Unanswered, differ == 0 && same == 0);
+        }
+    }
 }

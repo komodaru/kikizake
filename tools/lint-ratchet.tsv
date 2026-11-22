@@ -239,7 +239,7 @@ file	src/model/d3d9draw.rs	indexing_slicing	209
 file	src/model/d3d9draw.rs	map_err_ignore	1
 file	src/model/d3d9draw.rs	unreachable	1
 file	src/model/d3d9draw.rs	wildcard_enum_match_arm	4
-file	src/model/d3draster.rs	arithmetic_side_effects	71
+file	src/model/d3draster.rs	arithmetic_side_effects	66
 file	src/model/d3draster.rs	as_conversions	67
 file	src/model/d3draster.rs	cast_possible_truncation	22
 file	src/model/d3draster.rs	cast_precision_loss	14
@@ -248,7 +248,7 @@ file	src/model/d3draster.rs	float_cmp	10
 file	src/model/d3draster.rs	indexing_slicing	139
 file	src/model/d3draster.rs	string_slice	1
 file	src/model/d3draster.rs	wildcard_enum_match_arm	2
-file	src/model/d3dres.rs	arithmetic_side_effects	64
+file	src/model/d3dres.rs	arithmetic_side_effects	63
 file	src/model/d3dres.rs	as_conversions	81
 file	src/model/d3dres.rs	cast_possible_truncation	5
 file	src/model/d3dres.rs	cast_possible_wrap	2
@@ -493,7 +493,7 @@ file	src/model/opengl.rs	cast_possible_wrap	52
 file	src/model/opengl.rs	cast_precision_loss	85
 file	src/model/opengl.rs	cast_sign_loss	88
 file	src/model/opengl.rs	float_cmp	47
-file	src/model/opengl.rs	indexing_slicing	368
+file	src/model/opengl.rs	indexing_slicing	367
 file	src/model/opengl.rs	lossy_float_literal	7
 file	src/model/opengl.rs	map_err_ignore	3
 file	src/model/opengl.rs	panic	1
@@ -534,11 +534,9 @@ file	src/model/wide.rs	cast_possible_truncation	2
 file	src/model/wide.rs	cast_precision_loss	2
 file	src/model/wide.rs	cast_sign_loss	1
 file	src/model/wide.rs	indexing_slicing	6
-file	src/rng.rs	arithmetic_side_effects	3
-file	src/rng.rs	as_conversions	3
-file	src/rng.rs	cast_possible_truncation	1
+file	src/rng.rs	arithmetic_side_effects	2
+file	src/rng.rs	as_conversions	1
 file	src/rng.rs	cast_possible_wrap	1
-file	src/rng.rs	cast_sign_loss	1
 file	src/rng.rs	indexing_slicing	1
 file	src/spec.rs	let_underscore_must_use	1
 file	src/tla.rs	arithmetic_side_effects	1
