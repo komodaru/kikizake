@@ -254,21 +254,21 @@ fn palette_flags(f: Pf) -> u32 {
     }
 }
 
-fn x5(v: u64) -> u32 {
+pub fn x5(v: u64) -> u32 {
     ((v << 3) | (v >> 2)) as u32 & 255
 }
-fn x6(v: u64) -> u32 {
+pub fn x6(v: u64) -> u32 {
     ((v << 2) | (v >> 4)) as u32 & 255
 }
 
 /// MEASURED (golden gdiplus pairs-32bppARGB-32bppPARGB: every (color, alpha) pair)
-fn premultiply(c: u64, a: u64) -> u64 {
+pub fn premultiply(c: u64, a: u64) -> u64 {
     (c * a + 127) / 255
 }
 
 /// MEASURED (golden gdiplus pairs-32bppPARGB-32bppARGB: every pair): a 16.16 reciprocal of the
 /// alpha, truncated, the product truncated, at most 255; alpha 0 keeps the color
-fn unpremultiply(c: u32, a: u32) -> u32 {
+pub fn unpremultiply(c: u32, a: u32) -> u32 {
     match (255u32 << 16).checked_div(a) {
         None => c,
         Some(r) => ((c * r) >> 16).min(255),
@@ -277,25 +277,25 @@ fn unpremultiply(c: u32, a: u32) -> u32 {
 
 /// MEASURED (golden gdiplus pairs-32bppARGB-64bppARGB, levels-*): 16-bit channels hold linear
 /// light, 0..8192 (GDI+'s sRGB64); 8-bit sRGB to it by the sRGB curve, rounded, and back
-fn widen(c: u64) -> u64 {
+pub fn widen(c: u64) -> u64 {
     let c = c as f64 / 255.0;
     let l = if c <= 0.04045 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) };
     (l * 8192.0 + 0.5) as u64
 }
 /// a 16-bit channel as a signed number, clamped to 0..8192 (MEASURED: words from 0x8000 are 0)
-fn level(v: u64) -> u64 {
+pub fn level(v: u64) -> u64 {
     (v as u16 as i16).clamp(0, 8192) as u64
 }
-fn narrow(v: u64) -> u32 {
+pub fn narrow(v: u64) -> u32 {
     let l = level(v) as f64 / 8192.0;
     let s = if l <= 0.003_130_8 { 12.92 * l } else { 1.055 * l.powf(1.0 / 2.4) - 0.055 };
     (s * 255.0 + 0.5) as u32
 }
 /// alpha: a * 8192 / 255 truncated, and back
-fn widen_alpha(a: u64) -> u64 {
+pub fn widen_alpha(a: u64) -> u64 {
     a * 8192 / 255
 }
-fn narrow_alpha(a: u64) -> u32 {
+pub fn narrow_alpha(a: u64) -> u32 {
     (level(a) * 255 / 8192) as u32
 }
 

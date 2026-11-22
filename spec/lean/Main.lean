@@ -3,7 +3,9 @@ import Kikizake
 from standard input and prints each one's answer on a line of its own (`kikizake lean`). -/
 open Kikizake
 
-def mirrors : List Mirror := Gdi.Blend.mirrors
+def mirrors : List Mirror :=
+  Gdi.Blend.mirrors ++ Gdi.Stretch.mirrors ++ Gdi.Xform.mirrors ++ Gdi.Gradient.mirrors ++
+  GdiPlus.Conv.mirrors
 
 def answer (line : String) : String :=
   match ((line.replace "\n" "").replace "\r" "").splitOn " " with

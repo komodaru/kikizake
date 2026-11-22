@@ -258,3 +258,35 @@ spec/lean/Kikizake/Gdi/Blend.lean::alpha_constant lean GDI.ALPHA.CONSTANT
 spec/lean/Kikizake/Gdi/Blend.lean::alpha_opaque lean GDI.ALPHA.OPAQUE
 spec/lean/Kikizake/Gdi/Blend.lean::carry_premultiplied lean GDI.ALPHA.PERPIXEL GDI.ALPHA.CARRY
 spec/lean/Kikizake/Gdi/Blend.lean::alpha_premultiplied lean GDI.ALPHA.PERPIXEL GDI.ALPHA.CARRY
+spec/lean/Kikizake/Gdi/Stretch.lean::sample_center lean GDI.STRETCH.DDA GDI.STRETCH.SAMPLE
+spec/lean/Kikizake/Gdi/Stretch.lean::sample_lt lean GDI.STRETCH.SAMPLE GDI.STRETCH.DDA
+spec/lean/Kikizake/Gdi/Stretch.lean::sample_mono lean GDI.STRETCH.SAMPLE GDI.STRETCH.DDA
+spec/lean/Kikizake/Gdi/Stretch.lean::sample_same lean GDI.STRETCH.SAME
+spec/lean/Kikizake/Gdi/Xform.lean::fix_nearest lean GDI.MAP.ROUND
+spec/lean/Kikizake/Gdi/Xform.lean::fix_neg lean GDI.MAP.ROUND
+spec/lean/Kikizake/Gdi/Xform.lean::page_identity lean GDI.MAP.FORMULA GDI.MAP.ROUND
+spec/lean/Kikizake/Gdi/Xform.lean::page_near_formula lean GDI.MAP.FORMULA GDI.MAP.ROUND
+spec/lean/Kikizake/Gdi/Gradient.lean::value_floor lean GDI.GRAD.RECTH GDI.GRAD.RECTV
+spec/lean/Kikizake/Gdi/Gradient.lean::value_nearest lean GDI.GRAD.TRIROUND
+spec/lean/Kikizake/Gdi/Gradient.lean::c8_high_byte lean GDI.GRAD.RECTH GDI.GRAD.RECTV GDI.GRAD.TRIROUND
+spec/lean/Kikizake/Gdi/Gradient.lean::bayer_permutation lean GDI.GRAD.DITHER16
+spec/lean/Kikizake/Gdi/Gradient.lean::dither_mean lean GDI.GRAD.DITHER16
+spec/lean/Kikizake/Gdi/Gradient.lean::dither16_level lean GDI.GRAD.DITHER16
+spec/lean/Kikizake/Gdi/Gradient.lean::cell5_three lean GDI.GRAD.INDEXED
+spec/lean/Kikizake/Gdi/Gradient.lean::cell5_six lean GDI.GRAD.HALFTONE
+spec/lean/Kikizake/Gdi/Gradient.lean::cell5_mono lean GDI.GRAD.INDEXED
+spec/lean/Kikizake/Gdi/Gradient.lean::dither6_range lean GDI.GRAD.HALFTONE
+spec/lean/Kikizake/Gdi/Gradient.lean::dither3_range lean GDI.GRAD.INDEXED
+spec/tla/GdiRegion.tla::Next tla GDI.RGN.RECT GDI.RGN.SETRECT GDI.RGN.COMBINE GDI.RGN.COPY GDI.RGN.BADMODE GDI.RGN.KIND GDI.RGN.BOX GDI.RGN.OFFSET GDI.RGN.PTIN GDI.RGN.RECTIN GDI.RGN.EQUAL GDI.RGN.OVERLAP
+spec/lean/Kikizake/GdiPlus/Conv.lean::expand_truncate lean GP.CONV.EXPAND GP.CONV.TRUNCATE
+spec/lean/Kikizake/GdiPlus/Conv.lean::expand_close lean GP.CONV.EXPAND
+spec/lean/Kikizake/GdiPlus/Conv.lean::premultiply_nearest lean GP.CONV.PREMULTIPLY
+spec/lean/Kikizake/GdiPlus/Conv.lean::unpremultiply_le lean GP.CONV.UNPREMULTIPLY
+spec/lean/Kikizake/GdiPlus/Conv.lean::opaque_round_trip lean GP.CONV.PREMULTIPLY GP.CONV.UNPREMULTIPLY
+spec/lean/Kikizake/GdiPlus/Conv.lean::unpremultiply_close lean GP.CONV.UNPREMULTIPLY
+spec/lean/Kikizake/GdiPlus/Conv.lean::widen_narrow lean GP.CONV.WIDEN GP.CONV.NARROW
+spec/lean/Kikizake/GdiPlus/Conv.lean::level_clamps lean GP.CONV.NARROW GP.CONV.NARROW.PREMULTIPLIED
+spec/lean/Kikizake/GdiPlus/Conv.lean::alpha_round_trip lean GP.CONV.WIDEN GP.CONV.NARROW
+spec/lean/Kikizake/GdiPlus/Conv.lean::rgb32_keeps lean GP.CONV.OPAQUE GP.CONV.KEEP
+spec/lean/Kikizake/GdiPlus/Narrow.lean::narrow_mono lean GP.CONV.NARROW
+spec/lean/Kikizake/GdiPlus/Narrow.lean::narrow_ends lean GP.CONV.NARROW

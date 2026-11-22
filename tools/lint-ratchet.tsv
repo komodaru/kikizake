@@ -341,9 +341,9 @@ file	src/model/gdiarc.rs	cast_precision_loss	9
 file	src/model/gdiarc.rs	cast_sign_loss	2
 file	src/model/gdiarc.rs	indexing_slicing	11
 file	src/model/gdiblend.rs	arithmetic_side_effects	87
-file	src/model/gdiblend.rs	as_conversions	46
-file	src/model/gdiblend.rs	cast_possible_truncation	18
-file	src/model/gdiblend.rs	cast_sign_loss	7
+file	src/model/gdiblend.rs	as_conversions	44
+file	src/model/gdiblend.rs	cast_possible_truncation	16
+file	src/model/gdiblend.rs	cast_sign_loss	5
 file	src/model/gdiblend.rs	indexing_slicing	18
 file	src/model/gdiblend.rs	wildcard_enum_match_arm	1
 file	src/model/gdiddb.rs	arithmetic_side_effects	4

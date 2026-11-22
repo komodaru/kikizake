@@ -107,8 +107,8 @@ fn lean_theorems(text: &str) -> Vec<String> {
     text.lines().filter_map(|l| l.strip_prefix("theorem ")).map(|l| l.split_whitespace().next().unwrap().to_string()).collect()
 }
 
-/// every Lean file with a theorem has a mirror (src/lean/) that holds its definitions equal to
-/// the model's functions, each mirror is defined in the file it names and run by Main.lean, and
+/// every Lean file with a theorem about definitions of its own has a mirror (src/lean/) that holds
+/// them equal to the model's functions, each mirror is defined in the file it names and run by Main.lean, and
 /// Kikizake.lean imports every file, so `lake build` checks every theorem
 #[test]
 fn lean_theorems_are_about_the_models() {
@@ -127,7 +127,9 @@ fn lean_theorems_are_about_the_models() {
         }
         assert!(lib.lines().any(|l| l == format!("import {module}")), "spec/lean/Kikizake.lean does not import {module}");
         let mine: Vec<_> = ms.iter().filter(|m| m.lean == rel).collect();
-        assert!(lean_theorems(&text).is_empty() || !mine.is_empty(), "{rel} has theorems but no mirror (src/lean/) ties its definitions to the model");
+        // (a file of theorems about another file's definitions defines none of its own)
+        let defines = text.lines().any(|l| l.starts_with("def ") || l.starts_with("private def "));
+        assert!(lean_theorems(&text).is_empty() || !mine.is_empty() || !defines, "{rel} has theorems about definitions of its own but no mirror (src/lean/) ties them to the model");
         let ns = text.lines().find_map(|l| l.strip_prefix("namespace ")).unwrap_or_else(|| panic!("{rel}: no namespace"));
         let short = ns.strip_prefix("Kikizake.").unwrap();
         assert!(mine.is_empty() || main.contains(&format!("{short}.mirrors")), "spec/lean/Main.lean does not run {short}.mirrors");

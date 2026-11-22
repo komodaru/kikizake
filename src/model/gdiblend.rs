@@ -320,11 +320,11 @@ pub struct Vert {
 }
 
 /// MEASURED: the 4x4 ordered dither of 16 bpp gradients
-const BAYER4: [[i64; 4]; 4] = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
+pub const BAYER4: [[i64; 4]; 4] = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
 
 /// how a gradient's channel value (a 16 bit fraction num / den, den > 0) becomes 8 bits
 #[derive(Clone, Copy, PartialEq, Debug)]
-enum Round {
+pub enum Round {
     /// rectangles: the value truncated (MEASURED, GDI.GRAD.RECTH)
     Floor,
     /// triangles: red, green and blue vertex values above 0xff00 count as 0xff00, then the
@@ -333,7 +333,7 @@ enum Round {
 }
 
 /// a gradient channel as 8 bits
-fn c8(num: i64, den: i64, r: Round) -> u32 {
+pub fn c8(num: i64, den: i64, r: Round) -> u32 {
     let v = match r {
         Round::Floor => num.div_euclid(den),
         Round::Nearest16 => (2 * num + den).div_euclid(2 * den),
@@ -359,7 +359,7 @@ fn grad_pixel(s: &super::gdi::Surf, inv: Option<(&Table, bool)>, num: impl Fn(us
                 Round::Nearest16 => (2 * num(i) + den).div_euclid(2 * den),
             };
             // (5 bits from 1/128 steps; 5-6-5's green, 6 bits from 1/64 steps)
-            let cn = |i: usize, unit: i64, max: i64| ((v16(i) / unit + d) / 16).clamp(0, max) as u32;
+            let cn = |i: usize, unit: i64, max: i64| dither16(v16(i), d, unit, max);
             Ok(if s.f565 { cn(0, 128, 31) << 11 | cn(1, 64, 63) << 5 | cn(2, 128, 31) } else { cn(0, 128, 31) << 10 | cn(1, 128, 31) << 5 | cn(2, 128, 31) })
         }
         (1 | 4 | 8, _) => {
@@ -369,21 +369,7 @@ fn grad_pixel(s: &super::gdi::Surf, inv: Option<(&Table, bool)>, num: impl Fn(us
             let m = if six { &DITHER6 } else { &DITHER3 };
             let d = i64::from(m[y.rem_euclid(16) as usize][x.rem_euclid(16) as usize]);
             // (each channel to a 5 bit cell of GDI's inverse color table)
-            let cell = |i: usize| -> u8 {
-                let v = i64::from(c(i));
-                if s.bpp == 1 {
-                    if v + 2 * d >= 255 { 31 } else { 0 }
-                } else if six {
-                    // (6 levels: 0, 51, .. 204 by 51s, 255 from 255 on)
-                    (if v + d >= 255 { 255 } else { 51 * ((v + d) / 51) } >> 3) as u8
-                } else {
-                    match v + d {
-                        ..=127 => 0,
-                        128..=254 => 16,
-                        _ => 31,
-                    }
-                }
-            };
+            let cell = |i: usize| -> u8 { cell5(s.bpp == 1, six, i64::from(c(i)), d) };
             // (a cell GDI's table builder never writes: Windows reads what that memory held)
             let v = inv.get(Cell::of(cell(0), cell(1), cell(2))).ok_or(Fail::Unmodeled(open::GDI_GRAD_HOLE))?;
             Ok(u32::from(v))
@@ -392,9 +378,33 @@ fn grad_pixel(s: &super::gdi::Surf, inv: Option<(&Table, bool)>, num: impl Fn(us
     }
 }
 
+/// GDI.GRAD.DITHER16: a 16 bit channel value `v16` as `max`'s bits, in steps of `unit`, with the
+/// 4x4 matrix's value `d` added before the sixteenth is taken
+pub fn dither16(v16: i64, d: i64, unit: i64, max: i64) -> u32 {
+    u32::try_from(((v16 / unit + d) / 16).clamp(0, max)).unwrap_or(0)
+}
+
+/// GDI.GRAD.INDEXED, GDI.GRAD.HALFTONE: an 8 bit channel `v` with the 16x16 matrix's value `d`
+/// as the 5 bit cell of GDI's inverse table: 1 bpp black or white, a halftone palette 6 levels,
+/// otherwise 0, 128 or 255
+pub fn cell5(mono: bool, six: bool, v: i64, d: i64) -> u8 {
+    if mono {
+        if v + 2 * d >= 255 { 31 } else { 0 }
+    } else if six {
+        // (6 levels: 0, 51, .. 204 by 51s, 255 from 255 on)
+        u8::try_from(if v + d >= 255 { 255 } else { 51 * ((v + d) / 51) } >> 3).unwrap_or(0)
+    } else {
+        match v + d {
+            ..=127 => 0,
+            128..=254 => 16,
+            _ => 31,
+        }
+    }
+}
+
 /// the 16x16 ordered dither of 8 bpp gradients with a halftone palette selected (clean-room
 /// note on win32kfull)
-const DITHER6: [[u8; 16]; 16] = [
+pub const DITHER6: [[u8; 16]; 16] = [
     [3, 28, 9, 35, 4, 30, 11, 36, 3, 29, 10, 35, 5, 30, 11, 37],
     [41, 16, 48, 22, 43, 17, 49, 24, 42, 16, 48, 22, 43, 18, 50, 24],
     [6, 32, 0, 25, 8, 33, 1, 27, 6, 32, 0, 26, 8, 34, 2, 27],
@@ -415,7 +425,7 @@ const DITHER6: [[u8; 16]; 16] = [
 
 /// the 16x16 ordered dither of gradients into color tables (clean-room note on win32kfull,
 /// copied as it is: 126 four times, no 127)
-const DITHER3: [[u8; 16]; 16] = [
+pub const DITHER3: [[u8; 16]; 16] = [
     [8, 72, 24, 88, 12, 76, 28, 92, 9, 73, 25, 89, 13, 77, 29, 93],
     [104, 40, 120, 56, 108, 44, 124, 60, 105, 41, 121, 57, 109, 45, 125, 61],
     [16, 80, 0, 64, 20, 84, 4, 68, 17, 81, 1, 65, 21, 85, 5, 69],

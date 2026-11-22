@@ -9,6 +9,7 @@ use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::process::{Command, Stdio};
 
 mod gdi;
+mod gdiplus;
 
 /// what a mirror's arguments cover
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -34,12 +35,17 @@ pub struct Mirror {
 
 /// every mirror, per API
 pub fn mirrors() -> Vec<&'static Mirror> {
-    gdi::MIRRORS.iter().collect()
+    gdi::MIRRORS.iter().chain(gdiplus::MIRRORS).collect()
 }
 
 /// the argument as the type the model takes
 pub fn arg<T: TryFrom<i64>>(a: &[i64], i: usize) -> Option<T> {
     a.get(i).and_then(|v| T::try_from(*v).ok())
+}
+
+/// a model's single answer
+pub fn one(v: impl Into<i64>) -> Option<Vec<i64>> {
+    Some(vec![v.into()])
 }
 
 /// every value of lo..=hi of each argument (the last one fastest)
