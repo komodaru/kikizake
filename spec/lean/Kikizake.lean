@@ -42,6 +42,7 @@ import Kikizake.Float
 import Kikizake.F32
 import Kikizake.DWrite.Advance
 import Kikizake.DWrite.Metrics
+import Kikizake.D3dx9.DxtEnc
 import Kikizake.D3d11.Raster
 import Kikizake.D3d11.Draw
 import Kikizake.D3d11.Texture

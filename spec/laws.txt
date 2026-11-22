@@ -809,3 +809,25 @@ spec/lean/Kikizake/D3d9/Gen.lean::projected lean D3D9.STAGE.PROJFOOT
 spec/lean/Kikizake/D3d9/Gen.lean::three_sets lean D3D9.STAGE.PROJFOOT
 spec/tla/D3DResSamples.tla::Next tla D3DRES.COPY.SAMPLES D3DRES.COPYSUB.SAMPLES
 spec/tla/D3DResClear.tla::Next tla D3DRES.CLEAR.RTV D3DRES.CLEAR.DSV D3DRES.CLEAR.DEPTHRANGE D3DRES.CLEAR.UAV D3DRES.CLEAR.UAVRAW D3DRES.CLEAR.UAVRAWF D3DRES.CLEAR.UAVFINT
+tests/laws_dwrite_raster.rs::dropout_lights_one_pixel_beside_each_empty_span exhaustive DW.RUN.DROPOUT
+tests/laws_dwrite_raster.rs::the_gdi_unfitted_scale_is_a_16_16_number exhaustive DW.RUN.FIT.GDI
+tests/laws_dwrite_raster.rs::each_mode_is_the_aliased_rasterizer_on_its_grid exhaustive DW.RUN.GRAY DW.RUN.NATURAL DW.RUN.GDI DW.RUN.CLEARTYPE DW.RUN.CLEARTYPE.6X1 DW.RUN.DROPOUT.SIZE DW.RUN.FIT.GDI
+tests/laws_dwrite_gdi_edge.rs::each_edge_is_a_float32_fraction exhaustive DW.GDI.EDGE
+tests/laws_dwrite_gdi_edge.rs::fractions_back_in_design_units exhaustive DW.GDI.EDGE
+tests/laws_dwrite_gdi_edge.rs::metrics_are_the_edges_fractions exhaustive DW.GDI.EDGE
+tests/laws_dwrite_gdi_edge.rs::at_the_em_the_design_metrics exhaustive DW.GDI.EDGE
+tests/laws_d3dx9_convert.rs::every_raw_channel_reads_as_the_clause exhaustive D3DX9.LOAD.CONVERT D3DX9.LOAD.SIGNED
+tests/laws_d3dx9_convert.rs::every_f32_writes_unsigned_as_the_clause exhaustive D3DX9.LOAD.CONVERT
+tests/laws_d3dx9_convert.rs::every_f32_writes_signed_as_the_clause exhaustive D3DX9.LOAD.SIGNED
+tests/laws_d3dx9_convert.rs::luminance_is_rec_709_in_f32 exhaustive D3DX9.LOAD.CONVERT
+tests/laws_dwrite_raster.rs::dropout_control_ends_above_32_pixels_an_em exhaustive DW.RUN.DROPOUT.SIZE DW.RUN.DROPOUT
+spec/lean/Kikizake/D3dx9/DxtEnc.lean::bc1_newton lean D3DX9.LOAD.DXTENC
+spec/lean/Kikizake/D3dx9/DxtEnc.lean::bc1_transparent lean D3DX9.LOAD.DXTENC
+spec/lean/Kikizake/D3dx9/DxtEnc.lean::alpha4_texel lean D3DX9.LOAD.DXTENC
+spec/lean/Kikizake/D3dx9/DxtEnc.lean::alpha8_opaque lean D3DX9.LOAD.DXTENC
+spec/lean/Kikizake/D3dx9/DxtEnc.lean::x86_loops_chop lean D3DX9.LOAD.DXTENC
+spec/lean/Kikizake/D3dx9/DxtEnc.lean::nearest_add lean D3DX9.LOAD.DXTENC
+spec/lean/Kikizake/D3dx9/DxtEnc.lean::nearest_mul lean D3DX9.LOAD.DXTENC
+spec/lean/Kikizake/D3dx9/DxtEnc.lean::nearest_div lean D3DX9.LOAD.DXTENC
+spec/lean/Kikizake/D3dx9/DxtEnc.lean::x64_nearest lean D3DX9.LOAD.DXTENC
+spec/lean/Kikizake/D3dx9/DxtEnc.lean::roundZ_zero lean D3DX9.LOAD.DXTENC

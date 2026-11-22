@@ -267,6 +267,26 @@ fn parsers_slicing_strings_are_found() {
 }
 
 #[test]
+fn gdi_edges_inline_in_op_is_found() {
+    assert_eq!(rust("src/model/dwrite.rs", "fn op() { let e = to.whole(advp); }").len(), 1);
+    assert_eq!(rust("src/model/dwrite.rs", "fn op() { let t = ToEm::new(ppem); }").len(), 1);
+    assert_eq!(rust("src/model/dwrite.rs", "fn op() { let v = down6(x); }").len(), 1);
+    assert!(rust("src/model/dwrite.rs", "fn op() { *g = gdi_edges(ppem, upm, s, c, px); }").is_empty());
+    assert!(rust("src/model/dwrite.rs", "fn gdi_edges() { let e = to.whole(advp); }").is_empty());
+}
+
+#[test]
+fn load_channels_inline_are_found() {
+    assert_eq!(rust("src/model/d3dx9.rs", "fn load_encode() { let q = round_even(v * m); }").len(), 1);
+    assert_eq!(rust("src/model/d3dx9.rs", "fn load_encode() { let l = 0.2125 * r; }").len(), 1);
+    assert_eq!(rust("src/model/d3dx9.rs", "fn load_encode() { let v = v.clamp(-1.0, 1.0); }").len(), 1);
+    assert!(rust("src/model/d3dx9.rs", "fn load_encode() { let q = unorm_write(v, ch.bits, x64); }").is_empty());
+    assert_eq!(rust("src/model/d3dx9.rs", "fn load_decode() { let v = raw as f32 * (1.0 / m); }").len(), 1);
+    assert!(rust("src/model/d3dx9.rs", "fn load_decode() { let v = unorm_read(raw, c.bits); }").is_empty());
+    assert!(rust("src/model/d3dx9.rs", "fn unorm_read() { let v = raw as f32 * (1.0 / m); }").is_empty());
+}
+
+#[test]
 fn optimize_rgb_testing_the_dot_below_zero_is_found() {
     let old = "fn optimize_rgb() {\n    let i = if !F::X87 && dot <= F::of(0.0) {\n        0\n    } else {\n        t\n    };\n}\n";
     let r = rust("src/model/dxtenc.rs", old);

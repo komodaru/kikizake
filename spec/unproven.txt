@@ -1,9 +1,6 @@
 # The settled clauses (doc, measured) of trace::PROVEN_FILES that no formal law proves yet
 # (spec/laws.txt kinds exhaustive, kani, tla, lean). It only shrinks: prove a clause and take
 # its line out; a new clause comes proven (tests/spec.rs unproven_only_shrinks).
-D3DX9.LOAD.CONVERT
-D3DX9.LOAD.SIGNED
-D3DX9.LOAD.DXTENC
 GP.BRUSH.LINEAR
 GP.BRUSH.LINEAR.SIN
 GP.BRUSH.LINEAR.PAINT
@@ -23,15 +20,6 @@ GP.DRAW.BILINEAR
 GP.DRAW.HQ_BILINEAR
 GP.DRAW.HQ_BICUBIC
 GP.DRAW.MATRIX
-DW.GDI.EDGE
-DW.RUN.DROPOUT
-DW.RUN.DROPOUT.SIZE
-DW.RUN.FIT.GDI
-DW.RUN.GRAY
-DW.RUN.NATURAL
-DW.RUN.GDI
-DW.RUN.CLEARTYPE
-DW.RUN.CLEARTYPE.6X1
 D3DRES.RESOLVE.MEAN
 D3DRASTER.SHADER
 D3DRASTER.DEPTH.ALONE

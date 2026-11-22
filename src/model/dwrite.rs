@@ -186,36 +186,91 @@ pub fn glyph_metrics(p: &Parsed, m: &Metrics, g: u16) -> Option<GlyphMetrics> {
 /// GetGdiCompatibleGlyphMetrics' way back from pixels to the em (the clean-room notes, kikizake-re/dwrite: TrueTypeRasterizer
 /// GetMetrics, DisplayToEm, FloatToFixed): float32 through the inverse of the 16.16 transform
 /// {p, 0, 0, p} (sideways {0, -p, p, 0}), whose entries are 1 / (p p) times p, not 1 / p
-#[derive(Clone, Copy, Debug)]
-struct ToEm {
+/// (DW.GDI.EDGE)
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ToEm {
     m: f32,
 }
 
 impl ToEm {
-    fn new(ppem: i64) -> ToEm {
+    /// 1 / (p p) times p, p = ppem
+    pub fn new(ppem: i64) -> ToEm {
         let p = ppem as f32;
         ToEm { m: (1.0 / (p * p)) * p }
     }
 
     /// an em fraction in float to 16.16: times 65536 twice, truncated, then the half up
-    fn fixed(f: f32) -> i64 {
+    pub fn fixed(f: f32) -> i64 {
         let t = (f * 65536.0 * 65536.0) as i64;
         ((t + 0x8000) >> 16).clamp(i32::MIN as i64, i32::MAX as i64)
     }
 
     /// k whole pixels along an axis
-    fn whole(self, k: i64) -> i64 {
+    pub fn whole(self, k: i64) -> i64 {
         ToEm::fixed(k as f32 * self.m)
     }
 
     /// sideways: v 1/65536 pixels across (display x, not rounded to the pixel) to the em's y
-    fn across(self, v: i64) -> i64 {
+    pub fn across(self, v: i64) -> i64 {
         ToEm::fixed((v as f32 * (1.0 / 65536.0)) * -self.m)
     }
 
     /// a black box edge of e samples of a sixth of a pixel (x in display axes)
-    fn sixths(self, e: i64, sign: f32) -> i64 {
+    pub fn sixths(self, e: i64, sign: f32) -> i64 {
         ToEm::fixed((e as f32 * (1.0f32 / 6.0)) * (sign * self.m))
+    }
+}
+
+/// a glyph's GDI compatible metrics in whole pixels (the advance, the vertical origin, the
+/// advance height) and its black box in samples (x0, y0, x1, y1: sixths across and whole pixels
+/// down, sideways whole pixels across and sixths down)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Pixels {
+    pub adv: i64,
+    pub voy: i64,
+    pub advh: i64,
+    pub bb: (i64, i64, i64, i64),
+}
+
+/// an em fraction in 16.16 back in design units: (upm f + 0x8000) >> 16
+pub fn design_units(f: i64, upm: i64) -> i32 {
+    (2 * f * upm + 65536).div_euclid(131072) as i32
+}
+
+/// k whole pixels' exact em fraction in 16.16, rounded half up
+pub fn exact_fraction(k: i64, ppem: i64) -> i64 {
+    (2 * k * 65536 + ppem).div_euclid(2 * ppem)
+}
+
+/// GetGdiCompatibleGlyphMetrics' metrics back in design units (DW.GDI.EDGE, the clean-room
+/// notes, kikizake-re/dwrite): each edge's em fraction in 16.16 (ToEm), a side bearing the
+/// difference of two edges' fractions, each rounded on its own; classic advances an exact
+/// fraction of the whole pixels
+pub fn gdi_edges(ppem: i64, upm: i64, sideways: bool, classic: bool, px: Pixels) -> GlyphMetrics {
+    let to = ToEm::new(ppem);
+    let fu = |f: i64| design_units(f, upm);
+    let bb = px.bb;
+    // (each edge's em fraction in 16.16: the origin, the advances and the box)
+    let (eo, eah, eaw, left, top, right, bottom) = if sideways {
+        // (the origin of voy pixels from the box's top column L: the scaler's tsb vector,
+        // divided back, and GetMetrics' own L / 6 do not cancel)
+        let l = bb.1;
+        let vo = (l * 65536) / 6 - down6((l * 64 + 384 * px.voy) * 1024);
+        let eo = to.across(vo);
+        let eah = to.across(down6(-6 * 65536 * px.advh));
+        (eo, eah, to.whole(px.adv), to.whole(bb.0), to.sixths(bb.1, -1.0), to.whole(bb.2), to.sixths(bb.3, -1.0))
+    } else {
+        let eaw = if classic { exact_fraction(px.adv, ppem) } else { to.whole(px.adv) };
+        (to.whole(px.voy), to.whole(px.advh), eaw, to.sixths(bb.0, 1.0), to.whole(-bb.1), to.sixths(bb.2, 1.0), to.whole(-bb.3))
+    };
+    GlyphMetrics {
+        adv: fu(eaw) as u32,
+        lsb: fu(left),
+        rsb: fu(eaw - right),
+        tsb: fu(eo - top),
+        advh: fu(eah) as u32,
+        bsb: fu(bottom - eo + eah),
+        voy: fu(eo),
     }
 }
 
@@ -250,7 +305,8 @@ pub fn classic_px(adv: i64, ppem: i64, upm: i64) -> i64 {
 }
 
 /// the scaler's vectors are in 6 samples a pixel across, divided back as (v + 3) / 6 truncated
-fn down6(v: i64) -> i64 {
+/// the scaler's sixths divided back: (v + 3) / 6 truncated
+pub fn down6(v: i64) -> i64 {
     (v + 3) / 6
 }
 
@@ -623,10 +679,6 @@ impl Dwrite {
                         (true, false) => phantom_px(v as i64, ppem, upm, Step::Sixteenth),
                         (false, false) => classic_px(v as i64, ppem, upm),
                     };
-                    // (the em fraction alone, and a fraction back in design units: a side bearing
-                    // is the difference of its two edges' em fractions, each rounded on its own)
-                    let ef = |k: i64, n: i64| (2 * k * 65536 + n * ppem).div_euclid(2 * n * ppem);
-                    let fu = |f: i64| (2 * f * upm + 65536).div_euclid(131072) as i32;
                     if ppem > 4096 {
                         // (past the sizes measured: the generators write none)
                         return Err(Fail::Bad);
@@ -639,7 +691,6 @@ impl Dwrite {
                         out.extend(v.iter().map(glyph_line));
                         return Ok(true);
                     }
-                    let to = ToEm::new(ppem);
                     let (vadv, vorg) = match (&p.vmtx, &p.os2) {
                         (Some(_), _) => (None, None),
                         (None, Some(o)) => (Some(o.typo.0 as i32 - o.typo.1 as i32), Some(o.typo.0 as i32)),
@@ -652,29 +703,7 @@ impl Dwrite {
                         let o = vorg.unwrap_or(g.voy);
                         let (advp, voyp, advhp) = (px(g.adv as i32), pxv(o), pxa(o, vadv.unwrap_or(g.advh as i32)));
                         hit(clause::DW_GDI_EDGE);
-                        // (each edge's em fraction in 16.16: the origin, the advances and the box)
-                        let (eo, eah, eaw, left, top, right, bottom) = if sideways {
-                            // (the origin of voyp pixels from the box's top column L: the scaler's
-                            // tsb vector, divided back, and GetMetrics' own L / 6 do not cancel)
-                            let l = bb.1;
-                            let vo = (l * 65536) / 6 - down6((l * 64 + 384 * voyp) * 1024);
-                            let eo = to.across(vo);
-                            let eah = to.across(down6(-6 * 65536 * advhp));
-                            (eo, eah, to.whole(advp), to.whole(bb.0), to.sixths(bb.1, -1.0), to.whole(bb.2), to.sixths(bb.3, -1.0))
-                        } else {
-                            // (classic advances: an exact fraction of the whole pixels)
-                            let eaw = if classic { ef(advp, 1) } else { to.whole(advp) };
-                            (to.whole(voyp), to.whole(advhp), eaw, to.sixths(bb.0, 1.0), to.whole(-bb.1), to.sixths(bb.2, 1.0), to.whole(-bb.3))
-                        };
-                        *g = GlyphMetrics {
-                            adv: fu(eaw) as u32,
-                            lsb: fu(left),
-                            rsb: fu(eaw - right),
-                            tsb: fu(eo - top),
-                            advh: fu(eah) as u32,
-                            bsb: fu(bottom - eo + eah),
-                            voy: fu(eo),
-                        };
+                        *g = gdi_edges(ppem, upm, sideways, classic, Pixels { adv: advp, voy: voyp, advh: advhp, bb });
                     }
                 }
                 out.push(format!("{} hr 00000000", t[0]));

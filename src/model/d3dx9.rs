@@ -404,12 +404,8 @@ fn load_decode(f: &super::d3d9draw::Fmt, code: u32, p: &[u8]) -> [Sample; 4] {
             let v = match f.kind {
                 Kind::F16 => f16_to_f32(raw as u16),
                 Kind::F32 => f32::from_bits(raw as u32),
-                _ if is_bump(c.c) => {
-                    let half = 1i64 << (c.bits - 1);
-                    let sv = raw as i64 - if raw as i64 >= half { 2 * half } else { 0 };
-                    (sv as f32 * (1.0 / (half - 1) as f32)).max(-1.0)
-                }
-                _ => raw as f32 * (1.0 / ((1u64 << c.bits) - 1) as f32),
+                _ if is_bump(c.c) => snorm_read(raw, c.bits),
+                _ => unorm_read(raw, c.bits),
             };
             // (a bump format's luminance is the alpha: MEASURED d3dx9load load-L6V5U5,
             // load-X8L8V8U8)
@@ -589,11 +585,51 @@ fn is_bump(c: u8) -> bool {
     matches!(c, b'u' | b'v' | b'w' | b'q')
 }
 
+/// an n-bit unsigned channel as D3DX reads it (D3DX9.LOAD.CONVERT): v times the f32 nearest
+/// 1 / (2^n - 1), in f32 (n 1..=16)
+pub fn unorm_read(raw: u64, bits: u32) -> f32 {
+    raw as f32 * (1.0 / ((1u64 << bits) - 1) as f32)
+}
+
+/// an n-bit signed channel as D3DX reads it (D3DX9.LOAD.SIGNED): its two's complement times
+/// the f32 nearest 1 / (2^(n-1) - 1), in f32, at least -1 (n 2..=16)
+pub fn snorm_read(raw: u64, bits: u32) -> f32 {
+    let half = 1i64 << (bits - 1);
+    let sv = raw as i64 - if raw as i64 >= half { 2 * half } else { 0 };
+    (sv as f32 * (1.0 / (half - 1) as f32)).max(-1.0)
+}
+
+/// a value into an n-bit unsigned channel (D3DX9.LOAD.CONVERT): clamped to 0..1 (NaN 1) and
+/// times 2^n - 1; on x86 at more than f32's precision rounded to nearest, on x64 the f32
+/// product plus 1/2 truncated
+pub fn unorm_write(v: f32, bits: u32, x64: bool) -> u64 {
+    use super::d3d9draw::round_even;
+    let v = if v.is_nan() { 1.0 } else { v.clamp(0.0, 1.0) };
+    let m = ((1u64 << bits) - 1) as f32;
+    if x64 { (v * m + 0.5) as u64 } else { round_even(v as f64 * m as f64) as u64 }
+}
+
+/// a value into an n-bit signed channel (D3DX9.LOAD.SIGNED, MEASURED load-*-signed): clamped
+/// to -1..1 (a NaN 1, as into unorm channels: load-R32F-signed), times 2^(n-1) - 1 plus 1/2
+/// truncated toward 0, the channel's two's complement
+pub fn snorm_write(v: f32, bits: u32) -> u64 {
+    let half = 1i64 << (bits - 1);
+    let v = if v.is_nan() { 1.0 } else { v.clamp(-1.0, 1.0) };
+    let q = (v * (half - 1) as f32 + 0.5) as i64;
+    (q & (2 * half - 1)) as u64
+}
+
+/// luminance from (r, g, b) (D3DX9.LOAD.CONVERT): Rec. 709's 0.2125 r + 0.7154 g + 0.0721 b in
+/// f32, left to right
+pub fn luminance(r: f32, g: f32, b: f32) -> f32 {
+    0.2125 * r + 0.7154 * g + 0.0721 * b
+}
+
 /// (r, g, b, a) into a pixel as D3DX writes it: unorm channels rounded to nearest, X bits 0,
 /// luminance Rec. 709's 0.2125 r + 0.7154 g + 0.0721 b, halves rounded to nearest (MEASURED:
 /// d3dx9load)
 fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample; 4], (at, row): (usize, usize)) -> Res<Vec<u8>> {
-    use super::d3d9draw::{round_even, Kind};
+    use super::d3d9draw::Kind;
     hit(clause::D3DX9_LOAD_CONVERT);
     // (a signed channel into an unsigned or luminance one as (s + 1) / 2, into a float as it is)
     let c: [f32; 4] = px.map(|x| match (x, f.kind) {
@@ -610,12 +646,7 @@ fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample
                 (Sample::Unsigned(x), Kind::Int | Kind::Dxt(_) | Kind::Yuv) => 2.0 * x - 1.0,
                 (Sample::Unsigned(x), _) | (Sample::Signed(x), _) => x,
             };
-            let half = 1i64 << (ch.bits - 1);
-            // (MEASURED load-*-signed: v (2^(n-1) - 1) + 1/2 truncated toward 0)
-            // (a NaN as 1, as into unorm channels: load-R32F-signed)
-            let v = if v.is_nan() { 1.0 } else { v.clamp(-1.0, 1.0) };
-            let q = (v * (half - 1) as f32 + 0.5) as i64;
-            w |= ((q & (2 * half - 1)) as u128) << ch.shift;
+            w |= u128::from(snorm_write(v, ch.bits)) << ch.shift;
             continue;
         }
         // (into unorm channels each clamped to 0..1 first, luminance's too, a NaN to 1)
@@ -625,21 +656,13 @@ fn load_encode(f: &super::d3d9draw::Fmt, src: super::d3d9draw::Kind, px: [Sample
             b'g' => k(1),
             b'b' => k(2),
             b'a' => k(3),
-            b'l' => 0.2125 * k(0) + 0.7154 * k(1) + 0.0721 * k(2),
+            b'l' => luminance(k(0), k(1), k(2)),
             _ => continue,
         };
         let raw = match f.kind {
             Kind::F16 => u64::from(f16_load(v.to_bits(), f.ch.len(), ci + f.ch.len() * at, f.ch.len() * row)?),
             Kind::F32 => v.to_bits() as u64,
-            _ => {
-                let m = ((1u64 << ch.bits) - 1) as f32;
-                // (x86 multiplies on the x87 at more than f32's precision and rounds to nearest,
-                // x64 adds 1/2 to the f32 product and truncates: load-L6V5U5)
-                match crate::model::arch() {
-                    64 => (v.clamp(0.0, 1.0) * m + 0.5) as u64,
-                    _ => round_even(v.clamp(0.0, 1.0) as f64 * m as f64) as u64,
-                }
-            }
+            _ => unorm_write(v, ch.bits, crate::model::arch() == 64),
         };
         w |= (raw as u128) << ch.shift;
     }

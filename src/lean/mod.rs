@@ -12,6 +12,7 @@ mod d3d11;
 mod d3d12;
 mod d3d9;
 mod d3d9tex;
+mod d3dx9;
 mod f32;
 mod dwrite;
 mod dxgi;
@@ -65,6 +66,7 @@ pub fn mirrors() -> Vec<&'static Mirror> {
         d3d11::LOD_MIRRORS,
         d3d11::COPY_MIRRORS,
         dwrite::MIRRORS,
+        d3dx9::MIRRORS,
         f32::MIRRORS,
     ];
     all.iter().flat_map(|m| m.iter()).collect()

@@ -232,6 +232,24 @@ pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
         "a point's step and the fault below 0 are step_index, which tests/laws_dxtenc.rs proves for every f32 dot; an index taken inline in optimize_rgb escapes it",
     ),
     (
+        "src/model/dwrite.rs",
+        "op",
+        r"ToEm::|\.whole\s*\(|\.sixths\s*\(|\.across\s*\(|down6\s*\(|131072",
+        "the metrics back in design units are gdi_edges, which tests/laws_dwrite_gdi_edge.rs proves over its domain; a fraction taken inline in op escapes it",
+    ),
+    (
+        "src/model/d3dx9.rs",
+        "load_encode",
+        r"round_even|0\.2125|\+ 0\.5\)|clamp\s*\(\s*-1",
+        "a channel's write is unorm_write, snorm_write and luminance, which tests/laws_d3dx9_convert.rs proves for every f32; a write inline in load_encode escapes it",
+    ),
+    (
+        "src/model/d3dx9.rs",
+        "load_decode",
+        r"1\.0 /|\(1u64 << c\.bits\)",
+        "a channel's read is unorm_read and snorm_read, which tests/laws_d3dx9_convert.rs proves for every raw value; a read inline in load_decode escapes it",
+    ),
+    (
         "src/model/dxgiconv.rs",
         "decode_block",
         r"171\s*\*|\*\s*257\b|\*\s*32767\b|\+\s*[23]\s*\)\s*/\s*[57]",

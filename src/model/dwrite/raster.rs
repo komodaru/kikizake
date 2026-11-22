@@ -8,12 +8,12 @@ use crate::ttf::Parsed;
 
 /// how a mode samples: nx by ny samples a pixel, and each glyph's origin snapped to 1/qx and
 /// 1/qy of a pixel (0: not snapped)
-#[derive(Clone, Copy)]
-struct Grid {
-    nx: i64,
-    ny: i64,
-    qx: i64,
-    qy: i64,
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Grid {
+    pub nx: i64,
+    pub ny: i64,
+    pub qx: i64,
+    pub qy: i64,
 }
 
 /// each glyph's rectangles (x0, y0, x1, y1), y down, in 1/64 of a sample: its points scaled and
@@ -21,7 +21,7 @@ struct Grid {
 /// (adv4 / 4 pixels) from the unsnapped origin
 /// how design units become 26.6 pixels
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-enum Scale {
+pub enum Scale {
     /// v em / upm rounded
     Direct,
     /// MEASURED (golden dwrite, fitgdi and fit cases, GDI with grid fit disabled): through a
@@ -59,18 +59,21 @@ pub fn direct(v: i64, em: i64, upm: i64) -> i64 {
     }
 }
 
-fn rects(p: &Parsed, em: i64, g: Grid, scale: Scale, x4: i64, y4: i64, run: &[(u16, i64)]) -> Vec<Vec<(i64, i64, i64, i64)>> {
-    let upm = p.upm as i64;
+/// a design coordinate in 1/64 pixel through em / upm rounded to a 16.16 number (DW.RUN.FIT.GDI:
+/// the clean-room notes, kikizake-re/dwrite, Follow-up E; MEASURED, golden dwrite, nofittie):
+/// DWrite's fixed multiply of 64 v by the scale, half up but a negative exact half away from zero
+pub fn fixed16(v: i64, em: i64, upm: i64) -> i64 {
     let s16 = ((em << 17) / upm + 1) >> 1;
+    let m = 64 * v * s16;
+    (m + 0x8000 - (m < 0) as i64) >> 16
+}
+
+/// each glyph's rectangles of the run on the mode's grid (see Grid)
+pub fn rects(p: &Parsed, em: i64, g: Grid, scale: Scale, x4: i64, y4: i64, run: &[(u16, i64)]) -> Vec<Vec<(i64, i64, i64, i64)>> {
+    let upm = p.upm as i64;
     let sc = |v: i16| match scale {
         Scale::Direct => direct(v as i64, em, upm),
-        // (the clean-room notes, kikizake-re/dwrite, Follow-up E; MEASURED, golden dwrite,
-        // nofittie: DWrite's fixed multiply of 64 v by the scale, half up but a negative exact
-        // half away from zero)
-        Scale::Fixed16 => {
-            let m = 64 * v as i64 * s16;
-            (m + 0x8000 - (m < 0) as i64) >> 16
-        }
+        Scale::Fixed16 => fixed16(v as i64, em, upm),
     };
     // (a position in 1/64 sample snapped to 1/q pixel, a step of 64 n / q of them)
     let snap = |v: i64, n: i64, q: i64| if q == 0 { v } else { (v + 32 * n / q).div_euclid(64 * n / q) * (64 * n / q) };
