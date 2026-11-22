@@ -325,3 +325,11 @@ fn filter_arithmetic_stays_in_the_mirrored_functions() {
     assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in sample")).count(), 3, "{r:?}");
     assert!(rust("src/model/d3draster.rs", "fn split() { let s = c * n as f32 - 0.5; }\nfn level() { let w = (lod.fract() * 256.0).round(); }\n").is_empty());
 }
+
+#[test]
+fn interpolation_stays_in_the_mirrored_functions() {
+    let inlined = "fn triangle() {\n    let z = p.plane(p.zs, cx, cy).max(lo).min(hi);\n    let d = minz + q[2] * (1.0 / q[3]) * (maxz - minz);\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in triangle")).count(), 2, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", "fn clamp_range() { z.max(lo).min(hi) }\nfn vertex_depth() { minz + z * (1.0 / w) * (maxz - minz) }\n").is_empty());
+}

@@ -38,3 +38,4 @@ import Kikizake.D3d11.Desc
 import Kikizake.D3d11.View
 import Kikizake.D3d11.Filter
 import Kikizake.D3d11.Merge
+import Kikizake.D3d11.Interp

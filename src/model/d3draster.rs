@@ -235,7 +235,7 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
                     if *x < 0.0 && x.fract() != 0.0 {
                         hit(clause::D3DRASTER_VP10);
                     }
-                    *x = x.trunc();
+                    *x = vp10(*x);
                 }
             }
             hit(clause::D3DRASTER_VIEWPORT);
@@ -668,9 +668,7 @@ impl Target<'_> {
     /// a depth onto the viewport's range, clamped
     fn clamp_depth(&self, z: f32) -> f32 {
         let [_, _, _, _, minz, maxz] = self.vp;
-        let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
-        // (max and min, not clamp: a range of NaN leaves the value)
-        z.max(lo).min(hi)
+        clamp_range(minz, maxz, z)
     }
 
     fn put(&self, m: &mut D3dres, d: &Draw, (px, py): (i64, i64), z: f32, out: [u32; 4]) -> Res<()> {
@@ -773,8 +771,8 @@ fn snap256(v: f32) -> i64 {
 
 /// a clip position through the viewport transform, snapped
 fn snapped(vp: [f32; 6], q: &[f32; 4]) -> Sub {
-    let [vx, vy, vw, vh, _, _] = vp;
-    Sub { x: snap256(vx + (q[0] / q[3] + 1.0) * (vw * 0.5)), y: snap256(vy + (1.0 - q[1] / q[3]) * (vh * 0.5)) }
+    let (x, y) = viewport_xy(vp, q);
+    Sub { x, y }
 }
 
 /// whether a point's or a line's vertex leaves it to draw
@@ -1156,11 +1154,7 @@ impl Line {
     /// a value along the major axis at the pixel center, as for the color
     fn plane(&self, (px, py): (i64, i64), va: f32, vb: f32) -> f32 {
         let (a, b, c) = if self.major == Major::Y { (self.a.y, self.b.y, center_of(py)) } else { (self.a.x, self.b.x, center_of(px)) };
-        let (a, b) = (pixels(a), pixels(b));
-        let g = 1.0 / (b - a);
-        let grad = (vb - va) * g;
-        let c0 = va - grad * a;
-        c0 + grad * c
+        line_value(a, b, c, va, vb)
     }
 
     /// (MEASURED, WARP: probe-line-clip-z) the depth along the line: the ends' depths planed
@@ -1284,7 +1278,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         };
         let zs = |v: &Vert| {
             let [_, _, _, _, minz, maxz] = tg.vp;
-            minz + v.pos[2] * (1.0 / v.pos[3]) * (maxz - minz)
+            vertex_depth(minz, maxz, v.pos[2], v.pos[3])
         };
         let (pa, pb) = (snapped(tg.vp, &a.pos), snapped(tg.vp, &b.pos));
         if pa == pb {
@@ -1446,7 +1440,6 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             return Ok(());
         }
         let [vx, vy, vw, vh, minz, maxz] = vp;
-        let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
         let covering = |c: (i64, i64)| pieces.iter().find(|(t, _, _)| tri_covers(*t, c));
         for py in 0..i64::from(rh) {
             for px in 0..i64::from(rw) {
@@ -1458,7 +1451,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 let at = (index(px), index(py), index(rw));
                 let Some(pattern) = samples else {
                     if let Some((_, p, cw)) = covering(c) {
-                        let z = p.plane(p.zs, cx, cy).max(lo).min(hi);
+                        let z = clamp_range(minz, maxz, p.plane(p.zs, cx, cy));
                         let out = shade(m, ps, tri, Some(p), lead, prim, *cw != (d.rast[2] != 0), (px, py), Some(z), d)?;
                         output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, Some(z), out)?;
                     }
@@ -1471,8 +1464,8 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                     if !mask.contains(&true) {
                         continue;
                     }
-                    let z = p.plane(p.zs, cx, cy).max(lo).min(hi);
-                    let each: Vec<f32> = pattern.iter().map(|&(ox, oy)| p.plane(p.zs, cx + sixteenths(ox), cy + sixteenths(oy)).max(lo).min(hi)).collect();
+                    let z = clamp_range(minz, maxz, p.plane(p.zs, cx, cy));
+                    let each: Vec<f32> = pattern.iter().map(|&(ox, oy)| clamp_range(minz, maxz, p.plane(p.zs, cx + sixteenths(ox), cy + sixteenths(oy)))).collect();
                     let out = shade(m, ps, tri, Some(p), lead, prim, *cw != (d.rast[2] != 0), (px, py), Some(z), d)?;
                     put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, Some(z), Some(&each), out, &mask)?;
                 }
@@ -1545,7 +1538,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let planes = unclipped.then(|| Planes::new(tri, |q| {
         let (x, y) = snap2(q);
         (pixels(x), pixels(y))
-    }, |q| minz + q[2] * (1.0 / q[3]) * (maxz - minz)));
+    }, |q| vertex_depth(minz, maxz, q[2], q[3])));
     // (MEASURED, WARP: probe-clip-z-pos) a triangle cut by the depth range takes its depth from
     // the whole triangle's plane (D3DRASTER.INTERP.DEPTH)
     let zplanes = zclip.then(|| {
@@ -1553,7 +1546,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         Planes::new(tri, |q| {
             let (x, y) = snap2(q);
             (pixels(x), pixels(y))
-        }, |q| minz + q[2] * (1.0 / q[3]) * (maxz - minz))
+        }, |q| vertex_depth(minz, maxz, q[2], q[3]))
     });
     // the pieces, turned for the edge tests, with their planes (the whole triangle's, or the
     // fan triangle's as it comes, D3DRASTER.INTERP.CLIP)
@@ -1569,8 +1562,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         if zz.iter().any(|x| *x != zz[0]) {
             None
         } else {
-            let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
-            Some(zz[0].max(lo).min(hi))
+            Some(clamp_range(minz, maxz, zz[0]))
         }
     };
     // the pixels: inside the target, the viewport and (when on) the scissor rectangle
@@ -1611,8 +1603,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 let z = z.or_else(|| {
                     let p = planes.as_ref().or(zplanes.as_ref()).or_else(|| here(c))?;
                     hit(clause::D3DRASTER_INTERP_DEPTH);
-                    let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
-                    Some(p.plane(p.zs, cx, cy).max(lo).min(hi))
+                    Some(clamp_range(minz, maxz, p.plane(p.zs, cx, cy)))
                 });
                 let out = shade(m, ps, tri, here(c), lead, prim, front, (px, py), z, d)?;
                 output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
@@ -1629,16 +1620,15 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             let pl = here((sample_sub(px, 0), sample_sub(py, 0))).or(p);
             // (MEASURED, WARP: probe-rt-ms4-zplane) a depth that varies: its plane at each
             // sample, for the depth test; at the pixel center for the shader
-            let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
             let q = planes.as_ref().or(zplanes.as_ref()).or(pl);
             let each: Option<Vec<f32>> = match (z, q) {
                 (None, Some(q)) => {
                     hit(clause::D3DRASTER_MS_ZPLANE);
-                    Some(pattern.iter().map(|&(ox, oy)| q.plane(q.zs, cx + sixteenths(ox), cy + sixteenths(oy)).max(lo).min(hi)).collect())
+                    Some(pattern.iter().map(|&(ox, oy)| clamp_range(minz, maxz, q.plane(q.zs, cx + sixteenths(ox), cy + sixteenths(oy)))).collect())
                 }
                 (Some(_), _) | (None, None) => None,
             };
-            let z = z.or_else(|| q.map(|q| q.plane(q.zs, cx, cy).max(lo).min(hi)));
+            let z = z.or_else(|| q.map(|q| clamp_range(minz, maxz, q.plane(q.zs, cx, cy))));
             let out = shade(m, ps, tri, pl, lead, prim, front, (px, py), z, d)?;
             put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, each.as_deref(), out, &mask)?;
         }
@@ -1790,15 +1780,7 @@ impl Planes {
     }
 
     fn plane(&self, a: [f32; 3], cx: f32, cy: f32) -> f32 {
-        let ([x0, x1, x2], [y0, y1, y2]) = (self.xs, self.ys);
-        // (the doubled area exact, from the 16.8 positions, then to f32)
-        let area = (f64::from(y2 - y0) * f64::from(x1 - x0) - f64::from(y0 - y1) * f64::from(x0 - x2)) as f32;
-        let r = 1.0 / area;
-        let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
-        let gx = (d1 * (y2 - y0) - d2 * (y1 - y0)) * r;
-        let gy = (d2 * (x1 - x0) - d1 * (x2 - x0)) * r;
-        let c = (a[0] - gx * x0) - gy * y0;
-        (c + gy * cy) + gx * cx
+        plane_value(self.xs, self.ys, a, cx, cy)
     }
 
     fn at(&self, cx: f32, cy: f32) -> [f32; 4] {
@@ -1806,6 +1788,56 @@ impl Planes {
         let q = 1.0 / self.plane(self.iw, cx, cy);
         [0, 1, 2, 3].map(|k| self.plane(self.aw.map(|a| a[k]), cx, cy) * q)
     }
+}
+
+/// D3DRASTER.INTERP.PLANE: an attribute's plane over a triangle (xs, ys its vertices in
+/// pixels, a its values) at (cx, cy): f32 gradients times 1 / the doubled area (exact in f64,
+/// then to f32), C = (a0 - gx x0) - gy y0, the value (C + gy cy) + gx cx
+pub fn plane_value(xs: [f32; 3], ys: [f32; 3], a: [f32; 3], cx: f32, cy: f32) -> f32 {
+    let ([x0, x1, x2], [y0, y1, y2]) = (xs, ys);
+    let area = (f64::from(y2 - y0) * f64::from(x1 - x0) - f64::from(y0 - y1) * f64::from(x0 - x2)) as f32;
+    let r = 1.0 / area;
+    let (d1, d2) = (a[1] - a[0], a[2] - a[0]);
+    let gx = (d1 * (y2 - y0) - d2 * (y1 - y0)) * r;
+    let gy = (d2 * (x1 - x0) - d1 * (x2 - x0)) * r;
+    let c = (a[0] - gx * x0) - gy * y0;
+    (c + gy * cy) + gx * cx
+}
+
+/// D3DRASTER.LINE.COLOR, LINE.DEPTH: a value along a line's major axis (its ends a, b in 1/256
+/// pixels, values va, vb) at the coordinate c: gradient (vb - va) (1 / (b - a)), C = va -
+/// gradient a, C + gradient c, in f32
+pub fn line_value(a: i64, b: i64, c: f32, va: f32, vb: f32) -> f32 {
+    let (a, b) = (pixels(a), pixels(b));
+    let g = 1.0 / (b - a);
+    let grad = (vb - va) * g;
+    let c0 = va - grad * a;
+    c0 + grad * c
+}
+
+/// D3DRASTER.INTERP.DEPTH, LINE.DEPTH: a depth onto the viewport's range minz..maxz, clamped
+/// (max then min: a range of NaN leaves the value)
+pub fn clamp_range(minz: f32, maxz: f32, z: f32) -> f32 {
+    let (lo, hi) = if minz <= maxz { (minz, maxz) } else { (maxz, minz) };
+    z.max(lo).min(hi)
+}
+
+/// D3DRASTER.VIEWPORT: a clip position through the viewport transform (x, y, width, height),
+/// in 1/256 pixels rounded half to even: x + (x/w + 1) (width/2), y + (1 - y/w) (height/2)
+pub fn viewport_xy(vp: [f32; 6], q: &[f32; 4]) -> (i64, i64) {
+    let [vx, vy, vw, vh, _, _] = vp;
+    (snap256(vx + (q[0] / q[3] + 1.0) * (vw * 0.5)), snap256(vy + (1.0 - q[1] / q[3]) * (vh * 0.5)))
+}
+
+/// D3DRASTER.INTERP.DEPTH: a vertex's depth on the viewport's range, minz + z (1/w) (maxz -
+/// minz) in f32
+pub fn vertex_depth(minz: f32, maxz: f32, z: f32, w: f32) -> f32 {
+    minz + z * (1.0 / w) * (maxz - minz)
+}
+
+/// D3DRASTER.VP10: Direct3D 10's viewport origin and size, the executor's (INT) cast of them
+pub fn vp10(x: f32) -> f32 {
+    x.trunc()
 }
 
 /// D3D11_FILTER_REDUCTION_TYPE, the filter's bits 7 and 8
@@ -2018,7 +2050,7 @@ struct ClipVert {
 
 /// a value of a vertex the clipping makes, from the inside end: f32(((out - in) as f64 dIn) /
 /// (dIn - dOut) + in) (clip_tri, clip_seg)
-fn clip_lerp(din: f32, dout: f32, vi: f32, vo: f32) -> f32 {
+pub fn clip_lerp(din: f32, dout: f32, vi: f32, vo: f32) -> f32 {
     ((f64::from(vo - vi) * f64::from(din)) / f64::from(din - dout) + f64::from(vi)) as f32
 }
 
@@ -2118,7 +2150,7 @@ fn clip_pieces(poly: &[ClipVert], vp: [f32; 6], zclip: bool) -> Vec<([(i64, i64)
                 made_screen(vp, &c.pos, zclip)
             } else {
                 let s = snapped(vp, &c.pos);
-                ((s.x, s.y), minz + c.pos[2] * (1.0 / c.pos[3]) * (maxz - minz), 1.0 / c.pos[3])
+                ((s.x, s.y), vertex_depth(minz, maxz, c.pos[2], c.pos[3]), 1.0 / c.pos[3])
             }
         })
         .collect();
@@ -2144,7 +2176,7 @@ fn clip_pieces(poly: &[ClipVert], vp: [f32; 6], zclip: bool) -> Vec<([(i64, i64)
 /// max(w, the least normal f32), x and y clamped to -w'..w' (z to 0..w' with depth clipping),
 /// 1/w' by division, X = round_even(((x/w') W/2 + (W/2 + left)) 256), Y with -H/2 and H/2 + top;
 /// depth (z/w') (maxz - minz) + minz
-fn made_screen(vp: [f32; 6], q: &[f32; 4], zclip: bool) -> ((i64, i64), f32, f32) {
+pub fn made_screen(vp: [f32; 6], q: &[f32; 4], zclip: bool) -> ((i64, i64), f32, f32) {
     let [vx, vy, vw, vh, minz, maxz] = vp;
     let w = if f32::MIN_POSITIVE > q[3] { f32::MIN_POSITIVE } else { q[3] };
     let clamp = |v: f32| {

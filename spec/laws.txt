@@ -662,3 +662,11 @@ spec/lean/Kikizake/D3d9/Clip.lean::pass_keeps lean D3D9.RASTER.CLIP
 spec/lean/Kikizake/D3d9/Clip.lean::snap_near lean D3D9.RASTER.CLIP
 spec/lean/Kikizake/D3d9/Clip.lean::d3d9_half_in lean D3D9.RASTER.CLIP8SIDE
 spec/lean/Kikizake/D3d9/Clip.lean::outside_sides lean D3D9.RASTER.CLIP8
+spec/lean/Kikizake/D3d11/Interp.lean::viewport_nan lean D3DRASTER.VIEWPORT
+spec/lean/Kikizake/D3d11/Interp.lean::vp10_toward_zero lean D3DRASTER.VP10
+spec/lean/Kikizake/D3d11/Interp.lean::plane_example lean D3DRASTER.INTERP.PLANE
+spec/lean/Kikizake/D3d11/Interp.lean::posw_example lean D3DRASTER.POSW.PLANE
+spec/lean/Kikizake/D3d11/Interp.lean::clamp_nan_range lean D3DRASTER.INTERP.DEPTH D3DRASTER.LINE.DEPTH
+spec/lean/Kikizake/D3d11/Interp.lean::vertex_depth_example lean D3DRASTER.INTERP.DEPTH
+spec/lean/Kikizake/D3d11/Interp.lean::made_least lean D3DRASTER.INTERP.CLIP
+spec/lean/Kikizake/D3d11/Interp.lean::line_example lean D3DRASTER.LINE.COLOR D3DRASTER.LINE.DEPTH
