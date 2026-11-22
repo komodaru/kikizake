@@ -593,6 +593,10 @@ spec/lean/Kikizake/D3d11/Copy.lean::resolve_ignored lean D3DRES.RESOLVE.IGNORED
 spec/lean/Kikizake/D3d11/Copy.lean::resolve_bad lean D3DRES.RESOLVE.BAD
 spec/lean/Kikizake/D3d11/Copy.lean::resolve_removed lean D3DRES.REMOVED D3DRES.RESOLVE.IGNORED
 spec/lean/Kikizake/D3d11/Copy.lean::resolve_copies lean D3DRES.RESOLVE D3DRES.RESOLVE.SIZE
+spec/lean/Kikizake/D3d11/Copy.lean::copy_group lean D3DRES.COPY.FORMAT
+spec/lean/Kikizake/D3d11/Copy.lean::copy_d3d10 lean D3DRES.COPY.FORMAT
+spec/lean/Kikizake/D3d11/Copy.lean::copy_other lean D3DRES.COPY.FORMAT
+spec/lean/Kikizake/D3d11/Copy.lean::copy_unknown lean D3DRES.COPY.FORMAT
 spec/tla/D3DResCopy.tla::Next tla D3DRES.UPDATE D3DRES.UPDATE.BOX D3DRES.UPDATE.EMPTY D3DRES.UPDATE.IGNORED D3DRES.UPDATE.BAD D3DRES.REMOVED D3DRES.COPY D3DRES.COPYSUB D3DRES.COPYSUB.BAD D3DRES.COPYSUB.IGNORED D3DRES.MS.REGION D3DRES.RESOLVE D3DRES.RESOLVE.IGNORED D3DRES.RESOLVE.BAD D3DRES.RESOLVE.SIZE D3DRES.READ D3DRES.READ.MS D3DRES.READ.BAD
 spec/lean/Kikizake/DWrite/Metrics.lean::head lean DW.METRICS.HEAD
 spec/lean/Kikizake/DWrite/Metrics.lean::win lean DW.METRICS.WIN
@@ -803,3 +807,5 @@ spec/lean/Kikizake/D3d9/Gen.lean::reflect_infinite lean D3D9.STAGE.TCIGEN
 spec/lean/Kikizake/D3d9/Gen.lean::quad_shared lean D3D9.STAGE.PROJFOOT
 spec/lean/Kikizake/D3d9/Gen.lean::projected lean D3D9.STAGE.PROJFOOT
 spec/lean/Kikizake/D3d9/Gen.lean::three_sets lean D3D9.STAGE.PROJFOOT
+spec/tla/D3DResSamples.tla::Next tla D3DRES.COPY.SAMPLES D3DRES.COPYSUB.SAMPLES
+spec/tla/D3DResClear.tla::Next tla D3DRES.CLEAR.RTV D3DRES.CLEAR.DSV D3DRES.CLEAR.DEPTHRANGE D3DRES.CLEAR.UAV D3DRES.CLEAR.UAVRAW D3DRES.CLEAR.UAVRAWF D3DRES.CLEAR.UAVFINT

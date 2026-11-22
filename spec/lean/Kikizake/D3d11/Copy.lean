@@ -2,8 +2,8 @@ import Kikizake.Mirror
 /-! UpdateSubresource's and CopySubresourceRegion's boxes and what they do (spec/d3dres.txt
 D3DRES.UPDATE*, COPYSUB*, REMOVED), as src/model/d3dres.rs computes them: `boxElems` is
 `box_elems`, `clip` `box_clip`, `updatePlan` `update_plan`, `regionPlan` `region_plan`,
-`resolvePlan` `resolve_plan` (mirrors `d3d11.box`, `d3d11.clip`, `d3d11.update`, `d3d11.region`,
-`d3d11.resolve`). -/
+`resolvePlan` `resolve_plan`, `compatible` `copy_compatible` (mirrors `d3d11.box`,
+`d3d11.boxclip`, `d3d11.update`, `d3d11.region`, `d3d11.resolve`, `d3d11.copyfmt`). -/
 namespace Kikizake.D3d11.Copy
 
 /-- a box in elements: left, top, front inclusive, right, bottom, back exclusive -/
@@ -256,6 +256,62 @@ theorem resolve_copies (sn dn du : Nat) (groups int subs : Bool) (sw sh dw dh : 
     by_cases h1 : dn = 1 <;> by_cases h2 : du = 0 <;> simp [h1, h2] <;>
     (try split) <;> (try simp_all) <;> omega
 
+/-! ## D3DRES.COPY.FORMAT -/
+
+/-- what CopyResource asks of a format the model knows: its element is a block, its bits, its
+numbers (0 typeless, 1 unorm, 2 snorm, 3 uint, 4 sint, 5 float, 6 srgb, 7 its own layout), its
+component count, all components of one width; the format tables' part is data -/
+structure Fmt where
+  block : Bool
+  bits : Nat
+  num : Nat
+  n : Nat
+  uniform : Bool
+  deriving DecidableEq, Repr
+
+/-- a block compressed format c and an uncompressed one u of the block's bits with two or more
+components of one width, integer or float (or typeless) -/
+def blockPair (c u : Fmt) : Bool :=
+  c.block && !u.block && c.bits == u.bits && (u.num == 0 || u.num == 3 || u.num == 4 || u.num == 5) &&
+    2 ≤ u.n && u.uniform
+
+/-- R9G9B9E5_SHAREDEXP (67) and R32_TYPELESS, FLOAT, UINT (41..43), either way -/
+def sharedExp (a b : Nat) : Bool := (a == 67 && 41 ≤ b && b ≤ 43) || (b == 67 && 41 ≤ a && a ≤ 43)
+
+/-- formats a and b of typeless groups ga, gb, their facts if the model knows them; `d10` the
+device is d3d10.dll -/
+def compatible (d10 : Bool) (a b ga gb : Nat) (fa fb : Option Fmt) : Bool :=
+  if ga = gb then true
+  else match fa, fb with
+    | some x, some y => !d10 && (sharedExp a b || blockPair x y || blockPair y x)
+    | _, _ => false
+
+/-- one typeless group: compatible -/
+theorem copy_group (d10 : Bool) (a b g : Nat) (fa fb : Option Fmt) : compatible d10 a b g g fa fb = true := by
+  simp [compatible]
+
+/-- d3d10.dll copies only within a typeless group -/
+theorem copy_d3d10 (a b ga gb : Nat) (fa fb : Option Fmt) :
+    compatible true a b ga gb fa fb = true ↔ ga = gb := by
+  unfold compatible
+  by_cases h : ga = gb <;> simp [h]
+  cases fa <;> cases fb <;> simp
+
+/-- on Direct3D 10.1 and 11, formats of other groups copy exactly when one is block compressed
+and the other uncompressed of the block's bits with equal integer or float components, or they
+are R9G9B9E5_SHAREDEXP and a 32-bit single-component format of the R32 group (measured) -/
+theorem copy_other (a b ga gb : Nat) (x y : Fmt) (h : ga ≠ gb) :
+    compatible false a b ga gb (some x) (some y) = true ↔
+      ((a = 67 ∧ 41 ≤ b ∧ b ≤ 43) ∨ (b = 67 ∧ 41 ≤ a ∧ a ≤ 43)) ∨
+      (x.block = true ∧ y.block = false ∧ x.bits = y.bits ∧ (y.num = 0 ∨ y.num = 3 ∨ y.num = 4 ∨ y.num = 5) ∧ 2 ≤ y.n ∧ y.uniform = true) ∨
+      (y.block = true ∧ x.block = false ∧ y.bits = x.bits ∧ (x.num = 0 ∨ x.num = 3 ∨ x.num = 4 ∨ x.num = 5) ∧ 2 ≤ x.n ∧ x.uniform = true) := by
+  simp [compatible, h, sharedExp, blockPair, and_assoc, or_assoc]
+
+/-- a format the model does not know copies only within its group -/
+theorem copy_unknown (d10 : Bool) (a b ga gb : Nat) (fb : Option Fmt) (h : ga ≠ gb) :
+    compatible d10 a b ga gb none fb = false := by
+  simp [compatible, h]
+
 def args6 (a : List Int) : Option (List Nat) := a.mapM nat
 
 def mirrors : List Mirror := [
@@ -266,7 +322,7 @@ def mirrors : List Mirror := [
       let e := boxElems (has != 0) (flat != 0) bw bh x0 x1 x2 x3 x4 x5 c r s
       pure [e.l, e.t, e.f, e.r, e.b, e.k]
     | _ => none⟩,
-  ⟨"d3d11.clip", fun a => do
+  ⟨"d3d11.boxclip", fun a => do
     let v ← args6 a
     match v with
     | [l, t, f, r, b, k, c, rr, s] =>
@@ -293,6 +349,13 @@ def mirrors : List Mirror := [
     match v with
     | [sn, dn, du, groups, int, subs, sw, sh, dw, dh] =>
       pure [(resolvePlan sn dn du (groups != 0) (int != 0) (subs != 0) sw sh dw dh).code]
+    | _ => none⟩,
+  ⟨"d3d11.copyfmt", fun a => do
+    let v ← args6 a
+    match v with
+    | [dev, x, y, gx, gy, kx, bx, sx, nx, cx, ux, ky, by_, sy, ny, cy, uy] =>
+      let f := fun (k b s n c u : Nat) => if k = 0 then none else some (Fmt.mk (b != 0) s n c (u != 0))
+      pure [if compatible (dev == 0) x y gx gy (f kx bx sx nx cx ux) (f ky by_ sy ny cy uy) then 1 else 0]
     | _ => none⟩
 ]
 

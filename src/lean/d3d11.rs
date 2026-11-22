@@ -1020,6 +1020,10 @@ pub static CLIP_MIRRORS: &[Mirror] = &[
         model: |a| {
             let zs = a.iter().map(|&x| u32::try_from(x).ok().map(f32::from_bits)).collect::<Option<Vec<f32>>>()?;
             one(crate::model::d3draster::depth_away(&zs))
+        },
+    },
+];
+
 const COPY: &str = "spec/lean/Kikizake/D3d11/Copy.lean";
 
 /// numbers as the mirror's arguments
@@ -1037,6 +1041,25 @@ fn box6(a: &[i64], i: usize) -> Option<[u64; 6]> {
 fn three(a: &[i64], i: usize) -> Option<[u64; 3]> {
     let g = |k: usize| arg::<u64>(a, i.checked_add(k)?);
     Some([g(0)?, g(1)?, g(2)?])
+}
+
+/// a format's facts as d3d11.copyfmt takes them: known, block, bits, numbers, components, all of
+/// one width
+fn fmt_facts(id: u32) -> [i64; 6] {
+    use crate::model::dxgifmt::Num;
+    let Some(f) = crate::model::dxgifmt::format(id) else { return [0; 6] };
+    let num = match f.num {
+        Num::Typeless => 0,
+        Num::Unorm => 1,
+        Num::Snorm => 2,
+        Num::Uint => 3,
+        Num::Sint => 4,
+        Num::Float => 5,
+        Num::Srgb => 6,
+        Num::Other => 7,
+    };
+    let uniform = f.comps.first().is_some_and(|&c| f.comps.iter().all(|&x| x == c));
+    [1, i64::from(f.block()), i64::from(f.bits), num, i64::try_from(f.comps.len()).unwrap_or(0), i64::from(uniform)]
 }
 
 fn plan_code(p: crate::model::d3dres::Plan) -> Option<Vec<i64>> {
@@ -1064,7 +1087,7 @@ pub static COPY_MIRRORS: &[Mirror] = &[
         },
     },
     Mirror {
-        name: "d3d11.clip",
+        name: "d3d11.boxclip",
         lean: COPY,
         domain: Domain::Sampled("boxes and subresources 0..3 each: every one; 300,000 of 0..2^40 each"),
         inputs: |each| {
@@ -1115,6 +1138,38 @@ pub static COPY_MIRRORS: &[Mirror] = &[
             let g = |i: usize| arg::<u64>(a, i);
             let plan = crate::model::d3dres::resolve_plan(arg(a, 0)?, (arg(a, 1)?, arg(a, 2)?), flag(a, 3)?, flag(a, 4)?, flag(a, 5)?, [g(6)?, g(7)?], [g(8)?, g(9)?]);
             plan_code(plan)
+        },
+    },
+    Mirror {
+        name: "d3d11.copyfmt",
+        lean: COPY,
+        domain: Domain::Every("every pair of formats 0..200 (known to the model or not, with their typeless groups and facts from its tables) on d3d10.dll, 10.1 and 11"),
+        inputs: |each| {
+            for dev in 0..3 {
+                for x in 0..=200u32 {
+                    for y in 0..=200u32 {
+                        let mut v = vec![dev, i64::from(x), i64::from(y), i64::from(crate::model::d3dres::group(x)), i64::from(crate::model::d3dres::group(y))];
+                        v.extend(fmt_facts(x));
+                        v.extend(fmt_facts(y));
+                        each(&v);
+                    }
+                }
+            }
+        },
+        model: |a| {
+            use crate::model::d3dres::Dev;
+            let dev = match arg::<u8>(a, 0)? {
+                0 => Dev::D10,
+                1 => Dev::D101(0xa100),
+                2 => Dev::D11(0xb000),
+                _ => return None,
+            };
+            let (x, y) = (arg::<u32>(a, 1)?, arg::<u32>(a, 2)?);
+            let facts: Vec<i64> = [i64::from(crate::model::d3dres::group(x)), i64::from(crate::model::d3dres::group(y))].into_iter().chain(fmt_facts(x)).chain(fmt_facts(y)).collect();
+            if a.get(3..)? != facts.as_slice() {
+                return None;
+            }
+            one(i64::from(crate::model::d3dres::copy_compatible(x, y, dev)))
         },
     },
 ];
