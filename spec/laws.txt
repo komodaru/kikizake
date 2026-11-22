@@ -36,6 +36,11 @@ tests/laws_gdicurve.rs::ellipse_points_are_the_exact_inset_for_every_size exhaus
 tests/laws_gdicurve.rs::round_rect_points_are_the_exact_inset_for_every_corner exhaustive GDI.PATH.ROUNDRECT
 tests/laws_gdicurve.rs::ellipse_and_round_rect_read_back_rounded exhaustive GDI.PATH.ELLIPSE GDI.PATH.ROUNDRECT
 tests/laws_gdicurve.rs::round_rect_flat_is_rectangle_and_empty_is_nothing exhaustive GDI.PATH.ROUNDFLAT
+tests/laws_gdimap.rs::dp_to_lp_is_the_f32_inverse exhaustive GDI.MAP.DPROUND
+tests/laws_gdimap.rs::dp_to_lp_is_near_the_documented_inverse exhaustive GDI.MAP.INVERSE
+tests/laws_gdimap.rs::world_lp_to_dp_is_the_exact_f32_matrix exhaustive GDI.XFORM.WORLDPOINT GDI.XFORM.ROUNDWORLD
+tests/laws_gdimap.rs::world_dp_to_lp_is_the_f32_inverse exhaustive GDI.XFORM.WORLDINV GDI.XFORM.ROUNDWORLD
+tests/laws_gdimap.rs::isotropic_points_take_the_extents_shrunk_once_more exhaustive GDI.MAP.ISOPOINTS
 tests/laws.rs::normalization_is_idempotent pbt D3D11.DEDUP D3D11.BLEND.DISABLED D3D11.DEPTH.OFF D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::unused_parts_are_ignored pbt D3D11.BLEND.SHARED D3D11.BLEND.DISABLED D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::check_create_and_same_agree pbt D3D11.CHECK D3D11.DEDUP
