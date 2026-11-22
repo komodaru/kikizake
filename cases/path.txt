@@ -10732,3 +10732,531 @@ ellipse 0 -134217727 -134217727 134217727 134217727
 endpath 0
 getpath 0
 end
+case ellipseedge-0-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 134217728 11
+endpath 0
+getpath 0
+end
+case ellipseedge-0-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 134217728 11
+endpath 0
+getpath 0
+end
+case ellipseedge-0-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 134217728
+endpath 0
+getpath 0
+end
+case ellipseedge-0-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 134217728
+endpath 0
+getpath 0
+end
+case ellipseedge-0-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -402653192 11
+endpath 0
+getpath 0
+end
+case ellipseedge-0-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -402653192 11
+endpath 0
+getpath 0
+end
+case ellipseedge-1-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 134217729 11
+endpath 0
+getpath 0
+end
+case ellipseedge-1-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 134217729 11
+endpath 0
+getpath 0
+end
+case ellipseedge-1-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 134217729
+endpath 0
+getpath 0
+end
+case ellipseedge-1-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 134217729
+endpath 0
+getpath 0
+end
+case ellipseedge-1-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -402653191 11
+endpath 0
+getpath 0
+end
+case ellipseedge-1-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -402653191 11
+endpath 0
+getpath 0
+end
+case ellipseedge-2-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 134217730 11
+endpath 0
+getpath 0
+end
+case ellipseedge-2-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 134217730 11
+endpath 0
+getpath 0
+end
+case ellipseedge-2-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 134217730
+endpath 0
+getpath 0
+end
+case ellipseedge-2-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 134217730
+endpath 0
+getpath 0
+end
+case ellipseedge-2-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -402653190 11
+endpath 0
+getpath 0
+end
+case ellipseedge-2-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -402653190 11
+endpath 0
+getpath 0
+end
+case ellipseedge-3-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 134217731 11
+endpath 0
+getpath 0
+end
+case ellipseedge-3-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 134217731 11
+endpath 0
+getpath 0
+end
+case ellipseedge-3-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 134217731
+endpath 0
+getpath 0
+end
+case ellipseedge-3-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 134217731
+endpath 0
+getpath 0
+end
+case ellipseedge-3-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -402653189 11
+endpath 0
+getpath 0
+end
+case ellipseedge-3-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -402653189 11
+endpath 0
+getpath 0
+end
+case ellipseedge-4-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 134217732 11
+endpath 0
+getpath 0
+end
+case ellipseedge-4-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 134217732 11
+endpath 0
+getpath 0
+end
+case ellipseedge-4-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 134217732
+endpath 0
+getpath 0
+end
+case ellipseedge-4-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 134217732
+endpath 0
+getpath 0
+end
+case ellipseedge-4-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -402653188 11
+endpath 0
+getpath 0
+end
+case ellipseedge-4-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -402653188 11
+endpath 0
+getpath 0
+end
+case ellipseedge-5-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 134217733 11
+endpath 0
+getpath 0
+end
+case ellipseedge-5-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 134217733 11
+endpath 0
+getpath 0
+end
+case ellipseedge-5-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 134217733
+endpath 0
+getpath 0
+end
+case ellipseedge-5-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 134217733
+endpath 0
+getpath 0
+end
+case ellipseedge-5-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -402653187 11
+endpath 0
+getpath 0
+end
+case ellipseedge-5-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -402653187 11
+endpath 0
+getpath 0
+end
+case ellipseedge-6-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 268435457 11
+endpath 0
+getpath 0
+end
+case ellipseedge-6-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 268435457 11
+endpath 0
+getpath 0
+end
+case ellipseedge-6-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 268435457
+endpath 0
+getpath 0
+end
+case ellipseedge-6-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 268435457
+endpath 0
+getpath 0
+end
+case ellipseedge-6-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -268435463 11
+endpath 0
+getpath 0
+end
+case ellipseedge-6-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -268435463 11
+endpath 0
+getpath 0
+end
+case ellipseedge-7-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 268435458 11
+endpath 0
+getpath 0
+end
+case ellipseedge-7-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 268435458 11
+endpath 0
+getpath 0
+end
+case ellipseedge-7-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 268435458
+endpath 0
+getpath 0
+end
+case ellipseedge-7-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 268435458
+endpath 0
+getpath 0
+end
+case ellipseedge-7-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -268435462 11
+endpath 0
+getpath 0
+end
+case ellipseedge-7-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -268435462 11
+endpath 0
+getpath 0
+end
+case ellipseedge-8-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 268435459 11
+endpath 0
+getpath 0
+end
+case ellipseedge-8-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 268435459 11
+endpath 0
+getpath 0
+end
+case ellipseedge-8-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 268435459
+endpath 0
+getpath 0
+end
+case ellipseedge-8-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 268435459
+endpath 0
+getpath 0
+end
+case ellipseedge-8-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -268435461 11
+endpath 0
+getpath 0
+end
+case ellipseedge-8-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -268435461 11
+endpath 0
+getpath 0
+end
+case ellipseedge-9-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 268435460 11
+endpath 0
+getpath 0
+end
+case ellipseedge-9-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 268435460 11
+endpath 0
+getpath 0
+end
+case ellipseedge-9-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 268435460
+endpath 0
+getpath 0
+end
+case ellipseedge-9-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 268435460
+endpath 0
+getpath 0
+end
+case ellipseedge-9-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -268435460 11
+endpath 0
+getpath 0
+end
+case ellipseedge-9-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -268435460 11
+endpath 0
+getpath 0
+end
+case ellipseedge-10-0-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 268435461 11
+endpath 0
+getpath 0
+end
+case ellipseedge-10-0-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 268435461 11
+endpath 0
+getpath 0
+end
+case ellipseedge-10-1-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 3 3 11 268435461
+endpath 0
+getpath 0
+end
+case ellipseedge-10-1-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 3 3 11 268435461
+endpath 0
+getpath 0
+end
+case ellipseedge-10-2-1
+dib 0 8 8 8
+arcdir 0 1
+beginpath 0
+ellipse 0 -536870917 3 -268435459 11
+endpath 0
+getpath 0
+end
+case ellipseedge-10-2-2
+dib 0 8 8 8
+arcdir 0 2
+beginpath 0
+ellipse 0 -536870917 3 -268435459 11
+endpath 0
+getpath 0
+end

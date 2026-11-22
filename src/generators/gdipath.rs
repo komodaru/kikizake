@@ -199,5 +199,17 @@ pub fn path() -> String {
             writeln!(s, "case ellipsewrap-{i}-{dir}\ndib 0 8 8 8\narcdir 0 {dir}\nbeginpath 0\nellipse 0 {l} {t} {rr} {b}\nendpath 0\ngetpath 0\nend");
         }
     }
+    // (added after) the sides whose 28.4 width 16 (r - l), taken to 32 bits, is about 2^31,
+    // -2^31 and 0: k pixels wide for k = 2^27 - 3 .. 2^27 + 2 and 2^28 - 2 .. 2^28 + 2, across
+    // from 3, down from 3, and across from -2^29 - 5
+    let ks: [i64; 11] = [134217725, 134217726, 134217727, 134217728, 134217729, 134217730, 268435454, 268435455, 268435456, 268435457, 268435458];
+    for (i, &k) in ks.iter().enumerate() {
+        let boxes = [(3, 3, k.saturating_add(3), 11), (3, 3, 11, k.saturating_add(3)), (-536870917, 3, k.saturating_sub(536870917), 11)];
+        for (j, &(l, t, rr, b)) in boxes.iter().enumerate() {
+            for dir in [1, 2] {
+                writeln!(s, "case ellipseedge-{i}-{j}-{dir}\ndib 0 8 8 8\narcdir 0 {dir}\nbeginpath 0\nellipse 0 {l} {t} {rr} {b}\nendpath 0\ngetpath 0\nend");
+            }
+        }
+    }
     s
 }
