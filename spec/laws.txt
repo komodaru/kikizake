@@ -472,6 +472,7 @@ tests/laws_opengl.rs::color_forms_act_as_their_float_form pbt GL.VARIANTS
 tests/laws_opengl.rs::raster_positions_read_back_near_where_given pbt GL.VARIANTS
 tests/laws_opengl.rs::smooth_triangles_behind_the_eye_cull_one_face pbt GL.POLYGON.SMOOTH
 tests/laws_dd.rs::ramp_line_clip_stays_on_the_segment pbt D3D7.LINE
+tests/laws_dd.rs::far_soft_lines_stay_on_the_segment pbt D3D7.LINE
 spec/lean/Kikizake/D3d11/Raster.lean::shared_edge lean D3DRASTER.TOPLEFT
 spec/lean/Kikizake/D3d11/Raster.lean::covers_turn lean D3DRASTER.TOPLEFT D3DRASTER.CULL
 spec/lean/Kikizake/D3d11/Raster.lean::degenerate lean D3DRASTER.DEGENERATE

@@ -1061,5 +1061,41 @@ pub fn d3d7dev() -> String {
         }
         writeln!(s, "end");
     }
+    // lines of two colours (D3D7.GOURAUD: a soft line's colours stepped from its start, the
+    // HAL's planes) on every drawer, and on the software ones with an end past the guard band,
+    // where the front end's clip (clean-room notes D.1) would start the walk at a cut end of its
+    // own colour (D3D7.TRI.CLIP)
+    let mut r = XorShift32::new(0x00d3_d71c);
+    let colour = |r: &mut XorShift32| 0xff00_0000 | (r.next() & 0xff_ffff);
+    let far = |r: &mut XorShift32| {
+        let (far, along) = (r.range(66_000, 400_000), r.range(-400_000, 400_000));
+        match r.range(0, 3) {
+            0 => (far.wrapping_neg(), along),
+            1 => (far, along),
+            2 => (along, far.wrapping_neg()),
+            _ => (along, far),
+        }
+    };
+    for &(v, d) in DRAWERS {
+        let fmt = if d == "ramp" { "565" } else { "32" };
+        writeln!(s, "case linecolour-{v}-{d}\nd3d {v}\nd3ddev {d} {fmt} 12 12");
+        for _ in 0..8 {
+            let (c0, c1) = (colour(&mut r), colour(&mut r));
+            let (x0, y0, x1, y1) = (r.range(-40, 231), r.range(-40, 231), r.range(-40, 231), r.range(-40, 231));
+            writeln!(s, "d3dclear 0\nd3dline 0x{c0:08x}/0x{c1:08x} {x0} {y0} {x1} {y1}\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
+    for &(v, d) in DRAWERS.iter().filter(|(_, d)| matches!(*d, "rgb" | "mmx")) {
+        writeln!(s, "case farcolour-{v}-{d}\nd3d {v}\nd3ddev {d} 32 12 12");
+        for _ in 0..12 {
+            let (c0, c1) = (colour(&mut r), colour(&mut r));
+            let (x1, y1) = (r.range(0, 191), r.range(0, 191));
+            let (x0, y0) = far(&mut r);
+            let ((xa, ya, ca), (xb, yb, cb)) = if r.chance(2) { ((x0, y0, c0), (x1, y1, c1)) } else { ((x1, y1, c1), (x0, y0, c0)) };
+            writeln!(s, "d3dclear 0\nd3dline 0x{ca:08x}/0x{cb:08x} {xa} {ya} {xb} {yb}\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
     s
 }

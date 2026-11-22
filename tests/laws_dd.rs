@@ -248,7 +248,9 @@ proptest! {
         let (w, h) = (12.0f32, 12.0f32);
         let inside = |t: &Tl| (0.0..w).contains(&t.sx) && (0.0..h).contains(&t.sy);
         let out = clip_line([a, b], w, h);
-        if (a.sx < 0.0 && b.sx < 0.0) || (a.sx >= w && b.sx >= w) || (a.sy < 0.0 && b.sy < 0.0) || (a.sy >= h && b.sy >= h) {
+        // (both ends on the right or bottom side itself, outside by the outcodes but on the
+        // plane: kept, with no pixel in the target either way)
+        if (a.sx < 0.0 && b.sx < 0.0) || (a.sx > w && b.sx > w) || (a.sy < 0.0 && b.sy < 0.0) || (a.sy > h && b.sy > h) {
             prop_assert!(out.is_none(), "{v:?}");
         }
         let Some([p, q]) = out else { return Ok(()) };
@@ -260,6 +262,41 @@ proptest! {
             let (dx, dy) = (b.sx - a.sx, b.sy - a.sy);
             let cross = ((got.sx - a.sx) * dy - (got.sy - a.sy) * dx).abs() / (dx * dx + dy * dy).sqrt().max(1e-3);
             prop_assert!(cross < 1e-2, "{v:?}: {got:?} off the segment by {cross}");
+        }
+    }
+
+    /// a software line with an end past the guard band (d3d7dev farline-*: its walk whole): in a
+    /// 12 × 12 target at most one pixel per column of its major axis, each within a pixel of the
+    /// exact segment, and one in every major column the segment crosses well inside the target
+    #[test]
+    fn far_soft_lines_stay_on_the_segment(far in -400_000i64..400_000, side in 0usize..4, inner in prop::array::uniform2(0i64..192), mmx in any::<bool>()) {
+        use kikizake::model::d3d7::{line, Family};
+        let (fx, fy) = [(-66_000 - far.abs(), far), (66_000 + far.abs(), far), (far, -66_000 - far.abs()), (far, 66_000 + far.abs())][side];
+        let (a, b) = ((fx, fy), (inner[0], inner[1]));
+        let cover = line(Family::Soft { mmx }, [a, b], true, 12, 12).unwrap();
+        let px: Vec<(i64, i64)> = cover.iter().enumerate().filter(|&(_, &c)| c).map(|(k, _)| (k as i64 % 12, k as i64 / 12)).collect();
+        let xmajor = (b.0 - a.0).abs() >= (b.1 - a.1).abs();
+        let (ax, ay, bx, by) = (a.0 as f64 / 16.0, a.1 as f64 / 16.0, b.0 as f64 / 16.0, b.1 as f64 / 16.0);
+        let len = ((bx - ax).powi(2) + (by - ay).powi(2)).sqrt();
+        let mut seen = std::collections::BTreeSet::new();
+        for &(x, y) in &px {
+            prop_assert!(seen.insert(if xmajor { x } else { y }), "{a:?} {b:?}: two pixels in one major column");
+            // (a software line's pixel centres on the whole coordinates: d3dim700's (v + 7) >> 4)
+            let (cx, cy) = (x as f64, y as f64);
+            let d = ((cx - ax) * (by - ay) - (cy - ay) * (bx - ax)).abs() / len;
+            prop_assert!(d < 1.0, "{a:?} {b:?}: ({x}, {y}) {d} off the segment");
+        }
+        // (a major column whose centre the segment crosses at least a pixel inside the target
+        // on both axes, short of the inner end)
+        for m in 1..11i64 {
+            let c = m as f64;
+            let (s0, s1, e) = if xmajor { (ax, bx, (ay, by)) } else { (ay, by, (ax, bx)) };
+            let t = (c - s0) / (s1 - s0);
+            let o = e.0 + t * (e.1 - e.0);
+            let short = if xmajor { (c - bx).abs() > 1.0 } else { (c - by).abs() > 1.0 };
+            if (0.0..1.0).contains(&t) && (0.5..10.5).contains(&o) && short {
+                prop_assert!(seen.contains(&m), "{a:?} {b:?}: column {m} missed");
+            }
         }
     }
 
@@ -498,7 +535,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 5, 0), ("d3d7shade", 0, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 5, 0), ("d3d7shade", 0, 0), ("d3d7edge", 0, 0), ("d3d7rast", 0, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);

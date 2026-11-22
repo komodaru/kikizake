@@ -385,6 +385,16 @@ fn n32(op: &Op, i: usize) -> Res<u32> {
 }
 
 /// a color list "c" or "c0/c1/c2"
+/// a line's colours: one, or one an end (c0/c1)
+fn line_colors(s: &str) -> Res<[u32; 2]> {
+    let cs: Vec<u32> = s.split('/').map(|c| num(c).and_then(|v| u32::try_from(v).ok()).ok_or(Fail::Bad)).collect::<Res<_>>()?;
+    match cs.as_slice() {
+        &[c] => Ok([c; 2]),
+        &[a, b] => Ok([a, b]),
+        _ => Err(Fail::Bad),
+    }
+}
+
 fn colors(s: &str) -> Res<[u32; 3]> {
     let cs: Vec<u32> = s.split('/').map(|c| num(c).and_then(|v| u32::try_from(v).ok()).ok_or(Fail::Bad)).collect::<Res<_>>()?;
     match cs.as_slice() {
@@ -708,8 +718,8 @@ impl D3d7 {
                 clear(ver, d, c, z, r, out)?;
             }
             "d3dline" => {
-                // a line list of one line
-                let c = n32(op, 1)?;
+                // a line list of one line, one colour or one an end (c0/c1)
+                let [c, c1] = line_colors(t.get(1).ok_or(Fail::Bad)?)?;
                 let mut v = [(0i64, 0i64); 2];
                 for (k, p) in v.iter_mut().enumerate() {
                     *p = (n(op, 2 + 2 * k)?, n(op, 3 + 2 * k)?);
@@ -723,8 +733,19 @@ impl D3d7 {
                 }
                 let st = States::read(self)?;
                 let d = self.dev.as_mut().ok_or(Fail::Bad)?;
-                let tri = Tri { v: [v[0], v[1], v[1]], c: [c; 3], spec: [0; 3], z: 0.5 };
+                let tri = Tri { v: [v[0], v[1], v[1]], c: [c, c1, c1], spec: [0; 3], z: 0.5 };
                 let writes = match d.family {
+                    // (two colours: each end its own, the walk's or the planes' (D3D7.GOURAUD))
+                    Family::Soft { .. } | Family::Hw { .. } if c != c1 => {
+                        // (an end past the guard band: the colours from the front end's cut end
+                        // or the whole walk, d3d7dev farcolour-* asked)
+                        if matches!(d.family, Family::Soft { .. }) && !in_guard(&v) {
+                            return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+                        }
+                        let [a, b] = v;
+                        let col = |x: u32| bgra(if st.flat { c } else { x });
+                        line_writes(d.family, &st, [(a, col(c), [0; 4]), (b, col(c1), [0; 4])], d.rt.w, d.rt.h)?
+                    }
                     Family::Ramp => {
                         let fmt = d.rt.fmt;
                         ramp_writes(&mut d.spans, &st, &tri, Prim::Line, d.rt.w, d.rt.h, fmt)?
@@ -1124,11 +1145,12 @@ pub fn f32_past(t: (i64, i64), b: (i64, i64), first: i64, k: i64, round: SlopeRo
 /// pixel of centre (ceil(x - 1/2), ceil(y - 1/2)) when |x - cx| + |y - cy| < 1/2, or on the
 /// diamond's corner; the start's pixel is drawn, the last one's drawn with LASTPIXEL and taken out
 /// without. A corner at the last end of a line within 1/4 pixel of the diagonal, ends outside the
-/// target are clipped there (D3D7.LINE, outlines-*), past the guard band not asked (D3D7.TRI.CLIP); the HAL's: crate::model::warp (D3D7.LINE.HW)
+/// target are clipped there (D3D7.LINE, outlines-*), and past the guard band the target holds the
+/// walk of the whole line (farline-*); the HAL's: crate::model::warp (D3D7.LINE.HW)
 pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64) -> Res<Vec<bool>> {
-    // (a soft line with an end past the guard band: the front end clips it, not asked,
-    // D3D7.TRI.CLIP; the ramp device's lines go through crate::model::ramp)
-    let other = Fail::Unmodeled(open::D3D7_TRI_CLIP);
+    // (MEASURED, d3d7dev farline-*: a soft line with an end past the guard band −4096..4095,
+    // which the front end clips there (clean-room notes D.1), has in the target the pixels of
+    // its walk whole; the ramp device's lines go through crate::model::ramp)
     match family {
         Family::Ramp => return Err(Fail::Bad),
         Family::Soft { .. } => {}
@@ -1136,10 +1158,6 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
             hit(clause::D3D7_LINE_HW);
             return crate::model::warp::line(v, w, h);
         }
-    }
-    let (xs, ys) = (-4096 * 16..4096 * 16, -4096 * 16..4096 * 16);
-    if !v.iter().all(|(x, y)| xs.contains(x) && ys.contains(y)) {
-        return Err(other);
     }
     let mut cover = vec![false; usize::try_from(w * h).map_err(|_| Fail::Bad)?];
     hit(clause::D3D7_LINE);
@@ -1149,6 +1167,12 @@ pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64)
         }
     }
     Ok(cover)
+}
+
+/// whether every vertex (in 16ths) lies in the software guard band −4096..4095
+fn in_guard(v: &[(i64, i64)]) -> bool {
+    let band = -4096 * 16..4096 * 16;
+    v.iter().all(|(x, y)| band.contains(x) && band.contains(y))
 }
 
 /// the line setup's snap of a coordinate given in 16ths (x·16 exact): trunc_x87(x·16 + 1/2), toward
@@ -1266,6 +1290,11 @@ fn at(x: i64, y: i64, w: i64, h: i64) -> Res<Option<usize>> {
 /// in x not measured (D3D7.STATES.OTHER)
 fn edge_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64) -> Res<Vec<Write>> {
     hit(clause::D3D7_WIREFRAME);
+    // (a vertex past the software guard band: the front end clips the triangle first, not
+    // asked, D3D7.TRI.CLIP)
+    if matches!(family, Family::Soft { .. }) && !in_guard(&tri.v) {
+        return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+    }
     let [first, ..] = tri.c;
     // (vertex, its colour's bytes) in drawing order
     let ends: Vec<((i64, i64), [u8; 4], [u8; 4])> = tri.v.iter().zip(&tri.c).zip(&tri.spec).map(|((&p, &c), &sp)| (p, bgra(if st.flat { first } else { c }), bgra(sp))).collect();
@@ -1288,32 +1317,42 @@ fn edge_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64) -> Res<Ve
     let cycle: Vec<_> = ends.iter().cycle().skip(start).take(4).collect();
     for pair in cycle.windows(2) {
         let &[&(pa, ca, sa), &(pb, cb, sb)] = pair else { return Err(Fail::Bad) };
-        let e = [pa, pb];
-        let cover = line(family, e, st.lastpixel, w, h)?;
-        match family {
-            Family::Soft { .. } | Family::Ramp => {
-                let walk = crate::model::d3dim::walk_line(e.map(|(x, y)| (snap16(x), snap16(y))), st.lastpixel)?;
-                for (&(x, y), &c) in walk.px.iter().zip(&walk.colours(ca, cb)?) {
-                    let Some(k) = at(x, y, w, h)? else { continue };
-                    if cover.get(k).copied().unwrap_or(false) {
-                        out.push(Write { k, x, y, c: words(c) });
-                    }
+        out.extend(line_writes(family, st, [(pa, ca, sa), (pb, cb, sb)], w, h)?);
+    }
+    Ok(out)
+}
+
+/// the pixels of one line from end a to end b (its position, colour and specular bytes B, G, R,
+/// A): the software rasterizers' walk with its colours stepped from the start (D3D7.GOURAUD,
+/// clean-room notes D.3), the HAL's planes along the major axis (D.4)
+fn line_writes(family: Family, st: &States, ends: [((i64, i64), [u8; 4], [u8; 4]); 2], w: i64, h: i64) -> Res<Vec<Write>> {
+    let [(pa, ca, sa), (pb, cb, sb)] = ends;
+    let e = [pa, pb];
+    let cover = line(family, e, st.lastpixel, w, h)?;
+    let mut out = Vec::new();
+    match family {
+        Family::Soft { .. } | Family::Ramp => {
+            let walk = crate::model::d3dim::walk_line(e.map(|(x, y)| (snap16(x), snap16(y))), st.lastpixel)?;
+            for (&(x, y), &c) in walk.px.iter().zip(&walk.colours(ca, cb)?) {
+                let Some(k) = at(x, y, w, h)? else { continue };
+                if cover.get(k).copied().unwrap_or(false) {
+                    out.push(Write { k, x, y, c: words(c) });
                 }
             }
-            Family::Hw { .. } if !cover.contains(&true) => {}
-            Family::Hw { .. } => {
-                let plane = |a: [u8; 4], b: [u8; 4], i: usize| -> Res<crate::model::warp::LinePlane> {
-                    let (Some(&p), Some(&q)) = (a.get(i), b.get(i)) else { return Err(Fail::Bad) };
-                    crate::model::warp::LinePlane::new(e, [p, q])
-                };
-                let (r, g, b) = (plane(ca, cb, 2)?, plane(ca, cb, 1)?, plane(ca, cb, 0)?);
-                let (sr, sg, sbl, sf) = (plane(sa, sb, 2)?, plane(sa, sb, 1)?, plane(sa, sb, 0)?, plane(sa, sb, 3)?);
-                let wu = usize::try_from(w).ok().ok_or(Fail::Bad)?.max(1);
-                for (k, _) in cover.iter().enumerate().filter(|&(_, &c)| c) {
-                    let (x, y) = (i64::try_from(k % wu).ok().ok_or(Fail::Bad)?, i64::try_from(k / wu).ok().ok_or(Fail::Bad)?);
-                    let mix = hal_mix(st, [r.at(x, y)?, g.at(x, y)?, b.at(x, y)?], [sr.at(x, y)?, sg.at(x, y)?, sbl.at(x, y)?], sf.at(x, y)?);
-                    out.push(Write { k, x, y, c: Col::Unit(mix) });
-                }
+        }
+        Family::Hw { .. } if !cover.contains(&true) => {}
+        Family::Hw { .. } => {
+            let plane = |a: [u8; 4], b: [u8; 4], i: usize| -> Res<crate::model::warp::LinePlane> {
+                let (Some(&p), Some(&q)) = (a.get(i), b.get(i)) else { return Err(Fail::Bad) };
+                crate::model::warp::LinePlane::new(e, [p, q])
+            };
+            let (r, g, b) = (plane(ca, cb, 2)?, plane(ca, cb, 1)?, plane(ca, cb, 0)?);
+            let (sr, sg, sbl, sf) = (plane(sa, sb, 2)?, plane(sa, sb, 1)?, plane(sa, sb, 0)?, plane(sa, sb, 3)?);
+            let wu = usize::try_from(w).ok().ok_or(Fail::Bad)?.max(1);
+            for (k, _) in cover.iter().enumerate().filter(|&(_, &c)| c) {
+                let (x, y) = (i64::try_from(k % wu).ok().ok_or(Fail::Bad)?, i64::try_from(k / wu).ok().ok_or(Fail::Bad)?);
+                let mix = hal_mix(st, [r.at(x, y)?, g.at(x, y)?, b.at(x, y)?], [sr.at(x, y)?, sg.at(x, y)?, sbl.at(x, y)?], sf.at(x, y)?);
+                out.push(Write { k, x, y, c: Col::Unit(mix) });
             }
         }
     }
