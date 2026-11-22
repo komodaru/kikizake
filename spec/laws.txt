@@ -55,6 +55,7 @@ tests/laws_gdiloose.rs::polygon_bound_is_loose_only_off_the_fast_figures exhaust
 tests/laws_gdiloose.rs::two_figure_bound_reaches_the_lowest_end exhaustive GDI.RGN.LOOSE
 tests/laws_gdiloose.rs::fix_polygon_bound_rounds_the_lowest_end_up exhaustive GDI.RGN.LOOSE
 tests/laws_gdiloose.rs::copy_keeps_the_loose_bottom exhaustive GDI.RGN.LOOSE
+tests/laws_gdifont.rs::font_measures_are_the_clauses exhaustive GDI.TEXT.MEMFONT GDI.TEXT.FACE GDI.TEXT.TM GDI.TEXT.AVE GDI.TEXT.WIDTH GDI.TEXT.ABC GDI.TEXT.ABCEMPTY GDI.TEXT.EXTENT GDI.TEXT.EXTRAEXTENT
 tests/laws.rs::normalization_is_idempotent pbt D3D11.DEDUP D3D11.BLEND.DISABLED D3D11.DEPTH.OFF D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::unused_parts_are_ignored pbt D3D11.BLEND.SHARED D3D11.BLEND.DISABLED D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::check_create_and_same_agree pbt D3D11.CHECK D3D11.DEDUP
