@@ -56,6 +56,7 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
     ("src/lean/d3d12.rs", r"\bFP_SIZES\b|0x7fff_fff0", "the footprints mirror asks widths and heights up to 0xffffffff (SIZES): a narrower domain hid the model's 32-bit wrap"),
     ("src/model/d3draster.rs", r"d\.rast\[1\]\s*==\s*[23]\s*&&|p[xy]\s*>=\s*d\.scissor|\(s\.[xy]\s*-\s*1\)\.div_euclid|rem_euclid\(\s*2\s*\*\s*size|\(256\s*-\s*w[uv]?\)|2\s*=>\s*(a|reference)\s*<|let\s+top_left\s*=|Topo::TriStripAdj\s*=>\s*\(\[", "culling, the scissor test, a point's pixel, the address modes, the comparison functions, the 8-bit filters, the top-left rule and the topologies' vertices are the pure functions of d3drules.rs the Lean mirrors hold equal to spec/lean/Kikizake/D3d11/; a copy inlined in d3draster.rs escapes them"),
     ("src/model/d3d9draw.rs", r"if\s+self\.v8\s*\{\s*0xffff_ffff\s*\}|Self::blend_op\b|let\s+e\s*=\s*\(q\.0\s*-\s*p\.0\)", "the blend color, blend operation and top-left rule are the pure blend_color, blend_op and covers the Lean mirrors hold equal to spec/lean/Kikizake/D3d9/Raster.lean; a copy inlined elsewhere escapes them"),
+    ("src/model/d3d9draw.rs", r"a1\[i\]\s*\*\s*a2\[i\]|a1\[i\]\s*\+\s*a2\[i\]", "the stage operations' formulas are stage_value's, which the Lean mirror d3d9.stage holds bit for bit to spec/lean/Kikizake/D3d9/Stage.lean; a copy inlined elsewhere escapes it"),
 ];
 
 /// (file, function, what (a regular expression), why): `forbidden` inside one function only

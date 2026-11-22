@@ -6,6 +6,7 @@ use crate::model::d3dx9;
 const PIXEL: &str = "spec/lean/Kikizake/D3d9/Pixel.lean";
 const RASTER: &str = "spec/lean/Kikizake/D3d9/Raster.lean";
 const FVF: &str = "spec/lean/Kikizake/D3d9/Fvf.lean";
+const STAGE: &str = "spec/lean/Kikizake/D3d9/Stage.lean";
 const U32: i64 = 0xffff_ffff;
 
 pub static MIRRORS: &[Mirror] = &[
@@ -248,6 +249,36 @@ pub static MIRRORS: &[Mirror] = &[
             Ok(None) => vec![],
             Err(_) => vec![-1],
         }),
+    },
+    Mirror {
+        name: "d3d9.stage",
+        lean: STAGE,
+        domain: Domain::Sampled("operations 0..33 on stage 0 and 3, color and alpha, the nine f32 inputs: 300,000 of 8-bit values (k / 255), 200,000 of any f32 in 0..1, 100,000 of any f32 in -4..4"),
+        inputs: |each| {
+            let mut send = |v: &[i64], map: &dyn Fn(i64) -> i64| {
+                let mut w: Vec<i64> = v.get(..3).unwrap_or(&[]).to_vec();
+                w.extend(v.iter().skip(3).map(|&x| map(x)));
+                each(&w);
+            };
+            let byte = |k: i64| u8::try_from(k).map(|k| i64::from((f32::from(k) / 255.0).to_bits())).unwrap_or(0);
+            let mut r = vec![(0, 33), (0, 3), (0, 1)];
+            r.extend([(0, 255); 9]);
+            sampled(&r, 300_000, 0x57a9_d009, &mut |v| send(v, &byte));
+            let mut r = vec![(0, 33), (0, 3), (0, 1)];
+            r.extend([(0, 0x3f80_0000); 9]);
+            sampled(&r, 200_000, 0x57aa_d009, &mut |v| send(v, &|x| x));
+            let mut r = vec![(0, 33), (0, 3), (0, 1)];
+            r.extend([(0, 0x4080_0000); 9]);
+            sampled(&r, 100_000, 0x57ab_d009, &mut |v| send(v, &|x| if x % 2 == 0 { x } else { x | 0x8000_0000 }));
+        },
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            let x = d3d9draw::StageIn { op: arg(a, 0)?, st: arg(a, 1)?, alpha: arg::<u8>(a, 2)? != 0, a0: f(3)?, a1: f(4)?, a2: f(5)?, a1a: f(6)?, da: f(7)?, ca: f(8)?, ta: f(9)?, fa: f(10)?, cur: f(11)? };
+            Some(match d3d9draw::stage_value(x) {
+                Ok(v) => vec![i64::from(v.clamp(0.0, 1.0).to_bits())],
+                Err(_) => vec![],
+            })
+        },
     },
 ];
 

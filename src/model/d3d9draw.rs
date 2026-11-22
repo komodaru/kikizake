@@ -891,6 +891,92 @@ fn cover(t: [(i64, i64); 3], w: i32, h: i32, covered: &mut [bool]) {
     }
 }
 
+/// one channel's inputs to a texture stage operation (D3DTEXTUREOP), in f32: the arguments
+/// (D3DTA, after COMPLEMENT and ALPHAREPLICATE), the first argument's alpha, the diffuse and
+/// current alphas, the texture's alpha (1 without one), the texture factor's alpha and the
+/// channel's current value
+#[derive(Clone, Copy)]
+pub struct StageIn {
+    pub op: u32,
+    pub st: u32,
+    pub alpha: bool,
+    pub a0: f32,
+    pub a1: f32,
+    pub a2: f32,
+    pub a1a: f32,
+    pub da: f32,
+    pub ca: f32,
+    pub ta: f32,
+    pub fa: f32,
+    pub cur: f32,
+}
+
+/// a texture stage operation's value of one channel, before it is saturated (D3D9.STAGE.OP,
+/// STAGE.PASTOP): each operation's formula in f32, in the order the operations are written
+pub fn stage_value(x: StageIn) -> Res<f32> {
+    let StageIn { op, st, alpha, a0, a1, a2, a1a, da, ca, ta, fa, cur } = x;
+    Ok(match op {
+        // (PREMODULATE: MEASURED top-*-PREMODULATE, stage1-PREMODULATE: as SELECTARG1)
+        2 | 17 => a1,
+        3 => a2,
+        4 => a1 * a2,
+        5 => a1 * a2 * 2.0,
+        6 => a1 * a2 * 4.0,
+        7 => a1 + a2,
+        8 => a1 + a2 - 0.5,
+        9 => (a1 + a2 - 0.5) * 2.0,
+        10 => a1 - a2,
+        11 => a1 + a2 - a1 * a2,
+        12 => a1 * da + a2 * (1.0 - da),
+        13 => a1 * ta + a2 * (1.0 - ta),
+        14 => a1 * fa + a2 * (1.0 - fa),
+        15 => a1 + a2 * (1.0 - ta),
+        16 => a1 * ca + a2 * (1.0 - ca),
+        // (MEASURED, top-alpha-*, stage1-*: the color-only operations as alpha
+        // operations give 1, the alpha before on a later stage; the bump mapping ones
+        // and DOTPRODUCT3 too, top-alpha-BUMPENVMAP*, top-alpha-DOTPRODUCT3)
+        18..=24 if alpha => if st == 0 { 1.0 } else { ca },
+        18 => a1 + a1a * a2,
+        19 => a1 * a2 + a1a,
+        20 => (1.0 - a1a) * a2 + a1,
+        21 => (1.0 - a1) * a2 + a1a,
+        25 => a0 + a1 * a2,
+        26 => a0 * a1 + (1.0 - a0) * a2,
+        // (MEASURED top-past-*, top-past-later-*, both runtimes, stage 0: a COLOROP
+        // past LERP makes black; as ALPHAOP 32 makes 1, the others leave the diffuse
+        // alpha, D3D9.STAGE.PASTOP)
+        27.. if st == 0 && !alpha => {
+            hit(clause::D3D9_STAGE_PASTOP);
+            0.0
+        }
+        32 if st == 0 => {
+            hit(clause::D3D9_STAGE_PASTOP);
+            1.0
+        }
+        27.. if st == 0 => {
+            hit(clause::D3D9_STAGE_PASTOP);
+            da
+        }
+        // (MEASURED top-past-later-*, top-past-chain-*: on a later stage any
+        // operation past LERP leaves CURRENT, as COLOROP and as ALPHAOP, and the
+        // stages after it go on)
+        27.. if !alpha => {
+            hit(clause::D3D9_STAGE_PASTOP);
+            cur
+        }
+        27.. => {
+            hit(clause::D3D9_STAGE_PASTOP);
+            ca
+        }
+        // (never here: a COLOROP DISABLE ends the stages and an ALPHAOP DISABLE
+        // runs as SELECTARG1; the bump mapping COLOROPs and DOTPRODUCT3 are run
+        // before)
+        1 | 22..=24 => return Err(Fail::Bad),
+        // (open: an operation of 0, cases top-zero-*)
+        0 => return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN)),
+    })
+}
+
 /// how the vertices of a triangle wind on the screen (y down): the sign of its area
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Winding {
@@ -1731,72 +1817,9 @@ impl D3d9 {
             let ca = r.current[3] as f32;
             for &i in chans {
                 let alpha = k == 1;
-                let v: f32 = match op {
-                    // (PREMODULATE: MEASURED top-*-PREMODULATE, stage1-PREMODULATE: as SELECTARG1)
-                    2 | 17 => a1[i],
-                    3 => a2[i],
-                    4 => a1[i] * a2[i],
-                    5 => a1[i] * a2[i] * 2.0,
-                    6 => a1[i] * a2[i] * 4.0,
-                    7 => a1[i] + a2[i],
-                    8 => a1[i] + a2[i] - 0.5,
-                    9 => (a1[i] + a2[i] - 0.5) * 2.0,
-                    10 => a1[i] - a2[i],
-                    11 => a1[i] + a2[i] - a1[i] * a2[i],
-                    12 => a1[i] * da + a2[i] * (1.0 - da),
-                    13 => {
-                        let ta = tex.unwrap_or([1.0; 4])[3] as f32;
-                        a1[i] * ta + a2[i] * (1.0 - ta)
-                    }
-                    14 => {
-                        let fa = argb(self.rs(60))[3] as f32;
-                        a1[i] * fa + a2[i] * (1.0 - fa)
-                    }
-                    15 => a1[i] + a2[i] * (1.0 - tex.unwrap_or([1.0; 4])[3] as f32),
-                    16 => a1[i] * ca + a2[i] * (1.0 - ca),
-                    // (MEASURED, top-alpha-*, stage1-*: the color-only operations as alpha
-                    // operations give 1, the alpha before on a later stage; the bump mapping ones
-                    // and DOTPRODUCT3 too, top-alpha-BUMPENVMAP*, top-alpha-DOTPRODUCT3)
-                    18..=24 if alpha => if st == 0 { 1.0 } else { ca },
-                    18 => a1[i] + a1[3] * a2[i],
-                    19 => a1[i] * a2[i] + a1[3],
-                    20 => (1.0 - a1[3]) * a2[i] + a1[i],
-                    21 => (1.0 - a1[i]) * a2[i] + a1[3],
-                    25 => a0[i] + a1[i] * a2[i],
-                    26 => a0[i] * a1[i] + (1.0 - a0[i]) * a2[i],
-                    // (MEASURED top-past-*, top-past-later-*, both runtimes, stage 0: a COLOROP
-                    // past LERP makes black; as ALPHAOP 32 makes 1, the others leave the diffuse
-                    // alpha, D3D9.STAGE.PASTOP)
-                    27.. if st == 0 && !alpha => {
-                        hit(clause::D3D9_STAGE_PASTOP);
-                        0.0
-                    }
-                    32 if st == 0 => {
-                        hit(clause::D3D9_STAGE_PASTOP);
-                        1.0
-                    }
-                    27.. if st == 0 => {
-                        hit(clause::D3D9_STAGE_PASTOP);
-                        da
-                    }
-                    // (MEASURED top-past-later-*, top-past-chain-*: on a later stage any
-                    // operation past LERP leaves CURRENT, as COLOROP and as ALPHAOP, and the
-                    // stages after it go on)
-                    27.. if !alpha => {
-                        hit(clause::D3D9_STAGE_PASTOP);
-                        r.current[i] as f32
-                    }
-                    27.. => {
-                        hit(clause::D3D9_STAGE_PASTOP);
-                        ca
-                    }
-                    // (never here: a COLOROP DISABLE ends the stages and an ALPHAOP DISABLE
-                    // runs as SELECTARG1; the bump mapping COLOROPs and DOTPRODUCT3 are run
-                    // before)
-                    1 | 22..=24 => return Err(Fail::Bad),
-                    // (open: an operation of 0, cases top-zero-*)
-                    0 => return Err(Fail::Unmodeled(open::D3D9_STAGE_OPEN)),
-                };
+                let ta = tex.unwrap_or([1.0; 4])[3] as f32;
+                let fa = argb(self.rs(60))[3] as f32;
+                let v = stage_value(StageIn { op, st, alpha, a0: a0[i], a1: a1[i], a2: a2[i], a1a: a1[3], da, ca, ta, fa, cur: r.current[i] as f32 })?;
                 hit(clause::D3D9_STAGE_OP);
                 out[i] = v.clamp(0.0, 1.0) as f64;
             }

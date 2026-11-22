@@ -11,6 +11,7 @@ use std::process::{Command, Stdio};
 mod d3d11;
 mod d3d12;
 mod d3d9;
+mod f32;
 mod dwrite;
 mod dxgi;
 mod gdi;
@@ -40,7 +41,18 @@ pub struct Mirror {
 
 /// every mirror, per API
 pub fn mirrors() -> Vec<&'static Mirror> {
-    gdi::MIRRORS.iter().chain(gdiplus::MIRRORS).chain(d3d12::MIRRORS).chain(dxgi::MIRRORS).chain(d3d9::MIRRORS).chain(d3d11::MIRRORS).chain(dwrite::MIRRORS).collect()
+    // (one API a line)
+    let all: &[&[Mirror]] = &[
+        gdi::MIRRORS,
+        gdiplus::MIRRORS,
+        d3d12::MIRRORS,
+        dxgi::MIRRORS,
+        d3d9::MIRRORS,
+        d3d11::MIRRORS,
+        dwrite::MIRRORS,
+        f32::MIRRORS,
+    ];
+    all.iter().flat_map(|m| m.iter()).collect()
 }
 
 /// the argument as the type the model takes

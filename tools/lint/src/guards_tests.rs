@@ -139,6 +139,14 @@ fn d3d9_rules_stay_in_the_mirrored_functions() {
 }
 
 #[test]
+fn stage_formulas_stay_in_stage_value() {
+    let inlined = "fn stage(&self) {\n    let v = match op { 4 => a1[i] * a2[i], 7 => a1[i] + a2[i], _ => 0.0 };\n}\n";
+    let r = rust("src/model/d3d9draw.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: the stage operations' formulas")).count(), 2, "{r:?}");
+    assert!(rust("src/model/d3d9draw.rs", "fn stage_value(x: StageIn) -> f32 { a1 * a2 + a1a }").is_empty());
+}
+
+#[test]
 fn silent_cuts_are_found() {
     // (review of 8480456, 3: rootsig12 kept the first 1024 tokens of its rootsig12+ lines and its own)
     let old = "static void op_rootsig(void) {\n    rt = 0;\n    for (int k = 0; k < nrsx && rt < RSTOK; k++) rtk[rt++] = rsx[k];\n}\n";
