@@ -27748,4 +27748,134 @@ case fp-limit-r8-w-00800000-a2
 device12 ok
 fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
 total ffffffffffffffff
+case fp-limit2-a2-w16384
+device12 ok
+fp 0 3d 4000 1 1 4000 1 4000
+total 4000
+case fp-limit2-a2-w16385
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-a2-h16385
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-a2-w65536
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-m2-w16384
+device12 ok
+fp 0 3d 4000 1 1 4000 1 4000
+total 4000
+case fp-limit2-m2-w16385
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-m2-w800000
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-m2-h16385
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-m0-w800001
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-m0-w16385-h2
+device12 ok
+fp 0 3d 4001 2 1 4100 2 4001
+total 8101
+case fp-limit2-s4-w16384
+device12 ok
+fp 0 3d 4000 1 1 4000 1 4000
+total 4000
+case fp-limit2-s4-w16385
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-rt-w16385
+device12 ok
+fp 0 3d 4001 1 1 4100 1 4001
+total 4001
+case fp-limit2-rt-w800000
+device12 ok
+fp 0 3d 800000 1 1 800000 1 800000
+total 800000
+case fp-limit2-bc1-a2-w16388
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-d24s8-w800000
+device12 ok
+fp 0 27 800000 1 1 2000000 1 2000000
+fp 2000000 3c 800000 1 1 800000 1 800000
+total 2800000
+case fp-limit2-d24s8-w800001
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-nv12-w800000
+device12 ok
+fp 0 3c 800000 2 1 800000 2 800000
+fp 1000000 30 400000 1 1 800000 1 800000
+total 1800000
+case fp-limit2-nv12-w800002
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-limit2-offsets-a2048
+device12 ok
+fp 0 1c 4000 4000 1 10000 4000 10000
+fp 40000000 1c 4000 4000 1 10000 4000 10000
+fp 80000000 1c 4000 4000 1 10000 4000 10000
+fp c0000000 1c 4000 4000 1 10000 4000 10000
+fp 100000000 1c 4000 4000 1 10000 4000 10000
+fp 140000000 1c 4000 4000 1 10000 4000 10000
+total 180000000
+case fp-limit2-offsets-a2048-from4
+device12 ok
+fp 0 1c 4000 4000 1 10000 4000 10000
+fp 40000000 1c 4000 4000 1 10000 4000 10000
+total 80000000
+case fp-limit2-offsets-a16-h4000
+device12 ok
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 4000 4000 1 40000 4000 40000
+total 0
+case fp-limit2-offsets-m2-rgba32f
+device12 ok
+fp 0 2 4000 4000 1 40000 4000 40000
+fp 0 2 2000 2000 1 20000 2000 20000
+total 40000000
+case fp-limit2-total-rgba32f-4000x4000
+device12 ok
+fp 0 2 4000 4000 1 40000 4000 40000
+total 0
+case fp-limit2-total-r8-800000x200
+device12 ok
+fp 0 3d 800000 200 1 800000 200 800000
+total 0
+case fp-limit2-total-r8-800000x201
+device12 ok
+fp 0 3d 800000 201 1 800000 201 800000
+total 800000
 done
