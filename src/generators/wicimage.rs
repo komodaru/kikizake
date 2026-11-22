@@ -1368,6 +1368,43 @@ pub fn wicdecode() -> String {
         tiff_patch(&mut f, 278, h);
         writeln!(s, "case broken-big-tiff-{w}\nwdecode {}\nwframe 0\nwinfo\nwpixels 0 0 4 2\nwpixels {} {} 3 1\nend", hex(&f), w / 2, h / 2);
     }
+    // (WICIMAGE.DECODE.BROKEN) an 8x8 interlaced PNG whose data ends after each pass and
+    // inside each: which passes are kept; every byte its own value
+    let all: Vec<u8> = {
+        let mut v = Vec::new();
+        let mut n = 1u8;
+        for (cols, rows) in [(1usize, 1usize), (1, 1), (2, 1), (2, 2), (4, 2), (4, 4), (8, 4)] {
+            for _ in 0..rows {
+                v.push(0);
+                for _ in 0..cols {
+                    v.push(n);
+                    n = n.wrapping_add(3);
+                }
+            }
+        }
+        v
+    };
+    for cut in [1usize, 2, 3, 4, 6, 7, 10, 13, 18, 23, 30, 43, 60, 78] {
+        decode_case(&mut s, &format!("broken-adam7-{cut}"), &png(8, 8, 8, 0, true, &[], &all[..cut], 1 << 16), 1, false);
+    }
+    // a TIFF of one strip with fewer bytes than its rows: one pixel of each row asked in turn
+    for (w, h) in [(64u32, 64u32), (256, 256), (1200, 1000), (4096, 4096), (100, 10000), (8192, 8192)] {
+        let im = TiffImage { w: 4, h: 4, photometric: 1, bits: 8, samples: 1, extra: None, planar: 1, rps: 2, px: (0..16).map(|v| v * 13).collect(), map: Vec::new(), res: None, format: 1 };
+        let mut f = tiff(false, &[im]);
+        tiff_patch(&mut f, 256, w);
+        tiff_patch(&mut f, 257, h);
+        tiff_patch(&mut f, 278, h);
+        write!(s, "case broken-short-tiff-{w}-{h}\nwdecode {}\nwframe 0\nwinfo\n", hex(&f));
+        for y in [0u32, 1, 2, 3, 4, 7, 8, 15, 16, 31, 32, 63, 64, 127, 128, 255, 256, 511, 512, 999, 1023, 2047, 4095, 8191, 9999] {
+            if y < h {
+                writeln!(s, "wpixels {} {y} 1 1", w - 1);
+            }
+        }
+        s.push_str("end\n");
+    }
+    // GIF frames about 2^26 pixels
+    gifsz(&mut s, "broken-gifsize-big-0", (8192, 8192), (8192, 8192));
+    gifsz(&mut s, "broken-gifsize-big-1", (8193, 8192), (8193, 8192));
     s
 }
 
