@@ -308,5 +308,19 @@ spec/lean/Kikizake/D3d12/Footprint.lean::pitch_holds_row lean D3D12.FOOTPRINT.LA
 spec/lean/Kikizake/D3d12/Footprint.lean::rows_whole lean D3D12.FOOTPRINT.BLOCK D3D12.FOOTPRINT.LAYOUT
 spec/lean/Kikizake/D3d12/Footprint.lean::last_le_extent lean D3D12.FOOTPRINT.LAYOUT
 spec/lean/Kikizake/D3d12/Footprint.lean::layout_apart lean D3D12.FOOTPRINT.LAYOUT D3D12.FOOTPRINT.STENCIL
+spec/lean/Kikizake/Dxgi/Args.lean::assoc_taken lean DXGI.ASSOC
+spec/lean/Kikizake/Dxgi/Args.lean::assoc_other_bits lean DXGI.ASSOC
+spec/lean/Kikizake/Dxgi/Args.lean::feature_only lean DXGI.FEATURE.ARGS
+spec/lean/Kikizake/Dxgi/Args.lean::hdr_one_size lean DXGI.HDR
+spec/lean/Kikizake/Dxgi/Args.lean::spaces_by_format lean DXGI.COLORSPACE.FLIP
+spec/lean/Kikizake/Dxgi/Args.lean::chain_made lean DXGI.CHAIN.BUFFERS DXGI.CHAIN.SAMPLES DXGI.CHAIN.FORMAT DXGI.CHAIN.SIZE
+spec/lean/Kikizake/Dxgi/Args.lean::chain_keeps lean DXGI.CHAIN.STEREO DXGI.CHAIN.USAGE DXGI.CHAIN.SCALING DXGI.CHAIN.ALPHA DXGI.CHAIN.FLAGS DXGI.CHAIN.SIZE
+spec/lean/Kikizake/Dxgi/Args.lean::chain_no_srgb lean DXGI.CHAIN.FORMAT
+spec/lean/Kikizake/Dxgi/Args.lean::chain_memory lean DXGI.CHAIN.MEMORY
+spec/lean/Kikizake/Dxgi/Args.lean::restart_as_without lean DXGI.PRESENT.RESTART
+spec/lean/Kikizake/Dxgi/Args.lean::test_alone lean DXGI.PRESENT DXGI.PRESENT.TEST
+spec/lean/Kikizake/Dxgi/Args.lean::tearing_needs lean DXGI.PRESENT
+spec/lean/Kikizake/Dxgi/Args.lean::refused1_plain lean DXGI.PRESENT.DIRTY
+spec/lean/Kikizake/Dxgi/Args.lean::refused1_taken lean DXGI.PRESENT.DIRTY
 tests/laws_opengl.rs::eye_plane_inverse_undoes_the_modelview pbt GL.TEX.GEN
 tests/laws_opengl.rs::aa_line_rows_count_as_their_colors_step pbt GL.RASTER.TEXTURE.PRIM

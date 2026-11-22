@@ -1540,8 +1540,7 @@ impl D3d12 {
                 hit(clause::DXGI_ASSOC);
                 // (MEASURED: a NULL window is taken with any of the three flags)
                 let _ = null;
-                let ok = f & !7 == 0;
-                out.push(format!("assoc hr {:08x}", if ok { S_OK } else { DXGI_ERROR_INVALID_CALL }));
+                out.push(format!("assoc hr {:08x}", assoc_hr(f)));
             }
             "dxgifeat" | "dxgipref" => {
                 if t.len() != 3 {
@@ -1554,10 +1553,10 @@ impl D3d12 {
                     if w[1] > 16 {
                         return Err(Fail::Bad);
                     }
-                    if w[0] != 0 || w[1] != 4 {
-                        out.push(format!("feat hr {DXGI_ERROR_INVALID_CALL:08x} cccccccc"));
-                    } else {
+                    if feature_args_taken(w[0], w[1]) {
                         out.push("feat hr 00000000 1".into());
+                    } else {
+                        out.push(format!("feat hr {DXGI_ERROR_INVALID_CALL:08x} cccccccc"));
                     }
                 } else {
                     // (re/dxgi: the preference not range checked; the runner's adapters in
@@ -1630,12 +1629,7 @@ impl D3d12 {
                 }
                 // (re/dxgi: NONE with no data, HDR10 28 bytes, HDR10+ 72 bytes; E_INVALIDARG else)
                 hit(clause::DXGI_HDR);
-                let ok = match kind {
-                    0 => size == 0 && null,
-                    1 => size == 28 && !null,
-                    2 => size == 72 && !null,
-                    _ => false,
-                };
+                let ok = hdr_taken(kind, size, null);
                 out.push(format!("hdr hr {:08x}", if ok { S_OK } else { E_INVALIDARG }));
             }
             _ => {
@@ -1649,11 +1643,7 @@ impl D3d12 {
                         let cs = w[0];
                         // (MEASURED, golden dxgi-* color-*, color-f*-*: the color spaces a flip chain
                         // presents in, by format; SetColorSpace1 takes exactly those)
-                        let set: &[u32] = match d[2] {
-                            10 => &[1],
-                            24 | 28 | 87 => &[0, 2, 3, 12, 14, 17, 20, 21],
-                            f => unreachable!("chain_desc takes only the flip formats, not {f}"),
-                        };
+                        let set = color_spaces(d[2]);
                         hit(clause::DXGI_COLORSPACE_FLIP);
                         let ok = set.contains(&cs);
                         out.push(format!("color {} set {:08x}", ok as u32, if ok { S_OK } else { E_INVALIDARG }));
@@ -1672,12 +1662,7 @@ impl D3d12 {
                         let (sync, flags) = (w[0], w[1]);
                         // (MEASURED: sync intervals 0..4; TEST and DO_NOT_SEQUENCE present nothing;
                         // ALLOW_TEARING needs the chain's flag; unknown flags refused)
-                        let known = 1 | 2 | 4 | 0x100 | 0x200;
-                        // (TEST with any other flag refused: golden dxgi-* chain-edge-present-0-3,
-                        // chain-edge-tear-0-201)
-                        let bad = sync > 4 || flags & !known != 0 || flags & 0x200 != 0 && (d[11] & 0x800 == 0 || sync != 0) || flags & 1 != 0 && flags != 1;
-                        // (re/dxgi: DO_NOT_SEQUENCE on a flip chain that has not presented)
-                        let bad = bad || flags & 2 != 0 && self.fresh;
+                        let bad = present_refused(sync, flags, d[11], self.fresh);
                         if flags & 4 != 0 {
                             // (MEASURED, golden dxgi-64 chain-present-restart: presents as without it)
                             hit(clause::DXGI_PRESENT_RESTART);
@@ -1725,21 +1710,10 @@ impl D3d12 {
                         if count > 8 || n != 10 + 4 * count {
                             return Err(Fail::Bad);
                         }
-                        let rect = |r: &[u32]| r.iter().map(|v| *v as i32).collect::<Vec<i32>>();
-                        let (bw, bh) = (d[0] as i32, d[1] as i32);
-                        let empty = |r: &[i32]| r[2] <= r[0] || r[3] <= r[1];
-                        let inside = |r: &[i32]| r[0] >= 0 && r[1] >= 0 && r[2] <= bw && r[3] <= bh;
-                        let dirty: Vec<Vec<i32>> = (0..count).map(|i| rect(&w[10 + 4 * i..14 + 4 * i])).collect();
-                        let sc = rect(&w[3..7]);
-                        let (dx, dy) = (w[7] as i32, w[8] as i32);
-                        let known = 1 | 2 | 4 | 0x100 | 0x200;
-                        let mut bad = sync > 4 || flags & !known != 0 || flags & 0x200 != 0 && (d[11] & 0x800 == 0 || sync != 0) || flags & 1 != 0 && flags != 1 || flags & 2 != 0 && self.fresh;
-                        if count > 0 || scroll {
-                            let full = count == 1 && dirty[0] == [0, 0, bw, bh] && !scroll;
-                            let src = [sc[0] - dx, sc[1] - dy, sc[2] - dx, sc[3] - dy];
-                            bad = bad || self.fresh && !full || flags & 3 != 0 || count > 0 && d[9] == 4 || scroll && d[9] != 3;
-                            bad = bad || scroll && (empty(&sc) || !inside(&sc) || !inside(&src)) || dirty.iter().any(|r| empty(r) || !inside(r));
-                        }
+                        let rect = |r: &[u32]| -> [i32; 4] { std::array::from_fn(|k| r.get(k).map_or(0, |v| *v as i32)) };
+                        let dirty: Vec<[i32; 4]> = (0..count).map(|i| rect(&w[10 + 4 * i..14 + 4 * i])).collect();
+                        let p = Present1 { sync, flags, scroll: scroll.then(|| (rect(&w[3..7]), w[7] as i32, w[8] as i32)), dirty: &dirty };
+                        let bad = present1_refused(&p, d, self.fresh);
                         if bad {
                             out.push(format!("present1 hr {DXGI_ERROR_INVALID_CALL:08x} index {index:x}"));
                         } else {
@@ -1811,6 +1785,75 @@ pub fn chain_desc(w: &[u32; 12]) -> Result<[u32; 12], Hr> {
         return Err(E_OUTOFMEMORY);
     }
     Ok(d)
+}
+
+/// IDXGIFactory::MakeWindowAssociation's answer for the flags (DXGI.ASSOC): NO_WINDOW_CHANGES,
+/// NO_ALT_ENTER, NO_PRINT_SCREEN and no other
+pub fn assoc_hr(f: u32) -> Hr {
+    if f & !7 == 0 { S_OK } else { DXGI_ERROR_INVALID_CALL }
+}
+
+/// CheckFeatureSupport takes only DXGI_FEATURE_PRESENT_ALLOW_TEARING with 4 bytes (DXGI.FEATURE.ARGS)
+pub fn feature_args_taken(feature: u32, size: u32) -> bool {
+    feature == 0 && size == 4
+}
+
+/// SetHDRMetaData: NONE with no data, HDR10 with 28 bytes, HDR10+ with 72 (DXGI.HDR)
+pub fn hdr_taken(kind: u32, size: u32, null: bool) -> bool {
+    match kind {
+        0 => size == 0 && null,
+        1 => size == 28 && !null,
+        2 => size == 72 && !null,
+        _ => false,
+    }
+}
+
+/// the color spaces a flip chain of format `fmt` presents in, which SetColorSpace1 takes
+/// (DXGI.COLORSPACE.FLIP; none for a format a flip chain does not take)
+pub fn color_spaces(fmt: u32) -> &'static [u32] {
+    match fmt {
+        10 => &[1],
+        24 | 28 | 87 => &[0, 2, 3, 12, 14, 17, 20, 21],
+        _ => &[],
+    }
+}
+
+/// the DXGI_PRESENT flags: TEST, DO_NOT_SEQUENCE, RESTART, RESTRICT_TO_OUTPUT, ALLOW_TEARING
+pub const PRESENT_FLAGS: u32 = 1 | 2 | 4 | 0x100 | 0x200;
+
+/// Present refuses (DXGI.PRESENT): sync intervals past 4, unknown flags, ALLOW_TEARING without the
+/// chain's flag or with an interval, TEST with any other flag (golden dxgi-* chain-edge-present-0-3,
+/// chain-edge-tear-0-201), DO_NOT_SEQUENCE before the chain has presented (re/dxgi)
+pub fn present_refused(sync: u32, flags: u32, chain_flags: u32, fresh: bool) -> bool {
+    sync > 4 || flags & !PRESENT_FLAGS != 0 || flags & 0x200 != 0 && (chain_flags & 0x800 == 0 || sync != 0) || flags & 1 != 0 && flags != 1 || flags & 2 != 0 && fresh
+}
+
+/// a Present1 call: its sync interval and flags, the scroll rectangle and offset, the dirty rects
+pub struct Present1<'a> {
+    pub sync: u32,
+    pub flags: u32,
+    pub scroll: Option<([i32; 4], i32, i32)>,
+    pub dirty: &'a [[i32; 4]],
+}
+
+/// Present1 refuses (DXGI.PRESENT.DIRTY) what Present does, and with dirty or scroll rects: the
+/// first present after the chain is made or resized not covering the whole buffer, TEST or
+/// DO_NOT_SEQUENCE, dirty rects on FLIP_DISCARD, a scroll rect on anything but FLIP_SEQUENTIAL,
+/// rects empty or outside the buffer, the scroll source outside it
+pub fn present1_refused(p: &Present1, d: &[u32; 12], fresh: bool) -> bool {
+    let (bw, bh) = (d[0] as i32, d[1] as i32);
+    let empty = |r: &[i32; 4]| r[2] <= r[0] || r[3] <= r[1];
+    let inside = |r: &[i32; 4]| r[0] >= 0 && r[1] >= 0 && r[2] <= bw && r[3] <= bh;
+    let bad = present_refused(p.sync, p.flags, d[11], fresh);
+    if p.dirty.is_empty() && p.scroll.is_none() {
+        return bad;
+    }
+    let full = p.dirty == [[0, 0, bw, bh]] && p.scroll.is_none();
+    let scroll_bad = p.scroll.is_some_and(|(sc, dx, dy)| {
+        let src = [sc[0] - dx, sc[1] - dy, sc[2] - dx, sc[3] - dy];
+        d[9] != 3 || empty(&sc) || !inside(&sc) || !inside(&src)
+    });
+    bad || fresh && !full || p.flags & 3 != 0 || !p.dirty.is_empty() && d[9] == 4 || scroll_bad || p.dirty.iter().any(|r| empty(r) || !inside(r))
 }
 
 /// the swap chain flags CreateSwapChainForHwnd takes on Direct3D 12 (MEASURED): ALLOW_MODE_SWITCH,
