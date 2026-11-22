@@ -483,3 +483,13 @@ spec/lean/Kikizake/D3d11/Desc.lean::misc_flags lean D3DRES.DESC.MISC
 spec/lean/Kikizake/D3d11/Desc.lean::cpu_rtv lean D3DRES.DESC.CPURTV
 spec/lean/Kikizake/D3d11/Desc.lean::buffers lean D3DRES.DESC.BUF
 spec/lean/Kikizake/D3d11/Desc.lean::desc_out lean D3DRES.DESC
+tests/laws_d3d12_args.rs::heap_properties_are_the_clause exhaustive D3D12.HEAP.PROPS
+tests/laws_d3d12_args.rs::heaps_take_the_clause exhaustive D3D12.MAKE.HEAP
+tests/laws_d3d12_args.rs::refused_descriptions_allocate_nothing exhaustive D3D12.ALLOC.INVALID
+tests/laws_d3d12_args.rs::tight_alignment_is_ignored exhaustive D3D12.TIGHT.IGNORED
+tests/laws_d3d12_args.rs::video_formats_allocate_two_planes exhaustive D3D12.ALLOC.VIDEO
+tests/laws_d3d12_args.rs::format_support_is_the_table exhaustive D3D12.FEATURE.FORMAT
+tests/laws_d3d12_args.rs::quality_levels_are_the_clause exhaustive D3D12.FEATURE.MSAA
+tests/laws_d3d12_args.rs::clears_refuse_formats_without_a_target exhaustive D3D12.CLEAR.FORMAT
+tests/laws_d3d12_args.rs::placed_resources_fit_their_heap exhaustive D3D12.MAKE.PLACED
+tests/laws_d3d12_args.rs::committed_flags_and_clears_are_the_clause exhaustive D3D12.COMMITTED.FLAGS D3D12.COMMITTED.CLEAR
