@@ -27537,4 +27537,87 @@ rs 0000000010000000010000000000000000000000ffff7f7f3f0000000000000000000000
 rs sum 6e5e8779ef7d1424b187c2fdaa1dc54e
 rsmake hr 00000000
 fsup 1 200 planes 1
+case fp-wide-bc1-ffffffff
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-bc1-fffffffd
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-bc1-fffffffc
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-bc1-80000000-mips2
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-bc7-fffffff1
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-bc1-h-fffffffd
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-r8-ffffffff
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-r8-ffffff01-mips2
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-rgba32f-10000000
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-rgba8-40000000-mips3
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-rgba8-40000000-a2
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-rgba8-ffffffff-mips0
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-rgbg-fffffffe
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-yuy2-fffffffe
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-nv12-fffffffe
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-p010-80000000
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-d24s8-ffffffff
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
+case fp-wide-d32s8-40000000
+device12 ok
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+fp ffffffffffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffffffffffff
+total ffffffffffffffff
 done
