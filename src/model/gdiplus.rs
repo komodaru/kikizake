@@ -1170,7 +1170,7 @@ const WEIGHTS: [Weight; HATCH.len()] = {
 /// gamma corrected, the alpha of a texel of weight 234 is b + (f - b) c floored with c a float just
 /// under 32 / 35 (the answers put c in [0.914163, 0.914286); 234 / 256 = 0.914063 is out), not
 /// f 234 + b 22, >> 8 as without gamma (hatchpartial-*) and as its colors)
-fn gamma_alpha_234(f: u32, b: u32) -> u32 {
+pub fn gamma_alpha_234(f: u32, b: u32) -> u32 {
     hit(clause::GP_PAINT_GAMMA_BETWEEN);
     if f == b {
         return b;
@@ -1182,6 +1182,22 @@ fn gamma_alpha_234(f: u32, b: u32) -> u32 {
     } else {
         b - (32 * (b - f) / 35 + 1)
     }
+}
+
+/// (MEASURED, golden gdipluspaint hatch-*, hatchpartial-*: 928 pixels between) a hatch texel
+/// between the premultiplied fore and back channels f and b, of fore weight w (0 < w < 255):
+/// f w + b (256 - w), >> 8 (GP.PAINT.HATCH; mirrored by spec/lean/Kikizake/GdiPlus/Blend.lean)
+pub fn hatch_mix(f: u32, b: u32, w: u32) -> u32 {
+    // (the operands are channels and weights: no step overflows)
+    256u32.checked_sub(w).and_then(|r| b.checked_mul(r)).and_then(|x| f.checked_mul(w)?.checked_add(x)).and_then(|v| v.checked_shr(8)).unwrap_or(0)
+}
+
+/// (MEASURED, golden gdipluspaint rectf-*, rectfblend-*) an antialiased pixel's premultiplied
+/// channel v scaled by c of its `full` subsamples, rounded, halves up (GP.PAINT.AA; mirrored by
+/// spec/lean/Kikizake/GdiPlus/Blend.lean)
+pub fn coverage_share(v: u32, c: u32, full: u32) -> u32 {
+    // (a channel times a count of at most 64: no step overflows)
+    v.checked_mul(c).and_then(|x| x.checked_mul(2)).and_then(|x| x.checked_add(full)).and_then(|x| x.checked_div(full.checked_mul(2)?)).unwrap_or(0)
 }
 
 /// the subsamples at p + k / n (k = 0 .. n) in [a, b)
@@ -1314,7 +1330,7 @@ fn paint(b: &mut Bitmap, brush: &Brush, area: Area, copy: bool, q: Quality, sm: 
                 let lerp = |wt: u32| {
                     (0..4).fold(0, |o, k| {
                         let (f, g) = (fore >> (8 * k) & 255, back >> (8 * k) & 255);
-                        let v = if k == 3 && wt == 234 && gamma { gamma_alpha_234(f, g) } else { (f * wt + g * (256 - wt)) >> 8 };
+                        let v = if k == 3 && wt == 234 && gamma { gamma_alpha_234(f, g) } else { hatch_mix(f, g, wt) };
                         o | v << (8 * k)
                     })
                 };
@@ -1352,7 +1368,7 @@ fn paint(b: &mut Bitmap, brush: &Brush, area: Area, copy: bool, q: Quality, sm: 
                 let c = cov(px, py);
                 // (each premultiplied channel times the share of subsamples, rounded, halves up)
                 let c0 = color(px, py).filter(|_| c > 0)?;
-                Some((0..4).fold(0, |o, k| o | ((2 * (c0 >> (8 * k) & 255) * c + full) / (2 * full)) << (8 * k)))
+                Some((0..4).fold(0, |o, k| o | coverage_share(c0 >> (8 * k) & 255, c, full) << (8 * k)))
             }, kind, copy, q)
         }
     }

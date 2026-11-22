@@ -376,7 +376,7 @@ file	src/model/gdipath.rs	indexing_slicing	40
 file	src/model/gdipath.rs	map_err_ignore	1
 file	src/model/gdipath.rs	unreachable	1
 file	src/model/gdipath.rs	wildcard_enum_match_arm	4
-file	src/model/gdiplus.rs	arithmetic_side_effects	120
+file	src/model/gdiplus.rs	arithmetic_side_effects	119
 file	src/model/gdiplus.rs	as_conversions	214
 file	src/model/gdiplus.rs	cast_possible_truncation	111
 file	src/model/gdiplus.rs	cast_possible_wrap	2

@@ -231,3 +231,11 @@ fn conversions_inlined_past_their_proven_functions_are_found() {
     assert_eq!(rust("src/model/bptc.rs", "fn bc7() { let m = (0..8).find(|_| s.take(1) == 1); }").len(), 1);
     assert!(rust("src/model/bptc.rs", "fn bc7() { let m = bc7_mode(b[0]); }").is_empty());
 }
+
+#[test]
+fn gdiplus_mixes_stay_in_the_mirrored_functions() {
+    let inlined = "fn paint() {\n    let v = (f * wt + g * (256 - wt)) >> 8;\n    let s = (2 * (c0 >> (8 * k) & 255) * c + full) / (2 * full);\n}\n";
+    let r = rust("src/model/gdiplus.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: a hatch texel's mix")).count(), 2, "{r:?}");
+    assert!(rust("src/model/gdiplus.rs", "fn paint() { let v = hatch_mix(f, g, wt); let s = coverage_share(c0 >> (8 * k) & 255, c, full); }").is_empty());
+}

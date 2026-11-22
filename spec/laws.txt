@@ -460,3 +460,12 @@ spec/lean/Kikizake/D3d11/Texture.lean::cmp_pairs lean D3DRASTER.DEPTH D3DRASTER.
 spec/lean/Kikizake/D3d11/Texture.lean::bilinear8_range lean D3DRASTER.FILTER.LINEAR
 spec/lean/Kikizake/D3d11/Texture.lean::mip8_range lean D3DRASTER.FILTER.MIPLINEAR
 spec/lean/Kikizake/D3d11/Texture.lean::reduce_picks lean D3DRASTER.FILTER.MINMAX
+spec/lean/Kikizake/GdiPlus/Blend.lean::lanes_carry lean GP.FILL.GAMMA.X86
+spec/lean/Kikizake/GdiPlus/Blend.lean::alpha_254_adds_nothing lean GP.FILL.GAMMA.X86
+spec/lean/Kikizake/GdiPlus/Blend.lean::gamma234_floor lean GP.PAINT.GAMMA.BETWEEN
+spec/lean/Kikizake/GdiPlus/Blend.lean::gamma234_not_hatch lean GP.PAINT.GAMMA.BETWEEN
+spec/lean/Kikizake/GdiPlus/Blend.lean::wide_words lean GP.CONV.WIDE
+spec/lean/Kikizake/GdiPlus/Blend.lean::wide_opaque lean GP.CONV.WIDE
+spec/lean/Kikizake/GdiPlus/Blend.lean::pargb_opaque lean GP.CONV.PREMULTIPLIED.OPAQUE
+spec/lean/Kikizake/GdiPlus/Blend.lean::fixed_palettes lean GP.CLONE.PALETTE
+tests/laws_gdiplus.rs::fixed_palettes_hold_every_nearest_color exhaustive GP.CLONE.PALETTE
