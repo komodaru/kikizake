@@ -60,3 +60,24 @@ fn each_place_takes_its_routine() {
     model::set_arch(32);
     model::set_cpu(None);
 }
+
+/// D3DX9.LOAD: the surface D3DXLoadSurfaceFromMemory is given, for every format code 0..255 and
+/// every FOURCC format: a system memory surface (CreateOffscreenPlainSurface) of a format
+/// CreateTexture does not take (D3D9.FORMATS: R8G8B8, R3G3B2, A8R3G3B2, X8B8G8R8 among them)
+/// or a DXT one, but YUY2, is D3DERR_INVALIDCALL; a texture of a format CreateTexture does
+/// not take is too; any other is loaded
+#[test]
+fn surfaces_of_formats_not_taken_are_invalid() {
+    use kikizake::model::d3d9draw::{format, fourcc, supported, Kind, TEXTURE_FORMATS};
+    model::set_arch(32);
+    let codes: std::collections::BTreeSet<u32> = (0..=255).chain(TEXTURE_FORMATS.iter().map(|t| t.0)).chain([fourcc(b"UYVY"), fourcc(b"YUY2")]).collect();
+    for &df in &codes {
+        let dxt = format(df).is_some_and(|m| matches!(m.kind, Kind::Dxt(_)));
+        let plain_bad = df != fourcc(b"YUY2") && (dxt || !supported(df, false, false));
+        for (op, bad, what) in [("x9load", plain_bad, "surface"), ("x9loadtex", !supported(df, false, false), "texture")] {
+            let out = model::run_case(&case::parse_cases(&format!("case c\ndevice swvp\n{op} {df} 21 4 4 ramp 1\nend\n"))[0]);
+            let refused = out.as_ref().is_ok_and(|o| o.iter().any(|l| l == &format!("load {what} hr 8876086c")));
+            assert_eq!(refused, bad, "{op} {df} {out:?}");
+        }
+    }
+}

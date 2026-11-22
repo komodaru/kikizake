@@ -642,3 +642,7 @@ tests/laws_d3dx9_yuv.rs::yuv_is_the_formula_for_every_sample exhaustive D3DX9.LO
 spec/tla/D3D9Fvf.tla::Next tla D3D9.FVF.SET D3D9.FVF.GET D3D9.DECL.GET
 tests/laws_d3dx9_load.rs::every_half_reads_as_its_value exhaustive D3DX9.LOAD.F16HALVES
 tests/laws_d3dx9_load.rs::each_place_takes_its_routine exhaustive D3DX9.LOAD.F16RANGE D3DX9.LOAD.F16HALVES
+tests/laws_d3dx9_load.rs::surfaces_of_formats_not_taken_are_invalid exhaustive D3DX9.LOAD
+tests/laws_d3dx9_dxt.rs::every_colour_block_texel exhaustive D3DX9.LOAD.DXT
+tests/laws_d3dx9_dxt.rs::every_alpha exhaustive D3DX9.LOAD.DXT
+tests/laws_d3dx9_dxt.rs::every_texel_of_each_format exhaustive D3DX9.LOAD.DXT

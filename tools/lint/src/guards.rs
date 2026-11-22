@@ -135,6 +135,12 @@ pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
     ),
     (
         "src/model/d3dx9.rs",
+        "dxt_d3dx",
+        r"1\.0 / 3\.0|1\.0 / 15\.0|1\.0 / 255\.0|1\.0 / 31",
+        "a DXT texel's colour and alpha are dxt_colour, dxt3_alpha and dxt5_alpha, which tests/laws_d3dx9_dxt.rs proves over every block; a reading inlined in dxt_d3dx escapes them",
+    ),
+    (
+        "src/model/d3dx9.rs",
         "yuy2_pair",
         r"65\.481|37\.797|93\.786",
         "YUY2's Y, U and V are yuy2_bytes, which tests/laws_d3dx9_yuv.rs proves for every colour; a formula inlined in yuy2_pair escapes it",

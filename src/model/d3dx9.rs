@@ -465,50 +465,23 @@ fn dxt_d3dx(alpha: DxtAlpha, src: &[u8], w: i32, x: i32, y: i32) -> [f32; 4] {
     let Some(b) = src.get(bi..bi + bsz) else { return [0.0; 4] };
     let t = u32::try_from((y % 4) * 4 + x % 4).unwrap_or(0);
     let cb = &b[bsz - 8..];
-    let (c0, c1) = (u32::from(u16::from_le_bytes([cb[0], cb[1]])), u32::from(u16::from_le_bytes([cb[2], cb[3]])));
+    let (c0, c1) = (u16::from_le_bytes([cb[0], cb[1]]), u16::from_le_bytes([cb[2], cb[3]]));
     let idx = u32::from_le_bytes([cb[4], cb[5], cb[6], cb[7]]) >> (2 * t) & 3;
-    let unit = |c: u32, bits: u32| -> f32 {
-        let m = (1u16 << bits) - 1;
-        f32::from(u16::try_from(c).unwrap_or(0) & m) * (1.0 / f32::from(m))
-    };
-    let ex = |c: u32| [unit(c >> 11, 5), unit(c >> 5, 6), unit(c, 5)];
-    let (e0, e1) = (ex(c0), ex(c1));
-    let four = c0 > c1;
-    let mut c = [0.0f32, 0.0, 0.0, 1.0];
-    for k in 0..3 {
-        let (a, b) = (e0[k], e1[k]);
-        c[k] = match (idx, four) {
-            (0, _) => a,
-            (1, _) => b,
-            (2, true) => a + (b - a) * (1.0 / 3.0),
-            (3, true) => a + (b - a) * (2.0 / 3.0),
-            (2, false) => a + (b - a) * 0.5,
-            (_, false) | (_, true) => 0.0,
-        };
-    }
+    let [r, g, bl] = dxt_colour(c0, c1, idx);
+    let mut c = [r, g, bl, 1.0];
     let premultiplied = match alpha {
         DxtAlpha::Punch => {
-            c[3] = if !four && idx == 3 { 0.0 } else { 1.0 };
+            c[3] = if c0 <= c1 && idx == 3 { 0.0 } else { 1.0 };
             false
         }
         DxtAlpha::Explicit { premultiplied } => {
             let a4 = u64::from_le_bytes([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]]) >> (4 * t) & 15;
-            c[3] = f32::from(u8::try_from(a4).unwrap_or(0)) * (1.0 / 15.0);
+            c[3] = dxt3_alpha(u8::try_from(a4).unwrap_or(0));
             premultiplied
         }
         DxtAlpha::Interpolated { premultiplied } => {
-            let (a0, a1) = (f32::from(b[0]) * (1.0 / 255.0), f32::from(b[1]) * (1.0 / 255.0));
-            let mix = |k: u8, n: u8| (f32::from(n - k) * a0 + f32::from(k) * a1) * (1.0 / f32::from(n));
             let ai = u64::from_le_bytes([b[2], b[3], b[4], b[5], b[6], b[7], 0, 0]) >> (3 * t) & 7;
-            let ai = u8::try_from(ai).unwrap_or(0);
-            c[3] = match ai {
-                0 => a0,
-                1 => a1,
-                i if b[0] > b[1] => mix(i - 1, 7),
-                6 => 0.0,
-                7 => 1.0,
-                i => mix(i - 1, 5),
-            };
+            c[3] = dxt5_alpha(b[0], b[1], u8::try_from(ai).unwrap_or(0));
             premultiplied
         }
     };
@@ -518,6 +491,52 @@ fn dxt_d3dx(alpha: DxtAlpha, src: &[u8], w: i32, x: i32, y: i32) -> [f32; 4] {
         }
     }
     c
+}
+
+/// a DXT colour block's texel of index idx (0..3) as D3DX reads it, (r, g, b) in f32
+/// (D3DX9.LOAD.DXT): endpoints c * (1/31) and c * (1/63); four colours where c0 > c1, index 2
+/// a + (b - a) * (1/3), index 3 a + (b - a) * (2/3); else three, index 2 a + (b - a) * 0.5,
+/// index 3 black
+pub fn dxt_colour(c0: u16, c1: u16, idx: u32) -> [f32; 3] {
+    let unit = |c: u16, bits: u32| -> f32 {
+        let m = (1u16 << bits) - 1;
+        f32::from(c & m) * (1.0 / f32::from(m))
+    };
+    let ex = |c: u16| [unit(c >> 11, 5), unit(c >> 5, 6), unit(c, 5)];
+    let (e0, e1) = (ex(c0), ex(c1));
+    let four = c0 > c1;
+    std::array::from_fn(|k| {
+        let (a, b) = (e0[k], e1[k]);
+        match (idx, four) {
+            (0, _) => a,
+            (1, _) => b,
+            (2, true) => a + (b - a) * (1.0 / 3.0),
+            (3, true) => a + (b - a) * (2.0 / 3.0),
+            (2, false) => a + (b - a) * 0.5,
+            (_, false) | (_, true) => 0.0,
+        }
+    })
+}
+
+/// DXT3's alpha of 4 bits a4 as D3DX reads it: a4 * (1/15) in f32 (D3DX9.LOAD.DXT)
+pub fn dxt3_alpha(a4: u8) -> f32 {
+    f32::from(a4 & 15) * (1.0 / 15.0)
+}
+
+/// DXT5's alpha of index ai (0..7) between endpoints b0, b1 as D3DX reads it, in f32
+/// (D3DX9.LOAD.DXT): the endpoints b * (1/255); between them ((n - k) a0 + k a1) * (1/n), n 7
+/// where b0 > b1, else 5 with indices 6 and 7 for 0 and 1
+pub fn dxt5_alpha(b0: u8, b1: u8, ai: u8) -> f32 {
+    let (a0, a1) = (f32::from(b0) * (1.0 / 255.0), f32::from(b1) * (1.0 / 255.0));
+    let mix = |k: u8, n: u8| (f32::from(n.saturating_sub(k)) * a0 + f32::from(k) * a1) * (1.0 / f32::from(n));
+    match ai & 7 {
+        0 => a0,
+        1 => a1,
+        i if b0 > b1 => mix(i.saturating_sub(1), 7),
+        6 => 0.0,
+        7 => 1.0,
+        i => mix(i.saturating_sub(1), 5),
+    }
 }
 
 /// a UYVY or YUY2 pixel as D3DX reads it, (r, g, b, a): an even pixel its pair's U and V, an

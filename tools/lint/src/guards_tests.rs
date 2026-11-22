@@ -276,6 +276,8 @@ fn conversions_inlined_past_their_proven_functions_are_found() {
     assert!(rust("src/model/d3dx9.rs", "fn yuy2_pair() { yuy2_bytes(c0, c1) }").is_empty());
     assert_eq!(rust("src/model/d3dx9.rs", "fn yuv_d3dx() {\n    let s = t.wrapping_sub(a);\n    let c = y * 0.00456621;\n}\n").len(), 2);
     assert!(rust("src/model/d3dx9.rs", "fn yuv_d3dx() { yuv_rgb(y, u, v) }").is_empty());
+    assert_eq!(rust("src/model/d3dx9.rs", "fn dxt_d3dx() { let c = a + (b - a) * (1.0 / 3.0); }").len(), 1);
+    assert!(rust("src/model/d3dx9.rs", "fn dxt_d3dx() { let c = dxt_colour(c0, c1, idx); }").is_empty());
 }
 
 #[test]
