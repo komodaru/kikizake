@@ -1154,7 +1154,7 @@ fn point_writes(family: Family, ver: Ver, st: &States, tri: &Tri, w: i64, h: i64
     };
     let [first, ..] = tri.c;
     let mut out = Vec::new();
-    for (&(x, y), &own) in tri.v.iter().zip(&tri.c) {
+    for (i, (&(x, y), &own)) in tri.v.iter().zip(&tri.c).enumerate() {
         let (px, py) = (round(x), round(y));
         let Some(k) = at(px, py, w, h)? else { continue };
         if !cover.get(k).copied().unwrap_or(false) {
@@ -1164,13 +1164,37 @@ fn point_writes(family: Family, ver: Ver, st: &States, tri: &Tri, w: i64, h: i64
         let col = match family {
             Family::Soft { .. } | Family::Ramp => words(c.map(|b| u16::from(b) << 8)),
             Family::Hw { .. } => {
-                let [b, g, r, _] = c.map(|b| f32::from(b) / 255.0);
-                Col::Unit([r, g, b])
+                let sp = bgra(*tri.spec.get(i).ok_or(Fail::Bad)?);
+                let u = |b: u8| f32::from(b) / 255.0;
+                let ([b, g, r, _], [sb, sg, sr, sa]) = (c.map(u), sp.map(u));
+                Col::Unit(hal_mix(st, [r, g, b], [sr, sg, sb], sa))
             }
         };
         out.push(Write { k, x: px, y: py, c: col });
     }
     Ok(out)
+}
+
+/// a HAL point's or line pixel's colour R, G, B past specular and fog, from its interpolated
+/// diffuse d, specular s and fog factor f (the specular alpha): MEASURED (d3d7dev halspec-7-*:
+/// points and edges of three colours, specular, then vertex fog) the specular added, the fog
+/// factor held to 0..1 (a line's plane runs past its ends) and v·f + fog·(1 − f); whether the
+/// sum is held to 1 before fog no case tells
+fn hal_mix(st: &States, d: [f32; 3], s: [f32; 3], f: f32) -> [f32; 3] {
+    let mut v = d;
+    if st.specular {
+        for (o, sv) in v.iter_mut().zip(s) {
+            *o = (*o + sv).clamp(0.0, 1.0);
+        }
+    }
+    if let Some(fc) = st.fog {
+        let fcol = [16u32, 8, 0].map(|sh| f32::from(u8::try_from(fc >> sh & 255).unwrap_or(0)) / 255.0);
+        let f = f.clamp(0.0, 1.0);
+        for (o, c) in v.iter_mut().zip(fcol) {
+            *o = *o * f + c * (1.0 - f);
+        }
+    }
+    v
 }
 
 /// pixel (x, y)'s index in a w × h target, None off it
@@ -1191,7 +1215,7 @@ fn edge_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64) -> Res<Ve
     hit(clause::D3D7_WIREFRAME);
     let [first, ..] = tri.c;
     // (vertex, its colour's bytes) in drawing order
-    let ends: Vec<((i64, i64), [u8; 4])> = tri.v.iter().zip(&tri.c).map(|(&p, &c)| (p, bgra(if st.flat { first } else { c }))).collect();
+    let ends: Vec<((i64, i64), [u8; 4], [u8; 4])> = tri.v.iter().zip(&tri.c).zip(&tri.spec).map(|((&p, &c), &sp)| (p, bgra(if st.flat { first } else { c }), bgra(sp))).collect();
     let start = match family {
         Family::Soft { .. } | Family::Ramp => 0,
         Family::Hw { .. } => {
@@ -1201,14 +1225,16 @@ fn edge_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64) -> Res<Ve
             match lows.as_slice() {
                 [i] => *i,
                 _ if !several || st.flat => 0,
-                _ => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
+                // MEASURED (d3d7dev haltie-7-*, zeroarea-7-*-2): a tie goes to the vertex first
+                // in call order (the one of least y fits as well)
+                _ => *lows.first().ok_or(Fail::Bad)?,
             }
         }
     };
     let mut out = Vec::new();
     let cycle: Vec<_> = ends.iter().cycle().skip(start).take(4).collect();
     for pair in cycle.windows(2) {
-        let &[&(pa, ca), &(pb, cb)] = pair else { return Err(Fail::Bad) };
+        let &[&(pa, ca, sa), &(pb, cb, sb)] = pair else { return Err(Fail::Bad) };
         let e = [pa, pb];
         let cover = line(family, e, st.lastpixel, w, h)?;
         match family {
@@ -1221,16 +1247,19 @@ fn edge_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64) -> Res<Ve
                     }
                 }
             }
+            Family::Hw { .. } if !cover.contains(&true) => {}
             Family::Hw { .. } => {
-                let plane = |i: usize| -> Res<crate::model::warp::LinePlane> {
-                    let (Some(&p), Some(&q)) = (ca.get(i), cb.get(i)) else { return Err(Fail::Bad) };
+                let plane = |a: [u8; 4], b: [u8; 4], i: usize| -> Res<crate::model::warp::LinePlane> {
+                    let (Some(&p), Some(&q)) = (a.get(i), b.get(i)) else { return Err(Fail::Bad) };
                     crate::model::warp::LinePlane::new(e, [p, q])
                 };
-                let (r, g, b) = (plane(2)?, plane(1)?, plane(0)?);
+                let (r, g, b) = (plane(ca, cb, 2)?, plane(ca, cb, 1)?, plane(ca, cb, 0)?);
+                let (sr, sg, sbl, sf) = (plane(sa, sb, 2)?, plane(sa, sb, 1)?, plane(sa, sb, 0)?, plane(sa, sb, 3)?);
                 let wu = usize::try_from(w).ok().ok_or(Fail::Bad)?.max(1);
                 for (k, _) in cover.iter().enumerate().filter(|&(_, &c)| c) {
                     let (x, y) = (i64::try_from(k % wu).ok().ok_or(Fail::Bad)?, i64::try_from(k / wu).ok().ok_or(Fail::Bad)?);
-                    out.push(Write { k, x, y, c: Col::Unit([r.at(x, y)?, g.at(x, y)?, b.at(x, y)?]) });
+                    let mix = hal_mix(st, [r.at(x, y)?, g.at(x, y)?, b.at(x, y)?], [sr.at(x, y)?, sg.at(x, y)?, sbl.at(x, y)?], sf.at(x, y)?);
+                    out.push(Write { k, x, y, c: Col::Unit(mix) });
                 }
             }
         }
@@ -1386,16 +1415,15 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
     let drawn = match (st.fill, family) {
         (Fill::Solid, _) => !culled,
         // (points or wireframe of a flat triangle, the HAL's of several colors: not measured)
-        (Fill::Point | Fill::Wireframe, _) if area == 0 => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
-        // (the HAL's points and edges carry their own floats past specular and fog: not measured)
-        (Fill::Point | Fill::Wireframe, Family::Hw { .. }) if several && (st.specular || st.fog.is_some()) => return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
         // MEASURED (d3d7dev fillcull-*: 8 random triangles under the default CCW culling, every
         // drawer): a culled triangle's wireframe is not drawn, nor the HAL's points; the
         // software rasterizers draw its points
         (Fill::Wireframe, _) | (Fill::Point, Family::Hw { .. }) => !culled,
         (Fill::Point, Family::Soft { .. } | Family::Ramp) => true,
     };
-    if area == 0 || !drawn {
+    // MEASURED (d3d7dev zeroarea-*: a line and a point as triangles, every drawer): no area
+    // drops a solid triangle only; its points and edges are drawn
+    if (area == 0 && st.fill == Fill::Solid) || !drawn {
         return Ok(());
     }
     // MEASURED (d3d7dev zrange: z from -1 to 2 on every device): a triangle with z below 0 or
@@ -1498,14 +1526,20 @@ fn ramp_writes(spans: &mut crate::model::ramp::Spans, st: &States, tri: &Tri, pr
             }
         }
         (Prim::Tri, Fill::Wireframe | Fill::Point) => {
-            // (a triangle the front end clips: its edges by the edge flags, not worked out)
-            if !inside(&tri.v) {
-                return Err(Fail::Unmodeled(open::D3D7_STATES_OTHER));
-            }
             if st.fill == Fill::Wireframe {
                 hit(clause::D3D7_WIREFRAME);
                 let [q0, q1, q2] = tri.v;
+                let (fw, fh) = (f32::from(i16::try_from(w).ok().ok_or(Fail::Bad)?), f32::from(i16::try_from(h).ok().ok_or(Fail::Bad)?));
+                let tl = |v: (i64, i64)| -> Res<Tl> { Ok(Tl { sx: px16(v.0)?, sy: px16(v.1)?, sz: tri.z, rhw: 1.0, c: 0 }) };
+                let snap = |v: f32| crate::model::d3dim::trunc(v * 16.0 + 0.5).ok_or(Fail::Bad);
                 for e in [[q0, q1], [q1, q2], [q2, q0]] {
+                    let e = if inside(&e) {
+                        e
+                    } else {
+                        let [a, c] = e;
+                        let Some([p, q]) = ramp::clip_line([tl(a)?, tl(c)?], fw, fh) else { continue };
+                        [(snap(p.sx)?, snap(p.sy)?), (snap(q.sx)?, snap(q.sy)?)]
+                    };
                     b.pixels(&crate::model::d3dim::line(e, st.lastpixel)?, w, h, Kind::Tri)?;
                 }
             } else {
@@ -1561,7 +1595,14 @@ fn soft_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt)
     let vert = |i: usize| -> Res<crate::model::d3dim::Vert> {
         let c = tri.c[i];
         let ch = |sh: u32| u8::try_from(c >> sh & 255).unwrap_or(u8::MAX);
-        let px = |v: i64| i16::try_from(v).map(|v| f32::from(v) / 16.0).map_err(|_| Fail::Unmodeled(open::D3D7_TRI_CLIP));
+        // (a position in 16ths: MEASURED, d3d7dev bigtri-*, anywhere in the guard band
+        // −4096..4095, past 2048 pixels too; beyond it the front end clips, not measured)
+        let px = |v: i64| {
+            if !(-4096 * 16..4096 * 16).contains(&v) {
+                return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
+            }
+            crate::model::d3dim::f32_of(v).map(|v| v / 16.0).ok_or(Fail::Bad)
+        };
         Ok(crate::model::d3dim::Vert { x: px(tri.v[i].0)?, y: px(tri.v[i].1)?, c: [ch(0), ch(8), ch(16), ch(24)] })
     };
     let clip = crate::model::d3dim::Clip { l: 0, t: 0, r: w, b: h };

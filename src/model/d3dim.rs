@@ -92,7 +92,7 @@ fn along(c0: [u16; 4], i: i64, step: [i64; 4]) -> [u16; 4] {
 }
 
 /// an integer below 2^24 in magnitude as f32, exactly (two 16-bit halves); None above
-fn f32_of(v: i64) -> Option<f32> {
+pub(crate) fn f32_of(v: i64) -> Option<f32> {
     if v.unsigned_abs() >= 1 << 24 {
         return None;
     }
