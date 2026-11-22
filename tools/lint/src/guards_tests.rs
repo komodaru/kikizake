@@ -344,6 +344,14 @@ fn filter_arithmetic_stays_in_the_mirrored_functions() {
 }
 
 #[test]
+fn clipping_stays_in_the_mirrored_functions() {
+    let inlined = "fn triangle() {\n    let t = da / (da - db);\n    if zs.iter().all(|z| *z < 0.0) || far {}\n    if q.iter().any(|x| !x.is_finite()) {}\n    q.windows(2).skip(1).all(f);\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in triangle")).count(), 4, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", "fn clip_xy() { let t = da / (da - db); }\nfn depth_away() { zs.iter().all(|z| *z < 0.0) || far }\nfn not_finite() { q.iter().any(|x| !x.is_finite()) }\nfn clipped_away() { q.windows(2).skip(1).all(f) }\n").is_empty());
+}
+
+#[test]
 fn interpolation_stays_in_the_mirrored_functions() {
     let inlined = "fn triangle() {\n    let z = p.plane(p.zs, cx, cy).max(lo).min(hi);\n    let d = minz + q[2] * (1.0 / q[3]) * (maxz - minz);\n}\n";
     let r = rust("src/model/d3draster.rs", inlined);

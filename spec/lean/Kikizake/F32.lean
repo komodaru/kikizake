@@ -12,6 +12,7 @@ abbrev add := Float.add fmt
 abbrev sub := Float.sub fmt
 abbrev mul := Float.mul fmt
 abbrev div := Float.div fmt
+abbrev sqrt := Float.sqrt fmt
 abbrev ofNat := Float.ofNat fmt
 abbrev clamp := Float.clamp fmt
 abbrev lt := Float.lt fmt
@@ -29,6 +30,7 @@ abbrev add := Float.add fmt
 abbrev sub := Float.sub fmt
 abbrev mul := Float.mul fmt
 abbrev div := Float.div fmt
+abbrev sqrt := Float.sqrt fmt
 abbrev clamp := Float.clamp fmt
 abbrev lt := Float.lt fmt
 abbrev canon := Float.canon fmt
@@ -110,12 +112,14 @@ def mirrors : List Mirror := [
   ⟨"f32.sub", fun | [x, y] => do pure [canon (sub (← nat x) (← nat y))] | _ => none⟩,
   ⟨"f32.mul", fun | [x, y] => do pure [canon (mul (← nat x) (← nat y))] | _ => none⟩,
   ⟨"f32.div", fun | [x, y] => do pure [canon (div (← nat x) (← nat y))] | _ => none⟩,
+  ⟨"f32.sqrt", fun | [x] => do pure [canon (sqrt (← nat x))] | _ => none⟩,
   ⟨"f32.ofNat", fun | [n] => do pure [ofNat (← nat n)] | _ => none⟩,
   ⟨"f32.clamp", fun | [x, lo, hi] => do pure [clamp (← nat x) (← nat lo) (← nat hi)] | _ => none⟩,
   ⟨"f64.add", fun | [a, b, c, d] => do pure (halves (F64.canon (F64.add (join (← nat a) (← nat b)) (join (← nat c) (← nat d))))) | _ => none⟩,
   ⟨"f64.sub", fun | [a, b, c, d] => do pure (halves (F64.canon (F64.sub (join (← nat a) (← nat b)) (join (← nat c) (← nat d))))) | _ => none⟩,
   ⟨"f64.mul", fun | [a, b, c, d] => do pure (halves (F64.canon (F64.mul (join (← nat a) (← nat b)) (join (← nat c) (← nat d))))) | _ => none⟩,
   ⟨"f64.div", fun | [a, b, c, d] => do pure (halves (F64.canon (F64.div (join (← nat a) (← nat b)) (join (← nat c) (← nat d))))) | _ => none⟩,
+  ⟨"f64.sqrt", fun | [a, b] => do pure (halves (F64.canon (F64.sqrt (join (← nat a) (← nat b))))) | _ => none⟩,
   ⟨"f64.ofF32", fun | [x] => do pure (halves (F64.ofF32 (← nat x))) | _ => none⟩,
   ⟨"f64.toF32", fun | [a, b] => do pure [canon (F64.toF32 (join (← nat a) (← nat b)))] | _ => none⟩
 ]

@@ -1270,7 +1270,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         let inside = |z: f32| (0.0..=1.0).contains(&z);
         let behind = !(s.a.pos[3] > 0.0 && s.b.pos[3] > 0.0);
         let zclip = s.clip == SegClip::Line && !behind && d.rast[6] != 0 && !(inside(za) && inside(zb));
-        if zclip && (za < 0.0 && zb < 0.0 || za > 1.0 && zb > 1.0) {
+        if zclip && depth_away(&[za, zb]) {
             hit(clause::D3DRASTER_DEPTHCLIP);
             continue;
         }
@@ -1392,7 +1392,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         return Ok(());
     }
     // (MEASURED, WARP: probe-clip-w-nan, -inf) a coordinate NaN or infinite: nothing drawn
-    if tri.iter().any(|v| v.pos.iter().any(|x| !x.is_finite())) {
+    if not_finite(tri.map(|v| v.pos)) {
         hit(clause::D3DRASTER_CLIPW_NAN);
         return Ok(());
     }
@@ -1401,13 +1401,9 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         // planes in homogeneous coordinates takes it away; what is left with no area draws
         // nothing
         let poly = clip_xy(tri.map(|v| v.pos));
-        if poly.iter().all(|q| q[3] > 0.0) {
-            let q: Vec<Sub> = poly.iter().map(|q| snapped(vp, q)).collect();
-            let area = |a: Sub, b: Sub, c: Sub| rules::area((a.x, a.y), (b.x, b.y), (c.x, c.y));
-            if (1..q.len().saturating_sub(1)).all(|i| area(q[0], q[i], q[i + 1]) == 0) {
-                hit(clause::D3DRASTER_CLIPW_AWAY);
-                return Ok(());
-            }
+        if clipped_away(vp, &poly) {
+            hit(clause::D3DRASTER_CLIPW_AWAY);
+            return Ok(());
         }
         // (MEASURED, WARP: probe-clip-w2) what is left with an area: the pieces of the
         // homogeneous clipping (then 0 <= z <= w with depth clipping on), snapped and fanned
@@ -1502,7 +1498,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let inside = |z: f32| (0.0..=1.0).contains(&z);
     let mut zclip = false;
     if d.rast[6] != 0 && !zs.iter().all(|z| inside(*z)) {
-        if zs.iter().all(|z| *z < 0.0) || zs.iter().all(|z| *z > 1.0) {
+        if depth_away(&zs) {
             hit(clause::D3DRASTER_DEPTHCLIP);
             return Ok(());
         }
@@ -2215,9 +2211,45 @@ pub fn made_screen(vp: [f32; 6], q: &[f32; 4], zclip: bool) -> ((i64, i64), f32,
     ((snap((rhw * x) * sx + ox), snap((rhw * y) * sy + oy)), (rhw * z) * (maxz - minz) + minz, rhw)
 }
 
+/// D3DRASTER.DEPTHCLIP: depths (z / w) wholly in front of 0 or wholly past 1
+pub fn depth_away(zs: &[f32]) -> bool {
+    zs.iter().all(|z| *z < 0.0) || zs.iter().all(|z| *z > 1.0)
+}
+
+/// D3DRASTER.CLIPW.NAN: a triangle with a coordinate NaN or infinite
+pub fn not_finite(tri: [[f32; 4]; 3]) -> bool {
+    tri.iter().any(|q| q.iter().any(|x| !x.is_finite()))
+}
+
+/// D3DRASTER.CLIPW.AWAY: what the homogeneous clipping leaves (every w positive) has no area
+/// once snapped
+pub fn clipped_away(vp: [f32; 6], poly: &[[f32; 4]]) -> bool {
+    if !poly.iter().all(|q| q[3] > 0.0) {
+        return false;
+    }
+    let q: Vec<(i64, i64)> = poly.iter().map(|q| viewport_xy(vp, q)).collect();
+    let Some(&first) = q.first() else { return true };
+    q.windows(2).skip(1).all(|e| rules::area(first, e[0], e[1]) == 0)
+}
+
+/// D3DRASTER.CLIP: a triangle's vertices (position, color) clipped as clip_tri does: the
+/// polygon's vertices (position, color, made by the clipping, its edge on along a plane)
+pub fn clip_tri_values(tri: [([f32; 4], [f32; 4]); 3], zclip: bool) -> Option<Vec<([f32; 4], [f32; 4], bool, bool)>> {
+    let t = tri.map(|(pos, color)| Vert { pos, color });
+    clip_tri(&t, zclip).map(|p| p.iter().map(|c| (c.pos, c.color, c.made, c.along)).collect())
+}
+
+/// D3DRASTER.LINE, CLIPZ.LINE: a line's ends (position, color) clipped to the x and y planes
+/// (z false) or to the depth range (z true)
+pub fn clip_line_values(a: ([f32; 4], [f32; 4]), b: ([f32; 4], [f32; 4]), z: bool) -> Option<[([f32; 4], [f32; 4]); 2]> {
+    let (a, b) = (Vert { pos: a.0, color: a.1 }, Vert { pos: b.0, color: b.1 });
+    let r = if z { clip_line_z(a, b) } else { clip_line(a, b) };
+    r.map(|(a, b)| [(a.pos, a.color), (b.pos, b.color)])
+}
+
 /// a triangle clipped to -w <= x <= w and -w <= y <= w (Sutherland-Hodgman, in single
 /// precision: a new vertex a + (b - a) t, t the distance to the plane at a over the difference)
-fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
+pub fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
     let mut poly = tri.to_vec();
     for plane in 0..4 {
         let dist = |q: &[f32; 4]| match plane {
@@ -2247,7 +2279,7 @@ fn clip_xy(tri: [[f32; 4]; 3]) -> Vec<[f32; 4]> {
 }
 
 /// a polygon clipped to 0 <= z <= w, as clip_xy
-fn clip_z(mut poly: Vec<[f32; 4]>) -> Vec<[f32; 4]> {
+pub fn clip_z(mut poly: Vec<[f32; 4]>) -> Vec<[f32; 4]> {
     for plane in 0..2 {
         let dist = |q: &[f32; 4]| if plane == 0 { q[2] } else { q[3] - q[2] };
         if poly.iter().all(|q| dist(q) >= 0.0) {

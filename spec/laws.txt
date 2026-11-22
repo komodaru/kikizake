@@ -725,3 +725,12 @@ spec/lean/Kikizake/Gdi/Glyph.lean::corners_sheared lean GDI.TEXT.ITALIC
 spec/lean/Kikizake/Gdi/Glyph.lean::text_cons lean GDI.TEXT.DRAW
 spec/lean/Kikizake/Gdi/Glyph.lean::char_rows lean GDI.TEXT.DRAW
 tests/laws_gdigradtri.rs::triangle_is_its_values_carried_as_flat_rectangles exhaustive GDI.GRAD.TRIANGLE
+spec/lean/Kikizake/D3d11/Clip.lean::depth_first lean D3DRASTER.CLIPZ.PIECES
+spec/lean/Kikizake/D3d11/Clip.lean::all_out lean D3DRASTER.CLIP D3DRASTER.DEPTHCLIP
+spec/lean/Kikizake/D3d11/Clip.lean::in_front lean D3DRASTER.DEPTHCLIP
+spec/lean/Kikizake/D3d11/Clip.lean::past_far lean D3DRASTER.DEPTHCLIP
+spec/lean/Kikizake/D3d11/Clip.lean::inside_whole lean D3DRASTER.CLIP
+spec/lean/Kikizake/D3d11/Clip.lean::depth_front lean D3DRASTER.DEPTHCLIP
+spec/lean/Kikizake/D3d11/Clip.lean::line_out lean D3DRASTER.CLIPZ.LINE
+spec/lean/Kikizake/D3d11/Clip.lean::point_away lean D3DRASTER.CLIPW.AWAY
+spec/lean/Kikizake/D3d11/Clip.lean::nan_not_finite lean D3DRASTER.CLIPW.NAN

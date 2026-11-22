@@ -62,6 +62,25 @@ pub static MIRRORS: &[Mirror] = &[
         model: |a| one(canon(f(a, 0)? / f(a, 1)?)),
     },
     Mirror {
+        name: "f32.sqrt",
+        lean: F32,
+        domain: Domain::Sampled("16 signed boundary values, the squares of 0..2^12 and their neighbours, and 300,000 32-bit patterns"),
+        inputs: |each| {
+            for &x in &EDGES {
+                each(&[i64::from(x)]);
+                each(&[i64::from(x | 1 << 31)]);
+            }
+            for k in 0u16..=4096 {
+                let b = (f32::from(k) * f32::from(k)).to_bits();
+                for v in [b.saturating_sub(1), b, b.saturating_add(1)] {
+                    each(&[i64::from(v)]);
+                }
+            }
+            sampled(&[(0, U32)], 300_000, 0x5a7f_f032, each);
+        },
+        model: |a| one(canon(f(a, 0)?.sqrt())),
+    },
+    Mirror {
         name: "f32.ofNat",
         lean: F32,
         domain: Domain::Sampled("every number to 2^20, and 200,000 32-bit numbers (against Rust's correctly rounded parse)"),
@@ -121,6 +140,22 @@ pub static MIRRORS: &[Mirror] = &[
         domain: Domain::Sampled("every pair of 16 signed boundary values, 200,000 pairs of 64-bit patterns, 100,000 near each other"),
         inputs: |each| pairs64(0xd170_f064, each),
         model: |a| Some(f64_halves(g(a, 0)? / g(a, 2)?)),
+    },
+    Mirror {
+        name: "f64.sqrt",
+        lean: F32,
+        domain: Domain::Sampled("12 boundary values' high halves (low half 0 or 1), signed, and 200,000 64-bit patterns"),
+        inputs: |each| {
+            for &x in &EDGES64 {
+                for s in [0, 1u32 << 31] {
+                    for lo in [0, 1] {
+                        each(&[i64::from(x | s), lo]);
+                    }
+                }
+            }
+            sampled(&[(0, U32), (0, U32)], 200_000, 0x5a7f_f064, each);
+        },
+        model: |a| Some(f64_halves(g(a, 0)?.sqrt())),
     },
     Mirror {
         name: "f64.ofF32",

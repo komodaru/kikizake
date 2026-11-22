@@ -889,3 +889,137 @@ pub static INTERP_MIRRORS: &[Mirror] = &[
         },
     },
 ];
+
+const CLIP: &str = "spec/lean/Kikizake/D3d11/Clip.lean";
+
+/// `n` calls of `args` binary32 clip-space values: mostly multiples of 1/8 in -4..4 (so that
+/// vertices fall on a plane, behind the eye and at w = 0 too), one in 16 a float of
+/// d3d11.plane; `flags` flags (0 or 1) after them
+fn clip_args(args: usize, flags: usize, n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::Sample64::new(seed);
+    let mut pool = Vec::new();
+    float_args(1, 4000, seed ^ 0x5a5a_5a5a, &mut |v| pool.extend_from_slice(v));
+    for _ in 0..n {
+        let mut v: Vec<i64> = (0..args)
+            .map(|_| {
+                if rng.chance(16) {
+                    *rng.pick(&pool)
+                } else {
+                    let k = i32::try_from(rng.range(-32, 32)).unwrap_or(0);
+                    i64::from((f64::from(k) / 8.0).to_string().parse::<f32>().unwrap_or(0.0).to_bits())
+                }
+            })
+            .collect();
+        for _ in 0..flags {
+            v.push(rng.range(0, 1));
+        }
+        each(&v);
+    }
+}
+
+/// four binary32 arguments from `i` on
+fn vec4(a: &[i64], i: usize) -> Option<[f32; 4]> {
+    let f = |k: usize| arg::<u32>(a, i.checked_add(k)?).map(f32::from_bits);
+    Some([f(0)?, f(1)?, f(2)?, f(3)?])
+}
+
+pub static CLIP_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.cliptri",
+        lean: CLIP,
+        domain: Domain::Sampled("200,000 triangles (positions and colors of the values of clip_args), with and without depth clipping; a NaN answer as the one quiet NaN"),
+        inputs: |each| clip_args(24, 1, 200_000, 0xc11f_d311, each),
+        model: |a| {
+            if a.len() != 25 {
+                return None;
+            }
+            let v = |k: usize| Some((vec4(a, k.checked_mul(8)?)?, vec4(a, k.checked_mul(8)?.checked_add(4)?)?));
+            let Some(p) = crate::model::d3draster::clip_tri_values([v(0)?, v(1)?, v(2)?], flag(a, 24)?) else { return Some(vec![0]) };
+            let mut out = vec![1, i64::try_from(p.len()).ok()?];
+            for (pos, color, made, along) in p {
+                out.extend(pos.iter().chain(color.iter()).map(|&x| canon32(x)));
+                out.extend([i64::from(made), i64::from(along)]);
+            }
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "d3d11.clipxy",
+        lean: CLIP,
+        domain: Domain::Sampled("200,000 triangles' positions of the values of clip_args, clipped to the x and y planes, then (the flag) to the depth range"),
+        inputs: |each| clip_args(12, 1, 200_000, 0xc1f0_d311, each),
+        model: |a| {
+            if a.len() != 13 {
+                return None;
+            }
+            let p = crate::model::d3draster::clip_xy([vec4(a, 0)?, vec4(a, 4)?, vec4(a, 8)?]);
+            let p = if flag(a, 12)? { crate::model::d3draster::clip_z(p) } else { p };
+            let mut out = vec![i64::try_from(p.len()).ok()?];
+            out.extend(p.iter().flat_map(|q| q.map(canon32)));
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "d3d11.clipline",
+        lean: CLIP,
+        domain: Domain::Sampled("200,000 lines' ends (positions and colors of the values of clip_args), clipped to the x and y planes or (the flag) to the depth range"),
+        inputs: |each| clip_args(16, 1, 200_000, 0xc11a_d311, each),
+        model: |a| {
+            if a.len() != 17 {
+                return None;
+            }
+            let e = |i: usize| Some((vec4(a, i)?, vec4(a, i.checked_add(4)?)?));
+            let Some([p, q]) = crate::model::d3draster::clip_line_values(e(0)?, e(8)?, flag(a, 16)?) else { return Some(vec![0]) };
+            let mut out = vec![1];
+            out.extend([p.0, p.1, q.0, q.1].iter().flat_map(|v| v.map(canon32)));
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "d3d11.clippedaway",
+        lean: CLIP,
+        domain: Domain::Sampled("200,000 viewports (x, y of -2..2, sizes 1..64) and triangles' positions of the values of clip_args, clipped to the x and y planes"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xa3a7_d311);
+            clip_args(12, 0, 200_000, 0xa3a8_d311, &mut |v| {
+                let f = |x: i64| i64::from(f32::from(i16::try_from(x).unwrap_or(0)).to_bits());
+                let mut w = vec![f(rng.range(-2, 2)), f(rng.range(-2, 2)), f(rng.range(1, 64)), f(rng.range(1, 64))];
+                w.extend_from_slice(v);
+                each(&w);
+            });
+        },
+        model: |a| {
+            if a.len() != 16 {
+                return None;
+            }
+            let [vx, vy, vw, vh] = vec4(a, 0)?;
+            let p = crate::model::d3draster::clip_xy([vec4(a, 4)?, vec4(a, 8)?, vec4(a, 12)?]);
+            one(crate::model::d3draster::clipped_away([vx, vy, vw, vh, 0.0, 1.0], &p))
+        },
+    },
+    Mirror {
+        name: "d3d11.notfinite",
+        lean: CLIP,
+        domain: Domain::Sampled("200,000 triangles' positions of the values of clip_args"),
+        inputs: |each| clip_args(12, 0, 200_000, 0x0f17_d311, each),
+        model: |a| {
+            if a.len() != 12 {
+                return None;
+            }
+            one(crate::model::d3draster::not_finite([vec4(a, 0)?, vec4(a, 4)?, vec4(a, 8)?]))
+        },
+    },
+    Mirror {
+        name: "d3d11.depthaway",
+        lean: CLIP,
+        domain: Domain::Sampled("100,000 triples and 100,000 pairs of depths of the values of clip_args"),
+        inputs: |each| {
+            clip_args(3, 0, 100_000, 0xde9a_d311, each);
+            clip_args(2, 0, 100_000, 0xde9b_d311, each);
+        },
+        model: |a| {
+            let zs = a.iter().map(|&x| u32::try_from(x).ok().map(f32::from_bits)).collect::<Option<Vec<f32>>>()?;
+            one(crate::model::d3draster::depth_away(&zs))
+        },
+    },
+];

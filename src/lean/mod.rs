@@ -59,6 +59,7 @@ pub fn mirrors() -> Vec<&'static Mirror> {
         d3d11::FILTER_MIRRORS,
         d3d11::MERGE_MIRRORS,
         d3d11::INTERP_MIRRORS,
+        d3d11::CLIP_MIRRORS,
         dwrite::MIRRORS,
         f32::MIRRORS,
     ];

@@ -100,6 +100,34 @@ def div (x y : Nat) : Nat :=
     let (pn, pd) := pow2 (ex F x - ex F y)
     round F s (sig F x * pn) (sig F y * pd)
 
+/-- Newton's iteration for the integer square root from x at or above it: it falls to
+floor(sqrt n) and stops there -/
+def isqrtGo (n : Nat) : Nat → Nat → Nat
+  | 0, x => x
+  | fuel + 1, x => let y := (x + n / x) / 2; if y < x then isqrtGo n fuel y else x
+
+/-- floor(sqrt n), from 2^(floor(log2 n) / 2 + 1), above it -/
+def isqrt (n : Nat) : Nat := if n = 0 then 0 else isqrtGo n 64 (2 ^ (Nat.log2 n / 2 + 1))
+
+/-- the square root (IEEE 754 squareRoot, correctly rounded): the significand with an even
+exponent, scaled by 4^(m + 3), has the integer square root s of m + 4 bits and more; when s^2
+falls short of it the root lies strictly between s and s + 1, where no value of the format and
+no halfway point between two lies, so s + 1/2 rounds as the root does; then rounded once. A
+NaN or one below 0 is the quiet NaN, a zero itself, +infinity itself -/
+def sqrt (x : Nat) : Nat :=
+  if isNaN F x then qnan F
+  else if sig F x = 0 then x
+  else if sign F x then qnan F
+  else if isInf F x then x
+  else
+    let (m, e) := if ex F x % 2 = 0 then (sig F x, ex F x) else (2 * sig F x, ex F x - 1)
+    let k := F.m + 3
+    let n := m * 4 ^ k
+    let s := isqrt n
+    let (a, b) := if s * s = n then (s, 1) else (2 * s + 1, 2)
+    let (pn, pd) := pow2 (e / 2 - k)
+    round F false (a * pn) (b * pd)
+
 /-- the binary32 nearest a natural number (Rust `n as f32`) -/
 def ofNat (n : Nat) : Nat := round F false n 1
 

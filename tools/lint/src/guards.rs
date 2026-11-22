@@ -81,6 +81,12 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // line_value, clamp_range and vertex_depth, which d3d11.plane, d3d11.lineplane,
     // d3d11.clamprange and d3d11.vertexdepth hold to spec/lean/Kikizake/D3d11/Interp.lean)
     ("src/model/d3draster.rs", r"\.max\(lo\)\.min\(hi\)|\(1\.0\s*/\s*[\w.]+(\[3\])?\)\s*\*\s*\(maxz\s*-\s*minz\)|\(a\[0\]\s*-\s*gx\s*\*\s*x0\)|1\.0\s*/\s*\(b\s*-\s*a\)", &["plane_value", "line_value", "clamp_range", "vertex_depth"]),
+    // (the f32 clippings, a triangle's coordinates not finite, what the clipping leaves with no
+    // area and depths wholly out of range are clip_line, clip_line_z, clip_xy, clip_z,
+    // not_finite, clipped_away and depth_away, which d3d11.clipline, d3d11.clipxy,
+    // d3d11.notfinite, d3d11.clippedaway and d3d11.depthaway hold to
+    // spec/lean/Kikizake/D3d11/Clip.lean)
+    ("src/model/d3draster.rs", r"da\s*/\s*\(da\s*-\s*db\)|\*z\s*<\s*0\.0\)\s*\|\||!x\.is_finite\(\)|\.windows\(2\)\.skip\(1\)", &["clip_line", "clip_line_z", "clip_xy", "clip_z", "not_finite", "clipped_away", "depth_away"]),
     // (a declaration's refusals are decl_ok's, which the Lean mirror d3d9.decl holds to
     // spec/lean/Kikizake/D3d9/Decl.lean)
     ("src/model/d3d9draw.rs", r"usage\s*==\s*8\s*&&|\(9,\s*0\)", &["decl_ok"]),
