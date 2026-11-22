@@ -269,6 +269,10 @@ fn conversions_inlined_past_their_proven_functions_are_found() {
     assert_eq!(rust("src/model/bptc.rs", "fn bc6h() { let m = BC6H_MODES.iter().position(|x| x.0 == m); }").len(), 1);
     assert_eq!(rust("src/model/bptc.rs", "fn bc7() { let m = (0..8).find(|_| s.take(1) == 1); }").len(), 1);
     assert!(rust("src/model/bptc.rs", "fn bc7() { let m = bc7_mode(b[0]); }").is_empty());
+    assert_eq!(rust("src/model/d3dx9.rs", "fn yuy2_pair() { let y = 16.0 + q((65.481 * r + 128.553 * g) / 255.0); }").len(), 1);
+    assert!(rust("src/model/d3dx9.rs", "fn yuy2_pair() { yuy2_bytes(c0, c1) }").is_empty());
+    assert_eq!(rust("src/model/d3dx9.rs", "fn yuv_d3dx() {\n    let s = t.wrapping_sub(a);\n    let c = y * 0.00456621;\n}\n").len(), 2);
+    assert!(rust("src/model/d3dx9.rs", "fn yuv_d3dx() { yuv_rgb(y, u, v) }").is_empty());
 }
 
 #[test]

@@ -354,10 +354,7 @@ fn dxt_block<F: super::dxtenc::Real>(alpha: DxtAlpha, px: [[F; 4]; 16]) -> Resul
 }
 
 /// a pair of pixels into YUY2 as D3DX writes it (MEASURED load-into-YUY2, load-yuy2-probe):
-/// each Y 16 + (65.481 R + 128.553 G + 24.966 B) / 255, U and V the first pixel's
-/// 128 + (-37.797 R - 74.203 G + 112 B) / 255 and 128 + (112 R - 93.786 G - 18.214 B) / 255,
-/// of R, G, B in 0 .. 255 (a signed one as (s + 1) / 2; load-yuy2-from-*), each offset plus 1/2
-/// truncated toward 0
+/// R, G, B in 0 .. 255 (a signed one as (s + 1) / 2; load-yuy2-from-*) into yuy2_bytes
 fn yuy2_pair(p: &[[Sample; 4]]) -> [u8; 4] {
     let rgb = |s: &[Sample; 4]| -> [f64; 3] {
         std::array::from_fn(|k| match s[k] {
@@ -365,11 +362,18 @@ fn yuy2_pair(p: &[[Sample; 4]]) -> [u8; 4] {
             Sample::Signed(v) => f64::from(((v + 1.0) / 2.0).clamp(0.0, 1.0)) * 255.0,
         })
     };
+    let c0 = rgb(&p[0]);
+    yuy2_bytes(c0, p.get(1).map_or(c0, rgb))
+}
+
+/// two pixels' R, G, B (0 .. 255) as YUY2's Y0 U Y1 V (D3DX9.LOAD.YUY2): each Y
+/// 16 + (65.481 R + 128.553 G + 24.966 B) / 255, U and V the first pixel's
+/// 128 + (-37.797 R - 74.203 G + 112 B) / 255 and 128 + (112 R - 93.786 G - 18.214 B) / 255,
+/// each offset plus 1/2 truncated toward 0, in f64
+pub fn yuy2_bytes(c0: [f64; 3], c1: [f64; 3]) -> [u8; 4] {
     let q = |v: f64| (v + 0.5).trunc();
     let byte = |v: f64| u8::try_from(v as i64).unwrap_or(if v < 0.0 { 0 } else { 255 });
     let y = |c: [f64; 3]| byte(16.0 + q((65.481 * c[0] + 128.553 * c[1] + 24.966 * c[2]) / 255.0));
-    let c0 = rgb(&p[0]);
-    let c1 = p.get(1).map_or(c0, rgb);
     let u = byte(128.0 + q((-37.797 * c0[0] - 74.203 * c0[1] + 112.0 * c0[2]) / 255.0));
     let v = byte(128.0 + q((112.0 * c0[0] - 93.786 * c0[1] - 18.214 * c0[2]) / 255.0));
     [y(c0), u, y(c1), v]
@@ -537,17 +541,26 @@ fn yuv_d3dx(f: u32, src: &[u8], w: usize, i: usize) -> [f32; 4] {
     // bit arithmetic, not clamped: 256 seen, and a negative sum wraps to a huge one, the load-YUY2
     // magenta; a source row's ends repeat)
     let (u, v) = if x % 2 == 1 {
-        let tap = |k: fn(([u8; 2], u8, u8)) -> u8| {
-            let s = 9 * (u32::from(k(pair(p))) + u32::from(k(pair(p + 1)))) + 8;
-            i64::from(s.wrapping_sub(u32::from(k(pair(p - 1))) + u32::from(k(pair(p + 2)))) >> 4)
-        };
+        let tap = |k: fn(([u8; 2], u8, u8)) -> u8| chroma_tap(k(pair(p - 1)), k(pair(p)), k(pair(p + 1)), k(pair(p + 2)));
         (tap(|t| t.1), tap(|t| t.2))
     } else {
         (i64::from(u0), i64::from(v0))
     };
-    // (studio range BT.601 with D3DX's six digit constants, in f32)
-    let c = f32::from(i16::from(y) - 16) * 0.00456621f32;
-    let (d, e) = ((u - 128) as f32, (v - 128) as f32);
+    yuv_rgb(y, u, v)
+}
+
+/// an odd pixel's chroma from the pairs' a, b, c, d around it (D3DX9.LOAD.YUV):
+/// (-a + 9 b + 9 c - d + 8) >> 4 in unsigned 32-bit arithmetic, neither clamped nor saturated
+pub fn chroma_tap(a: u8, b: u8, c: u8, d: u8) -> i64 {
+    let s = u32::from(b).wrapping_add(u32::from(c)).wrapping_mul(9).wrapping_add(8);
+    i64::from(s.wrapping_sub(u32::from(a).wrapping_add(u32::from(d))) >> 4)
+}
+
+/// a pixel's Y, U, V as (r, g, b, a) (D3DX9.LOAD.YUV): studio range BT.601 with D3DX's six digit
+/// constants, in f32, each clamped to 0..1, alpha 1
+pub fn yuv_rgb(y: u8, u: i64, v: i64) -> [f32; 4] {
+    let c = f32::from(i16::from(y).wrapping_sub(16)) * 0.00456621f32;
+    let (d, e) = (u.wrapping_sub(128) as f32, v.wrapping_sub(128) as f32);
     let cl = |x: f32| x.clamp(0.0, 1.0);
     [cl(c + e * 0.00625893), cl((c - d * 0.00153632) - e * 0.00318811), cl(c + d * 0.00791071), 1.0]
 }

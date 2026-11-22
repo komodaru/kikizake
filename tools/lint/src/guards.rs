@@ -133,6 +133,18 @@ pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
         "a UNORM depth clear is unorm_depth, which tests/laws_conv.rs proves for every float; a conversion inlined in clear_depth escapes it",
     ),
     (
+        "src/model/d3dx9.rs",
+        "yuy2_pair",
+        r"65\.481|37\.797|93\.786",
+        "YUY2's Y, U and V are yuy2_bytes, which tests/laws_d3dx9_yuv.rs proves for every colour; a formula inlined in yuy2_pair escapes it",
+    ),
+    (
+        "src/model/d3dx9.rs",
+        "yuv_d3dx",
+        r"0\.00456621|wrapping_sub",
+        "a YUV pixel's chroma and colour are chroma_tap and yuv_rgb, which tests/laws_d3dx9_yuv.rs proves over their domains; arithmetic inlined in yuv_d3dx escapes them",
+    ),
+    (
         "src/model/bptc.rs",
         "bc6h",
         r"BC6H_MODES\s*\.\s*iter\s*\(\s*\)\s*\.\s*position",
