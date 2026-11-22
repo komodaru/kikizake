@@ -1,7 +1,7 @@
 ---------------------------- MODULE GdiPlusFill ----------------------------
 (* Graphics::Clear and FillRectangleI through a Graphics of a GDI+ bitmap, from spec/gdiplus.txt
    (GP.FILL, GP.FILL.NOGRAPHICS, GP.FILL.RECT, GP.FILL.NEGATIVE, GP.FILL.COPY, GP.FILL.OVER,
-   GP.FILL.BUFFER, GP.FILL.INDEXED, GP.FILL.QUALITY.OTHER), on the formats and conversions of
+   GP.FILL.BUFFER, GP.FILL.INDEXED, GP.FILL.QUALITY.OTHER, GP.FILL.GAMMA.CLEAR), on the formats and conversions of
    GdiPlusBitmap (its operators, through INSTANCE). The rectangle clipped to the bitmap, a negative
    size none; SourceCopy the brush premultiplied, then as from 32bppPARGB; SourceOver, without gamma
    correction, each premultiplied channel s + d (255 - sa) / 255 rounded, at most 255 (x86, the
@@ -68,6 +68,14 @@ Fill(name, call, r, c, copy) ==
        Call(<<call, name \o " 0 0">>,
             [b EXCEPT !.px = [i \in DOMAIN b.px |-> Filled(b, r, sp, copy, (i - 1) % b.w, (i - 1) \div b.w, b.px[i])]])
 
+\* GP.FILL.GAMMA.CLEAR: gamma corrected SourceOver (CompositingQuality HighQuality 2,
+\* GammaCorrected 3) of a clear brush on a 32bppRGB bitmap leaves every pixel as it is, the alpha
+\* byte included (a pixel set there keeps the alpha byte of its color)
+GammaClear(r, q) ==
+  LET b == bmp[0] IN
+  /\ b.ok /\ b.f = "32bppRGB"
+  /\ Call(<<"> gpfill 0 " \o R(r) \o " 0x00ff8040 over " \o S(q), "fill 0 0">>, b)
+
 Colors == {B!Ch(128, 255, 64, 32), B!Ch(255, 51, 102, 153), B!Ch(0, 255, 255, 255)}
 Rects == {<<0, 0, 1, 1>>, <<-1, 0, 2, 1>>, <<1, 0, -1, 1>>, <<0, 0, 5, 5>>, <<2, 0, 1, 1>>}
 \* GP.FILL.QUALITY.OTHER: CompositingQuality 5, past the enum, blends as Default (0); HighSpeed 1
@@ -79,6 +87,7 @@ Next == /\ n < MaxOps
            \/ \E r \in Rects, c \in Colors, m \in {"copy", "over"}, q \in Qualities :
                 Fill("fill", "> gpfill 0 " \o R(r) \o " 0x" \o B!Hex8(c) \o " " \o m \o " " \o S(q), r, c, m = "copy")
            \/ \E c \in Colors : Fill("clear", "> gpclear 0 0x" \o B!Hex8(c), <<0, 0, 2, 2>>, c, TRUE)
+           \/ \E r \in Rects, q \in {2, 3} : GammaClear(r, q)
 
 Bound == n <= MaxOps
 

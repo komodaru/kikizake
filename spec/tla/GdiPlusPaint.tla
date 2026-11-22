@@ -1,14 +1,14 @@
 ---------------------------- MODULE GdiPlusPaint ----------------------------
 (* GDI+ FillRectangle without antialiasing, from spec/gdiplus.txt: the pixels of a rectangle of
-   quarter-pixel coordinates under every PixelOffsetMode and the aliased SmoothingModes
-   (GP.PAINT.ALIASED), filled with a solid brush or a hatch brush anchored at the rendering origin,
+   eighth-pixel coordinates under every PixelOffsetMode and the aliased SmoothingModes
+   (GP.PAINT.ALIASED) or each pixel's share of subsamples (GP.PAINT.AA), filled with a solid brush or a hatch brush anchored at the rendering origin,
    its texels between fore and back premultiplied f w + b (256 - w) >> 8 (GP.PAINT.HATCH; the
    styles Horizontal, Vertical, ForwardDiagonal, BackwardDiagonal and Cross, whose patterns are
    rows, columns and diagonals of the 8 x 8 tile), SourceCopy (GP.FILL.COPY). The pixels and
    conversions are GdiPlusBitmap's (INSTANCE). Every behavior starts with a blank 4 x 2 32bppARGB
    bitmap and takes at most MaxOps fills, each making its brush first; after each, the bitmap is
    read. `kikizake tla` replays every state's log through the Rust model (spec/tla/README.md). *)
-EXTENDS Integers, Sequences, TLC
+EXTENDS Integers, Sequences, FiniteSets, TLC
 
 CONSTANTS MaxOps
 
@@ -22,11 +22,11 @@ Min(a, b) == IF a < b THEN a ELSE b
 Max(a, b) == IF a < b THEN b ELSE a
 Abs(v) == IF v < 0 THEN -v ELSE v
 
-\* a number of quarters as a decimal
-Q(v) == (IF v < 0 THEN "-" ELSE "") \o S(Abs(v) \div 4)
-        \o (CASE Abs(v) % 4 = 0 -> "" [] Abs(v) % 4 = 1 -> ".25" [] Abs(v) % 4 = 2 -> ".5" [] OTHER -> ".75")
-\* ceil(v / 4)
-Ceil4(v) == -((-v) \div 4)
+\* a number of eighths as a decimal
+Fr == <<"", ".125", ".25", ".375", ".5", ".625", ".75", ".875">>
+Q(v) == (IF v < 0 THEN "-" ELSE "") \o S(Abs(v) \div 8) \o Fr[(Abs(v) % 8) + 1]
+\* ceil(v / 8)
+Ceil8(v) == -((-v) \div 8)
 
 W == 4
 H == 2
@@ -65,33 +65,46 @@ Made(br) == IF br.t = "solid" THEN "> gpbrush 0 solid 0x" \o B!Hex8(br.c)
 \* GP.PAINT.ALIASED: the pixels i with ceil(x - o) <= i < ceil(x + w - o) and the same down, o a
 \* half pixel for PixelOffsetMode HighQuality (2) and Half (4); SourceCopy of the brush's color
 Paint(br, r, sm, po) ==
-  LET o == IF po \in {2, 4} THEN 2 ELSE 0
-      in(x, y) == Max(Ceil4(r[1] - o), 0) <= x /\ x < Min(Ceil4(r[1] + r[3] - o), W)
-                  /\ Max(Ceil4(r[2] - o), 0) <= y /\ y < Min(Ceil4(r[2] + r[4] - o), H)
+  LET o == IF po \in {2, 4} THEN 4 ELSE 0
+      in(x, y) == Max(Ceil8(r[1] - o), 0) <= x /\ x < Min(Ceil8(r[1] + r[3] - o), W)
+                  /\ Max(Ceil8(r[2] - o), 0) <= y /\ y < Min(Ceil8(r[2] + r[4] - o), H)
       org == IF br.t = "hatch" THEN br.o ELSE <<0, 0>>
       call == "> gppaint 0 0 " \o Q(r[1]) \o " " \o Q(r[2]) \o " " \o Q(r[3]) \o " " \o Q(r[4])
               \o " copy 0 " \o S(sm) \o " " \o S(po) \o " " \o S(org[1]) \o " " \o S(org[2])
+      \* GP.PAINT.AA: 8 subsamples across, 4 (HighQuality 2, AntiAlias 4) or 8 (AntiAlias8x8 5)
+      \* down, at p + k / n in [x + s, x + w + s), s a half pixel but under HighQuality and Half
+      \* offsets; each premultiplied channel times the count of the 8 n, rounded, halves up
+      rows == IF sm = 5 THEN 8 ELSE 4
+      s == 4 - o
+      cnt(p, a, w, m) == Cardinality({k \in 0..(m - 1) : a + s <= 8 * p + (8 \div m) * k /\ 8 * p + (8 \div m) * k < a + w + s})
+      cov(x, y) == cnt(x, r[1], r[3], 8) * cnt(y, r[2], r[4], rows)
+      share(v, c) == (2 * v * c + 8 * rows) \div (16 * rows)
       px == [i \in 1..(W * H) |->
                LET x == (i - 1) % W y == (i - 1) \div W IN
-               IF in(x, y) THEN B!Convert("32bppPARGB", "32bppARGB", Color(br, x, y), <<>>) ELSE bmp.px[i]]
+               IF sm \in {2, 4, 5}
+               THEN (IF cov(x, y) > 0
+                     THEN B!Convert("32bppPARGB", "32bppARGB", [k \in 1..4 |-> share(Color(br, x, y)[k], cov(x, y))], <<>>)
+                     ELSE bmp.px[i])
+               ELSE IF in(x, y) THEN B!Convert("32bppPARGB", "32bppARGB", Color(br, x, y), <<>>) ELSE bmp.px[i]]
       b == [bmp EXCEPT !.px = px]
   IN /\ bmp' = b
      /\ log' = log \o <<Made(br), "brush 0", call, "paint 0 0">> \o B!Read(0, b, "32bppARGB")
      /\ n' = n + 1
 
-\* rectangles in quarters (x, y, w, h): edges on whole pixels, halves and quarters, past the bitmap,
-\* empty
-Rects == {<<1, -2, 9, 4>>, <<2, 2, 4, 3>>, <<-3, 0, 20, 8>>, <<6, 3, 2, 1>>, <<0, 0, 0, 4>>, <<5, 1, 7, 0>>}
+\* rectangles in eighths (x, y, w, h): edges on whole pixels, halves, quarters and eighths, past
+\* the bitmap, empty
+Whole == <<-6, 0, 40, 16>>
+Rects == {<<2, -4, 18, 8>>, <<4, 4, 8, 6>>, Whole, <<12, 6, 4, 2>>, <<0, 0, 0, 8>>, <<10, 2, 14, 0>>, <<3, 1, 19, 10>>}
 \* (SmoothingMode, PixelOffsetMode): the aliased smoothings Default, HighSpeed and None under every
-\* offset mode
-Modes == {<<0, 0>>, <<0, 2>>, <<1, 4>>, <<3, 1>>, <<3, 3>>}
+\* offset mode, the antialiased ones under both offsets
+Modes == {<<0, 0>>, <<0, 2>>, <<1, 4>>, <<3, 1>>, <<3, 3>>, <<2, 0>>, <<4, 2>>, <<5, 4>>, <<5, 1>>}
 Brushes == {[t |-> "solid", c |-> Solids[1]], [t |-> "solid", c |-> Solids[2]]}
            \cup {[t |-> "hatch", st |-> st, o |-> o] : st \in 0..4, o \in {<<0, 0>>, <<3, -2>>, <<-1, 5>>}}
 
 Next == /\ n < MaxOps
         /\ \E br \in Brushes, r \in Rects, m \in Modes :
              \* (a hatch over the whole bitmap, or the rectangles under the first offsets)
-             /\ (br.t = "solid" \/ r = <<-3, 0, 20, 8>> \/ m \in {<<0, 0>>, <<0, 2>>})
+             /\ (br.t = "solid" \/ r = Whole \/ m \in {<<0, 0>>, <<0, 2>>, <<5, 4>>})
              /\ Paint(br, r, m[1], m[2])
 
 Spec == Init /\ [][Next]_vars
