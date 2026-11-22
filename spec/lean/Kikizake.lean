@@ -7,6 +7,7 @@ import Kikizake.GdiPlus.Narrow
 import Kikizake.D3d12.Footprint
 import Kikizake.D3d12.Alloc
 import Kikizake.D3d12.Create
+import Kikizake.D3d12.Copyable
 import Kikizake.Dxgi.Args
 import Kikizake.D3d9.Pixel
 import Kikizake.DWrite.Advance

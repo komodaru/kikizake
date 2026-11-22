@@ -335,6 +335,14 @@ spec/lean/Kikizake/D3d12/Create.lean::state_flags lean D3D12.CREATE.STATE
 spec/lean/Kikizake/D3d12/Create.lean::two_planes lean D3D12.CREATE.LAYOUT64K
 spec/lean/Kikizake/D3d12/Create.lean::single_2d lean D3D12.DESC.SIZE
 spec/lean/Kikizake/D3d12/Create.lean::footprint_2d lean D3D12.FOOTPRINT.LIMITS D3D12.DESC.SIZE
+spec/lean/Kikizake/D3d12/Copyable.lean::dims_table lean D3D12.FORMAT.DIMS
+spec/lean/Kikizake/D3d12/Copyable.lean::invalid_desc lean D3D12.FOOTPRINT.INVALID
+spec/lean/Kikizake/D3d12/Copyable.lean::buffer lean D3D12.FOOTPRINT.BUFFER D3D12.FOOTPRINT.RANGE D3D12.FOOTPRINT.INVALID
+spec/lean/Kikizake/D3d12/Copyable.lean::pairs lean D3D12.FOOTPRINT.PAIRS
+spec/lean/Kikizake/D3d12/Copyable.lean::nv12 lean D3D12.FOOTPRINT.VIDEO
+spec/lean/Kikizake/D3d12/Copyable.lean::video_even lean D3D12.FOOTPRINT.VIDEO
+spec/lean/Kikizake/D3d12/Copyable.lean::answer_length lean D3D12.FOOTPRINT.LAYOUT
+spec/lean/Kikizake/D3d12/Copyable.lean::range lean D3D12.FOOTPRINT.RANGE D3D12.FOOTPRINT.VIDEO
 spec/lean/Kikizake/D3d9/Pixel.lean::cmp_pairs lean D3D9.ALPHATEST D3D9.STENCIL D3D9.DEPTH
 spec/lean/Kikizake/D3d9/Pixel.lean::stencil_ops lean D3D9.STENCIL
 spec/lean/Kikizake/D3d9/Pixel.lean::stencil_write_bits lean D3D9.STENCIL
