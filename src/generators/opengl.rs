@@ -646,7 +646,33 @@ pub fn opengl() -> String {
     }
     textures_more(&mut s);
     arrays_more(&mut s);
+    eye_more(&mut s);
     s
+}
+
+/// eye planes (GL.TEX.GEN) through modelviews past tex-open-more-eye-rot: the modelview as
+/// glGetFloatv gives it, then the unit planes, each giving a row of its inverse; affine ones,
+/// a projective one, one nearly singular; after every other case
+fn eye_more(s: &mut String) {
+    let sets: [(&str, &str); 6] = [
+        ("rot", "gl glTranslatef 3 -1 0.5\ngl glRotatef 30 0.2 0.3 1\ngl glScalef 0.7 1.3 0.9"),
+        ("rot-only", "gl glRotatef 47 1 -2 0.5"),
+        ("scale", "gl glScalef 0.3 7 -2.5"),
+        ("shear", "glmat mult 1 0.25 0 0 0.5 1 0.125 0 0 -0.75 1 0 2 3 -1 1"),
+        ("projective", "glmat mult 1 0.25 0 0.125 0.5 1 0.125 -0.25 0 -0.75 1 0.5 2 3 -1 1"),
+        ("near-singular", "glmat mult 1 2 3 0 2 4.0001 6 0 1 1 1 0 0 0 0 1"),
+    ];
+    for (name, m) in sets {
+        writeln!(s, "case tex-eye-more-{name}\n{}{ORTHO}gl glDisable 0xbd0\n{m}\nglget f 0xba6 16", ctx(32));
+        for k in 0..4u32 {
+            let unit: Vec<&str> = (0..4u32).map(|j| if j == k { "1" } else { "0" }).collect();
+            writeln!(s, "gl glTexGeni {} 9472 9216\ngltexv gen {} 9474 f {}", 8192u32.saturating_add(k), 8192u32.saturating_add(k), unit.join(" "));
+        }
+        for k in 0..4u32 {
+            writeln!(s, "gltexq gen {} 9474 f 4", 8192u32.saturating_add(k));
+        }
+        writeln!(s, "glerr\nend");
+    }
 }
 
 /// vertex arrays (GL.ARRAY) past gap-array-0, 1: every type, layout and error, lists, edge
