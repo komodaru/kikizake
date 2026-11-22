@@ -130779,3 +130779,98 @@ d3dtri 0xffff0000 40 40 150 80 80 150 z 500
 d3ddump
 d3dzdump
 end
+case farline-7-rgb
+d3d 7
+d3ddev rgb 565 12 12
+d3dclear 0
+d3dline 0xffffffff 8 8 70000 40
+d3ddump
+d3dclear 0
+d3dline 0xffffffff -70000 90 170 30
+d3ddump
+d3dclear 0
+d3dline 0xffffffff 16 16 90 66000
+d3ddump
+d3dclear 0
+d3dline 0xffffffff -66000 -66000 170 170
+d3ddump
+d3dclear 0
+d3dline 0xffffffff 90 -80000 100 90000
+d3ddump
+end
+case farline-7-mmx
+d3d 7
+d3ddev mmx 565 12 12
+d3dclear 0
+d3dline 0xffffffff 8 8 70000 40
+d3ddump
+d3dclear 0
+d3dline 0xffffffff -70000 90 170 30
+d3ddump
+d3dclear 0
+d3dline 0xffffffff 16 16 90 66000
+d3ddump
+d3dclear 0
+d3dline 0xffffffff -66000 -66000 170 170
+d3ddump
+d3dclear 0
+d3dline 0xffffffff 90 -80000 100 90000
+d3ddump
+end
+case farline-3-rgb
+d3d 3
+d3ddev rgb 565 12 12
+d3dclear 0
+d3dline 0xffffffff 8 8 70000 40
+d3ddump
+d3dclear 0
+d3dline 0xffffffff -70000 90 170 30
+d3ddump
+d3dclear 0
+d3dline 0xffffffff 16 16 90 66000
+d3ddump
+d3dclear 0
+d3dline 0xffffffff -66000 -66000 170 170
+d3ddump
+d3dclear 0
+d3dline 0xffffffff 90 -80000 100 90000
+d3ddump
+end
+case farline-2-rgb
+d3d 2
+d3ddev rgb 565 12 12
+d3dclear 0
+d3dline 0xffffffff 8 8 70000 40
+d3ddump
+d3dclear 0
+d3dline 0xffffffff -70000 90 170 30
+d3ddump
+d3dclear 0
+d3dline 0xffffffff 16 16 90 66000
+d3ddump
+d3dclear 0
+d3dline 0xffffffff -66000 -66000 170 170
+d3ddump
+d3dclear 0
+d3dline 0xffffffff 90 -80000 100 90000
+d3ddump
+end
+case farline-3-mmx
+d3d 3
+d3ddev mmx 565 12 12
+d3dclear 0
+d3dline 0xffffffff 8 8 70000 40
+d3ddump
+d3dclear 0
+d3dline 0xffffffff -70000 90 170 30
+d3ddump
+d3dclear 0
+d3dline 0xffffffff 16 16 90 66000
+d3ddump
+d3dclear 0
+d3dline 0xffffffff -66000 -66000 170 170
+d3ddump
+d3dclear 0
+d3dline 0xffffffff 90 -80000 100 90000
+d3ddump
+end

@@ -1053,5 +1053,13 @@ pub fn d3d7dev() -> String {
             s.push_str(&badstate_case(v, d, name, set));
         }
     }
+    // a software line with an end past the guard band (the front end clips it, D3D7.TRI.CLIP)
+    for (v, d) in [(7, "rgb"), (7, "mmx"), (3, "rgb"), (2, "rgb"), (3, "mmx")] {
+        writeln!(s, "case farline-{v}-{d}\nd3d {v}\nd3ddev {d} 565 12 12");
+        for p in ["8 8 70000 40", "-70000 90 170 30", "16 16 90 66000", "-66000 -66000 170 170", "90 -80000 100 90000"] {
+            writeln!(s, "d3dclear 0\nd3dline 0xffffffff {p}\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
     s
 }

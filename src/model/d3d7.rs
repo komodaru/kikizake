@@ -908,46 +908,46 @@ enum Seen {
 impl States {
     fn read(d: &D3d7) -> Res<States> {
         let st = |s: Rs| d.rs(s);
-        let other = Fail::Unmodeled(open::D3D7_STATES_OTHER);
         // the drawers whose answer to a state past its enumeration is measured (d3d7dev
         // badstate-*, d3d7bad*)
         let seen = match d.dev.as_ref().map(|x| x.family) {
-            Some(Family::Soft { .. } | Family::Ramp) => Some(Seen::Soft),
-            Some(Family::Hw { .. }) => Some(Seen::Hal),
-            None => None,
+            Some(Family::Soft { .. } | Family::Ramp) => Seen::Soft,
+            Some(Family::Hw { .. }) => Seen::Hal,
+            // (states are read only for a draw, which needs a device)
+            None => return Err(Fail::Bad),
         };
+        // a state past its enumeration, D3D7.STATES.OTHER
+        let past = || hit(clause::D3D7_STATES_OTHER);
         // MEASURED (badstate-*-cull0, -cull4, every drawer): a cull mode past D3DCULL is no
         // culling on the software rasterizers and the ramp device, CCW on the HAL and T&L HAL
         let cull = match (st(Rs::CullMode), seen) {
             (1, _) => Cull::None,
             (2, _) => Cull::Cw,
             (3, _) => Cull::Ccw,
-            (_, Some(Seen::Soft)) => Cull::None,
-            (_, Some(Seen::Hal)) => Cull::Ccw,
-            (_, None) => return Err(other),
+            (_, Seen::Soft) => { past(); Cull::None }
+            (_, Seen::Hal) => { past(); Cull::Ccw }
         };
         // MEASURED (badstate-*-fill0, -fill4): solid
         let fill = match (st(Rs::FillMode), seen) {
             (1, _) => Fill::Point,
             (2, _) => Fill::Wireframe,
-            (3, _) | (_, Some(Seen::Soft | Seen::Hal)) => Fill::Solid,
-            (_, None) => return Err(other),
+            (3, _) => Fill::Solid,
+            (_, Seen::Soft | Seen::Hal) => { past(); Fill::Solid }
         };
         // MEASURED (badstate-*-shade0, -shade3, -shade4): Gouraud, D3DSHADE_PHONG too
         let flat = match (st(Rs::ShadeMode), seen) {
             (1, _) => true,
-            (2, _) | (_, Some(Seen::Soft | Seen::Hal)) => false,
-            (_, None) => return Err(other),
+            (2, _) => false,
+            (_, Seen::Soft | Seen::Hal) => { past(); false }
         };
         // MEASURED (badstate-*-zfunc0, -zfunc9, d3d7bad23, 24, 38, 39): a z function past D3DCMP
         // is the default LESSEQUAL on the software rasterizers and the ramp device; the HAL's
-        // (a Direct3D 9 driver interface) 0 compares as ALWAYS and 9 as NEVER
-        let zfunc = match (Cmp::parse(st(Rs::ZFunc)), seen, st(Rs::ZFunc)) {
-            (Some(f), _, _) => f,
-            (None, Some(Seen::Soft), _) => Cmp::LessEqual,
-            (None, Some(Seen::Hal), 0) => Cmp::Always,
-            (None, Some(Seen::Hal), 9) => Cmp::Never,
-            (None, Some(Seen::Hal) | None, _) => return Err(other),
+        // (a Direct3D 9 driver interface) wraps modulo 8, ((v − 1) mod 8) + 1: 0 ALWAYS, 9
+        // NEVER, 10 LESS, 13 GREATER, 2^32 − 1 GREATEREQUAL (d3d7bad40..45)
+        let zfunc = match (Cmp::parse(st(Rs::ZFunc)), seen) {
+            (Some(f), _) => f,
+            (None, Seen::Soft) => { past(); Cmp::LessEqual }
+            (None, Seen::Hal) => { past(); Cmp::parse((st(Rs::ZFunc).wrapping_sub(1) & 7).wrapping_add(1)).ok_or(Fail::Bad)? }
         };
         let alphatest = match st(Rs::AlphaTestEnable) {
             0 => None,
@@ -956,9 +956,8 @@ impl States {
                 // MEASURED (badstate-*-afunc0, -afunc9, -afunc10, -afuncff): the software
                 // rasterizers and the ramp device test nothing; the HAL's and T&L HAL's executor
                 // dies drawing (d3d7bad0, 1, 5, 6, 10, 11, 25, 26: exit 127)
-                (None, Some(Seen::Soft), _) => None,
-                (None, Some(Seen::Hal), _) => return Err(Fail::Crash),
-                (None, None, _) => return Err(other),
+                (None, Seen::Soft, _) => { past(); None }
+                (None, Seen::Hal, _) => { past(); return Err(Fail::Crash) }
             },
         };
         let blend = match st(Rs::AlphaBlendEnable) {
@@ -973,11 +972,10 @@ impl States {
                 // (d3d7bad2, 7, 12..22, 27..37)
                 let f = |s: Rs, dflt: Factor| match (Factor::parse(st(s)), seen, st(s)) {
                     (Some(f), _, _) => Ok(f),
-                    (None, Some(Seen::Soft), _) => Ok(dflt),
-                    (None, Some(Seen::Hal), 14 | 17) => Ok(Factor::One),
-                    (None, Some(Seen::Hal), 15 | 16) => Ok(Factor::Zero),
-                    (None, Some(Seen::Hal), _) => Err(Fail::Crash),
-                    (None, None, _) => Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
+                    (None, Seen::Soft, _) => { past(); Ok(dflt) }
+                    (None, Seen::Hal, 14 | 17) => { past(); Ok(Factor::One) }
+                    (None, Seen::Hal, 15 | 16) => { past(); Ok(Factor::Zero) }
+                    (None, Seen::Hal, _) => { past(); Err(Fail::Crash) }
                 };
                 Some((f(Rs::SrcBlend, Factor::One)?, f(Rs::DestBlend, Factor::Zero)?))
             }
@@ -1126,18 +1124,20 @@ pub fn f32_past(t: (i64, i64), b: (i64, i64), first: i64, k: i64, round: SlopeRo
 /// pixel of centre (ceil(x - 1/2), ceil(y - 1/2)) when |x - cx| + |y - cy| < 1/2, or on the
 /// diamond's corner; the start's pixel is drawn, the last one's drawn with LASTPIXEL and taken out
 /// without. A corner at the last end of a line within 1/4 pixel of the diagonal, ends outside the
-/// target are not worked out (D3D7.STATES.OTHER); the HAL's: crate::model::warp (D3D7.LINE.HW)
+/// target are clipped there (D3D7.LINE, outlines-*), past the guard band not asked (D3D7.TRI.CLIP); the HAL's: crate::model::warp (D3D7.LINE.HW)
 pub fn line(family: Family, v: [(i64, i64); 2], lastpixel: bool, w: i64, h: i64) -> Res<Vec<bool>> {
-    let other = Fail::Unmodeled(open::D3D7_STATES_OTHER);
+    // (a soft line with an end past the guard band: the front end clips it, not asked,
+    // D3D7.TRI.CLIP; the ramp device's lines go through crate::model::ramp)
+    let other = Fail::Unmodeled(open::D3D7_TRI_CLIP);
     match family {
-        Family::Soft { .. } | Family::Ramp => {}
+        Family::Ramp => return Err(Fail::Bad),
+        Family::Soft { .. } => {}
         Family::Hw { .. } => {
             hit(clause::D3D7_LINE_HW);
             return crate::model::warp::line(v, w, h);
         }
     }
-    // (the ramp device has no guard band: an end off the viewport is clipped first, not measured)
-    let (xs, ys) = if matches!(family, Family::Ramp) { (0..w * 16, 0..h * 16) } else { (-4096 * 16..4096 * 16, -4096 * 16..4096 * 16) };
+    let (xs, ys) = (-4096 * 16..4096 * 16, -4096 * 16..4096 * 16);
     if !v.iter().all(|(x, y)| xs.contains(x) && ys.contains(y)) {
         return Err(other);
     }

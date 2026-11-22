@@ -498,7 +498,7 @@ proptest! {
 #[test]
 fn suites_stay_modeled() {
     use kikizake::generators;
-    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 0, 0), ("d3d7shade", 0, 0)] {
+    for (s, n32, n64) in [("ddraw", 0, 0), ("ddclip", 0, 0), ("ddpal", 0, 0), ("dddc", 0, 0), ("dd8", 0, 0), ("ddlock", 0, 0), ("ddflip", 0, 0), ("d3d7", 0, 0), ("d3d7dev", 5, 0), ("d3d7shade", 0, 0)] {
         let cases = parse_cases(&generators::suite(s).unwrap());
         for (arch, n) in [(32, n32), (64, n64)] {
             model::set_arch(arch);
@@ -708,13 +708,14 @@ fn long_ties_round_toward_zero() {
 /// column of its major axis strictly between its ends, the same one walked either way but at an
 /// exact tie, where the two ways' f32 walks may lie side by side; LASTPIXEL off draws the same
 /// pixels but at most the last one's; for every line between two points of a grid of fifths of a
-/// pixel up to (5, 5) on a 6 x 6 target, on the RGB and ramp rasterizers
+/// pixel up to (5, 5) on a 6 x 6 target, on the RGB and MMX rasterizers (the ramp device walks the
+/// same d3dim::line after its own clip, crate::model::ramp)
 #[test]
 fn lines_cross_each_column_once() {
     let (w, h) = (6i64, 6i64);
     let pts: Vec<(i64, i64)> = (0..17).flat_map(|i| (0..17).map(move |j| (i * 5, j * 5))).collect();
     let (mut drawn, mut ties) = (0, 0);
-    for family in [Family::Soft { mmx: false }, Family::Ramp] {
+    for family in [Family::Soft { mmx: false }, Family::Soft { mmx: true }] {
         for &a in &pts {
             for &b in &pts {
                 let (dx, dy) = (b.0 - a.0, b.1 - a.1);
