@@ -763,7 +763,15 @@ impl Target<'_> {
 
 /// v pixels in 1/256, rounding half to even (cvtss2si), saturated to i32
 fn snap_even(v: f32) -> i64 {
-    f64::from(v * 256.0).round_ties_even().clamp(-2147483648.0, 2147483647.0) as i64
+    i64::from(cvtss2si(v * 256.0))
+}
+
+/// cvtss2si with the default rounding: to nearest, ties to even; a NaN or a value past i32 is
+/// the "integer indefinite" i32::MIN (D3DRASTER.CLIPW.NANPL: a clipped end of NaN lands at
+/// -2^23 pixels)
+fn cvtss2si(v: f32) -> i32 {
+    let r = f64::from(v).round_ties_even();
+    if (-2147483648.0..2147483648.0).contains(&r) { r as i32 } else { i32::MIN }
 }
 
 /// a sample of pixel p, o/16 pixels off its center, in 1/256
@@ -804,13 +812,9 @@ struct Sub {
     y: i64,
 }
 
-/// a coordinate snapped to 1/256 pixel, rounding half to even (2^31 pixels: past any guard
-/// band; the products of the edge tests stay within i128)
+/// a coordinate snapped to 1/256 pixel, rounding half to even, as cvtss2si
 fn snap256(v: f32) -> i64 {
-    let x = f64::from(v).clamp(-2147483648.0, 2147483648.0) * 256.0;
-    let f = x.floor();
-    let r = x - f;
-    (if r > 0.5 || r == 0.5 && (f as i64) % 2 != 0 { f + 1.0 } else { f }) as i64
+    snap_even(v)
 }
 
 /// a clip position through the viewport transform, snapped
@@ -837,10 +841,7 @@ fn drawable_w(v: &Vert) -> Res<Drawn> {
         hit(clause::D3DRASTER_CLIPW_NANPL);
         return Ok(Drawn::Nothing);
     }
-    if v.pos[..3].iter().any(|x| x.is_infinite()) || v.pos[3] == f32::NEG_INFINITY {
-        return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
-    }
-    if v.pos[3] == f32::INFINITY {
+    if v.pos.iter().any(|x| x.is_infinite()) {
         hit(clause::D3DRASTER_CLIPW_NANPL);
     }
     if !(v.pos[3] > 0.0) {
@@ -1329,12 +1330,6 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
     for s in segs {
         if drawable_w(&s.a)? == Drawn::Nothing || drawable_w(&s.b)? == Drawn::Nothing {
             continue;
-        }
-        // (an end at w = +infinity with the other outside the clip volume, so clipped: not
-        // measured)
-        let within = |q: &[f32; 4]| -q[3] <= q[0] && q[0] <= q[3] && -q[3] <= q[1] && q[1] <= q[3] && 0.0 <= q[2] && q[2] <= q[3];
-        if [(&s.a, &s.b), (&s.b, &s.a)].iter().any(|(e, o)| e.pos[3] == f32::INFINITY && !within(&o.pos)) {
-            return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
         }
         let (za, zb) = (s.a.pos[2] / s.a.pos[3], s.b.pos[2] / s.b.pos[3]);
         let inside = |z: f32| (0.0..=1.0).contains(&z);

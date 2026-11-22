@@ -194,7 +194,8 @@ fn nothing_behind_the_eye_draws() {
 }
 
 /// (D3DRASTER.CLIPW.NANPL) over a grid of positions in front of the eye: a NaN in any coordinate
-/// of a point, or of either end of a line, lights nothing; a line's end at w = +infinity draws,
+/// of a point, or of either end of a line, lights nothing, nor a point with x or y infinite
+/// (outside the clip volume); a line's end at w = +infinity draws,
 /// its other end inside the clip volume, as the end (0, 0, 0, 1), the centre (one color, so
 /// the weights do not show)
 #[test]
@@ -216,6 +217,13 @@ fn nan_takes_points_and_lines_away() {
             for b in front.iter().step_by(5) {
                 assert!(draw_clip(2, &[n, *b]).iter().all(|&r| r == 0), "line {n:?} {b:?}");
                 assert!(draw_clip(2, &[*b, n]).iter().all(|&r| r == 0), "line {b:?} {n:?}");
+            }
+        }
+        for k in 0..2 {
+            for inf in [f32::INFINITY, f32::NEG_INFINITY] {
+                let mut n = *a;
+                n[k] = inf;
+                assert!(draw_clip(1, &[n]).iter().all(|&r| r == 0), "point {n:?}");
             }
         }
         let far = [a[0], a[1], a[2], f32::INFINITY];
