@@ -488,7 +488,7 @@ file	src/model/ntstr.rs	cast_possible_wrap	4
 file	src/model/ntstr.rs	cast_sign_loss	6
 file	src/model/ntstr.rs	indexing_slicing	18
 file	src/model/opengl.rs	arithmetic_side_effects	218
-file	src/model/opengl.rs	as_conversions	421
+file	src/model/opengl.rs	as_conversions	419
 file	src/model/opengl.rs	cast_possible_truncation	207
 file	src/model/opengl.rs	cast_possible_wrap	52
 file	src/model/opengl.rs	cast_precision_loss	85

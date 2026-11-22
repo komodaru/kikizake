@@ -29,6 +29,9 @@ pub struct Compiling {
 pub struct Line {
     pub tok: Vec<String>,
     pub unpack: Option<[i64; 6]>,
+    /// for glArrayElement, glDrawArrays, glDrawElements: the arrays as they were at compile time
+    /// (GL 1.1 5.4, their elements read then)
+    pub arrays: Option<Box<super::array::Snapshot>>,
 }
 
 /// The display lists of a context.
@@ -153,10 +156,15 @@ impl Gl {
         match kind(t) {
             Kind::Immediate => Ok(false),
             Kind::Compiled => {
-                let Some(c) = ctx.lists.compiling.as_mut().filter(|_| !replaying) else { return Ok(false) };
+                if replaying || ctx.lists.compiling.is_none() {
+                    return Ok(false);
+                }
                 hit(clause::GL_LIST);
                 let image = matches!(t.first().map(String::as_str), Some("gldraw" | "gltex" | "gltexsub"));
-                c.lines.push(Line { tok: t.to_vec(), unpack: image.then_some(ctx.unpack) });
+                let drawn = matches!(t.get(1).map(String::as_str), Some("glArrayElement" | "glDrawArrays" | "glDrawElements"));
+                let arrays = drawn.then(|| Box::new(super::array::Snapshot::of(ctx)));
+                let Some(c) = ctx.lists.compiling.as_mut() else { return Err(Fail::Bad) };
+                c.lines.push(Line { tok: t.to_vec(), unpack: image.then_some(ctx.unpack), arrays });
                 Ok(c.mode == COMPILE)
             }
             Kind::Lists => self.list_command(t, out, replaying),
@@ -244,7 +252,7 @@ impl Gl {
             }
             "glListBase" => {
                 if let Some(c) = ctx.lists.compiling.as_mut().filter(|_| !replaying) {
-                    c.lines.push(Line { tok: t.to_vec(), unpack: None });
+                    c.lines.push(Line { tok: t.to_vec(), unpack: None, arrays: None });
                     if c.mode == COMPILE {
                         return Ok(true);
                     }
@@ -258,7 +266,7 @@ impl Gl {
             }
             "glCallList" | "glCallLists" => {
                 if let Some(c) = ctx.lists.compiling.as_mut().filter(|_| !replaying) {
-                    c.lines.push(Line { tok: t.to_vec(), unpack: None });
+                    c.lines.push(Line { tok: t.to_vec(), unpack: None, arrays: None });
                     if c.mode == COMPILE {
                         return Ok(true);
                     }
@@ -301,9 +309,17 @@ impl Gl {
                 (Some(u), Some(ctx)) => Some(std::mem::replace(&mut ctx.unpack, u)),
                 _ => None,
             };
+            // (arrays read as they were at compile time)
+            let kept_arrays = match (line.arrays, self.ctx.as_mut()) {
+                (Some(a), Some(ctx)) => Some(a.swap(ctx)),
+                _ => None,
+            };
             let done = self.op(&op, out);
             if let (Some(u), Some(ctx)) = (kept, self.ctx.as_mut()) {
                 ctx.unpack = u;
+            }
+            if let (Some(a), Some(ctx)) = (kept_arrays, self.ctx.as_mut()) {
+                a.swap(ctx);
             }
             if let Err(e) = done {
                 r = Err(e);

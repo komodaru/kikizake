@@ -935,5 +935,34 @@ proptest! {
             }
         }
     }
+
+    // GL.ARRAY: an integer color or normal component maps to [0, 1] unsigned, [-1, 1] signed,
+    // the extremes onto the ends, in order (GL 1.1 table 2.6)
+    #[test]
+    fn array_components_map_in_order(a in any::<i16>(), b in any::<i16>()) {
+        use kikizake::model::opengl::array::normalized;
+        let (lo, hi) = (a.min(b), a.max(b));
+        prop_assert!(normalized(SHORT, f64::from(lo)) <= normalized(SHORT, f64::from(hi)));
+        prop_assert!(normalized(0x1403, f64::from(lo.unsigned_abs())) <= 1.0);
+        prop_assert_eq!(normalized(SHORT, -32768.0), -1.0);
+        prop_assert_eq!(normalized(SHORT, 32767.0), 1.0);
+        prop_assert_eq!(normalized(UNSIGNED_BYTE, 255.0), 1.0);
+        prop_assert_eq!(normalized(UNSIGNED_BYTE, 0.0), 0.0);
+        prop_assert_eq!(normalized(BYTE, -128.0), -1.0);
+    }
+
+    // GL.ARRAY: a glp line's values read back as their type from the executor's layout
+    #[test]
+    fn glp_values_read_back(v in proptest::collection::vec(any::<i16>(), 1..64)) {
+        use kikizake::model::opengl::array::{glp_bytes, read};
+        let mut t: Vec<String> = ["glp", "glVertexPointer", "iii", "2", "0x1402", "0", "s"].iter().map(|x| x.to_string()).collect();
+        t.extend(v.iter().map(|x| x.to_string()));
+        let bytes = glp_bytes(&t).map_err(|_| TestCaseError::fail("bytes"))?.ok_or_else(|| TestCaseError::fail("none"))?;
+        prop_assert_eq!(bytes.len(), v.len() * 2);
+        for (k, x) in v.iter().enumerate() {
+            let got = read(SHORT, &bytes[k * 2..k * 2 + 2]).map_err(|_| TestCaseError::fail("read"))?;
+            prop_assert_eq!(got, f64::from(*x));
+        }
+    }
 }
 

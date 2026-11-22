@@ -120,10 +120,18 @@ static void op_glchoose(void) {
     free_dc(dc, b, o);
 }
 
+/* arrays a call reads (glp): 16 slots used in turn from the first at each glctx, so an array pointer
+ * kept by GL (glVertexPointer ..) stays valid for the next 15 glp lines and glGetPointerv's slot
+ * depends on the case alone */
+static union { unsigned char b[4096]; double d[512]; } pslot[16];
+static int pnext;
+
 /* glctx <bpp> <pixel format> | glctx <bpp> choose <flags> <type> <color> <alpha> <accum> <depth> <stencil>:
  * the DIB, the format given or ChoosePixelFormat's, SetPixelFormat, wglCreateContext, wglMakeCurrent */
 static void op_glctx(void) {
     opengl_reset();
+    pnext = 0;
+    memset(pslot, 0, sizeof pslot);
     int bpp = num(1), pf = 0;
     PIXELFORMATDESCRIPTOR want;
     if (is(2, "choose")) { want_pfd(&want, 3); if (ntok != 10) bad = 1; }
@@ -540,11 +548,7 @@ static void op_glrelease(void) {
     out("glrelease %d %d\n", a, b);
 }
 
-/* arrays a call reads (glp): 16 slots used in turn, so an array pointer kept by GL (glVertexPointer ..)
- * stays valid for the next 15 glp lines; obuf: the buffer GL writes into (glSelectBuffer,
- * glFeedbackBuffer), shown by globuf */
-static union { unsigned char b[4096]; double d[512]; } pslot[16];
-static int pnext;
+/* obuf: the buffer GL writes into (glSelectBuffer, glFeedbackBuffer), shown by globuf */
 static union { unsigned char b[4096]; GLuint u[1024]; GLfloat f[1024]; } obuf;
 
 /* the size of an element of an array type: b ub s us i ui f d */

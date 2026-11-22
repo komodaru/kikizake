@@ -276,6 +276,8 @@ mod gaps;
 pub mod list;
 #[path = "opengl_texdraw.rs"]
 pub mod texdraw;
+#[path = "opengl_array.rs"]
+pub mod array;
 use crate::case::{num, Op};
 use crate::spec::hit;
 use e::*;
@@ -502,6 +504,10 @@ pub struct Ctx {
     pub tex: tex::Tex,
     /// display lists
     pub lists: list::Lists,
+    /// the vertex arrays and the executor's slots (GL.ARRAY)
+    pub arrays: array::Arrays,
+    /// the current edge flag (glEdgeFlag)
+    pub edge_flag: bool,
     /// while a textured polygon's fragments are written
     pub textured_frags: bool,
     pub line_width: f32,
@@ -600,6 +606,8 @@ impl Ctx {
             line_z_offset: 0.0,
             tex: tex::Tex::new(),
             lists: list::Lists::default(),
+            arrays: array::Arrays::default(),
+            edge_flag: true,
             textured_frags: false,
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
@@ -738,7 +746,7 @@ impl Ctx {
             0xb32 => i(i64::from(self.lists.base)),
             0xb33 => i(i64::from(self.lists.compiling.as_ref().map_or(0, |c| c.name))),
             0xb40 => self.poly_mode.iter().map(|m| I(*m as i64)).collect(),
-            0xb43 => vec![B(true)],
+            0xb43 => vec![B(self.edge_flag)],
             0xb45 => i(self.cull_mode as i64),
             0xb46 => i(self.front_face as i64),
             0xb51 | 0xb52 => vec![B(false)],
@@ -786,7 +794,7 @@ impl Ctx {
             0xba3..=0xba5 => i(self.stacks[(p - 0xba3) as usize].len() as i64),
             0xba6..=0xba8 => self.top((p - 0xba6) as usize).iter().map(|v| F(*v)).collect(),
             0xbb0 => i(self.attrib.len() as i64),
-            0xbb1 => i(0),
+            0xbb1 => i(self.array_get(p).unwrap_or(0)),
             0xbc1 => i(self.alpha.0 as i64),
             0xbc2 => vec![F(self.alpha.1)],
             0xbe0 => i(self.blend.1 as i64),
@@ -846,11 +854,10 @@ impl Ctx {
             0x2a00 => vec![F(self.offset.1)],
             0x8068 => i(i64::from(*self.tex.bound.get(tex::Target::One))),
             0x8069 => i(i64::from(*self.tex.bound.get(tex::Target::Two))),
-            0x807a | 0x8088 => i(4),
-            0x8081 => i(4),
-            0x807b | 0x807e | 0x8082 | 0x8089 => i(FLOAT as i64),
-            0x8085 => i(FLOAT as i64),
-            0x807c | 0x807f | 0x8083 | 0x8086 | 0x808a | 0x808c => i(0),
+            0x807a..=0x808c if self.array_get(p).is_some() => {
+                hit(clause::GL_ARRAY);
+                i(self.array_get(p).unwrap_or(0))
+            }
             _ => match limits(p) {
                 Some(v) => {
                     hit(clause::GL_LIMITS);
@@ -1162,6 +1169,13 @@ impl Gl {
                 None => return Ok(false),
             },
         };
+        // (a glp line's values fill the executor's next slot as it runs, compiled into a list or
+        // not, never again when a list replays it: GL.ARRAY)
+        if let (CtxOp::Glp, Some(ctx)) = (cmd, self.ctx.as_mut()) {
+            if ctx.lists.depth == 0 {
+                ctx.arrays.last = ctx.arrays.fill(t)?;
+            }
+        }
         if self.list_line(op, out)? {
             return Ok(true);
         }
@@ -1311,6 +1325,29 @@ impl Gl {
             // (texture images, objects and queries, GL 1.1 3.8: tex::)
             CtxOp::Gltex | CtxOp::Gltexsub | CtxOp::Glteximg | CtxOp::Gltexq | CtxOp::Gltexv | CtxOp::Glgentex | CtxOp::Gldeltex | CtxOp::Glistex | CtxOp::Glprio | CtxOp::Glresident => ctx.tex_op(t, out)?,
             // (the calls of arrays and results: gaps::)
+            CtxOp::Glp if t.get(1).is_some_and(|n| array::is_glp(n)) => {
+                if ctx.in_begin.is_some() && t.get(1).is_some_and(|n| n != "glEdgeFlagv") {
+                    hit(clause::GL_BEGIN_ONLY);
+                    ctx.error(INVALID_OPERATION);
+                } else {
+                    let at = ctx.arrays.last;
+                    ctx.array_glp(t, at)?;
+                }
+            }
+            CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPointerv") => {
+                // (glq glGetPointerv i <pname> p <n>: the slot, MEASURED, golden opengl-32 / 64
+                // gap-array-0)
+                let pname = t.get(3).and_then(|v| num(v)).and_then(|v| u32::try_from(v & 0xFFFF_FFFF).ok()).ok_or(Fail::Bad)?;
+                let shown = if ctx.in_begin.is_some() {
+                    hit(clause::GL_BEGIN_ONLY);
+                    ctx.error(INVALID_OPERATION);
+                    0
+                } else {
+                    hit(clause::GL_ARRAY);
+                    ctx.array_pointer(pname).unwrap_or(0)
+                };
+                out.push(format!("q {shown}"));
+            }
             CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf | CtxOp::Wglx => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
@@ -1473,15 +1510,21 @@ pub struct Obj {
     pub w: f64,
     /// the texture coordinates current when it was given (glTexCoord)
     pub tc: [f32; 4],
+    /// the edge flag current when it was given: whether a polygon's edge from it is a boundary
+    pub edge: bool,
 }
 
 impl Obj {
     pub const fn at(xyz: [f64; 3]) -> Obj {
-        Obj { xyz, w: 1.0, tc: [0.0, 0.0, 0.0, 1.0] }
+        Obj { xyz, w: 1.0, tc: [0.0, 0.0, 0.0, 1.0], edge: true }
     }
     /// the vertex with texture coordinates `tc`
     pub const fn with(self, tc: [f32; 4]) -> Obj {
         Obj { tc, ..self }
+    }
+    /// the vertex with edge flag `edge`
+    pub const fn edged(self, edge: bool) -> Obj {
+        Obj { edge, ..self }
     }
 }
 
@@ -1508,6 +1551,16 @@ impl Ctx {
 
     /// what a call does; errors as each function's page lists them
     fn call(&mut self, name: &str, a: &[A]) -> Res<()> {
+        if matches!(name, "glEnableClientState" | "glDisableClientState" | "glArrayElement" | "glDrawArrays" | "glPushClientAttrib" | "glPopClientAttrib" | "glEdgeFlag") {
+            // (MEASURED, golden opengl-32 / 64 gap-array-*: GL.ARRAY; inside glBegin only
+            // glArrayElement and glEdgeFlag)
+            if self.in_begin.is_some() && !matches!(name, "glArrayElement" | "glEdgeFlag" | "glDrawArrays") {
+                hit(clause::GL_BEGIN_ONLY);
+                self.error(INVALID_OPERATION);
+                return Ok(());
+            }
+            return self.array_call(name, a);
+        }
         if let Some(gap) = gaps::call(name) {
             return Err(Fail::Unmodeled(gap));
         }
@@ -1963,9 +2016,9 @@ impl Ctx {
                 if self.in_begin != Some(POINTS) {
                     // (MEASURED, golden opengl-32 persp-more-3..5: the clip coordinates of
                     // (x, y, z, w), cut and divided as any others)
-                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w) }, self.lit(self.current())));
+                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_flag }, self.lit(self.current())));
                 } else if w > 0.0 {
-                    self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]).with(self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w)), self.lit(self.current())));
+                    self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]).with(self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w)).edged(self.edge_flag), self.lit(self.current())));
                 } else {
                     hit(clause::GL_RASTER_CLIP_XY);
                 }
@@ -1973,7 +2026,7 @@ impl Ctx {
             "glVertex2f" | "glVertex3f" | "glVertex4f" | "glVertex2i" | "glVertex3i" => {
                 let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
                 if self.in_begin.is_some() {
-                    self.verts.push((Obj::at(v).with(self.vertex_coords(v, 1.0)), self.lit(self.current())));
+                    self.verts.push((Obj::at(v).with(self.vertex_coords(v, 1.0)).edged(self.edge_flag), self.lit(self.current())));
                 } else {
                     // (MEASURED, golden opengl-32 edge-vertex-outside: ignored, no error)
                     hit(clause::GL_VERTEX_OUTSIDE);
@@ -2897,6 +2950,18 @@ impl Ctx {
                 if cut != at {
                     hit(clause::GL_RASTER_CLIP_XY);
                 }
+                // (edge flags: an edge from a vertex whose flag is off not drawn, a corner whose
+                // flag is off not drawn in GL_POINT mode (MEASURED, golden opengl-32 / 64
+                // gap-array-1: GL.ARRAY); with the polygon cut, or wide, antialiased or textured
+                // edges, not measured: GL.EDGEFLAG.MORE)
+                let edges: Vec<bool> = q.iter().map(|v| v.0.edge).collect();
+                let flagged = edges.iter().any(|e| !*e);
+                if flagged {
+                    hit(clause::GL_ARRAY);
+                    if cut != at || self.texturing() || self.line_width.to_bits() != 1.0f32.to_bits() || self.cap(LINE_SMOOTH) {
+                        return Err(Fail::Unmodeled(open::GL_EDGEFLAG_MORE));
+                    }
+                }
                 let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
                 // (MEASURED, golden opengl-32 / 64 raster-open-50: under GL_POLYGON_OFFSET_LINE
                 // the triangle's offset (as a fill's, tri::Offset) added to each corner's window
@@ -2948,8 +3013,10 @@ impl Ctx {
                     .collect();
                 if face == POLY_POINT {
                     hit(clause::GL_POINT);
-                    for (w, c) in win {
-                        self.point([w[0], w[1], f64::from(tri::narrow(w[2]) + self.line_z_offset)], c)?;
+                    for ((w, c), e) in win.into_iter().zip(edges.iter().chain(std::iter::repeat(&true))) {
+                        if *e {
+                            self.point([w[0], w[1], f64::from(tri::narrow(w[2]) + self.line_z_offset)], c)?;
+                        }
                     }
                     self.line_z_offset = 0.0;
                     return Ok(());
@@ -2998,6 +3065,9 @@ impl Ctx {
                 }
                 self.stipple = (0, None);
                 for (k, ((mut a, mut b), (p, q))) in win.iter().copied().zip(win.iter().copied().cycle().skip(1)).zip(cut.iter().copied().zip(cut.iter().copied().cycle().skip(1))).enumerate() {
+                    if !edges.get(k).copied().unwrap_or(true) {
+                        continue;
+                    }
                     if offset_line {
                         self.line_z_offset = edge_offset(k);
                         a.0[2] = f64::from(tri::narrow(a.0[2]) + self.line_z_offset);
@@ -4178,6 +4248,8 @@ impl Ctx {
         if mask & attrib::CURRENT != 0 {
             self.color = s.color;
             self.normal = s.normal;
+            // (the edge flag with the current values, GL 1.1 table 6.5)
+            self.edge_flag = s.edge_flag;
         }
         if mask & attrib::POINT != 0 {
             self.point_size = s.point_size;

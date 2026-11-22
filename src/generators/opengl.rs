@@ -645,7 +645,165 @@ pub fn opengl() -> String {
         }
     }
     textures_more(&mut s);
+    arrays_more(&mut s);
     s
+}
+
+/// vertex arrays (GL.ARRAY) past gap-array-0, 1: every type, layout and error, lists, edge
+/// flags; after every other case
+fn arrays_more(s: &mut String) {
+    let head = |s: &mut String, name: &str| {
+        writeln!(s, "case array-more-{name}\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000", ctx(32));
+    };
+    let end = |s: &mut String| {
+        read_all(s);
+        writeln!(s, "glget f 0xb00 4\nglerr\nend");
+    };
+    // points at (2 + 3k, 2 + 3j): the vertex array of 8 points, floats
+    let points = "glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5\ngl glEnableClientState 0x8074";
+    // colors of each type (the extremes, a middle and negatives)
+    let colors: [(&str, u32, &str); 8] = [
+        ("b", 0x1400, "b 127 -128 0 127 64 -64 -1 127 1 2 3 127 -127 100 -100 127 0 0 0 127 50 60 70 127 -1 -2 -3 127 10 -10 20 127"),
+        ("ub", 0x1401, "ub 255 0 128 255 1 2 3 255 254 127 129 255 10 20 30 255 200 100 50 255 0 0 0 255 77 88 99 255 255 255 255 0"),
+        ("s", 0x1402, "s 32767 -32768 0 32767 16384 -16384 -1 32767 1 2 3 32767 -32767 1000 -1000 32767 0 0 0 32767 300 400 500 32767 -1 -2 -3 32767 100 -100 200 32767"),
+        ("us", 0x1403, "us 65535 0 32768 65535 1 2 3 65535 65534 32767 32769 65535 100 200 300 65535 50000 25000 12500 65535 0 0 0 65535 7777 8888 9999 65535 65535 65535 65535 0"),
+        ("i", 0x1404, "i 2147483647 -2147483648 0 2147483647 1073741824 -1073741824 -1 2147483647 1 2 3 2147483647 -2147483647 1000000 -1000000 2147483647 0 0 0 2147483647 300000000 400000000 500000000 2147483647 -1 -2 -3 2147483647 100 -100 200 2147483647"),
+        ("ui", 0x1405, "ui 4294967295 0 2147483648 4294967295 1 2 3 4294967295 4294967294 2147483647 2147483649 4294967295 100 200 300 4294967295 3000000000 1500000000 750000000 4294967295 0 0 0 4294967295 7777 8888 9999 4294967295 4294967295 4294967295 4294967295 0"),
+        ("f", 0x1406, "f 1 0 0.5 1 0.25 0.75 0.1 1 2 -1 0.33 1 0.001 0.999 0.5 1 0.6 0.3 0.2 1 0 0 0 1 0.4 0.5 0.6 1 1 1 1 0"),
+        ("d", 0x140a, "d 1 0 0.5 1 0.25 0.75 0.1 1 2 -1 0.33 1 0.001 0.999 0.5 1 0.6 0.3 0.2 1 0 0 0 1 0.4 0.5 0.6 1 1 1 1 0"),
+    ];
+    for (name, ty, values) in colors {
+        for size in [4, 3] {
+            head(s, &format!("color-{name}-{size}"));
+            writeln!(s, "{points}\nglp glColorPointer iii {size} {ty:#x} {} {values}\ngl glEnableClientState 0x8076\ngl glPointSize 2\ngl glDrawArrays 0 0 8", if size == 3 { type_bytes(ty).saturating_mul(4) } else { 0 });
+            end(s);
+        }
+    }
+    // vertices of each type and size
+    let verts: [(&str, u32, &str); 4] = [
+        ("s", 0x1402, "s 2 2 0 1 13 4 0 1 6 13 0 1"),
+        ("i", 0x1404, "i 2 2 0 1 13 4 0 1 6 13 0 1"),
+        ("f", 0x1406, "f 2.25 2.5 0.5 1 13.75 4.125 -0.5 1 6.5 13.25 0 1"),
+        ("d", 0x140a, "d 2.25 2.5 0.5 1 13.75 4.125 -0.5 1 6.5 13.25 0 1"),
+    ];
+    for (name, ty, values) in verts {
+        for size in [2, 3, 4] {
+            head(s, &format!("vertex-{name}-{size}"));
+            writeln!(s, "glp glVertexPointer iii {size} {ty:#x} {} {values}\ngl glEnableClientState 0x8074\ngl glColor4ub 200 150 100 255\ngl glDrawArrays 4 0 3", type_bytes(ty).saturating_mul(4));
+            end(s);
+        }
+    }
+    // a vertex of w 2 (size 4), strides, normals through lighting, texture coordinates, indices
+    head(s, "vertex-w");
+    writeln!(s, "glp glVertexPointer iii 4 0x1406 0 f 4 4 0 2 26 8 0 2 12 26 0 2\ngl glEnableClientState 0x8074\ngl glColor4ub 200 150 100 255\ngl glDrawArrays 4 0 3");
+    end(s);
+    head(s, "stride");
+    writeln!(s, "glp glVertexPointer iii 2 0x1406 20 f 2 2 9 9 9 13 4 9 9 9 6 13 9 9 9\ngl glEnableClientState 0x8074\nglp glColorPointer iii 4 0x1401 8 ub 255 0 0 255 9 9 9 9 0 255 0 255 9 9 9 9 0 0 255 255 9 9 9 9\ngl glEnableClientState 0x8076\ngl glDrawArrays 4 0 3\nglget i 0x807c 1\nglget i 0x8083 1");
+    end(s);
+    for (name, ty, values) in [("b", 0x1400, "b 0 0 127 90 0 90 -128 0 0"), ("s", 0x1402, "s 0 0 32767 23170 0 23170 -32768 0 0"), ("i", 0x1404, "i 0 0 2147483647 1518500249 0 1518500249 -2147483648 0 0"), ("f", 0x1406, "f 0 0 1 0.7 0 0.7 -1 0 0"), ("d", 0x140a, "d 0 0 1 0.7 0 0.7 -1 0 0")] {
+        head(s, &format!("normal-{name}"));
+        writeln!(s, "glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13\ngl glEnableClientState 0x8074\nglp glNormalPointer ii {ty:#x} 0 {values}\ngl glEnableClientState 0x8075\ngl glEnable 0xb50\ngl glEnable 0x4000\ngl glDrawArrays 4 0 3\nglget f 0xb02 3");
+        end(s);
+    }
+    for (name, ty, size, values) in [("s-2", 0x1402, 2, "s 0 0 1 0 0 1"), ("i-1", 0x1404, 1, "i 0 1 2"), ("f-3", 0x1406, 3, "f 0 0 0 1 0 0 0.5 1 0"), ("d-4", 0x140a, 4, "d 0 0 0 1 2 0 0 2 0.5 1 0 1")] {
+        head(s, &format!("tex-{name}"));
+        writeln!(s, "gltex 3553 0 4 4 4 0 0x1908 0x1401 26 64\ngl glTexParameteri 3553 10241 9728\ngl glTexParameteri 3553 10240 9728\ngl glTexEnvi 8960 8704 7681\ngl glEnable 3553\nglp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13\ngl glEnableClientState 0x8074\nglp glTexCoordPointer iii {size} {ty:#x} 0 {values}\ngl glEnableClientState 0x8078\ngl glDrawArrays 4 0 3\nglget f 0xb03 4");
+        end(s);
+    }
+    writeln!(s, "case array-more-index\nglctx 8 choose 0x38 1 8 0 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\nglp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13\ngl glEnableClientState 0x8074\nglp glIndexPointer ii 0x1401 0 ub 5 9 12\ngl glEnableClientState 0x8077\ngl glShadeModel 0x1d00\ngl glDrawArrays 4 0 3\nglread 0 0 16 16 0x1900 0x1401 256\nglget f 0xb01 1\nglerr\nend");
+    // glDrawElements of each index type, glArrayElement outside glBegin, the vertex array off
+    for (name, ty, values) in [("ub", 0x1401, "ub 7 0 5 2"), ("us", 0x1403, "us 7 0 5 2"), ("ui", 0x1405, "ui 7 0 5 2")] {
+        head(s, &format!("elements-{name}"));
+        writeln!(s, "{points}\ngl glPointSize 2\nglp glDrawElements iii 0 4 {ty:#x} {values}");
+        end(s);
+    }
+    head(s, "outside");
+    writeln!(s, "{points}\nglp glColorPointer iii 4 0x1401 0 ub 255 0 0 255 0 255 0 255 0 0 255 255 9 9 9 9\ngl glEnableClientState 0x8076\ngl glArrayElement 1\nglget f 0xb00 4\ngl glArrayElement 2");
+    end(s);
+    head(s, "no-vertex");
+    writeln!(s, "glp glColorPointer iii 4 0x1401 0 ub 255 0 0 255 0 255 0 255 0 0 255 255\ngl glEnableClientState 0x8076\ngl glDrawArrays 4 0 3");
+    end(s);
+    head(s, "enable");
+    writeln!(s, "glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13\ngl glEnable 0x8074\nglerr\nglisen 0x8074\ngl glDrawArrays 4 0 3\ngl glDisable 0x8074\nglerr\nglisen 0x8074");
+    end(s);
+    // errors and their order
+    head(s, "errors");
+    for line in [
+        "glp glVertexPointer iii 1 0x1406 0 f 0 0", "glp glVertexPointer iii 2 0x1401 0 f 0 0", "glp glVertexPointer iii 2 0x1406 -4 f 0 0", "glp glVertexPointer iii 1 0x1401 -4 f 0 0", "glp glVertexPointer iii 5 0x1406 0 f 0 0",
+        "glp glColorPointer iii 2 0x1401 0 ub 0 0", "glp glColorPointer iii 4 0x1409 0 ub 0 0", "glp glNormalPointer ii 0x1401 0 ub 0 0", "glp glNormalPointer ii 0x1406 -1 f 0 0", "glp glIndexPointer ii 0x1400 0 b 0", "glp glIndexPointer ii 0x1401 0 ub 0",
+        "glp glTexCoordPointer iii 0 0x1406 0 f 0", "glp glTexCoordPointer iii 4 0x1401 0 ub 0", "glp glEdgeFlagPointer i -1 ub 0", "glp glInterleavedArrays ii 0x2a1f 0 f 0", "glp glInterleavedArrays ii 0x2a20 -8 f 0",
+        "gl glDrawArrays 10 0 -1", "gl glDrawArrays 4 0 -1", "glp glDrawElements iii 10 -1 0x1406 f 0", "glp glDrawElements iii 4 -1 0x1406 f 0", "glp glDrawElements iii 4 -1 0x1401 ub 0",
+        "gl glEnableClientState 0xb50", "gl glDisableClientState 0x8070",
+        "gl glBegin 4\ngl glDrawArrays 4 0 3\ngl glEnd", "gl glBegin 4\nglp glDrawElements iii 4 1 0x1401 ub 0\ngl glEnd", "gl glBegin 4\nglp glVertexPointer iii 2 0x1406 0 f 0 0\ngl glEnd", "gl glBegin 4\ngl glEnableClientState 0x8074\ngl glEnd", "gl glBegin 4\ngl glPushClientAttrib 2\ngl glEnd",
+        "gl glPopClientAttrib",
+    ] {
+        writeln!(s, "{line}\nglerr");
+    }
+    writeln!(s, "glget i 0x807a 1\nglget i 0x807b 1\nglget i 0x807c 1\nglisen 0x8074");
+    for _ in 0..17 {
+        writeln!(s, "gl glPushClientAttrib 3");
+    }
+    writeln!(s, "glerr\nglget i 0xbb1 1\nglget i 0xd3b 1");
+    end(s);
+    // the client stack: pixel stores and arrays apart, an unknown bit
+    head(s, "client-stack");
+    writeln!(s, "gl glPixelStorei 0xcf2 7\nglp glVertexPointer iii 3 0x1402 6 s 0 0 0\ngl glEnableClientState 0x8074\ngl glPushClientAttrib 1\ngl glPixelStorei 0xcf2 3\ngl glDisableClientState 0x8074\nglp glVertexPointer iii 2 0x1406 0 f 0 0\ngl glPopClientAttrib\nglget i 0xcf2 1\nglisen 0x8074\nglget i 0x807a 1\ngl glPushClientAttrib 2\ngl glPixelStorei 0xcf2 5\nglp glVertexPointer iii 4 0x1404 0 i 0 0\ngl glPopClientAttrib\nglget i 0xcf2 1\nglget i 0x807a 1\nglget i 0x807b 1\ngl glPushClientAttrib 0xffffffff\ngl glPixelStorei 0xcf2 9\ngl glPopClientAttrib\nglget i 0xcf2 1\ngl glPushAttrib 0xfffff\ngl glEnableClientState 0x8076\ngl glEdgeFlag 0\ngl glPopAttrib\nglisen 0x8076\nglget i 0xb43 1");
+    end(s);
+    // pointers: each array's slot, a null one, the slots reused after 16 glp lines
+    head(s, "pointers");
+    writeln!(s, "glp glVertexPointer iii 2 0x1406 0 f 0 0\nglp glNormalPointer ii 0x1406 0 f 0 0 1\nglp glColorPointer iii 4 0x1401 0 ub 1 2 3 4\nglp glIndexPointer ii 0x1406 0 f 1\nglp glTexCoordPointer iii 2 0x1406 0 f 0 0\nglp glEdgeFlagPointer i 0 ub 1\nglp glColorPointer iii 4 0x1401 0 null");
+    for k in 0x808eu32..=0x8093 {
+        writeln!(s, "glq glGetPointerv i {k:#x} p 1");
+    }
+    writeln!(s, "glq glGetPointerv i 0x8094 p 1\nglerr");
+    for _ in 0..12 {
+        writeln!(s, "glp glTexCoordPointer iii 2 0x1406 0 f 0 0");
+    }
+    writeln!(s, "glq glGetPointerv i 0x8092 p 1\nglq glGetPointerv i 0x808e p 1");
+    end(s);
+    // an array read past its slot into the next; a list keeping the elements it was compiled with
+    head(s, "past-slot");
+    // (a stride of a whole slot: element 1 at the next slot's start, element 2 the one after)
+    writeln!(s, "glp glVertexPointer iii 2 0x1406 4096 f 2 2\nglp glColorPointer iii 4 0x1401 0 f 13 4\nglp glColorPointer iii 4 0x1401 0 f 6 13\ngl glEnableClientState 0x8074\ngl glDrawArrays 4 0 3");
+    end(s);
+    head(s, "list");
+    writeln!(s, "glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13\ngl glEnableClientState 0x8074\nglp glColorPointer iii 4 0x1401 0 ub 255 0 0 255 0 255 0 255 0 0 255 255\ngl glEnableClientState 0x8076\ngl glNewList 1 0x1300\ngl glDrawArrays 4 0 3\nglp glDrawElements iii 0 1 0x1401 ub 2\ngl glBegin 0\ngl glArrayElement 1\ngl glEnd\ngl glEndList\nglp glColorPointer iii 4 0x1401 0 ub 9 9 9 255 9 9 9 255 9 9 9 255\nglp glVertexPointer iii 2 0x1406 0 f 1 1 1 1 1 1\ngl glDisableClientState 0x8076\ngl glCallList 1");
+    end(s);
+    // every interleaved layout, packed and with a stride
+    let floats: String = (0..64).map(|k| format!(" {}", [0.25f32, 0.5, 0.75, 1.0, 2.0, 2.0, 0.0, 1.0, 13.0, 4.0, 0.5, 1.0, 6.0, 13.0, -0.5, 1.0].get(k % 16).copied().unwrap_or(0.0))).collect();
+    for (k, format) in (0x2a20u32..=0x2a2d).enumerate() {
+        for stride in [0, 64] {
+            head(s, &format!("interleaved-{k}-{stride}"));
+            writeln!(s, "gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64\ngl glTexParameteri 3553 10241 9728\ngl glEnable 3553\ngl glEnable 0xb50\ngl glEnable 0x4000\ngl glEnable 0xb57\ngl glEnableClientState 0x8077\ngl glEnableClientState 0x8079\nglp glInterleavedArrays ii {format:#x} {stride} f{floats}\ngl glPointSize 3\ngl glDrawArrays 0 0 3");
+            for c in 0x8074u32..=0x8079 {
+                writeln!(s, "glisen {c:#x}");
+            }
+            writeln!(s, "glget i 0x807a 1\nglget i 0x807c 1\nglget i 0x8081 1\nglget i 0x8082 1\nglget i 0x8083 1\nglget i 0x8088 1\nglget i 0x808a 1\nglget i 0x807f 1");
+            end(s);
+        }
+    }
+    // edge flags: from an array, in GL_POINT mode, stippled across a skipped edge, a strip's
+    for (name, setup) in [("edge-array", "gl glPolygonMode 0x408 0x1b01"), ("edge-points", "gl glPolygonMode 0x408 0x1b00\ngl glPointSize 2"), ("edge-stipple", "gl glPolygonMode 0x408 0x1b01\ngl glEnable 0xb24\ngl glLineStipple 1 0x3333"), ("edge-back", "gl glPolygonMode 0x404 0x1b01\ngl glPolygonMode 0x405 0x1b00")] {
+        head(s, name);
+        writeln!(s, "{setup}\nglp glVertexPointer iii 2 0x1406 0 f 2 2 13 3 14 13 3 12 8 8\ngl glEnableClientState 0x8074\nglp glEdgeFlagPointer i 0 ub 1 0 1 1 0\ngl glEnableClientState 0x8079\ngl glDrawArrays 9 0 4\ngl glDrawArrays 4 2 3\nglget i 0xb43 1");
+        end(s);
+    }
+    head(s, "edge-immediate");
+    writeln!(s, "gl glPolygonMode 0x408 0x1b01\ngl glBegin 7\ngl glEdgeFlag 0\ngl glVertex2f 2 2\ngl glVertex2f 13 3\ngl glEdgeFlag 1\ngl glVertex2f 14 13\ngl glEdgeFlag 0\ngl glVertex2f 3 12\ngl glEnd\nglp glEdgeFlagv - ub 1\nglget i 0xb43 1\ngl glBegin 5\ngl glEdgeFlag 0\ngl glVertex2f 2 14\ngl glVertex2f 8 15\ngl glVertex2f 5 10\ngl glEnd");
+    end(s);
+    writeln!(s, "case gap-edge-0\n{}{ORTHO}gl glDisable 0xbd0\ngl glClear 0x4000\ngl glPolygonMode 0x408 0x1b01\ngl glLineWidth 3\ngl glBegin 4\ngl glEdgeFlag 0\ngl glVertex2f -4 2\ngl glEdgeFlag 1\ngl glVertex2f 13 4\ngl glVertex2f 6 13\ngl glEnd", ctx(32));
+    read_all(s);
+    writeln!(s, "glerr\nend");
+}
+
+/// the bytes of an element of a GL type
+fn type_bytes(ty: u32) -> u32 {
+    match ty {
+        0x1400 | 0x1401 => 1,
+        0x1402 | 0x1403 => 2,
+        0x140a => 8,
+        _ => 4,
+    }
 }
 
 /// what textured fragments do not settle yet (GL.RASTER.MODE), after every other case

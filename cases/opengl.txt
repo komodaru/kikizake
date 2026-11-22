@@ -119245,3 +119245,2229 @@ glp glBitmap iiffff 8 4 1 1 5 2 ub 129 255 66 60
 glread 0 0 16 16 0x1908 0x1401 1024
 glerr
 end
+case array-more-color-b-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x1400 0 b 127 -128 0 127 64 -64 -1 127 1 2 3 127 -127 100 -100 127 0 0 0 127 50 60 70 127 -1 -2 -3 127 10 -10 20 127
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-b-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 3 0x1400 4 b 127 -128 0 127 64 -64 -1 127 1 2 3 127 -127 100 -100 127 0 0 0 127 50 60 70 127 -1 -2 -3 127 10 -10 20 127
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-ub-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x1401 0 ub 255 0 128 255 1 2 3 255 254 127 129 255 10 20 30 255 200 100 50 255 0 0 0 255 77 88 99 255 255 255 255 0
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-ub-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 3 0x1401 4 ub 255 0 128 255 1 2 3 255 254 127 129 255 10 20 30 255 200 100 50 255 0 0 0 255 77 88 99 255 255 255 255 0
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-s-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x1402 0 s 32767 -32768 0 32767 16384 -16384 -1 32767 1 2 3 32767 -32767 1000 -1000 32767 0 0 0 32767 300 400 500 32767 -1 -2 -3 32767 100 -100 200 32767
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-s-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 3 0x1402 8 s 32767 -32768 0 32767 16384 -16384 -1 32767 1 2 3 32767 -32767 1000 -1000 32767 0 0 0 32767 300 400 500 32767 -1 -2 -3 32767 100 -100 200 32767
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-us-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x1403 0 us 65535 0 32768 65535 1 2 3 65535 65534 32767 32769 65535 100 200 300 65535 50000 25000 12500 65535 0 0 0 65535 7777 8888 9999 65535 65535 65535 65535 0
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-us-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 3 0x1403 8 us 65535 0 32768 65535 1 2 3 65535 65534 32767 32769 65535 100 200 300 65535 50000 25000 12500 65535 0 0 0 65535 7777 8888 9999 65535 65535 65535 65535 0
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-i-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x1404 0 i 2147483647 -2147483648 0 2147483647 1073741824 -1073741824 -1 2147483647 1 2 3 2147483647 -2147483647 1000000 -1000000 2147483647 0 0 0 2147483647 300000000 400000000 500000000 2147483647 -1 -2 -3 2147483647 100 -100 200 2147483647
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-i-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 3 0x1404 16 i 2147483647 -2147483648 0 2147483647 1073741824 -1073741824 -1 2147483647 1 2 3 2147483647 -2147483647 1000000 -1000000 2147483647 0 0 0 2147483647 300000000 400000000 500000000 2147483647 -1 -2 -3 2147483647 100 -100 200 2147483647
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-ui-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x1405 0 ui 4294967295 0 2147483648 4294967295 1 2 3 4294967295 4294967294 2147483647 2147483649 4294967295 100 200 300 4294967295 3000000000 1500000000 750000000 4294967295 0 0 0 4294967295 7777 8888 9999 4294967295 4294967295 4294967295 4294967295 0
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-ui-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 3 0x1405 16 ui 4294967295 0 2147483648 4294967295 1 2 3 4294967295 4294967294 2147483647 2147483649 4294967295 100 200 300 4294967295 3000000000 1500000000 750000000 4294967295 0 0 0 4294967295 7777 8888 9999 4294967295 4294967295 4294967295 4294967295 0
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-f-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x1406 0 f 1 0 0.5 1 0.25 0.75 0.1 1 2 -1 0.33 1 0.001 0.999 0.5 1 0.6 0.3 0.2 1 0 0 0 1 0.4 0.5 0.6 1 1 1 1 0
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-f-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 3 0x1406 16 f 1 0 0.5 1 0.25 0.75 0.1 1 2 -1 0.33 1 0.001 0.999 0.5 1 0.6 0.3 0.2 1 0 0 0 1 0.4 0.5 0.6 1 1 1 1 0
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-d-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x140a 0 d 1 0 0.5 1 0.25 0.75 0.1 1 2 -1 0.33 1 0.001 0.999 0.5 1 0.6 0.3 0.2 1 0 0 0 1 0.4 0.5 0.6 1 1 1 1 0
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-color-d-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 3 0x140a 32 d 1 0 0.5 1 0.25 0.75 0.1 1 2 -1 0.33 1 0.001 0.999 0.5 1 0.6 0.3 0.2 1 0 0 0 1 0.4 0.5 0.6 1 1 1 1 0
+gl glEnableClientState 0x8076
+gl glPointSize 2
+gl glDrawArrays 0 0 8
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-s-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1402 8 s 2 2 0 1 13 4 0 1 6 13 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-s-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 3 0x1402 8 s 2 2 0 1 13 4 0 1 6 13 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-s-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 4 0x1402 8 s 2 2 0 1 13 4 0 1 6 13 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-i-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1404 16 i 2 2 0 1 13 4 0 1 6 13 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-i-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 3 0x1404 16 i 2 2 0 1 13 4 0 1 6 13 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-i-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 4 0x1404 16 i 2 2 0 1 13 4 0 1 6 13 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-f-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 16 f 2.25 2.5 0.5 1 13.75 4.125 -0.5 1 6.5 13.25 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-f-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 3 0x1406 16 f 2.25 2.5 0.5 1 13.75 4.125 -0.5 1 6.5 13.25 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-f-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 4 0x1406 16 f 2.25 2.5 0.5 1 13.75 4.125 -0.5 1 6.5 13.25 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-d-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x140a 32 d 2.25 2.5 0.5 1 13.75 4.125 -0.5 1 6.5 13.25 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-d-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 3 0x140a 32 d 2.25 2.5 0.5 1 13.75 4.125 -0.5 1 6.5 13.25 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-d-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 4 0x140a 32 d 2.25 2.5 0.5 1 13.75 4.125 -0.5 1 6.5 13.25 0 1
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-vertex-w
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 4 0x1406 0 f 4 4 0 2 26 8 0 2 12 26 0 2
+gl glEnableClientState 0x8074
+gl glColor4ub 200 150 100 255
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-stride
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 20 f 2 2 9 9 9 13 4 9 9 9 6 13 9 9 9
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x1401 8 ub 255 0 0 255 9 9 9 9 0 255 0 255 9 9 9 9 0 0 255 255 9 9 9 9
+gl glEnableClientState 0x8076
+gl glDrawArrays 4 0 3
+glget i 0x807c 1
+glget i 0x8083 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-normal-b
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glNormalPointer ii 0x1400 0 b 0 0 127 90 0 90 -128 0 0
+gl glEnableClientState 0x8075
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glDrawArrays 4 0 3
+glget f 0xb02 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-normal-s
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glNormalPointer ii 0x1402 0 s 0 0 32767 23170 0 23170 -32768 0 0
+gl glEnableClientState 0x8075
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glDrawArrays 4 0 3
+glget f 0xb02 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-normal-i
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glNormalPointer ii 0x1404 0 i 0 0 2147483647 1518500249 0 1518500249 -2147483648 0 0
+gl glEnableClientState 0x8075
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glDrawArrays 4 0 3
+glget f 0xb02 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-normal-f
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glNormalPointer ii 0x1406 0 f 0 0 1 0.7 0 0.7 -1 0 0
+gl glEnableClientState 0x8075
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glDrawArrays 4 0 3
+glget f 0xb02 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-normal-d
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glNormalPointer ii 0x140a 0 d 0 0 1 0.7 0 0.7 -1 0 0
+gl glEnableClientState 0x8075
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glDrawArrays 4 0 3
+glget f 0xb02 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-tex-s-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 26 64
+gl glTexParameteri 3553 10241 9728
+gl glTexParameteri 3553 10240 9728
+gl glTexEnvi 8960 8704 7681
+gl glEnable 3553
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glTexCoordPointer iii 2 0x1402 0 s 0 0 1 0 0 1
+gl glEnableClientState 0x8078
+gl glDrawArrays 4 0 3
+glget f 0xb03 4
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-tex-i-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 26 64
+gl glTexParameteri 3553 10241 9728
+gl glTexParameteri 3553 10240 9728
+gl glTexEnvi 8960 8704 7681
+gl glEnable 3553
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glTexCoordPointer iii 1 0x1404 0 i 0 1 2
+gl glEnableClientState 0x8078
+gl glDrawArrays 4 0 3
+glget f 0xb03 4
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-tex-f-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 26 64
+gl glTexParameteri 3553 10241 9728
+gl glTexParameteri 3553 10240 9728
+gl glTexEnvi 8960 8704 7681
+gl glEnable 3553
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glTexCoordPointer iii 3 0x1406 0 f 0 0 0 1 0 0 0.5 1 0
+gl glEnableClientState 0x8078
+gl glDrawArrays 4 0 3
+glget f 0xb03 4
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-tex-d-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 26 64
+gl glTexParameteri 3553 10241 9728
+gl glTexParameteri 3553 10240 9728
+gl glTexEnvi 8960 8704 7681
+gl glEnable 3553
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glTexCoordPointer iii 4 0x140a 0 d 0 0 0 1 2 0 0 2 0.5 1 0 1
+gl glEnableClientState 0x8078
+gl glDrawArrays 4 0 3
+glget f 0xb03 4
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-index
+glctx 8 choose 0x38 1 8 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glIndexPointer ii 0x1401 0 ub 5 9 12
+gl glEnableClientState 0x8077
+gl glShadeModel 0x1d00
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1900 0x1401 256
+glget f 0xb01 1
+glerr
+end
+case array-more-elements-ub
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+gl glPointSize 2
+glp glDrawElements iii 0 4 0x1401 ub 7 0 5 2
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-elements-us
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+gl glPointSize 2
+glp glDrawElements iii 0 4 0x1403 us 7 0 5 2
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-elements-ui
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+gl glPointSize 2
+glp glDrawElements iii 0 4 0x1405 ui 7 0 5 2
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-outside
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2.5 2.5 5.5 2.5 8.5 2.5 11.5 2.5 2.5 5.5 5.5 5.5 8.5 5.5 11.5 5.5
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x1401 0 ub 255 0 0 255 0 255 0 255 0 0 255 255 9 9 9 9
+gl glEnableClientState 0x8076
+gl glArrayElement 1
+glget f 0xb00 4
+gl glArrayElement 2
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-no-vertex
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glColorPointer iii 4 0x1401 0 ub 255 0 0 255 0 255 0 255 0 0 255 255
+gl glEnableClientState 0x8076
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-enable
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnable 0x8074
+glerr
+glisen 0x8074
+gl glDrawArrays 4 0 3
+gl glDisable 0x8074
+glerr
+glisen 0x8074
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-errors
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 1 0x1406 0 f 0 0
+glerr
+glp glVertexPointer iii 2 0x1401 0 f 0 0
+glerr
+glp glVertexPointer iii 2 0x1406 -4 f 0 0
+glerr
+glp glVertexPointer iii 1 0x1401 -4 f 0 0
+glerr
+glp glVertexPointer iii 5 0x1406 0 f 0 0
+glerr
+glp glColorPointer iii 2 0x1401 0 ub 0 0
+glerr
+glp glColorPointer iii 4 0x1409 0 ub 0 0
+glerr
+glp glNormalPointer ii 0x1401 0 ub 0 0
+glerr
+glp glNormalPointer ii 0x1406 -1 f 0 0
+glerr
+glp glIndexPointer ii 0x1400 0 b 0
+glerr
+glp glIndexPointer ii 0x1401 0 ub 0
+glerr
+glp glTexCoordPointer iii 0 0x1406 0 f 0
+glerr
+glp glTexCoordPointer iii 4 0x1401 0 ub 0
+glerr
+glp glEdgeFlagPointer i -1 ub 0
+glerr
+glp glInterleavedArrays ii 0x2a1f 0 f 0
+glerr
+glp glInterleavedArrays ii 0x2a20 -8 f 0
+glerr
+gl glDrawArrays 10 0 -1
+glerr
+gl glDrawArrays 4 0 -1
+glerr
+glp glDrawElements iii 10 -1 0x1406 f 0
+glerr
+glp glDrawElements iii 4 -1 0x1406 f 0
+glerr
+glp glDrawElements iii 4 -1 0x1401 ub 0
+glerr
+gl glEnableClientState 0xb50
+glerr
+gl glDisableClientState 0x8070
+glerr
+gl glBegin 4
+gl glDrawArrays 4 0 3
+gl glEnd
+glerr
+gl glBegin 4
+glp glDrawElements iii 4 1 0x1401 ub 0
+gl glEnd
+glerr
+gl glBegin 4
+glp glVertexPointer iii 2 0x1406 0 f 0 0
+gl glEnd
+glerr
+gl glBegin 4
+gl glEnableClientState 0x8074
+gl glEnd
+glerr
+gl glBegin 4
+gl glPushClientAttrib 2
+gl glEnd
+glerr
+gl glPopClientAttrib
+glerr
+glget i 0x807a 1
+glget i 0x807b 1
+glget i 0x807c 1
+glisen 0x8074
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+gl glPushClientAttrib 3
+glerr
+glget i 0xbb1 1
+glget i 0xd3b 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-client-stack
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glPixelStorei 0xcf2 7
+glp glVertexPointer iii 3 0x1402 6 s 0 0 0
+gl glEnableClientState 0x8074
+gl glPushClientAttrib 1
+gl glPixelStorei 0xcf2 3
+gl glDisableClientState 0x8074
+glp glVertexPointer iii 2 0x1406 0 f 0 0
+gl glPopClientAttrib
+glget i 0xcf2 1
+glisen 0x8074
+glget i 0x807a 1
+gl glPushClientAttrib 2
+gl glPixelStorei 0xcf2 5
+glp glVertexPointer iii 4 0x1404 0 i 0 0
+gl glPopClientAttrib
+glget i 0xcf2 1
+glget i 0x807a 1
+glget i 0x807b 1
+gl glPushClientAttrib 0xffffffff
+gl glPixelStorei 0xcf2 9
+gl glPopClientAttrib
+glget i 0xcf2 1
+gl glPushAttrib 0xfffff
+gl glEnableClientState 0x8076
+gl glEdgeFlag 0
+gl glPopAttrib
+glisen 0x8076
+glget i 0xb43 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-pointers
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 0 0
+glp glNormalPointer ii 0x1406 0 f 0 0 1
+glp glColorPointer iii 4 0x1401 0 ub 1 2 3 4
+glp glIndexPointer ii 0x1406 0 f 1
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glEdgeFlagPointer i 0 ub 1
+glp glColorPointer iii 4 0x1401 0 null
+glq glGetPointerv i 0x808e p 1
+glq glGetPointerv i 0x808f p 1
+glq glGetPointerv i 0x8090 p 1
+glq glGetPointerv i 0x8091 p 1
+glq glGetPointerv i 0x8092 p 1
+glq glGetPointerv i 0x8093 p 1
+glq glGetPointerv i 0x8094 p 1
+glerr
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glp glTexCoordPointer iii 2 0x1406 0 f 0 0
+glq glGetPointerv i 0x8092 p 1
+glq glGetPointerv i 0x808e p 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-past-slot
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 4096 f 2 2
+glp glColorPointer iii 4 0x1401 0 f 13 4
+glp glColorPointer iii 4 0x1401 0 f 6 13
+gl glEnableClientState 0x8074
+gl glDrawArrays 4 0 3
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-list
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 4 6 13
+gl glEnableClientState 0x8074
+glp glColorPointer iii 4 0x1401 0 ub 255 0 0 255 0 255 0 255 0 0 255 255
+gl glEnableClientState 0x8076
+gl glNewList 1 0x1300
+gl glDrawArrays 4 0 3
+glp glDrawElements iii 0 1 0x1401 ub 2
+gl glBegin 0
+gl glArrayElement 1
+gl glEnd
+gl glEndList
+glp glColorPointer iii 4 0x1401 0 ub 9 9 9 255 9 9 9 255 9 9 9 255
+glp glVertexPointer iii 2 0x1406 0 f 1 1 1 1 1 1
+gl glDisableClientState 0x8076
+gl glCallList 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-0-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a20 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-0-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a20 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-1-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a21 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-1-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a21 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-2-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a22 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-2-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a22 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-3-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a23 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-3-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a23 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-4-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a24 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-4-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a24 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-5-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a25 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-5-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a25 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-6-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a26 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-6-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a26 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-7-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a27 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-7-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a27 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-8-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a28 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-8-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a28 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-9-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a29 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-9-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a29 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-10-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a2a 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-10-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a2a 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-11-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a2b 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-11-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a2b 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-12-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a2c 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-12-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a2c 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-13-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a2d 0 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-interleaved-13-64
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gltex 3553 0 4 4 4 0 0x1908 0x1401 27 64
+gl glTexParameteri 3553 10241 9728
+gl glEnable 3553
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xb57
+gl glEnableClientState 0x8077
+gl glEnableClientState 0x8079
+glp glInterleavedArrays ii 0x2a2d 64 f 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1 0.25 0.5 0.75 1 2 2 0 1 13 4 0.5 1 6 13 -0.5 1
+gl glPointSize 3
+gl glDrawArrays 0 0 3
+glisen 0x8074
+glisen 0x8075
+glisen 0x8076
+glisen 0x8077
+glisen 0x8078
+glisen 0x8079
+glget i 0x807a 1
+glget i 0x807c 1
+glget i 0x8081 1
+glget i 0x8082 1
+glget i 0x8083 1
+glget i 0x8088 1
+glget i 0x808a 1
+glget i 0x807f 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-edge-array
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glPolygonMode 0x408 0x1b01
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 3 14 13 3 12 8 8
+gl glEnableClientState 0x8074
+glp glEdgeFlagPointer i 0 ub 1 0 1 1 0
+gl glEnableClientState 0x8079
+gl glDrawArrays 9 0 4
+gl glDrawArrays 4 2 3
+glget i 0xb43 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-edge-points
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glPolygonMode 0x408 0x1b00
+gl glPointSize 2
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 3 14 13 3 12 8 8
+gl glEnableClientState 0x8074
+glp glEdgeFlagPointer i 0 ub 1 0 1 1 0
+gl glEnableClientState 0x8079
+gl glDrawArrays 9 0 4
+gl glDrawArrays 4 2 3
+glget i 0xb43 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-edge-stipple
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glPolygonMode 0x408 0x1b01
+gl glEnable 0xb24
+gl glLineStipple 1 0x3333
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 3 14 13 3 12 8 8
+gl glEnableClientState 0x8074
+glp glEdgeFlagPointer i 0 ub 1 0 1 1 0
+gl glEnableClientState 0x8079
+gl glDrawArrays 9 0 4
+gl glDrawArrays 4 2 3
+glget i 0xb43 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-edge-back
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glPolygonMode 0x404 0x1b01
+gl glPolygonMode 0x405 0x1b00
+glp glVertexPointer iii 2 0x1406 0 f 2 2 13 3 14 13 3 12 8 8
+gl glEnableClientState 0x8074
+glp glEdgeFlagPointer i 0 ub 1 0 1 1 0
+gl glEnableClientState 0x8079
+gl glDrawArrays 9 0 4
+gl glDrawArrays 4 2 3
+glget i 0xb43 1
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case array-more-edge-immediate
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glPolygonMode 0x408 0x1b01
+gl glBegin 7
+gl glEdgeFlag 0
+gl glVertex2f 2 2
+gl glVertex2f 13 3
+gl glEdgeFlag 1
+gl glVertex2f 14 13
+gl glEdgeFlag 0
+gl glVertex2f 3 12
+gl glEnd
+glp glEdgeFlagv - ub 1
+glget i 0xb43 1
+gl glBegin 5
+gl glEdgeFlag 0
+gl glVertex2f 2 14
+gl glVertex2f 8 15
+gl glVertex2f 5 10
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glget f 0xb00 4
+glerr
+end
+case gap-edge-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glPolygonMode 0x408 0x1b01
+gl glLineWidth 3
+gl glBegin 4
+gl glEdgeFlag 0
+gl glVertex2f -4 2
+gl glEdgeFlag 1
+gl glVertex2f 13 4
+gl glVertex2f 6 13
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
