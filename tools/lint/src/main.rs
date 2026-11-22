@@ -13,6 +13,7 @@ mod cases;
 mod code;
 mod dup;
 mod escape;
+mod formal;
 mod guards;
 mod modern;
 mod ratchet;
@@ -99,6 +100,10 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     }
     if let Err(error) = modern::check(&root) {
+        eprintln!("{error}");
+        return ExitCode::FAILURE;
+    }
+    if let Err(error) = formal::check(&root) {
         eprintln!("{error}");
         return ExitCode::FAILURE;
     }

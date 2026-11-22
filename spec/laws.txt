@@ -248,3 +248,13 @@ tests/laws_opengl.rs::linear_texels_are_neighbours pbt GL.RASTER.TEXTURE.FILTER
 tests/laws_opengl.rs::lambda_follows_log2_of_rho pbt GL.RASTER.TEXTURE.FILTER
 tests/laws_opengl.rs::replace_takes_the_texel_and_white_modulates_nothing pbt GL.RASTER.TEXTURE
 tests/laws_opengl.rs::list_names_are_fresh_runs pbt GL.LIST
+spec/lean/Kikizake/Gdi/Blend.lean::mix_is_nearest lean GDI.ALPHA.ROUND GDI.ALPHA.CONSTANT
+spec/lean/Kikizake/Gdi/Blend.lean::mix_between lean GDI.ALPHA.CONSTANT GDI.ALPHA.ROUND
+spec/lean/Kikizake/Gdi/Blend.lean::mix_ends lean GDI.ALPHA.CONSTANT
+spec/lean/Kikizake/Gdi/Blend.lean::word_channels lean GDI.ALPHA.CARRY
+spec/lean/Kikizake/Gdi/Blend.lean::mix_le lean GDI.ALPHA.ROUND
+spec/lean/Kikizake/Gdi/Blend.lean::ch_le lean GDI.ALPHA.CARRY
+spec/lean/Kikizake/Gdi/Blend.lean::alpha_constant lean GDI.ALPHA.CONSTANT
+spec/lean/Kikizake/Gdi/Blend.lean::alpha_opaque lean GDI.ALPHA.OPAQUE
+spec/lean/Kikizake/Gdi/Blend.lean::carry_premultiplied lean GDI.ALPHA.PERPIXEL GDI.ALPHA.CARRY
+spec/lean/Kikizake/Gdi/Blend.lean::alpha_premultiplied lean GDI.ALPHA.PERPIXEL GDI.ALPHA.CARRY

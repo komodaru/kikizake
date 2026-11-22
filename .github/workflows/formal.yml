@@ -1,6 +1,7 @@
 # The formal laws of spec/laws.txt that cargo test cannot run: the Kani proofs (src/proofs.rs and
-# the models' #[cfg(kani)] harnesses) and the TLA+ specs (spec/tla), each TLC state replayed
-# against the models (`kikizake tla`, every state's calls and the answers the spec says).
+# the models' #[cfg(kani)] harnesses), the TLA+ specs (spec/tla), each TLC state replayed
+# against the models (`kikizake tla`, every state's calls and the answers the spec says), and the
+# Lean proofs (spec/lean), their definitions held equal to the models' functions (`kikizake lean`).
 name: formal
 
 on:
@@ -33,6 +34,37 @@ jobs:
       - run: cargo kani setup
       - name: Kani proofs
         run: cargo kani 2>&1 | tee kani.log; s=${PIPESTATUS[0]}; grep -E "^Checking harness|VERIFICATION|Complete -" kani.log >> "$GITHUB_STEP_SUMMARY"; exit $s
+
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: rustup toolchain install --no-self-update && echo "RUST_KEY=$(rustc -V | cut -d' ' -f2)" >> "$GITHUB_ENV"
+      - uses: actions/cache/restore@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: test-${{ env.RUST_KEY }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: test-${{ env.RUST_KEY }}-
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/.elan
+          key: elan-${{ hashFiles('spec/lean/lean-toolchain') }}
+      - run: |
+          test -x ~/.elan/bin/lake || curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Lean proofs (every theorem; a warning, sorry among them, is an error)
+        working-directory: spec/lean
+        run: lake build
+      - run: cargo build -q --release
+      - name: The Lean definitions against the models
+        run: |
+          set -o pipefail
+          target/release/kikizake lean spec/lean/.lake/build/bin/mirror | tee lean.log
+          grep -E "mirrors|DIFFER" lean.log >> "$GITHUB_STEP_SUMMARY"
 
   tla:
     runs-on: ubuntu-24.04

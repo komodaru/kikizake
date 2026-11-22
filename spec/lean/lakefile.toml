@@ -1,0 +1,16 @@
+# The Lean 4 proofs of the clauses' arithmetic (README.md): `lake build` checks every theorem
+# (a warning, `sorry` among them, is an error) and builds `mirror`, which evaluates the Lean
+# definitions the theorems are about so `kikizake lean` can hold them equal to the Rust models.
+name = "kikizake"
+defaultTargets = ["Kikizake", "mirror"]
+
+[leanOptions]
+warningAsError = true
+autoImplicit = false
+
+[[lean_lib]]
+name = "Kikizake"
+
+[[lean_exe]]
+name = "mirror"
+root = "Main"

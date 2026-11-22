@@ -45,7 +45,23 @@ pub struct Law {
     pub clauses: Vec<String>,
 }
 
-pub const LAW_KINDS: &[&str] = &["exhaustive", "pbt", "kani", "tla"];
+pub const LAW_KINDS: &[&str] = &["exhaustive", "pbt", "kani", "tla", "lean"];
+
+/// the kinds that prove a clause for its whole stated domain, not on samples: an exhaustive
+/// law, a Kani harness, a TLA+ spec (to its MaxOps), a Lean theorem (spec/lean, its definitions
+/// held equal to the model's functions by `kikizake lean`)
+pub const FORMAL_KINDS: &[&str] = &["exhaustive", "kani", "tla", "lean"];
+
+/// the clause files whose every settled clause (doc, measured) has a formal law
+/// (FORMAL_KINDS) or is listed in spec/unproven.txt, which only shrinks
+pub const PROVEN_FILES: &[&str] = &["gdi", "gdiblend", "gdiddb", "gdiline", "gdipath", "gdirgn", "gditext", "gdixform", "gdiplus", "dwrite", "d3d8", "d3d9", "d3d9draw", "d3dres", "d3dx9", "d3d12", "dxgi"];
+
+pub const UNPROVEN: &str = include_str!("../spec/unproven.txt");
+
+/// spec/unproven.txt: the settled clauses of PROVEN_FILES no formal law proves yet
+pub fn unproven() -> std::collections::BTreeSet<String> {
+    UNPROVEN.lines().filter(|l| !l.starts_with('#') && !l.trim().is_empty()).map(|l| l.trim().to_string()).collect()
+}
 
 pub const LAWS: &str = include_str!("../spec/laws.txt");
 pub const LEARN: &str = include_str!("../spec/learn.txt");

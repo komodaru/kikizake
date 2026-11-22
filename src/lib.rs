@@ -21,6 +21,7 @@ pub mod shaders;
 pub mod generators;
 pub mod json;
 pub mod learn;
+pub mod lean;
 mod proofs;
 pub mod model;
 pub mod resource_desc;

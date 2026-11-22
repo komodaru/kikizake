@@ -5,6 +5,7 @@
 //!   kikizake spec                         each clause (spec/), its status and how many cases reach it
 //!   kikizake learn pages|resolve|check    the documentation the clauses cite (src/learn.rs)
 //!   kikizake tla <TLC dump>               a TLA+ spec's every state (spec/tla/) through the model
+//!   kikizake lean <mirror> [name]         the Lean definitions the proofs are about (spec/lean/) against the models
 //!   kikizake trace [golden dir]           each clause's evidence (cases against Windows, laws) and gaps, per API
 //!   kikizake calls import <suite>-<arch> <cases> <jsonl> <stdout> <src> <shirusu rev> [plain repeat ...]
 //!                                         a shirusu recording of the executor as calls/<suite>-<arch>.txt (src/calls.rs)
@@ -87,6 +88,7 @@ fn main() {
         }
         ["learn", rest @ ..] => exit(kikizake::learn::main(rest)),
         ["tla", rest @ ..] => exit(kikizake::tla::main(rest)),
+        ["lean", rest @ ..] => exit(kikizake::lean::main(rest)),
         ["trace", rest @ ..] => match kikizake::trace::table(std::path::Path::new(rest.first().copied().unwrap_or("golden"))) {
             Ok(table) => print!("{table}"),
             Err(e) => { eprintln!("{e}"); exit(2); }

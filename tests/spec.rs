@@ -53,7 +53,11 @@ fn laws_name_tests_and_clauses() {
         let t = std::fs::read_to_string(root.join(&l.file)).unwrap_or_else(|_| panic!("spec/laws.txt: no file {}", l.file));
         // (a test or Kani harness is a fn; a TLA+ law is the spec's definition, checked by TLC
         // and replayed against the models: kikizake tla)
-        let def = if l.kind == "tla" { format!("\n{} ==", l.test) } else { format!("fn {}(", l.test) };
+        let def = match l.kind.as_str() {
+            "tla" => format!("\n{} ==", l.test),
+            "lean" => format!("\ntheorem {} ", l.test),
+            _ => format!("fn {}(", l.test),
+        };
         assert!(t.contains(&def), "spec/laws.txt: {} has no {} {}", l.file, l.kind, l.test);
         assert!(kikizake::trace::LAW_KINDS.contains(&l.kind.as_str()), "spec/laws.txt: {}::{} kind {:?}", l.file, l.test, l.kind);
         assert!(!l.clauses.is_empty(), "spec/laws.txt: {}::{} checks no clause", l.file, l.test);
@@ -74,6 +78,80 @@ fn laws_name_tests_and_clauses() {
             assert!(root.join(format!("spec/tla/{m}.cfg")).exists(), "spec/tla/{f} has no {m}.cfg");
         }
     }
+    for f in lean_files(&root.join("spec/lean/Kikizake")) {
+        let rel = f.strip_prefix(root).unwrap().to_str().unwrap().replace('\\', "/");
+        let text = std::fs::read_to_string(&f).unwrap();
+        for t in lean_theorems(&text) {
+            assert!(listed.contains(&format!("{rel}::{t}")), "spec/laws.txt does not list the Lean theorem {rel}::{t}");
+        }
+    }
+}
+
+/// the .lean files under `dir`
+fn lean_files(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
+    let mut v = Vec::new();
+    for e in std::fs::read_dir(dir).unwrap() {
+        let p = e.unwrap().path();
+        if p.is_dir() {
+            v.extend(lean_files(&p));
+        } else if p.extension().is_some_and(|x| x == "lean") {
+            v.push(p);
+        }
+    }
+    v.sort();
+    v
+}
+
+/// the names of a Lean file's public theorems (a `private theorem` is a step of another)
+fn lean_theorems(text: &str) -> Vec<String> {
+    text.lines().filter_map(|l| l.strip_prefix("theorem ")).map(|l| l.split_whitespace().next().unwrap().to_string()).collect()
+}
+
+/// every Lean file with a theorem has a mirror (src/lean/) that holds its definitions equal to
+/// the model's functions, each mirror is defined in the file it names and run by Main.lean, and
+/// Kikizake.lean imports every file, so `lake build` checks every theorem
+#[test]
+fn lean_theorems_are_about_the_models() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let ms = kikizake::lean::mirrors();
+    let names: BTreeSet<&str> = ms.iter().map(|m| m.name).collect();
+    assert_eq!(names.len(), ms.len(), "two mirrors share a name");
+    let lib = std::fs::read_to_string(root.join("spec/lean/Kikizake.lean")).unwrap();
+    let main = std::fs::read_to_string(root.join("spec/lean/Main.lean")).unwrap();
+    for f in lean_files(&root.join("spec/lean/Kikizake")) {
+        let rel = f.strip_prefix(root).unwrap().to_str().unwrap().replace('\\', "/");
+        let module = rel.strip_prefix("spec/lean/").unwrap().strip_suffix(".lean").unwrap().replace('/', ".");
+        let text = std::fs::read_to_string(&f).unwrap();
+        if module == "Kikizake.Mirror" {
+            continue;
+        }
+        assert!(lib.lines().any(|l| l == format!("import {module}")), "spec/lean/Kikizake.lean does not import {module}");
+        let mine: Vec<_> = ms.iter().filter(|m| m.lean == rel).collect();
+        assert!(lean_theorems(&text).is_empty() || !mine.is_empty(), "{rel} has theorems but no mirror (src/lean/) ties its definitions to the model");
+        let ns = text.lines().find_map(|l| l.strip_prefix("namespace ")).unwrap_or_else(|| panic!("{rel}: no namespace"));
+        let short = ns.strip_prefix("Kikizake.").unwrap();
+        assert!(mine.is_empty() || main.contains(&format!("{short}.mirrors")), "spec/lean/Main.lean does not run {short}.mirrors");
+        for m in mine {
+            assert!(text.contains(&format!("⟨\"{}\",", m.name)), "{rel} does not define the mirror {}", m.name);
+        }
+    }
+    for m in &ms {
+        assert!(root.join(m.lean).exists(), "mirror {}: no file {}", m.name, m.lean);
+    }
+}
+
+/// every settled clause of the proven APIs (trace::PROVEN_FILES) has a formal law
+/// (trace::FORMAL_KINDS: exhaustive, kani, tla, lean) or is listed in spec/unproven.txt, which
+/// only shrinks: a proven clause is taken out, a new clause comes proven
+#[test]
+fn unproven_only_shrinks() {
+    let formal: BTreeSet<String> = kikizake::trace::laws().into_iter().filter(|l| kikizake::trace::FORMAL_KINDS.contains(&l.kind.as_str())).flat_map(|l| l.clauses).collect();
+    let listed = kikizake::trace::unproven();
+    let settled: BTreeSet<String> = spec::clauses().into_iter().filter(|c| kikizake::trace::PROVEN_FILES.contains(&c.file) && ["doc", "measured"].contains(&c.status.as_str())).map(|c| c.id).collect();
+    let new: Vec<_> = settled.iter().filter(|c| !formal.contains(*c) && !listed.contains(*c)).collect();
+    let gone: Vec<_> = listed.iter().filter(|c| formal.contains(*c) || !settled.contains(*c)).collect();
+    assert!(new.is_empty(), "settled clauses with no formal law (prove them: spec/lean, spec/tla, src/proofs.rs, an exhaustive law):\n{}", new.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n"));
+    assert!(gone.is_empty(), "clauses in spec/unproven.txt that are proven or not settled (take them out):\n{}", gone.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n"));
 }
 
 /// every clause has the evidence its status claims (kikizake trace: the table, per API):

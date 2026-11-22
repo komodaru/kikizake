@@ -108,3 +108,27 @@ fn x86_query_heap_boundary_accepts_only_recorded_results() {
         assert_eq!(compare::compare_text(&want, &actual).differ.is_empty(), valid);
     }
 }
+
+/// `kikizake lean` fails a Lean mirror that answers differently from the model, or stops
+/// answering (src/lean/): here a stand-in that answers 0 to everything, and one that quits
+#[cfg(unix)]
+#[test]
+fn lean_mirror_differences_are_found() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = std::env::temp_dir().join(format!("kikizake-lean-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let script = |name: &str, body: &str| {
+        let p = dir.join(name);
+        std::fs::write(&p, format!("#!/bin/sh\n{body}\n")).unwrap();
+        std::fs::set_permissions(&p, std::fs::Permissions::from_mode(0o755)).unwrap();
+        p.to_str().unwrap().to_string()
+    };
+    let zero = script("zero", "while read l; do echo 0; done");
+    let r = kikizake::lean::check(&zero, Some("gdi.alpha")).unwrap();
+    assert_eq!(r.len(), 1);
+    assert!(!r[0].differ.is_empty() && r[0].calls > 0);
+    let quit = script("quit", "read l; echo 0");
+    assert!(kikizake::lean::check(&quit, Some("gdi.alpha")).is_err());
+    assert!(kikizake::lean::check(&zero, Some("no.such")).is_err());
+    std::fs::remove_dir_all(&dir).unwrap();
+}
