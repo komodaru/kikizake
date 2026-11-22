@@ -281,6 +281,7 @@ tests/laws_d2d.rs::outlines_bound_the_fill pbt D2D.OUTLINE D2D.AREA.POLY
 tests/laws_d2d.rs::widened_lines_are_rectangles pbt D2D.WIDEN
 tests/laws_d2d.rs::widened_lines_through_transforms_are_parallelograms pbt D2D.WIDEN.PEN
 tests/laws_d2d.rs::sweeps_scale_by_powers_of_two pbt D2D.AREA.SHIFT
+tests/laws_d2d.rs::wide_integers_agree_with_i128 pbt D2D.AREA.POLY D2D.OUTLINE
 tests/laws_d2d.rs::widened_ellipses_stay_in_the_grown_box pbt D2D.WIDEN.ARC
 tests/laws_d2d.rs::one_color_gradients_are_solid pbt D2D.GRAD D2D.GRAD.RADIAL
 tests/laws_dd.rs::soft_line_colours_step_from_end_to_end pbt D3D7.GOURAUD

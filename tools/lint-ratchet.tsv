@@ -528,6 +528,12 @@ file	src/model/wicimage.rs	lossy_float_literal	2
 file	src/model/wicimage.rs	map_err_ignore	14
 file	src/model/wicimage.rs	same_name_method	1
 file	src/model/wicimage.rs	string_slice	1
+file	src/model/wide.rs	arithmetic_side_effects	12
+file	src/model/wide.rs	as_conversions	7
+file	src/model/wide.rs	cast_possible_truncation	2
+file	src/model/wide.rs	cast_precision_loss	2
+file	src/model/wide.rs	cast_sign_loss	1
+file	src/model/wide.rs	indexing_slicing	6
 file	src/rng.rs	arithmetic_side_effects	3
 file	src/rng.rs	as_conversions	3
 file	src/rng.rs	cast_possible_truncation	1

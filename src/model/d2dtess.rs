@@ -9,6 +9,7 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 
 use super::d2d::{bounds, flatten_in, shape, Geom, Seg, P};
+use super::wide::W;
 use super::{Fail, Res};
 use crate::spec::{clause, hit, open};
 
@@ -17,54 +18,37 @@ pub(crate) type I = i128;
 /// a point of the workspace as an exact fraction (x / d, y / d), d > 0, in lowest terms
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub(crate) struct Q {
-    pub x: I,
-    pub y: I,
-    pub d: I,
-}
-
-fn gcd(a: I, b: I) -> I {
-    let (mut a, mut b) = (a.abs(), b.abs());
-    while b != 0 {
-        (a, b) = (b, a % b);
-    }
-    a
+    pub x: W,
+    pub y: W,
+    pub d: W,
 }
 
 impl Q {
     pub fn int(p: Pt) -> Q {
-        Q { x: p.0, y: p.1, d: 1 }
+        Q { x: W::from(p.0), y: W::from(p.1), d: W::ONE }
     }
 
-    pub fn new(x: I, y: I, d: I) -> Q {
-        let s = if d < 0 { -1 } else { 1 };
-        let g = gcd(gcd(x, y), d).max(1) * s;
-        Q { x: x / g, y: y / g, d: d / g }
+    pub fn new(x: W, y: W, d: W) -> Q {
+        let g = W::gcd(W::gcd(x, y), d).max(W::ONE);
+        let g = if d.is_neg() { -g } else { g };
+        Q { x: W::div(x, g), y: W::div(y, g), d: W::div(d, g) }
+    }
+
+    /// whether it is a workspace point (an integer one)
+    pub fn whole(&self) -> bool {
+        self.d == W::ONE
+    }
+
+    /// the point in f64, each coordinate's numerator and denominator rounded
+    pub fn f64(&self) -> (f64, f64) {
+        if self.whole() { (self.x.to_f64(), self.y.to_f64()) } else { (self.x.to_f64() / self.d.to_f64(), self.y.to_f64() / self.d.to_f64()) }
     }
 }
 
-/// the sweep order: Less when `a` comes first (larger y, then larger x)
+/// the sweep order: Less when `a` comes first (larger y, then larger x); the products (about
+/// 2^246 at most) fit
 pub(crate) fn sweep(a: Q, b: Q) -> Ordering {
-    mul_cmp(b.y, a.d, a.y, b.d).then(mul_cmp(b.x, a.d, a.x, b.d))
-}
-
-/// a b against c d, exactly (the products to 256 bits)
-fn mul_cmp(a: I, b: I, c: I, d: I) -> Ordering {
-    fn wide(a: I, b: I) -> (i8, u128, u128) {
-        let s = a.signum() as i8 * b.signum() as i8;
-        let (x, y) = (a.unsigned_abs(), b.unsigned_abs());
-        let (x1, x0, y1, y0) = (x >> 64, x & u128::from(u64::MAX), y >> 64, y & u128::from(u64::MAX));
-        let (lo, mid1, mid2, hi) = (x0 * y0, x0 * y1, x1 * y0, x1 * y1);
-        let (mid, c1) = mid1.overflowing_add(mid2);
-        let (lo2, c2) = lo.overflowing_add(mid << 64);
-        let hi2 = hi + (mid >> 64) + (u128::from(c1) << 64) + u128::from(c2);
-        (s, hi2, lo2)
-    }
-    let ((s1, h1, l1), (s2, h2, l2)) = (wide(a, b), wide(c, d));
-    if s1 != s2 {
-        return s1.cmp(&s2);
-    }
-    let m = (h1, l1).cmp(&(h2, l2));
-    if s1 < 0 { m.reverse() } else { m }
+    (b.y * a.d).cmp(&(a.y * b.d)).then((b.x * a.d).cmp(&(a.x * b.d)))
 }
 
 /// CLineSegmentIntersection's fraction along `l` of its crossing with `o`, in f64 as Windows
@@ -106,7 +90,8 @@ impl Line {
     /// whether the point is right of the line (the line passes left of it)
     pub fn left_of(&self, v: Q) -> bool {
         let d = self.d();
-        d.0 * (v.y - self.s.1 * v.d) - d.1 * (v.x - self.s.0 * v.d) > 0
+        let w = W::from;
+        w(d.0) * (v.y - w(self.s.1) * v.d) - w(d.1) * (v.x - w(self.s.0) * v.d) > W::ZERO
     }
 }
 
@@ -267,10 +252,11 @@ pub(crate) fn cuts(lines: &[Line]) -> (Vec<Vec<Q>>, HashMap<Q, Vec<(usize, I, I,
             if tn < 0 || tn > den || un < 0 || un > den {
                 continue;
             }
-            let v = Q::new(l1.s.0 * den + tn * r.0, l1.s.1 * den + tn * r.1, den);
+            let w = W::from;
+            let v = Q::new(w(l1.s.0) * w(den) + w(tn) * w(r.0), w(l1.s.1) * w(den) + w(tn) * w(r.1), w(den));
             on[i].push(v);
             on[j].push(v);
-            if v.d != 1 {
+            if !v.whole() {
                 let e = inner.entry(v).or_default();
                 for (k, num, o) in [(i, tn, j), (j, un, i)] {
                     if !e.iter().any(|x| x.0 == k) {
@@ -357,9 +343,8 @@ pub fn scan(wind: bool, figs: &[Vec<(i128, i128)>]) -> Res<Scan> {
 }
 
 fn scan_in(wind: bool, figs: &[Vec<(i128, i128)>]) -> Res<Scan> {
-    // (past 2^31 workspace units, about 2048 DIP, after the common power of two the exact
-    // crossing test could overflow: the spec's open D2D.AREA.CURVE, asked by pareahuge-2)
-    if figs.iter().flatten().any(|p| !(p.0.abs() < 1 << 31 && p.1.abs() < 1 << 31)) {
+    // (the workspace holds integers to 2^48: the exact fractions in 256 bits reach that far)
+    if figs.iter().flatten().any(|p| !(p.0.abs() <= 1 << 48 && p.1.abs() <= 1 << 48)) {
         return Err(bad());
     }
     let mut acc = 0f64;
@@ -402,8 +387,8 @@ fn scan_in(wind: bool, figs: &[Vec<(i128, i128)>]) -> Res<Scan> {
             edges.push(Edge { a: w[0], b: w[1], line: k });
         }
         for &v in vs.iter() {
-            if v.d == 1 {
-                at.insert(v, (v.x as f64, v.y as f64));
+            if v.whole() {
+                at.insert(v, v.f64());
             }
         }
     }

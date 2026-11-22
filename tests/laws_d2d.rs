@@ -535,6 +535,32 @@ proptest! {
         prop_assert!((a.abs() - len * f64::from(w)).abs() < 1e-3 * (1.0 + len * f64::from(w)), "{} {}", a, len * f64::from(w));
     }
 
+    /// the 256-bit fractions' integer agrees with i128 wherever i128 holds the answer: sums,
+    /// products, order, exact quotients, gcd, and the f64 it rounds to (also past 2^128, against
+    /// the product of two roundings that are exact)
+    #[test]
+    fn wide_integers_agree_with_i128(a in -(1i128 << 62)..(1i128 << 62), b in -(1i128 << 62)..(1i128 << 62), k in 0u32..60) {
+        use kikizake::model::wide::W;
+        let w = W::from;
+        prop_assert_eq!(w(a) + w(b), w(a + b));
+        prop_assert_eq!(w(a) - w(b), w(a - b));
+        prop_assert_eq!(w(a) * w(b), w(a * b));
+        prop_assert_eq!(w(a).cmp(&w(b)), a.cmp(&b));
+        prop_assert_eq!(w(a * b).to_f64(), (a * b) as f64);
+        if b != 0 {
+            prop_assert_eq!(W::div(w(a * b), w(b)), w(a));
+            prop_assert_eq!(W::div(w(a), w(b)), w(a / b));
+        }
+        let (mut x, mut y) = (a.abs(), b.abs());
+        while y != 0 {
+            (x, y) = (y, x % y);
+        }
+        prop_assert_eq!(W::gcd(w(a), w(b)), w(x));
+        // (2^k a times 2^60 b, past 2^128: a b to f64 is exact when |a b| < 2^53)
+        let (s, t) = (a >> 40, b >> 40);
+        prop_assert_eq!((w(s << k) * w(t << 60)).to_f64(), (s * t) as f64 * 2f64.powi(k as i32 + 60));
+    }
+
     /// the scanner's sweep is the same at any power of two: the points times 2^k give the
     /// boundary sum times 4^k, past 2^31 workspace units too
     #[test]

@@ -142,9 +142,8 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
                     }
                 }
             }
-            // (past 2^31 workspace units, about 2048 DIP, the exact crossing test here could
-            // overflow: the spec's open D2D.SIMP, asked by outlinehuge-0)
-            if pts.iter().any(|p| !(p.0.0.abs() < 2147483648.0 && p.0.1.abs() < 2147483648.0)) {
+            // (the workspace holds integers to 2^48)
+            if pts.iter().any(|p| !(p.0.0.abs() <= 281474976710656.0 && p.0.1.abs() <= 281474976710656.0)) {
                 return Err(bad());
             }
             let mut fp: Vec<(Pt, Option<Part>)> = Vec::new();
@@ -173,6 +172,18 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
             }
         }
     }
+    // (D2D.AREA.SHIFT: the points' common power of two taken out, every product and quotient
+    // the same scaled by it, the answers scaled back exactly)
+    let k = lines.iter().flat_map(|l| [l.s.0, l.s.1, l.e.0, l.e.1]).filter(|v| *v != 0).map(I::trailing_zeros).min().unwrap_or(0);
+    let f = (0..k).fold(1f64, |a, _| a * 2.0);
+    for l in lines.iter_mut() {
+        l.s = (l.s.0 >> k, l.s.1 >> k);
+        l.e = (l.e.0 >> k, l.e.1 >> k);
+    }
+    for b in curves.iter_mut() {
+        *b = b.map(|p| [p[0] / f, p[1] / f]);
+    }
+    let out = |v: (f64, f64)| out((v.0 * f, v.1 * f));
     let (mut on, inner) = cuts(&lines);
     for vs in on.iter_mut() {
         vs.sort_by(|a, b| sweep(*a, *b));
@@ -182,7 +193,7 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
     // crossing from the line's base (its last cut) and the crossing line's: A = base_i,
     // B = T_i, C = base_j, D = T_j, lambda = clamp(cross(AC, DC) / cross(AB, DC), 0, 1),
     // V = (B - A) lambda + A; cut points in sweep order
-    let mut val: Vec<Vec<(f64, f64)>> = on.iter().map(|vs| vs.iter().map(|v| (v.x as f64 / v.d as f64, v.y as f64 / v.d as f64)).collect()).collect();
+    let mut val: Vec<Vec<(f64, f64)>> = on.iter().map(|vs| vs.iter().map(|v| v.f64()).collect()).collect();
     let mut base: Vec<(f64, f64)> = lines.iter().map(|l| (l.s.0 as f64, l.s.1 as f64)).collect();
     let mut evs: Vec<(Q, usize, usize)> = Vec::new();
     for (i, vs) in on.iter().enumerate() {
@@ -200,8 +211,8 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
         let x = evs[g].0;
         let mut news = Vec::new();
         for &(_, i, k) in &evs[g..h] {
-            let v = if x.d == 1 {
-                (x.x as f64, x.y as f64)
+            let v = if x.whole() {
+                x.f64()
             } else {
                 let j = inner.get(&x).and_then(|ls| ls.iter().find(|l| l.0 != i)).ok_or_else(bad)?.0;
                 let (a, c) = (base[i], base[j]);

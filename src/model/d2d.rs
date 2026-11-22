@@ -2377,12 +2377,28 @@ impl D2d {
                             let (ql, qt) = q.iter().fold((f32::INFINITY, f32::INFINITY), |a, p| (lo(a.0, p.0), lo(a.1, p.1)));
                             let (qr, qb) = q.iter().fold((f32::NEG_INFINITY, f32::NEG_INFINITY), |a, p| (hi(a.0, p.0), hi(a.1, p.1)));
                             let axis = m[1] == 0.0 && m[2] == 0.0;
-                            // (one cut to bounds the mask passes: two strip clippers in f32,
-                            // the spec's open D2D.RT, asked by layercurve-1)
-                            if !(axis && mb[0] >= ql && mb[1] >= qt && mb[2] <= qr && mb[3] <= qb) {
-                                return Err(Fail::Unmodeled(open::D2D_RT));
-                            }
                             hit(clause::D2D_LAYER_CURVE);
+                            if !(axis && mb[0] >= ql && mb[1] >= qt && mb[2] <= qr && mb[3] <= qb) {
+                                // (MEASURED, D2D.LAYER.CUT, from the clean-room notes: else the
+                                // mask is cut by two strip clippers, x then y, in f32: a cubic
+                                // within the strip kept, one leaving it flattened at 0.25 and
+                                // its lines clipped)
+                                hit(clause::D2D_LAYER_CUT);
+                                let (wind, _, figs) = shape(&g);
+                                let figs = strip_clip(strip_clip(figs, 0, lo(r[0], r[2]), hi(r[0], r[2])), 1, lo(r[1], r[3]), hi(r[1], r[3]));
+                                let a = |p: P| apply(&m, p.0, p.1);
+                                let figs: Vec<Fig> = figs.into_iter().map(|f| Fig {
+                                    start: a(f.start),
+                                    segs: f.segs.iter().map(|s| match *s {
+                                        Seg::L(p) => Seg::L(a(p)),
+                                        Seg::C(p, q, u) => Seg::C(a(p), a(q), a(u)),
+                                    }).collect(),
+                                    closed: true,
+                                }).collect();
+                                let ps = fixed_curves(tg, &figs, Frame::Antialiased)?;
+                                let inside = samples16(tg, &ps, wind);
+                                return layer_push(tg, inside, o);
+                            }
                             let (wind, ps) = fixed_polys(tg, &g, Frame::Antialiased)?;
                             let inside = samples16(tg, &ps, wind);
                             return layer_push(tg, inside, o);
@@ -2957,6 +2973,75 @@ impl D2d {
         out.push("nort".into());
         Ok(())
     }
+}
+
+/// CStripClipper: closed figures cut to lo <= v <= hi on one axis (0 x, 1 y), in f32: a cubic
+/// whose control points all lie within kept as it is, any other flattened at 0.25 (D2D.FLATTEN)
+/// and its lines cut where they cross a side
+fn strip_clip(figs: Vec<Fig>, ax: usize, lo: f32, hi: f32) -> Vec<Fig> {
+    let c = |p: P| if ax == 0 { p.0 } else { p.1 };
+    let mut out = Vec::new();
+    for f in figs {
+        // the figure's edges, cubics leaving the strip flattened
+        let mut segs = Vec::new();
+        let mut cur = f.start;
+        for s in &f.segs {
+            match *s {
+                Seg::L(p) => {
+                    segs.push(Seg::L(p));
+                    cur = p;
+                }
+                Seg::C(a, b, d) => {
+                    if [cur, a, b, d].iter().all(|&p| c(p) >= lo && c(p) <= hi) {
+                        segs.push(Seg::C(a, b, d));
+                    } else {
+                        segs.extend(flatten(cur, a, b, d, 0.25).into_iter().map(Seg::L));
+                    }
+                    cur = d;
+                }
+            }
+        }
+        if cur != f.start {
+            segs.push(Seg::L(f.start));
+        }
+        // each side in turn (Sutherland-Hodgman), the cut point found along the edge in f32
+        let mut fig = (f.start, segs);
+        for (bound, keep_hi) in [(lo, true), (hi, false)] {
+            let inside = |p: P| if keep_hi { c(p) >= bound } else { c(p) <= bound };
+            let cut = |p: P, q: P| {
+                let t = (bound - c(p)) / (c(q) - c(p));
+                if ax == 0 { (bound, p.1 + (q.1 - p.1) * t) } else { (p.0 + (q.0 - p.0) * t, bound) }
+            };
+            let (start, segs) = fig;
+            let mut res: Vec<Seg> = Vec::new();
+            let mut p = start;
+            for s in segs {
+                let q = match s {
+                    Seg::L(q) | Seg::C(_, _, q) => q,
+                };
+                match (inside(p), inside(q)) {
+                    (true, true) => res.push(s),
+                    (true, false) => res.push(Seg::L(cut(p, q))),
+                    (false, true) => {
+                        res.push(Seg::L(cut(p, q)));
+                        res.push(Seg::L(q));
+                    }
+                    (false, false) => {}
+                }
+                p = q;
+            }
+            // (the figure starts where its last edge ends)
+            let st = match res.last() {
+                Some(Seg::L(q) | Seg::C(_, _, q)) => *q,
+                None => start,
+            };
+            fig = (st, res);
+        }
+        if !fig.1.is_empty() {
+            out.push(Fig { start: fig.0, segs: fig.1, closed: true });
+        }
+    }
+    out
 }
 
 /// PushLayer after its coverage: the error of a layer pushed again, else the layer put on the

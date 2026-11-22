@@ -28,6 +28,7 @@ pub(crate) use words;
 
 pub mod d2d;
 pub mod d2dtess;
+pub mod wide;
 pub mod d2dbool;
 pub mod d2dwiden;
 pub mod d3d11;
