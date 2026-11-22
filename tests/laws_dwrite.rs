@@ -1,6 +1,8 @@
 //! Laws of the DirectWrite model (src/model/dwrite): the font writer and parser agree, and the
 //! text analyses keep the invariants UAX #9 / #14 / #24 and the API's output shape promise,
 //! whatever Windows' measured details are. Exhaustive over small alphabets, proptest elsewhere.
+mod pairs;
+use pairs::zip_eq;
 use proptest::prelude::*;
 use kikizake::generators::dwrite::{font, BIDI_CHARS, BREAK_CHARS, CHARS, SCRIPT_CHARS};
 use kikizake::model::dwrite::{bidi, gdi_round, linebreak, raster, script};
@@ -81,7 +83,7 @@ fn bidi_levels_exhaustive() {
             for para in [0u8, 1] {
                 let lv = bidi::analyze(&t, para).1;
                 assert_eq!(lv.len(), t.len());
-                for (i, (&c, &l)) in t.iter().zip(&lv).enumerate() {
+                for (i, (&c, &l)) in zip_eq(t.iter(), &lv).enumerate() {
                     assert!(l >= para && l <= para + 2, "{t:?} {para} {lv:?}");
                     match c {
                         L => assert_eq!(l % 2, 0, "{t:?} {para} {lv:?}"),

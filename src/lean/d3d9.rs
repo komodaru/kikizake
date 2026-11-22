@@ -216,7 +216,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: FVF,
         domain: Domain::Sampled("the declarations D3DXDeclaratorFromFVF makes of every FVF of the low 16 bits and of 100,000 32-bit FVFs, each also with one element dropped, two swapped, an offset moved, a type, usage or index changed, a stream set and an end inside"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xdec1_d009);
+            let mut rng = crate::rng::Sample64::new(0xdec1_d009);
             let mut decl = |f: i64| {
                 let Some(Ok(e)) = u32::try_from(f).ok().map(d3dx9::fvf_decl) else {
                     return;
@@ -227,7 +227,7 @@ pub static MIRRORS: &[Mirror] = &[
                     return;
                 }
                 let n = i64::try_from(e.len()).unwrap_or(1);
-                let pick = |rng: &mut crate::rng::XorShift32| usize::try_from(rng.range(0, n.saturating_sub(1))).unwrap_or(0);
+                let pick = |rng: &mut crate::rng::Sample64| usize::try_from(rng.range(0, n.saturating_sub(1))).unwrap_or(0);
                 let mut d = e.clone();
                 d.remove(pick(&mut rng));
                 send(&d, each);
@@ -399,8 +399,8 @@ pub static MIRRORS: &[Mirror] = &[
         lean: ARG,
         domain: Domain::Sampled("every selector and modifier 0..0x7f on both runtimes with a texture and without, on random 8-bit registers, and 300,000 samples of selectors 0..0x7f, registers of any f32 in 0..1, 32-bit TEXTUREFACTOR and CONSTANT"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xa7a9_d009);
-            let mut send = |a: i64, v8: i64, has: i64, unit: &mut dyn FnMut() -> f64, rng: &mut crate::rng::XorShift32| {
+            let mut rng = crate::rng::Sample64::new(0xa7a9_d009);
+            let mut send = |a: i64, v8: i64, has: i64, unit: &mut dyn FnMut() -> f64, rng: &mut crate::rng::Sample64| {
                 let mut w = vec![a, v8];
                 for _ in 0..16 {
                     w.extend(f64_halves(unit()));
@@ -413,7 +413,7 @@ pub static MIRRORS: &[Mirror] = &[
                 w.push(rng.range(0, U32));
                 each(&w);
             };
-            let mut r2 = crate::rng::XorShift32::new(0xa7aa_d009);
+            let mut r2 = crate::rng::Sample64::new(0xa7aa_d009);
             for a in 0..0x80 {
                 for v8 in 0..2 {
                     for has in 0..2 {
@@ -422,7 +422,7 @@ pub static MIRRORS: &[Mirror] = &[
                     }
                 }
             }
-            let mut r3 = crate::rng::XorShift32::new(0xa7ab_d009);
+            let mut r3 = crate::rng::Sample64::new(0xa7ab_d009);
             for _ in 0..300_000 {
                 let (a, v8, has) = (rng.range(0, 0x7f), rng.range(0, 1), rng.range(0, 1));
                 let mut unit = || f32w(r3.range(0, 0x3f80_0000));
@@ -462,7 +462,7 @@ pub static MIRRORS: &[Mirror] = &[
                     each(&flat(&e).collect::<Vec<_>>());
                 }
             }
-            let mut rng = crate::rng::XorShift32::new(0xdec1_0009);
+            let mut rng = crate::rng::Sample64::new(0xdec1_0009);
             for _ in 0..200_000 {
                 let n = rng.range(1, 5);
                 let e: Vec<(u32, u32)> = (0..n).map(|_| {

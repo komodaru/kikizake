@@ -320,7 +320,7 @@ fn res_dev(a: &[i64]) -> Option<crate::model::d3dres::Dev> {
 /// `n` descriptions of the values above on every device, their format's facts from the tables
 /// (or, one in five, made up)
 fn descs(n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     for _ in 0..n {
         let (dk, lv) = *rng.pick(&DEVS);
         let mut v = vec![dk, lv, *rng.pick(&DIMS), *rng.pick(&SIZES), *rng.pick(&SIZES), *rng.pick(&DEPTHS), *rng.pick(&MIPS), rng.range(0, 133), *rng.pick(&USAGES), *rng.pick(&BINDS), *rng.pick(&CPUS), *rng.pick(&MISCS), *rng.pick(&COUNTS), *rng.pick(&QS), rng.range(0, 1)];
@@ -446,7 +446,7 @@ const VIEW_VALS: [i64; 20] = [0, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 63, 64, 6
 /// five, made up)
 fn views(n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
     use crate::model::d3dres_check as c;
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     for _ in 0..n {
         let (dk, lv) = *rng.pick(&DEVS);
         let kind = if rng.chance(50) { 4 } else { rng.range(0, 3) };
@@ -532,7 +532,7 @@ const TEXTURE_SIZES: [i64; 14] = [0, 1, 2, 3, 4, 5, 7, 8, 64, 255, 16384, (1 << 
 
 /// each of FLOATS, signed; then `n` of: a coordinate in -1..2, of 0..1 as a multiple of 2^-k,
 /// or any 32-bit pattern
-fn floats(n: usize, rng: &mut crate::rng::XorShift32, each: &mut dyn FnMut(u32)) {
+fn floats(n: usize, rng: &mut crate::rng::Sample64, each: &mut dyn FnMut(u32)) {
     for &x in &FLOATS {
         each(x);
         each(x | 1 << 31);
@@ -552,7 +552,7 @@ fn floats(n: usize, rng: &mut crate::rng::XorShift32, each: &mut dyn FnMut(u32))
 
 /// coordinates and texture sizes
 fn coords(seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     let mut cs = Vec::new();
     floats(60_000, &mut rng, &mut |c| cs.push(i64::from(c)));
     for c in cs {
@@ -564,7 +564,7 @@ fn coords(seed: u32, each: &mut dyn FnMut(&[i64])) {
 
 /// three floats: of FLOATS each with each, then texel values and weights, then any patterns
 fn triples(seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     let mut fs = Vec::new();
     floats(0, &mut rng, &mut |c| fs.push(i64::from(c)));
     for &a in &fs {
@@ -585,8 +585,8 @@ fn triples(seed: u32, each: &mut dyn FnMut(&[i64])) {
 /// lods: whole and half levels, near a 1/256 boundary and its half, anywhere in 0..20, the
 /// special values, any patterns; every last level to 15, point and linear
 fn lods(seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
-    let put = |x: f64, rng: &mut crate::rng::XorShift32, each: &mut dyn FnMut(&[i64])| {
+    let mut rng = crate::rng::Sample64::new(seed);
+    let put = |x: f64, rng: &mut crate::rng::Sample64, each: &mut dyn FnMut(&[i64])| {
         let h = super::f64_halves(x);
         let (hi, lo) = (h.first().copied().unwrap_or(0), h.get(1).copied().unwrap_or(0));
         let (hi, lo) = if x.is_nan() { (0x7ff8_0000, 0) } else { (hi, lo) };
@@ -670,7 +670,7 @@ pub static FILTER_MIRRORS: &[Mirror] = &[
         lean: FILTER,
         domain: Domain::Sampled("every function 0..9 with every pair of 40 signed boundary floats, and with 100,000 pairs of coordinates or any patterns"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x5c3b_d311);
+            let mut rng = crate::rng::Sample64::new(0x5c3b_d311);
             let mut fs = Vec::new();
             floats(200_000, &mut rng, &mut |c| fs.push(i64::from(c)));
             for f in 0..10 {

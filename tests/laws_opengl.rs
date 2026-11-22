@@ -1,5 +1,7 @@
 //! Laws of the OpenGL model: what the GL 1.1 specification states as properties, whatever
 //! Windows' measured details turn out to be.
+mod pairs;
+use pairs::zip_eq;
 use kikizake::compare::line_matches;
 use kikizake::model::opengl::e::*;
 use kikizake::model::opengl::tri::{self, Sub, Vertex};
@@ -639,7 +641,7 @@ proptest! {
         prop_assert_eq!(plain.len(), moved.len());
         // (the plane's slopes, as depths has them, bounded by the moves seen)
         let scale = f64::from(1u32 << 31);
-        for (p, q) in plain.iter().zip(&moved) {
+        for (p, q) in zip_eq(plain.iter(), &moved) {
             prop_assert_eq!((p.0, p.1), (q.0, q.1));
             let shift = f64::from(q.2 .0.wrapping_sub(p.2 .0));
             let first = f64::from(moved[0].2 .0.wrapping_sub(plain[0].2 .0));
@@ -1059,12 +1061,12 @@ fn color_plane_holds(v: [(i16, i16); 3], c: [[u8; 4]; 3]) -> Result<(), TestCase
     // 1/256 step outside the triangle, each corner's weight at least -1 / its height, so a color
     // at most its spread over the least height past the corners')
     let slack = heights.iter().map(|h| 1.0 / h).fold(0.0, f64::max);
-    let near = |a: [f64; 4], b: [f64; 4]| a.iter().zip(b).all(|(x, y)| (x - y).abs() < 1e-6);
+    let near = |a: [f64; 4], b: [f64; 4]| zip_eq(a.iter(), b).all(|(x, y)| (x - y).abs() < 1e-6);
     for (x, y) in tri::pixels(&v, 16, 16) {
         let (cx, cy) = ((x * 256 + 128) as f64, (y * 256 + 128) as f64);
         let l1 = ((cx - p0.0) * (p2.1 - p0.1) - (p2.0 - p0.0) * (cy - p0.1)) / area;
         let l2 = ((p1.0 - p0.0) * (cy - p0.1) - (cx - p0.0) * (p1.1 - p0.1)) / area;
-        for (l, h) in [1.0 - l1 - l2, l1, l2].iter().zip(heights) {
+        for (l, h) in zip_eq([1.0 - l1 - l2, l1, l2].iter(), heights) {
             prop_assert!(*l >= -1.0 / h - 1e-12, "pixel {:?} {} past an edge", (x, y), -l * h);
         }
         let at = tri::plane(v, c, x, y);

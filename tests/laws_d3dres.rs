@@ -1,5 +1,7 @@
 //! Laws of the Direct3D 10/11 models (conversions, the rasterizer), apart from Windows' answers:
 //! exhaustive over the small formats, properties over the rest.
+mod pairs;
+use pairs::zip_eq;
 use kikizake::case::parse_cases;
 use kikizake::generators::d3ddraw::{shader, Prog};
 use kikizake::generators::dxbc::hex;
@@ -84,7 +86,7 @@ proptest! {
         let big = r.max(g).max(b);
         // (the shared exponent: every channel within an ulp of the largest's 9-bit mantissa)
         let ulp = 2f32.powi((big.log2().floor() as i32) - 8).max(2f32.powi(-24));
-        for (x, y) in [r, g, b].iter().zip(back) {
+        for (x, y) in zip_eq([r, g, b].iter(), back) {
             prop_assert!((x - y).abs() <= ulp * 1.01, "{} {} ulp {}", x, y, ulp);
         }
     }

@@ -44,3 +44,34 @@ fn incomplete_or_stale_sets_fail() {
     assert!(!check_complete(&tmp, &root, &[]).missing.is_empty());
     std::fs::remove_dir_all(&tmp).unwrap();
 }
+
+/// a recording under another suite's or architecture's name fails, though every required file
+/// is there and current (the review of 84b05c8, 4.2: the ten 32-bit recordings copied to both
+/// names gave 0 problems)
+#[test]
+fn recordings_under_another_name_fail() {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let required = kikizake::calls::required(&root).unwrap();
+    let tmp = std::env::temp_dir().join(format!("kikizake-calls-names-{}", std::process::id()));
+    std::fs::create_dir_all(&tmp).unwrap();
+    let mut copied = 0;
+    for (n, _) in &required {
+        let from = match n.strip_suffix("-64") {
+            Some(s) => format!("{s}-32"),
+            None => n.clone(),
+        };
+        std::fs::copy(root.join(format!("calls/{from}.txt")), tmp.join(format!("{n}.txt"))).unwrap();
+        copied += usize::from(from != *n);
+    }
+    assert!(copied >= 10, "{copied}");
+    let c = kikizake::calls::check_complete(&tmp, &root, &required);
+    let renamed = c.ops.iter().filter(|o| o.contains("its header says it records")).count();
+    assert_eq!(renamed, copied, "{}", c.report());
+    assert!(c.problems() >= copied);
+    // (the names themselves: a suite and 32 or 64)
+    assert!(kikizake::calls::RecName::parse("gdi-32").is_ok());
+    for bad in ["gdi", "gdi-86", "-32", "gdi 1-64"] {
+        assert!(kikizake::calls::RecName::parse(bad).is_err(), "{bad}");
+    }
+    std::fs::remove_dir_all(&tmp).unwrap();
+}

@@ -333,3 +333,31 @@ fn interpolation_stays_in_the_mirrored_functions() {
     assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in triangle")).count(), 2, "{r:?}");
     assert!(rust("src/model/d3draster.rs", "fn clamp_range() { z.max(lo).min(hi) }\nfn vertex_depth() { minz + z * (1.0 / w) * (maxz - minz) }\n").is_empty());
 }
+
+#[test]
+fn mirror_samples_from_the_32_bit_generator_are_found() {
+    let old = "fn values(each: &mut dyn FnMut(&[i64])) {\n    let mut rng = crate::rng::XorShift32::new(1);\n    each(&[rng.range(0, i64::MAX)]);\n}\n";
+    let r = rust("src/lean/gdiplus.rs", old);
+    assert!(r.iter().any(|m| m.starts_with("src/lean/gdiplus.rs:2: lean-sampler")), "{r:?}");
+    assert!(rust("src/lean/gdiplus.rs", "fn f() { let mut rng = crate::rng::Sample64::new(1); }").is_empty());
+    // (the generators keep XorShift32: the goldens were made with its sequence)
+    assert!(rust("src/generators/gdi.rs", old).is_empty());
+}
+
+#[test]
+fn zips_in_tests_are_found() {
+    // (the review's test: with every place line gone, the zip compared nothing and passed)
+    let old = "fn placements() {\n    let places: Vec<&String> = out.iter().filter(|l| l.starts_with(\"place \")).collect();\n    for (em, l) in (1..=200u16).zip(places) {\n        assert_eq!(l, &want(em));\n    }\n}\n";
+    let r = test_rust("tests/laws_dwrite_face.rs", old);
+    assert_eq!(r.len(), 1, "{r:?}");
+    assert!(r[0].starts_with("tests/laws_dwrite_face.rs:3: zip-unchecked"), "{r:?}");
+    assert!(!test_rust("tests/x.rs", "fn f() { assert!(a.iter().zip(&b).all(|(x, y)| x == y)); }").is_empty());
+    assert!(test_rust("tests/x.rs", "fn f() { for (em, l) in zip_eq(1..=200u16, places) {} }\n// a.zip(b) in a comment\n").is_empty());
+}
+
+#[test]
+fn recording_names_read_apart_are_found() {
+    let old = "pub fn check_dir() {\n    let suite = n.rsplit_once('-').map_or(n.as_str(), |(s, _)| s);\n}\n";
+    assert!(rust("src/calls.rs", old).iter().any(|m| m.contains("forbidden in check_dir")), "{:?}", rust("src/calls.rs", old));
+    assert!(rust("src/calls.rs", "impl RecName {\n    pub fn parse(s: &str) { let (suite, arch) = s.rsplit_once('-'); }\n}\n").is_empty());
+}

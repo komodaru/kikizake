@@ -130,7 +130,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: TEXEL,
         domain: Domain::Sampled("DXT1..5 (and 0, 6, 7) blocks of 8 and 16 bytes: every texel of 3,000 random blocks each, and 300,000 samples of texels 0..16 of blocks of 0..16 bytes"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xd7c1_d009);
+            let mut rng = crate::rng::Sample64::new(0xd7c1_d009);
             for n in 0..8 {
                 for _ in 0..3_000 {
                     let len = if n == 1 { 8 } else { 16 };
@@ -159,7 +159,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: TEXEL,
         domain: Domain::Sampled("the channels of every format the model knows, and every list of 0..3 channel letters of r g b a l x p u v w q, on random binary64 channels (any bits, and k / 255)"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x76ba_d009);
+            let mut rng = crate::rng::Sample64::new(0x76ba_d009);
             let mut lists: Vec<Vec<u8>> = (0..=255u32).filter_map(|f| d3d9draw::format(f)).map(|m| m.ch.iter().map(|c| c.c).collect()).collect();
             let letters = b"rgbalxpuvwq";
             for len in 0..=3 {
@@ -172,7 +172,7 @@ pub static MIRRORS: &[Mirror] = &[
                     let mut w = vec![];
                     for &c in l {
                         w.push(i64::from(c));
-                        let v = if k % 2 == 0 { f64::from(u8::try_from(rng.range(0, 255)).unwrap_or(0)) / 255.0 } else { f64::from_bits(u64::from(rng.next()) << 32 | u64::from(rng.next())) };
+                        let v = if k % 2 == 0 { f64::from(u8::try_from(rng.range(0, 255)).unwrap_or(0)) / 255.0 } else { f64::from_bits(u64::from(rng.word()) << 32 | u64::from(rng.word())) };
                         w.extend(f64_halves(v));
                     }
                     each(&w);
@@ -210,7 +210,7 @@ pub static MIRRORS: &[Mirror] = &[
                 let w: Vec<i64> = a.iter().flat_map(|&k| stage(k)).collect();
                 each(&w);
             });
-            let mut rng = crate::rng::XorShift32::new(0x91a7_d009);
+            let mut rng = crate::rng::Sample64::new(0x91a7_d009);
             for _ in 0..300_000 {
                 let n = rng.range(0, 8);
                 // (mostly enabled stages, so that the chains run long)
@@ -258,8 +258,8 @@ pub static MIRRORS: &[Mirror] = &[
         lean: CHAIN,
         domain: Domain::Sampled("300,000 samples of coordinates in -4..4, BUMPENVMAT, LSCALE, LOFFSET of f32 in -4..4, (du, dv), L and channels of 8-bit values (k / 255 and signed k / 127), and 100,000 of any f32 bits for each"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xb0b5_d009);
-            let f32s = |rng: &mut crate::rng::XorShift32, lo: f32, hi: f32| -> f64 { f64::from(lo + (hi - lo) * (f32::from(u16::try_from(rng.range(0, 0xffff)).unwrap_or(0)) / 65535.0)) };
+            let mut rng = crate::rng::Sample64::new(0xb0b5_d009);
+            let f32s = |rng: &mut crate::rng::Sample64, lo: f32, hi: f32| -> f64 { f64::from(lo + (hi - lo) * (f32::from(u16::try_from(rng.range(0, 0xffff)).unwrap_or(0)) / 65535.0)) };
             for _ in 0..300_000 {
                 let mut w = vec![];
                 for _ in 0..2 {
@@ -282,7 +282,7 @@ pub static MIRRORS: &[Mirror] = &[
                 each(&w);
             }
             for _ in 0..100_000 {
-                let w: Vec<i64> = (0..13).flat_map(|_| f64_halves(f64::from(f32::from_bits(rng.next())))).collect();
+                let w: Vec<i64> = (0..13).flat_map(|_| f64_halves(f64::from(f32::from_bits(rng.word())))).collect();
                 each(&w);
             }
         },

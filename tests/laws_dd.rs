@@ -1,6 +1,8 @@
 //! Properties of the DirectDraw and Direct3D 1/2/3/7 models (src/model/ddraw.rs, d3d7.rs) that
 //! hold whatever the measured details: exhaustive over small domains, property-based elsewhere.
 //! With Windows' answers they are what cargo-mutants counts on to catch mutants of the models.
+mod pairs;
+use pairs::zip_eq;
 use proptest::prelude::*;
 use kikizake::case::{parse_cases, parse_output, tokens};
 use kikizake::model::d3d7::{clear_z, f32_past, SlopeRound, gouraud_channel, line, pixel, rs_default, tri_z, tri_z_write, Depth, Family, Fmt, Ver};
@@ -759,8 +761,8 @@ fn lines_cross_each_column_once() {
                 let (Ok(on), Ok(off), Ok(back)) = (line(family, [a, b], true, w, h), line(family, [a, b], false, w, h), line(family, [b, a], true, w, h)) else { continue };
                 drawn += 1;
                 // off draws a subset of on, missing at most one pixel
-                assert!(on.iter().zip(&off).all(|(&n, &f)| n || !f), "{a:?} {b:?}");
-                assert!(on.iter().zip(&off).filter(|(n, f)| n != f).count() <= 1, "{a:?} {b:?}");
+                assert!(zip_eq(on.iter(), &off).all(|(&n, &f)| n || !f), "{a:?} {b:?}");
+                assert!(zip_eq(on.iter(), &off).filter(|(n, f)| n != f).count() <= 1, "{a:?} {b:?}");
                 if dx == 0 && dy == 0 {
                     assert!(on.iter().all(|&c| !c));
                     continue;

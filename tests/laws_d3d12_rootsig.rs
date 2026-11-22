@@ -3,6 +3,8 @@
 //! is a proof for that domain (kind exhaustive). The references are the clauses' words, apart
 //! from the model's functions: the blob is read back by the clause's layout and its checksum is
 //! MD5's rounds written here anew.
+mod pairs;
+use pairs::zip_eq;
 use kikizake::model::d3d12_features::{answer, ANSWERS, UNEXPECTED};
 use kikizake::model::rootsig::{checksum, cost, dxbc, rts0, valid, DescKind, Param, Range, Sampler, Version};
 
@@ -231,7 +233,7 @@ fn md5_compress(st: &mut [u32; 4], block: &[u8]) {
         let x = a.wrapping_add(f).wrapping_add(K[i]).wrapping_add(m(g)).rotate_left(R[i / 16 * 4 + i % 4]);
         (a, b, c, d) = (d, b.wrapping_add(x), b, c);
     }
-    for (s, v) in st.iter_mut().zip([a, b, c, d]) {
+    for (s, v) in zip_eq(st.iter_mut(), [a, b, c, d]) {
         *s = s.wrapping_add(v);
     }
 }

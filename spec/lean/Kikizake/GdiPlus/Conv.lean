@@ -204,7 +204,7 @@ def mirrors : List Mirror := [
   ⟨"gp.unpremultiply", fun | [c, a] => do pure [unpremultiply (← nat c) (← nat a)] | _ => none⟩,
   ⟨"gp.widen", fun | [c] => do let c ← nat c; if c < 256 then pure [widen c] else none | _ => none⟩,
   ⟨"gp.narrow", fun | [v] => do pure [narrow (← nat v)] | _ => none⟩,
-  ⟨"gp.to_argb", fun | [f, v] => do pure [← toArgb (← pf (← nat f)) (← nat v)] | _ => none⟩,
+  ⟨"gp.to_argb", fun | [f, hi, lo] => do pure [← toArgb (← pf (← nat f)) (← nat64 hi lo)] | _ => none⟩,
   ⟨"gp.from_argb", fun | [f, c] => do pure [← fromArgb (← pf (← nat f)) (← nat c)] | _ => none⟩
 ]
 

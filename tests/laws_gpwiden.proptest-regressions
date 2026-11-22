@@ -5,3 +5,4 @@
 # It is recommended to check this file in to source control so that
 # everyone who runs the test benefits from these saved cases.
 cc 73a13265f0a012a4861f562a5ea8f67ff55e8382f60d0735d16f5b93539e2377 # shrinks to x = 2, y = 2, w = 4, h = 4, half = 1, down = false
+cc 3346336c5abbb81775d58f640abaf4e4a9e599a060d4882023103479700cffa4 # shrinks to n = 1, q = [1, 1, 1, 1, 1, 1], o = 0, w = 0, style = 1, x1 = 14, y1 = 2, down = false

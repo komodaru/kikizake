@@ -1,3 +1,5 @@
+mod pairs;
+use pairs::zip_eq;
 use kikizake::{case, compare, model, tla};
 use std::process::Command;
 
@@ -81,7 +83,7 @@ fn unknown_shader_with_an_intact_container_is_unmodeled() {
     let index = shader.windows(9).position(|w| w == b"SV_Target").unwrap();
     shader[index + 3] = b't';
     let sum = kikizake::generators::dxbc::checksum(&shader[20..]);
-    for (dest, word) in shader[4..20].chunks_exact_mut(4).zip(sum) { dest.copy_from_slice(&word.to_le_bytes()); }
+    for (dest, word) in zip_eq(shader[4..20].chunks_exact_mut(4), sum) { dest.copy_from_slice(&word.to_le_bytes()); }
     let text = format!("case x\ndevice11\nshader 0 ps {}\nend", kikizake::generators::dxbc::hex(&shader));
     assert!(matches!(model::run_case(&case::parse_cases(&text)[0]), Err(model::Fail::Unmodeled(_))));
 }
@@ -124,11 +126,68 @@ fn lean_mirror_differences_are_found() {
         p.to_str().unwrap().to_string()
     };
     let zero = script("zero", "while read l; do echo 0; done");
-    let r = kikizake::lean::check(&zero, Some("gdi.alpha")).unwrap();
+    // (a test thread that forks while the script is still open for writing holds it open in the
+    // child until its exec: ETXTBSY, "Text file busy", a moment; spawning again is the remedy)
+    let check = |exe: &str, only: &str| {
+        let mut r = kikizake::lean::check(exe, Some(only));
+        for _ in 0..50 {
+            if !matches!(&r, Err(e) if e.contains("Text file busy")) {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(20));
+            r = kikizake::lean::check(exe, Some(only));
+        }
+        r
+    };
+    let r = check(&zero, "gdi.alpha").unwrap();
     assert_eq!(r.len(), 1);
     assert!(!r[0].differ.is_empty() && r[0].calls > 0);
     let quit = script("quit", "read l; echo 0");
-    assert!(kikizake::lean::check(&quit, Some("gdi.alpha")).is_err());
-    assert!(kikizake::lean::check(&zero, Some("no.such")).is_err());
+    assert!(matches!(check(&quit, "gdi.alpha"), Err(e) if !e.contains("Text file busy")));
+    assert!(check(&zero, "no.such").is_err());
     std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// The samples of a `Sampled` mirror cover its ranges: in each argument (by the argument lists'
+/// length and place) spanning more than 2^33, at least one sample in 1000 lies past the lowest
+/// 2^32 values, and one spanning both signs past 2^32 each way has one sample in 100 on each
+/// side (the review of 84b05c8, 4.1: a 32-bit draw put 100,001 of 100,002 64-bit pixels below
+/// 2^32 and 300,004 of gdi.c8's 300,008 numbers below 0)
+#[test]
+fn sampled_mirrors_reach_their_whole_ranges() {
+    use std::collections::BTreeMap;
+    let mut bad = Vec::new();
+    for m in kikizake::lean::mirrors() {
+        if !matches!(m.domain, kikizake::lean::Domain::Sampled(_)) {
+            continue;
+        }
+        let mut cols: BTreeMap<(usize, usize), Vec<i64>> = BTreeMap::new();
+        (m.inputs)(&mut |a| {
+            for (i, &v) in a.iter().enumerate() {
+                cols.entry((a.len(), i)).or_default().push(v);
+            }
+        });
+        for ((n, i), v) in &cols {
+            if let Some(why) = kikizake::lean::uncovered(v) {
+                bad.push(format!("{} argument {i} of {n}: {why}", m.name));
+            }
+        }
+    }
+    assert!(bad.is_empty(), "{bad:#?}");
+}
+
+/// the coverage rule above catches the review's distributions
+#[test]
+fn narrow_samples_are_uncovered() {
+    let mut r = kikizake::rng::XorShift32::new(7);
+    // (one 32-bit word past the low end of 0..=i64::MAX, as the review measured)
+    let low: Vec<i64> = (0..10_000).map(|_| i64::from(r.next())).chain([i64::MAX]).collect();
+    assert!(kikizake::lean::uncovered(&low).is_some());
+    let negative: Vec<i64> = (0..10_000).map(|_| -(1 << 40) + i64::from(r.next())).chain([1 << 40]).collect();
+    assert!(kikizake::lean::uncovered(&negative).is_some());
+    let mut s = kikizake::rng::Sample64::new(7);
+    let wide: Vec<i64> = (0..10_000).map(|_| s.range(-(1 << 40), 1 << 40)).collect();
+    assert_eq!(kikizake::lean::uncovered(&wide), None);
+    let all: Vec<i64> = (0..10_000).map(|_| s.range(0, i64::MAX)).collect();
+    assert_eq!(kikizake::lean::uncovered(&all), None);
 }

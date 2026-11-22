@@ -29,6 +29,11 @@
 //! * `kani-gates` (review of 8480456, 5.1): an API stable in the build's Rust but not in Kani's
 //!   compiler (`KANI_GATES`) is used only with its feature turned on for Kani in src/lib.rs
 //!   (`#![cfg_attr(kani, feature(..))]`), so the proofs compile whatever the generators use.
+//! * `lean-sampler` (review of 84b05c8, 4.1): the Lean mirrors' samples (src/lean/) come from
+//!   rng::Sample64, never the cases' XorShift32, whose 32-bit draws left all but the lowest 2^32
+//!   values of a 64-bit domain out.
+//! * `zip-unchecked` (review of 84b05c8, 4.3): tests/*.rs pair sequences with pairs::zip_eq, not
+//!   `.zip(`, so an output missing its lines fails instead of comparing nothing.
 //! * `header-unflushed` (review of 8480456, 4): runner/main.c writes a case's header out at once
 //!   (`oflush()` right after it), so a stop inside a case names that case.
 use std::path::Path;
@@ -109,6 +114,12 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
 
 /// (file, function, what (a regular expression), why): `forbidden` inside one function only
 pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
+    (
+        "src/calls.rs",
+        "check_dir",
+        r"\brsplit_once\s*\(",
+        "a recording's suite and architecture come from RecName::parse, of the file's name and the header's alike, which check_dir compares (review of 84b05c8, 4.2: a 32-bit recording under the 64-bit name passed)",
+    ),
     (
         "src/model/gdiplus.rs",
         "mix",
@@ -329,6 +340,9 @@ pub fn rust(rel: &str, text: &str) -> Vec<String> {
         }
     }
     bad.extend(confined(rel, &code, text));
+    if rel.starts_with("src/lean/") {
+        bad.extend(code.match_indices("XorShift32").map(|(at, _)| format!("{rel}:{}: lean-sampler: a mirror's samples come from rng::Sample64 (64 bits a draw), not the cases' 32-bit XorShift32", line_of(text, at))));
+    }
     // (string literals kept: a match arm is known by its string)
     let with_strings = code_only(text, true);
     for &(file, pat, why) in FORBIDDEN.iter().filter(|f| f.0 == rel) {
@@ -371,6 +385,14 @@ pub fn rust(rel: &str, text: &str) -> Vec<String> {
         }
     }
     bad
+}
+
+/// `zip-unchecked`: a test (tests/*.rs) pairs two sequences with pairs::zip_eq, which fails on
+/// unequal lengths, never `.zip(`, which stops at the shorter and so compares nothing of an
+/// output that lost its lines (the review of 84b05c8, 4.3)
+pub fn test_rust(rel: &str, text: &str) -> Vec<String> {
+    let code = code_only(text, false);
+    code.match_indices(".zip(").map(|(at, _)| format!("{rel}:{}: zip-unchecked: pairs::zip_eq(a, b) (equal lengths or the test fails), not a.zip(b), which stops at the shorter", line_of(text, at))).collect()
 }
 
 /// C with its comments blanked (string literals kept), positions kept
@@ -485,6 +507,22 @@ pub fn check(root: &Path) -> Result<(), String> {
             }
             Err(e) => bad.push(format!("{f}: {e}")),
         }
+    }
+    // (the tests' comparisons: tests/*.rs)
+    let tests = root.join("tests");
+    let mut nt = 0usize;
+    for e in std::fs::read_dir(&tests).map_err(|e| format!("{}: {e}", tests.display()))? {
+        let p = e.map_err(|e| format!("{}: {e}", tests.display()))?.path();
+        if p.extension().and_then(|x| x.to_str()) != Some("rs") {
+            continue;
+        }
+        let rel = p.strip_prefix(root).map_err(|e| e.to_string())?.to_string_lossy().replace('\\', "/");
+        let text = std::fs::read_to_string(&p).map_err(|e| format!("{rel}: {e}"))?;
+        bad.extend(test_rust(&rel, &text));
+        nt = nt.saturating_add(1);
+    }
+    if nt == 0 {
+        bad.push("tests/: no tests found".into());
     }
     let lib = std::fs::read_to_string(root.join("src/lib.rs")).map_err(|e| format!("src/lib.rs: {e}"))?;
     bad.extend(kani_gates(&rust_sources, &lib));

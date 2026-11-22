@@ -1,6 +1,8 @@
 //! Laws of the WIC bitmap source model (src/model/wicimage.rs): what the documentation states as
 //! properties, exhaustive over small domains or property-based, whatever Windows' measured
 //! details turn out to be.
+mod pairs;
+use pairs::zip_eq;
 use proptest::prelude::*;
 use kikizake::model::wicimage::{self as wi, Img};
 
@@ -610,7 +612,7 @@ proptest! {
         prop_assert_eq!(&j.bytes[..2], &[0xff, 0xd8]);
         prop_assert_eq!(&j.bytes[j.bytes.len() - 2..], &[0xff, 0xd9]);
         prop_assert_eq!(j.px.len(), px.len());
-        let worst = px.iter().zip(&j.px).map(|(a, b)| a.abs_diff(*b)).max().unwrap_or(0);
+        let worst = zip_eq(px.iter(), &j.px).map(|(a, b)| a.abs_diff(*b)).max().unwrap_or(0);
         prop_assert!(worst <= if color { 4 } else { 2 }, "worst {}", worst);
     }
 }
@@ -768,7 +770,7 @@ fn fixed_point_goes_back_where_it_came_from() {
     }
     let f = wi::wic_convert(&i, "rgba64fixed").unwrap();
     let b = wi::wic_convert(&f, "bgra").unwrap();
-    for (k, (&got, &was)) in b.px.iter().zip(&i.px).enumerate() {
+    for (k, (&got, &was)) in zip_eq(b.px.iter(), &i.px).enumerate() {
         match k % 4 {
             3 => assert_eq!(got, was),
             _ => assert!(got == was || got + 1 == was, "{k}: {was} back as {got}"),
@@ -931,7 +933,7 @@ proptest! {
         let lossy = jxr::encode_at(&p, index, ov);
         let got = jxr_values(name, w, h, stride, &lossy.decoded);
         if matches!(name, "gray8" | "bgr24" | "rgb24" | "bgr32" | "bgra" | "pbgra" | "cmyk") {
-            let worst = src.iter().zip(&got).map(|(a, b)| (a - b).abs()).max().unwrap_or(0);
+            let worst = zip_eq(src.iter(), &got).map(|(a, b)| (a - b).abs()).max().unwrap_or(0);
             prop_assert!(worst <= 2 * i64::from(index) + 2, "{} {}x{} index {}: off by {}", name, w, h, index, worst);
         }
         if matches!(name, "bgra" | "pbgra" | "rgba64") {
@@ -955,7 +957,7 @@ proptest! {
     fn icm_transforms_stay_near(r in any::<u8>(), g in any::<u8>(), b in any::<u8>()) {
         use kikizake::model::icm::{transform, Space};
         let same = transform(Space::Srgb, Space::Srgb).rgb8([r, g, b]);
-        for (x, y) in same.iter().zip([r, g, b]) {
+        for (x, y) in zip_eq(same.iter(), [r, g, b]) {
             prop_assert!(x.abs_diff(y) <= 3, "{same:?} {r} {g} {b}");
         }
         for (f, t) in [(Space::Srgb, Space::Adobe), (Space::Adobe, Space::Srgb), (Space::Adobe, Space::Adobe), (Space::Srgb, Space::Srgb)] {
@@ -964,7 +966,7 @@ proptest! {
             prop_assert_eq!(x.rgb8([0; 3]), [0; 3]);
             let e8 = x.rgb8([r, g, b]);
             let e16 = x.rgb16([r, g, b].map(|v| u16::from(v) * 257));
-            for (a, (w, v)) in e8.iter().zip(e16.into_iter().zip([r, g, b])) {
+            for (a, (w, v)) in zip_eq(e8.iter(), zip_eq(e16, [r, g, b])) {
                 prop_assert!(v < 32 || (i32::from(*a) - i32::from(w >> 8)).abs() <= 5, "{e8:?} {e16:?}");
             }
         }
@@ -1072,7 +1074,7 @@ proptest! {
         let t = kikizake::model::cmyk::from_rgb().ok_or_else(|| TestCaseError::fail("no CMYK table"))?;
         let got = t.cmyk8(c);
         let want = rgb_to_cmyk_float_reference(c);
-        for (g, w) in got.iter().zip(want) {
+        for (g, w) in zip_eq(got.iter(), want) {
             prop_assert!((f64::from(*g) - w).abs() <= 34.0, "{c:?}: {got:?} against {want:?}");
         }
         prop_assert_eq!(t.cmyk16([65535; 3]), [0, 14, 6, 0]);
@@ -1089,7 +1091,7 @@ proptest! {
         let t = kikizake::model::cmyk::to_rgb().ok_or_else(|| TestCaseError::fail("no CMYK table"))?;
         let got = t.bgr8(c);
         let want = cmyk_float_reference(c);
-        for (g, w) in got.iter().zip(want) {
+        for (g, w) in zip_eq(got.iter(), want) {
             prop_assert!((f64::from(*g) - w).abs() <= 28.0, "{c:?}: {got:?} against {want:?}");
         }
         prop_assert_eq!(t.rgb16([0; 4]), [65535, 65362, 65033]);

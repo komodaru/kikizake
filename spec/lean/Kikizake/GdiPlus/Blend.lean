@@ -190,7 +190,7 @@ def mirrors : List Mirror := [
   ⟨"gp.hatch_mix", fun | [f, b, w] => do pure [hatchMix (← nat f) (← nat b) (← nat w)] | _ => none⟩,
   ⟨"gp.gamma234", fun | [f, b] => do pure [gammaAlpha234 (← nat f) (← nat b)] | _ => none⟩,
   ⟨"gp.coverage_share", fun | [v, c, full] => do pure [coverageShare (← nat v) (← nat c) (← nat full)] | _ => none⟩,
-  ⟨"gp.convert", fun | [a, b, v] => do pure [← convert (← fmt a) (← fmt b) (← nat v)] | _ => none⟩,
+  ⟨"gp.convert", fun | [a, b, hi, lo] => do pure (halves (← convert (← fmt a) (← fmt b) (← nat64 hi lo))) | _ => none⟩,
   ⟨"gp.fixed_palette", fun | [d, k] => do
       let p := fixedPalette (← nat d)
       if k = -1 then pure [p.length, fixedFlags (← nat d)] else pure [← p[(← nat k)]?] | _ => none⟩

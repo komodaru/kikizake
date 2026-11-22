@@ -278,7 +278,7 @@ fn sink_states_exhaustive() {
 #[test]
 fn no_bad_lines() {
     let out = model::run("d2d", &parse_cases(&kikizake::generators::suite("d2d").unwrap()));
-    assert!(!out.contains("invalid case"), "{}", out.lines().zip(out.lines().skip(1)).find(|l| l.1 == "invalid case").map(|l| l.0).unwrap_or(""));
+    assert!(!out.contains("invalid case"), "{}", out.lines().collect::<Vec<_>>().windows(2).find(|l| l[1] == "invalid case").map_or("", |l| l[0]));
     let dashes = vec!["1"; 33].join(" ");
     for l in ["d2target 0 4", "d2target 4 65", "d2target 4 4 4", "d2target 4", "d2aa maybe", "d2aa per per", "d2xform 1 0 0 1 0", "d2bounds 0 1 0 0 1 0", "d2rect 8 0 0 1 1", "d2path 0 odd m 0 0 1 1 z", "d2path 0 alt m 0 0 1 1", "d2path 0 alt 1 1 z", &format!("d2stroke 0 0 0 0 10 5 0 {dashes}")] {
         let c = &parse_cases(&format!("case p\nd2target 2 2\n{l}\nend\n"))[0];

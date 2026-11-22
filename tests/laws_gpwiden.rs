@@ -2,6 +2,8 @@
 //! rectangle, a straight vertex adds one point a side, a rectangle's frame fills as the frame,
 //! dashes lie on the line no longer than their pattern, every outline is well formed (Bezier
 //! runs of three), the round join stays on the pen, and anchor caps sit on the line's end.
+mod pairs;
+use pairs::zip_eq;
 use kikizake::model::gdiplus::{FillMode, PixelOffset, Round};
 use kikizake::model::gppath::{self as path, Path, Pen};
 use kikizake::model::gppath::Kind;
@@ -240,7 +242,7 @@ fn an_open_arrow_as_measured() {
         let types: Vec<u8> = w.pts.iter().map(|q| q.type_byte()).collect();
         assert_eq!(types, [0, 1, 1, 0x81, 0, 1, 1, 1, 0x41, 0x41, 0x81]);
         let want = [(24.31623, 5.05132), (33.16228, 8.0), (24.31623, 10.94868), (23.68377, 9.05132), (29.68377, 7.05132), (29.68377, 8.94868), (23.68377, 6.94868)];
-        for (q, &(x, y)) in w.pts[4..].iter().zip(&want) {
+        for (q, &(x, y)) in zip_eq(w.pts[4..].iter(), &want) {
             assert!((q.x - x).abs() < 1e-4 && (q.y - y).abs() < 1e-4, "{q:?} {x} {y}");
         }
         assert!((w.pts[1].x - 27.0).abs() < 1e-4);
@@ -295,8 +297,9 @@ proptest! {
             pen.dash = dash;
             pen.dash_array = arr.to_vec();
             pen.dash_offset = off;
-            wd::dashed(r, &p, &pen).ok().flatten().map(|d| d.figures().iter().map(|f| f.iter().map(|q| (q.x, q.y)).collect::<Vec<_>>()).collect::<Vec<_>>())
+            wd::dashed(r, &p, &pen).ok().flatten().map(|d| d.figures().iter().map(|f| f.iter().map(|q| (q.x.to_bits(), q.y.to_bits())).collect::<Vec<_>>()).collect::<Vec<_>>())
         };
+        // (as bits: a NaN coordinate equals itself)
         let a = dashed(5, &arr, quarter(o));
         prop_assert!(a.is_some());
         prop_assert_eq!(&a, &dashed(5, &arr, quarter(o) + sum));

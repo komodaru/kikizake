@@ -24,21 +24,52 @@ fn pf(i: i64) -> Option<Pf> {
     })
 }
 
+/// a format's largest value (its bits all set)
+fn largest(f: i64) -> u64 {
+    match f {
+        4..=6 => 0xffff,
+        7 => 0xff_ffff,
+        8..=10 => 0xffff_ffff,
+        11 => 0xffff_ffff_ffff,
+        _ => u64::MAX,
+    }
+}
+
+/// a 64-bit value's halves as mirror arguments, the high one first (Mirror.lean's nat64)
+fn halves(v: u64) -> [i64; 2] {
+    [i64::from(u32::try_from(v >> 32).unwrap_or(0)), i64::from(u32::try_from(v & 0xffff_ffff).unwrap_or(0))]
+}
+
+/// the 64-bit value of arguments i, i + 1 (halves)
+fn arg_u64(a: &[i64], i: usize) -> Option<u64> {
+    Some(u64::from(arg::<u32>(a, i)?) << 32 | u64::from(arg::<u32>(a, i.checked_add(1)?)?))
+}
+
+/// `n` samples of a format's values as halves, its ends first: the high half over its own range,
+/// so every bit of a 48 or 64-bit pixel varies (the review of 84b05c8, 4.1: drawn as one 32-bit
+/// word, the 64-bit formats' alpha was 0 in all but one sample)
+fn samples_of(f: i64, n: usize, seed: u32, each: &mut dyn FnMut([i64; 2])) {
+    let max = largest(f);
+    let [hi, lo] = halves(max);
+    let lo = if hi == 0 { lo } else { 0xffff_ffff };
+    sampled(&[(0, hi), (0, lo)], n, seed, &mut |v| {
+        if let [h, l] = *v {
+            each([h, l]);
+        }
+    });
+}
+
 /// every value of the 16-bit formats; a sample of the 24, 32, 48 and 64-bit ones
 fn values(each: &mut dyn FnMut(&[i64])) {
     for f in 4..=6 {
         every(&[(0, 65535)], &mut |v| {
             if let [v] = *v {
-                each(&[f, v]);
+                each(&[f, 0, v]);
             }
         });
     }
-    for (f, max) in [(7, 0xff_ffff), (8, 0xffff_ffff), (9, 0xffff_ffff), (10, 0xffff_ffff), (11, 0xffff_ffff_ffff), (12, i64::MAX), (13, i64::MAX)] {
-        sampled(&[(0, max)], 100_000, 0x6d00_0000 ^ u32::try_from(f).unwrap_or(0), &mut |v| {
-            if let [v] = *v {
-                each(&[f, v]);
-            }
-        });
+    for f in 7..=13 {
+        samples_of(f, 100_000, 0x6d00_0000 ^ u32::try_from(f).unwrap_or(0), &mut |[h, l]| each(&[f, h, l]));
     }
 }
 
@@ -55,20 +86,9 @@ fn depth(d: i64) -> Option<Depth> {
 /// pairs of formats with values of the first: every 16-bit value from the 16-bit formats, samples
 /// of the others
 fn pairs(each: &mut dyn FnMut(&[i64])) {
-    let max = |f: i64| match f {
-        4..=6 => 0xffff,
-        7 => 0xff_ffff,
-        8..=10 => 0xffff_ffff,
-        11 => 0xffff_ffff_ffff,
-        _ => i64::MAX,
-    };
     for a in 4..=13 {
         for b in 4..=13 {
-            sampled(&[(0, max(a))], 4000, 0x7100_0000 ^ u32::try_from(a).unwrap_or(0) << 4 ^ u32::try_from(b).unwrap_or(0), &mut |v| {
-                if let [v] = *v {
-                    each(&[a, b, v]);
-                }
-            });
+            samples_of(a, 4000, 0x7100_0000 ^ u32::try_from(a).unwrap_or(0) << 4 ^ u32::try_from(b).unwrap_or(0), &mut |[h, l]| each(&[a, b, h, l]));
         }
     }
 }
@@ -99,7 +119,7 @@ const SPECIAL: [u32; 11] = [0, 0x3f80_0000, 0x4000_0000, 0x4040_0000, 0x3f00_000
 /// value of magnitude 2^-7 ..= 2^13, small integers and the special values (where sums cancel to
 /// exact zeros)
 fn draws(n: usize, count: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
-    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut rng = crate::rng::Sample64::new(seed);
     let mut v = vec![0i64; n.saturating_add(1)];
     for k in 0..count {
         if let Some(d) = v.first_mut() {
@@ -108,7 +128,7 @@ fn draws(n: usize, count: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
         for x in v.iter_mut().skip(1) {
             let sign = if rng.chance(2) { 0x8000_0000 } else { 0 };
             let b = match rng.range(0, 3) {
-                0 => rng.next(),
+                0 => rng.word(),
                 1 => u32::try_from(rng.range(0x3c00_0000, 0x4600_0000)).unwrap_or(0) | sign,
                 2 => f32::from(u8::try_from(rng.range(0, 6)).unwrap_or(0)).to_bits() | sign,
                 _ => *rng.pick(&SPECIAL) | sign,
@@ -153,7 +173,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: CONV,
         domain: Domain::Sampled("every value of the 16-bit formats, samples of the others"),
         inputs: values,
-        model: |a| one(gdiplus::to_argb(pf(arg(a, 0)?)?, arg(a, 1)?, &[]).ok()?),
+        model: |a| one(gdiplus::to_argb(pf(arg(a, 0)?)?, arg_u64(a, 1)?, &[]).ok()?),
     },
     Mirror {
         name: "gp.from_argb",
@@ -219,7 +239,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: BLEND,
         domain: Domain::Sampled("every pair of the formats but the indexed ones and 16bppGrayScale, samples of their values"),
         inputs: pairs,
-        model: |a| one(i64::try_from(gdiplus::convert(pf(arg(a, 0)?)?, pf(arg(a, 1)?)?, arg(a, 2)?, &[]).ok()?).ok()?),
+        model: |a| Some(halves(gdiplus::convert(pf(arg(a, 0)?)?, pf(arg(a, 1)?)?, arg_u64(a, 2)?, &[]).ok()?).to_vec()),
     },
     Mirror {
         name: "gp.fixed_palette",
@@ -296,7 +316,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: MATRIX,
         domain: Domain::Sampled("to nearest and down, the alpha word of every 8-bit alpha: 400,000 source words at most it and destination words 0..8192"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0x6d74_0064);
+            let mut rng = crate::rng::Sample64::new(0x6d74_0064);
             for k in 0..400_000u32 {
                 let sa = i64::try_from(gdiplus::widen_alpha(u64::from(k % 256))).unwrap_or(0);
                 each(&[i64::from(u8::from(k % 512 >= 256)), rng.range(0, sa), rng.range(0, 8192), sa]);
