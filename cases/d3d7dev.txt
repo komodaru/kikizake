@@ -129597,3 +129597,1185 @@ d3dclear 0
 d3dtri 0xffff0000/0xff00ff00/0xff0000ff -66000 -66000 170 30 90 170
 d3ddump
 end
+case badstate-7-rgb-afunc10
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 10
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-afuncff
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-src15
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-src16
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-src17
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-src18
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-srcff
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-dst0
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-dst15
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-dst16
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-dst17
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-dst18
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-dstff
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-rgb-zfunc0
+d3d 7
+d3ddev rgb 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 0
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-7-rgb-zfunc9
+d3d 7
+d3ddev rgb 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 9
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-7-mmx-afunc10
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 10
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-afuncff
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-src15
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-src16
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-src17
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-src18
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-srcff
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-dst0
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-dst15
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-dst16
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-dst17
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-dst18
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-dstff
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-7-mmx-zfunc0
+d3d 7
+d3ddev mmx 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 0
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-7-mmx-zfunc9
+d3d 7
+d3ddev mmx 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 9
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-3-rgb-afunc10
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 10
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-afuncff
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-src15
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-src16
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-src17
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-src18
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-srcff
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-dst0
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-dst15
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-dst16
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-dst17
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-dst18
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-dstff
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-rgb-zfunc0
+d3d 3
+d3ddev rgb 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 0
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-3-rgb-zfunc9
+d3d 3
+d3ddev rgb 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 9
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-2-rgb-afunc10
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 10
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-afuncff
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-src15
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-src16
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-src17
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-src18
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-srcff
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-dst0
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-dst15
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-dst16
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-dst17
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-dst18
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-dstff
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-rgb-zfunc0
+d3d 2
+d3ddev rgb 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 0
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-2-rgb-zfunc9
+d3d 2
+d3ddev rgb 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 9
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-2-ramp-afunc10
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 10
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-afuncff
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-src15
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-src16
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-src17
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-src18
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-srcff
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-dst0
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-dst15
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-dst16
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-dst17
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-dst18
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-dstff
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-2-ramp-zfunc0
+d3d 2
+d3ddev ramp 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 0
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-2-ramp-zfunc9
+d3d 2
+d3ddev ramp 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 9
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-3-mmx-afunc10
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 10
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-afuncff
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 15 1
+d3drs set 24 0x80
+d3drs set 25 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-src15
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-src16
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-src17
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-src18
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-srcff
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 19 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-dst0
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-dst15
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-dst16
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 16
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-dst17
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 17
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-dst18
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 18
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-dstff
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 0xffffffff
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end
+case badstate-3-mmx-zfunc0
+d3d 3
+d3ddev mmx 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 0
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end
+case badstate-3-mmx-zfunc9
+d3d 3
+d3ddev mmx 565 12 12 z16
+d3drs set 22 1
+d3drs set 7 1
+d3dclear 0x00404040 z 500
+d3drs set 23 9
+d3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700
+d3dtri 0xff0000ff 20 30 170 60 60 165 z 300
+d3dtri 0xffff0000 40 40 150 80 80 150 z 500
+d3ddump
+d3dzdump
+end

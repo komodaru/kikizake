@@ -899,9 +899,9 @@ struct States {
 /// the drawers measured with states past their enumeration
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Seen {
-    /// Direct3D 7's RGB rasterizer
-    Rgb7,
-    /// Direct3D 7's HAL
+    /// the RGB and MMX rasterizers and the ramp device, every version
+    Soft,
+    /// the HAL and the T&L HAL
     Hal,
 }
 
@@ -911,18 +911,18 @@ impl States {
         let other = Fail::Unmodeled(open::D3D7_STATES_OTHER);
         // the drawers whose answer to a state past its enumeration is measured (d3d7dev
         // badstate-*, d3d7bad*)
-        let seen = match (d.dev.as_ref().map(|x| x.family), d.ver) {
-            (Some(Family::Soft { mmx: false }), Some(Ver::V7)) => Some(Seen::Rgb7),
-            (Some(Family::Hw { tnl: false }), Some(Ver::V7)) => Some(Seen::Hal),
-            (Some(Family::Soft { .. } | Family::Hw { .. } | Family::Ramp), _) | (None, _) => None,
+        let seen = match d.dev.as_ref().map(|x| x.family) {
+            Some(Family::Soft { .. } | Family::Ramp) => Some(Seen::Soft),
+            Some(Family::Hw { .. }) => Some(Seen::Hal),
+            None => None,
         };
-        // MEASURED (badstate-*-cull0, -cull4): a cull mode past D3DCULL is no culling on RGB, CCW
-        // on the HAL
+        // MEASURED (badstate-*-cull0, -cull4, every drawer): a cull mode past D3DCULL is no
+        // culling on the software rasterizers and the ramp device, CCW on the HAL and T&L HAL
         let cull = match (st(Rs::CullMode), seen) {
             (1, _) => Cull::None,
             (2, _) => Cull::Cw,
             (3, _) => Cull::Ccw,
-            (_, Some(Seen::Rgb7)) => Cull::None,
+            (_, Some(Seen::Soft)) => Cull::None,
             (_, Some(Seen::Hal)) => Cull::Ccw,
             (_, None) => return Err(other),
         };
@@ -930,13 +930,13 @@ impl States {
         let fill = match (st(Rs::FillMode), seen) {
             (1, _) => Fill::Point,
             (2, _) => Fill::Wireframe,
-            (3, _) | (_, Some(Seen::Rgb7 | Seen::Hal)) => Fill::Solid,
+            (3, _) | (_, Some(Seen::Soft | Seen::Hal)) => Fill::Solid,
             (_, None) => return Err(other),
         };
         // MEASURED (badstate-*-shade0, -shade3, -shade4): Gouraud, D3DSHADE_PHONG too
         let flat = match (st(Rs::ShadeMode), seen) {
             (1, _) => true,
-            (2, _) | (_, Some(Seen::Rgb7 | Seen::Hal)) => false,
+            (2, _) | (_, Some(Seen::Soft | Seen::Hal)) => false,
             (_, None) => return Err(other),
         };
         let zfunc = Cmp::parse(st(Rs::ZFunc)).ok_or(other.clone())?;
@@ -944,23 +944,28 @@ impl States {
             0 => None,
             _ => match (Cmp::parse(st(Rs::AlphaFunc)), seen, st(Rs::AlphaFunc)) {
                 (Some(f), _, _) => Some((f, st(Rs::AlphaRef) & 255)),
-                // MEASURED (badstate-7-rgb-afunc0, -afunc9): RGB tests nothing; the HAL's
-                // executor dies drawing with ALPHAFUNC 0 (d3d7dev-32 exit 127 at
-                // badstate-7-hal-afunc0)
-                (None, Some(Seen::Rgb7), _) => None,
-                (None, Some(Seen::Hal), 0) => return Err(Fail::Crash),
+                // MEASURED (badstate-*-afunc0, -afunc9): the software rasterizers and the ramp
+                // device test nothing; the HAL's and T&L HAL's executor dies drawing (d3d7bad0,
+                // 1, 5, 6: exit 127)
+                (None, Some(Seen::Soft), _) => None,
+                (None, Some(Seen::Hal), 0 | 9) => return Err(Fail::Crash),
                 (None, Some(Seen::Hal), _) | (None, None, _) => return Err(other),
             },
         };
         let blend = match st(Rs::AlphaBlendEnable) {
             0 => None,
             _ => {
-                // MEASURED (badstate-7-rgb-src0, -src14, -dst14): RGB takes a factor past
-                // D3DBLEND as the default, ONE for the source and ZERO for the destination
-                let f = |s: Rs, dflt: Factor| match (Factor::parse(st(s)), seen) {
-                    (Some(f), _) => Ok(f),
-                    (None, Some(Seen::Rgb7)) => Ok(dflt),
-                    (None, Some(Seen::Hal) | None) => Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
+                // MEASURED (badstate-*-src0, -src14, -dst14, every drawer): the software
+                // rasterizers and the ramp device take a factor past D3DBLEND as the default,
+                // ONE for the source and ZERO for the destination; the HAL (a Direct3D 9 driver
+                // interface) takes 14 as D3DBLEND_BLENDFACTOR, white by default: ONE, and its
+                // executor dies drawing with a source factor 0 (d3d7bad2, 7)
+                let f = |s: Rs, dflt: Factor| match (Factor::parse(st(s)), seen, st(s)) {
+                    (Some(f), _, _) => Ok(f),
+                    (None, Some(Seen::Soft), _) => Ok(dflt),
+                    (None, Some(Seen::Hal), 14) => Ok(Factor::One),
+                    (None, Some(Seen::Hal), 0) if s == Rs::SrcBlend => Err(Fail::Crash),
+                    (None, Some(Seen::Hal) | None, _) => Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
                 };
                 Some((f(Rs::SrcBlend, Factor::One)?, f(Rs::DestBlend, Factor::Zero)?))
             }
@@ -1630,14 +1635,11 @@ fn soft_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt)
     let vert = |i: usize| -> Res<crate::model::d3dim::Vert> {
         let c = tri.c[i];
         let ch = |sh: u32| u8::try_from(c >> sh & 255).unwrap_or(u8::MAX);
-        // (a position in 16ths: MEASURED, d3d7dev bigtri-*, anywhere in the guard band
-        // −4096..4095, past 2048 pixels too; beyond it the front end clips, not measured)
-        let px = |v: i64| {
-            if !(-4096 * 16..4096 * 16).contains(&v) {
-                return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
-            }
-            crate::model::d3dim::f32_of(v).map(|v| v / 16.0).ok_or(Fail::Bad)
-        };
+        // (a position in 16ths: MEASURED, d3d7dev bigtri-*, farvert-*: inside the guard band
+        // −4096..4095, past 2048 pixels too, and past it (the front end's clip at the guard band
+        // leaves the pixels in the target as the walk of the whole triangle has them); past 2^20
+        // pixels not asked)
+        let px = |v: i64| crate::model::d3dim::f32_of(v).map(|v| v / 16.0).ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
         Ok(crate::model::d3dim::Vert { x: px(tri.v[i].0)?, y: px(tri.v[i].1)?, c: [ch(0), ch(8), ch(16), ch(24)] })
     };
     let clip = crate::model::d3dim::Clip { l: 0, t: 0, r: w, b: h };

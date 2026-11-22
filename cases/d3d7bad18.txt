@@ -1,0 +1,15 @@
+# kikizake suite d3d7bad18: one Direct3D 7 HAL state past its enumeration (SPEC.md). Made by `kikizake gen d3d7bad18`.
+# x86 only
+case badstate-7-hal-dst15
+d3d 7
+d3ddev hal 565 12 12
+d3drs set 22 1
+d3drs set 27 1
+d3drs set 20 15
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165
+d3ddump
+d3dclear 0x00404040
+d3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60
+d3ddump
+end

@@ -314,20 +314,47 @@ const BADSTATE: [(&str, &str); 12] = [
     ("dst14", "27 1\nd3drs set 20 14"),
 ];
 
-/// the bad states that may kill the HAL's executor
+/// the bad states that may kill the HAL's executor (the first five asked first; then more values
+/// of the alpha function and the blend factors, and the z function)
 const RISKY: [&str; 5] = ["afunc0", "afunc9", "src0", "src14", "dst14"];
+const RISKY2: [(&str, &str); 15] = [
+    ("afunc10", "15 1\nd3drs set 24 0x80\nd3drs set 25 10"),
+    ("afuncff", "15 1\nd3drs set 24 0x80\nd3drs set 25 0xffffffff"),
+    ("src15", "27 1\nd3drs set 19 15"),
+    ("src16", "27 1\nd3drs set 19 16"),
+    ("src17", "27 1\nd3drs set 19 17"),
+    ("src18", "27 1\nd3drs set 19 18"),
+    ("srcff", "27 1\nd3drs set 19 0xffffffff"),
+    ("dst0", "27 1\nd3drs set 20 0"),
+    ("dst15", "27 1\nd3drs set 20 15"),
+    ("dst16", "27 1\nd3drs set 20 16"),
+    ("dst17", "27 1\nd3drs set 20 17"),
+    ("dst18", "27 1\nd3drs set 20 18"),
+    ("dstff", "27 1\nd3drs set 20 0xffffffff"),
+    ("zfunc0", "0"),
+    ("zfunc9", "9"),
+];
 
 /// the case of one bad state on one drawer
 fn badstate_case(v: u32, d: &str, name: &str, set: &str) -> String {
+    if let Some(n) = name.strip_prefix("zfunc") {
+        // over z 500: a far, a near and an equal triangle
+        return format!("case badstate-{v}-{d}-{name}\nd3d {v}\nd3ddev {d} 565 12 12 z16\nd3drs set 22 1\nd3drs set 7 1\nd3dclear 0x00404040 z 500\nd3drs set 23 {n}\nd3dtri 0xff00ff00 -16 -16 600 -16 -16 600 z 700\nd3dtri 0xff0000ff 20 30 170 60 60 165 z 300\nd3dtri 0xffff0000 40 40 150 80 80 150 z 500\nd3ddump\nd3dzdump\nend\n");
+    }
     format!("case badstate-{v}-{d}-{name}\nd3d {v}\nd3ddev {d} 565 12 12\nd3drs set 22 1\nd3drs set {set}\nd3dclear 0x00404040\nd3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165\nd3ddump\nd3dclear 0x00404040\nd3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60\nd3ddump\nend\n")
 }
 
 /// a HAL state past its enumeration that may kill the executor, alone in its suite so that a
-/// death ends nothing else: RISKY[K % 5] on the HAL (K < 5) or the T&L HAL
+/// death ends nothing else: RISKY[K % 5] on the HAL (K < 5) or the T&L HAL (K < 10), then
+/// RISKY2[(K − 10) % 15] on the HAL (K < 25) or the T&L HAL
 pub fn d3d7bad<const K: usize>() -> String {
-    let name = RISKY.get(K % 5).copied().unwrap_or("afunc0");
-    let d = if K < 5 { "hal" } else { "tnl" };
-    let set = BADSTATE.iter().find(|b| b.0 == name).map_or("", |b| b.1);
+    let (name, set, d) = if K < 10 {
+        let name = RISKY.get(K % 5).copied().unwrap_or("afunc0");
+        (name, BADSTATE.iter().find(|b| b.0 == name).map_or("", |b| b.1), if K < 5 { "hal" } else { "tnl" })
+    } else {
+        let (name, set) = RISKY2.get(K.wrapping_sub(10) % 15).copied().unwrap_or(("afunc10", ""));
+        (name, set, if K < 25 { "hal" } else { "tnl" })
+    };
     format!("# kikizake suite d3d7bad{K}: one Direct3D 7 HAL state past its enumeration (SPEC.md). Made by `kikizake gen d3d7bad{K}`.\n# x86 only\n{}", badstate_case(7, d, name, set))
 }
 
@@ -1014,6 +1041,12 @@ pub fn d3d7dev() -> String {
             writeln!(s, "d3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff {p}\nd3ddump");
         }
         writeln!(s, "end");
+    }
+    // the further bad values on the drawers that do not die of them (the HAL's: d3d7bad10..39)
+    for &(v, d) in DRAWERS.iter().filter(|(_, d)| !matches!(*d, "hal" | "tnl")) {
+        for (name, set) in RISKY2 {
+            s.push_str(&badstate_case(v, d, name, set));
+        }
     }
     s
 }
