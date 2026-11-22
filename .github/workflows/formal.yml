@@ -8,6 +8,10 @@ on:
   push:
     branches: [main]
     paths: [src/**, spec/**, build.rs, Cargo.toml, Cargo.lock, .github/workflows/formal.yml]
+  # (a pull request runs the same proofs: each job is bounded by its timeout, the slowest, Lean's
+  # FVF enumeration, about 3 minutes)
+  pull_request:
+    paths: [src/**, spec/**, build.rs, Cargo.toml, Cargo.lock, .github/workflows/formal.yml]
   workflow_dispatch:
 
 permissions:
@@ -33,7 +37,13 @@ jobs:
       - run: command -v cargo-kani || cargo install --locked kani-verifier --version 0.68.0
       - run: cargo kani setup
       - name: Kani proofs
-        run: cargo kani 2>&1 | tee kani.log; s=${PIPESTATUS[0]}; grep -E "^Checking harness|VERIFICATION|Complete -" kani.log >> "$GITHUB_STEP_SUMMARY"; exit $s
+        # (a run that verified no harness, or whose summary is missing, is a failure, not a pass:
+        # a setup that stopped early or a filter that selected nothing proves nothing)
+        run: |
+          cargo kani 2>&1 | tee kani.log; s=${PIPESTATUS[0]}
+          grep -E "^Checking harness|VERIFICATION|Complete -" kani.log >> "$GITHUB_STEP_SUMMARY"
+          [ "$s" -eq 0 ] || exit "$s"
+          grep -qE "^Complete - [1-9][0-9]* successfully verified harnesses, 0 failures" kani.log || { echo "no harness verified" | tee -a "$GITHUB_STEP_SUMMARY"; exit 1; }
 
   lean:
     runs-on: ubuntu-24.04
@@ -65,6 +75,7 @@ jobs:
           set -o pipefail
           target/release/kikizake lean spec/lean/.lake/build/bin/mirror | tee lean.log
           grep -E "mirrors|DIFFER" lean.log >> "$GITHUB_STEP_SUMMARY"
+          grep -qE "mirrors" lean.log || { echo "no mirror compared" | tee -a "$GITHUB_STEP_SUMMARY"; exit 1; }
 
   tla:
     runs-on: ubuntu-24.04
@@ -90,10 +101,13 @@ jobs:
         run: |
           set -o pipefail
           cd spec/tla
+          n=0
           for cfg in *.cfg; do
+            n=$((n + 1))
             m=${cfg%.cfg}
             java -XX:+UseParallelGC -cp ~/tla2tools.jar tlc2.TLC -workers auto -metadir "$RUNNER_TEMP/$m" -dump "$RUNNER_TEMP/$m.dump" -config "$cfg" "$m.tla" | tail -4
             r=$(../../target/release/kikizake tla "$RUNNER_TEMP/$m.dump")
             echo "$m: $r" | tee -a "$GITHUB_STEP_SUMMARY"
             case "$r" in *" 0 differ "*) ;; *) exit 1 ;; esac
           done
+          [ "$n" -gt 0 ] || { echo "no TLA+ configuration" | tee -a "$GITHUB_STEP_SUMMARY"; exit 1; }

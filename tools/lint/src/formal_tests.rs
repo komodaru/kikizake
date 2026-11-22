@@ -37,3 +37,16 @@ fn lakefile_keeps_warnings_errors() {
     assert!(!lakefile("l", "[leanOptions]\n# warningAsError = true\n").is_empty());
     assert!(!lakefile("l", "[leanOptions]\nautoImplicit = false\n").is_empty());
 }
+
+#[test]
+fn a_formal_workflow_that_can_pass_having_proved_nothing_is_found() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let wf = std::fs::read_to_string(root.join(".github/workflows/formal.yml")).unwrap_or_default();
+    assert!(formal_ran(&wf).is_empty(), "{:?}", formal_ran(&wf));
+    for (w, why) in FORMAL_RAN {
+        let cut = wf.replace(w, "");
+        let r = formal_ran(&cut);
+        assert!(r.len() == 1 && r[0].contains(why), "{w}: {r:?}");
+    }
+    assert_eq!(formal_ran("on:\n  push:\n").len(), FORMAL_RAN.len());
+}

@@ -4,6 +4,11 @@
 //! (`native_decide`, `bv_decide`, `ofReduceBool`: the compiler trusted as the kernel) or the
 //! kernel's check turned off (`debug.skipKernelTC`) is refused, in the code (comments do not
 //! count). The lakefile keeps `warningAsError = true`, so a `sorry` cannot pass as a warning.
+//!
+//! `formal-ran` (2026-11-22, the formal-verification plan): .github/workflows/formal.yml runs on
+//! pull requests as on pushes to main, and each job fails when it proved nothing (a Kani run
+//! verifying no harness, a Lean run comparing no mirror, a TLA+ step with no configuration): a
+//! setup that stopped early or a filter that selected nothing is not a pass.
 use std::path::Path;
 
 /// (word, why)
@@ -100,9 +105,24 @@ pub fn lakefile(rel: &str, text: &str) -> Vec<String> {
     }
 }
 
+/// (what formal.yml must say, why)
+pub const FORMAL_RAN: &[(&str, &str)] = &[
+    ("\n  pull_request:", "it runs on pull requests too"),
+    ("successfully verified harnesses, 0 failures\" kani.log ||", "the Kani job fails when no harness was verified"),
+    ("grep -qE \"mirrors\" lean.log ||", "the Lean job fails when no mirror was compared"),
+    ("[ \"$n\" -gt 0 ] ||", "the TLA+ job fails when it ran no configuration"),
+];
+
+/// `formal-ran`: what formal.yml (`text`) lacks
+pub fn formal_ran(text: &str) -> Vec<String> {
+    FORMAL_RAN.iter().filter(|(w, _)| !text.contains(w)).map(|(w, why)| format!(".github/workflows/formal.yml: formal-ran: {why} (`{}`)", w.trim())).collect()
+}
+
 pub fn check(root: &Path) -> Result<(), String> {
     let base = root.join("spec/lean");
     let mut bad = Vec::new();
+    let wf = std::fs::read_to_string(root.join(".github/workflows/formal.yml")).map_err(|e| format!(".github/workflows/formal.yml: {e}"))?;
+    bad.extend(formal_ran(&wf));
     let lake = base.join("lakefile.toml");
     let text = std::fs::read_to_string(&lake).map_err(|e| format!("spec/lean/lakefile.toml: {e}"))?;
     bad.extend(lakefile("spec/lean/lakefile.toml", &text));

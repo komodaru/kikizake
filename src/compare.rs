@@ -21,16 +21,33 @@ fn first_pixel(want: &str, got: &str, bpp: u32) -> Option<usize> {
 }
 
 /// a wanted line against a got one: the same, or the same but where the wanted line has "?"
-/// (a model's undefined byte, "??"), which any hex digit matches
+/// (a model's undefined byte, "??"), which any hex digit matches; "oneof a | b | ..." takes
+/// exactly one of its alternatives (a "?" in one is no wildcard). On bytes, by plain loops: the
+/// Kani proofs below check this code itself, and std's string searchers were more than CBMC
+/// could hold in 15 GB for lines of 2 bytes.
 pub fn line_matches(want: Option<&str>, got: Option<&str>) -> bool {
     match (want, got) {
-        (Some(w), Some(g)) if w.starts_with("oneof ") => {
-            w.strip_prefix("oneof ").is_some_and(|lines| lines.split(" | ").any(|line| line == g))
+        (Some(w), Some(g)) => match w.as_bytes().strip_prefix(b"oneof ") {
+            Some(alternatives) => is_one_of(alternatives, g.as_bytes()),
+            None => w.len() == g.len() && w.bytes().zip(g.bytes()).all(|(a, b)| a == b || (a == b'?' && b.is_ascii_hexdigit())),
+        },
+        (None, None) => true,
+        (Some(_), None) | (None, Some(_)) => false,
+    }
+}
+
+/// `g` is one of the alternatives in `list`, separated by " | "
+fn is_one_of(mut list: &[u8], g: &[u8]) -> bool {
+    loop {
+        match list.windows(3).position(|x| x == b" | ") {
+            Some(at) => {
+                if list.get(..at) == Some(g) {
+                    return true;
+                }
+                list = list.get(at.saturating_add(3)..).unwrap_or_default();
+            }
+            None => return list == g,
         }
-        (Some(w), Some(g)) if w.len() == g.len() && w.contains('?') => {
-            w.bytes().zip(g.bytes()).all(|(a, b)| a == b || (a == b'?' && b.is_ascii_hexdigit()))
-        }
-        _ => want == got,
     }
 }
 
