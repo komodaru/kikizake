@@ -69,6 +69,9 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // split, level and past_depth, which the Lean mirrors d3d11.split, d3d11.level and
     // d3d11.pastdepth hold to spec/lean/Kikizake/D3d11/Filter.lean)
     ("src/model/d3draster.rs", r"as\s+f32\s*-\s*0\.5|\.fract\(\)\s*\*\s*256|\+\s*0\.5\)\.floor\(\)|index\(dw\)\s*<=", &["split", "level", "past_depth"]),
+    // (a declaration's refusals are decl_ok's, which the Lean mirror d3d9.decl holds to
+    // spec/lean/Kikizake/D3d9/Decl.lean)
+    ("src/model/d3d9draw.rs", r"usage\s*==\s*8\s*&&|\(9,\s*0\)", &["decl_ok"]),
 ];
 
 /// (file, what (a regular expression), why): `forbidden`

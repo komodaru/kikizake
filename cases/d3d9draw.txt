@@ -61326,3 +61326,63 @@ d9clear 1 0xf86d32b0 0 0
 d9clear 1 0x9958a80d 0 0 4 7 6 12
 d9rt
 end
+case fvf-decl-order-0
+device swvp
+d9decl 0x0 0x90003 0x100000 0xa0004
+d9getfvf
+d9getdecl
+d9fvf 0x42
+d9getfvf
+d9getdecl
+d9fvf 0x0
+d9getfvf
+d9getdecl
+d9decl 0x0 0x2 0x0 0x2
+d9getfvf
+d9getdecl
+end
+case fvf-decl-order-1
+device swvp
+d9fvf 0x144
+d9getfvf
+d9getdecl
+d9decl 0x0 0x2 0x0 0x2
+d9getfvf
+d9getdecl
+d9decl 0x0 0x90003 0x100000 0xa0004
+d9getfvf
+d9getdecl
+d9fvf 0x0
+d9getfvf
+d9getdecl
+end
+case fvf-decl-order-2
+device swvp
+d9decl 0x0 0x90003 0x100000 0xa0004
+d9getfvf
+d9getdecl
+d9fvf 0x0
+d9getfvf
+d9getdecl
+d9fvf 0x1
+d9getfvf
+d9getdecl
+d9decl 0x0 0x90003 0x100000 0xa0004
+d9getfvf
+d9getdecl
+end
+case fvf-decl-order-3
+device swvp
+d9fvf 0x0
+d9getfvf
+d9getdecl
+d9decl 0x0 0x90003 0x100000 0xa0004
+d9getfvf
+d9getdecl
+d9decl 0x0 0x2 0x0 0x2
+d9getfvf
+d9getdecl
+d9fvf 0x144
+d9getfvf
+d9getdecl
+end

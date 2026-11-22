@@ -3,7 +3,6 @@
 # its line out; a new clause comes proven (tests/spec.rs unproven_only_shrinks).
 D3D9.FVF.GET
 D3D9.DECL.GET
-D3D9.DECL.CREATE
 D3D9.FVF.SET
 D3D9.DRAW.XYZ
 D3D9.DRAW.XYZ.CLIP

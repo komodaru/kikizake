@@ -621,3 +621,7 @@ spec/lean/Kikizake/D3d11/Filter.lean::lerp_nan_first lean D3DRASTER.FILTER.MIPLI
 spec/lean/Kikizake/D3d11/Filter.lean::cmp_nan lean D3DRASTER.SAMPLE.CMP
 spec/lean/Kikizake/D3d11/Filter.lean::cmp_opposites lean D3DRASTER.SAMPLE.CMP
 spec/lean/Kikizake/D3d11/Filter.lean::past_depth lean D3DRASTER.DEPTH.SMALL
+spec/lean/Kikizake/D3d9/Decl.lean::bad_element lean D3D9.DECL.CREATE
+spec/lean/Kikizake/D3d9/Decl.lean::twice lean D3D9.DECL.CREATE
+spec/lean/Kikizake/D3d9/Decl.lean::positiont lean D3D9.DECL.CREATE
+spec/lean/Kikizake/D3d9/Decl.lean::stream_apart lean D3D9.DECL.CREATE

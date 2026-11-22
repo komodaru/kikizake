@@ -22,6 +22,7 @@ import Kikizake.D3d9.Formats
 import Kikizake.D3d9.Tex
 import Kikizake.D3d9.Texel
 import Kikizake.D3d9.Chain
+import Kikizake.D3d9.Decl
 import Kikizake.Float
 import Kikizake.F32
 import Kikizake.DWrite.Advance
