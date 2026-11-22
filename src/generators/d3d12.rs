@@ -934,6 +934,40 @@ pub fn d3d12() -> String {
     ] {
         writeln!(s, "case fp-limit-{name}\ndevice12\nfootprint12 0 1 0 {}\nend", desc_str(&d));
     }
+    // (added after: the limit is 2^23 for one slice of one level and lower for an array; TotalBytes
+    // kept to 32 bits: what limit arrays, levels and samples have, and whether offsets wrap too)
+    let r8 = Desc::tex(3, 1, 1, 1, 1, 61);
+    for (name, first_count, d) in [
+        ("a2-w16384", (0u32, 1u32), Desc { w: 16384, d: 2, ..r8 }),
+        ("a2-w16385", (0, 1), Desc { w: 16385, d: 2, ..r8 }),
+        ("a2-h16385", (0, 1), Desc { h: 16385, d: 2, ..r8 }),
+        ("a2-w65536", (0, 1), Desc { w: 65536, d: 2, ..r8 }),
+        ("m2-w16384", (0, 1), Desc { w: 16384, mips: 2, ..r8 }),
+        ("m2-w16385", (0, 1), Desc { w: 16385, mips: 2, ..r8 }),
+        ("m2-w800000", (0, 1), Desc { w: 1 << 23, mips: 2, ..r8 }),
+        ("m2-h16385", (0, 1), Desc { h: 16385, mips: 2, ..r8 }),
+        ("m0-w800001", (0, 1), Desc { w: (1 << 23) + 1, mips: 0, ..r8 }),
+        ("m0-w16385-h2", (0, 1), Desc { w: 16385, h: 2, mips: 0, ..r8 }),
+        ("s4-w16384", (0, 1), Desc { w: 16384, samples: 4, flags: 1, ..r8 }),
+        ("s4-w16385", (0, 1), Desc { w: 16385, samples: 4, flags: 1, ..r8 }),
+        ("rt-w16385", (0, 1), Desc { w: 16385, flags: 1, ..r8 }),
+        ("rt-w800000", (0, 1), Desc { w: 1 << 23, flags: 1, ..r8 }),
+        ("bc1-a2-w16388", (0, 1), Desc { w: 16388, h: 4, d: 2, fmt: 71, ..r8 }),
+        ("d24s8-w800000", (0, 2), Desc { w: 1 << 23, fmt: 45, ..r8 }),
+        ("d24s8-w800001", (0, 2), Desc { w: (1 << 23) + 1, fmt: 45, ..r8 }),
+        ("nv12-w800000", (0, 2), Desc { w: 1 << 23, h: 2, fmt: 103, ..r8 }),
+        ("nv12-w800002", (0, 2), Desc { w: (1 << 23) + 2, h: 2, fmt: 103, ..r8 }),
+        ("offsets-a2048", (0, 6), Desc::tex(3, 0x4000, 0x4000, 2048, 1, 28)),
+        ("offsets-a2048-from4", (4, 2), Desc::tex(3, 0x4000, 0x4000, 2048, 1, 28)),
+        ("offsets-a16-h4000", (0, 16), Desc::tex(3, 0x4000, 0x4000, 16, 1, 2)),
+        ("offsets-m2-rgba32f", (0, 2), Desc::tex(3, 0x4000, 0x4000, 1, 2, 2)),
+        ("total-rgba32f-4000x4000", (0, 1), Desc::tex(3, 0x4000, 0x4000, 1, 1, 2)),
+        ("total-r8-800000x200", (0, 1), Desc::tex(3, 1 << 23, 0x200, 1, 1, 61)),
+        ("total-r8-800000x201", (0, 1), Desc::tex(3, 1 << 23, 0x201, 1, 1, 61)),
+    ] {
+        let (first, count) = first_count;
+        writeln!(s, "case fp-limit2-{name}\ndevice12\nfootprint12 {first} {count} 0 {}\nend", desc_str(&d));
+    }
 
     s
 }
