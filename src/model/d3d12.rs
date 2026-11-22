@@ -1414,6 +1414,13 @@ fn tex_state_ok(state: u32, flags: u32) -> bool {
 }
 
 pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
+    Ok(create_verdict(heap, state, d, block(d.fmt).is_none(), d.align == 4096 && small(d)))
+}
+
+/// CreateCommittedResource's verdict given whether the format has no element size (`blockless`)
+/// and whether the texture fits 16 tiles of 4KB with its 4KB alignment asked (`small4k`)
+/// (mirrors `d3d12.create`)
+pub fn create_verdict(heap: Heap, state: u32, d: &Desc, blockless: bool, small4k: bool) -> Hr {
     use super::dxgi_format::{support, DS, MS, ONE_MIP, RT, SINGLE};
     hit(clause::D3D12_CREATE);
     let no = |c: bool, id: crate::spec::ClauseId| {
@@ -1422,12 +1429,12 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     };
     // (MEASURED: heap 5, D3D12_HEAP_TYPE_GPU_UPLOAD, is there on WARP)
     if no(!heap.known(), clause::D3D12_HEAP_TYPE) {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     if d.kind() != Dim::Buffer && d.layout == 0xffff_ffff {
         // (MEASURED: E_NOTIMPL)
         hit(clause::D3D12_CREATE_LAYOUTNOTIMPL);
-        return Ok(E_NOTIMPL);
+        return E_NOTIMPL;
     }
     let flags = d.flags;
     if flags & 0x400 != 0 {
@@ -1438,24 +1445,24 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     }
     // (MEASURED: these flags; 0x10 needs a shared heap, the video ones a video device)
     if no(flags & !(1 | 2 | 4 | 8 | 0x20 | 0x100 | 0x400) != 0 || flags & 3 == 3 || flags & 6 == 6, clause::D3D12_DESC_FLAGS) {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     if d.kind() == Dim::Buffer {
         if validate(d).is_err() || no(flags & 0x22 != 0, clause::D3D12_CREATE_BUFFERFLAGS) {
-            return Ok(E_INVALIDARG);
+            return E_INVALIDARG;
         }
         if heap.cpu() {
             hit(clause::D3D12_HEAP_CPU);
             // (MEASURED: no render target or unordered access; upload starts in states GENERIC_READ
             // is made of (or COMMON), readback in COPY_DEST, RESOLVE_DEST (or COMMON))
             let states = if heap == Heap::Upload { 0xac3 } else { 0x1400 };
-            return Ok(if flags & 7 != 0 || state & !states != 0 { E_INVALIDARG } else { S_FALSE });
+            return if flags & 7 != 0 || state & !states != 0 { E_INVALIDARG } else { S_FALSE };
         }
         hit(clause::D3D12_CREATE_BUFFERSTATE);
-        return Ok(S_FALSE);
+        return S_FALSE;
     }
     if no(heap.cpu(), clause::D3D12_HEAP_CPU) {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     if heap == Heap::GpuUpload {
         // (MEASURED, golden d3d12-64 create-gpuupload: textures taken as on the default heap)
@@ -1463,7 +1470,7 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
     }
     let dim = d.kind().tex_bit();
     if no(dim.is_none(), clause::D3D12_DESC_DIM) || no(d.w == 0 || d.h == 0 || d.d == 0 || d.kind() == Dim::Tex1D && d.h != 1 || d.d > 2048, clause::D3D12_DESC_SIZE) {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     let ms = d.samples > 1;
     let target = flags & 3 != 0;
@@ -1477,47 +1484,47 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
         Dim::Tex2D | Dim::Tex1D | Dim::Unknown | Dim::Buffer | Dim::Other => (16384, 16384),
     };
     if no(d.w > wmax || d.h > hmax, clause::D3D12_DESC_SIZE) {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     let fs = support(d.fmt);
     let Some(dimbit) = dim else {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     };
     if no(fs & dimbit == 0 && !(target && fs & (RT | DS) != 0 && d.kind() == Dim::Tex2D), clause::D3D12_CREATE_FORMAT) {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     if no(flags & 1 != 0 && fs & RT == 0 || flags & 2 != 0 && fs & DS == 0 || flags & 8 != 0 && flags & 2 == 0, clause::D3D12_CREATE_TARGETS) {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     // (MEASURED, golden d3d12-64 create-split: the video formats take arrays but one mip level, the
     // 4:2:0 ones an even size, the 4:2:2 ones an even width)
     if fs & ONE_MIP != 0 && d.mips != 1 {
         hit(clause::D3D12_CREATE_SINGLE);
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     if fs & SINGLE != 0 && (d.mips != 1 || d.w % 2 != 0 || matches!(d.fmt, 103..=106) && d.h % 2 != 0) {
         hit(clause::D3D12_CREATE_SINGLE);
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     // (MEASURED: 4KB only without render target, depth stencil or samples, and small (the
     // documentation's rule), 4MB only with samples)
     let align_ok = match d.align {
         0 | 65536 => true,
-        4096 => !target && !ms && small(d),
+        4096 => !target && !ms && small4k,
         4194304 => ms,
         _ => false,
     };
     if no(!align_ok, clause::D3D12_DESC_ALIGN) {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     if no(d.samples == 0, clause::D3D12_DESC_MSAA) {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
     if ms {
         // (MEASURED: 2, 4, 8, 16 samples, quality 0 or the standard pattern, one mip level)
         let ok = d.kind() == Dim::Tex2D && target && d.mips == 1 && matches!(d.samples, 2 | 4 | 8 | 16) && matches!(d.quality, 0 | 0xffff_ffff) && fs & MS != 0 && flags & 0x520 == 0 && d.layout != 3;
         if no(!ok, clause::D3D12_DESC_MSAA) {
-            return Ok(E_INVALIDARG);
+            return E_INVALIDARG;
         }
     } else if d.quality != 0 {
         // (MEASURED: a single sample's quality is not checked)
@@ -1527,27 +1534,27 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
         0 => {}
         2 | 3 if d.kind() == Dim::Tex1D => {
             hit(clause::D3D12_DESC_LAYOUT);
-            return Ok(E_INVALIDARG);
+            return E_INVALIDARG;
         }
         2 if d.kind() == Dim::Tex2D && d.d > 1 => {
             // (MEASURED, golden d3d12-64 create-split: arrays refused, mip chains (3, or 0 for all) taken)
             hit(clause::D3D12_CREATE_LAYOUT64K);
-            return Ok(E_INVALIDARG);
+            return E_INVALIDARG;
         }
         3 if flags & 2 != 0 => {
             hit(clause::D3D12_DESC_LAYOUT);
-            return Ok(E_INVALIDARG);
+            return E_INVALIDARG;
         }
-        2 if block(d.fmt).is_none() => {
+        2 if blockless => {
             // (MEASURED, golden d3d12-64 alloc-other-24..26, create-depth-layout: not the two-plane formats
             // (D24S8, D32S8, NV12); D32 taken)
             hit(clause::D3D12_CREATE_LAYOUT64K);
-            return Ok(E_INVALIDARG);
+            return E_INVALIDARG;
         }
         2 | 3 => hit(clause::D3D12_DESC_LAYOUT),
         _ => {
             hit(clause::D3D12_DESC_LAYOUT);
-            return Ok(E_INVALIDARG);
+            return E_INVALIDARG;
         }
     }
     // (MEASURED: mip levels are not checked)
@@ -1555,9 +1562,9 @@ pub fn create_hr(heap: Heap, state: u32, d: &Desc) -> Res<Hr> {
         hit(clause::D3D12_CREATE_MIPS);
     }
     if no(!tex_state_ok(state, flags), clause::D3D12_CREATE_STATE) {
-        return Ok(E_INVALIDARG);
+        return E_INVALIDARG;
     }
-    Ok(S_FALSE)
+    S_FALSE
 }
 
 impl D3d12 {

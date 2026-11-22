@@ -318,6 +318,23 @@ spec/lean/Kikizake/D3d12/Alloc.lean::std_tiles_64k lean D3D12.ALLOC.SWIZZLE
 spec/lean/Kikizake/D3d12/Alloc.lean::swizzle_covers lean D3D12.ALLOC.SWIZZLE D3D12.ALLOC.TEXTURE
 spec/lean/Kikizake/D3d12/Alloc.lean::size_bounds lean D3D12.ALLOC.TEXTURE D3D12.ALLOC.MSAA D3D12.ALLOC.RT1D
 spec/lean/Kikizake/D3d12/Alloc.lean::small_tiles_4k lean D3D12.DESC.SMALL
+spec/lean/Kikizake/D3d12/Create.lean::flags_taken lean D3D12.DESC.FLAGS
+spec/lean/Kikizake/D3d12/Create.lean::heap_type lean D3D12.HEAP.TYPE
+spec/lean/Kikizake/D3d12/Create.lean::layout_notimpl lean D3D12.CREATE.LAYOUTNOTIMPL
+spec/lean/Kikizake/D3d12/Create.lean::cpu_no_texture lean D3D12.HEAP.CPU
+spec/lean/Kikizake/D3d12/Create.lean::buffer_taken lean D3D12.HEAP.CPU D3D12.CREATE.BUFFERFLAGS D3D12.DESC.BUFFER
+spec/lean/Kikizake/D3d12/Create.lean::texture_taken lean D3D12.CREATE D3D12.DESC.DIM D3D12.DESC.SIZE D3D12.DESC.ALIGN D3D12.DESC.MSAA D3D12.DESC.LAYOUT D3D12.CREATE.FORMAT D3D12.CREATE.TARGETS D3D12.CREATE.SINGLE D3D12.CREATE.STATE
+spec/lean/Kikizake/D3d12/Create.lean::quality_unchecked lean D3D12.CREATE.QUALITY
+spec/lean/Kikizake/D3d12/Create.lean::mips_unchecked lean D3D12.CREATE.MIPS
+spec/lean/Kikizake/D3d12/Create.lean::gpu_upload lean D3D12.CREATE.GPUUPLOAD
+spec/lean/Kikizake/D3d12/Create.lean::buffer_state lean D3D12.CREATE.BUFFERSTATE D3D12.CREATE.GPUUPLOAD
+spec/lean/Kikizake/D3d12/Create.lean::sim_state lean D3D12.CREATE.STATE
+spec/lean/Kikizake/D3d12/Create.lean::generic_read lean D3D12.CREATE.STATE
+spec/lean/Kikizake/D3d12/Create.lean::write_alone lean D3D12.CREATE.STATE
+spec/lean/Kikizake/D3d12/Create.lean::state_flags lean D3D12.CREATE.STATE
+spec/lean/Kikizake/D3d12/Create.lean::two_planes lean D3D12.CREATE.LAYOUT64K
+spec/lean/Kikizake/D3d12/Create.lean::single_2d lean D3D12.DESC.SIZE
+spec/lean/Kikizake/D3d12/Create.lean::footprint_2d lean D3D12.FOOTPRINT.LIMITS D3D12.DESC.SIZE
 spec/lean/Kikizake/D3d9/Pixel.lean::cmp_pairs lean D3D9.ALPHATEST D3D9.STENCIL D3D9.DEPTH
 spec/lean/Kikizake/D3d9/Pixel.lean::stencil_ops lean D3D9.STENCIL
 spec/lean/Kikizake/D3d9/Pixel.lean::stencil_write_bits lean D3D9.STENCIL

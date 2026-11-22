@@ -5,7 +5,7 @@ open Kikizake
 
 def mirrors : List Mirror :=
   Gdi.Blend.mirrors ++ Gdi.Stretch.mirrors ++ Gdi.Xform.mirrors ++ Gdi.Gradient.mirrors ++
-  GdiPlus.Conv.mirrors ++ D3d12.Footprint.mirrors ++ D3d12.Alloc.mirrors ++ Dxgi.Args.mirrors ++
+  GdiPlus.Conv.mirrors ++ D3d12.Footprint.mirrors ++ D3d12.Alloc.mirrors ++ D3d12.Create.mirrors ++ Dxgi.Args.mirrors ++
   D3d9.Pixel.mirrors ++ DWrite.Advance.mirrors
 
 def answer (line : String) : String :=
