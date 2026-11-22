@@ -646,6 +646,10 @@ spec/lean/Kikizake/D3d9/Filter.lean::linear_whole lean D3D9.TEX.LINEAR
 spec/lean/Kikizake/D3d9/Filter.lean::linear_truncated lean D3D9.TEX.LINEAR
 spec/lean/Kikizake/D3d9/Filter.lean::point_nearest64 lean D3D9.TEX.POINT
 spec/lean/Kikizake/D3d9/Filter.lean::linear_centers lean D3D9.TEX.LINEAR
+spec/lean/Kikizake/D3d9/Coord.lean::slots_sets lean D3D9.STAGE.TCI
+spec/lean/Kikizake/D3d9/Coord.lean::row_sets lean D3D9.STAGE.TCI
+spec/lean/Kikizake/D3d9/Coord.lean::tex_transform lean D3D9.STAGE.TEXXFORM
+spec/lean/Kikizake/D3d9/Coord.lean::tex_transform_rows lean D3D9.STAGE.TEXXFORM
 tests/laws_dwrite_run.rs::nothing_lit_is_empty_bounds_at_the_origin exhaustive DW.RUN.EMPTY
 tests/laws_dwrite_run.rs::the_other_texture_is_empty exhaustive DW.RUN.TEXTURE
 tests/laws_dwrite_run.rs::grid_fit_draws_as_the_default exhaustive DW.RUN.FIT

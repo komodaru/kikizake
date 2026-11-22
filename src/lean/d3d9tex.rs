@@ -1,7 +1,7 @@
 //! Direct3D 9's texture, stage chain and pixel mirrors (spec/lean/Kikizake/D3d9/Tex.lean and
 //! the files after it).
 use super::{arg, arg_f64, every, f64_halves, sampled, Domain, Mirror};
-use crate::model::d3d9draw::{self, AlphaRule, BlendStates, DrawGate, StageDesc, Step, TexFilter};
+use crate::model::d3d9draw::{self, AlphaRule, BlendStates, DrawGate, SetKey, StageDesc, Step, TexFilter};
 
 const U32: i64 = 0xffff_ffff;
 const TEX: &str = "spec/lean/Kikizake/D3d9/Tex.lean";
@@ -9,6 +9,7 @@ const TEXEL: &str = "spec/lean/Kikizake/D3d9/Texel.lean";
 const CHAIN: &str = "spec/lean/Kikizake/D3d9/Chain.lean";
 const BLEND: &str = "spec/lean/Kikizake/D3d9/Blend.lean";
 const FILTER: &str = "spec/lean/Kikizake/D3d9/Filter.lean";
+const COORD: &str = "spec/lean/Kikizake/D3d9/Coord.lean";
 
 /// texel coordinates as the samplers make them: u of k / 4096 in -2..2 times widths 1 .. 256,
 /// the points 1/128 and 1/64 apart either side of, and on, by 0 .. 2 ulps each way, and
@@ -412,6 +413,106 @@ pub static MIRRORS: &[Mirror] = &[
         model: |a| {
             let t = [arg_f64(a, 0)?, arg_f64(a, 2)?, arg_f64(a, 4)?, arg_f64(a, 6)?];
             Some(f64_halves(d3d9draw::bilinear_float(t, d3d9draw::bilinear_weights(arg(a, 8)?, arg(a, 9)?))))
+        },
+    },
+    Mirror {
+        name: "d3d9.slots",
+        lean: COORD,
+        domain: Domain::Sampled("400,000 samples of eight stages' TEXCOORDINDEX (0, 1, 2, 3, 0x10000, 0x30001, 0xffffffff), TEXTURETRANSFORMFLAGS (0, 2, 3, 0x102) and COLOROP (DISABLE, SELECTARG1, MODULATE, 0xffffffff), and of the same with two TEXCOORDINDEX values and no flags"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x5e75_d009);
+            let pick = |rng: &mut crate::rng::Sample64, v: &[i64]| v.get(usize::try_from(rng.range(0, i64::try_from(v.len()).unwrap_or(1).saturating_sub(1))).unwrap_or(0)).copied().unwrap_or(0);
+            for i in 0..400_000 {
+                let (tcis, flags): (&[i64], &[i64]) = if i % 2 == 0 { (&[0, 1, 2, 3, 0x10000, 0x30001, U32], &[0, 2, 3, 0x102]) } else { (&[0, 1], &[0]) };
+                let mut w = vec![];
+                for st in 0..8 {
+                    let t = pick(&mut rng, flags);
+                    w.extend([pick(&mut rng, tcis), t, if t == 0 { 0 } else { st }]);
+                }
+                for _ in 0..8 {
+                    w.push(pick(&mut rng, &[1, 2, 4, U32]));
+                }
+                each(&w);
+            }
+        },
+        model: |a| {
+            let keys: [SetKey; 8] = std::array::from_fn(|i| {
+                let g = |j: usize| i.checked_mul(3).and_then(|b| b.checked_add(j)).and_then(|k| arg::<u32>(a, k)).unwrap_or(0);
+                SetKey { tci: g(0), xform: match g(1) { 0 => None, t => Some((t, g(2))) } }
+            });
+            let cops: [u32; 8] = std::array::from_fn(|i| arg(a, i.saturating_add(24)).unwrap_or(0));
+            Some(d3d9draw::tci_slots(keys, cops).map_or(vec![], |s| s.iter().flat_map(|k| {
+                let (t, st) = k.xform.unwrap_or((0, 0));
+                [i64::from(k.tci), i64::from(t), i64::from(st)]
+            }).collect()))
+        },
+    },
+    Mirror {
+        name: "d3d9.row",
+        lean: COORD,
+        domain: Domain::Sampled("every count of 0..3 sets with every size 1..4 each, by every set 0..4 and 0xffff, the words any bits; 100,000 samples of 4..8 sets, set 0..9"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x7c0d_d009);
+            let mut send = |sizes: &[i64], set: i64, rng: &mut crate::rng::Sample64| {
+                let mut w = vec![i64::try_from(sizes.len()).unwrap_or(0)];
+                w.extend(sizes);
+                w.push(set);
+                let n: i64 = sizes.iter().sum();
+                w.extend((0..n).map(|_| i64::from(rng.word())));
+                each(&w);
+            };
+            for n in 0..=3usize {
+                every(&vec![(1, 4); n], &mut |sizes| {
+                    for set in [0, 1, 2, 3, 4, 0xffff] {
+                        send(sizes, set, &mut rng);
+                    }
+                });
+            }
+            for _ in 0..100_000 {
+                let n = rng.range(4, 8);
+                let sizes: Vec<i64> = (0..n).map(|_| rng.range(1, 4)).collect();
+                let set = rng.range(0, 9);
+                send(&sizes, set, &mut rng);
+            }
+        },
+        model: |a| {
+            let n: usize = arg(a, 0)?;
+            let sizes: Vec<usize> = (1..=n).map(|i| arg(a, i)).collect::<Option<_>>()?;
+            let set: usize = arg(a, n.checked_add(1)?)?;
+            let tex: Vec<u32> = a.get(n.checked_add(2)?..)?.iter().map(|&v| u32::try_from(v).ok()).collect::<Option<_>>()?;
+            Some(d3d9draw::coord_row(&tex, &sizes, set).map_or(vec![], |(r, p)| r.iter().chain(&p).map(|x| i64::from(x.to_bits())).collect()))
+        },
+    },
+    Mirror {
+        name: "d3d9.ttf",
+        lean: COORD,
+        domain: Domain::Sampled("TEXTURETRANSFORMFLAGS COUNT1 .. COUNT4 with and without PROJECTED, both runtimes, on 25,000 samples each of a row and a matrix of f32 in -4..4, 0, -0, 1, NaN, infinities and any bits"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x7f7f_d009);
+            let special = [0.0f32, -0.0, 1.0, 0.5, 2.0, f32::NAN, f32::INFINITY, f32::NEG_INFINITY];
+            for ttf in [1, 2, 3, 4, 0x101, 0x102, 0x103, 0x104] {
+                for v8 in 0..2 {
+                    for _ in 0..25_000 {
+                        let mut w = vec![ttf, v8];
+                        for _ in 0..20 {
+                            let x = match rng.range(0, 3) {
+                                0 => special.get(usize::try_from(rng.range(0, 7)).unwrap_or(0)).copied().unwrap_or(0.0),
+                                1 => f32::from_bits(rng.word()),
+                                _ => -4.0 + 8.0 * (f32::from(u16::try_from(rng.range(0, 0xffff)).unwrap_or(0)) / 65535.0),
+                            };
+                            w.push(i64::from(x.to_bits()));
+                        }
+                        each(&w);
+                    }
+                }
+            }
+        },
+        model: |a| {
+            let f = |i: usize| -> Option<f32> { Some(f32::from_bits(arg(a, i)?)) };
+            let v = [f(2)?, f(3)?, f(4)?, f(5)?];
+            let m: [Option<f32>; 16] = std::array::from_fn(|i| f(i.saturating_add(6)));
+            let m: [f32; 16] = m.into_iter().collect::<Option<Vec<f32>>>()?.try_into().ok()?;
+            Some(d3d9draw::tex_transform(arg(a, 0)?, arg::<u8>(a, 1)? != 0, v, m).map_or(vec![], |r| r.iter().flat_map(|&x| f64_halves(x)).collect()))
         },
     },
 ];

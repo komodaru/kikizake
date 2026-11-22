@@ -99,6 +99,12 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // bilinear_weights, bilinear_bytes, bilinear_unit and bilinear_float, which d3d9.point,
     // d3d9.bilinear, d3d9.bibytes and d3d9.bifloat hold to spec/lean/Kikizake/D3d9/Filter.lean)
     ("src/model/d3d9draw.rs", r"\*\s*64\.0\)\.round\(\)|\*\s*(32\.0|q\s+as\s+f64)\)\.floor\(\)|/\s*BILERP_ONE|\(q\s*-\s*fx\)|\(Q\s*-\s*fx\)", &["point_at", "bilinear_at", "bilinear_weights", "bilinear_unit", "bilinear_float"]),
+    // (the sets of coordinates the stages read and a set's row are tci_slots and coord_row, which
+    // d3d9.slots and d3d9.row hold to spec/lean/Kikizake/D3d9/Coord.lean)
+    ("src/model/d3d9draw.rs", r"slots\.contains\(|Ordering::Equal\s*=>\s*1\.0|\[0\.0,\s*0\.0,\s*1\.0,\s*0\.0\]", &["tci_slots", "coord_row"]),
+    // (a stage's texture matrix is tex_transform, which d3d9.ttf holds to
+    // spec/lean/Kikizake/D3d9/Coord.lean)
+    ("src/model/d3d9draw.rs", r"ttf\s*&\s*0x100|\[count\s*-\s*1\]|count\s*-\s*1\)", &["tex_transform"]),
 ];
 
 /// (file, what (a regular expression), why): `forbidden`

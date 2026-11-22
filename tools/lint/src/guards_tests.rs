@@ -126,6 +126,9 @@ fn unconfined_uses_are_found() {
         ("fn blend(&self) { let s = s.map(|x| x.clamp(0.0, 1.0) as f32); let f = s[3].min(1.0 - d[3]); }", "blend_float"),
         ("fn sample(&self) { let near64 = |x: f64| ((x * 64.0).round() / 64.0).floor() as i64; }", "point_at"),
         ("fn bilinear_sum(&self) { let fx = ((x - x0) * q as f64).floor() as i64; let w = (q - fx) * (q - fy); }", "bilinear_at"),
+        ("fn triangle(&mut self) { if !slots.contains(&k) { slots.push(k); } }", "tci_slots"),
+        ("fn triangle(&mut self) { let r = if set < ntex { t } else { [0.0, 0.0, 1.0, 0.0] }; }", "coord_row"),
+        ("fn ttf(&self) -> [f64; 3] { if ttf & 0x100 != 0 { [t[0], t[1], t[count - 1]] } else { t } }", "tex_transform"),
     ];
     for (code, only) in inlined {
         let r = rust("src/model/d3d9draw.rs", code);

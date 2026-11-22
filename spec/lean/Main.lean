@@ -8,7 +8,7 @@ def mirrors : List Mirror :=
   GdiPlus.Conv.mirrors ++ D3d12.Footprint.mirrors ++ D3d12.Alloc.mirrors ++ D3d12.Create.mirrors ++ D3d12.Copyable.mirrors ++ Dxgi.Args.mirrors ++
   D3d9.Pixel.mirrors ++ D3d9.Raster.mirrors ++ D3d9.Fvf.mirrors ++ D3d9.Stage.mirrors ++ D3d9.Fog.mirrors ++ D3d9.Arg.mirrors ++ D3d9.Formats.mirrors ++ D3d9.Decl.mirrors ++ D3d9.Shade.mirrors ++ D3d9.Clip.mirrors ++ D3d9.Draw.mirrors ++
   F32.mirrors ++
-  D3d9.Tex.mirrors ++ D3d9.Texel.mirrors ++ D3d9.Chain.mirrors ++ D3d9.Blend.mirrors ++ D3d9.Filter.mirrors ++
+  D3d9.Tex.mirrors ++ D3d9.Texel.mirrors ++ D3d9.Chain.mirrors ++ D3d9.Blend.mirrors ++ D3d9.Filter.mirrors ++ D3d9.Coord.mirrors ++
   GdiPlus.Blend.mirrors ++
   GdiPlus.Matrix.mirrors ++
   GdiPlus.Flatten.mirrors ++

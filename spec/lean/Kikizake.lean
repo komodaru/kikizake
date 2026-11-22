@@ -30,6 +30,7 @@ import Kikizake.D3d9.Clip
 import Kikizake.D3d9.Draw
 import Kikizake.D3d9.Blend
 import Kikizake.D3d9.Filter
+import Kikizake.D3d9.Coord
 import Kikizake.Float
 import Kikizake.F32
 import Kikizake.DWrite.Advance
