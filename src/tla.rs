@@ -39,7 +39,13 @@ pub fn check(dump: &str) -> Result<(usize, usize, Vec<String>), String> {
     for log in &all {
         let mut text = String::from("case tla\n");
         let mut want = Vec::new();
+        // (a log entry "# arch 64" (or 32) runs the state as that executor's model; x86 else)
+        let mut arch = 32;
         for l in log {
+            if let Some(a) = l.strip_prefix("# arch ") {
+                arch = a.parse().map_err(|e| format!("bad arch entry {l:?}: {e}"))?;
+                continue;
+            }
             match l.strip_prefix("> ") {
                 Some(call) => {
                     text += call;
@@ -50,7 +56,9 @@ pub fn check(dump: &str) -> Result<(usize, usize, Vec<String>), String> {
         }
         text += "end\n";
         let c = crate::case::parse_cases(&text);
+        crate::model::set_arch(arch);
         let got = crate::model::run_case(&c[0]);
+        crate::model::set_arch(32);
         if got.as_ref() == Ok(&want) {
             continue;
         }

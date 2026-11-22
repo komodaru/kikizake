@@ -35,5 +35,9 @@ differently. So a model that breaks a clause on any short sequence fails, withou
 | GdiPlusFill | Graphics::Clear, FillRectangleI (GP.FILL, NOGRAPHICS, RECT, NEGATIVE, COPY, OVER, INDEXED, QUALITY.OTHER): SourceCopy and SourceOver without gamma, the operators of GdiPlusBitmap by INSTANCE | 368,697 (2) |
 | GdiPlusMatrix | Matrix::Matrix, Multiply, Invert, TransformPoints (GP.MATRIX, MUL, ORDER, POINT, INVERT): entries on the 1/64 grid, exact in f32 but for the signs of zeros, answered as float bits | 22,765 (3) |
 | GdiPlusObjects | solid, hatch and texture brushes and GetBrushType, Pen and its setters, FillRectangle, SetColorMatrix and DrawImage at 1:1 (GP.BRUSH, HATCH.RANGE, TEXTURE, TEXTURE.STATUS, INFO, PEN.MAKE, PAINT, NOBRUSH, MODES, NEGATIVE, ATTR, FLAGS, DRAW.NOATTR, SKIPGRAYS, ALTGRAY, ALTGRAY.TRANSLATE) | 7,429 (2) |
+| D3D12Make | CreateDescriptorHeap, CreateCommandQueue, CreateCommandAllocator / List, CreateQueryHeap, CreateFence, GetDescriptorHandleIncrementSize, RemoveDevice (D3D12.MAKE.DESCHEAP, QUEUE, LIST, QUERYHEAP, FENCE, FEATURE.INCREMENT, CLEAR.REMOVED): each behavior one executor, x86 or x86-64 (a log entry `# arch 64` replays the state as that executor), so both answers are checked | 103,516 (2) |
 
 D3D9StateBlock models documented use; D3DSbMisuse the measured misuse. Comments cannot hold `*)`.
+
+A log entry `# arch 64` (or `# arch 32`) replays that state as the x86-64 (x86) executor's model; the
+default is x86.
