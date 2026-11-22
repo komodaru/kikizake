@@ -1,6 +1,6 @@
 //! binary32 and binary64 arithmetic's mirrors (spec/lean/Kikizake/F32.lean, Float.lean): Rust's
 //! f32 and f64 operators on bits (a binary64 as its two 32-bit halves).
-use super::{arg, every, one, sampled, Domain, Mirror};
+use super::{arg, arg_f64 as g, every, f64_halves, one, sampled, Domain, Mirror};
 
 const F32: &str = "spec/lean/Kikizake/F32.lean";
 const U32: i64 = 0xffff_ffff;
@@ -99,28 +99,28 @@ pub static MIRRORS: &[Mirror] = &[
         lean: F32,
         domain: Domain::Sampled("every pair of 16 signed boundary values, 200,000 pairs of 64-bit patterns, 100,000 near each other"),
         inputs: |each| pairs64(0xadd0_f064, each),
-        model: |a| Some(halves(canon64(g(a, 0)? + g(a, 2)?))),
+        model: |a| Some(f64_halves(g(a, 0)? + g(a, 2)?)),
     },
     Mirror {
         name: "f64.sub",
         lean: F32,
         domain: Domain::Sampled("every pair of 16 signed boundary values, 200,000 pairs of 64-bit patterns, 100,000 near each other"),
         inputs: |each| pairs64(0x50b0_f064, each),
-        model: |a| Some(halves(canon64(g(a, 0)? - g(a, 2)?))),
+        model: |a| Some(f64_halves(g(a, 0)? - g(a, 2)?)),
     },
     Mirror {
         name: "f64.mul",
         lean: F32,
         domain: Domain::Sampled("every pair of 16 signed boundary values, 200,000 pairs of 64-bit patterns, 100,000 near each other"),
         inputs: |each| pairs64(0x3010_f064, each),
-        model: |a| Some(halves(canon64(g(a, 0)? * g(a, 2)?))),
+        model: |a| Some(f64_halves(g(a, 0)? * g(a, 2)?)),
     },
     Mirror {
         name: "f64.div",
         lean: F32,
         domain: Domain::Sampled("every pair of 16 signed boundary values, 200,000 pairs of 64-bit patterns, 100,000 near each other"),
         inputs: |each| pairs64(0xd170_f064, each),
-        model: |a| Some(halves(canon64(g(a, 0)? / g(a, 2)?))),
+        model: |a| Some(f64_halves(g(a, 0)? / g(a, 2)?)),
     },
     Mirror {
         name: "f64.ofF32",
@@ -133,7 +133,7 @@ pub static MIRRORS: &[Mirror] = &[
             }
             sampled(&[(0, U32)], 300_000, 0x0f32_f064, each);
         },
-        model: |a| Some(halves(canon64(f64::from(f(a, 0)?)))),
+        model: |a| Some(f64_halves(f64::from(f(a, 0)?))),
     },
     Mirror {
         name: "f64.toF32",
@@ -152,22 +152,6 @@ pub static MIRRORS: &[Mirror] = &[
         },
     },
 ];
-
-/// a NaN as the one quiet NaN, a binary64's bits
-fn canon64(x: f64) -> u64 {
-    if x.is_nan() { 0x7ff8_0000_0000_0000 } else { x.to_bits() }
-}
-
-/// a binary64's two 32-bit halves
-fn halves(x: u64) -> Vec<i64> {
-    vec![i64::from(u32::try_from(x >> 32).unwrap_or(0)), i64::from(u32::try_from(x & 0xffff_ffff).unwrap_or(0))]
-}
-
-/// the binary64 of arguments i and i + 1, its halves
-fn g(a: &[i64], i: usize) -> Option<f64> {
-    let (hi, lo) = (arg::<u32>(a, i)?, arg::<u32>(a, i.checked_add(1)?)?);
-    Some(f64::from_bits(u64::from(hi) << 32 | u64::from(lo)))
-}
 
 /// the binary64 boundary values' high halves (the low half 0 or 1)
 const EDGES64: [u32; 12] = [0, 1, 0x000f_ffff, 0x0010_0000, 0x3fef_ffff, 0x3ff0_0000, 0x4000_0000, 0x3fe0_0000, 0x7fef_ffff, 0x7ff0_0000, 0x7ff8_0000, 0x3f70_1010];

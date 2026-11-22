@@ -14,6 +14,7 @@ import Kikizake.D3d9.Pixel
 import Kikizake.D3d9.Raster
 import Kikizake.D3d9.Fvf
 import Kikizake.D3d9.Stage
+import Kikizake.D3d9.Fog
 import Kikizake.Float
 import Kikizake.F32
 import Kikizake.DWrite.Advance

@@ -60,6 +60,18 @@ pub fn arg<T: TryFrom<i64>>(a: &[i64], i: usize) -> Option<T> {
     a.get(i).and_then(|v| T::try_from(*v).ok())
 }
 
+/// the binary64 of arguments i and i + 1, its two 32-bit halves
+pub fn arg_f64(a: &[i64], i: usize) -> Option<f64> {
+    let (hi, lo) = (arg::<u32>(a, i)?, arg::<u32>(a, i.checked_add(1)?)?);
+    Some(f64::from_bits(u64::from(hi) << 32 | u64::from(lo)))
+}
+
+/// a binary64's two 32-bit halves, a NaN as the one quiet NaN
+pub fn f64_halves(x: f64) -> Vec<i64> {
+    let b = if x.is_nan() { 0x7ff8_0000_0000_0000 } else { x.to_bits() };
+    vec![i64::from(u32::try_from(b >> 32).unwrap_or(0)), i64::from(u32::try_from(b & 0xffff_ffff).unwrap_or(0))]
+}
+
 /// a model's single answer
 pub fn one(v: impl Into<i64>) -> Option<Vec<i64>> {
     Some(vec![v.into()])

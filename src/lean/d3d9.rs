@@ -1,5 +1,5 @@
 //! Direct3D 9's mirrors (spec/lean/Kikizake/D3d9/).
-use super::{arg, every, one, sampled, Domain, Mirror};
+use super::{arg, arg_f64, every, f64_halves, one, sampled, Domain, Mirror};
 use crate::model::d3d9draw::{self, BlendOp, Winding};
 use crate::model::d3dx9;
 
@@ -7,6 +7,7 @@ const PIXEL: &str = "spec/lean/Kikizake/D3d9/Pixel.lean";
 const RASTER: &str = "spec/lean/Kikizake/D3d9/Raster.lean";
 const FVF: &str = "spec/lean/Kikizake/D3d9/Fvf.lean";
 const STAGE: &str = "spec/lean/Kikizake/D3d9/Stage.lean";
+const FOG: &str = "spec/lean/Kikizake/D3d9/Fog.lean";
 const U32: i64 = 0xffff_ffff;
 
 pub static MIRRORS: &[Mirror] = &[
@@ -280,9 +281,89 @@ pub static MIRRORS: &[Mirror] = &[
             })
         },
     },
+    Mirror {
+        name: "d3d9.specular",
+        lean: FOG,
+        domain: Domain::Sampled("300,000 pairs of 8-bit channel values (k / 255 in f32, as f64) and 200,000 of any binary64 in 0..2"),
+        inputs: |each| {
+            sampled(&[(0, 255), (0, 255)], 300_000, 0x5bec_d009, &mut |v| {
+                let w: Vec<i64> = v.iter().flat_map(|&k| f64_halves(byte64(k))).collect();
+                each(&w);
+            });
+            sampled(&[(0, 0x4000_0000), (0, U32), (0, 0x4000_0000), (0, U32)], 200_000, 0x5bed_d009, each);
+        },
+        model: |a| Some(f64_halves(d3d9draw::specular_add(arg_f64(a, 0)?, arg_f64(a, 2)?))),
+    },
+    Mirror {
+        name: "d3d9.fogexp",
+        lean: FOG,
+        domain: Domain::Sampled("EXP and EXP2, 300,000 depths 0..1 and densities 0..4 as f32 values in f64"),
+        inputs: |each| {
+            sampled(&[(1, 2), (0, 0x3f80_0000), (0, 0x4080_0000)], 300_000, 0xf0e0_d009, &mut |v| {
+                if let [m, z, d] = *v {
+                    let mut w = vec![m];
+                    w.extend(f64_halves(f32w(z)));
+                    w.extend(f64_halves(f32w(d)));
+                    each(&w);
+                }
+            });
+        },
+        model: |a| Some(f64_halves(d3d9draw::fog_exp_arg(arg(a, 0)?, arg_f64(a, 1)?, arg_f64(a, 3)?))),
+    },
+    Mirror {
+        name: "d3d9.fogfactor",
+        lean: FOG,
+        domain: Domain::Sampled("modes 0..4, 400,000 depths, specular alphas, starts, ends (f32 values in f64, -2..2) and densities 0..4; EXP's exponential Rust's exp of fogexp's exponent"),
+        inputs: |each| {
+            sampled(&[(0, 4), (0, 0x4000_0000), (0, 0x3f80_0000), (0, 0x4000_0000), (0, 0x4000_0000), (0, 0x4080_0000)], 400_000, 0xf0ef_d009, &mut |v| {
+                if let [m, z, sa, s0, e0, d] = *v {
+                    let neg = |x: i64| if x % 3 == 0 { x | 0x8000_0000 } else { x };
+                    let (z, s0, e0, d) = (f32w(neg(z)), f32w(neg(s0)), f32w(e0), f32w(d));
+                    let e = u32::try_from(m).map(|m| d3d9draw::fog_exp_arg(m, z, d).exp()).unwrap_or(0.0);
+                    let mut w = vec![m];
+                    for x in [z, f32w(sa), s0, e0, e, d] {
+                        w.extend(f64_halves(x));
+                    }
+                    each(&w);
+                }
+            });
+        },
+        model: |a| {
+            let r = d3d9draw::fog_factor(arg(a, 0)?, arg_f64(a, 1)?, arg_f64(a, 3)?, (arg_f64(a, 5)?, arg_f64(a, 7)?, arg_f64(a, 11)?));
+            Some(r.ok().map(|f| if f.is_nan() { 0x7fc0_0000 } else { i64::from(f.to_bits()) }).into_iter().collect())
+        },
+    },
+    Mirror {
+        name: "d3d9.fogblend",
+        lean: FOG,
+        domain: Domain::Sampled("300,000 factors, channels and fog channels of 8-bit values (k / 255) and 200,000 of any f32 in 0..1"),
+        inputs: |each| {
+            let byte = |k: i64| u8::try_from(k).map(|k| i64::from((f32::from(k) / 255.0).to_bits())).unwrap_or(0);
+            sampled(&[(0, 255); 3], 300_000, 0xf0eb_d009, &mut |v| {
+                let w: Vec<i64> = v.iter().map(|&k| byte(k)).collect();
+                each(&w);
+            });
+            sampled(&[(0, 0x3f80_0000); 3], 200_000, 0xf0ec_d009, each);
+        },
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            let v = d3d9draw::fog_blend(f(0)?, f(1)?, f(2)?);
+            one(if v.is_nan() { 0x7fc0_0000 } else { i64::from(v.to_bits()) })
+        },
+    },
 ];
 
 /// the elements' pairs one after the other
 fn flat(e: &[(u32, u32)]) -> impl Iterator<Item = i64> + '_ {
     e.iter().flat_map(|x| [i64::from(x.0), i64::from(x.1)])
+}
+
+/// an 8-bit channel value k / 255 in f32, as f64
+fn byte64(k: i64) -> f64 {
+    u8::try_from(k).map(|k| f64::from(f32::from(k) / 255.0)).unwrap_or(0.0)
+}
+
+/// the f32 of 32 bits, as f64
+fn f32w(x: i64) -> f64 {
+    u32::try_from(x).map(|b| f64::from(f32::from_bits(b))).unwrap_or(0.0)
 }

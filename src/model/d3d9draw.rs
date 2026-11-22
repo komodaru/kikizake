@@ -977,6 +977,36 @@ pub fn stage_value(x: StageIn) -> Res<f32> {
     })
 }
 
+/// SPECULARENABLE: the specular color added to the color, to 1 at most (D3D9.SPECULAR)
+pub fn specular_add(c: f64, s: f64) -> f64 {
+    (c + s).min(1.0)
+}
+
+/// the pixel fog factor (MEASURED fog-*, D3D9.FOG): FOGTABLEMODE NONE the iterated specular alpha,
+/// EXP, EXP2 and LINEAR of the pixel's z with FOGSTART, FOGEND, FOGDENSITY, in f64, clamped to
+/// 0..1 and taken to f32
+pub fn fog_factor(mode: u32, z: f64, specular_alpha: f64, (start, end, density): (f64, f64, f64)) -> Res<f32> {
+    let f = match mode {
+        0 => specular_alpha,
+        1 | 2 => fog_exp_arg(mode, z, density).exp(),
+        3 => (end - z) / (end - start),
+        // (the generators set no other table mode)
+        _ => return Err(Fail::Bad),
+    };
+    Ok(f.clamp(0.0, 1.0) as f32)
+}
+
+/// EXP's and EXP2's exponent: -(z d), -(z d) (z d)
+pub fn fog_exp_arg(mode: u32, z: f64, density: f64) -> f64 {
+    let n = -(z * density);
+    if mode == 1 { n } else { n * (z * density) }
+}
+
+/// a channel fogged: f c + (1 - f) fog, in f32 (D3D9.FOG)
+pub fn fog_blend(f: f32, c: f32, fog: f32) -> f32 {
+    f * c + (1.0 - f) * fog
+}
+
 /// how the vertices of a triangle wind on the screen (y down): the sign of its area
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Winding {
@@ -2426,7 +2456,7 @@ impl D3d9 {
         if self.rs(29) != 0 {
             hit(clause::D3D9_SPECULAR);
             for k in 0..3 {
-                c[k] = (c[k] + specular[k]).min(1.0);
+                c[k] = specular_add(c[k], specular[k]);
             }
         }
         if self.rs(28) != 0 {
@@ -2435,18 +2465,10 @@ impl D3d9 {
             hit(clause::D3D9_FOG);
             let fl = |k: u32| f32::from_bits(self.rs(k)) as f64;
             let (start, end, density) = (fl(36), fl(37), fl(38));
-            let f = match self.rs(35) {
-                0 => specular[3],
-                1 => (-(z * density)).exp(),
-                2 => (-(z * density) * (z * density)).exp(),
-                3 => (end - z) / (end - start),
-                // (the generators set no other table mode)
-                _ => return Err(Fail::Bad),
-            }
-            .clamp(0.0, 1.0) as f32;
+            let f = fog_factor(self.rs(35), z, specular[3], (start, end, density))?;
             let fc = argb(self.rs(34));
             for k in 0..3 {
-                c[k] = (f * c[k] as f32 + (1.0 - f) * fc[k] as f32) as f64;
+                c[k] = f64::from(fog_blend(f, c[k] as f32, fc[k] as f32));
             }
         }
         if self.rs(15) != 0 {

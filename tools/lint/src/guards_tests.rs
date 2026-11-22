@@ -147,6 +147,14 @@ fn stage_formulas_stay_in_stage_value() {
 }
 
 #[test]
+fn fog_stays_in_its_functions() {
+    let inlined = "fn pixel(&mut self) {\n    let f = (-(z * density)).exp();\n    c[k] = (f * c[k] as f32 + (1.0 - f) * fc[k] as f32) as f64;\n}\n";
+    let r = rust("src/model/d3d9draw.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: the fog factor and blend")).count(), 2, "{r:?}");
+    assert!(rust("src/model/d3d9draw.rs", "fn pixel(&mut self) { let f = fog_factor(m, z, sa, (s, e, d))?; c[k] = f64::from(fog_blend(f, c, g)); }").is_empty());
+}
+
+#[test]
 fn silent_cuts_are_found() {
     // (review of 8480456, 3: rootsig12 kept the first 1024 tokens of its rootsig12+ lines and its own)
     let old = "static void op_rootsig(void) {\n    rt = 0;\n    for (int k = 0; k < nrsx && rt < RSTOK; k++) rtk[rt++] = rsx[k];\n}\n";

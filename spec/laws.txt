@@ -410,6 +410,9 @@ spec/lean/Kikizake/D3d9/Stage.lean::symmetric lean D3D9.STAGE.OP
 spec/lean/Kikizake/D3d9/Stage.lean::selects lean D3D9.STAGE.OP
 spec/lean/Kikizake/D3d9/Stage.lean::past_lerp lean D3D9.STAGE.PASTOP
 spec/lean/Kikizake/D3d9/Stage.lean::color_only_alpha lean D3D9.STAGE.OP
+spec/lean/Kikizake/D3d9/Fog.lean::factor_modes lean D3D9.FOG
+spec/lean/Kikizake/D3d9/Fog.lean::blend_products lean D3D9.FOG
+spec/lean/Kikizake/D3d9/Fog.lean::specular_comm lean D3D9.SPECULAR
 spec/lean/Kikizake/DWrite/Advance.lean::phantom_mono lean DW.GDI.GLYPH.H DW.SHAPE.NATPLACE
 spec/lean/Kikizake/DWrite/Advance.lean::sixteenth_near lean DW.SHAPE.NATPLACE DW.GDI.GLYPH
 spec/lean/Kikizake/DWrite/Advance.lean::em_is_ppem lean DW.GDI.GLYPH.H DW.SHAPE.GDIPLACE DW.SHAPE.NATPLACE

@@ -229,7 +229,7 @@ file	src/model/d3d9.rs	indexing_slicing	10
 file	src/model/d3d9.rs	same_name_method	1
 file	src/model/d3d9.rs	wildcard_enum_match_arm	2
 file	src/model/d3d9draw.rs	arithmetic_side_effects	171
-file	src/model/d3d9draw.rs	as_conversions	300
+file	src/model/d3d9draw.rs	as_conversions	299
 file	src/model/d3d9draw.rs	cast_possible_truncation	103
 file	src/model/d3d9draw.rs	cast_possible_wrap	7
 file	src/model/d3d9draw.rs	cast_precision_loss	61
