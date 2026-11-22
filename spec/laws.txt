@@ -361,7 +361,7 @@ spec/tla/GdiPlusObjects.tla::Next tla GP.BRUSH GP.BRUSH.HATCH.RANGE GP.BRUSH.TEX
 spec/tla/D3D12Make.tla::Next tla D3D12.MAKE.DESCHEAP D3D12.MAKE.QUEUE D3D12.MAKE.LIST D3D12.MAKE.QUERYHEAP D3D12.MAKE.FENCE D3D12.FEATURE.INCREMENT D3D12.CLEAR.REMOVED
 spec/tla/GdiPlusPath.tla::Next tla GP.PATH.BUILD GP.PATH.CURVE GP.PATH.BOUNDS GP.PATH.FILLMODE GP.PATH.FLATTEN.ZERO
 spec/tla/GdiPlusPaint.tla::Next tla GP.PAINT.ALIASED GP.PAINT.AA GP.PAINT.HATCH GP.BRUSH.TEXTURE.PAINT GP.FILL.COPY GP.FILL.OVER
-spec/tla/GdiPlusPolygon.tla::Next tla GP.SHAPE.POLYGON
+spec/tla/GdiPlusPolygon.tla::Next tla GP.SHAPE.POLYGON GP.MATRIX.INVERT
 spec/lean/Kikizake/GdiPlus/Conv.lean::expand_truncate lean GP.CONV.EXPAND GP.CONV.TRUNCATE
 spec/lean/Kikizake/GdiPlus/Conv.lean::expand_close lean GP.CONV.EXPAND
 spec/lean/Kikizake/GdiPlus/Conv.lean::premultiply_nearest lean GP.CONV.PREMULTIPLY
@@ -507,9 +507,11 @@ spec/lean/Kikizake/GdiPlus/Matrix.lean::down_steps lean GP.MATRIX.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::down_products lean GP.MATRIX.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::down_comm lean GP.MATRIX.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::inverse_scale lean GP.MATRIX.X86 GP.MATRIX.X64
+spec/lean/Kikizake/GdiPlus/Matrix.lean::inverse_nonfinite lean GP.MATRIX.INVERT
 spec/lean/Kikizake/GdiPlus/Matrix.lean::gamma64_ends lean GP.FILL.GAMMA.X64
 spec/lean/Kikizake/GdiPlus/Matrix.lean::gamma64_down lean GP.FILL.GAMMA.X64
 tests/laws_gdiplus.rs::fixed_palettes_hold_every_nearest_color exhaustive GP.CLONE.PALETTE
+tests/laws_gdiplus.rs::textures_composite_as_hatches exhaustive GP.BRUSH.TEXTURE.PAINT
 spec/lean/Kikizake/D3d11/Desc.lean::desc_size lean D3DRES.DESC.SIZE D3DRES.DESC
 spec/lean/Kikizake/D3d11/Desc.lean::desc_big lean D3DRES.DESC.BIG
 spec/lean/Kikizake/D3d11/Desc.lean::usage_ff lean D3DRES.DESC.USAGEFF

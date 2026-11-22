@@ -383,3 +383,81 @@ fn polygon_grid() {
     assert!(twice.inside(gp::FillMode::Winding, 1.0, 1.0));
     assert!(!twice.inside(gp::FillMode::Alternate, 1.0, 1.0));
 }
+
+/// run a case on both executors: its lines after the bitmap's read in `fmt`
+fn texture_case(arch: u32, fmt: &str, setup: &str, paint: &str) -> Vec<String> {
+    kikizake::model::set_arch(arch);
+    // (a target of every channel value pattern: gpfill of two translucent colors, then the paint)
+    let text = format!(
+        "case p\ngpbitmap 0 16 16 {fmt}\ngpfill 0 0 0 16 7 0x80c04020 copy 0\ngpfill 0 3 0 9 16 0x40208040 over 0\n{setup}{paint}gpread 0 {fmt}\nend\n"
+    );
+    let c = &kikizake::case::parse_cases(&text)[0];
+    let out = kikizake::model::run_case(c).unwrap_or_default();
+    kikizake::model::set_arch(32);
+    out
+}
+
+/// a case's answers from its brush's on
+fn from_brush(out: &[String]) -> Vec<String> {
+    out.iter().skip_while(|l| !l.starts_with("brush")).cloned().collect()
+}
+
+/// the lines that make 8 x 8 bitmap 1 of 32bppPARGB hold texels `f(x, y)` (straight ARGB, set as
+/// SetPixel premultiplies them)
+fn texture_lines(w: u32, h: u32, f: &dyn Fn(u32, u32) -> u32) -> String {
+    let mut s = format!("gpbitmap 1 {w} {h} 32bppPARGB\n");
+    for y in 0..h {
+        for x in 0..w {
+            s += &format!("gpset 1 {x} {y} 0x{:08x}\n", f(x, y));
+        }
+    }
+    s
+}
+
+/// GP.BRUSH.TEXTURE.PAINT: a texture brush composites, antialiases and gamma corrects as a hatch
+/// brush does: a Tile texture of a two-color hatch style's 8 x 8 pattern paints what that hatch
+/// paints, on every format (dithered, 16-bit channel, indexed), under every CompositingQuality,
+/// smoothing and pixel offset mode, copy and over, on both executors; Clamp past its tile is a
+/// transparent texel: a Clamp texture paints what a Tile texture twice its size, transparent past
+/// the same texels, paints (a 64bpp destination comes back through premultiplication there)
+#[test]
+fn textures_composite_as_hatches() {
+    let styles: Vec<usize> = (0..53).filter(|&st| gp::HATCH[st * 64..st * 64 + 64].iter().all(|&w| w == 0 || w == 255)).collect();
+    assert!(styles.len() > 40, "{styles:?}");
+    let colors = [(0xff20_40c0u32, 0xffe0_a010u32), (0x80c0_2040, 0x40ff_ff00), (0xc000_80ff, 0x0000_0000)];
+    let mut n = 0u32;
+    for arch in [32, 64] {
+        for f in Pf::ALL {
+            for (k, &st) in styles.iter().enumerate().step_by(7) {
+                let (fore, back) = colors[k % 3];
+                let tex = texture_lines(8, 8, &|x, y| if gp::HATCH[st * 64 + usize::try_from(y * 8 + x).unwrap_or(0)] == 255 { fore } else { back });
+                for (q, sm, po) in [(0, 0, 0), (2, 0, 0), (3, 4, 2), (1, 5, 4), (3, 2, 0), (4, 3, 4), (2, 5, 1)] {
+                    for mode in ["copy", "over"] {
+                        let rect = "1.25 0.5 13.375 14.75";
+                        let hatch = texture_case(arch, f.name(), "", &format!("gpbrush 0 hatch {st} 0x{fore:08x} 0x{back:08x}\ngppaint 0 0 {rect} {mode} {q} {sm} {po} 0 0\n"));
+                        let texture = texture_case(arch, f.name(), &tex, &format!("gpbrush 0 texture 1 0\ngppaint 0 0 {rect} {mode} {q} {sm} {po} 0 0\n"));
+                        assert_eq!(from_brush(&hatch), from_brush(&texture), "{arch} {} style {st} q {q} sm {sm} po {po} {mode}", f.name());
+                        n = n.saturating_add(1);
+                    }
+                }
+            }
+        }
+    }
+    assert!(n > 1000);
+    // (Clamp: the 8 x 8 tile at (0, 0), transparent past it)
+    let texel = |x: u32, y: u32| if (x + 2 * y) % 3 == 0 { 0xc0ff_4000 } else { 0xff10_20f0 };
+    let small = texture_lines(8, 8, &texel);
+    let big = texture_lines(16, 16, &|x, y| if x < 8 && y < 8 { texel(x, y) } else { 0 });
+    for arch in [32, 64] {
+        for f in Pf::ALL {
+            for (q, sm, po) in [(0, 0, 0), (3, 0, 0), (2, 4, 2), (3, 5, 0)] {
+                for mode in ["copy", "over"] {
+                    let paint = |wrap: u32| format!("gpbrush 0 texture 1 {wrap}\ngppaint 0 0 -0.5 0.25 16.5 15.5 {mode} {q} {sm} {po} 3 5\n");
+                    let clamp = texture_case(arch, f.name(), &small, &paint(4));
+                    let tile = texture_case(arch, f.name(), &big, &paint(0));
+                    assert_eq!(from_brush(&clamp), from_brush(&tile), "{arch} {} q {q} sm {sm} po {po} {mode}", f.name());
+                }
+            }
+        }
+    }
+}
