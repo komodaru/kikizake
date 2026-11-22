@@ -15,6 +15,7 @@ differently. So a model that breaks a clause on any short sequence fails, withou
 | GdiPath | BeginPath, EndPath, AbortPath, CloseFigure, GetPath, MoveToEx, LineTo (GDI.PATH.*, GDI.POS.MOVE) | 402,234 (5) |
 | GdiRegion | CreateRectRgn, SetRectRgn, CombineRgn, OffsetRgn, GetRgnBox, PtInRegion, RectInRegion, EqualRgn (GDI.RGN.*): a region as its set of pixels, every query asked after every call | 8,379 (2) |
 | GdiClip | IntersectClipRect, ExcludeClipRect, SelectClipRgn / ExtSelectClipRgn, OffsetClipRgn, GetClipBox, GetClipRgn, PtVisible, RectVisible (GDI.CLIP.*): the clip region as its set of pixels on a 6 by 4 bitmap, every query asked after every call | 14,425 (3) |
+| GdiMap | SetMapMode, Set/Scale Window and Viewport ExtEx, Set/Offset origins, the state read back (GDI.MAP.*): MM_ISOTROPIC's shrunk extents stored at the first read, in exact rationals | 168,421 (4) |
 | D3D9StateBlock | SetRenderState, Create/Begin/EndStateBlock, Capture, Apply (D3D9.SETGET, D3D9.SB.*, D3D9.RS.DEFAULT) | 180,869 (4) |
 | DxgiSwapChain | CreateSwapChainForHwnd, GetBuffer, Present, ResizeBuffers, Set/GetMaximumFrameLatency, GetFrameLatencyWaitableObject (DXGI.BUFFER, PRESENT, PRESENT.TEST, PRESENT.RESTART, RESIZE, LATENCY, CHAIN.SIZE) | 211,932 (3) |
 
