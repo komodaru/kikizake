@@ -246,7 +246,7 @@ pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
     (
         "src/model/d3dx9.rs",
         "load_decode",
-        r"1\.0 /|\(1u64 << c\.bits\)",
+        r"1\.0 /|\bas f32\s*\*",
         "a channel's read is unorm_read and snorm_read, which tests/laws_d3dx9_convert.rs proves for every raw value; a read inline in load_decode escapes it",
     ),
     (

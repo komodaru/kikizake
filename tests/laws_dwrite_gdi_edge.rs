@@ -1,6 +1,8 @@
 //! GetGdiCompatibleGlyphMetrics' metrics back in design units (spec/dwrite.txt DW.GDI.EDGE),
 //! over the whole domain each law names (kind exhaustive).
 mod pairs;
+mod dwcase;
+use dwcase::run;
 use pairs::zip_eq;
 use kikizake::generators::dwrite::font;
 use kikizake::model::dwrite::{classic_px, design_units, down6, exact_fraction, gdi_edges, phantom_px, GlyphMetrics, Pixels, Step, ToEm};
@@ -161,12 +163,6 @@ fn metrics_are_the_edges_fractions() {
     }
 }
 
-/// the lines the model answers for these lines after loading font `seed`
-fn run(seed: u32, lines: &[String]) -> Vec<String> {
-    let hex: String = font(seed).bytes().iter().map(|x| format!("{x:02x}")).collect();
-    let text = format!("case c\ndwfont {hex}\n{}\nend\n", lines.join("\n"));
-    kikizake::model::run_case(&kikizake::case::parse_cases(&text)[0]).unwrap()
-}
 
 /// DW.GDI.EDGE: at ppem == upm (em upm, 1 pixel a dip; em 1, upm pixels a dip), not sideways,
 /// classic and natural, every glyph of each of 64 fonts: the design metrics as they are

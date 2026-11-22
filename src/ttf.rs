@@ -574,9 +574,10 @@ pub fn parse_face(f: &[u8], at: usize) -> Option<Parsed> {
         }
         (Some(_), None) | (None, Some(_)) | (None, None) => p.num_glyphs = 0,
     }
-    if let Some(vhea) = get(b"vhea") {
+    // (MEASURED, golden dwrite, file-vertical-no-vmtx: vhea without vmtx is a face as without
+    // either, DW.FILE.OTHER)
+    if let (Some(vhea), Some(vmtx)) = (get(b"vhea"), get(b"vmtx")) {
         let nv = vhea.u16(34)? as usize;
-        let vmtx = get(b"vmtx")?;
         let mut v = Vec::new();
         let mut last = (0, 0);
         for g in 0..p.num_glyphs as usize {

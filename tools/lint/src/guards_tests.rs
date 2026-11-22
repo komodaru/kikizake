@@ -281,7 +281,8 @@ fn load_channels_inline_are_found() {
     assert_eq!(rust("src/model/d3dx9.rs", "fn load_encode() { let l = 0.2125 * r; }").len(), 1);
     assert_eq!(rust("src/model/d3dx9.rs", "fn load_encode() { let v = v.clamp(-1.0, 1.0); }").len(), 1);
     assert!(rust("src/model/d3dx9.rs", "fn load_encode() { let q = unorm_write(v, ch.bits, x64); }").is_empty());
-    assert_eq!(rust("src/model/d3dx9.rs", "fn load_decode() { let v = raw as f32 * (1.0 / m); }").len(), 1);
+    assert_eq!(rust("src/model/d3dx9.rs", "fn load_decode() { let v = x * (1.0 / m); }").len(), 1);
+    assert_eq!(rust("src/model/d3dx9.rs", "fn load_decode() { let v = raw as f32 * k; }").len(), 1);
     assert!(rust("src/model/d3dx9.rs", "fn load_decode() { let v = unorm_read(raw, c.bits); }").is_empty());
     assert!(rust("src/model/d3dx9.rs", "fn unorm_read() { let v = raw as f32 * (1.0 / m); }").is_empty());
 }
