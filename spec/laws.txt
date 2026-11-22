@@ -640,3 +640,5 @@ tests/laws_d3dx9_yuv.rs::yuy2_is_the_formula_for_every_colour exhaustive D3DX9.L
 tests/laws_d3dx9_yuv.rs::the_chroma_tap_for_every_four_bytes exhaustive D3DX9.LOAD.YUV
 tests/laws_d3dx9_yuv.rs::yuv_is_the_formula_for_every_sample exhaustive D3DX9.LOAD.YUV
 spec/tla/D3D9Fvf.tla::Next tla D3D9.FVF.SET D3D9.FVF.GET D3D9.DECL.GET
+tests/laws_d3dx9_load.rs::every_half_reads_as_its_value exhaustive D3DX9.LOAD.F16HALVES
+tests/laws_d3dx9_load.rs::each_place_takes_its_routine exhaustive D3DX9.LOAD.F16RANGE D3DX9.LOAD.F16HALVES
