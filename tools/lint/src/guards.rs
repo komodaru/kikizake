@@ -107,6 +107,12 @@ pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
         r"\b(group_support|uav_support|support|format)\s*\(",
         "check_with takes the format tables only through its Facts (facts gives them): the d3d11.desc mirror chooses the Facts, so a table read inlined in check_with escapes spec/lean/Kikizake/D3d11/Desc.lean",
     ),
+    (
+        "src/model/d3dres_check.rs",
+        "check_view_with",
+        r"\b(support|format|group|view_facts)\s*\(|dxgifmt::",
+        "check_view_with takes the format tables only through its ViewFacts (view_facts gives them): the d3d11.view mirror chooses the facts, so a table read inlined in check_view_with escapes spec/lean/Kikizake/D3d11/View.lean",
+    ),
 ];
 
 /// the name of the function `at` lies in (the last `fn name` before it)

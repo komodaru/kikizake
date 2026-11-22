@@ -432,13 +432,6 @@ pub fn union_words(kind: u32, dim: u32) -> usize {
     n.get(dim as usize).copied().unwrap_or(0)
 }
 
-/// an R32 UAV of a 32-bit typeless texture (ID3D11Device::CreateUnorderedAccessView, typed UAV
-/// loads: R32_FLOAT, R32_UINT, R32_SINT views of R8G8B8A8_TYPELESS and the like; view-t2tl-uav)
-fn r32_uav(kind: u32, f: u32, res: u32) -> bool {
-    let tl = super::dxgifmt::format(res).is_some_and(|x| x.num == super::dxgifmt::Num::Typeless && x.bits == 32 && x.bw == 1);
-    kind == 3 && (41..=43).contains(&f) && tl
-}
-
 /// the view dimensions a resource takes, by kind (0 srv 1 rtv 2 dsv 3 uav) (MEASURED: the
 /// multisampled dimensions also view a single-sampled 2D texture, view-t2-rtv, view-t2a-srv,
 /// view-cube-rtv)
@@ -471,7 +464,7 @@ fn view_dims(dev: Dev, kind: u32, d: &Desc) -> &'static [u32] {
 /// the description a view without one takes (MEASURED, view-*-nodesc): the whole resource in
 /// its own format, an array dimension for an array (a 1D one too, even of one slice), a cube
 /// for a shader resource of a cube (an array of cubes from 12 slices)
-fn default_view(dev: Dev, kind: u32, d: &Desc) -> Option<Vec<u32>> {
+pub fn default_view(dev: Dev, kind: u32, d: &Desc) -> Option<Vec<u32>> {
     hit(clause::D3DRES_VIEW_DEFAULT);
     let arr = d.dim != 3 && d.da > 1;
     let (dim, u): (u32, Vec<u32>) = match (d.dim, kind) {
@@ -497,12 +490,64 @@ fn default_view(dev: Dev, kind: u32, d: &Desc) -> Option<Vec<u32>> {
     Some(w)
 }
 
+/// what check_view takes from the format tables for a view format and its resource's format:
+/// whether the view's is known, its bits an element, whether it is typeless, whether the
+/// resource's is, whether the two are of one typeless group, whether the resource's is a 32-bit
+/// typeless one of one-texel elements (an R32_FLOAT, R32_UINT or R32_SINT UAV views it: typed
+/// UAV loads, view-t2tl-uav), the view format's support bits
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ViewFacts {
+    pub known: bool,
+    pub bits: u32,
+    pub typeless: bool,
+    pub res_typeless: bool,
+    pub same_group: bool,
+    pub res_tl32: bool,
+    pub s: u32,
+}
+
+/// the format a view names: its description's first word, the resource's when that is 0 (or
+/// when the view has no description)
+pub fn view_format(d: &Desc, words: Option<&[u32]>) -> u32 {
+    match words.and_then(|w| w.first()) {
+        Some(&f) if f != 0 => f,
+        _ => d.fmt,
+    }
+}
+
+/// the format tables' facts for a view of format `f` of a resource described by `d`
+pub fn view_facts(dev: Dev, d: &Desc, f: u32) -> ViewFacts {
+    use super::dxgifmt::{format, Num};
+    let typeless = |x: u32| format(x).is_some_and(|x| x.num == Num::Typeless);
+    ViewFacts {
+        known: format(f).is_some(),
+        bits: format(f).map_or(0, |x| x.bits),
+        typeless: typeless(f),
+        res_typeless: typeless(d.fmt),
+        same_group: super::d3dres::group(f) == super::d3dres::group(d.fmt),
+        res_tl32: format(d.fmt).is_some_and(|x| x.num == Num::Typeless && x.bits == 32 && x.bw == 1),
+        s: support(dev, f).2,
+    }
+}
+
 /// Ok(GetDesc's words) or Err(the HRESULT) for a view of `kind` (0 srv 1 rtv 2 dsv 3 uav)
 pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, check: bool) -> Res<Result<Vec<u32>, u32>> {
+    Ok(check_view_with(dev, kind, &r.d, words, check, &view_facts(dev, &r.d, view_format(&r.d, words))))
+}
+
+/// D3DRES.VIEW: check_view of a view whose formats have these facts (the rule
+/// spec/lean/Kikizake/D3d11/View.lean proves its clauses of)
+pub fn check_view_with(dev: Dev, kind: u32, d: &Desc, words: Option<&[u32]>, check: bool, fx: &ViewFacts) -> Result<Vec<u32>, u32> {
     hit(clause::D3DRES_VIEW);
-    let bad = Ok(Err(E_INVALIDARG));
-    let d = &r.d;
-    let need = [BIND_SRV, BIND_RTV, BIND_DSV, BIND_UAV][kind as usize];
+    let bad = Err(E_INVALIDARG);
+    // (the bind flag and the support bit of the kind)
+    let (need, kind_bit) = match kind {
+        0 => (BIND_SRV, 0x100),
+        1 => (BIND_RTV, 0x4000),
+        2 => (BIND_DSV, 0x10000),
+        3 => (BIND_UAV, 0x200_0000),
+        _ => return bad,
+    };
     if d.bind & need == 0 {
         return bad;
     }
@@ -514,18 +559,19 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
         w[0] = d.fmt;
     }
     let f = w[0];
-    let Some(vf) = super::dxgifmt::format(f) else { return bad };
+    if !fx.known {
+        return bad;
+    }
     // (MEASURED, WARP: probe-filter-fmt107, -fmt108, -fmt109) a packed YUV texture's (YUY2,
     // Y210, Y216) view in its own format is refused
     if matches!(f, 107..=109) && d.dim != 4 {
         hit(clause::D3DRES_VIEW_YUY2);
         return bad;
     }
-    let typeless = |x: u32| super::dxgifmt::format(x).is_some_and(|x| x.num == super::dxgifmt::Num::Typeless);
     let raw_buf = d.dim == 4 && d.misc & 0x20 != 0;
     if d.dim == 4 {
         hit(clause::D3DRES_VIEW_BUF);
-    } else if f != d.fmt && !(typeless(d.fmt) && super::d3dres::group(f) == super::d3dres::group(d.fmt)) && !r32_uav(kind, f, d.fmt) {
+    } else if f != d.fmt && !(fx.res_typeless && fx.same_group) && !(kind == 3 && (41..=43).contains(&f) && fx.res_tl32) {
         return bad;
     }
     let dim = w[1];
@@ -542,7 +588,7 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
     }
     // (the BUFFEREX RAW flag: an R32_TYPELESS view of a raw buffer)
     let rawview = kind == 0 && dim == 11 && w[head + 2] & 1 != 0 || kind == 3 && dim == 1 && w[head + 2] & 1 != 0;
-    if typeless(f) && !(rawview && f == 39) {
+    if fx.typeless && !(rawview && f == 39) {
         return bad;
     }
     if rawview && !(raw_buf && f == 39) {
@@ -554,8 +600,8 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
     }
     // the format's support for the kind of view
     // (MEASURED: a buffer view's format has the BUFFER bit, view-b-srv, view-braw-rtv)
-    let s = support(dev, f).2;
-    let bit = [0x100, 0x4000, 0x10000, 0x2000000][kind as usize] | if d.dim == 4 { 1 } else { 0 };
+    let s = fx.s;
+    let bit = kind_bit | if d.dim == 4 { 1 } else { 0 };
     if !rawview && s & bit != bit {
         return bad;
     }
@@ -571,7 +617,7 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
     let ok = match (kind, dim) {
         (0 | 1 | 3, 1) | (0, 11) if d.dim == 4 => {
             // (buffers: elements of the view's format; raw views count 32-bit words)
-            let el = if rawview { 4 } else { vf.bits / 8 };
+            let el = if rawview { 4 } else { fx.bits / 8 };
             // (MEASURED: a count of -1 is no "rest" for a buffer, view-b-bufex)
             el != 0 && u[1] != 0xffff_ffff && { let (a, mut b) = (u[0], u[1]); let o = range(a, &mut b, d.w / el); u[1] = b; o }
         }
@@ -613,10 +659,10 @@ pub fn check_view(dev: Dev, kind: u32, r: &Resource, words: Option<&[u32]>, chec
     // 2DMS is made, view-d2tl-dsv))
     if kind == 2 && dim == if dev.d3d11() { 5 } else { 6 } && d.count == 1 && d.da > 1 && !check {
         hit(clause::D3DRES_VIEW_DSVMS);
-        return Ok(Err(0x8007_000e));
+        return Err(0x8007_000e);
     }
     w.truncate(head + union_words(kind, dim));
-    Ok(Ok(w))
+    Ok(w)
 }
 
 /// the staging copy of subresource `sub` that `read` makes is refused: its HRESULT (the copy is

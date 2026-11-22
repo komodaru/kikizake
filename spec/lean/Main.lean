@@ -12,6 +12,7 @@ def mirrors : List Mirror :=
   GdiPlus.Matrix.mirrors ++
   D3d11.Raster.mirrors ++ D3d11.Draw.mirrors ++ D3d11.Texture.mirrors ++
   D3d11.Desc.mirrors ++
+  D3d11.View.mirrors ++
   DWrite.Advance.mirrors
 
 def answer (line : String) : String :=

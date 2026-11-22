@@ -408,3 +408,115 @@ pub static DESC_MIRRORS: &[Mirror] = &[
         model: |a| one(crate::model::d3dres_check::create_refused(res_dev(a)?, &res_desc(a, 2)?).is_some()),
     },
 ];
+
+const VIEW: &str = "spec/lean/Kikizake/D3d11/View.lean";
+
+/// resources views are asked of (dim, w, h, da, mips, fmt, usage, bind, cpu, misc, count, q):
+/// 2D RGBA8 textures (an array of its typeless group, a cube, an array of cubes, multisampled
+/// ones), depth textures (R24G8 typeless, D24S8), a 1D R32 float array, a 1D R32 typeless one, a
+/// 3D one, buffers (plain, raw, structured), a YUY2 and a BGRA8 texture
+const VIEW_RES: [[i64; 12]; 17] = [
+    [2, 8, 8, 1, 4, 28, 0, 0xa8, 0, 0, 1, 0],
+    [2, 8, 8, 3, 1, 27, 0, 0xa8, 0, 0, 1, 0],
+    [2, 8, 8, 6, 3, 28, 0, 0x28, 0, 4, 1, 0],
+    [2, 8, 8, 12, 1, 28, 0, 8, 0, 4, 1, 0],
+    [2, 8, 8, 1, 1, 28, 0, 0x28, 0, 0, 4, 0],
+    [2, 8, 8, 2, 1, 28, 0, 0x28, 0, 0, 4, 0],
+    [2, 8, 8, 2, 1, 44, 0, 0x48, 0, 0, 1, 0],
+    [2, 8, 8, 1, 1, 45, 0, 0x40, 0, 0, 1, 0],
+    [2, 8, 8, 1, 1, 44, 0, 0x48, 0, 0, 4, 0],
+    [1, 16, 1, 4, 3, 41, 0, 0xa8, 0, 0, 1, 0],
+    [1, 16, 1, 1, 1, 39, 0, 0x88, 0, 0, 1, 0],
+    [3, 8, 8, 4, 3, 28, 0, 0xa8, 0, 0, 1, 0],
+    [4, 256, 1, 1, 1, 0, 0, 0xa8, 0, 0, 1, 0],
+    [4, 256, 1, 1, 1, 0, 0, 0x88, 0, 0x20, 1, 0],
+    [4, 256, 1, 1, 1, 0, 0, 0x88, 0, 0x40, 1, 16],
+    [2, 8, 8, 1, 1, 107, 0, 8, 0, 0, 1, 0],
+    [2, 8, 8, 1, 1, 87, 0, 0x28, 0, 0, 1, 0],
+];
+/// view formats: the resource's (0), RGBA8 and its group, R32 typeless, float, uint, sint,
+/// R24G8 typeless, D24S8, R24 UNORM X8, X24 G8 UINT, YUY2, BGRA8 and its sRGB, RGBA32 float,
+/// RGBA16 float, R8 UNORM, an unknown one
+const VIEW_FMTS: [i64; 20] = [0, 0, 28, 29, 27, 39, 41, 42, 43, 44, 45, 46, 47, 107, 87, 91, 2, 10, 61, 200];
+/// the union's words: firsts and counts near the resources' (and -1, -2), the flags
+const VIEW_VALS: [i64; 20] = [0, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 63, 64, 65, 256, U32, 0xffff_fffe, 0x8000_0000];
+
+/// `n` views of the resources above on every device: half a resource's default view with a
+/// word or two changed, half words at random; their formats' facts from the tables (or, one in
+/// five, made up)
+fn views(n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
+    use crate::model::d3dres_check as c;
+    let mut rng = crate::rng::XorShift32::new(seed);
+    for _ in 0..n {
+        let (dk, lv) = *rng.pick(&DEVS);
+        let kind = if rng.chance(50) { 4 } else { rng.range(0, 3) };
+        let mut v = vec![dk, lv, kind];
+        v.extend(rng.pick(&VIEW_RES).iter().copied());
+        let Some(d) = res_desc(&v, 3) else { continue };
+        let Some(dev) = res_dev(&v) else { continue };
+        let ku = u32::try_from(kind).unwrap_or(0);
+        let mut x: Vec<i64> = match c::default_view(dev, ku, &d) {
+            Some(w) if rng.chance(2) => w.into_iter().map(i64::from).collect(),
+            _ => vec![*rng.pick(&VIEW_FMTS), rng.range(0, 12), *rng.pick(&VIEW_VALS), *rng.pick(&VIEW_VALS), *rng.pick(&VIEW_VALS), *rng.pick(&VIEW_VALS), *rng.pick(&VIEW_VALS)],
+        };
+        x.resize(7, 0);
+        for _ in 0..rng.range(0, 2) {
+            let k = usize::try_from(rng.range(0, 6)).unwrap_or(0);
+            let fresh = match k {
+                0 => *rng.pick(&VIEW_FMTS),
+                1 => rng.range(0, 12),
+                _ => *rng.pick(&VIEW_VALS),
+            };
+            if let Some(y) = x.get_mut(k) {
+                *y = fresh;
+            }
+        }
+        let has = !rng.chance(5);
+        let len = if rng.chance(4) { rng.range(0, 7) } else { 7 };
+        v.extend([i64::from(has), len]);
+        v.extend(x.iter().copied());
+        v.push(i64::from(rng.chance(3)));
+        let words: Option<Vec<u32>> = if has {
+            let l = usize::try_from(len).unwrap_or(0);
+            x.iter().take(l).map(|&y| u32::try_from(y).ok()).collect()
+        } else {
+            None
+        };
+        let f = if rng.chance(5) {
+            let bits = [1, 0x100, 0x4000, 0x10000, 0x200_0000];
+            let mut s = 0;
+            for b in bits {
+                if !rng.chance(4) {
+                    s |= b;
+                }
+            }
+            c::ViewFacts { known: !rng.chance(10), bits: *rng.pick(&[0, 8, 16, 32, 128]), typeless: rng.chance(4), res_typeless: rng.chance(2), same_group: rng.chance(2), res_tl32: rng.chance(2), s }
+        } else {
+            c::view_facts(dev, &d, c::view_format(&d, words.as_deref()))
+        };
+        v.extend([i64::from(f.known), i64::from(f.bits), i64::from(f.typeless), i64::from(f.res_typeless), i64::from(f.same_group), i64::from(f.res_tl32), i64::from(f.s)]);
+        each(&v);
+    }
+}
+
+pub static VIEW_MIRRORS: &[Mirror] = &[Mirror {
+    name: "d3d11.view",
+    lean: VIEW,
+    domain: Domain::Sampled("600,000 views of 17 resources (textures of each dimension, arrays, cubes, multisampled, depth, typeless, buffers plain, raw and structured, YUY2) on every device and of each kind, half a default view with a word or two changed, with and without a description, short ones, made and only checked; their formats' facts from the tables (one in five made up)"),
+    inputs: |each| views(600_000, 0x0d3d_1e55, each),
+    model: |a| {
+        let d = res_desc(a, 3)?;
+        let w = |k: usize| arg::<u32>(a, k);
+        let words: Option<Vec<u32>> = if flag(a, 15)? {
+            let l = arg::<usize>(a, 16)?;
+            (17..24).take(l).map(w).collect::<Option<Vec<u32>>>().map(Some)?
+        } else {
+            None
+        };
+        let fx = crate::model::d3dres_check::ViewFacts { known: flag(a, 25)?, bits: w(26)?, typeless: flag(a, 27)?, res_typeless: flag(a, 28)?, same_group: flag(a, 29)?, res_tl32: flag(a, 30)?, s: w(31)? };
+        Some(match crate::model::d3dres_check::check_view_with(res_dev(a)?, w(2)?, &d, words.as_deref(), flag(a, 24)?, &fx) {
+            Err(hr) => vec![0, i64::from(hr)],
+            Ok(o) => std::iter::once(1).chain(o.into_iter().map(i64::from)).collect(),
+        })
+    },
+}];

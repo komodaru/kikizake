@@ -259,3 +259,11 @@ fn check_with_reads_the_format_tables_only_through_its_facts() {
     assert_eq!(r.iter().filter(|b| b.contains("forbidden in check_with: check_with takes")).count(), 2, "{r:?}");
     assert!(rust("src/model/d3dres_check.rs", "fn facts() { let s = group_support(dev, d.fmt); }\nfn check_with() { let s = fx.s; }\n").is_empty());
 }
+
+#[test]
+fn check_view_with_reads_the_format_tables_only_through_its_facts() {
+    let inlined = "fn check_view_with() {\n    let s = support(dev, f).2;\n    let t = super::dxgifmt::Num::Typeless;\n}\n";
+    let r = rust("src/model/d3dres_check.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in check_view_with: check_view_with takes")).count(), 2, "{r:?}");
+    assert!(rust("src/model/d3dres_check.rs", "fn view_facts() { let s = support(dev, f).2; }\nfn check_view_with() { let s = fx.s; }\n").is_empty());
+}
