@@ -282,6 +282,18 @@ pub fn d3d7rast() -> String {
         writeln!(s, "d3drs set 14 {zw}\nd3dclear 0\nd3dtri 0x00ffffff/0xffffffff/0x00ffffff 8 0 {} 80 {} {}\nd3ddump", 8i64.wrapping_add(k), 8i64.wrapping_add(k.wrapping_mul(2)), 160i64.wrapping_add(1));
     }
     writeln!(s, "end");
+    // the same steep alpha steps over pixels that are drawn: a narrow upright triangle around
+    // column 1 (its centre x = 16 sixteenths) from a flat top at y = 1/2 to an apex at y = 10,
+    // alphas 0x00 / 0xff / 0x00, then 0x00 / 0x00 / 0xff, z writes off and on, half widths 1 to 8
+    writeln!(s, "case steepvis-2-ramp\nd3d 2\nd3ddev ramp 565 12 12\nd3drs set 22 1");
+    for zw in [0, 1] {
+        for cols in ["0x00ffffff/0xffffffff/0x00ffffff", "0x00ffffff/0x00ffffff/0xffffffff"] {
+            for hw in [1i64, 2, 4, 8] {
+                writeln!(s, "d3drs set 14 {zw}\nd3dclear 0\nd3dtri {cols} {} 8 {} 8 16 160\nd3ddump", 16i64.wrapping_sub(hw), 16i64.wrapping_add(hw));
+            }
+        }
+    }
+    writeln!(s, "end");
     s
 }
 
