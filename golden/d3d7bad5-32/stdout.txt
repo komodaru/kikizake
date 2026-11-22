@@ -1,0 +1,2 @@
+kikizake d3d7bad5
+case badstate-7-tnl-afunc0
