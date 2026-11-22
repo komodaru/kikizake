@@ -93,14 +93,13 @@ ones (the descent's magnitude), the line gap hhea's ascender + |descender| + max
 less them, at least 0 (0 without hhea); strikeout and the sub- and superscript boxes OS/2's -/
 theorem win (u : Int) (b : Int × Int × Int × Int) (h : Option (Int × Int × Int)) (p : Option (Int × Int))
     (ver : Int) (s : List Int) (sz sp fs ta td tg wa wd xh ch : Int) (hfs : fs / 128 % 2 ≠ 1) :
-    let m := metrics ⟨u, b, h, some (ver, s, (sz, sp), fs, (ta, td, tg), (wa, wd), xh, ch), p⟩
-    m.asc = wa ∧ m.desc = u16 (i16 wd).natAbs ∧
+    (fun m : Out => m.asc = wa ∧ m.desc = u16 (i16 wd).natAbs ∧
     m.gap = (match h with
       | some (a, d, g) => i16 (max (a + d.natAbs + max g 0 - wa - u16 (i16 wd).natAbs) 0)
       | none => 0) ∧
     m.stpos = sp ∧ (m.stthick = u16 sz ∨ u16 sz = 0) ∧
     m.sub = [s.getD 2 0, i16 (-(s.getD 3 0)), s.getD 0 0, s.getD 1 0] ∧ m.sup = [s.getD 6 0, s.getD 7 0, s.getD 4 0, s.getD 5 0] ∧
-    m.typo = false := by
+    m.typo = false) (metrics ⟨u, b, h, some (ver, s, (sz, sp), fs, (ta, td, tg), (wa, wd), xh, ch), p⟩) := by
   obtain ⟨x0, y0, x1, y1⟩ := b
   simp only [metrics, raw, hfs, ↓reduceIte]
   cases h <;> cases p <;> simp <;> by_cases hz : u16 sz = 0 <;> simp [hz]
@@ -109,8 +108,7 @@ theorem win (u : Int) (b : Int × Int × Int × Int) (h : Option (Int × Int × 
 (0 where that is negative), line gap sTypoLineGap, the typo flag set -/
 theorem typo (u : Int) (b : Int × Int × Int × Int) (h : Option (Int × Int × Int)) (p : Option (Int × Int))
     (ver : Int) (s : List Int) (sz sp fs ta td tg wa wd xh ch : Int) (hfs : fs / 128 % 2 = 1) :
-    let m := metrics ⟨u, b, h, some (ver, s, (sz, sp), fs, (ta, td, tg), (wa, wd), xh, ch), p⟩
-    m.asc = u16 ta ∧ m.desc = u16 (max (-td) 0) ∧ m.gap = tg ∧ m.typo = true := by
+    (fun m : Out => m.asc = u16 ta ∧ m.desc = u16 (max (-td) 0) ∧ m.gap = tg ∧ m.typo = true) (metrics ⟨u, b, h, some (ver, s, (sz, sp), fs, (ta, td, tg), (wa, wd), xh, ch), p⟩) := by
   obtain ⟨x0, y0, x1, y1⟩ := b
   simp only [metrics, raw, hfs, ↓reduceIte]
   cases h <;> cases p <;> simp
@@ -119,8 +117,7 @@ theorem typo (u : Int) (b : Int × Int × Int × Int) (h : Option (Int × Int ×
 sxHeight, where they are not 0 -/
 theorem os2v2 (u : Int) (b : Int × Int × Int × Int) (h : Option (Int × Int × Int)) (p : Option (Int × Int))
     (ver : Int) (s : List Int) (sz sp fs ta td tg wa wd xh ch : Int) (hv : ver ≥ 2) (hc : u16 ch ≠ 0) (hx : u16 xh ≠ 0) :
-    let m := metrics ⟨u, b, h, some (ver, s, (sz, sp), fs, (ta, td, tg), (wa, wd), xh, ch), p⟩
-    m.cap = u16 ch ∧ m.x = u16 xh := by
+    (fun m : Out => m.cap = u16 ch ∧ m.x = u16 xh) (metrics ⟨u, b, h, some (ver, s, (sz, sp), fs, (ta, td, tg), (wa, wd), xh, ch), p⟩) := by
   obtain ⟨x0, y0, x1, y1⟩ := b
   simp only [metrics, raw, hv, ↓reduceIte]
   repeat' split
@@ -129,11 +126,10 @@ theorem os2v2 (u : Int) (b : Int × Int × Int × Int) (h : Option (Int × Int �
 /-- DW.METRICS.NOOS2: without OS/2, hhea's ascender, |descender| and max(0, lineGap) (0
 without hhea), the strikeout at upm / 3 -/
 theorem noos2 (u : Int) (b : Int × Int × Int × Int) (h : Option (Int × Int × Int)) (p : Option (Int × Int)) :
-    let m := metrics ⟨u, b, h, none, p⟩
-    m.stpos = u / 3 ∧ m.typo = false ∧
+    (fun m : Out => m.stpos = u / 3 ∧ m.typo = false ∧
     (match h with
       | some (a, d, g) => m.asc = u16 a ∧ m.desc = u16 d.natAbs ∧ m.gap = max g 0
-      | none => m.asc = 0 ∧ m.desc = 0 ∧ m.gap = 0) := by
+      | none => m.asc = 0 ∧ m.desc = 0 ∧ m.gap = 0)) (metrics ⟨u, b, h, none, p⟩) := by
   obtain ⟨x0, y0, x1, y1⟩ := b
   simp only [metrics, raw]
   cases h <;> cases p <;> simp
@@ -142,10 +138,9 @@ theorem noos2 (u : Int) (b : Int × Int × Int × Int) (h : Option (Int × Int �
 thickness the underline's, a zero xHeight upm / 2, a zero capHeight upm 7 / 10; without post
 the underline a tenth of the em below -/
 theorem defaults (f : Font) :
-    let r := raw f; let m := metrics f
-    (r.ulthick = 0 → m.ulthick = (f.upm + 7) / 14) ∧ (r.stthick = 0 → m.stthick = m.ulthick) ∧
+    (fun r m : Out => (r.ulthick = 0 → m.ulthick = (f.upm + 7) / 14) ∧ (r.stthick = 0 → m.stthick = m.ulthick) ∧
     (r.x = 0 → m.x = f.upm / 2) ∧ (r.cap = 0 → m.cap = f.upm * 7 / 10) ∧
-    (f.post = none → m.ulpos = -(f.upm / 10)) := by
+    (f.post = none → m.ulpos = -(f.upm / 10))) (raw f) (metrics f) := by
   refine ⟨fun h => by simp [metrics, h], fun h => by simp [metrics, h], fun h => by simp [metrics, h], fun h => by simp [metrics, h], fun h => ?_⟩
   simp only [metrics, raw, h]
 
@@ -182,8 +177,7 @@ theorem horizontal (g : Glyph) (x0 y0 x1 y1 : Int) (hb : g.box = some (x0, y0, x
 /-- DW.GLYPH.VMTX: with vmtx, the advance height and top side bearing are vmtx's, the vertical
 origin the top side bearing plus yMax -/
 theorem vmtx (g : Glyph) (a t : Int) (hv : g.vmtx = some (a, t)) (ha : 0 ≤ a) (ha' : a < 4294967296) :
-    let (_, _, _, y1) := g.box.getD (g.lsb, 0, g.lsb, 0)
-    (glyph g)[3]? = some t ∧ (glyph g)[4]? = some a ∧ (glyph g)[6]? = some (t + y1) := by
+    (glyph g)[3]? = some t ∧ (glyph g)[4]? = some a ∧ (glyph g)[6]? = some (t + (g.box.getD (g.lsb, 0, g.lsb, 0)).2.2.2) := by
   simp only [glyph, hv, u32, Int.emod_eq_of_lt ha ha']
   simp
 
