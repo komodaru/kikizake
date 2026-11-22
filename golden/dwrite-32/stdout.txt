@@ -274052,4 +274052,56 @@ glyph adv 8196 lsb 0 rsb 4098 tsb 4183 advh 8260 bsb 0 voy 8260
 glyph adv 8196 lsb 0 rsb 4098 tsb 4247 advh 8324 bsb 0 voy 8324
 glyph adv 8196 lsb 0 rsb 4098 tsb 4311 advh 8388 bsb 0 voy 8388
 glyph adv 8196 lsb 0 rsb 4098 tsb 4375 advh 8452 bsb 0 voy 8452
+case file-vertical-no-vmtx
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwinfo glyphs 15 type 1 index 0 sim 0 symbol 0 mono 0 vert 0
+dwmetrics upm 1000 asc 784 desc 645 gap 28 cap 987 x 449 ulpos -7 ulthick 23 stpos 210 stthick 87
+dwmetrics box -97 930 847 -225 sub 15 -785 -367 100 sup 395 74 888 447 typo 0
+dwcmap 1 6
+dwglyph hr 00000000
+glyph adv 626 lsb 247 rsb -221 tsb -115 advh 1082 bsb 475 voy 685
+glyph adv 0 lsb 43 rsb -331 tsb 334 advh 1082 bsb 175 voy 685
+glyph adv 206 lsb -23 rsb -433 tsb 467 advh 1082 bsb 172 voy 685
+dwglyph hr 00000000
+glyph adv 626 lsb 247 rsb -221 tsb -115 advh 1082 bsb 475 voy 685
+glyph adv 0 lsb 43 rsb -331 tsb 334 advh 1082 bsb 175 voy 685
+glyph adv 206 lsb -23 rsb -433 tsb 467 advh 1082 bsb 172 voy 685
+dwgdiglyph hr 00000000
+glyph adv 0 lsb 42 rsb -333 tsb 333 advh 1083 bsb 167 voy 667
+dwrun hr 00000000
+bounds hr 00000000 1 6 4 13
+ffff00
+ffff00
+ffff00
+ffffff
+ffffff
+ffffff
+ffff00
+case file-vertical-no-vhea
+dwfont analyze hr 00000000 supported 1 file 2 face 1 faces 1
+dwfont face hr 00000000
+dwinfo glyphs 15 type 1 index 0 sim 0 symbol 0 mono 0 vert 0
+dwmetrics upm 1000 asc 784 desc 645 gap 28 cap 987 x 449 ulpos -7 ulthick 23 stpos 210 stthick 87
+dwmetrics box -97 930 847 -225 sub 15 -785 -367 100 sup 395 74 888 447 typo 0
+dwcmap 1 6
+dwglyph hr 00000000
+glyph adv 626 lsb 247 rsb -221 tsb -115 advh 1082 bsb 475 voy 685
+glyph adv 0 lsb 43 rsb -331 tsb 334 advh 1082 bsb 175 voy 685
+glyph adv 206 lsb -23 rsb -433 tsb 467 advh 1082 bsb 172 voy 685
+dwglyph hr 00000000
+glyph adv 626 lsb 247 rsb -221 tsb -115 advh 1082 bsb 475 voy 685
+glyph adv 0 lsb 43 rsb -331 tsb 334 advh 1082 bsb 175 voy 685
+glyph adv 206 lsb -23 rsb -433 tsb 467 advh 1082 bsb 172 voy 685
+dwgdiglyph hr 00000000
+glyph adv 0 lsb 42 rsb -333 tsb 333 advh 1083 bsb 167 voy 667
+dwrun hr 00000000
+bounds hr 00000000 1 6 4 13
+ffff00
+ffff00
+ffff00
+ffffff
+ffffff
+ffffff
+ffff00
 done
