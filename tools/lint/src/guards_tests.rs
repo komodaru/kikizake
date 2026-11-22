@@ -302,3 +302,11 @@ fn check_view_with_reads_the_format_tables_only_through_its_facts() {
     assert_eq!(r.iter().filter(|b| b.contains("forbidden in check_view_with: check_view_with takes")).count(), 2, "{r:?}");
     assert!(rust("src/model/d3dres_check.rs", "fn view_facts() { let s = support(dev, f).2; }\nfn check_view_with() { let s = fx.s; }\n").is_empty());
 }
+
+#[test]
+fn filter_arithmetic_stays_in_the_mirrored_functions() {
+    let inlined = "fn sample() {\n    let s = c * n as f32 - 0.5;\n    let f = (lod.fract() * 256.0).round();\n    if index(dw) <= px {}\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in sample")).count(), 3, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", "fn split() { let s = c * n as f32 - 0.5; }\nfn level() { let w = (lod.fract() * 256.0).round(); }\n").is_empty());
+}

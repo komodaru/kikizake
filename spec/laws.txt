@@ -49,6 +49,13 @@ tests/laws_gdifill.rs::fix_fill_is_the_crossing_rule_for_every_triangle exhausti
 tests/laws_gdifill.rs::fix_fill_is_the_crossing_rule_for_every_quadrilateral exhaustive GDI.PATH.FILLFIX
 tests/laws_gdifill.rs::stroke_and_fill_is_the_fill_then_the_closed_outline exhaustive GDI.PATH.STROKEFILLFIX
 tests/laws_gdifill.rs::ellipse_and_round_rect_draw_their_path exhaustive GDI.SHAPE.ELLIPSEPEN GDI.SHAPE.ROUNDPEN
+tests/laws_gdiround.rs::elliptic_region_is_the_clause_figure exhaustive GDI.RGN.ELLIPSE
+tests/laws_gdiround.rs::round_rect_region_is_the_clause_figure exhaustive GDI.RGN.ROUNDRECT
+tests/laws_gdiloose.rs::polygon_bound_is_loose_only_off_the_fast_figures exhaustive GDI.RGN.LOOSE
+tests/laws_gdiloose.rs::two_figure_bound_reaches_the_lowest_end exhaustive GDI.RGN.LOOSE
+tests/laws_gdiloose.rs::fix_polygon_bound_rounds_the_lowest_end_up exhaustive GDI.RGN.LOOSE
+tests/laws_gdiloose.rs::copy_keeps_the_loose_bottom exhaustive GDI.RGN.LOOSE
+tests/laws_gdifont.rs::font_measures_are_the_clauses exhaustive GDI.TEXT.MEMFONT GDI.TEXT.FACE GDI.TEXT.TM GDI.TEXT.AVE GDI.TEXT.WIDTH GDI.TEXT.ABC GDI.TEXT.ABCEMPTY GDI.TEXT.EXTENT GDI.TEXT.EXTRAEXTENT
 tests/laws.rs::normalization_is_idempotent pbt D3D11.DEDUP D3D11.BLEND.DISABLED D3D11.DEPTH.OFF D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::unused_parts_are_ignored pbt D3D11.BLEND.SHARED D3D11.BLEND.DISABLED D3D11.STENCIL.OFF D3D11.SAMPLER.CMP D3D11.SAMPLER.BORDER
 tests/laws.rs::check_create_and_same_agree pbt D3D11.CHECK D3D11.DEDUP
@@ -608,3 +615,14 @@ spec/lean/Kikizake/D3d9/Chain.lean::reads_args lean D3D9.STAGE.ALPHADISABLE.FIRS
 spec/lean/Kikizake/D3d9/Chain.lean::bump lean D3D9.STAGE.BUMP
 tests/laws_dwrite_bidi.rs::a_paragraph_separator_ends_the_paragraph exhaustive DW.BIDI.SEGMENT
 tests/laws_dwrite_bidi.rs::a_segment_separator_ends_the_level_run exhaustive DW.BIDI.SEGMENT
+spec/lean/Kikizake/D3d11/Filter.lean::split_nan lean D3DRASTER.FILTER.LINEAR D3DRASTER.FILTER.POINT
+spec/lean/Kikizake/D3d11/Filter.lean::linear_ends lean D3DRASTER.FILTER.LINEAR
+spec/lean/Kikizake/D3d11/Filter.lean::pixels_exact lean D3DRASTER.FILTER.MIPLINEAR
+spec/lean/Kikizake/D3d11/Filter.lean::lerp_nan_first lean D3DRASTER.FILTER.MIPLINEAR D3DRASTER.SAMPLE.CMP
+spec/lean/Kikizake/D3d11/Filter.lean::cmp_nan lean D3DRASTER.SAMPLE.CMP
+spec/lean/Kikizake/D3d11/Filter.lean::cmp_opposites lean D3DRASTER.SAMPLE.CMP
+spec/lean/Kikizake/D3d11/Filter.lean::past_depth lean D3DRASTER.DEPTH.SMALL
+spec/lean/Kikizake/D3d9/Decl.lean::bad_element lean D3D9.DECL.CREATE
+spec/lean/Kikizake/D3d9/Decl.lean::twice lean D3D9.DECL.CREATE
+spec/lean/Kikizake/D3d9/Decl.lean::positiont lean D3D9.DECL.CREATE
+spec/lean/Kikizake/D3d9/Decl.lean::stream_apart lean D3D9.DECL.CREATE

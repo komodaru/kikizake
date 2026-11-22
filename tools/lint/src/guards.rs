@@ -65,6 +65,13 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // d3d9.plan, d3d9.reads, d3d9.bump hold to spec/lean/Kikizake/D3d9/Chain.lean)
     ("src/model/d3d9draw.rs", r"D3D9_STAGE_(DISABLE|MULTI|BUMPCHAIN|ALPHADISABLE(_FIRST)?)\b|&\s*0xf\s*==\s*2|&\s*0xf,\s*0\s*\|\s*1\)", &["stage_plan", "reads_texture", "reads_current"]),
     ("src/model/d3d9draw.rs", r"round_ties_even\(\)|\bm\(\s*7\s*\)\s*\*|\(\w+\s*\*\s*scale\s*\+", &["bump_scale", "bump_uv", "bump_luminance"]),
+    // (a linear filter's texel and weight, the level of a lod and a depth view's bounds are
+    // split, level and past_depth, which the Lean mirrors d3d11.split, d3d11.level and
+    // d3d11.pastdepth hold to spec/lean/Kikizake/D3d11/Filter.lean)
+    ("src/model/d3draster.rs", r"as\s+f32\s*-\s*0\.5|\.fract\(\)\s*\*\s*256|\+\s*0\.5\)\.floor\(\)|index\(dw\)\s*<=", &["split", "level", "past_depth"]),
+    // (a declaration's refusals are decl_ok's, which the Lean mirror d3d9.decl holds to
+    // spec/lean/Kikizake/D3d9/Decl.lean)
+    ("src/model/d3d9draw.rs", r"usage\s*==\s*8\s*&&|\(9,\s*0\)", &["decl_ok"]),
 ];
 
 /// (file, what (a regular expression), why): `forbidden`

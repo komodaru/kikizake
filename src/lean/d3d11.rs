@@ -520,3 +520,177 @@ pub static VIEW_MIRRORS: &[Mirror] = &[Mirror {
         })
     },
 }];
+
+const FILTER: &str = "spec/lean/Kikizake/D3d11/Filter.lean";
+
+/// binary32 values near the filters' arithmetic: zeros, the smallest subnormal, the smallest
+/// normal, a quarter, a half and its neighbours, 1 and its neighbours, 2, 255, 2^23 and its
+/// neighbour, 2^24, the largest finite value, infinity, a quiet and a signalling NaN
+const FLOATS: [u32; 20] = [0, 1, 0x0080_0000, 0x3e80_0000, 0x3eff_ffff, 0x3f00_0000, 0x3f00_0001, 0x3f7f_ffff, 0x3f80_0000, 0x3f80_0001, 0x4000_0000, 0x437f_0000, 0x4b00_0000, 0x4b00_0001, 0x4b80_0000, 0x7f7f_ffff, 0x7f80_0000, 0x7fc0_0000, 0x7f80_0001, 0x7fc1_2345];
+/// texture sizes: small ones, odd ones, the largest, past 2^24 (where n as f32 rounds), u32's
+const TEXTURE_SIZES: [i64; 14] = [0, 1, 2, 3, 4, 5, 7, 8, 64, 255, 16384, (1 << 24) + 1, (1 << 25) + 3, U32];
+
+/// each of FLOATS, signed; then `n` of: a coordinate in -1..2, of 0..1 as a multiple of 2^-k,
+/// or any 32-bit pattern
+fn floats(n: usize, rng: &mut crate::rng::XorShift32, each: &mut dyn FnMut(u32)) {
+    for &x in &FLOATS {
+        each(x);
+        each(x | 1 << 31);
+    }
+    for _ in 0..n {
+        let v = match rng.range(0, 3) {
+            0 => {
+                let k = u32::try_from(rng.range(0, 12)).unwrap_or(0);
+                (f64::from(u32::try_from(rng.range(0, 1 << 12)).unwrap_or(0)) / f64::from(1u32 << k)).to_string().parse::<f32>().unwrap_or(0.0).to_bits()
+            }
+            1 => (f64::from(u32::try_from(rng.range(0, 3_000_000)).unwrap_or(0)) / 1e6 - 1.0).to_string().parse::<f32>().unwrap_or(0.0).to_bits(),
+            _ => u32::try_from(rng.range(0, U32)).unwrap_or(0),
+        };
+        each(v);
+    }
+}
+
+/// coordinates and texture sizes
+fn coords(seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut cs = Vec::new();
+    floats(60_000, &mut rng, &mut |c| cs.push(i64::from(c)));
+    for c in cs {
+        let n = *rng.pick(&TEXTURE_SIZES);
+        each(&[c, n]);
+        each(&[c, rng.range(1, 4096)]);
+    }
+}
+
+/// three floats: of FLOATS each with each, then texel values and weights, then any patterns
+fn triples(seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::XorShift32::new(seed);
+    let mut fs = Vec::new();
+    floats(0, &mut rng, &mut |c| fs.push(i64::from(c)));
+    for &a in &fs {
+        for &b in &fs {
+            each(&[a, b, *rng.pick(&fs)]);
+        }
+    }
+    let mut more = Vec::new();
+    floats(300_000, &mut rng, &mut |c| more.push(i64::from(c)));
+    for w in more.chunks_exact(3) {
+        if let [a, b, _] = *w {
+            each(&[a, b, i64::from(crate::model::d3draster::pixels(rng.range(0, 256)).to_bits())]);
+        }
+        each(w);
+    }
+}
+
+/// lods: whole and half levels, near a 1/256 boundary and its half, anywhere in 0..20, the
+/// special values, any patterns; every last level to 15, point and linear
+fn lods(seed: u32, each: &mut dyn FnMut(&[i64])) {
+    let mut rng = crate::rng::XorShift32::new(seed);
+    let put = |x: f64, rng: &mut crate::rng::XorShift32, each: &mut dyn FnMut(&[i64])| {
+        let h = super::f64_halves(x);
+        let (hi, lo) = (h.first().copied().unwrap_or(0), h.get(1).copied().unwrap_or(0));
+        let (hi, lo) = if x.is_nan() { (0x7ff8_0000, 0) } else { (hi, lo) };
+        each(&[hi, lo, rng.range(0, 15), rng.range(0, 1)]);
+    };
+    for x in [0.0, -0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 14.5, 15.0, 15.5, 16.0, 1e300, f64::INFINITY, f64::NEG_INFINITY, f64::NAN, f64::MIN_POSITIVE, 4e9, 5e9] {
+        for _ in 0..40 {
+            put(x, &mut rng, each);
+        }
+    }
+    for _ in 0..200_000 {
+        let k = f64::from(u32::try_from(rng.range(0, 16)).unwrap_or(0));
+        let x = match rng.range(0, 4) {
+            0 => k + f64::from(u32::try_from(rng.range(0, 512)).unwrap_or(0)) / 512.0,
+            1 => k + (f64::from(u32::try_from(rng.range(0, 512)).unwrap_or(0)) / 512.0) + f64::from(u32::try_from(rng.range(0, 4)).unwrap_or(2)) * 1e-17 - 2e-17,
+            2 => f64::from(u32::try_from(rng.range(0, U32)).unwrap_or(0)) / f64::from(u32::MAX) * 20.0,
+            3 => f64::from_bits(u64::from(u32::try_from(rng.range(0, U32)).unwrap_or(0)) << 32 | u64::from(u32::try_from(rng.range(0, U32)).unwrap_or(0))),
+            _ => k,
+        };
+        put(x, &mut rng, each);
+    }
+}
+
+pub static FILTER_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.split",
+        lean: FILTER,
+        domain: Domain::Sampled("40 signed boundary floats and 60,000 coordinates (in -1..2, multiples of 2^-k in 0..1, any pattern), each with a texture size of 14 (0 to 2^32 - 1) and one of 1..4096"),
+        inputs: |each| coords(0x5b17_d311, each),
+        model: |a| {
+            let (i, w) = crate::model::d3draster::split(f32::from_bits(arg(a, 0)?), arg(a, 1)?);
+            Some(vec![i, w])
+        },
+    },
+    Mirror {
+        name: "d3d11.pointtexel",
+        lean: FILTER,
+        domain: Domain::Sampled("the coordinates and sizes of d3d11.split"),
+        inputs: |each| coords(0x9017_d311, each),
+        model: |a| one(crate::model::d3draster::point_texel(f32::from_bits(arg(a, 0)?), arg(a, 1)?)),
+    },
+    Mirror {
+        name: "d3d11.linearfloat",
+        lean: FILTER,
+        domain: Domain::Every("every 8-bit filtered value, 0..32640 (in 1/128 of a byte)"),
+        inputs: |each| every(&[(0, 32640)], each),
+        model: |a| one(crate::model::d3draster::linear_float(arg(a, 0)?).to_bits()),
+    },
+    Mirror {
+        name: "d3d11.pixels",
+        lean: FILTER,
+        domain: Domain::Every("every weight, 0..256 (in 1/256)"),
+        inputs: |each| every(&[(0, 256)], each),
+        model: |a| one(crate::model::d3draster::pixels(arg(a, 0)?).to_bits()),
+    },
+    Mirror {
+        name: "d3d11.lerp",
+        lean: FILTER,
+        domain: Domain::Sampled("every pair of 40 signed boundary floats (NaNs quiet and signalling, infinities) with one of them as the weight, 100,000 texel pairs with a weight of 1/256s, 100,000 triples of coordinates or any patterns; NaNs compared bit for bit"),
+        inputs: |each| triples(0x1e2b_d311, each),
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            one(crate::model::d3draster::lerp_sse(f(0)?, f(1)?, f(2)?).to_bits())
+        },
+    },
+    Mirror {
+        name: "d3d11.level",
+        lean: FILTER,
+        domain: Domain::Sampled("720 lods of 18 special values (whole and half levels, the largest, infinities, a NaN), 200,000 lods: in 1/512 of a level, a little off them, anywhere in 0..20, any binary64; each with a last level of 0..15, point and linear"),
+        inputs: |each| lods(0x1e7e_d311, each),
+        model: |a| {
+            use crate::model::d3draster::Level;
+            Some(match crate::model::d3draster::level(super::arg_f64(a, 0)?, arg(a, 2)?, flag(a, 3)?) {
+                Level::One(n) => vec![0, i64::from(n)],
+                Level::Two(n, w) => vec![1, i64::from(n), w],
+            })
+        },
+    },
+    Mirror {
+        name: "d3d11.samplecmp",
+        lean: FILTER,
+        domain: Domain::Sampled("every function 0..9 with every pair of 40 signed boundary floats, and with 100,000 pairs of coordinates or any patterns"),
+        inputs: |each| {
+            let mut rng = crate::rng::XorShift32::new(0x5c3b_d311);
+            let mut fs = Vec::new();
+            floats(200_000, &mut rng, &mut |c| fs.push(i64::from(c)));
+            for f in 0..10 {
+                for &r in fs.iter().take(40) {
+                    for &t in fs.iter().take(40) {
+                        each(&[f, r, t]);
+                    }
+                }
+            }
+            for p in fs.chunks_exact(2) {
+                each(&[rng.range(0, 9), p.first().copied().unwrap_or(0), p.get(1).copied().unwrap_or(0)]);
+            }
+        },
+        model: |a| one(crate::model::d3draster::sample_cmp(arg(a, 0)?, f32::from_bits(arg(a, 1)?), f32::from_bits(arg(a, 2)?)).to_bits()),
+    },
+    Mirror {
+        name: "d3d11.pastdepth",
+        lean: FILTER,
+        domain: Domain::Every("depth views of 0..5 by 0..5, pixels 0..6 by 0..6"),
+        inputs: |each| every(&[(0, 5), (0, 5), (0, 6), (0, 6)], each),
+        model: |a| one(crate::model::d3draster::past_depth(arg(a, 0)?, arg(a, 1)?, arg(a, 2)?, arg(a, 3)?)),
+    },
+];

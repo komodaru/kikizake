@@ -1211,6 +1211,24 @@ fn suite(v8: bool) -> String {
         }
         writeln!(s, "{l}\nd9rt\nend");
     }
+    // (D3D9.FVF.SET, FVF.GET, DECL.GET) SetFVF after SetVertexDeclaration, an FVF of 0 after
+    // either, a refused declaration after an FVF: what GetFVF and GetVertexDeclaration answer
+    if !v8 {
+        let good = "d9decl 0x0 0x90003 0x100000 0xa0004";
+        let bad = "d9decl 0x0 0x2 0x0 0x2";
+        for (i, calls) in [
+            [good, "d9fvf 0x42", "d9fvf 0x0", bad],
+            ["d9fvf 0x144", bad, good, "d9fvf 0x0"],
+            [good, "d9fvf 0x0", "d9fvf 0x1", good],
+            ["d9fvf 0x0", good, bad, "d9fvf 0x144"],
+        ].into_iter().enumerate() {
+            writeln!(s, "case fvf-decl-order-{i}\n{dev} swvp");
+            for c in calls {
+                writeln!(s, "{c}\nd9getfvf\nd9getdecl");
+            }
+            writeln!(s, "end");
+        }
+    }
     s
 }
 

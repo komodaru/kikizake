@@ -10,6 +10,7 @@ const STAGE: &str = "spec/lean/Kikizake/D3d9/Stage.lean";
 const FOG: &str = "spec/lean/Kikizake/D3d9/Fog.lean";
 const ARG: &str = "spec/lean/Kikizake/D3d9/Arg.lean";
 const FORMATS: &str = "spec/lean/Kikizake/D3d9/Formats.lean";
+const DECL: &str = "spec/lean/Kikizake/D3d9/Decl.lean";
 /// the formats asked: every number to 130 (the D3DFORMATs, the depth ones among them) and the FOURCCs
 fn formats(each: &mut dyn FnMut(i64)) {
     for f in 0..=130 {
@@ -421,6 +422,37 @@ pub static MIRRORS: &[Mirror] = &[
         domain: Domain::Every("every format number to 130 and the FOURCCs, each usage and resource type asked, on 9 and 8"),
         inputs: |each| formats(&mut |f| for (u, t) in CHECKS { every(&[(f, f), (u, u), (t, t), (0, 1)], each) }),
         model: |a| one(d3d9draw::check_hr(arg(a, 0)?, arg(a, 1)?, arg(a, 2)?, arg::<i64>(a, 3)? != 0).ok()?),
+    },
+    Mirror {
+        name: "d3d9.decl",
+        lean: DECL,
+        domain: Domain::Sampled("the declarations D3DXDeclaratorFromFVF makes of every FVF of the low 16 bits, and 200,000 lists of one to five elements of streams 0..2, offsets 0..12 (with 2), every type to 18, methods 0 and 1, every usage to 13 and indexes 0, 1, 15, 16, 255"),
+        inputs: |each| {
+            for f in 0..=0xffffu32 {
+                if let Ok(e) = d3dx9::fvf_decl(f) {
+                    each(&flat(&e).collect::<Vec<_>>());
+                }
+            }
+            let mut rng = crate::rng::XorShift32::new(0xdec1_0009);
+            for _ in 0..200_000 {
+                let n = rng.range(1, 5);
+                let e: Vec<(u32, u32)> = (0..n).map(|_| {
+                    let stream = *rng.pick(&[0u32, 0, 0, 1, 2]);
+                    let off = *rng.pick(&[0u32, 2, 4, 8, 12]);
+                    let ty = u32::try_from(rng.range(0, 18)).unwrap_or(0);
+                    let method = u32::from(rng.chance(8));
+                    let usage = u32::try_from(rng.range(0, 13)).unwrap_or(0);
+                    let index = *rng.pick(&[0u32, 0, 0, 1, 15, 16, 255]);
+                    (off << 16 | stream, index << 24 | usage << 16 | method << 8 | ty)
+                }).collect();
+                each(&flat(&e).collect::<Vec<_>>());
+            }
+        },
+        model: |a| {
+            let w: Vec<u32> = a.iter().map(|&v| u32::try_from(v).ok()).collect::<Option<_>>()?;
+            let e: Vec<(u32, u32)> = w.chunks_exact(2).filter_map(|p| Some((*p.first()?, *p.get(1)?))).collect();
+            one(d3d9draw::decl_ok(&e).ok()?)
+        },
     },
 ];
 
