@@ -4,6 +4,8 @@
 //! at 4 line widths, wrapping and not, in 4 fonts (kind exhaustive). The breaks and levels are
 //! the line break and bidi analyses' (laws_dwrite.rs), the face's metrics Metrics.lean's.
 use kikizake::generators::dwrite::font;
+mod pairs;
+use pairs::zip_eq;
 use kikizake::model::dwrite::fallback::{self, LineMetrics, Pick, Range};
 use kikizake::model::dwrite::{bidi, linebreak, metrics};
 use kikizake::ttf::{glyph_of, parse};
@@ -218,7 +220,7 @@ fn the_fallback_pieces_for_every_short_text() {
             }
             assert_eq!(got.iter().map(|x| (x.pick, x.cps.clone())).collect::<Vec<_>>(), want, "{t:x?}");
             for pc in &got {
-                for (&c, &(g, a)) in pc.cps.iter().zip(&pc.glyphs) {
+                for (&c, &(g, a)) in zip_eq(&pc.cps, &pc.glyphs) {
                     let w = match pc.pick {
                         Pick::Own => (glyph_of(&p, c), p.hmtx[usize::from(glyph_of(&p, c))].0),
                         Pick::Sys(_) => fallback::sys(c).unwrap().1.map(|x| (x.1, x.2)).unwrap(),
