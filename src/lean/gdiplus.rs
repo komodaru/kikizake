@@ -292,6 +292,22 @@ pub static MIRRORS: &[Mirror] = &[
         },
     },
     Mirror {
+        name: "gp.gamma64",
+        lean: MATRIX,
+        domain: Domain::Sampled("to nearest and down, the alpha word of every 8-bit alpha: 400,000 source words at most it and destination words 0..8192"),
+        inputs: |each| {
+            let mut rng = crate::rng::XorShift32::new(0x6d74_0064);
+            for k in 0..400_000u32 {
+                let sa = i64::try_from(gdiplus::widen_alpha(u64::from(k % 256))).unwrap_or(0);
+                each(&[i64::from(u8::from(k % 512 >= 256)), rng.range(0, sa), rng.range(0, 8192), sa]);
+            }
+        },
+        model: |a| {
+            let r = rounding(arg(a, 0)?);
+            one(i64::try_from(gdiplus::mix64(r, arg(a, 1)?, arg(a, 2)?, gdiplus::gamma_rest(r, arg(a, 3)?))).ok()?)
+        },
+    },
+    Mirror {
         name: "gp.matinv",
         lean: MATRIX,
         domain: Domain::Sampled("150,000 matrices, to nearest and down, of any patterns, moderate values, small integers and special values (singular ones among them)"),

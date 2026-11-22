@@ -87,6 +87,18 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
 /// (file, function, what (a regular expression), why): `forbidden` inside one function only
 pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
     (
+        "src/model/gdiplus.rs",
+        "mix",
+        r"8192\.0|\bas\s+f32\b",
+        "x86-64's gamma corrected word is the pure mix64, which the Lean mirror gp.gamma64 holds equal to spec/lean/Kikizake/GdiPlus/Matrix.lean; float arithmetic inlined in mix escapes it",
+    ),
+    (
+        "src/model/gdiplus.rs",
+        "new",
+        r"\.sub\s*\(\s*1\.0",
+        "a gamma corrected source's rest is the pure gamma_rest, which the Lean mirror gp.gamma64 holds equal to spec/lean/Kikizake/GdiPlus/Matrix.lean; a copy inlined in Src::new escapes it",
+    ),
+    (
         "src/model/dxtenc.rs",
         "optimize_rgb",
         r"\bdot\s*<=?\s*F::of\s*\(\s*0(\.0)?\s*\)",

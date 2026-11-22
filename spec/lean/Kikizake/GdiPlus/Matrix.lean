@@ -4,7 +4,8 @@ import Kikizake.F32
 src/model/gdiplus.rs `Round`, `mul_in`, `transform_in` and `inverse` compute it, on binary32 bits
 (Kikizake.F32): x86 rounds each operation to nearest, x86-64 toward minus infinity (an exact zero
 sum -0 unless both terms are +0; a quotient whose nearest value is a zero, an infinity or a NaN is
-that value); mirrors `gp.round`, `gp.matmul`, `gp.matpoint`, `gp.matinv`. -/
+that value); and the same arithmetic in the gamma corrected SourceOver of x86-64 (`gamma_rest`, `mix64`,
+GP.FILL.GAMMA.X64); mirrors `gp.round`, `gp.matmul`, `gp.matpoint`, `gp.matinv`, `gp.gamma64`. -/
 namespace Kikizake.GdiPlus.Matrix
 open Kikizake.Float
 
@@ -139,6 +140,33 @@ theorem down_comm (x y : Nat) : addD x y = addD y x ∧ mulD x y = mulD y x := b
         cases decide (sig F x = 0) <;> cases decide (sig F y = 0) <;> rfl
     rw [h]
 
+/-- 8192 and 1/2 -/
+def k8192 : Nat := 0x46000000
+def half : Nat := 0x3f000000
+
+/-- GP.FILL.GAMMA.X64: the destination's share 1 - sa / 8192 of a source of alpha word sa -/
+def gammaRest (r : Ops) (sa : Nat) : Nat := r.sub one (r.div (F32.ofNat sa) k8192)
+
+/-- a binary32 of a value of 0 or more floored (a negative one 0) -/
+def floorNat (x : Nat) : Nat := let (s, n, d) := Float.toRat F x; if s then 0 else n / d
+
+/-- GP.FILL.GAMMA.X64: SourceOver of one 64bppPARGB word, floor((s / 8192 + d / 8192 rest) 8192 +
+0.5), kept to 16 bits -/
+def mix64 (r : Ops) (s d rest : Nat) : Nat :=
+  floorNat (r.add (r.mul (r.add (r.div (F32.ofNat s) k8192) (r.mul (r.div (F32.ofNat d) k8192) rest)) k8192) half) % 65536
+
+/-- GP.FILL.GAMMA.X64: rounding down, an opaque source's word (alpha word 8192) replaces the
+destination's, a clear one (alpha word 0) leaves it, at every multiple of 1024 -/
+theorem gamma64_ends : ∀ k : Fin 9,
+    mix64 down (k.val * 1024) 5000 (gammaRest down 8192) = k.val * 1024 ∧
+    mix64 down 0 (k.val * 1024) (gammaRest down 0) = k.val * 1024 := by decide
+
+/-- GP.FILL.GAMMA.X64: a word x86-64 makes one less than rounding to nearest would: 105 over 4833
+under an alpha word of 289 -/
+theorem gamma64_down :
+    mix64 down 105 4833 (gammaRest down 289) = 4767 ∧ mix64 nearest 105 4833 (gammaRest nearest 289) = 4768 := by
+  decide
+
 private def bits (l : List Int) : Option (List Nat) := l.mapM nat
 private def out (l : List Nat) : List Int := l.map fun v => (F32.canon v : Int)
 
@@ -157,6 +185,11 @@ def mirrors : List Mirror := [
   ⟨"gp.matpoint", fun
     | [d, a, b, c, e, f, g, x, y] => do
       pure (out (point (ops (d != 0)) (← bits [a, b, c, e, f, g]) (← nat x) (← nat y)))
+    | _ => none⟩,
+  ⟨"gp.gamma64", fun
+    | [d, s, w, sa] => do
+      let r := ops (d != 0)
+      pure [mix64 r (← nat s) (← nat w) (gammaRest r (← nat sa))]
     | _ => none⟩,
   ⟨"gp.matinv", fun
     | d :: l => do

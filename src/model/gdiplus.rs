@@ -324,6 +324,19 @@ pub fn lanes(d: u64, f: u64) -> u64 {
     ((p >> 16) << 3) + ((((p & 0xffff) + 4096) & 0xffff) >> 13)
 }
 
+/// the destination's share 1 - sa / 8192 of a source of 64bppPARGB alpha word sa, in float as r
+/// rounds (GP.FILL.GAMMA.X64; mirrored by spec/lean/Kikizake/GdiPlus/Matrix.lean)
+pub fn gamma_rest(r: Round, sa: u64) -> f32 {
+    r.sub(1.0, r.div(sa as f32, 8192.0))
+}
+/// x86-64's gamma corrected SourceOver of one 64bppPARGB word: floor((s / 8192 + d / 8192 rest)
+/// 8192 + 0.5) in float as r rounds, kept to 16 bits (GP.FILL.GAMMA.X64; mirrored by
+/// spec/lean/Kikizake/GdiPlus/Matrix.lean)
+pub fn mix64(r: Round, s: u64, d: u64, rest: f32) -> u64 {
+    let (s, d) = (s as f32, d as f32);
+    r.add(r.mul(r.add(r.div(s, 8192.0), r.mul(r.div(d, 8192.0), rest)), 8192.0), 0.5).floor() as i64 as u64 & 0xffff
+}
+
 /// source over as drawing on 16bppRGB555/565 does it: the destination's part truncated
 pub fn over_truncated(s: u32, d: u32) -> u32 {
     hit(clause::GP_FILL_OVER);
@@ -784,7 +797,7 @@ impl Src {
         let s64 = convert(Pf::Pargb32, Pf::Pargb64, sp as u64, &[])?;
         let sa = s64 >> 48 & 0xffff;
         let rd = rounding();
-        Ok(Src { sp, s64, sa, rest: rd.sub(1.0, rd.div(sa as f32, 8192.0)) })
+        Ok(Src { sp, s64, sa, rest: gamma_rest(rd, sa) })
     }
     /// (gamma corrected, MEASURED: SourceOver of a pixel of a 32-bit format (ARGB, PARGB, RGB) in
     /// 64bppPARGB words: x86-64 in float as the executor rounds (GP.FILL.GAMMA.X64), x86 in
@@ -795,9 +808,7 @@ impl Src {
             (s + lanes(d, 8192 - self.sa)) & 0xffff
         } else {
             hit(clause::GP_FILL_GAMMA_X64);
-            let rd = rounding();
-            let (s, d) = (s as f32, d as f32);
-            rd.add(rd.mul(rd.add(rd.div(s, 8192.0), rd.mul(rd.div(d, 8192.0), self.rest)), 8192.0), 0.5).floor() as i64 as u64 & 0xffff
+            mix64(rounding(), s, d, self.rest)
         }
     }
     fn word(v: u64, k: u32) -> u64 {

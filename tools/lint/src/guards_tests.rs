@@ -274,6 +274,15 @@ fn gdiplus_mixes_stay_in_the_mirrored_functions() {
 }
 
 #[test]
+fn gdiplus_gamma64_stays_in_the_mirrored_function() {
+    let inlined = "fn mix() {\n    let w = rd.add(rd.mul(rd.add(rd.div(s as f32, 8192.0), rd.mul(rd.div(d, 8192.0), self.rest)), 8192.0), 0.5);\n}\nfn new() {\n    let rest = rd.sub(1.0, rd.div(sa, 8192.0));\n}\n";
+    let r = rust("src/model/gdiplus.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in mix: x86-64's gamma corrected word")).count(), 4, "{r:?}");
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in new: a gamma corrected source's rest")).count(), 1, "{r:?}");
+    assert!(rust("src/model/gdiplus.rs", "fn mix() { let w = mix64(rounding(), s, d, self.rest); }\nfn new() { let rest = gamma_rest(rd, sa); }\n").is_empty());
+}
+
+#[test]
 fn check_with_reads_the_format_tables_only_through_its_facts() {
     let inlined = "fn check_with() {\n    let s = group_support(dev, d.fmt);\n    let q = support(dev, d.fmt).5[0];\n}\n";
     let r = rust("src/model/d3dres_check.rs", inlined);
