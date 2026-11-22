@@ -154,6 +154,45 @@ fn a_covering_triangle_draws_every_pixel() {
     assert!(draw(&[[(2.0, 2.0), (2.0, 2.0), (9.0, 9.0)]]).iter().all(|&v| v == 0));
 }
 
+/// the red bytes of a draw (topology top) of vertices given in clip space
+fn draw_clip(top: u32, verts: &[[f32; 4]]) -> Vec<u8> {
+    let mut s = String::from("case law\ndevice11\ntex 0 2 16 16 1 1 28 0 0x20 0 0 1 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\n");
+    s += &format!("shader 0 vs {}\nshader 1 ps {}\nlayout 0 2 2\n", hex(&shader(Prog::Vs)), hex(&shader(Prog::Ps)));
+    let f = |v: f32| format!("{:#x}", v.to_bits());
+    s += &format!("viewport 0 0 {} {} 0 {}\nrast 3 1 0 0 0 0 1 0 0 0\n", f(16.0), f(16.0), f(1.0));
+    for p in verts {
+        s += &format!("vtx {} {} {} {} {} 0 0 {}\n", f(p[0]), f(p[1]), f(p[2]), f(p[3]), f(1.0), f(1.0));
+    }
+    s += &format!("draw {top} {} 32\nread 0 0 64 16 1\nend\n", verts.len());
+    let c = &parse_cases(&s)[0];
+    let out = run_case(c).unwrap();
+    let rows: Vec<&String> = out.iter().rev().take(16).collect();
+    rows.iter().rev().flat_map(|r| (0..16).map(move |px| u8::from_str_radix(&r[px * 8..px * 8 + 2], 16).unwrap())).collect()
+}
+
+/// (D3DRASTER.CLIPW.POINTLINE) over a grid of positions and of w not positive: a point behind
+/// the eye lights nothing, nor a line with both ends behind it
+#[test]
+fn nothing_behind_the_eye_draws() {
+    let ws = [-2.0f32, -1.0, -0.5, -0.0, 0.0];
+    let at = [-1.5f32, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5];
+    let mut behind = Vec::new();
+    for &w in &ws {
+        for &x in &at {
+            for &y in &at {
+                let v = [x * w.abs(), y * w.abs(), 0.5 * w, w];
+                assert!(draw_clip(1, &[v]).iter().all(|&r| r == 0), "point {v:?}");
+                behind.push(v);
+            }
+        }
+    }
+    for a in &behind {
+        for b in &behind {
+            assert!(draw_clip(2, &[*a, *b]).iter().all(|&r| r == 0), "line {a:?} {b:?}");
+        }
+    }
+}
+
 /// the suites' cases with one word changed (to 0, 1, -1, a large or a nearby value): the models
 /// never panic and answer every case, or end where the x86 runtime dies
 #[test]

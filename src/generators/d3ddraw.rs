@@ -666,6 +666,22 @@ fn suite(d3d11: bool) -> String {
         read_rt(&mut s, 0, crate::dxgi!(2), 16, 16);
         writeln!(&mut s, "end");
     }
+    // points and lines with a coordinate not finite (NaN x, infinite w)
+    for (name, top, bad) in [("point-nan", 1u32, f32::NAN), ("line-nan", 2, f32::NAN), ("line-inf", 2, f32::INFINITY)] {
+        begin(&mut s, dev, &format!("probe-clip-w-{name}"), 16, 16, 2, Prog::Ps);
+        for (k, (x, y, w)) in (0u32..).zip([(-0.5f32, 0.5f32, 1.0f32), (0.25, -0.75, 1.0), (0.5, 0.25, 1.0)].into_iter()) {
+            let c = color(k.wrapping_mul(5).wrapping_add(1));
+            let (x, w) = match (k, name) {
+                (1, "line-inf") => (x, bad),
+                (1, _) => (bad, w),
+                _ => (x, w),
+            };
+            writeln!(&mut s, "vtx {} {} {} {} {} {} {} {}", fb(x), fb(y), fb(0.5), fb(w), fb(c[0]), fb(c[1]), fb(c[2]), fb(c[3]));
+        }
+        writeln!(&mut s, "draw {top} 3 32");
+        read_rt(&mut s, 0, crate::dxgi!(2), 16, 16);
+        writeln!(&mut s, "end");
+    }
     // the last case ends the executor: on Direct3D 11 a patch list, on 10 an integer view sampled
     if !d3d11 {
         writeln!(&mut s, "case probe-filter-r8g8b8a8-uint\n{dev}\ntex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\ntarget 0");

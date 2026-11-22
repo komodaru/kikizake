@@ -819,10 +819,14 @@ fn snapped(vp: [f32; 6], q: &[f32; 4]) -> Sub {
     Sub { x: snap256(vx + (q[0] / q[3] + 1.0) * (vw * 0.5)), y: snap256(vy + (1.0 - q[1] / q[3]) * (vh * 0.5)) }
 }
 
-/// a vertex's w that the model can draw with: positive and every coordinate finite
+/// a vertex the model can draw with: every coordinate finite (a w not positive is clipped as
+/// any other, D3DRASTER.CLIPW.POINTLINE)
 fn drawable_w(v: &Vert) -> Res<()> {
-    if !(v.pos[3] > 0.0) || v.pos.iter().any(|x| !x.is_finite()) {
+    if v.pos.iter().any(|x| !x.is_finite()) {
         return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
+    }
+    if !(v.pos[3] > 0.0) {
+        hit(clause::D3DRASTER_CLIPW_POINTLINE);
     }
     Ok(())
 }
@@ -1307,7 +1311,8 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         drawable_w(&s.b)?;
         let (za, zb) = (s.a.pos[2] / s.a.pos[3], s.b.pos[2] / s.b.pos[3]);
         let inside = |z: f32| (0.0..=1.0).contains(&z);
-        let zclip = s.clip == SegClip::Line && d.rast[6] != 0 && !(inside(za) && inside(zb));
+        let behind = !(s.a.pos[3] > 0.0 && s.b.pos[3] > 0.0);
+        let zclip = s.clip == SegClip::Line && !behind && d.rast[6] != 0 && !(inside(za) && inside(zb));
         if zclip && (za < 0.0 && zb < 0.0 || za > 1.0 && zb > 1.0) {
             hit(clause::D3DRASTER_DEPTHCLIP);
             continue;
@@ -1315,7 +1320,12 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         // (a depth that varies along a multisample or antialiased line: not measured)
         // (MEASURED, WARP: probe-line-clip-z) a line across the depth range is cut where it
         // leaves it (0 <= z <= w), as clip_line
-        let (sa, sb) = if zclip {
+        let (sa, sb) = if behind && s.clip == SegClip::Line {
+            match clip_seg(s.a, s.b, d.rast[6] != 0) {
+                Some(v) => v,
+                None => continue,
+            }
+        } else if zclip {
             hit(clause::D3DRASTER_CLIPZ_LINE);
             match clip_line_z(s.a, s.b) {
                 Some(v) => v,
@@ -1325,6 +1335,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
             (s.a, s.b)
         };
         let clipped = match s.clip {
+            SegClip::Line if behind => Some((sa, sb)),
             SegClip::Line => clip_line(sa, sb),
             SegClip::Done => Some((sa, sb)),
         };
@@ -2095,6 +2106,42 @@ struct ClipVert {
     along: bool,
 }
 
+/// a value of a vertex the clipping makes, from the inside end: f32(((out - in) as f64 dIn) /
+/// (dIn - dOut) + in) (clip_tri, clip_seg)
+fn clip_lerp(din: f32, dout: f32, vi: f32, vo: f32) -> f32 {
+    ((f64::from(vo - vi) * f64::from(din)) / f64::from(din - dout) + f64::from(vi)) as f32
+}
+
+/// (MEASURED, WARP: probe-clip-w-line) a line with an end at w not positive, clipped as a
+/// triangle's edge is (clip_tri): the planes some end is outside of in CLIP_PLANES' order, the
+/// new end from the inside one in f64, the later planes' distances carried
+fn clip_seg(a: Vert, b: Vert, zclip: bool) -> Option<(Vert, Vert)> {
+    let mut ends = [a, b].map(|v| ClipVert { pos: v.pos, color: v.color, dist: Dists::of(&v.pos), made: false, along: false });
+    let planes: Vec<ClipPlane> = CLIP_PLANES.into_iter().filter(|p| zclip || !p.depth()).collect();
+    let out = |v: &ClipVert, p: ClipPlane| 0.0 > v.dist.get(p);
+    let cut: Vec<ClipPlane> = planes.into_iter().filter(|&p| ends.iter().any(|v| out(v, p))).collect();
+    for (k, &p) in cut.iter().enumerate() {
+        let [e0, e1] = ends;
+        let (i, o, first) = match (out(&e0, p), out(&e1, p)) {
+            (true, true) => return None,
+            (false, false) => continue,
+            (false, true) => (e0, e1, false),
+            (true, false) => (e1, e0, true),
+        };
+        let (din, dout) = (i.dist.get(p), o.dist.get(p));
+        let lerp = |vi: f32, vo: f32| clip_lerp(din, dout, vi, vo);
+        let mut dist = i.dist;
+        for q in cut.iter().skip(k).skip(1) {
+            dist.set(*q, lerp(i.dist.get(*q), o.dist.get(*q)));
+        }
+        let made = ClipVert { pos: i.pos.map(|_| 0.0), color: i.color, dist, made: true, along: false };
+        let made = ClipVert { pos: zip4(i.pos, o.pos, lerp), color: zip4(i.color, o.color, lerp), ..made };
+        ends = if first { [made, e1] } else { [e0, made] };
+    }
+    let [e0, e1] = ends;
+    Some((Vert { pos: e0.pos, color: e0.color }, Vert { pos: e1.pos, color: e1.color }))
+}
+
 /// (MEASURED, WARP: probe-interp-clip*, probe-interp-*) a triangle clipped Sutherland-Hodgman
 /// against the planes some vertex is outside of (near and far with depth clipping on), in
 /// CLIP_PLANES' order, after turning it so the least clip x (then y) comes first; inside is
@@ -2130,8 +2177,7 @@ fn clip_tri(tri: &[Vert; 3], zclip: bool) -> Option<Vec<ClipVert>> {
             if ina != inb {
                 let (i, o) = if ina { (a, b) } else { (b, a) };
                 let (din, dout) = (i.dist.get(p), o.dist.get(p));
-                let den = f64::from(din - dout);
-                let lerp = |vi: f32, vo: f32| ((f64::from(vo - vi) * f64::from(din)) / den + f64::from(vi)) as f32;
+                let lerp = |vi: f32, vo: f32| clip_lerp(din, dout, vi, vo);
                 let mut dist = i.dist;
                 for q in &cut[k + 1..] {
                     dist.set(*q, lerp(i.dist.get(*q), o.dist.get(*q)));
