@@ -11966,3 +11966,72 @@ d3dclear 0
 d3dtri 0x00ffffff/0xffffffff/0x00ffffff 8 0 13 80 18 161
 d3ddump
 end
+case steepvis-2-ramp
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 15 8 17 8 16 160
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 14 8 18 8 16 160
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 12 8 20 8 16 160
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 8 8 24 8 16 160
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x00ffffff/0x00ffffff/0xffffffff 15 8 17 8 16 160
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x00ffffff/0x00ffffff/0xffffffff 14 8 18 8 16 160
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x00ffffff/0x00ffffff/0xffffffff 12 8 20 8 16 160
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x00ffffff/0x00ffffff/0xffffffff 8 8 24 8 16 160
+d3ddump
+d3drs set 14 1
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 15 8 17 8 16 160
+d3ddump
+d3drs set 14 1
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 14 8 18 8 16 160
+d3ddump
+d3drs set 14 1
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 12 8 20 8 16 160
+d3ddump
+d3drs set 14 1
+d3dclear 0
+d3dtri 0x00ffffff/0xffffffff/0x00ffffff 8 8 24 8 16 160
+d3ddump
+d3drs set 14 1
+d3dclear 0
+d3dtri 0x00ffffff/0x00ffffff/0xffffffff 15 8 17 8 16 160
+d3ddump
+d3drs set 14 1
+d3dclear 0
+d3dtri 0x00ffffff/0x00ffffff/0xffffffff 14 8 18 8 16 160
+d3ddump
+d3drs set 14 1
+d3dclear 0
+d3dtri 0x00ffffff/0x00ffffff/0xffffffff 12 8 20 8 16 160
+d3ddump
+d3drs set 14 1
+d3dclear 0
+d3dtri 0x00ffffff/0x00ffffff/0xffffffff 8 8 24 8 16 160
+d3ddump
+end
