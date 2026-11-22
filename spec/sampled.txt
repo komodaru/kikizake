@@ -51,6 +51,9 @@ D3D9.COLORWRITE sampled
 D3D9.CULL sampled
 D3D9.CULL.BAD sampled
 D3D9.DECL.CREATE sampled
+D3D9.DRAW.POINTS sampled
+D3D9.DRAW.STRIDE sampled
+D3D9.DRAW.XZERO sampled
 D3D9.FOG sampled
 D3D9.FVF.BLEND5 spec-only
 D3D9.FVF.DECL spec-only

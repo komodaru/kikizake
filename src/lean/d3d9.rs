@@ -13,6 +13,7 @@ const FORMATS: &str = "spec/lean/Kikizake/D3d9/Formats.lean";
 const DECL: &str = "spec/lean/Kikizake/D3d9/Decl.lean";
 const SHADE: &str = "spec/lean/Kikizake/D3d9/Shade.lean";
 const CLIP: &str = "spec/lean/Kikizake/D3d9/Clip.lean";
+const DRAW: &str = "spec/lean/Kikizake/D3d9/Draw.lean";
 /// a vertex position on the 1/16 grid over -3 .. 19 (the raster-* cases' grid), as binary32 bits
 fn grid16(rng: &mut crate::rng::Sample64) -> i64 {
     i64::from(to_f32(f64::from(i32::try_from(rng.range(-48, 19 * 16)).unwrap_or(0)) / 16.0).to_bits())
@@ -669,6 +670,102 @@ pub static MIRRORS: &[Mirror] = &[
             }
         },
         model: |a| one(d3d9draw::snap256(bits32(a, 0)?)),
+    },
+    Mirror {
+        name: "d3d9.assemble",
+        lean: DRAW,
+        domain: Domain::Every("primitive types 0..7, 0 to 40 vertices; -1 for a type of none"),
+        inputs: |each| every(&[(0, 7), (0, 40)], each),
+        model: |a| {
+            let k = |v: usize| i64::try_from(v).unwrap_or(-1);
+            Some(match d3d9draw::assemble(arg(a, 0)?, arg(a, 1)?) {
+                Some(d3d9draw::Prims::Segs(s)) => s.iter().flat_map(|p| [k(p.0), k(p.1)]).collect(),
+                Some(d3d9draw::Prims::Tris(t)) => t.iter().flatten().map(|&v| k(v)).collect(),
+                None => vec![-1],
+            })
+        },
+    },
+    Mirror {
+        name: "d3d9.vertices",
+        lean: DRAW,
+        domain: Domain::Sampled("every count of 0 to 24 vertices, size 0 to 12 and 0 to 72 words (numbered), and 50,000 of up to 300 words of any 32-bit value; -1 for words read as no vertices"),
+        inputs: |each| {
+            for nv in 0..=24i64 {
+                for size in 0..=12i64 {
+                    for len in 0..=72i64 {
+                        let mut v = vec![nv, size];
+                        v.extend(0..len);
+                        each(&v);
+                    }
+                }
+            }
+            let mut rng = crate::rng::XorShift32::new(0xd4a3_0001);
+            for _ in 0..50_000 {
+                let (nv, size) = (rng.range(1, 30), rng.range(0, 16));
+                let len = nv * rng.range(0, 10) + if rng.chance(8) { rng.range(0, 3) } else { 0 };
+                let mut v = vec![nv, size];
+                v.extend((0..len).map(|_| i64::from(rng.next())));
+                each(&v);
+            }
+        },
+        model: |a| {
+            let w: Vec<u32> = a.iter().skip(2).map(|&v| u32::try_from(v).ok()).collect::<Option<_>>()?;
+            let vs = d3d9draw::vertex_words(&w, arg(a, 0)?, arg(a, 1)?);
+            Some(vs.map_or(vec![-1], |vs| vs.iter().flat_map(|v| v.iter()).map(|&x| i64::from(x)).collect()))
+        },
+    },
+    Mirror {
+        name: "d3d9.pointpixel",
+        lean: DRAW,
+        domain: Domain::Sampled("every binary32 of the 1/1024 grid over -64 .. 64 (the halves among them), the infinities, NaN, the ends of i64, and 300,000 random binary32"),
+        inputs: |each| {
+            for k in -65_536..=65_536i32 {
+                each(&[i64::from(to_f32(f64::from(k) / 1024.0).to_bits())]);
+            }
+            for b in [0x7f80_0000u32, 0xff80_0000, 0x7fc0_0000, 0x5f00_0000, 0xdf00_0000, 0x5eff_ffff, 0xdeff_ffff, 0x8000_0000] {
+                each(&[i64::from(b)]);
+            }
+            let mut rng = crate::rng::XorShift32::new(0xd4a3_0002);
+            for _ in 0..300_000 {
+                each(&[i64::from(rng.next())]);
+            }
+        },
+        model: |a| one(d3d9draw::point_pixel(bits32(a, 0)?, 0.0).0),
+    },
+    Mirror {
+        name: "d3d9.pack",
+        lean: DRAW,
+        domain: Domain::Sampled("every integer format number to 130, X written and not, 500 channel values each of any value of the channel's bits; the pixel as four 32-bit words, low first"),
+        inputs: |each| {
+            let mut rng = crate::rng::XorShift32::new(0xd4a3_0003);
+            for f in 0..=130u32 {
+                let Some(fm) = d3d9draw::format(f) else { continue };
+                if fm.kind != d3d9draw::Kind::Int {
+                    continue;
+                }
+                for xa in 0..2 {
+                    for _ in 0..500 {
+                        let mut v = vec![xa];
+                        for c in &fm.ch {
+                            let mask = 1u64.checked_shl(c.bits).map_or(u64::MAX, |m| m - 1);
+                            v.extend([i64::from(c.c), i64::from(c.shift), i64::try_from((u64::from(rng.next()) << 32 | u64::from(rng.next())) & mask).unwrap_or(0)]);
+                        }
+                        each(&v);
+                    }
+                }
+            }
+        },
+        model: |a| {
+            let rest = a.get(1..)?;
+            let mut ch = Vec::new();
+            let mut raws = Vec::new();
+            for t in rest.chunks_exact(3) {
+                ch.push(d3d9draw::Ch { c: arg(t, 0)?, shift: arg(t, 1)?, bits: 0 });
+                raws.push(arg(t, 2)?);
+            }
+            let w = d3d9draw::pack(&ch, &raws, arg::<i64>(a, 0)? != 0);
+            (0..4u32).map(|k| i64::try_from(w.checked_shr(32 * k)? & 0xffff_ffff).ok()).collect()
+        },
     },
 ];
 

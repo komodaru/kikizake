@@ -681,3 +681,11 @@ tests/wicimage_laws.rs::float2pixel_at_every_shift exhaustive WICIMAGE.ENCODE.LO
 tests/wicimage_laws.rs::the_last_value_of_a_name_is_encoded pbt WICIMAGE.ENCODE.OPTIONS
 tests/wicimage_laws.rs::a_refused_write_fails_whatever_follows pbt WICIMAGE.ENCODE.OPTION.FOREIGN
 tests/laws_dxtenc.rs::the_step_of_every_dot exhaustive D3DX9.LOAD.NEGFAULT
+spec/lean/Kikizake/D3d9/Draw.lean::strip lean D3D9.DRAW.ASSEMBLY
+spec/lean/Kikizake/D3d9/Draw.lean::fan lean D3D9.DRAW.ASSEMBLY
+spec/lean/Kikizake/D3d9/Draw.lean::list lean D3D9.DRAW.ASSEMBLY
+spec/lean/Kikizake/D3d9/Draw.lean::within lean D3D9.DRAW.ASSEMBLY
+spec/lean/Kikizake/D3d9/Draw.lean::stride_read lean D3D9.DRAW.STRIDE
+spec/lean/Kikizake/D3d9/Draw.lean::nearest_pixel lean D3D9.DRAW.POINTS
+spec/lean/Kikizake/D3d9/Draw.lean::xzero lean D3D9.DRAW.XZERO
+spec/lean/Kikizake/D3d9/Draw.lean::xzero_any lean D3D9.DRAW.XZERO

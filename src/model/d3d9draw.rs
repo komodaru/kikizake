@@ -309,11 +309,8 @@ pub fn encode(f: &Fmt, rgba: [f64; 4]) -> Vec<u8> {
 /// a pixel's bytes, the unused X bits the alpha (Clear) or 0 (a draw: MEASURED, d3d9draw
 /// blend-fmt-X8R8G8B8-*)
 pub fn encode_x(f: &Fmt, rgba: [f64; 4], x_alpha: bool) -> Vec<u8> {
-    let mut w: u128 = 0;
+    let mut raws = Vec::with_capacity(f.ch.len());
     for c in &f.ch {
-        if c.c == b'x' && !x_alpha {
-            continue;
-        }
         let v = match c.c {
             b'r' | b'l' | b'u' => rgba[0],
             b'g' | b'v' => rgba[1],
@@ -331,9 +328,15 @@ pub fn encode_x(f: &Fmt, rgba: [f64; 4], x_alpha: bool) -> Vec<u8> {
             }
             _ => unorm(v, c.bits),
         };
-        w |= (raw as u128) << c.shift;
+        raws.push(raw);
     }
-    w.to_le_bytes()[..f.bytes].to_vec()
+    pack(&f.ch, &raws, x_alpha).to_le_bytes()[..f.bytes].to_vec()
+}
+
+/// a pixel's channels' raw values put together at their shifts; the unused X bits 0 unless
+/// `x_alpha` (D3D9.DRAW.XZERO: a draw writes 0 there, Clear the alpha, D3D9.RT.UNORM)
+pub fn pack(ch: &[Ch], raws: &[u64], x_alpha: bool) -> u128 {
+    ch.iter().zip(raws).filter(|(c, _)| c.c != b'x' || x_alpha).fold(0, |w, (c, &r)| w | u128::from(r) << c.shift)
 }
 
 /// D3D9.RASTER.CLIP, RASTER.TOPLEFT: a screen coordinate snapped to 1/256 pixel, to nearest even
@@ -850,6 +853,53 @@ pub fn grad9(x: [f32; 3], y: [f32; 3], a: [f32; 3]) -> (f32, f32) {
 /// (x - x0) in that order, in f32
 pub fn at9(a0: f32, (dx, dy): (f32, f32), x0: f32, y0: f32, sx: f32, sy: f32) -> f32 {
     a0 + dy * (sy - y0) + dx * (sx - x0)
+}
+
+/// what a primitive type draws of nv vertices: lines (2 LINELIST, 3 LINESTRIP) or triangles,
+/// each with its first (flat shading) vertex first (D3D9.DRAW.ASSEMBLY: 4 TRIANGLELIST three
+/// vertices each, 5 TRIANGLESTRIP each next vertex with the two before, every other one turned to
+/// keep the winding, 6 TRIANGLEFAN each next pair with the first); None for the others
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Prims {
+    Segs(Vec<(usize, usize)>),
+    Tris(Vec<[usize; 3]>),
+}
+
+pub fn assemble(ty: u32, nv: usize) -> Option<Prims> {
+    Some(match ty {
+        2 => Prims::Segs((0..nv / 2).map(|i| (2 * i, 2 * i + 1)).collect()),
+        3 => Prims::Segs((0..nv.saturating_sub(1)).map(|i| (i, i + 1)).collect()),
+        4 | 5 | 6 => {
+            hit(clause::D3D9_DRAW_ASSEMBLY);
+            Prims::Tris(match ty {
+                4 => (0..nv / 3).map(|i| [3 * i, 3 * i + 1, 3 * i + 2]).collect(),
+                5 => (0..nv.saturating_sub(2)).map(|i| if i % 2 == 0 { [i, i + 1, i + 2] } else { [i, i + 2, i + 1] }).collect(),
+                _ => (0..nv.saturating_sub(2)).map(|i| [i + 1, i + 2, 0]).collect(),
+            })
+        }
+        _ => return None,
+    })
+}
+
+/// D3D9.DRAW.STRIDE: the words each of nv vertices is read from, out of DrawPrimitiveUP's: the
+/// stride the words' count over nv, each vertex's first `size` (the FVF's) words (MEASURED
+/// stride-*: the words past them unread); None for a stride short of the size, which the
+/// generators write none of
+pub fn vertex_words(words: &[u32], nv: usize, size: usize) -> Option<Vec<&[u32]>> {
+    let stride = words.len().checked_div(nv)?;
+    if stride < size || stride == 0 || words.len() % nv != 0 {
+        return None;
+    }
+    if stride > size {
+        hit(clause::D3D9_DRAW_STRIDE);
+    }
+    words.chunks(stride).map(|c| c.get(..size)).collect()
+}
+
+/// D3D9.DRAW.POINTS: the pixel a point lights, x and y each to the nearest pixel center, halves
+/// down: ceil(x - 0.5) in f32
+pub fn point_pixel(x: f32, y: f32) -> (i64, i64) {
+    ((x - 0.5).ceil() as i64, (y - 0.5).ceil() as i64)
 }
 
 /// D3D9.SHADE.FLAT, SHADE.GOURAUD: the colors a pixel takes, the first vertex's with flat
@@ -2280,17 +2330,9 @@ impl D3d9 {
             // their footprint from the 2 x 2 quad, D3D9.STAGE.PROJFOOT)
             hit(clause::D3D9_STAGE_PROJFOOT);
         }
-        let stride = words.len() / nv;
-        if stride < size {
-            // (the generators write no stride short of the FVF's size)
-            return Err(Fail::Bad);
-        }
-        if stride > size {
-            // (MEASURED stride-*: the vertices that far apart, the words past the FVF's unread)
-            hit(clause::D3D9_DRAW_STRIDE);
-        }
-        let vs: Vec<Vtx> = words
-            .chunks(stride)
+        let vs: Vec<Vtx> = vertex_words(words, nv, size)
+            .ok_or(Fail::Bad)?
+            .into_iter()
             .map(|w| {
                 let mut i = pos + (fvf >> 4 & 1) as usize * 3 + (fvf >> 5 & 1) as usize;
                 let mut take = |on: bool| {
@@ -2366,23 +2408,17 @@ impl D3d9 {
         if ty == 1 {
             return self.points(&vs);
         }
-        // the triangles, each with its first (flat shading) vertex first
-        let tris: Vec<[usize; 3]> = match ty {
-            4 => (0..nv / 3).map(|i| [3 * i, 3 * i + 1, 3 * i + 2]).collect(),
-            5 => (0..nv.saturating_sub(2)).map(|i| if i % 2 == 0 { [i, i + 1, i + 2] } else { [i, i + 2, i + 1] }).collect(),
-            6 => (0..nv.saturating_sub(2)).map(|i| [i + 1, i + 2, 0]).collect(),
-            2 | 3 => {
-                let segs: Vec<(usize, usize)> = if ty == 2 { (0..nv / 2).map(|i| (2 * i, 2 * i + 1)).collect() } else { (0..nv.saturating_sub(1)).map(|i| (i, i + 1)).collect() };
+        match assemble(ty, nv).ok_or(Fail::Bad)? {
+            Prims::Segs(segs) => {
                 for (i, j) in segs {
                     self.line(vs[i], vs[j])?;
                 }
-                return Ok(());
             }
-            _ => return Err(Fail::Bad),
-        };
-        hit(clause::D3D9_DRAW_ASSEMBLY);
-        for t in tris {
-            self.triangle(vs[t[0]], vs[t[1]], vs[t[2]])?;
+            Prims::Tris(tris) => {
+                for t in tris {
+                    self.triangle(vs[t[0]], vs[t[1]], vs[t[2]])?;
+                }
+            }
         }
         Ok(())
     }
@@ -2567,7 +2603,7 @@ impl D3d9 {
         hit(clause::D3D9_DRAW_POINTS);
         for v in vs {
             // (a point's attributes are its vertex's: nothing to divide by rhw)
-            let (x, y) = ((v.x - 0.5).ceil() as i64, (v.y - 0.5).ceil() as i64);
+            let (x, y) = point_pixel(v.x, v.y);
             if (0..w as i64).contains(&x) && (0..h as i64).contains(&y) {
                 self.pixel(x as i32, y as i32, v.z, v.diffuse, v.specular, v.uv.map(|t| [t[0] / t[2], t[1] / t[2]]))?;
             }
@@ -2859,6 +2895,7 @@ impl D3d9 {
         if fm.ch.iter().any(|c| c.c == b'x') {
             hit(clause::D3D9_DRAW_XZERO);
         }
+
         let px = encode_x(&fm, new, false);
         self.draw.rt.as_mut().ok_or(Fail::Empty)?.set(x, y, &px);
         Ok(())

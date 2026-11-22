@@ -25,6 +25,7 @@ import Kikizake.D3d9.Chain
 import Kikizake.D3d9.Decl
 import Kikizake.D3d9.Shade
 import Kikizake.D3d9.Clip
+import Kikizake.D3d9.Draw
 import Kikizake.D3d9.Blend
 import Kikizake.D3d9.Filter
 import Kikizake.Float

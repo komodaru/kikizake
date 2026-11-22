@@ -106,6 +106,10 @@ fn unconfined_uses_are_found() {
     // (the shading arithmetic only in grad9, plane10)
     let r = rust("src/model/d3d9draw.rs", "fn grad9(x: X) -> f32 { d1 * (y[2] - y[0]) }\nfn draw(&self) { let g = d1 * (y[2] - y[0]); }\n");
     assert!(r.len() == 1 && r[0].contains("in draw"), "{r:?}");
+    // (a point's pixel only in point_pixel, a pixel's packing only in pack)
+    let r = rust("src/model/d3d9draw.rs", "fn point_pixel(x: f32) -> i64 { (x - 0.5).ceil() as i64 }\nfn points(&self) { let px = (x - 0.5).ceil() as i64; }\n");
+    assert!(r.len() == 1 && r[0].contains("in points"), "{r:?}");
+    assert!(!rust("src/model/d3d9draw.rs", "fn encode_x(&self) { ch.iter().filter(|c| c.c != b'x' || x_alpha); }").is_empty());
     // (the FVF and the declaration only through set_fvf, set_decl)
     assert!(!rust("src/model/d3d9draw.rs", "fn op(&mut self) { self.draw.fvf = 0; }").is_empty());
     assert!(rust("src/model/d3d9draw.rs", "fn op(&mut self) { (self.draw.fvf, self.draw.decl, self.draw.decl_from) = set_decl(e); if self.draw.fvf == 0 {} }").is_empty());
