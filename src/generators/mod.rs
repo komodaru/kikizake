@@ -152,6 +152,12 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("d3d7bad37", d3d7::d3d7bad::<37>),
     ("d3d7bad38", d3d7::d3d7bad::<38>),
     ("d3d7bad39", d3d7::d3d7bad::<39>),
+    ("d3d7bad40", d3d7::d3d7bad::<40>),
+    ("d3d7bad41", d3d7::d3d7bad::<41>),
+    ("d3d7bad42", d3d7::d3d7bad::<42>),
+    ("d3d7bad43", d3d7::d3d7bad::<43>),
+    ("d3d7bad44", d3d7::d3d7bad::<44>),
+    ("d3d7bad45", d3d7::d3d7bad::<45>),
     ("d3d10draw", d3ddraw::d3d10draw),
     ("d3d11draw", d3ddraw::d3d11draw),
 ];

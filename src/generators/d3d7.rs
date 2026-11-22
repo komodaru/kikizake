@@ -346,14 +346,19 @@ fn badstate_case(v: u32, d: &str, name: &str, set: &str) -> String {
 
 /// a HAL state past its enumeration that may kill the executor, alone in its suite so that a
 /// death ends nothing else: RISKY[K % 5] on the HAL (K < 5) or the T&L HAL (K < 10), then
-/// RISKY2[(K − 10) % 15] on the HAL (K < 25) or the T&L HAL
+/// RISKY2[(K − 10) % 15] on the HAL (K < 25) or the T&L HAL (K < 40), then z functions 10, 13
+/// and 2^32 − 1 on the HAL (K < 43) or the T&L HAL
 pub fn d3d7bad<const K: usize>() -> String {
     let (name, set, d) = if K < 10 {
         let name = RISKY.get(K % 5).copied().unwrap_or("afunc0");
         (name, BADSTATE.iter().find(|b| b.0 == name).map_or("", |b| b.1), if K < 5 { "hal" } else { "tnl" })
-    } else {
+    } else if K < 40 {
         let (name, set) = RISKY2.get(K.wrapping_sub(10) % 15).copied().unwrap_or(("afunc10", ""));
         (name, set, if K < 25 { "hal" } else { "tnl" })
+    } else {
+        // (the HAL's z functions past 9: whether they wrap modulo 8 as 0 and 9 do)
+        let name = ["zfunc10", "zfunc13", "zfunc4294967295"].get(K.wrapping_sub(40) % 3).copied().unwrap_or("zfunc10");
+        (name, "", if K < 43 { "hal" } else { "tnl" })
     };
     format!("# kikizake suite d3d7bad{K}: one Direct3D 7 HAL state past its enumeration (SPEC.md). Made by `kikizake gen d3d7bad{K}`.\n# x86 only\n{}", badstate_case(7, d, name, set))
 }

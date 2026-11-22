@@ -939,17 +939,26 @@ impl States {
             (2, _) | (_, Some(Seen::Soft | Seen::Hal)) => false,
             (_, None) => return Err(other),
         };
-        let zfunc = Cmp::parse(st(Rs::ZFunc)).ok_or(other.clone())?;
+        // MEASURED (badstate-*-zfunc0, -zfunc9, d3d7bad23, 24, 38, 39): a z function past D3DCMP
+        // is the default LESSEQUAL on the software rasterizers and the ramp device; the HAL's
+        // (a Direct3D 9 driver interface) 0 compares as ALWAYS and 9 as NEVER
+        let zfunc = match (Cmp::parse(st(Rs::ZFunc)), seen, st(Rs::ZFunc)) {
+            (Some(f), _, _) => f,
+            (None, Some(Seen::Soft), _) => Cmp::LessEqual,
+            (None, Some(Seen::Hal), 0) => Cmp::Always,
+            (None, Some(Seen::Hal), 9) => Cmp::Never,
+            (None, Some(Seen::Hal) | None, _) => return Err(other),
+        };
         let alphatest = match st(Rs::AlphaTestEnable) {
             0 => None,
             _ => match (Cmp::parse(st(Rs::AlphaFunc)), seen, st(Rs::AlphaFunc)) {
                 (Some(f), _, _) => Some((f, st(Rs::AlphaRef) & 255)),
-                // MEASURED (badstate-*-afunc0, -afunc9): the software rasterizers and the ramp
-                // device test nothing; the HAL's and T&L HAL's executor dies drawing (d3d7bad0,
-                // 1, 5, 6: exit 127)
+                // MEASURED (badstate-*-afunc0, -afunc9, -afunc10, -afuncff): the software
+                // rasterizers and the ramp device test nothing; the HAL's and T&L HAL's executor
+                // dies drawing (d3d7bad0, 1, 5, 6, 10, 11, 25, 26: exit 127)
                 (None, Some(Seen::Soft), _) => None,
-                (None, Some(Seen::Hal), 0 | 9) => return Err(Fail::Crash),
-                (None, Some(Seen::Hal), _) | (None, None, _) => return Err(other),
+                (None, Some(Seen::Hal), _) => return Err(Fail::Crash),
+                (None, None, _) => return Err(other),
             },
         };
         let blend = match st(Rs::AlphaBlendEnable) {
@@ -958,14 +967,17 @@ impl States {
                 // MEASURED (badstate-*-src0, -src14, -dst14, every drawer): the software
                 // rasterizers and the ramp device take a factor past D3DBLEND as the default,
                 // ONE for the source and ZERO for the destination; the HAL (a Direct3D 9 driver
-                // interface) takes 14 as D3DBLEND_BLENDFACTOR, white by default: ONE, and its
-                // executor dies drawing with a source factor 0 (d3d7bad2, 7)
+                // interface) takes Direct3D 9's factors: 14 BLENDFACTOR and 15 INVBLENDFACTOR of the
+                // default white (ONE, ZERO), 16 SRCCOLOR2 and 17 INVSRCCOLOR2 of no second colour
+                // (ZERO, ONE), and its executor dies drawing with a factor 0 or past 17
+                // (d3d7bad2, 7, 12..22, 27..37)
                 let f = |s: Rs, dflt: Factor| match (Factor::parse(st(s)), seen, st(s)) {
                     (Some(f), _, _) => Ok(f),
                     (None, Some(Seen::Soft), _) => Ok(dflt),
-                    (None, Some(Seen::Hal), 14) => Ok(Factor::One),
-                    (None, Some(Seen::Hal), 0) if s == Rs::SrcBlend => Err(Fail::Crash),
-                    (None, Some(Seen::Hal) | None, _) => Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
+                    (None, Some(Seen::Hal), 14 | 17) => Ok(Factor::One),
+                    (None, Some(Seen::Hal), 15 | 16) => Ok(Factor::Zero),
+                    (None, Some(Seen::Hal), _) => Err(Fail::Crash),
+                    (None, None, _) => Err(Fail::Unmodeled(open::D3D7_STATES_OTHER)),
                 };
                 Some((f(Rs::SrcBlend, Factor::One)?, f(Rs::DestBlend, Factor::Zero)?))
             }
