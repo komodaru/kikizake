@@ -670,3 +670,6 @@ spec/lean/Kikizake/D3d11/Interp.lean::clamp_nan_range lean D3DRASTER.INTERP.DEPT
 spec/lean/Kikizake/D3d11/Interp.lean::vertex_depth_example lean D3DRASTER.INTERP.DEPTH
 spec/lean/Kikizake/D3d11/Interp.lean::made_least lean D3DRASTER.INTERP.CLIP
 spec/lean/Kikizake/D3d11/Interp.lean::line_example lean D3DRASTER.LINE.COLOR D3DRASTER.LINE.DEPTH
+tests/laws_dwrite_layout.rs::the_fallback_table_is_the_lookup exhaustive DW.FALLBACK.FONTS
+tests/laws_dwrite_layout.rs::the_fallback_pieces_for_every_short_text exhaustive DW.FALLBACK.MAP
+tests/laws_dwrite_layout.rs::fallback_layouts_take_each_fonts_metrics exhaustive DW.LAYOUT.FALLBACK
