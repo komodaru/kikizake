@@ -30213,4 +30213,501 @@ winfo 00000000 3 2 gray8 0.000 0.000
 wpixels 00000000 8
 d0acc2
 2c5b65
+case wmpturn-size-gray8-1x1
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 1 gray8 0.000 0.000
+wpixels 00000000 8
+82
+case wmpturn-size-gray8-1x2
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 1 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-1x3
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 1 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-1x4
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 4 1 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-1x5
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 5 1 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-1x6
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 6 1 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-2x1
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 2 gray8 0.000 0.000
+wpixels 00000000 8
+44
+6b
+case wmpturn-size-gray8-2x2
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 2 gray8 0.000 0.000
+wpixels 00000000 8
+0c65
+376a
+case wmpturn-size-gray8-2x3
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 2 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-2x4
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 4 2 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-2x5
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 5 2 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-2x6
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 6 2 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-3x1
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 3 gray8 0.000 0.000
+wpixels 00000000 8
+0e
+61
+62
+case wmpturn-size-gray8-3x2
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 3 gray8 0.000 0.000
+wpixels 00000000 8
+4b2f
+1760
+33a7
+case wmpturn-size-gray8-3x3
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 3 gray8 0.000 0.000
+wpixels 00000000 8
+a2024c
+bfdc63
+a0c0e0
+case wmpturn-size-gray8-3x4
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 4 3 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-3x5
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 5 3 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-3x6
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 6 3 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-4x1
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 4 gray8 0.000 0.000
+wpixels 00000000 8
+f1
+3c
+19
+ae
+case wmpturn-size-gray8-4x2
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 4 gray8 0.000 0.000
+wpixels 00000000 8
+d0d0
+7f3d
+3bdc
+3ae1
+case wmpturn-size-gray8-4x3
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 4 gray8 0.000 0.000
+wpixels 00000000 8
+482f37
+20eb3a
+cc819f
+526da4
+case wmpturn-size-gray8-4x4
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 4 4 gray8 0.000 0.000
+wpixels 00000000 8
+416dfe16
+39543b3b
+db079b5a
+8765dfeb
+case wmpturn-size-gray8-4x5
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 5 4 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-4x6
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 6 4 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-5x1
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 5 gray8 0.000 0.000
+wpixels 00000000 8
+bb
+36
+b2
+d2
+97
+case wmpturn-size-gray8-5x2
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 5 gray8 0.000 0.000
+wpixels 00000000 8
+509a
+9e37
+5b77
+3f9d
+f446
+case wmpturn-size-gray8-5x3
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 5 gray8 0.000 0.000
+wpixels 00000000 8
+5aa3f9
+0edd34
+2d5f30
+9530d4
+5bbb8d
+case wmpturn-size-gray8-5x4
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 4 5 gray8 0.000 0.000
+wpixels 00000000 8
+bc9173d8
+b339c735
+c5a7edf5
+723b159b
+76aecf5c
+case wmpturn-size-gray8-5x5
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 5 5 gray8 0.000 0.000
+wpixels 00000000 8
+30896ce73f
+855edd7d32
+c21f0fbab6
+b34ec5bade
+2e5debc5a3
+case wmpturn-size-gray8-5x6
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 6 5 gray8 0.000 0.000
+wpixels 88982f48 8
+case wmpturn-size-gray8-6x1
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 6 gray8 0.000 0.000
+wpixels 00000000 8
+7d
+30
+34
+d8
+b9
+c4
+case wmpturn-size-gray8-6x2
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 6 gray8 0.000 0.000
+wpixels 00000000 8
+3e5c
+be31
+b5f1
+8a97
+6d68
+d714
+case wmpturn-size-gray8-6x3
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 6 gray8 0.000 0.000
+wpixels 00000000 8
+2083e0
+d642cb
+8093e7
+fca8ce
+f3f32c
+384c11
+case wmpturn-size-gray8-6x4
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 4 6 gray8 0.000 0.000
+wpixels 00000000 8
+54aa99c1
+1978f0ca
+8475b622
+b24ddc81
+4efb38fd
+3e307bc1
+case wmpturn-size-gray8-6x5
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 5 6 gray8 0.000 0.000
+wpixels 00000000 8
+2df029daa2
+109bf2f4c9
+a63fbeb965
+8fe30293c8
+232f4c3936
+b3e8c77132
+case wmpturn-size-gray8-6x6
+wbits 00000000
+wencode 00000000 gray8 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 6 6 gray8 0.000 0.000
+wpixels 00000000 8
+44df61a3c083
+2e39825c46c8
+26030c4b9ca0
+fa6b5ab3e787
+46f8c444f2e7
+878da7cf46e2
+case wmpturn-size-bgra-1x1
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 1 bgra 0.000 0.000
+wpixels 00000000 32
+64cfe3c2
+case wmpturn-size-bgra-1x2
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 1 bgra 0.000 0.000
+wpixels 88982f48 32
+case wmpturn-size-bgra-1x3
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 1 bgra 0.000 0.000
+wpixels 88982f48 32
+case wmpturn-size-bgra-2x1
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 2 bgra 0.000 0.000
+wpixels 00000000 32
+07cca48b
+d3853915
+case wmpturn-size-bgra-2x2
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 2 bgra 0.000 0.000
+wpixels 00000000 32
+614d53c3e8c3ceb4
+e4844543a01d7f95
+case wmpturn-size-bgra-2x3
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 2 bgra 0.000 0.000
+wpixels 88982f48 32
+case wmpturn-size-bgra-3x1
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 3 bgra 0.000 0.000
+wpixels 00000000 32
+aac14cb2
+ba3e2623
+4b7699fe
+case wmpturn-size-bgra-3x2
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 3 bgra 0.000 0.000
+wpixels 00000000 32
+670e8e0c8bc089fd
+b0ea68496bee3c91
+9b5959846e0252c9
+case wmpturn-size-bgra-3x3
+wbits 00000000
+wencode 00000000 bgra ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 3 bgra 0.000 0.000
+wpixels 00000000 32
+65697911cff0cb396cc7cab8
+ff995a5c5d305462947a86c6
+9474fdaaab290a5cc108af2d
+case wmpturn-size-gray16-1x1
+wbits 00000000
+wencode 00000000 gray16 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 1 gray16 0.000 0.000
+wpixels 00000000 16
+4dc6
+case wmpturn-size-gray16-1x2
+wbits 00000000
+wencode 00000000 gray16 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 1 gray16 0.000 0.000
+wpixels 88982f48 16
+case wmpturn-size-gray16-1x3
+wbits 00000000
+wencode 00000000 gray16 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 1 gray16 0.000 0.000
+wpixels 88982f48 16
+case wmpturn-size-gray16-2x1
+wbits 00000000
+wencode 00000000 gray16 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 2 gray16 0.000 0.000
+wpixels 00000000 16
+d198
+3314
+case wmpturn-size-gray16-2x2
+wbits 00000000
+wencode 00000000 gray16 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 2 gray16 0.000 0.000
+wpixels 00000000 16
+98c5f099
+1f43f65b
+case wmpturn-size-gray16-2x3
+wbits 00000000
+wencode 00000000 gray16 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 2 gray16 0.000 0.000
+wpixels 88982f48 16
+case wmpturn-size-gray16-3x1
+wbits 00000000
+wencode 00000000 gray16 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 1 3 gray16 0.000 0.000
+wpixels 00000000 16
+b29b
+745d
+82e6
+case wmpturn-size-gray16-3x2
+wbits 00000000
+wencode 00000000 gray16 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 2 3 gray16 0.000 0.000
+wpixels 00000000 16
+fca2559c
+03c93718
+7cd37d72
+case wmpturn-size-gray16-3x3
+wbits 00000000
+wencode 00000000 gray16 ok
+wredecode 00000000 wmp frames 1
+wframe 00000000
+winfo 00000000 3 3 gray16 0.000 0.000
+wpixels 00000000 16
+e8afe610749d
+891f26bdf257
+397cb7e4aca2
 done
