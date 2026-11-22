@@ -37,6 +37,7 @@ pub mod rootsig;
 pub mod d3d12_features;
 pub mod dxgi_format;
 pub mod d3draster;
+pub mod d3drules;
 pub mod d3dres;
 pub mod bptc;
 pub mod d3dres_check;

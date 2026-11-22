@@ -13,6 +13,7 @@
 
 use crate::spec::{clause, open};
 use super::d3d11::{normalize, Kind};
+use super::d3drules::{self as rules, covers as tri_covers, sample_pattern, sample_sub, Pick, Topo, Verdict};
 use super::d3dres::{slot, texel, D3dres, Dev, Resource, View, E_INVALIDARG};
 use super::objects::Id;
 use super::dxgiconv::{decode_f, encode, encode_bits, to_unorm};
@@ -183,31 +184,38 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
             }
             let bound = |s: Option<super::objects::Slot<View>>, kind: u32| s.and_then(|v| m.views.id(v)).filter(|&i| m.views.get(i).is_ok_and(|x| x.kind == kind));
             let (target, depth) = (bound(r, 1), bound(ds, 2));
-            // (MEASURED, WARP: probe-rt-ms4-depth1, -depth1-prev; DXVK's ValidateRenderTargets: native
-            // D3D11 keeps the bound views when they are incompatible) a target and a depth view of
-            // other sample counts: on Direct3D 11 the call changes nothing, on Direct3D 10 the
-            // target is bound and no depth view
             let of = |v: Id<View>| m.views.get(v).ok().and_then(|x| m.res.get(x.res).ok().map(|r| (x, r)));
-            let samples = |v: Id<View>| of(v).map_or(1, |(_, r)| r.d.count.max(1));
-            let size = |dev: Dev, v: Id<View>| of(v).map(|(x, r)| r.size(r.mip_of(super::d3dres::view_subs(dev, x, r).first().copied().unwrap_or(0))));
-            let smaller = |dev: Dev, ds: Id<View>, rt: Id<View>| matches!((size(dev, ds), size(dev, rt)), (Some((dw, dh, _)), Some((w, h, _))) if dw < w || dh < h);
-            let depth = match (target, depth, dev) {
-                (Some(a), Some(b), Dev::D11(_)) if samples(a) != samples(b) => {
-                    hit(clause::D3DRASTER_MS_DEPTHCOUNT);
-                    return Ok(());
-                }
-                (Some(a), Some(b), Dev::D10) if samples(a) != samples(b) => {
-                    hit(clause::D3DRASTER_MS_DEPTHCOUNT);
-                    None
-                }
+            let bound = |v: Id<View>| rules::Bound {
+                samples: of(v).map_or(1, |(_, r)| r.d.count.max(1)),
+                size: of(v).map(|(x, r)| {
+                    let (w, h, _) = r.size(r.mip_of(super::d3dres::view_subs(dev, x, r).first().copied().unwrap_or(0)));
+                    (w, h)
+                }),
+            };
+            let api = match dev {
+                Dev::D11(_) => rules::Api::D11,
+                Dev::D10 => rules::Api::D10,
+                Dev::D101(_) => rules::Api::D101,
+            };
+            let (rt, ds) = (target.map(bound), depth.map(bound));
+            let differ = rt.zip(ds).is_some_and(|(a, b)| a.samples != b.samples);
+            let depth = match rules::bind_targets(api, rt, ds) {
+                // (MEASURED, WARP: probe-rt-ms4-depth1, -depth1-prev; DXVK's ValidateRenderTargets:
+                // native D3D11 keeps the bound views when they are incompatible) a target and a
+                // depth view of other sample counts: on Direct3D 11 the call changes nothing, on
+                // Direct3D 10 the target is bound and no depth view
                 // (MEASURED, WARP: probe-rt-dsv-small, -small-fail, probe-rt-ms4-dsv-small) a
                 // depth view narrower or shorter than the target: on Direct3D 11 the call changes
                 // nothing; on Direct3D 10 both are bound and the draw stays inside the depth view
-                (Some(a), Some(b), Dev::D11(_)) if smaller(dev, b, a) => {
-                    hit(clause::D3DRASTER_DEPTH_SMALL);
+                rules::Bind::Keep => {
+                    hit(if differ { clause::D3DRASTER_MS_DEPTHCOUNT } else { clause::D3DRASTER_DEPTH_SMALL });
                     return Ok(());
                 }
-                (_, depth, _) => depth,
+                rules::Bind::Set { depth: false } if differ => {
+                    hit(clause::D3DRASTER_MS_DEPTHCOUNT);
+                    None
+                }
+                rules::Bind::Set { depth: keep } => depth.filter(|_| keep),
             };
             d.target = target;
             d.depth = depth;
@@ -334,21 +342,10 @@ struct Vert {
     color: [f32; 4],
 }
 
-/// the components of an element written: each component of the format whose channel the
-/// mask names takes the new bits
+/// the components of an element written (D3DRASTER.WRITEMASK, rules::merge)
 fn merge(f: &Format, old: &[u8], new: &[u8], mask: u32) -> Vec<u8> {
-    let mut out = old.to_vec();
-    let mut at = 0;
-    for (i, &bits) in f.comps.iter().enumerate() {
-        if mask >> f.chans[i] & 1 == 1 {
-            for b in at..at + bits {
-                let (byte, bit) = ((b / 8) as usize, b % 8);
-                out[byte] = out[byte] & !(1 << bit) | new[byte] & (1 << bit);
-            }
-        }
-        at += bits;
-    }
-    out
+    let comps: Vec<(u32, u32)> = f.comps.iter().zip(f.chans).map(|(&b, &c)| (b, u32::from(c))).collect();
+    rules::merge(&comps, old, new, mask)
 }
 
 /// a depth (and stencil) written into one element of a depth format
@@ -462,31 +459,10 @@ fn blend(b: &[u32; 8], bf: [f32; 4], f: &Format, s: [f32; 4], dst: [f32; 4]) -> 
     Ok(o)
 }
 
-/// the address modes on a texel coordinate (in texels) of a size
+/// the address modes on a texel coordinate (in texels) of a size (rules::address)
 fn address(mode: u32, i: i64, size: i64) -> Option<i64> {
     hit(clause::D3DRASTER_ADDRESS);
-    Some(match mode {
-        1 => i.rem_euclid(size),
-        2 => {
-            let k = i.rem_euclid(2 * size);
-            if k < size {
-                k
-            } else {
-                2 * size - 1 - k
-            }
-        }
-        3 => i.clamp(0, size - 1),
-        4 => {
-            if i < 0 || i >= size {
-                return None;
-            }
-            i
-        }
-        _ => {
-            let k = if i < 0 { -1 - i } else { i };
-            k.min(size - 1)
-        }
-    })
+    rules::address(mode, i, size)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -496,40 +472,48 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     // (MEASURED: without programs and layout, or without a viewport, nothing is drawn,
     // probe-incomplete, probe-noviewport; without a target nor a depth view nothing is there to
     // draw to)
-    let (Some(vs), Some(ps), Some(_)) = (d.vs, d.ps, d.layout) else {
-        hit(clause::D3DRASTER_INCOMPLETE);
-        return Ok(());
-    };
-    // (MEASURED, WARP: probe-depth-alone) a depth view alone: the depth test and writes as
-    // with a target, the depth view in the target's place for the pixels drawn
-    let Some(tv) = d.target.or(d.depth) else {
-        hit(clause::D3DRASTER_INCOMPLETE);
-        return Ok(());
-    };
-    if d.target.is_none() {
-        hit(clause::D3DRASTER_DEPTH_ALONE);
-    }
-    let Some(vp) = d.viewport else {
-        hit(clause::D3DRASTER_NOVIEWPORT);
-        return Ok(());
-    };
-    let Some(topo) = Topo::of(top) else {
-        // (MEASURED, WARP: probe-topology-33, x86 and x86-64, Direct3D 10 and 11) a patch list
-        // with no hull and domain programs ends the executor (what it printed since its last
-        // flush, before the case's last tex line, is lost)
-        if (33..=64).contains(&top) {
+    // (MEASURED: without programs and layout, or without a viewport, nothing is drawn,
+    // probe-incomplete, probe-noviewport; without a target nor a depth view nothing is there to
+    // draw to)
+    // (MEASURED, WARP: probe-topology-33, x86 and x86-64, Direct3D 10 and 11) a patch list
+    // with no hull and domain programs ends the executor (what it printed since its last
+    // flush, before the case's last tex line, is lost)
+    // (MEASURED, WARP: probe-topology-0, -6 .. -9, -65, x86 and x86-64, Direct3D 10 and 11)
+    // a topology D3D11_PRIMITIVE_TOPOLOGY leaves undefined: 6 draws nothing; 0, 7, 8, 9 and
+    // past 64 remove the device (the next read fails with DXGI_ERROR_DEVICE_REMOVED)
+    let programs = d.vs.is_some() && d.ps.is_some() && d.layout.is_some();
+    let topo = match rules::draw_verdict(programs, d.target.or(d.depth).is_some(), d.viewport.is_some(), top) {
+        Verdict::Incomplete => {
+            hit(clause::D3DRASTER_INCOMPLETE);
+            return Ok(());
+        }
+        Verdict::NoViewport => {
+            hit(clause::D3DRASTER_NOVIEWPORT);
+            return Ok(());
+        }
+        Verdict::Crash => {
             hit(clause::D3DRASTER_PATCH);
             return Err(Fail::Crash);
         }
-        // (MEASURED, WARP: probe-topology-0, -6 .. -9, -65, x86 and x86-64, Direct3D 10 and 11)
-        // a topology D3D11_PRIMITIVE_TOPOLOGY leaves undefined: 6 draws nothing; 0, 7, 8, 9 and
-        // past 64 remove the device (the next read fails with DXGI_ERROR_DEVICE_REMOVED)
-        hit(clause::D3DRASTER_TOPOLOGY);
-        if top != 6 {
+        Verdict::Removed => {
+            hit(clause::D3DRASTER_TOPOLOGY);
             m.removed = true;
+            return Ok(());
         }
-        return Ok(());
+        Verdict::Nothing => {
+            hit(clause::D3DRASTER_TOPOLOGY);
+            return Ok(());
+        }
+        Verdict::Draw(t) => t,
     };
+    let (Some(vs), Some(ps), Some(tv), Some(vp)) = (d.vs, d.ps, d.target.or(d.depth), d.viewport) else {
+        return Err(Fail::Bad);
+    };
+    // (MEASURED, WARP: probe-depth-alone) a depth view alone: the depth test and writes as
+    // with a target, the depth view in the target's place for the pixels drawn
+    if d.target.is_none() {
+        hit(clause::D3DRASTER_DEPTH_ALONE);
+    }
     // (the views bound, whatever their slots hold since: the device holds them, and each view
     // its resource)
     let view = m.views.get(tv)?.clone();
@@ -593,10 +577,10 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     let fetch = |v: u32, i: u32| -> Res<Vert> {
         // (MEASURED: past the buffer the vertex reads zeros, probe-vb-past)
         let w = |k: u32| -> Res<f32> {
-            Ok(vtx.get((v * stride / 4 + k) as usize).map_or_else(|| {
+            if usize::try_from((v.wrapping_mul(stride) / 4).wrapping_add(k)).is_ok_and(|i| i >= vtx.len()) {
                 hit(clause::D3DRASTER_VBPAST);
-                0.0
-            }, |x| f32::from_bits(*x)))
+            }
+            Ok(f32::from_bits(rules::vertex_word(vtx, v, stride, k)))
         };
         let pos = [w(0)?, w(1)?, w(2)?, w(3)?];
         let color = match vs {
@@ -611,17 +595,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     // (a triangle wholly past the buffer reads zeros, a point at w = 0, and with a zero stride
     // all three vertices are one point: nothing drawn, so the draw stops there)
     let nv = u64::try_from(vtx.len()).unwrap_or(u64::MAX).saturating_mul(4).checked_div(u64::from(stride)).map_or(1, |n| n + 1);
-    let nprim = match topo {
-        Topo::Points => u64::from(count).min(nv),
-        Topo::Lines => u64::from(count / 2).min(nv.div_ceil(2)),
-        Topo::LineStrip => u64::from(count.saturating_sub(1)).min(nv),
-        Topo::Tris => u64::from(count / 3).min(nv.div_ceil(3)),
-        Topo::TriStrip => u64::from(count.saturating_sub(2)).min(nv),
-        Topo::LinesAdj => u64::from(count / 4).min(nv.div_ceil(4)),
-        Topo::LineStripAdj => u64::from(count.saturating_sub(3)).min(nv),
-        Topo::TrisAdj => u64::from(count / 6).min(nv.div_ceil(6)),
-        Topo::TriStripAdj => u64::from((count / 2).saturating_sub(2)).min(nv.div_ceil(2)),
-    };
+    let nprim = rules::prim_count(topo, count, nv);
     let nprim = u32::try_from(nprim).unwrap_or(u32::MAX);
     let tg = Target { dev, vp, size: (rw, rh), view: &view, fmt: rt_fmt, sub: rt_sub, dsv: dsv.as_ref(), samples };
     for i in 0..instances {
@@ -629,44 +603,23 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         // since whether a line's end lights its pixel depends on the lines after it)
         let mut segs: Vec<Seg> = Vec::new();
         for p in 0..nprim {
-            match topo {
-                Topo::Points => point(m, &d, &tg, ps, fetch(p, i)?, p)?,
-                Topo::Lines | Topo::LineStrip | Topo::LinesAdj | Topo::LineStripAdj => {
-                    // (MEASURED, WARP: probe-topology-10 to -13, D3DRASTER.ADJ) with adjacency and no geometry
-                    // program, the adjacent vertices are skipped: lines 4p + 1 to 4p + 2, and
-                    // p + 1 to p + 2
-                    if matches!(topo, Topo::LinesAdj | Topo::LineStripAdj) {
-                        hit(clause::D3DRASTER_ADJ);
-                    }
-                    let k = match topo {
-                        Topo::Lines => 2 * p,
-                        Topo::LinesAdj => 4 * p + 1,
-                        Topo::LineStripAdj => p + 1,
-                        _ => p,
-                    };
+            if matches!(topo, Topo::LinesAdj | Topo::LineStripAdj | Topo::TrisAdj) {
+                // (MEASURED, WARP: probe-topology-10 to -13) with adjacency and no geometry
+                // program, the adjacent vertices are skipped (rules::primitive)
+                hit(clause::D3DRASTER_ADJ);
+            }
+            match rules::primitive(topo, p).ok_or(Fail::Bad)? {
+                rules::Prim::Point(k) => point(m, &d, &tg, ps, fetch(k, i)?, p)?,
+                rules::Prim::Line(k, k1) => {
                     let a = fetch(k, i)?;
-                    segs.push(Seg { a, b: fetch(k + 1, i)?, lead: a, prim: p, front: true, clip: SegClip::Line });
+                    segs.push(Seg { a, b: fetch(k1, i)?, lead: a, prim: p, front: true, clip: SegClip::Line });
                 }
-                Topo::Tris | Topo::TriStrip | Topo::TrisAdj | Topo::TriStripAdj => {
+                rules::Prim::Tri(idx, lead) => {
                     // (strips: every other triangle's first two vertices swapped; the leading
                     // vertex first)
-                    // (MEASURED, WARP: probe-topology-12, -13) with adjacency and no geometry
-                    // program, the triangles of the even vertices: 6p, 6p + 2, 6p + 4, and the
-                    // strip of 0, 2, 4, ...
-                    let (idx, lead) = match topo {
-                        Topo::Tris => ([3 * p, 3 * p + 1, 3 * p + 2], 3 * p),
-                        Topo::TrisAdj => {
-                            hit(clause::D3DRASTER_ADJ);
-                            ([6 * p, 6 * p + 2, 6 * p + 4], 6 * p)
-                        }
-                        Topo::TriStripAdj if p % 2 == 0 => ([2 * p, 2 * p + 2, 2 * p + 4], 2 * p),
-                        Topo::TriStripAdj => ([2 * p + 2, 2 * p, 2 * p + 4], 2 * p),
-                        _ if p % 2 == 0 => ([p, p + 1, p + 2], p),
-                        _ => {
-                            hit(clause::D3DRASTER_STRIP);
-                            ([p + 1, p, p + 2], p)
-                        }
-                    };
+                    if topo == Topo::TriStrip && p % 2 == 1 {
+                        hit(clause::D3DRASTER_STRIP);
+                    }
                     let tri = [fetch(idx[0], i)?, fetch(idx[1], i)?, fetch(idx[2], i)?];
                     let leadv = fetch(lead, i)?;
                     triangle(m, dev, &d, vp, ps, &tri, leadv, p, (rw, rh), samples, &view, rt_fmt, rt_sub, dsv.as_ref(), &mut segs)?;
@@ -676,37 +629,6 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         lines(m, &d, &tg, ps, &segs)?;
     }
     Ok(())
-}
-
-/// the primitive topologies the model draws (D3D11_PRIMITIVE_TOPOLOGY 1 to 5, 10 to 13)
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Topo {
-    Points,
-    Lines,
-    LineStrip,
-    Tris,
-    TriStrip,
-    LinesAdj,
-    LineStripAdj,
-    TrisAdj,
-    TriStripAdj,
-}
-
-impl Topo {
-    fn of(top: u32) -> Option<Topo> {
-        match top {
-            1 => Some(Topo::Points),
-            2 => Some(Topo::Lines),
-            3 => Some(Topo::LineStrip),
-            4 => Some(Topo::Tris),
-            5 => Some(Topo::TriStrip),
-            10 => Some(Topo::LinesAdj),
-            11 => Some(Topo::LineStripAdj),
-            12 => Some(Topo::TrisAdj),
-            13 => Some(Topo::TriStripAdj),
-            _ => None,
-        }
-    }
 }
 
 /// what a primitive is drawn into
@@ -734,7 +656,7 @@ impl Target<'_> {
             && cx < vx + vw
             && cy >= vy
             && cy < vy + vh
-            && (d.rast[7] == 0 || px >= d.scissor[0] && px < d.scissor[2] && py >= d.scissor[1] && py < d.scissor[3])
+            && rules::scissor_holds(d.rast[7] != 0, d.scissor, (px, py))
     }
 
     /// a depth in the clip volume's [0, 1] onto the viewport's range
@@ -772,11 +694,6 @@ fn snap_even(v: f32) -> i64 {
 fn cvtss2si(v: f32) -> i32 {
     let r = f64::from(v).round_ties_even();
     if (-2147483648.0..2147483648.0).contains(&r) { r as i32 } else { i32::MIN }
-}
-
-/// a sample of pixel p, o/16 pixels off its center, in 1/256
-fn sample_sub(p: i64, o: i64) -> i64 {
-    p.saturating_mul(256).saturating_add(128).saturating_add(o.saturating_mul(16))
 }
 
 /// a sample offset of 1/16 pixels in pixels
@@ -878,10 +795,7 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) ->
                 if !tg.drawable(d, (px, py)) {
                     continue;
                 }
-                let mask: Vec<bool> = pattern.iter().map(|&(ox, oy)| {
-                    let (sx, sy) = (sample_sub(px, ox), sample_sub(py, oy));
-                    s.x - 128 <= sx && sx < s.x + 128 && s.y - 128 <= sy && sy < s.y + 128
-                }).collect();
+                let mask: Vec<bool> = pattern.iter().map(|&(ox, oy)| rules::point_covers((s.x, s.y), (sample_sub(px, ox), sample_sub(py, oy)))).collect();
                 if mask.contains(&true) {
                     // (MEASURED, WARP: probe-rt-ms4-points-pspos) each pixel shaded at its center
                     let out = prim_out(ps, v.color, (px, py), z, q[3], prim, true)?;
@@ -891,7 +805,7 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) ->
         }
         return Ok(());
     }
-    let px = ((s.x - 1).div_euclid(256), (s.y - 1).div_euclid(256));
+    let px = (rules::point_pixel(s.x), rules::point_pixel(s.y));
     if !tg.drawable(d, px) {
         return Ok(());
     }
@@ -996,42 +910,8 @@ impl LineMode {
     }
 }
 
-/// (MEASURED, WARP: probe-rt-ms2-edges, -ms4-, -ms8-, every pixel) the samples of a
-/// multisampled target (quality 0) are at D3D11_STANDARD_MULTISAMPLE_PATTERN's positions, in
-/// 1/16 pixel from the pixel center
-fn sample_pattern(n: u32) -> Option<&'static [(i64, i64)]> {
-    match n {
-        2 => Some(&[(4, 4), (-4, -4)]),
-        4 => Some(&[(-2, -6), (6, -2), (-6, 2), (2, 6)]),
-        8 => Some(&[(1, -3), (-1, 3), (5, 1), (-3, -5), (-5, 5), (-7, -1), (3, 7), (7, -7)]),
-        // (MEASURED, WARP: probe-rt-ms16)
-        16 => Some(&[(1, 1), (-1, -3), (-3, 2), (4, -1), (-5, -2), (2, 5), (5, 3), (3, -5), (-2, 6), (0, -7), (-4, -6), (-6, 4), (-8, 0), (7, -4), (6, 7), (-7, -8)]),
-        _ => None,
-    }
-}
-
 /// half the width of a multisample line, in pixels
 const QUAD_HALF: f32 = 0.7;
-
-/// c inside the triangle t (either winding) by the top-left rule, in 1/256 pixel, y down
-fn tri_covers(t: [(i64, i64); 3], c: (i64, i64)) -> bool {
-    let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| -> i128 {
-        let d = |p: i64, q: i64| i128::from(p) - i128::from(q);
-        d(b.0, a.0) * d(c.1, a.1) - d(b.1, a.1) * d(c.0, a.0)
-    };
-    let t = match cross(t[0], t[1], t[2]).signum() {
-        0 => return false,
-        1 => t,
-        _ => [t[0], t[2], t[1]],
-    };
-    // (a top edge runs right along y; a left edge goes up)
-    let top_left = |a: (i64, i64), b: (i64, i64)| a.1 == b.1 && b.0 > a.0 || b.1 < a.1;
-    (0..3).all(|e| {
-        let (a, b) = (t[e], t[(e + 1) % 3]);
-        let w = cross(a, b, c);
-        w > 0 || w == 0 && top_left(a, b)
-    })
-}
 
 /// the major axis of a line: x when |dx| >= |dy|
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -1468,7 +1348,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         let poly = clip_xy(tri.map(|v| v.pos));
         if poly.iter().all(|q| q[3] > 0.0) {
             let q: Vec<Sub> = poly.iter().map(|q| snapped(vp, q)).collect();
-            let area = |a: Sub, b: Sub, c: Sub| (i128::from(b.x) - i128::from(a.x)) * (i128::from(c.y) - i128::from(a.y)) - (i128::from(b.y) - i128::from(a.y)) * (i128::from(c.x) - i128::from(a.x));
+            let area = |a: Sub, b: Sub, c: Sub| rules::area((a.x, a.y), (b.x, b.y), (c.x, c.y));
             if (1..q.len().saturating_sub(1)).all(|i| area(q[0], q[i], q[i + 1]) == 0) {
                 hit(clause::D3DRASTER_CLIPW_AWAY);
                 return Ok(());
@@ -1489,7 +1369,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             for py in 0..i64::from(rh) {
                 for px in 0..i64::from(rw) {
                     let (cx, cy) = (center_of(px), center_of(py));
-                    if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh || !(d.rast[7] == 0 || px >= d.scissor[0] && px < d.scissor[2] && py >= d.scissor[1] && py < d.scissor[3]) {
+                    if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh || !rules::scissor_holds(d.rast[7] != 0, d.scissor, (px, py)) {
                         continue;
                     }
                     let c = (sample_sub(px, 0), sample_sub(py, 0));
@@ -1508,10 +1388,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         let Some(poly) = clip_tri(tri, d.rast[6] != 0) else {
             return Ok(());
         };
-        let culled = |cw: bool| {
-            let front = cw != (d.rast[2] != 0);
-            d.rast[1] == 2 && front || d.rast[1] == 3 && !front
-        };
+        let culled = |cw: bool| rules::culls(d.rast[1], d.rast[2] != 0, cw);
         let pieces: Vec<([(i64, i64); 3], Planes, bool)> = clip_pieces(&poly, vp, d.rast[6] != 0).into_iter().filter(|(_, _, cw)| !culled(*cw)).collect();
         // (MEASURED, WARP: probe-clip-w-wire, every value) wireframe: the clipped polygon's
         // edges but those along a clip plane, as lines from the vertices the clipping gives,
@@ -1537,7 +1414,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         for py in 0..i64::from(rh) {
             for px in 0..i64::from(rw) {
                 let (cx, cy) = (center_of(px), center_of(py));
-                if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh || !(d.rast[7] == 0 || px >= d.scissor[0] && px < d.scissor[2] && py >= d.scissor[1] && py < d.scissor[3]) {
+                if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh || !rules::scissor_holds(d.rast[7] != 0, d.scissor, (px, py)) {
                     continue;
                 }
                 let c = (sample_sub(px, 0), sample_sub(py, 0));
@@ -1593,11 +1470,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         (snap(x), snap(y))
     };
     let p: Vec<(i64, i64)> = tri.iter().map(|v| snap2(&v.pos)).collect();
-    let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| -> i128 {
-        let d = |p: i64, q: i64| i128::from(p) - i128::from(q);
-        d(b.0, a.0) * d(c.1, a.1) - d(b.1, a.1) * d(c.0, a.0)
-    };
-    let area = cross(p[0], p[1], p[2]);
+    let area = rules::area(p[0], p[1], p[2]);
     if area == 0 {
         hit(clause::D3DRASTER_DEGENERATE);
         return Ok(());
@@ -1606,7 +1479,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let cw = area > 0;
     let front = cw != (d.rast[2] != 0);
     hit(clause::D3DRASTER_CULL);
-    if d.rast[1] == 2 && front || d.rast[1] == 3 && !front {
+    if rules::culls(d.rast[1], d.rast[2] != 0, cw) {
         return Ok(());
     }
     // (MEASURED, WARP: probe-wire-*, probe-wireframe) wireframe: the triangle's edges as
@@ -1621,10 +1494,6 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         return Ok(());
     }
     let v = if cw { [p[0], p[1], p[2]] } else { [p[0], p[2], p[1]] };
-    let top_left = |a: (i64, i64), b: (i64, i64)| {
-        let (dx, dy) = (b.0 - a.0, b.1 - a.1);
-        dy < 0 || dy == 0 && dx > 0
-    };
     // (MEASURED, WARP: a triangle reaching past the viewport is clipped to it first, in clip
     // space, and the pieces' new vertices snapped as any other, tri-2: so an edge moves by up
     // to the snapping of its new end)
@@ -1675,6 +1544,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     let mut y0 = 0i64.max(edge(vy).saturating_sub(1));
     let mut x1 = i64::from(rw).min(edge(vx + vw).saturating_add(1));
     let mut y1 = i64::from(rh).min(edge(vy + vh).saturating_add(1));
+    // (the scissor rectangle bounds the pixels asked, each then tested by rules::scissor_holds)
     if d.rast[7] != 0 {
         hit(clause::D3DRASTER_SCISSOR);
         x0 = x0.max(d.scissor[0]);
@@ -1685,18 +1555,10 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     for py in y0..y1 {
         for px in x0..x1 {
             let (cx, cy) = (center_of(px), center_of(py));
-            if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh {
+            if cx < vx || cx >= vx + vw || cy < vy || cy >= vy + vh || !rules::scissor_holds(d.rast[7] != 0, d.scissor, (px, py)) {
                 continue;
             }
-            let covering = |c: (i64, i64)| {
-                pieces.iter().find(|(t, _)| {
-                    (0..3).all(|e| {
-                        let (a, b) = (t[e], t[(e + 1) % 3]);
-                        let w = cross(a, b, c);
-                        w > 0 || w == 0 && top_left(a, b)
-                    })
-                })
-            };
+            let covering = |c: (i64, i64)| pieces.iter().find(|(t, _)| tri_covers(*t, c));
             let inside = |c: (i64, i64)| covering(c).is_some();
             // the planes there: the whole triangle's, or the covering piece's
             let here = |c: (i64, i64)| planes.as_ref().or_else(|| covering(c).and_then(|(_, p)| p.as_ref()));
@@ -1918,13 +1780,6 @@ enum Reduction {
     Maximum,
 }
 
-/// the least or the greatest of the texels a filter takes
-#[derive(Clone, Copy, PartialEq, Debug)]
-enum Pick {
-    Least,
-    Greatest,
-}
-
 impl Reduction {
     fn of(f: u32) -> Reduction {
         match (f >> 7 & 1 != 0, f >> 8 & 1 != 0) {
@@ -1947,13 +1802,9 @@ impl Reduction {
 /// (MEASURED, WARP: probe-sample-min, -max) a minimum or maximum filter: per component the
 /// least or greatest of the 2 x 2 texels (a, b on the upper row, c, e on the lower) whose
 /// weight is not 0 (the weights fu, fv in 1/256)
-fn reduce(pick: Pick, [a, b, c, e]: [[f32; 4]; 4], (wu, wv): (i64, i64)) -> [f32; 4] {
+fn reduce(pick: Pick, t: [[f32; 4]; 4], w: (i64, i64)) -> [f32; 4] {
     hit(clause::D3DRASTER_FILTER_MINMAX);
-    let taken: Vec<[f32; 4]> = [(a, true, true), (b, wu != 0, true), (c, true, wv != 0), (e, wu != 0, wv != 0)].into_iter().filter(|&(_, u, v)| u && v).map(|(t, _, _)| t).collect();
-    [0, 1, 2, 3].map(|k| taken.iter().map(|t| t[k]).reduce(|x, y| match pick {
-        Pick::Least => x.min(y),
-        Pick::Greatest => x.max(y),
-    }).unwrap_or(0.0))
+    rules::reduce(pick, t, w)
 }
 
 /// the filters of D3D11_FILTER the model samples with: point or linear for minifying and for
@@ -2222,10 +2073,7 @@ fn clip_tri(tri: &[Vert; 3], zclip: bool) -> Option<Vec<ClipVert>> {
 fn clip_pieces(poly: &[ClipVert], vp: [f32; 6], zclip: bool) -> Vec<([(i64, i64); 3], Planes, bool)> {
     hit(clause::D3DRASTER_INTERP_CLIP);
     let [_, _, _, _, minz, maxz] = vp;
-    let cross = |a: (i64, i64), b: (i64, i64), c: (i64, i64)| -> i128 {
-        let d = |p: i64, q: i64| i128::from(p) - i128::from(q);
-        d(b.0, a.0) * d(c.1, a.1) - d(b.1, a.1) * d(c.0, a.0)
-    };
+    let cross = rules::area;
     let at: Vec<((i64, i64), f32, f32)> = poly
         .iter()
         .map(|c| {
@@ -2547,16 +2395,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                                 None => t,
                                 Some((reference, func)) => {
                                     let a = f32::from_bits(t[0]);
-                                    let pass = match func {
-                                        2 => reference < a,
-                                        3 => reference == a,
-                                        4 => reference <= a,
-                                        5 => reference > a,
-                                        6 => reference != a,
-                                        7 => reference >= a,
-                                        8 => true,
-                                        _ => false,
-                                    };
+                                    let pass = rules::compare(func, reference, a);
                                     [if pass { 1.0f32 } else { 0.0 }.to_bits(); 4]
                                 }
                             })
@@ -2617,11 +2456,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     let w = |t: [i64; 4]| t.map(|n| n as f32);
                     return Ok(Filtered::Fixed(reduce(pick, [w(a), w(b), w(c), w(e)], (wu, wv)).map(|n| n as i64 * 128)));
                 }
-                Ok(Filtered::Fixed([0, 1, 2, 3].map(|k| {
-                    let l = (a[k] * (256 - wv) + c[k] * wv) >> 1;
-                    let r = (b[k] * (256 - wv) + e[k] * wv) >> 1;
-                    (l * (256 - wu) + r * wu) >> 8
-                })))
+                Ok(Filtered::Fixed([0, 1, 2, 3].map(|k| rules::bilinear8(a[k], b[k], c[k], e[k], wu, wv))))
             };
             let done = |t: Filtered| match t {
                 Filtered::Point(t) => t,
@@ -2654,7 +2489,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     }
                 }
                 Level::Two(l, f) => match (one(l)?, one(l + 1)?) {
-                    (Filtered::Fixed(a), Filtered::Fixed(b)) => mip_linear(done(Filtered::Fixed(zip4(a, b, |a, b| (a * (256 - f) + b * f) >> 8)))),
+                    (Filtered::Fixed(a), Filtered::Fixed(b)) => mip_linear(done(Filtered::Fixed(zip4(a, b, |a, b| rules::mip8(a, b, f))))),
                     (Filtered::Wide(a), Filtered::Wide(b)) => mip_linear(done(Filtered::Wide(zip4(a, b, |a, b| lerp_sse(a, b, pixels(f)))))),
                     (Filtered::Point(a), Filtered::Point(b)) => {
                         let (a, b) = (a.map(f32::from_bits), b.map(f32::from_bits));
@@ -2691,16 +2526,7 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
             // (only a triangle with a vertex at w <= 0 comes without depth, and with no depth view)
             let z = z.ok_or(Fail::Bad)?;
             let (a, s) = (quantized_depth(df, z), stored_depth(df, e));
-            let pass = match d.depthst[2] {
-                1 => false,
-                2 => a < s,
-                3 => a == s,
-                4 => a <= s,
-                5 => a > s,
-                6 => a != s,
-                7 => a >= s,
-                _ => true,
-            };
+            let pass = rules::compare(d.depthst[2], a, s);
             if !pass {
                 return Ok(());
             }

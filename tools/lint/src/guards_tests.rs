@@ -197,3 +197,13 @@ fn optimize_rgb_testing_the_dot_below_zero_is_found() {
     // (the alpha fit and the indices of encode_bc1 do test it)
     assert!(rust("src/model/dxtenc.rs", "fn optimize_alpha() { let i = if dot <= F::of(0.0) { 0 } else { t }; }").is_empty());
 }
+
+#[test]
+fn d3d11_rules_stay_in_the_mirrored_functions() {
+    let inlined = "fn tri() {\n    if d.rast[1] == 2 && front {}\n    let top_left = |a, b| a;\n    let pass = match f { 2 => a < s, _ => true };\n    let l = (a * (256 - wv) + c * wv) >> 1;\n}\n";
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: culling, the scissor test")).count(), 4, "{r:?}");
+    let point = "fn point() {\n    let px = ((s.x - 1).div_euclid(256), 0);\n    if px >= d.scissor[0] {}\n}\n";
+    assert_eq!(rust("src/model/d3draster.rs", point).iter().filter(|b| b.contains("forbidden: culling, the scissor test")).count(), 2);
+    assert!(rust("src/model/d3draster.rs", "fn tri() { if rules::culls(d.rast[1], d.rast[2] != 0, cw) {} let px = (rules::point_pixel(s.x), 0); }").is_empty());
+}

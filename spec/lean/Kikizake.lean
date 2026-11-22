@@ -13,3 +13,6 @@ import Kikizake.D3d9.Pixel
 import Kikizake.D3d9.Raster
 import Kikizake.D3d9.Fvf
 import Kikizake.DWrite.Advance
+import Kikizake.D3d11.Raster
+import Kikizake.D3d11.Draw
+import Kikizake.D3d11.Texture

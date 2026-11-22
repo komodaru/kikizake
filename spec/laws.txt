@@ -403,3 +403,26 @@ tests/laws_opengl.rs::color_forms_act_as_their_float_form pbt GL.VARIANTS
 tests/laws_opengl.rs::raster_positions_read_back_near_where_given pbt GL.VARIANTS
 tests/laws_opengl.rs::smooth_triangles_behind_the_eye_cull_one_face pbt GL.POLYGON.SMOOTH
 tests/laws_dd.rs::ramp_line_clip_stays_on_the_segment pbt D3D7.LINE
+spec/lean/Kikizake/D3d11/Raster.lean::shared_edge lean D3DRASTER.TOPLEFT
+spec/lean/Kikizake/D3d11/Raster.lean::covers_turn lean D3DRASTER.TOPLEFT D3DRASTER.CULL
+spec/lean/Kikizake/D3d11/Raster.lean::degenerate lean D3DRASTER.DEGENERATE
+spec/lean/Kikizake/D3d11/Raster.lean::cull_modes lean D3DRASTER.CULL
+spec/lean/Kikizake/D3d11/Raster.lean::scissor_rect lean D3DRASTER.SCISSOR
+spec/lean/Kikizake/D3d11/Raster.lean::point_pixel lean D3DRASTER.POINT
+spec/lean/Kikizake/D3d11/Raster.lean::point_square lean D3DRASTER.MS.POINTS
+spec/lean/Kikizake/D3d11/Raster.lean::pattern_samples lean D3DRASTER.MS.SAMPLES
+spec/lean/Kikizake/D3d11/Raster.lean::mask_shared lean D3DRASTER.MS.SAMPLES D3DRASTER.TOPLEFT
+spec/lean/Kikizake/D3d11/Draw.lean::incomplete lean D3DRASTER.INCOMPLETE D3DRASTER.NOVIEWPORT
+spec/lean/Kikizake/D3d11/Draw.lean::topology lean D3DRASTER.TOPOLOGY D3DRASTER.PATCH
+spec/lean/Kikizake/D3d11/Draw.lean::strip lean D3DRASTER.STRIP
+spec/lean/Kikizake/D3d11/Draw.lean::adjacency lean D3DRASTER.ADJ
+spec/lean/Kikizake/D3d11/Draw.lean::prims_inside lean D3DRASTER.ADJ D3DRASTER.STRIP
+spec/lean/Kikizake/D3d11/Draw.lean::vb_past lean D3DRASTER.VBPAST
+spec/lean/Kikizake/D3d11/Draw.lean::depth_count lean D3DRASTER.MS.DEPTHCOUNT
+spec/lean/Kikizake/D3d11/Draw.lean::depth_small lean D3DRASTER.DEPTH.SMALL
+spec/lean/Kikizake/D3d11/Texture.lean::address_inside lean D3DRASTER.ADDRESS D3DRASTER.BORDER
+spec/lean/Kikizake/D3d11/Texture.lean::address_modes lean D3DRASTER.ADDRESS
+spec/lean/Kikizake/D3d11/Texture.lean::cmp_pairs lean D3DRASTER.DEPTH D3DRASTER.SAMPLE.CMP
+spec/lean/Kikizake/D3d11/Texture.lean::bilinear8_range lean D3DRASTER.FILTER.LINEAR
+spec/lean/Kikizake/D3d11/Texture.lean::mip8_range lean D3DRASTER.FILTER.MIPLINEAR
+spec/lean/Kikizake/D3d11/Texture.lean::reduce_picks lean D3DRASTER.FILTER.MINMAX
