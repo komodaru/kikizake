@@ -87,6 +87,10 @@ impl Sample64 {
         let Some(span) = Span::of(lo, hi) else { return lo };
         span.at(lo, self.next())
     }
+    /// a byte (a draw's top 8 bits)
+    pub fn byte(&mut self) -> u8 {
+        u8::try_from(self.next() >> 56).unwrap_or(u8::MAX)
+    }
     /// 32 bits (a draw's high half)
     pub fn word(&mut self) -> u32 {
         u32::try_from(self.next() >> 32).unwrap_or(0)

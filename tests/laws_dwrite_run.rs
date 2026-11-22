@@ -1,6 +1,8 @@
 //! IDWriteGlyphRunAnalysis' runs (spec/dwrite.txt DW.RUN.EMPTY, FIT, PEN, TEXTURE) and
 //! GetGdiCompatibleMetrics' rounding (DW.GDI.METRICS), each over the whole domain it names
 //! (kind exhaustive).
+mod pairs;
+use pairs::zip_eq;
 use kikizake::generators::dwrite::font;
 use kikizake::model::dwrite::gdi_round;
 use kikizake::ttf::parse;
@@ -138,7 +140,7 @@ fn the_pen_moves_by_each_advance() {
                 }
             }
             let out = runs(&run(seed, &lines));
-            for (c, at) in out.chunks(3).zip(idx) {
+            for (c, at) in zip_eq(out.chunks(3), idx) {
                 let both: std::collections::BTreeSet<_> = lit(&c[1]).union(&lit(&c[2])).copied().collect();
                 assert_eq!(lit(&c[0]), both, "{seed} {em} {at:?}");
             }

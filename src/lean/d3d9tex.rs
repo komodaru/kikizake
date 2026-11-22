@@ -300,16 +300,16 @@ pub static MIRRORS: &[Mirror] = &[
         lean: BLEND,
         domain: Domain::Sampled("every SRCBLEND and DESTBLEND 0..16 by BLENDOP 0..7 and 0xffffffff, separate alpha on and off, on random channels; 400,000 samples of those with every alpha state; channels of f32 in -0.5..1.5, 0, -0, 1, NaN, infinities and any f32 bits"),
         inputs: |each| {
-            let mut rng = crate::rng::XorShift32::new(0xb1e0_d009);
+            let mut rng = crate::rng::Sample64::new(0xb1e0_d009);
             let special = [0.0f32, -0.0, 1.0, 0.5, f32::NAN, f32::INFINITY, f32::NEG_INFINITY, 2.0, -1.0];
-            let chan = |rng: &mut crate::rng::XorShift32| -> f64 {
+            let chan = |rng: &mut crate::rng::Sample64| -> f64 {
                 f64::from(match rng.range(0, 3) {
                     0 => special.get(usize::try_from(rng.range(0, 8)).unwrap_or(0)).copied().unwrap_or(0.0),
-                    1 => f32::from_bits(rng.next()),
+                    1 => f32::from_bits(rng.word()),
                     _ => -0.5 + 2.0 * (f32::from(u16::try_from(rng.range(0, 0xffff)).unwrap_or(0)) / 65535.0),
                 })
             };
-            let mut send = |st: [i64; 8], rng: &mut crate::rng::XorShift32| {
+            let mut send = |st: [i64; 8], rng: &mut crate::rng::Sample64| {
                 let mut w: Vec<i64> = (0..8).flat_map(|_| f64_halves(chan(rng))).collect();
                 w.extend(st);
                 each(&w);

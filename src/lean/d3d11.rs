@@ -702,7 +702,7 @@ pub static MERGE_MIRRORS: &[Mirror] = &[Mirror {
     lean: MERGE,
     domain: Domain::Sampled("every DXGI format's components with every mask 0..15 (and 16, 0xffffffff) over 40 pairs of elements each: zeros, ones, alternating bits, any bytes"),
     inputs: |each| {
-        let mut rng = crate::rng::XorShift32::new(0x3e26_d311);
+        let mut rng = crate::rng::Sample64::new(0x3e26_d311);
         for id in 0..=200u32 {
             let Some(f) = crate::model::dxgifmt::format(id) else { continue };
             let bits: u32 = f.comps.iter().sum();
@@ -715,7 +715,7 @@ pub static MERGE_MIRRORS: &[Mirror] = &[Mirror {
                         v.extend([i64::from(b), i64::from(c)]);
                     }
                     v.push(i64::from(len));
-                    let byte = |rng: &mut crate::rng::XorShift32| match k {
+                    let byte = |rng: &mut crate::rng::Sample64| match k {
                         0 => 0,
                         1 => 0xff,
                         2 => 0x55,
