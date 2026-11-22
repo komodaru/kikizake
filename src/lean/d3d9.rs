@@ -8,6 +8,7 @@ const RASTER: &str = "spec/lean/Kikizake/D3d9/Raster.lean";
 const FVF: &str = "spec/lean/Kikizake/D3d9/Fvf.lean";
 const STAGE: &str = "spec/lean/Kikizake/D3d9/Stage.lean";
 const FOG: &str = "spec/lean/Kikizake/D3d9/Fog.lean";
+const ARG: &str = "spec/lean/Kikizake/D3d9/Arg.lean";
 const U32: i64 = 0xffff_ffff;
 
 pub static MIRRORS: &[Mirror] = &[
@@ -349,6 +350,50 @@ pub static MIRRORS: &[Mirror] = &[
             let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
             let v = d3d9draw::fog_blend(f(0)?, f(1)?, f(2)?);
             one(if v.is_nan() { 0x7fc0_0000 } else { i64::from(v.to_bits()) })
+        },
+    },
+    Mirror {
+        name: "d3d9.arg",
+        lean: ARG,
+        domain: Domain::Sampled("every selector and modifier 0..0x7f on both runtimes with a texture and without, on random 8-bit registers, and 300,000 samples of selectors 0..0x7f, registers of any f32 in 0..1, 32-bit TEXTUREFACTOR and CONSTANT"),
+        inputs: |each| {
+            let mut rng = crate::rng::XorShift32::new(0xa7a9_d009);
+            let mut send = |a: i64, v8: i64, has: i64, unit: &mut dyn FnMut() -> f64, rng: &mut crate::rng::XorShift32| {
+                let mut w = vec![a, v8];
+                for _ in 0..16 {
+                    w.extend(f64_halves(unit()));
+                }
+                w.push(has);
+                for _ in 0..4 {
+                    w.extend(f64_halves(unit()));
+                }
+                w.push(rng.range(0, U32));
+                w.push(rng.range(0, U32));
+                each(&w);
+            };
+            let mut r2 = crate::rng::XorShift32::new(0xa7aa_d009);
+            for a in 0..0x80 {
+                for v8 in 0..2 {
+                    for has in 0..2 {
+                        let mut unit = || byte64(r2.range(0, 255));
+                        send(a, v8, has, &mut unit, &mut rng);
+                    }
+                }
+            }
+            let mut r3 = crate::rng::XorShift32::new(0xa7ab_d009);
+            for _ in 0..300_000 {
+                let (a, v8, has) = (rng.range(0, 0x7f), rng.range(0, 1), rng.range(0, 1));
+                let mut unit = || f32w(r3.range(0, 0x3f80_0000));
+                send(a, v8, has, &mut unit, &mut rng);
+            }
+        },
+        model: |a| {
+            let c4 = |i: usize| -> Option<[f64; 4]> { Some([arg_f64(a, i)?, arg_f64(a, i.checked_add(2)?)?, arg_f64(a, i.checked_add(4)?)?, arg_f64(a, i.checked_add(6)?)?]) };
+            let r = d3d9draw::ArgRegs { diffuse: c4(2)?, current: c4(10)?, specular: c4(18)?, temp: c4(26)?, tex: if arg::<u8>(a, 34)? != 0 { Some(c4(35)?) } else { None }, factor: arg(a, 43)?, constant: arg(a, 44)? };
+            Some(match d3d9draw::stage_arg(arg(a, 0)?, &r, arg::<u8>(a, 1)? != 0) {
+                Ok(v) => v.iter().flat_map(|&x| f64_halves(x)).collect(),
+                Err(_) => vec![],
+            })
         },
     },
 ];

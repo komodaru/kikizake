@@ -516,3 +516,6 @@ spec/lean/Kikizake/D3d9/DeclFvf.lean::stream_or_offset_unpacked lean D3DX9.DECLF
 spec/lean/Kikizake/D3d9/DeclFvf.lean::out_of_turn_refused lean D3DX9.DECLFVF.INVALID
 spec/lean/Kikizake/D3d9/DeclFvf.lean::tex_refusal_refused lean D3DX9.DECLFVF.INVALID
 spec/lean/Kikizake/D3d9/DeclFvf.lean::refused_examples lean D3DX9.DECLFVF.INVALID
+spec/lean/Kikizake/D3d9/Arg.lean::no_texture lean D3D9.STAGE.NOTEX
+spec/lean/Kikizake/D3d9/Arg.lean::temp_constant lean D3D9.STAGE.ARG
+spec/lean/Kikizake/D3d9/Arg.lean::modifiers lean D3D9.STAGE.ARG

@@ -181,7 +181,9 @@ pub fn check(exe: &str, only: Option<&str>) -> Result<Vec<Report>, String> {
             };
             r.calls = r.calls.saturating_add(1);
             let want = answer(m, a);
-            if got != want {
+            // (a mirror's inputs are its domain: an answer of neither side is a malformed input,
+            // which would hide every difference)
+            if got != want || want == "outside" {
                 differ = differ.saturating_add(1);
                 if r.differ.len() < 5 {
                     r.differ.push(format!("{}: lean {got}, model {want}", line(m.name, a)));

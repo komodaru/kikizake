@@ -42,6 +42,9 @@ use crate::code::{code_only, line_of};
 pub const CONFINED: &[(&str, &str, &[&str])] = &[
     ("src/model/ddraw.rs", r"\.px\[", &["get", "pixel", "set", "put"]),
     ("src/model/d3dx9.rs", r"\bf16_(sse|one|x64|x64_tail)\s*\(", &["half"]),
+    // (a stage argument's selector and modifiers are stage_arg's, which the Lean mirror d3d9.arg
+    // holds to spec/lean/Kikizake/D3d9/Arg.lean)
+    ("src/model/d3d9draw.rs", r"\[v\[3\];\s*4\]|D3D9_STAGE_NOTEX|&\s*0x20\s*!=\s*0", &["stage_arg"]),
 ];
 
 /// (file, what (a regular expression), why): `forbidden`

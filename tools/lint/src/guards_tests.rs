@@ -95,6 +95,10 @@ fn unconfined_uses_are_found() {
     // (other files, comments and the definition itself are fine)
     assert!(rust("src/model/gdi.rs", dd).is_empty());
     assert!(rust("src/model/d3dx9.rs", "// f16_one(x) in a comment\nfn f16_one(x: u32) -> u16 { 0 }\n").is_empty());
+    // (a stage argument's modifiers only in stage_arg, which d3d9.arg holds to the Lean)
+    let arg = "pub fn stage_arg(a: u32) -> V { if a & 0x20 != 0 { v = [v[3]; 4]; } v }\nfn arg(&self, a: u32) -> V { if a & 0x20 != 0 { v = [v[3]; 4]; } v }\n";
+    let r = rust("src/model/d3d9draw.rs", arg);
+    assert!(r.len() == 2 && r.iter().all(|e| e.contains("in arg")), "{r:?}");
 }
 
 #[test]

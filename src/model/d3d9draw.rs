@@ -1007,6 +1007,57 @@ pub fn fog_blend(f: f32, c: f32, fog: f32) -> f32 {
     f * c + (1.0 - f) * fog
 }
 
+/// what a stage's arguments (D3DTA) read: the registers, the stage's texel (none without a
+/// texture), TEXTUREFACTOR and the stage's CONSTANT
+pub struct ArgRegs {
+    pub diffuse: [f64; 4],
+    pub current: [f64; 4],
+    pub specular: [f64; 4],
+    pub temp: [f64; 4],
+    pub tex: Option<[f64; 4]>,
+    pub factor: u32,
+    pub constant: u32,
+}
+
+/// a stage argument (D3DTA): the register the selector names, then ALPHAREPLICATE (0x20) and
+/// COMPLEMENT (0x10) (D3D9.STAGE.ARG, STAGE.NOTEX: with no texture, color 1 and the current
+/// alpha); on Direct3D 8 no TEMP or CONSTANT
+pub fn stage_arg(a: u32, r: &ArgRegs, v8: bool) -> Res<[f64; 4]> {
+    let mut v = match a & 0xf {
+        0 => r.diffuse,
+        // (stage 0: CURRENT is the diffuse color)
+        1 => r.current,
+        // (MEASURED: with no texture, color 1 and the current alpha)
+        2 => r.tex.unwrap_or_else(|| {
+            hit(clause::D3D9_STAGE_NOTEX);
+            [1.0, 1.0, 1.0, r.current[3]]
+        }),
+        3 => argb(r.factor),
+        4 => r.specular,
+        5 if !v8 => {
+            hit(clause::D3D9_STAGE_ARG);
+            r.temp
+        }
+        6 if !v8 => {
+            hit(clause::D3D9_STAGE_ARG);
+            argb(r.constant)
+        }
+        // (D3DTA has no other selector, and Direct3D 8 no TEMP or CONSTANT: the generators write none)
+        _ => return Err(Fail::Bad),
+    };
+    if a & 0x20 != 0 {
+        v = [v[3]; 4];
+    }
+    if a & 0x10 != 0 {
+        v = v.map(|x| 1.0 - x);
+    }
+    if a & !0x3f != 0 {
+        // (no D3DTA modifier beyond COMPLEMENT and ALPHAREPLICATE: the generators write none)
+        return Err(Fail::Bad);
+    }
+    Ok(v)
+}
+
 /// how the vertices of a triangle wind on the screen (y down): the sign of its area
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Winding {
@@ -1633,39 +1684,8 @@ impl D3d9 {
 
     /// a stage argument (D3DTA) as rgba
     fn arg(&self, st: u32, a: u32, r: &Regs, tex: Option<[f64; 4]>) -> Res<[f64; 4]> {
-        let mut v = match a & 0xf {
-            0 => r.diffuse,
-            // (stage 0: CURRENT is the diffuse color)
-            1 => r.current,
-            // (MEASURED: with no texture, color 1 and the current alpha)
-            2 => tex.unwrap_or_else(|| {
-                hit(clause::D3D9_STAGE_NOTEX);
-                [1.0, 1.0, 1.0, r.current[3]]
-            }),
-            3 => argb(self.rs(60)),
-            4 => r.specular,
-            5 if !self.v8 => {
-                hit(clause::D3D9_STAGE_ARG);
-                r.temp
-            }
-            6 if !self.v8 => {
-                hit(clause::D3D9_STAGE_ARG);
-                argb(self.tss(st, 32))
-            }
-            // (D3DTA has no other selector, and Direct3D 8 no TEMP or CONSTANT: the generators write none)
-            _ => return Err(Fail::Bad),
-        };
-        if a & 0x20 != 0 {
-            v = [v[3]; 4];
-        }
-        if a & 0x10 != 0 {
-            v = v.map(|x| 1.0 - x);
-        }
-        if a & !0x3f != 0 {
-            // (no D3DTA modifier beyond COMPLEMENT and ALPHAREPLICATE: the generators write none)
-            return Err(Fail::Bad);
-        }
-        Ok(v)
+        let regs = ArgRegs { diffuse: r.diffuse, current: r.current, specular: r.specular, temp: r.temp, tex, factor: self.rs(60), constant: self.tss(st, 32) };
+        stage_arg(a, &regs, self.v8)
     }
 
     /// the texture stages (D3DTEXTUREOP) in turn, to the first whose COLOROP is DISABLE

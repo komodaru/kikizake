@@ -6,7 +6,7 @@ open Kikizake
 def mirrors : List Mirror :=
   Gdi.Blend.mirrors ++ Gdi.Stretch.mirrors ++ Gdi.Xform.mirrors ++ Gdi.Gradient.mirrors ++
   GdiPlus.Conv.mirrors ++ D3d12.Footprint.mirrors ++ D3d12.Alloc.mirrors ++ D3d12.Create.mirrors ++ D3d12.Copyable.mirrors ++ Dxgi.Args.mirrors ++
-  D3d9.Pixel.mirrors ++ D3d9.Raster.mirrors ++ D3d9.Fvf.mirrors ++ D3d9.Stage.mirrors ++ D3d9.Fog.mirrors ++
+  D3d9.Pixel.mirrors ++ D3d9.Raster.mirrors ++ D3d9.Fvf.mirrors ++ D3d9.Stage.mirrors ++ D3d9.Fog.mirrors ++ D3d9.Arg.mirrors ++
   F32.mirrors ++
   GdiPlus.Blend.mirrors ++
   GdiPlus.Matrix.mirrors ++

@@ -86,8 +86,11 @@ pub static MIRRORS: &[Mirror] = &[
     Mirror {
         name: "gdi.matrix",
         lean: GRADIENT,
-        domain: Domain::Every("every entry of the three matrices (and the positions past the 4x4 one)"),
-        inputs: |each| every(&[(0, 2), (0, 15), (0, 15)], each),
+        domain: Domain::Every("every entry of the three matrices (4x4, 16x16, 16x16)"),
+        inputs: |each| {
+            every(&[(0, 0), (0, 3), (0, 3)], each);
+            every(&[(1, 2), (0, 15), (0, 15)], each);
+        },
         model: |a| {
             let (x, y): (usize, usize) = (arg(a, 1)?, arg(a, 2)?);
             match arg::<i64>(a, 0)? {
