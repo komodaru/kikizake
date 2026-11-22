@@ -1,0 +1,2 @@
+# (laws, one a line, added by several hands at once: a merge keeps both sides' lines)
+spec/laws.txt merge=union
