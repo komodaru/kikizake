@@ -10,4 +10,5 @@ import Kikizake.D3d12.Create
 import Kikizake.D3d12.Copyable
 import Kikizake.Dxgi.Args
 import Kikizake.D3d9.Pixel
+import Kikizake.D3d9.Raster
 import Kikizake.DWrite.Advance

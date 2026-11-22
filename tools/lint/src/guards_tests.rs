@@ -129,6 +129,16 @@ fn footprint_sums_past_32_bits_are_found() {
 }
 
 #[test]
+fn d3d9_rules_stay_in_the_mirrored_functions() {
+    let inlined = "fn blend(&self) {\n    let c = if self.v8 { 0xffff_ffff } else { self.rs(193) };\n    let op = Self::blend_op(op);\n}\n";
+    let r = rust("src/model/d3d9draw.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: the blend color, blend operation")).count(), 2, "{r:?}");
+    let raster = "fn cover() {\n    let e = (q.0 - p.0) * (sy - p.1) - (q.1 - p.1) * (sx - p.0);\n}\n";
+    assert!(rust("src/model/d3d9draw.rs", raster).iter().any(|b| b.contains("forbidden: the blend color, blend operation")));
+    assert!(rust("src/model/d3d9draw.rs", "fn blend(&self) { let c = blend_color(self.v8, self.rs(193)); let op = blend_op(op); }").is_empty());
+}
+
+#[test]
 fn silent_cuts_are_found() {
     // (review of 8480456, 3: rootsig12 kept the first 1024 tokens of its rootsig12+ lines and its own)
     let old = "static void op_rootsig(void) {\n    rt = 0;\n    for (int k = 0; k < nrsx && rt < RSTOK; k++) rtk[rt++] = rsx[k];\n}\n";

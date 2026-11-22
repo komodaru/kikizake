@@ -882,24 +882,59 @@ fn strip(n: usize) -> Vec<[usize; 3]> {
 /// the top-left fill convention on a triangle in 1/256 pixel units: pixel centers (integer
 /// coordinates) inside, or on a top or a left edge
 fn cover(t: [(i64, i64); 3], w: i32, h: i32, covered: &mut [bool]) {
-    let area = (t[1].0 - t[0].0) * (t[2].1 - t[0].1) - (t[1].1 - t[0].1) * (t[2].0 - t[0].0);
-    if area == 0 {
-        return;
-    }
-    let t = if area < 0 { [t[0], t[2], t[1]] } else { t };
     for py in 0..h {
         for px in 0..w {
-            let (sx, sy) = (px as i64 * 256, py as i64 * 256);
-            let ok = (0..3).all(|k| {
-                let (p, q) = (t[k], t[(k + 1) % 3]);
-                let e = (q.0 - p.0) * (sy - p.1) - (q.1 - p.1) * (sx - p.0);
-                e > 0 || (e == 0 && (q.1 - p.1 < 0 || (q.1 == p.1 && q.0 - p.0 > 0)))
-            });
-            if ok {
+            if covers(t, i64::from(px) * 256, i64::from(py) * 256) {
                 covered[(py * w + px) as usize] = true;
             }
         }
     }
+}
+
+/// how the vertices of a triangle wind on the screen (y down): the sign of its area
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Winding {
+    /// a positive area: clockwise on the screen
+    Cw,
+    /// a negative area
+    Ccw,
+    /// no area
+    Flat,
+}
+
+/// whether CULLMODE (D3DCULL: NONE 1, CW 2, CCW 3) culls a triangle of this winding (D3D9.CULL);
+/// a mode outside the enumeration culls as CW on x64 and as CCW on x86 (MEASURED cull-0, cull-4,
+/// D3D9.CULL.BAD)
+pub fn culls(mode: u32, x86: bool, winding: Winding) -> bool {
+    let mode = match mode {
+        1..=3 => mode,
+        _ => {
+            hit(clause::D3D9_CULL_BAD);
+            if x86 { 3 } else { 2 }
+        }
+    };
+    match (mode, winding) {
+        (1, _) | (_, Winding::Flat) => false,
+        (3, w) => w == Winding::Ccw,
+        (_, w) => w == Winding::Cw,
+    }
+}
+
+/// whether the point (sx, sy) is drawn by the triangle t, all in 1/256 pixel units: strictly
+/// inside each edge, or on an edge that is a top one (going left, the triangle turned to wind
+/// with a positive area) or a left one (going up); a triangle of no area draws nothing
+/// (D3D9.RASTER.TOPLEFT)
+pub fn covers(t: [(i64, i64); 3], sx: i64, sy: i64) -> bool {
+    let area = (t[1].0 - t[0].0) * (t[2].1 - t[0].1) - (t[1].1 - t[0].1) * (t[2].0 - t[0].0);
+    if area == 0 {
+        return false;
+    }
+    let t = if area < 0 { [t[0], t[2], t[1]] } else { t };
+    (0..3).all(|k| {
+        let (p, q) = (t[k], t[(k + 1) % 3]);
+        let side = (q.0 - p.0) * (sy - p.1) - (q.1 - p.1) * (sx - p.0);
+        side > 0 || (side == 0 && (q.1 - p.1 < 0 || (q.1 == p.1 && q.0 - p.0 > 0)))
+    })
 }
 
 fn fl(w: u32) -> f64 {
@@ -2124,31 +2159,9 @@ impl D3d9 {
         // the winding (culling) of the vertices as given
         let area = cross([(a.x as f64, a.y as f64), (b.x as f64, b.y as f64), (c.x as f64, c.y as f64)]);
         hit(clause::D3D9_CULL);
-        // (MEASURED, cull-0, cull-4: a mode outside the enumeration culls as CW does on x64,
-        // as CCW does on x86)
-        let mode = match self.rs(22) {
-            m @ (1..=3) => m,
-            _ if crate::model::arch() == 32 => {
-                hit(clause::D3D9_CULL_BAD);
-                3
-            }
-            m => m,
-        };
-        match mode {
-            1 => {}
-            3 if area < 0.0 => return Ok(()),
-            3 => {}
-            m if area > 0.0 => {
-                if m != 2 {
-                    hit(clause::D3D9_CULL_BAD);
-                }
-                return Ok(());
-            }
-            m => {
-                if m != 2 {
-                    hit(clause::D3D9_CULL_BAD);
-                }
-            }
+        let winding = if area > 0.0 { Winding::Cw } else if area < 0.0 { Winding::Ccw } else { Winding::Flat };
+        if culls(self.rs(22), crate::model::arch() == 32, winding) {
+            return Ok(());
         }
         if area == 0.0 {
             return Ok(());
@@ -2465,12 +2478,7 @@ impl D3d9 {
         let mask = self.rs(168);
         if mask & 0xf != 0xf {
             hit(clause::D3D9_COLORWRITE);
-            // (COLORWRITEENABLE: bit 0 red, 1 green, 2 blue, 3 alpha)
-            for (k, bit) in [(0, 1), (1, 2), (2, 4), (3, 8)] {
-                if mask & bit == 0 {
-                    new[k] = old[k];
-                }
-            }
+            new = color_write(mask, new, old);
         }
         if fm.ch.iter().any(|c| c.c == b'x') {
             hit(clause::D3D9_DRAW_XZERO);
@@ -2480,33 +2488,10 @@ impl D3d9 {
         Ok(())
     }
 
-    /// blending on a target of 8-bit unorm channels (MEASURED, d3d9draw blend-*: each product
-    /// x * f of two 8-bit numbers as x * f * 257 >> 8, a number in 1/256ths that is a little
-    /// under x * f / 255 (but x * ONE as x exactly); the two added or subtracted, then rounded to 8 bits half up)
-    /// blending on a target of any other format (MEASURED, d3d9draw blend-fmt-*: 95 cases, every
-    /// format the target takes): in f32, the source clamped to 0..1, the destination as read
-    /// a blend operation outside ADD..MAX is MAX (MEASURED x64 blend-badop-*; the x86 runtime
-    /// dies drawing with one: D3D9.BLEND.OPX86, so it does not get here)
-    fn blend_op(op: u32) -> BlendOp {
-        match op {
-            1 => BlendOp::Add,
-            2 => BlendOp::Sub,
-            3 => BlendOp::RevSub,
-            4 => BlendOp::Min,
-            5 => BlendOp::Max,
-            _ => {
-                hit(clause::D3D9_BLEND_OP);
-                BlendOp::Max
-            }
-        }
-    }
-
     fn blend_float(&self, s: [f64; 4], d: [f64; 4]) -> Res<[f64; 4]> {
         let s = s.map(|x| x.clamp(0.0, 1.0) as f32);
         let d = d.map(|x| x as f32);
-        // (Direct3D 8 has no BLENDFACTOR state, yet BLENDFACTOR and INVBLENDFACTOR blend with
-        // white there: MEASURED d3d8draw blend-factor8)
-        let c = if self.v8 { 0xffff_ffff } else { self.rs(193) };
+        let c = blend_color(self.v8, self.rs(193));
         if self.v8 && [19, 20].iter().any(|&i| matches!(self.rs(i), 14 | 15)) {
             hit(clause::D3D9_BLEND_FACTOR);
         }
@@ -2545,7 +2530,7 @@ impl D3d9 {
                 }
             }
             let (a, b) = (s[k] * factor(sf, k)?, d[k] * factor(df, k)?);
-            out[k] = match Self::blend_op(op) {
+            out[k] = match blend_op(op) {
                 BlendOp::Add => a + b,
                 BlendOp::Sub => a - b,
                 BlendOp::RevSub => b - a,
@@ -2563,32 +2548,11 @@ impl D3d9 {
             return self.blend_float(s, d);
         }
         let (s, d) = (s.map(|x| unorm(x, 8) as i64), d.map(|x| unorm(x, 8) as i64));
-        // (Direct3D 8 has no BLENDFACTOR state, yet BLENDFACTOR and INVBLENDFACTOR blend with
-        // white there: MEASURED d3d8draw blend-factor8)
-        let c = if self.v8 { 0xffff_ffff } else { self.rs(193) };
+        let c = blend_color(self.v8, self.rs(193));
         if self.v8 && [19, 20].iter().any(|&i| matches!(self.rs(i), 14 | 15)) {
             hit(clause::D3D9_BLEND_FACTOR);
         }
-        let bf = [c >> 16 & 255, c >> 8 & 255, c & 255, c >> 24].map(|v| v as i64);
-        let factor = |f: u32, k: usize| -> Res<i64> {
-            Ok(match f {
-                1 => 0,
-                2 => 255,
-                3 => s[k],
-                4 => 255 - s[k],
-                5 => s[3],
-                6 => 255 - s[3],
-                7 => d[3],
-                8 => 255 - d[3],
-                9 => d[k],
-                10 => 255 - d[k],
-                11 if k < 3 => s[3].min(255 - d[3]),
-                11 => 255,
-                14 => bf[k],
-                15 => 255 - bf[k],
-                _ => return Err(Fail::Bad),
-            })
-        };
+        let factor = |f: u32, k: usize| -> Res<i64> { factor8(f, k, s, d, c).ok_or(Fail::Bad) };
         let separate = !self.v8 && self.rs(206) != 0;
         // (MEASURED, blend-*: two ways of rounding. With SRCALPHASAT among the factors, the
         // separate alpha factors on, or a target without alpha (X bits), each channel is the
@@ -2599,20 +2563,8 @@ impl D3d9 {
         for k in 0..4 {
             let alpha = separate && k == 3;
             let (mut sf, mut df, op) = if alpha { (self.rs(207), self.rs(208), self.rs(209)) } else { (self.rs(19), self.rs(20), self.rs(171)) };
-            // BOTHSRCALPHA, BOTHINVSRCALPHA as either factor: both factors from the source's alpha
-            // (MEASURED: blend-dest-12, blend-dest-13)
-            if [sf, df].iter().any(|f| matches!(f, 12 | 13)) {
-                if alpha {
-                    // (as a separate alpha factor, either is ZERO: MEASURED blend-bothalpha-*,
-                    // blend-random-5, -31)
-                    hit(clause::D3D9_BLEND_BOTHALPHA);
-                    let zero = |f: u32| if matches!(f, 12 | 13) { 1 } else { f };
-                    (sf, df) = (zero(sf), zero(df));
-                } else {
-                    (sf, df) = if sf == 12 || sf != 13 && df == 12 { (5, 6) } else { (6, 5) };
-                }
-            }
-            let op = Self::blend_op(op);
+            (sf, df) = both_alpha(sf, df, alpha);
+            let op = blend_op(op);
             let (fs, fd) = (factor(sf, k)?, factor(df, k)?);
             if exact && !matches!(op, BlendOp::Min | BlendOp::Max) {
                 hit(clause::D3D9_BLEND_TIE);
@@ -2622,4 +2574,86 @@ impl D3d9 {
         }
         Ok(out)
     }
+}
+
+/// blending on a target of 8-bit unorm channels (MEASURED, d3d9draw blend-*: each product
+/// x * f of two 8-bit numbers as x * f * 257 >> 8, a number in 1/256ths that is a little
+/// under x * f / 255 (but x * ONE as x exactly); the two added or subtracted, then rounded to 8 bits half up)
+/// blending on a target of any other format (MEASURED, d3d9draw blend-fmt-*: 95 cases, every
+/// format the target takes): in f32, the source clamped to 0..1, the destination as read
+/// a blend operation outside ADD..MAX is MAX (MEASURED x64 blend-badop-*; the x86 runtime
+/// dies drawing with one: D3D9.BLEND.OPX86, so it does not get here)
+pub fn blend_op(op: u32) -> BlendOp {
+    match op {
+        1 => BlendOp::Add,
+        2 => BlendOp::Sub,
+        3 => BlendOp::RevSub,
+        4 => BlendOp::Min,
+        5 => BlendOp::Max,
+        _ => {
+            hit(clause::D3D9_BLEND_OP);
+            BlendOp::Max
+        }
+    }
+}
+
+/// the BLENDFACTOR color blends take: Direct3D 8 has no BLENDFACTOR state, yet BLENDFACTOR and
+/// INVBLENDFACTOR blend with white there (MEASURED d3d8draw blend-factor8, D3D9.BLEND.FACTOR)
+pub fn blend_color(v8: bool, state: u32) -> u32 {
+    if v8 { 0xffff_ffff } else { state }
+}
+
+/// a blend factor (D3DBLEND) of one 8-bit channel k (0 red .. 3 alpha) of the source s and the
+/// destination d, BLENDFACTOR c (ARGB); none for a factor outside the enumeration and the
+/// BOTH ones (both_alpha turns them first)
+pub fn factor8(f: u32, k: usize, s: [i64; 4], d: [i64; 4], c: u32) -> Option<i64> {
+    let bf = [c >> 16 & 255, c >> 8 & 255, c & 255, c >> 24].map(i64::from);
+    Some(match f {
+        1 => 0,
+        2 => 255,
+        3 => *s.get(k)?,
+        4 => 255 - s.get(k)?,
+        5 => s[3],
+        6 => 255 - s[3],
+        7 => d[3],
+        8 => 255 - d[3],
+        9 => *d.get(k)?,
+        10 => 255 - d.get(k)?,
+        11 if k < 3 => s[3].min(255 - d[3]),
+        11 => 255,
+        14 => *bf.get(k)?,
+        15 => 255 - bf.get(k)?,
+        _ => return None,
+    })
+}
+
+/// the source and destination factors after BOTHSRCALPHA (12) and BOTHINVSRCALPHA (13): as either
+/// factor, both factors from the source's alpha, the first named winning (SRCALPHA and
+/// INVSRCALPHA, or the reverse: MEASURED blend-dest-12, blend-dest-13); as a separate alpha
+/// factor either is ZERO (MEASURED blend-bothalpha-*, blend-random-5, -31, D3D9.BLEND.BOTHALPHA)
+pub fn both_alpha(sf: u32, df: u32, alpha: bool) -> (u32, u32) {
+    if ![sf, df].iter().any(|f| matches!(f, 12 | 13)) {
+        return (sf, df);
+    }
+    if alpha {
+        hit(clause::D3D9_BLEND_BOTHALPHA);
+        let zero = |f: u32| if matches!(f, 12 | 13) { 1 } else { f };
+        (zero(sf), zero(df))
+    } else if sf == 12 || sf != 13 && df == 12 {
+        (5, 6)
+    } else {
+        (6, 5)
+    }
+}
+
+/// the color written through COLORWRITEENABLE (bit 0 red, 1 green, 2 blue, 3 alpha): each
+/// channel the new one where its bit is set, the old one where not (D3D9.COLORWRITE)
+pub fn color_write<T: Copy>(mask: u32, new: [T; 4], old: [T; 4]) -> [T; 4] {
+    let mut out = new;
+    for (k, bit) in [(0, 1), (1, 2), (2, 4), (3, 8)] {
+        if mask & bit == 0 {
+            out[k] = old[k];
+        }
+    }
+    out
 }

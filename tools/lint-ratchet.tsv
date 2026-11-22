@@ -229,13 +229,13 @@ file	src/model/d3d9.rs	indexing_slicing	10
 file	src/model/d3d9.rs	same_name_method	1
 file	src/model/d3d9.rs	wildcard_enum_match_arm	2
 file	src/model/d3d9draw.rs	arithmetic_side_effects	171
-file	src/model/d3d9draw.rs	as_conversions	304
+file	src/model/d3d9draw.rs	as_conversions	301
 file	src/model/d3d9draw.rs	cast_possible_truncation	104
 file	src/model/d3d9draw.rs	cast_possible_wrap	7
 file	src/model/d3d9draw.rs	cast_precision_loss	61
 file	src/model/d3d9draw.rs	cast_sign_loss	41
 file	src/model/d3d9draw.rs	float_cmp	11
-file	src/model/d3d9draw.rs	indexing_slicing	303
+file	src/model/d3d9draw.rs	indexing_slicing	297
 file	src/model/d3d9draw.rs	map_err_ignore	1
 file	src/model/d3d9draw.rs	unreachable	1
 file	src/model/d3d9draw.rs	wildcard_enum_match_arm	6

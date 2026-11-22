@@ -357,6 +357,16 @@ spec/lean/Kikizake/D3d9/Pixel.lean::address_modes lean D3D9.TEX.ADDRESS
 spec/lean/Kikizake/D3d9/Pixel.lean::prod_under lean D3D9.BLEND
 spec/lean/Kikizake/D3d9/Pixel.lean::blend8_holds lean D3D9.BLEND
 spec/lean/Kikizake/D3d9/Pixel.lean::exact_nearest lean D3D9.BLEND.TIE
+spec/lean/Kikizake/D3d9/Raster.lean::incl_shared lean D3D9.RASTER.TOPLEFT
+spec/lean/Kikizake/D3d9/Raster.lean::covers_turn lean D3D9.RASTER.TOPLEFT
+spec/lean/Kikizake/D3d9/Raster.lean::shared_edge lean D3D9.RASTER.TOPLEFT
+spec/lean/Kikizake/D3d9/Raster.lean::cull_modes lean D3D9.CULL
+spec/lean/Kikizake/D3d9/Raster.lean::cull_bad lean D3D9.CULL.BAD
+spec/lean/Kikizake/D3d9/Raster.lean::blend_op_bad lean D3D9.BLEND.OP
+spec/lean/Kikizake/D3d9/Raster.lean::blend_factor_d3d8 lean D3D9.BLEND.FACTOR
+spec/lean/Kikizake/D3d9/Raster.lean::factor8_range lean D3D9.BLEND
+spec/lean/Kikizake/D3d9/Raster.lean::both_alpha lean D3D9.BLEND.BOTHALPHA
+spec/lean/Kikizake/D3d9/Raster.lean::color_write lean D3D9.COLORWRITE
 spec/lean/Kikizake/DWrite/Advance.lean::phantom_mono lean DW.GDI.GLYPH.H DW.SHAPE.NATPLACE
 spec/lean/Kikizake/DWrite/Advance.lean::sixteenth_near lean DW.SHAPE.NATPLACE DW.GDI.GLYPH
 spec/lean/Kikizake/DWrite/Advance.lean::em_is_ppem lean DW.GDI.GLYPH.H DW.SHAPE.GDIPLACE DW.SHAPE.NATPLACE
