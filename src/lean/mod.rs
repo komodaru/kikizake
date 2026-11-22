@@ -8,6 +8,7 @@
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::process::{Command, Stdio};
 
+mod d3d12;
 mod gdi;
 mod gdiplus;
 
@@ -35,7 +36,7 @@ pub struct Mirror {
 
 /// every mirror, per API
 pub fn mirrors() -> Vec<&'static Mirror> {
-    gdi::MIRRORS.iter().chain(gdiplus::MIRRORS).collect()
+    gdi::MIRRORS.iter().chain(gdiplus::MIRRORS).chain(d3d12::MIRRORS).collect()
 }
 
 /// the argument as the type the model takes

@@ -123,8 +123,14 @@ impl Desc {
     }
 }
 
-fn align(v: u64, a: u64) -> u64 {
+/// v rounded up to a multiple of a (a > 0)
+pub fn align(v: u64, a: u64) -> u64 {
     v.div_ceil(a) * a
+}
+
+/// the mip levels a full chain of a largest dimension `m` has (D3D12.DESC.MIPS): down to 1
+pub fn chain(m: u32) -> u32 {
+    m.max(1).bit_width()
 }
 
 /// the mip levels a full chain has
@@ -135,7 +141,7 @@ pub fn full_chain(d: &Desc) -> u32 {
         Dim::Tex2D => d.w.max(d.h),
         Dim::Unknown | Dim::Buffer | Dim::Tex1D | Dim::Other => d.w,
     };
-    m.max(1).bit_width()
+    chain(m)
 }
 
 /// why a description is refused (the clause), or Ok: GetCopyableFootprints' checks of a description
@@ -178,7 +184,7 @@ pub fn validate(d: &Desc) -> Result<(), crate::spec::ClauseId> {
 
 /// the layout of one subresource: (offset from the first, format, width, height, depth, row
 /// pitch, rows, row size)
-type Fp = (u64, u32, u32, u32, u32, u64, u32, u64);
+pub type Fp = (u64, u32, u32, u32, u32, u64, u32, u64);
 
 /// what GetCopyableFootprints writes for an invalid description: every field all ones
 fn invalid_fps(count: u32) -> (Vec<Fp>, u64) {
@@ -266,32 +272,56 @@ pub fn footprints(first: u32, count: u32, base: u64, d: &Desc) -> Res<(Vec<Fp>, 
         return Ok(invalid_fps(count));
     }
     hit(clause::D3D12_FOOTPRINT_LAYOUT);
+    let l = Layout { mips, array, kind: d.kind(), w: d.w, h: d.h, d: d.d, fmt, block: (bytes, bw, bh), pitch_align };
+    Ok(layout(first, count, base, &l))
+}
+
+/// a texture's subresources as GetCopyableFootprints lays them out (D3D12.FOOTPRINT.LAYOUT)
+pub struct Layout {
+    pub mips: u32,
+    pub array: u32,
+    pub kind: Dim,
+    pub w: u32,
+    pub h: u32,
+    pub d: u32,
+    /// the footprints' format (the stencil plane's is R8_TYPELESS)
+    pub fmt: u32,
+    /// bytes a block, its width and height in texels
+    pub block: (u32, u32, u32),
+    /// the rows' alignment: 256, 512 for the depth plane
+    pub pitch_align: u64,
+}
+
+/// subresources first..first + count of `l` from `base`: each at the next multiple of 512 after
+/// the one before, its rows `pitch_align` apart; and the bytes up to the last one's last row
+pub fn layout(first: u32, count: u32, base: u64, l: &Layout) -> (Vec<Fp>, u64) {
+    let (bytes, bw, bh) = l.block;
     let mut v = Vec::new();
     let mut at = 0u64;
     let mut total = 0;
     for i in first..first + count {
-        let m = i % mips;
-        let w = (d.w >> m).max(1);
-        let h = if d.kind() == Dim::Tex1D { 1 } else { (d.h >> m).max(1) };
-        let depth = if d.kind() == Dim::Tex3D { (d.d >> m).max(1) } else { 1 };
+        let m = i % l.mips;
+        let w = (l.w >> m).max(1);
+        let h = if l.kind == Dim::Tex1D { 1 } else { (l.h >> m).max(1) };
+        let depth = if l.kind == Dim::Tex3D { (l.d >> m).max(1) } else { 1 };
         if bw > 1 || bh > 1 {
             hit(clause::D3D12_FOOTPRINT_BLOCK);
         }
         let (fw, fh) = (align(w as u64, bw as u64) as u32, align(h as u64, bh as u64) as u32);
         let rows = fh / bh;
         // (the stencil plane R8_TYPELESS, a byte a texel, rows 512 apart as the depth plane's)
-        let stencil = i >= mips * array;
+        let stencil = i >= l.mips * l.array;
         if stencil {
             hit(clause::D3D12_FOOTPRINT_STENCIL);
         }
-        let (fmt, bytes) = if stencil { (60, 1) } else { (fmt, bytes) };
+        let (fmt, bytes) = if stencil { (60, 1) } else { (l.fmt, bytes) };
         let row = (fw / bw) as u64 * bytes as u64;
-        let pitch = align(row, pitch_align);
+        let pitch = align(row, l.pitch_align);
         v.push((base + at, fmt, fw, fh, depth, pitch, rows, row));
         total = at + pitch * (rows as u64 * depth as u64 - 1) + row;
         at = align(at + pitch * rows as u64 * depth as u64, 512);
     }
-    Ok((v, total))
+    (v, total)
 }
 
 fn f32of(v: u32) -> f32 {

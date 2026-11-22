@@ -5,7 +5,7 @@ open Kikizake
 
 def mirrors : List Mirror :=
   Gdi.Blend.mirrors ++ Gdi.Stretch.mirrors ++ Gdi.Xform.mirrors ++ Gdi.Gradient.mirrors ++
-  GdiPlus.Conv.mirrors
+  GdiPlus.Conv.mirrors ++ D3d12.Footprint.mirrors
 
 def answer (line : String) : String :=
   match ((line.replace "\n" "").replace "\r" "").splitOn " " with

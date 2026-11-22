@@ -290,3 +290,10 @@ spec/lean/Kikizake/GdiPlus/Conv.lean::alpha_round_trip lean GP.CONV.WIDEN GP.CON
 spec/lean/Kikizake/GdiPlus/Conv.lean::rgb32_keeps lean GP.CONV.OPAQUE GP.CONV.KEEP
 spec/lean/Kikizake/GdiPlus/Narrow.lean::narrow_mono lean GP.CONV.NARROW
 spec/lean/Kikizake/GdiPlus/Narrow.lean::narrow_ends lean GP.CONV.NARROW
+spec/lean/Kikizake/D3d12/Footprint.lean::align_bounds lean D3D12.FOOTPRINT.LAYOUT D3D12.ALLOC.BUFFER
+spec/lean/Kikizake/D3d12/Footprint.lean::alloc_buffer lean D3D12.ALLOC.BUFFER
+spec/lean/Kikizake/D3d12/Footprint.lean::chain_ends lean D3D12.DESC.MIPS D3D12.FOOTPRINT.MIPS0
+spec/lean/Kikizake/D3d12/Footprint.lean::pitch_holds_row lean D3D12.FOOTPRINT.LAYOUT D3D12.FOOTPRINT.PLANAR
+spec/lean/Kikizake/D3d12/Footprint.lean::rows_whole lean D3D12.FOOTPRINT.BLOCK D3D12.FOOTPRINT.LAYOUT
+spec/lean/Kikizake/D3d12/Footprint.lean::last_le_extent lean D3D12.FOOTPRINT.LAYOUT
+spec/lean/Kikizake/D3d12/Footprint.lean::layout_apart lean D3D12.FOOTPRINT.LAYOUT D3D12.FOOTPRINT.STENCIL
