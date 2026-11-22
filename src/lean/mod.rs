@@ -10,6 +10,7 @@ use std::process::{Command, Stdio};
 
 mod d3d12;
 mod d3d9;
+mod dwrite;
 mod dxgi;
 mod gdi;
 mod gdiplus;
@@ -38,7 +39,7 @@ pub struct Mirror {
 
 /// every mirror, per API
 pub fn mirrors() -> Vec<&'static Mirror> {
-    gdi::MIRRORS.iter().chain(gdiplus::MIRRORS).chain(d3d12::MIRRORS).chain(dxgi::MIRRORS).chain(d3d9::MIRRORS).collect()
+    gdi::MIRRORS.iter().chain(gdiplus::MIRRORS).chain(d3d12::MIRRORS).chain(dxgi::MIRRORS).chain(d3d9::MIRRORS).chain(dwrite::MIRRORS).collect()
 }
 
 /// the argument as the type the model takes

@@ -221,7 +221,7 @@ impl ToEm {
 
 /// how the scaler's advance phantom point rounds
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum Step {
+pub enum Step {
     /// to a 1/16 pixel first (GDI natural)
     Sixteenth,
     /// to the pixel (sideways, and GDI classic past 255 ppem)
@@ -231,7 +231,7 @@ enum Step {
 /// the scaler's advance phantom point (the clean-room notes, kikizake-re/dwrite,
 /// scl_RoundCurrentSideBearingPnt): adv design units at ppem rounded half away from zero to
 /// 16.16, then to 26.6, then by `step`; the advance's whole pixels (half up)
-fn phantom_px(adv: i64, ppem: i64, upm: i64, step: Step) -> i64 {
+pub fn phantom_px(adv: i64, ppem: i64, upm: i64, step: Step) -> i64 {
     let n = adv * (ppem << 16);
     let a16 = if n >= 0 { (n + upm / 2) / upm } else { -((upm / 2 - n) / upm) };
     let a26 = (a16 + 0x200) >> 10;
@@ -245,7 +245,7 @@ fn phantom_px(adv: i64, ppem: i64, upm: i64, step: Step) -> i64 {
 /// GDI classic's advance in whole pixels: below 256 ppem the 16.16 truncated scale's (the
 /// compatible width), past it the phantom point's to the pixel (MEASURED, golden dwrite,
 /// gdibig-257, gdibig-300, shapebig: neither the notes' 1/16 pixel nor the truncated scale)
-fn classic_px(adv: i64, ppem: i64, upm: i64) -> i64 {
+pub fn classic_px(adv: i64, ppem: i64, upm: i64) -> i64 {
     if ppem <= 255 { (adv * ((ppem << 16) / upm) + 0x8000) >> 16 } else { phantom_px(adv, ppem, upm, Step::Pixel) }
 }
 
