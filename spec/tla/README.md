@@ -15,6 +15,7 @@ differently. So a model that breaks a clause on any short sequence fails, withou
 | GdiPath | BeginPath, EndPath, AbortPath, CloseFigure, GetPath, MoveToEx, LineTo (GDI.PATH.*, GDI.POS.MOVE) | 402,234 (5) |
 | GdiRegion | CreateRectRgn, SetRectRgn, CombineRgn, OffsetRgn, GetRgnBox, PtInRegion, RectInRegion, EqualRgn (GDI.RGN.*): a region as its set of pixels, every query asked after every call | 8,379 (2) |
 | D3D9StateBlock | SetRenderState, Create/Begin/EndStateBlock, Capture, Apply (D3D9.SETGET, D3D9.SB.*, D3D9.RS.DEFAULT) | 180,869 (4) |
+| DxgiSwapChain | CreateSwapChainForHwnd, GetBuffer, Present, ResizeBuffers, Set/GetMaximumFrameLatency, GetFrameLatencyWaitableObject (DXGI.BUFFER, PRESENT, PRESENT.TEST, PRESENT.RESTART, RESIZE, LATENCY, CHAIN.SIZE) | 211,932 (3) |
 
 The specs model documented use only: what the documentation leaves open (D3D9.SB.MISUSE) stays
 open. Comments cannot hold `*)`.
