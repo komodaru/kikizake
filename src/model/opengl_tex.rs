@@ -594,8 +594,7 @@ impl Ctx {
     /// .. prim-*, the goldens to fit); with no image fragments are untextured (MEASURED, golden
     /// opengl-32 raster-open-23)
     pub(super) fn untextured(&self) -> Res<()> {
-        let on = |t: Target, cap: u32| self.cap(cap) && self.tex.object(t).levels.first().is_some_and(Option::is_some);
-        if on(Target::Two, TEXTURE_2D) || on(Target::One, TEXTURE_1D) {
+        if self.texturing() {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         Ok(())

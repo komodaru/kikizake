@@ -243,3 +243,7 @@ tests/laws_dd.rs::warp_line_planes_run_end_to_end pbt D3D7.GOURAUD
 tests/laws_opengl.rs::texture_names_are_fresh_runs pbt GL.TEX.NAMES
 tests/laws_opengl.rs::byte_texels_keep_their_steps pbt GL.TEX.IMAGE
 tests/laws_opengl.rs::nine_digits_read_back_to_the_float pbt GL.TEX.PARAM
+tests/laws_opengl.rs::nearest_texels_stay_in_the_level pbt GL.RASTER.TEXTURE.FILTER
+tests/laws_opengl.rs::linear_texels_are_neighbours pbt GL.RASTER.TEXTURE.FILTER
+tests/laws_opengl.rs::lambda_follows_log2_of_rho pbt GL.RASTER.TEXTURE.FILTER
+tests/laws_opengl.rs::replace_takes_the_texel_and_white_modulates_nothing pbt GL.RASTER.TEXTURE

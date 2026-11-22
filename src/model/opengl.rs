@@ -274,6 +274,8 @@ pub mod tex;
 mod gaps;
 #[path = "opengl_list.rs"]
 pub mod list;
+#[path = "opengl_texdraw.rs"]
+pub mod texdraw;
 use crate::case::{num, Op};
 use crate::spec::hit;
 use e::*;
@@ -479,6 +481,12 @@ pub struct Ctx {
     pub raster_color: [f32; 4],
     /// the raster position's eye z, for fog on images
     pub raster_eye: f64,
+    /// the raster position's texture coordinates (s, t, q)
+    pub raster_tex: [f32; 3],
+    /// the texture coordinates of the fragments a point, line or image writes now
+    pub frag_tex: Option<texdraw::Stq>,
+    /// the texture coordinates along the antialiased line drawn now
+    pub line_texture: Option<texdraw::LineTex>,
     /// glFog
     pub fog: Fog,
     /// the current normal (glNormal3f)
@@ -492,6 +500,8 @@ pub struct Ctx {
     pub tex: tex::Tex,
     /// display lists
     pub lists: list::Lists,
+    /// while a textured polygon's fragments are written
+    pub textured_frags: bool,
     pub line_width: f32,
     /// glLineStipple's repeat factor (1..255) and pattern
     pub line_stipple: (i64, u16),
@@ -579,11 +589,15 @@ impl Ctx {
             raster: Some([0.0; 3]),
             raster_color: [1.0; 4],
             raster_eye: 0.0,
+            raster_tex: [0.0, 0.0, 1.0],
+            frag_tex: None,
+            line_texture: None,
             fog: Fog { mode: FogMode::Exp, density: 1.0, start: 0.0, end: 1.0, index: 0.0, color: [0.0; 4] },
             offset: (0.0, 0.0),
             line_z_offset: 0.0,
             tex: tex::Tex::new(),
             lists: list::Lists::default(),
+            textured_frags: false,
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
             line_stipple: (1, 0xffff),
@@ -1325,7 +1339,10 @@ impl Gl {
                 }
                 let mut r = crate::rng::XorShift32::new(v[4] as u32);
                 let given: Vec<u8> = (0..v[5]).map(|_| r.next() as u8).collect();
-                ctx.draw_pixels(v[0], v[1], v[2] as u32, v[3] as u32, &Given::new(given))?;
+                ctx.frag_tex = Some(texdraw::Stq::at(ctx.raster_tex));
+                let r = ctx.draw_pixels(v[0], v[1], v[2] as u32, v[3] as u32, &Given::new(given));
+                ctx.frag_tex = None;
+                r?;
             }
             CtxOp::Gldib => {
                 let rows = ctx.dib()?;
@@ -1450,11 +1467,17 @@ pub struct FixedZ {
 pub struct Obj {
     pub xyz: [f64; 3],
     pub w: f64,
+    /// the texture coordinates current when it was given (glTexCoord)
+    pub tc: [f32; 4],
 }
 
 impl Obj {
     pub const fn at(xyz: [f64; 3]) -> Obj {
-        Obj { xyz, w: 1.0 }
+        Obj { xyz, w: 1.0, tc: [0.0, 0.0, 0.0, 1.0] }
+    }
+    /// the vertex with texture coordinates `tc`
+    pub const fn with(self, tc: [f32; 4]) -> Obj {
+        Obj { tc, ..self }
     }
 }
 
@@ -1852,6 +1875,7 @@ impl Ctx {
                 self.raster = inside.then(|| [(x + 1.0) * vw / 2.0 + vx, (y + 1.0) * vh / 2.0 + vy, f64::from(self.window_z(c[2]))]);
                 self.raster_color = self.current();
                 self.raster_eye = e[2];
+                self.raster_tex = self.tex_coords(&Obj::at(v).with(self.vertex_coords(v, 1.0)));
             }
             "glFogf" => self.fog_param(u(a, 0), &[fl(a, 1) as f32], false),
             "glPolygonOffset" => {
@@ -1935,9 +1959,9 @@ impl Ctx {
                 if self.in_begin != Some(POINTS) {
                     // (MEASURED, golden opengl-32 persp-more-3..5: the clip coordinates of
                     // (x, y, z, w), cut and divided as any others)
-                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w }, self.lit(self.current())));
+                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w) }, self.lit(self.current())));
                 } else if w > 0.0 {
-                    self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]), self.lit(self.current())));
+                    self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]).with(self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w)), self.lit(self.current())));
                 } else {
                     hit(clause::GL_RASTER_CLIP_XY);
                 }
@@ -1945,7 +1969,7 @@ impl Ctx {
             "glVertex2f" | "glVertex3f" | "glVertex4f" | "glVertex2i" | "glVertex3i" => {
                 let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
                 if self.in_begin.is_some() {
-                    self.verts.push((Obj::at(v), self.lit(self.current())));
+                    self.verts.push((Obj::at(v).with(self.vertex_coords(v, 1.0)), self.lit(self.current())));
                 } else {
                     // (MEASURED, golden opengl-32 edge-vertex-outside: ignored, no error)
                     hit(clause::GL_VERTEX_OUTSIDE);
@@ -1965,7 +1989,7 @@ impl Ctx {
                 let (x0, y0, x1, y1) = (fl(a, 0), fl(a, 1), fl(a, 2), fl(a, 3));
                 self.verts.clear();
                 for (x, y) in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] {
-                    self.verts.push((Obj::at([x, y, 0.0]), self.lit(self.current())));
+                    self.verts.push((Obj::at([x, y, 0.0]).with(self.vertex_coords([x, y, 0.0], 1.0)), self.lit(self.current())));
                 }
                 self.rect_call = true;
                 let r = self.end(QUADS);
@@ -2387,6 +2411,12 @@ impl Ctx {
     /// on a center), each triangle's colors a plane through its rounded corners
     /// (GL.RASTER.INTERPOLATE.COLOR), its depths `tri::depths`.
     fn fill(&self, q: &[(Obj, [f32; 4])], colors: &[[f64; 4]], depth: Option<tri::DepthBits>) -> Res<Vec<Filled>> {
+        Ok(self.fill_with(q, colors, None, depth)?.into_iter().map(|(f, _)| f).collect())
+    }
+
+    /// `fill`, each pixel also with the plane of `stq` (one per vertex, (s, t, q) in clip
+    /// space, cut with the polygon and divided by w) there and its change per pixel in x and y
+    fn fill_with(&self, q: &[(Obj, [f32; 4])], colors: &[[f64; 4]], stq: Option<&[[f32; 3]]>, depth: Option<tri::DepthBits>) -> Res<Vec<(Filled, texdraw::Stq)>> {
         // (GL_POLYGON_OFFSET_FILL with depths that vary: on 32 bits the units times 2^-23
         // (raster-open-29, 31); on 16 bits not measured (raster-open-42))
         let offset = match (self.cap(POLYGON_OFFSET_FILL), depth) {
@@ -2402,12 +2432,14 @@ impl Ctx {
         };
         let [_, _, vw, vh] = self.viewport.map(|v| v as f64);
         let center = self.viewport_center();
-        let clip: Vec<[f32; 8]> = q
+        let clip: Vec<[f32; 11]> = q
             .iter()
             .zip(colors)
-            .map(|(v, c)| {
+            .enumerate()
+            .map(|(k, (v, c))| {
                 let p = self.clip_coords(v.0);
-                [p[0], p[1], p[2], p[3], c[0] as f32, c[1] as f32, c[2] as f32, c[3] as f32]
+                let [ts, tt, tq] = stq.and_then(|t| t.get(k)).copied().unwrap_or([0.0; 3]);
+                [p[0], p[1], p[2], p[3], c[0] as f32, c[1] as f32, c[2] as f32, c[3] as f32, ts, tt, tq]
             })
             .collect();
         let (poly, crossed) = tri::clip_crossing(&clip);
@@ -2431,17 +2463,22 @@ impl Ctx {
         let v: Vec<tri::Vertex> = ndc.iter().map(|c| tri::Vertex { x: tri::Sub::snap(f64::from(c[0]), vw, center.0), y: tri::Sub::snap(f64::from(c[1]), vh, center.1) }).collect();
         let col: Vec<[f64; 4]> = poly.iter().map(|c| [c[4], c[5], c[6], c[7]].map(f64::from)).collect();
         let zs: Vec<f32> = ndc.iter().map(|c| self.window_z(c[2])).collect();
+        // (s, t and q times 1 / w, as the colors' planes: texture.md 4.7)
+        let tq: Vec<[f64; 4]> = poly.iter().map(|&[.., w, _, _, _, _, s, t, q]| [s, t, q, 0.0].map(|v| f64::from(v * (1.0 / w)))).collect();
         let (w, h) = (W as i64, H as i64);
         let mut out = Vec::new();
         for k in 1..v.len() - 1 {
             let at = [v[0], v[k], v[k + 1]];
             let value = [col[0], col[k], col[k + 1]];
             let color = |x, y| if value[1] == value[0] && value[2] == value[0] { value[0] } else { tri::plane(at, value, x, y) };
+            let corner = |i: usize| tq.get(i).copied().unwrap_or([0.0; 4]);
+            let walked = if stq.is_some() { texdraw::Stq::walk(at, [corner(0), corner(k), corner(k.saturating_add(1))], w, h) } else { std::collections::BTreeMap::new() };
+            let coords = |x: i64, y: i64| walked.get(&(x, y)).copied().unwrap_or(texdraw::Stq::NONE);
             match depth {
-                None => out.extend(tri::pixels(&at, w, h).into_iter().map(|(x, y)| (x, y, color(x, y), None))),
+                None => out.extend(tri::pixels(&at, w, h).into_iter().map(|(x, y)| ((x, y, color(x, y), None), coords(x, y)))),
                 Some(bits) => {
                     let fixed = |z| FixedZ { bits: match bits { tri::DepthBits::D32 => 32, tri::DepthBits::D16 => 16 }, value: u64::from(bits.stored(z)) };
-                    out.extend(tri::depths_offset(at, [zs[0], zs[k], zs[k + 1]], w, h, bits, offset).into_iter().map(|(x, y, z)| (x, y, color(x, y), Some(fixed(z)))));
+                    out.extend(tri::depths_offset(at, [zs[0], zs[k], zs[k + 1]], w, h, bits, offset).into_iter().map(|(x, y, z)| ((x, y, color(x, y), Some(fixed(z))), coords(x, y))));
                 }
             }
         }
@@ -2498,7 +2535,13 @@ impl Ctx {
     /// 8-bit channels or in color index: not measured.
     fn aa_line(&mut self, a: &(Obj, [f32; 4]), b: &(Obj, [f32; 4]), fresh: bool) -> Res<()> {
         let (ca, cb) = (self.clip_coords(a.0), self.clip_coords(b.0));
-        self.aa_line_clip((ca, a.1), (cb, b.1), fresh)
+        self.line_texture = match self.texturing() {
+            true => Some(self.line_tex(&a.0, &b.0, self.window(a.0)?, self.window(b.0)?, None)),
+            false => None,
+        };
+        let r = self.aa_line_clip((ca, a.1), (cb, b.1), fresh);
+        self.line_texture = None;
+        r
     }
 
     /// `aa_line` from its ends' clip coordinates and colors
@@ -2549,7 +2592,8 @@ impl Ctx {
         let thin = tri::LineWidth::of(self.line_width) == tri::LineWidth::ONE;
         // (scissored, stencil tested, masked, under a logic op or another blend: the general
         // path, the fragments cut by the box or tested, raster-open-14, 15, 16, 21, 22)
-        if !index_mode && self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) && !self.cap(STENCIL_TEST) && self.color_mask == [true; 4] && !self.cap(COLOR_LOGIC_OP) && (!self.cap(BLEND) || self.blend == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA)) {
+        // (textured: the general path, MEASURED, golden opengl-32 / 64 tex-open-prim-line-smooth)
+        if self.line_texture.is_none() && !index_mode && self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) && !self.cap(STENCIL_TEST) && self.color_mask == [true; 4] && !self.cap(COLOR_LOGIC_OP) && (!self.cap(BLEND) || self.blend == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA)) {
             let narrow = self.bits()[..3].iter().any(|b| *b < 8);
 
             hit(clause::GL_RASTER_LINE_SMOOTH);
@@ -2582,7 +2626,11 @@ impl Ctx {
         hit(if thin { clause::GL_RASTER_LINE_SMOOTH } else { clause::GL_RASTER_LINE_SMOOTH_WIDE });
         for p in tri::aa_line(r[0], r[1], colors, tri::AaWidth::of(self.line_width), stipple) {
             let (c, fixed) = if index_mode { ([tri::index_coverage(p.c[0], p.c[3]), 0.0, 0.0, 0.0], ToFixed::Trunc) } else { (p.c, ToFixed::Scaled) };
-            self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed: None })?;
+            let y = dib_row(p.row);
+            self.frag_tex = self.line_texture.map(|t| t.at(p.x, y));
+            let r = self.fragment(Frag { x: p.x, y, c, z: 0.0, fixed, zfixed: None });
+            self.frag_tex = None;
+            r?;
         }
         Ok(())
     }
@@ -2666,13 +2714,18 @@ impl Ctx {
         let at_provoking = q.get(provoking).map(|v| tri::zip4(v.1, scale, |c, s| c * s)).ok_or(Fail::Bad)?;
         // (each corner: clip coordinates, colors in channel units, fog factor; cut to the view
         // volume as any polygon, then the fan from the first corner: raster-open-19)
-        let corners: Vec<[f32; 9]> = q
+        let textured = self.texturing();
+        if textured && self.cap(FOG) {
+            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
+        }
+        let corners: Vec<[f32; 12]> = q
             .iter()
             .zip(&clip)
             .map(|(v, c)| {
                 let [r, g, b, a] = tri::zip4(v.1, scale, |c, s| c * s);
                 let fog = self.fog.factor(xform(self.top(0), [v.0.xyz[0], v.0.xyz[1], v.0.xyz[2], v.0.w])[2]);
-                [c[0], c[1], c[2], c[3], r, g, b, a, fog]
+                let [ts, tt, tq] = self.tex_coords(&v.0);
+                [c[0], c[1], c[2], c[3], r, g, b, a, fog, ts, tt, tq]
             })
             .collect();
         let cut = clip.iter().any(|c| c[..3].iter().any(|v| v.abs() > c[3]));
@@ -2703,6 +2756,9 @@ impl Ctx {
         let zr: Vec<f32> = clip.iter().map(|c| if c[3] == 1.0 { c[2] * zscale + zcenter } else { (c[2] * zscale) * (1.0 / c[3]) + zcenter }).collect();
         // (fogged: the vertices' fog factors' plane, then each fragment fogged: raster-open-13)
         let fogs: Vec<f32> = corners.iter().map(|c| c[8]).collect();
+        // (textured: s / w, t / w, q / w planes as the colors', MEASURED, golden opengl-32 / 64
+        // tex-open-prim-tri-smooth)
+        let stq: Vec<[f32; 3]> = corners.iter().map(|&[.., w, _, _, _, _, _, s, t, q]| [s, t, q].map(|v| v * (1.0 / w))).collect();
         let fog_color = tri::zip4(self.fog.color, scale, |c, s| c * s);
         let fogged = self.cap(FOG);
         if fogged {
@@ -2743,7 +2799,15 @@ impl Ctx {
                     let z = tri::trunc(tri::aa_plane(r, [z0, z1, z2], p.at).trunc());
                     if self.pf.depth == 32 { FixedZ { bits: 32, value: u64::try_from(z & 0xFFFF_FFFF).unwrap_or(0) } } else { FixedZ { bits: 16, value: u64::try_from(z & 0xFFFF).unwrap_or(0) << 1 } }
                 });
-                self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed })?;
+                self.frag_tex = textured.then(|| {
+                    let k = |i: usize, j: usize| stq.get(i).and_then(|v| v.get(j)).copied().unwrap_or(0.0);
+                    let [i0, i1, i2] = t;
+                    let along = |j: usize| tri::aa_plane(r, [k(i0, j), k(i1, j), k(i2, j)], p.at);
+                    texdraw::Stq::at([along(0), along(1), along(2)])
+                });
+                let drawn = self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed });
+                self.frag_tex = None;
+                drawn?;
             }
         }
         Ok(())
@@ -2973,6 +3037,22 @@ impl Ctx {
         if self.culled_face(tri::signed_area(&w)) {
             return Ok(());
         }
+        if self.texturing() {
+            hit(clause::GL_RASTER_TRIANGLE);
+            self.never = NeverPath::Other;
+            let first = q.get(provoking).ok_or(Fail::Bad)?.1;
+            let unfogged: Vec<[f64; 4]> = q.iter().map(|v| if self.shade == FLAT { first } else { v.1 }.map(f64::from)).collect();
+            let fog: Option<Vec<[f64; 4]>> = self.cap(FOG).then(|| {
+                q.iter()
+                    .map(|v| {
+                        let [x, y, z] = v.0.xyz;
+                        let [_, _, eye, _] = xform(self.top(0), [x, y, z, v.0.w]);
+                        [f64::from(self.fog.factor(eye)); 4]
+                    })
+                    .collect()
+            });
+            return self.textured_polygon(q, &unfogged, fog.as_deref(), depth, z0, offset_fixed);
+        }
         let px = self.fill(q, &colors, depth)?;
         hit(clause::GL_RASTER_TRIANGLE);
         if q.len() > 3 {
@@ -2992,7 +3072,10 @@ impl Ctx {
     }
 
     fn end(&mut self, mode: u32) -> Res<()> {
-        self.untextured()?;
+        let texturing = self.texturing();
+        if texturing {
+            self.textured_mode(mode)?;
+        }
         let verts = std::mem::take(&mut self.verts);
         // (antialiased points, antialiased polygons whose coverage would show in alpha, lights,
         // color materials and color index lighting are not measured)
@@ -3013,7 +3096,10 @@ impl Ctx {
                         continue;
                     }
                     let w = self.window(v)?;
-                    self.point(w, self.fogged(c, v))?;
+                    self.frag_tex = Some(texdraw::Stq::at(self.tex_coords(&v)));
+                    let r = self.point(w, self.fogged(c, v));
+                    self.frag_tex = None;
+                    r?;
                 }
             }
             QUADS => {
@@ -3024,7 +3110,7 @@ impl Ctx {
                     // (an axis-aligned rectangle of one color and depth inside the near and far
                     // planes at w = 1 as glRect; any other quad a polygon)
                     let w: Option<Vec<[f64; 3]>> = q.iter().map(|v| self.window(v.0).ok()).collect();
-                    let Some(w) = w.filter(|w| q.iter().all(|v| v.1 == q[3].1) && w.iter().all(|p| p[2] == w[0][2])) else {
+                    let Some(w) = w.filter(|w| !texturing && q.iter().all(|v| v.1 == q[3].1) && w.iter().all(|p| p[2] == w[0][2])) else {
                         self.polygon(q, 3)?;
                         continue;
                     };
@@ -3212,9 +3298,14 @@ impl Ctx {
                     if !wide && flat(ca) && flat(cb) && self.window(a.0)?[2] == self.window(b.0)?[2] {
                         let (wa, wb) = (self.window(a.0)?, self.window(b.0)?);
                         let major = usize::from((wb[1] - wa[1]).abs() > (wb[0] - wa[0]).abs());
-                        for (x, y) in self.line_pixels([wa[0], wa[1]], [wb[0], wb[1]], FirstEnd::Kept)? {
+                        let pixels = self.line_pixels([wa[0], wa[1]], [wb[0], wb[1]], FirstEnd::Kept)?;
+                        let coords = self.line_tex(&a.0, &b.0, wa, wb, pixels.first().map(|p| if major == 1 { p.1 } else { p.0 }));
+                        for (x, y) in pixels {
                             if self.stipple_keeps([x, y][major]) {
-                                self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None })?;
+                                self.frag_tex = texturing.then(|| coords.at(x, y));
+                                let r = self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None });
+                                self.frag_tex = None;
+                                r?;
                             }
                         }
                         continue;
@@ -3580,7 +3671,14 @@ impl Ctx {
     /// the per-fragment operations in their order: scissor, alpha, stencil, depth, blending,
     /// dithering, logic operation, masks
     pub fn fragment(&mut self, f: Frag) -> Res<()> {
-        self.untextured()?;
+        let f = match self.frag_tex {
+            _ if self.textured_frags => f,
+            Some(stq) if self.texturing() => self.texture_frag(f, stq)?,
+            _ => {
+                self.untextured()?;
+                f
+            }
+        };
         if self.buffers[0] == 0 {
             hit(clause::GL_BUFFER_NONE);
             return Ok(());
@@ -6157,6 +6255,54 @@ pub mod tri {
         let a = dz1 * (dy2 * inv) - dz2 * (dy1 * inv);
         let b = dz2 * (dx1 * inv) - dz1 * (dx2 * inv);
         (a, b)
+    }
+
+    /// The plane through `v` taking `val` at each, at the pixels' centers as the generic span
+    /// walks it in float32 (texture.md 4.7, offset.md 1.4): the slopes of `depth_slopes`; at
+    /// each new left edge's start (a dx + value) + b dy; each next row the last row's start
+    /// plus a times the left edge's whole step less b, a more or less for its carry; along a
+    /// row a added pixel by pixel. With the slopes (a, b).
+    pub fn walk(v: [Vertex; 3], val: [f32; 3], w: i64, h: i64) -> (Vec<(i64, i64, f32)>, (f32, f32)) {
+        let (a, b) = depth_slopes(v, val);
+        let start = |k: usize, col: i64, y: Sub| {
+            let (Some(p), Some(z)) = (v.get(k), val.get(k)) else { return 0.0 };
+            let dx = float(center(col).0.saturating_sub(p.x.0)) / 256.0;
+            let dy = float(y.0.saturating_sub(p.y.0)) / 256.0;
+            (a * dx + z) + b * dy
+        };
+        let mut out = Vec::new();
+        let mut prev: Option<(usize, f32, i64)> = None;
+        for s in spans(&v) {
+            let first = first_right(s.l);
+            let row_start = match prev {
+                Some((from, r, pfirst)) if from == s.left_from => {
+                    let t = s.step.0 / (1 << 22);
+                    let big = -b + a * float(t);
+                    let carry = first.saturating_sub(pfirst).saturating_sub(t);
+                    r + if carry == 0 { big } else { big + a * float(carry) }
+                }
+                _ => start(s.left_from, first, s.y),
+            };
+            prev = Some((s.left_from, row_start, first));
+            let row = index(s.y);
+            if !(0..h).contains(&row) {
+                continue;
+            }
+            let mut value = row_start;
+            let mut col = first;
+            loop {
+                let x = center(col).fine();
+                if x > s.r {
+                    break;
+                }
+                if s.l < x && (0..w).contains(&col) {
+                    out.push((col, row, value));
+                }
+                value += a;
+                col = col.saturating_add(1);
+            }
+        }
+        (out, (a, b))
     }
 
     /// `depths` under a polygon offset (MEASURED, golden opengl-32 / 64 raster-open-29, 31,

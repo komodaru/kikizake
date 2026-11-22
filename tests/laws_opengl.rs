@@ -819,4 +819,60 @@ proptest! {
         let back: f64 = s.parse().unwrap();
         prop_assert_eq!(back as f32, v, "{}", s);
     }
+
+    /// GL 1.1 3.8.5: NEAREST's texel is inside the level for any s, REPEAT's repeats with
+    /// period 1 off texel boundaries and CLAMP's never goes back as s grows (GL.RASTER.TEXTURE.FILTER)
+    #[test]
+    fn nearest_texels_stay_in_the_level(q in -4096i32..4096, d in 1i32..64, log in 0u32..11) {
+        use kikizake::model::opengl::texdraw::{index, Wrap};
+        let n = 1u32 << log;
+        let s = q as f32 / 256.0;
+        for wrap in [Wrap::Repeat, Wrap::Clamp] {
+            let i = index(s, n, wrap);
+            prop_assert!((0..i64::from(n)).contains(&i));
+        }
+        // (off texel boundaries: on one a negative s is taken from the top, texture.md 4.3)
+        if (s * n as f32).fract() != 0.0 {
+            prop_assert_eq!(index(s, n, Wrap::Repeat), index(s + 1.0, n, Wrap::Repeat));
+        }
+        prop_assert!(index(s, n, Wrap::Clamp) <= index(s + d as f32 / 256.0, n, Wrap::Clamp));
+    }
+
+    /// GL 1.1 3.8.6: LINEAR's two texels are neighbours (REPEAT wrapping round), its weight in
+    /// [0, 1) (GL.RASTER.TEXTURE.FILTER)
+    #[test]
+    fn linear_texels_are_neighbours(q in -4096i32..4096, log in 0u32..11) {
+        use kikizake::model::opengl::texdraw::{pair, Wrap};
+        let n = 1u32 << log;
+        let s = q as f32 / 256.0;
+        let (i0, i1, a) = pair(s, n, Wrap::Repeat);
+        prop_assert!((0..i64::from(n)).contains(&i0));
+        prop_assert_eq!(i1, (i0 + 1) % i64::from(n));
+        prop_assert!((0.0..1.0).contains(&a));
+        let (c0, c1, b) = pair(s, n, Wrap::Clamp);
+        prop_assert_eq!(c1, c0 + 1);
+        prop_assert!((-1..=i64::from(n)).contains(&c0));
+        prop_assert!((0.0..1.0).contains(&b));
+    }
+
+    /// GL 1.1 3.8.7: lambda is log2 of rho; the piecewise-linear log2 of rho squared, halved,
+    /// is within 0.05 of it (GL.RASTER.TEXTURE.FILTER)
+    #[test]
+    fn lambda_follows_log2_of_rho(r in 1e-6f32..1e6) {
+        use kikizake::model::opengl::texdraw::log2_half;
+        prop_assert!((log2_half(r) - 0.5 * r.log2()).abs() <= 0.05);
+    }
+
+    /// GL 1.1 3.8.9 table 3.18: REPLACE on RGBA gives the texel whatever the fragment, MODULATE
+    /// by a white texel leaves the fragment as it is (GL.RASTER.TEXTURE)
+    #[test]
+    fn replace_takes_the_texel_and_white_modulates_nothing(c in proptest::array::uniform4(0f32..=255.0), t in proptest::array::uniform4(0f32..=1.0)) {
+        use kikizake::model::opengl::tex::Base;
+        use kikizake::model::opengl::texdraw::{env, Env};
+        let scale = [255.0; 4];
+        let r = env(Env::Replace, Base::Rgba, c, t, [0.0; 4], scale);
+        prop_assert_eq!(r, t.map(|v| v * 255.0));
+        let m = env(Env::Modulate, Base::Rgba, c, [1.0; 4], [0.0; 4], scale);
+        prop_assert_eq!(m, c);
+    }
 }
