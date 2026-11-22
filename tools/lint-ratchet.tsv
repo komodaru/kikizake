@@ -219,7 +219,7 @@ file	src/model/d3d7.rs	cast_precision_loss	7
 file	src/model/d3d7.rs	cast_sign_loss	6
 file	src/model/d3d7.rs	float_cmp	1
 file	src/model/d3d7.rs	indexing_slicing	44
-file	src/model/d3d7.rs	map_err_ignore	10
+file	src/model/d3d7.rs	map_err_ignore	9
 file	src/model/d3d7.rs	same_name_method	1
 file	src/model/d3d7.rs	string_slice	1
 file	src/model/d3d9.rs	as_conversions	5

@@ -367,6 +367,9 @@ spec/lean/Kikizake/D3d9/Raster.lean::blend_factor_d3d8 lean D3D9.BLEND.FACTOR
 spec/lean/Kikizake/D3d9/Raster.lean::factor8_range lean D3D9.BLEND
 spec/lean/Kikizake/D3d9/Raster.lean::both_alpha lean D3D9.BLEND.BOTHALPHA
 spec/lean/Kikizake/D3d9/Raster.lean::color_write lean D3D9.COLORWRITE
+spec/lean/Kikizake/D3d9/Fvf.lean::fvf_decl_refuses lean D3DX9.FVFDECL.RESERVED D3DX9.FVFDECL.TEXCOUNT D3DX9.FVFDECL.POSITION
+spec/lean/Kikizake/D3d9/Fvf.lean::fvf_round_trip lean D3DX9.FVFDECL D3DX9.DECLFVF D3DX9.FVFSIZE
+spec/lean/Kikizake/D3d9/Fvf.lean::runtime_decl lean D3D9.FVF.DECL D3D9.FVF.TEXCOUNT D3D9.FVF.BLEND5
 spec/lean/Kikizake/DWrite/Advance.lean::phantom_mono lean DW.GDI.GLYPH.H DW.SHAPE.NATPLACE
 spec/lean/Kikizake/DWrite/Advance.lean::sixteenth_near lean DW.SHAPE.NATPLACE DW.GDI.GLYPH
 spec/lean/Kikizake/DWrite/Advance.lean::em_is_ppem lean DW.GDI.GLYPH.H DW.SHAPE.GDIPLACE DW.SHAPE.NATPLACE

@@ -11,4 +11,5 @@ import Kikizake.D3d12.Copyable
 import Kikizake.Dxgi.Args
 import Kikizake.D3d9.Pixel
 import Kikizake.D3d9.Raster
+import Kikizake.D3d9.Fvf
 import Kikizake.DWrite.Advance

@@ -1,9 +1,11 @@
 //! Direct3D 9's mirrors (spec/lean/Kikizake/D3d9/).
 use super::{arg, every, one, sampled, Domain, Mirror};
 use crate::model::d3d9draw::{self, BlendOp, Winding};
+use crate::model::d3dx9;
 
 const PIXEL: &str = "spec/lean/Kikizake/D3d9/Pixel.lean";
 const RASTER: &str = "spec/lean/Kikizake/D3d9/Raster.lean";
+const FVF: &str = "spec/lean/Kikizake/D3d9/Fvf.lean";
 const U32: i64 = 0xffff_ffff;
 
 pub static MIRRORS: &[Mirror] = &[
@@ -151,4 +153,105 @@ pub static MIRRORS: &[Mirror] = &[
             Some(d3d9draw::color_write(arg(a, 0)?, c4(1)?, c4(5)?).to_vec())
         },
     },
+    Mirror {
+        name: "d3dx9.fvfdecl",
+        lean: FVF,
+        domain: Domain::Sampled("every FVF of the low 16 bits, and 300,000 32-bit FVFs"),
+        inputs: |each| {
+            every(&[(0, 0xffff)], each);
+            sampled(&[(0, U32)], 300_000, 0xf1fd_d009, each);
+        },
+        model: |a| Some(match d3dx9::fvf_decl(arg(a, 0)?) {
+            Ok(e) => std::iter::once(0).chain(flat(&e)).collect(),
+            Err(c) => vec![1, i64::from(c)],
+        }),
+    },
+    Mirror {
+        name: "d3dx9.declfvf",
+        lean: FVF,
+        domain: Domain::Sampled("the declarations D3DXDeclaratorFromFVF makes of every FVF of the low 16 bits and of 100,000 32-bit FVFs, each also with one element dropped, two swapped, an offset moved, a type, usage or index changed, a stream set and an end inside"),
+        inputs: |each| {
+            let mut rng = crate::rng::XorShift32::new(0xdec1_d009);
+            let mut decl = |f: i64| {
+                let Some(Ok(e)) = u32::try_from(f).ok().map(d3dx9::fvf_decl) else {
+                    return;
+                };
+                let send = |e: &[(u32, u32)], each: &mut dyn FnMut(&[i64])| each(&flat(e).collect::<Vec<_>>());
+                send(&e, each);
+                if e.is_empty() {
+                    return;
+                }
+                let n = i64::try_from(e.len()).unwrap_or(1);
+                let pick = |rng: &mut crate::rng::XorShift32| usize::try_from(rng.range(0, n.saturating_sub(1))).unwrap_or(0);
+                let mut d = e.clone();
+                d.remove(pick(&mut rng));
+                send(&d, each);
+                let mut d = e.clone();
+                let (i, j) = (pick(&mut rng), pick(&mut rng));
+                d.swap(i, j);
+                send(&d, each);
+                for (k, change) in [(0u8, 4u32 << 16), (1, 1), (2, 1 << 16), (3, 1 << 24), (4, 1), (5, 0)] {
+                    let mut d = e.clone();
+                    let i = pick(&mut rng);
+                    if let Some(x) = d.get_mut(i) {
+                        match k {
+                            0 | 4 => x.0 = x.0.wrapping_add(change),
+                            5 => x.0 = x.0 & !0xffff | 0xff,
+                            _ => x.1 = x.1.wrapping_add(change),
+                        }
+                    }
+                    send(&d, each);
+                }
+            };
+            every(&[(0, 0xffff)], &mut |v| {
+                if let [f] = *v {
+                    decl(f);
+                }
+            });
+            sampled(&[(0, U32)], 100_000, 0xdec2_d009, &mut |v| {
+                if let [f] = *v {
+                    decl(f);
+                }
+            });
+        },
+        model: |a| {
+            let e: Option<Vec<(u32, u32)>> = a.chunks(2).map(|p| match *p {
+                [x, y] => Some((u32::try_from(x).ok()?, u32::try_from(y).ok()?)),
+                _ => None,
+            }).collect();
+            Some(match d3dx9::decl_fvf(&e?) {
+                Ok(f) => vec![0, i64::from(f)],
+                Err(c) => vec![1, i64::from(c)],
+            })
+        },
+    },
+    Mirror {
+        name: "d3dx9.fvfsize",
+        lean: FVF,
+        domain: Domain::Sampled("every FVF of the low 16 bits, and 300,000 32-bit FVFs"),
+        inputs: |each| {
+            every(&[(0, 0xffff)], each);
+            sampled(&[(0, U32)], 300_000, 0xf1f5_d009, each);
+        },
+        model: |a| one(d3dx9::fvf_size(arg(a, 0)?)),
+    },
+    Mirror {
+        name: "d3d9.fvfdecl",
+        lean: FVF,
+        domain: Domain::Sampled("every FVF of the low 16 bits, and 300,000 32-bit FVFs"),
+        inputs: |each| {
+            every(&[(0, 0xffff)], each);
+            sampled(&[(0, U32)], 300_000, 0xf1f9_d009, each);
+        },
+        model: |a| Some(match d3d9draw::fvf_runtime_decl(arg(a, 0)?) {
+            Ok(Some(e)) => std::iter::once(0).chain(flat(&e)).collect(),
+            Ok(None) => vec![],
+            Err(_) => vec![-1],
+        }),
+    },
 ];
+
+/// the elements' pairs one after the other
+fn flat(e: &[(u32, u32)]) -> impl Iterator<Item = i64> + '_ {
+    e.iter().flat_map(|x| [i64::from(x.0), i64::from(x.1)])
+}
