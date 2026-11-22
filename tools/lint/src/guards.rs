@@ -94,7 +94,9 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     ("src/model/d3draster.rs", r"QUAD_HALF\s*/|0x3EE6_6666|2\.0\s*/\s*len\b|\.y\s*-\s*\w+\.y\)\.abs\(\)\s*>", &["major_of", "quad_corners", "alpha_corners", "alpha_coverage"]),
     // (CreateInputLayout's verdict on the generator's programs is layout_verdict, which
     // d3d11.layout holds to spec/lean/Kikizake/D3d11/Layout.lean)
-    ("src/model/d3draster.rs", r#""bad"\s*=>|"vsid"\s*=>\s*1"#, &["layout_verdict"]),
+    // (string literals are blanked before matching, so the verdicts are what it confines: a
+    // program named, how many inputs it needs, and the check that every one is fed)
+    ("src/model/d3draster.rs", r"=>\s*return\s+Some\(LayoutVerdict::|usable\.len\(\)\s*>=\s*needs", &["layout_verdict"]),
     // (a declaration's refusals are decl_ok's, which the Lean mirror d3d9.decl holds to
     // spec/lean/Kikizake/D3d9/Decl.lean)
     ("src/model/d3d9draw.rs", r"usage\s*==\s*8\s*&&|\(9,\s*0\)", &["decl_ok"]),

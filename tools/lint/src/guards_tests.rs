@@ -354,10 +354,10 @@ fn filter_arithmetic_stays_in_the_mirrored_functions() {
 
 #[test]
 fn layout_stays_in_the_mirrored_function() {
-    let inlined = "fn draw() {\n    match name { \"vsid\" => 1, \"bad\" => refuse(), _ => 2 }\n}\n";
+    let inlined = "fn draw() {\n    let v = match name { \"bad\" => return Some(LayoutVerdict::NoProgram), _ => 2 };\n    if usable.len() >= needs {}\n}\n";
     let r = rust("src/model/d3draster.rs", inlined);
     assert_eq!(r.iter().filter(|b| b.contains("confined:") && b.contains(" in draw")).count(), 2, "{r:?}");
-    assert!(rust("src/model/d3draster.rs", "fn layout_verdict() { match name { \"vsid\" => 1, \"bad\" => refuse(), _ => 2 } }\n").is_empty());
+    assert!(rust("src/model/d3draster.rs", "fn layout_verdict() { match name { \"bad\" => return Some(LayoutVerdict::NoProgram), _ => 2 }; if usable.len() >= needs {} }\n").is_empty());
 }
 
 #[test]
