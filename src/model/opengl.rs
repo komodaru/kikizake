@@ -508,6 +508,8 @@ pub struct Ctx {
     pub arrays: array::Arrays,
     /// the current edge flag (glEdgeFlag)
     pub edge_flag: bool,
+    /// inside glDrawArrays or glDrawElements (their points truncated: Ctx::point_fixed)
+    pub from_arrays: bool,
     /// while a textured polygon's fragments are written
     pub textured_frags: bool,
     pub line_width: f32,
@@ -608,6 +610,7 @@ impl Ctx {
             lists: list::Lists::default(),
             arrays: array::Arrays::default(),
             edge_flag: true,
+            from_arrays: false,
             textured_frags: false,
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
@@ -1573,7 +1576,9 @@ impl Ctx {
             "glFlush" | "glFinish" => hit(clause::GL_FLUSH),
             "glEnable" | "glDisable" => {
                 let c = u(a, 0);
-                if self.caps.contains_key(&c) {
+                // (MEASURED, golden opengl-32 / 64 array-more-enable: the client arrays' caps
+                // INVALID_ENUM here, glEnableClientState's only: GL.ARRAY)
+                if self.caps.contains_key(&c) && array::Kind::of_cap(c).is_none() {
                     hit(clause::GL_ENABLE);
                     self.caps.insert(c, name == "glEnable");
                 } else {
@@ -2016,9 +2021,9 @@ impl Ctx {
                 if self.in_begin != Some(POINTS) {
                     // (MEASURED, golden opengl-32 persp-more-3..5: the clip coordinates of
                     // (x, y, z, w), cut and divided as any others)
-                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_flag }, self.lit(self.current())));
+                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_on() }, self.lit(self.current())));
                 } else if w > 0.0 {
-                    self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]).with(self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w)).edged(self.edge_flag), self.lit(self.current())));
+                    self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]).with(self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w)).edged(self.edge_on()), self.lit(self.current())));
                 } else {
                     hit(clause::GL_RASTER_CLIP_XY);
                 }
@@ -2026,7 +2031,7 @@ impl Ctx {
             "glVertex2f" | "glVertex3f" | "glVertex4f" | "glVertex2i" | "glVertex3i" => {
                 let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
                 if self.in_begin.is_some() {
-                    self.verts.push((Obj::at(v).with(self.vertex_coords(v, 1.0)).edged(self.edge_flag), self.lit(self.current())));
+                    self.verts.push((Obj::at(v).with(self.vertex_coords(v, 1.0)).edged(self.edge_on()), self.lit(self.current())));
                 } else {
                     // (MEASURED, golden opengl-32 edge-vertex-outside: ignored, no error)
                     hit(clause::GL_VERTEX_OUTSIDE);
@@ -2327,13 +2332,24 @@ impl Ctx {
 
     /// how a point's fragments become channel values (MEASURED, golden opengl-32 fog-points: 192
     /// fogged channels truncated, without the 32nd polygons add: GL.FOG.TOFIXED)
+    /// (MEASURED, golden opengl-32 / 64 array-more-color-*: points of glDrawArrays truncated
+    /// too, 0.5 drawn 127 where glVertex's 128: GL.ARRAY)
     fn point_fixed(&self) -> ToFixed {
-        if self.cap(FOG) || self.cap(LIGHTING) {
+        if self.from_arrays {
+            hit(clause::GL_ARRAY);
+            ToFixed::Trunc
+        } else if self.cap(FOG) || self.cap(LIGHTING) {
             hit(clause::GL_FOG_TOFIXED);
             ToFixed::Trunc
         } else {
             ToFixed::Nearest
         }
+    }
+
+    /// the edge flag a vertex takes: GL_TRIANGLES, GL_QUADS and GL_POLYGON's only, strips and
+    /// fans every edge drawn (MEASURED, golden opengl-32 / 64 array-more-edge-immediate: GL.ARRAY)
+    fn edge_on(&self) -> bool {
+        self.edge_flag || !matches!(self.in_begin, Some(TRIANGLES | QUADS | POLYGON_MODE_POLYGON))
     }
 
     /// a vertex's color under GL_LIGHTING with every light off and the initial material

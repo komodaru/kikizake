@@ -203,16 +203,15 @@ file	src/model/d3d11.rs	indexing_slicing	63
 file	src/model/d3d11.rs	same_name_method	1
 file	src/model/d3d11.rs	wildcard_enum_match_arm	1
 file	src/model/d3d12.rs	arithmetic_side_effects	69
-file	src/model/d3d12.rs	as_conversions	100
+file	src/model/d3d12.rs	as_conversions	86
 file	src/model/d3d12.rs	cast_possible_truncation	17
 file	src/model/d3d12.rs	cast_possible_wrap	8
 file	src/model/d3d12.rs	cast_precision_loss	5
 file	src/model/d3d12.rs	cast_sign_loss	8
-file	src/model/d3d12.rs	indexing_slicing	157
+file	src/model/d3d12.rs	indexing_slicing	142
 file	src/model/d3d12.rs	panic_in_result_fn	1
 file	src/model/d3d12.rs	same_name_method	1
-file	src/model/d3d12.rs	unreachable	2
-file	src/model/d3d12.rs	wildcard_enum_match_arm	1
+file	src/model/d3d12.rs	unreachable	1
 file	src/model/d3d7.rs	arithmetic_side_effects	89
 file	src/model/d3d7.rs	as_conversions	14
 file	src/model/d3d7.rs	cast_possible_truncation	7
@@ -236,7 +235,7 @@ file	src/model/d3d9draw.rs	cast_possible_wrap	7
 file	src/model/d3d9draw.rs	cast_precision_loss	61
 file	src/model/d3d9draw.rs	cast_sign_loss	41
 file	src/model/d3d9draw.rs	float_cmp	11
-file	src/model/d3d9draw.rs	indexing_slicing	313
+file	src/model/d3d9draw.rs	indexing_slicing	303
 file	src/model/d3d9draw.rs	map_err_ignore	1
 file	src/model/d3d9draw.rs	unreachable	1
 file	src/model/d3d9draw.rs	wildcard_enum_match_arm	6
@@ -496,7 +495,6 @@ file	src/model/opengl.rs	cast_sign_loss	88
 file	src/model/opengl.rs	float_cmp	47
 file	src/model/opengl.rs	indexing_slicing	368
 file	src/model/opengl.rs	lossy_float_literal	7
-file	src/model/opengl.rs	map_entry	1
 file	src/model/opengl.rs	map_err_ignore	3
 file	src/model/opengl.rs	panic	1
 file	src/model/opengl.rs	redundant_locals	1

@@ -951,6 +951,26 @@ proptest! {
         prop_assert_eq!(normalized(BYTE, -128.0), -1.0);
     }
 
+    // GL.ARRAY: a color array's integer component in order, within a few float32 ulps of
+    // GL 1.1 table 2.6 (the rounded reciprocals: 1 + 4 ulps at most past it), and a normal's
+    // INT component the color's
+    #[test]
+    fn array_colors_stay_in_order_near_the_table(a in any::<i32>(), b in any::<i32>(), u in any::<u32>()) {
+        use kikizake::model::opengl::array::{color_component, normal_component};
+        const INT: u32 = 0x1404;
+        const UNSIGNED_INT: u32 = 0x1405;
+        let (lo, hi) = (a.min(b), a.max(b));
+        prop_assert!(color_component(INT, f64::from(lo)) <= color_component(INT, f64::from(hi)));
+        prop_assert_eq!(normal_component(INT, f64::from(a)).to_bits(), color_component(INT, f64::from(a)).to_bits());
+        let exact = f64::from(u) / 4_294_967_295.0;
+        let got = f64::from(color_component(UNSIGNED_INT, f64::from(u)));
+        prop_assert!((got - exact).abs() <= exact * 1e-6 + 1e-9, "{} {}", got, exact);
+        let s = (a & 0xFFFF) as i16;
+        let exact = (2.0 * f64::from(s) + 1.0) / 65535.0;
+        let got = f64::from(color_component(SHORT, f64::from(s)));
+        prop_assert!((got - exact).abs() <= exact.abs() * 1e-6 + 1e-9, "{} {}", got, exact);
+    }
+
     // GL.ARRAY: a glp line's values read back as their type from the executor's layout
     #[test]
     fn glp_values_read_back(v in proptest::collection::vec(any::<i16>(), 1..64)) {

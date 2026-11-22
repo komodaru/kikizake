@@ -293,6 +293,34 @@ pub fn normalized(ty: u32, v: f64) -> f32 {
     super::tri::narrow(f)
 }
 
+/// float32 2^-32 and 4 ulps, what INT and UNSIGNED_INT components are scaled by (MEASURED,
+/// golden opengl-32 / 64 gap-forms-0 glColor3ui 4294967295: 1 and 4 ulps, glColor4i 0: 0x2f800004)
+const INT_SCALE: u32 = 0x2f80_0004;
+
+/// a color array's component as a float (MEASURED, golden opengl-32 / 64 array-more-color-*:
+/// in float32, the value (SHORT, INT 2v + 1) times the reciprocal, 1 / 65535 rounded for the
+/// shorts, INT_SCALE for the ints; the current color after the batch then (c 255) (1 / 255))
+pub fn color_component(ty: u32, v: f64) -> f32 {
+    let f = super::tri::narrow;
+    let short = f(1.0 / 65535.0);
+    match ty {
+        SHORT => f(2.0 * v + 1.0) * short,
+        UNSIGNED_SHORT => f(v) * short,
+        INT => f(2.0 * v + 1.0) * f32::from_bits(INT_SCALE),
+        UNSIGNED_INT => f(v) * f32::from_bits(INT_SCALE),
+        _ => normalized(ty, v),
+    }
+}
+
+/// a normal array's component (MEASURED, golden opengl-32 / 64 array-more-normal-i: INT
+/// (2v + 1) times INT_SCALE: -2^31 gives -1 and 4 ulps)
+pub fn normal_component(ty: u32, v: f64) -> f32 {
+    match ty {
+        INT => super::tri::narrow(2.0 * v + 1.0) * f32::from_bits(INT_SCALE),
+        _ => normalized(ty, v),
+    }
+}
+
 /// what follows a glp line's leading arguments
 enum Tail<'a> {
     Null,
@@ -432,7 +460,8 @@ impl Ctx {
         match name {
             "glEnableClientState" | "glDisableClientState" => match u32::try_from(i(0) & 0xFFFF_FFFF).ok().and_then(Kind::of_cap) {
                 Some(k) => self.set_client(k, name == "glEnableClientState"),
-                None => self.error(INVALID_ENUM),
+                // (MEASURED, array-more-errors: another cap no error, nothing changed)
+                None => {}
             },
             "glEdgeFlag" => self.edge_flag = i(0) != 0,
             "glArrayElement" => self.array_element(i(0))?,
@@ -491,10 +520,10 @@ impl Ctx {
     /// glBegin(mode), glArrayElement of each element, glEnd
     fn draw_elements(&mut self, mode: i64, elements: &[i64]) -> Res<()> {
         self.call("glBegin", &[A::I(mode)])?;
-        for e in elements {
-            self.array_element(*e)?;
-        }
-        self.call("glEnd", &[])
+        self.from_arrays = true;
+        let drawn = elements.iter().try_for_each(|e| self.array_element(*e)).and_then(|()| self.call("glEnd", &[]));
+        self.from_arrays = false;
+        drawn
     }
 
     /// glArrayElement(i): each enabled array's element i as the call it stands for, the vertex
@@ -512,7 +541,7 @@ impl Ctx {
         if self.client_enabled(Kind::Color) {
             let ty = self.arrays.spec(Kind::Color).ty;
             let v = self.arrays.values(Kind::Color, i)?;
-            let c = |k: usize| v.get(k).map_or(1.0, |x| normalized(ty, *x));
+            let c = |k: usize| v.get(k).map_or(1.0, |x| color_component(ty, *x));
             self.color = [c(0), c(1), c(2), c(3)];
         }
         if self.client_enabled(Kind::Index) {
@@ -522,7 +551,7 @@ impl Ctx {
         if self.client_enabled(Kind::Normal) {
             let ty = self.arrays.spec(Kind::Normal).ty;
             let v = self.arrays.values(Kind::Normal, i)?;
-            let c = |k: usize| v.get(k).map_or(0.0, |x| normalized(ty, *x));
+            let c = |k: usize| v.get(k).map_or(0.0, |x| normal_component(ty, *x));
             self.normal = [c(0), c(1), c(2)];
         }
         if self.client_enabled(Kind::Vertex) {
@@ -556,10 +585,12 @@ impl Ctx {
                 Kind::Edge => (1, i64::from(UNSIGNED_BYTE), n(0)?),
             };
             let ty = u32::try_from(ty & 0xFFFF_FFFF).ok().ok_or(Fail::Bad)?;
-            if !k.sizes().contains(&size) || stride < 0 {
-                self.error(INVALID_VALUE);
-            } else if !k.types().contains(&ty) {
+            // (MEASURED, golden opengl-32 / 64 array-more-errors: a type it does not take
+            // INVALID_ENUM before a size or stride's INVALID_VALUE)
+            if !k.types().contains(&ty) {
                 self.error(INVALID_ENUM);
+            } else if !k.sizes().contains(&size) || stride < 0 {
+                self.error(INVALID_VALUE);
             } else {
                 *self.arrays.spec_mut(k) = Spec { size, ty, stride, ptr: at.ok_or(Fail::Bad)? };
             }
