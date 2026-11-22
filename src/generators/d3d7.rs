@@ -297,6 +297,40 @@ pub fn d3d7rast() -> String {
     s
 }
 
+/// states set past their enumeration (and SHADE_PHONG), then a triangle of three colours drawn
+/// twice (D3D7.STATES.OTHER, d3d7dev badstate-*)
+const BADSTATE: [(&str, &str); 12] = [
+    ("cull0", "22 0"),
+    ("cull4", "22 4"),
+    ("fill0", "8 0"),
+    ("fill4", "8 4"),
+    ("shade0", "9 0"),
+    ("shade3", "9 3"),
+    ("shade4", "9 4"),
+    ("afunc0", "15 1\nd3drs set 24 0x80\nd3drs set 25 0"),
+    ("afunc9", "15 1\nd3drs set 24 0x80\nd3drs set 25 9"),
+    ("src0", "27 1\nd3drs set 19 0"),
+    ("src14", "27 1\nd3drs set 19 14"),
+    ("dst14", "27 1\nd3drs set 20 14"),
+];
+
+/// the bad states that may kill the HAL's executor
+const RISKY: [&str; 5] = ["afunc0", "afunc9", "src0", "src14", "dst14"];
+
+/// the case of one bad state on one drawer
+fn badstate_case(v: u32, d: &str, name: &str, set: &str) -> String {
+    format!("case badstate-{v}-{d}-{name}\nd3d {v}\nd3ddev {d} 565 12 12\nd3drs set 22 1\nd3drs set {set}\nd3dclear 0x00404040\nd3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165\nd3ddump\nd3dclear 0x00404040\nd3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60\nd3ddump\nend\n")
+}
+
+/// a HAL state past its enumeration that may kill the executor, alone in its suite so that a
+/// death ends nothing else: RISKY[K % 5] on the HAL (K < 5) or the T&L HAL
+pub fn d3d7bad<const K: usize>() -> String {
+    let name = RISKY.get(K % 5).copied().unwrap_or("afunc0");
+    let d = if K < 5 { "hal" } else { "tnl" };
+    let set = BADSTATE.iter().find(|b| b.0 == name).map_or("", |b| b.1);
+    format!("# kikizake suite d3d7bad{K}: one Direct3D 7 HAL state past its enumeration (SPEC.md). Made by `kikizake gen d3d7bad{K}`.\n# x86 only\n{}", badstate_case(7, d, name, set))
+}
+
 /// colors: Gouraud shading, dithering, blending (every factor), the z functions, the alpha
 /// test, fog, fill modes, on every device that draws
 pub fn d3d7shade() -> String {
@@ -962,24 +996,16 @@ pub fn d3d7dev() -> String {
     }
     // D3D7.STATES.OTHER: states set past their enumeration (and SHADE_PHONG), then a triangle of
     // three colours; D3D7.TRI.CLIP: a vertex past the software guard band
-    let bad: [(&str, &str); 12] = [
-        ("cull0", "22 0"),
-        ("cull4", "22 4"),
-        ("fill0", "8 0"),
-        ("fill4", "8 4"),
-        ("shade0", "9 0"),
-        ("shade3", "9 3"),
-        ("shade4", "9 4"),
-        ("afunc0", "15 1\nd3drs set 24 0x80\nd3drs set 25 0"),
-        ("afunc9", "15 1\nd3drs set 24 0x80\nd3drs set 25 9"),
-        ("src0", "27 1\nd3drs set 19 0"),
-        ("src14", "27 1\nd3drs set 19 14"),
-        ("dst14", "27 1\nd3drs set 20 14"),
-    ];
+    let bad = BADSTATE;
+    let risky = |d: &str, name: &str| matches!(d, "hal" | "tnl") && RISKY.contains(&name);
     for &(v, d) in DRAWERS {
         for (name, set) in bad {
-            writeln!(s, "case badstate-{v}-{d}-{name}\nd3d {v}\nd3ddev {d} 565 12 12\nd3drs set 22 1\nd3drs set {set}");
-            writeln!(s, "d3dclear 0x00404040\nd3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 170 60 60 165\nd3ddump\nd3dclear 0x00404040\nd3dtri 0xffff0000/0xff00ff00/0x800000ff 20 30 60 165 170 60\nd3ddump\nend");
+            // (the HAL's alpha functions and blend factors past their enumeration may kill the
+            // executor, MEASURED for ALPHAFUNC 0: each in a suite of its own, d3d7bad)
+            if risky(d, name) {
+                continue;
+            }
+            s.push_str(&badstate_case(v, d, name, set));
         }
     }
     for (v, d) in [(7, "rgb"), (7, "mmx"), (3, "rgb"), (2, "rgb"), (3, "mmx")] {
