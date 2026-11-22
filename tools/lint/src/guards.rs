@@ -115,6 +115,7 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
 
 /// (file, what (a regular expression), why): `forbidden`
 pub const FORBIDDEN: &[(&str, &str, &str)] = &[
+    ("src/model/wicimage.rs", r#"self\.from\s*==\s*Some\(\s*"wmp"\s*\)\s*&&\s*bag\b|if\s+rcw\s*&&\s*i\.fmt\s*==\s*"gray8""#, "a JPEG XR frame written again by JPEG XR's encoder keeps its pixels whatever its options (wmpframe-opt-*), and which turned files copy is turned()'s, of the width (wmpturn-*)"),
     ("src/model/wicimage.rs", r#"for\s+\w+\s+in\s+&?t\s*\[\s*first\s*\.\.\s*\]|\bmatch\s+option\s*\(\s*cont\s*,\s*o\s*\)|Decodes\s*\(\s*"wmp"\s*,\s*img\s*\)"#, "an encoder's options are Bag::write's, each name's last value as Initialize reads them (a name given twice), and a lossless JPEG XR file is turned by its BitmapTransform as a lossy one is (review of 84b05c8, 3.4)"),
     ("src/model/opengl_list.rs", r"1\s*<<\s*20|0x10_?0000|1_?048_?576", "glDeleteLists deletes every list of its range, however wide (list-more-delete-*), not the first 2^20 names (review of 84b05c8, 5)"),
     ("src/model/opengl_list.rs", r#""gltex"\s*\|\s*"glmat"|"glmat"\s*\|\s*"glfogv"\s*\|\s*"gldraw"\s*\|\s*"gltex"\s*=>\s*Kind::Compiled\s*,\s*\n\s*_\s*=>"#, "a glTexImage of a proxy target runs at once, outside the list (GL 1.1 3.8.3; list-more-proxy-*): its gltex arm comes before the compiled ones (review of 84b05c8, 3.5)"),

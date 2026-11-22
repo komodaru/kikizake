@@ -464,3 +464,10 @@ fn current_sources_set_apart_are_found() {
     assert!(rust("src/model/wicimage.rs", old).iter().any(|b| b.contains("confined")), "{:?}", rust("src/model/wicimage.rs", old));
     assert!(rust("src/model/wicimage.rs", "fn flipper(&mut self) {\n    self.set_cur(flip(c, o));\n}\n").is_empty());
 }
+
+#[test]
+fn wmp_frames_by_their_options_are_found() {
+    let old = "fn op() {\n    match cont {\n        \"wmp\" if self.from == Some(\"wmp\") && bag.last().next().is_none() && nf == c.fmt => {}\n    }\n    let o = if rcw && i.fmt == \"gray8\" { a } else { b };\n}\n";
+    assert_eq!(rust("src/model/wicimage.rs", old).iter().filter(|b| b.contains("turned()")).count(), 2);
+    assert!(rust("src/model/wicimage.rs", "fn op() {\n    match cont {\n        \"wmp\" if self.from == Some(\"wmp\") && nf == c.fmt => {}\n    }\n}\n").is_empty());
+}

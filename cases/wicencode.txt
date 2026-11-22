@@ -10516,3 +10516,435 @@ wframe 0
 winfo
 wpixels
 end
+case wmpturn-size-gray8-1x1
+wbits gray8 1 1 193265664
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-1x2
+wbits gray8 1 2 193265665
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-1x3
+wbits gray8 1 3 193265666
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-1x4
+wbits gray8 1 4 193265667
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-1x5
+wbits gray8 1 5 193265668
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-1x6
+wbits gray8 1 6 193265669
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-2x1
+wbits gray8 2 1 193265670
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-2x2
+wbits gray8 2 2 193265671
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-2x3
+wbits gray8 2 3 193265672
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-2x4
+wbits gray8 2 4 193265673
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-2x5
+wbits gray8 2 5 193265674
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-2x6
+wbits gray8 2 6 193265675
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-3x1
+wbits gray8 3 1 193265676
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-3x2
+wbits gray8 3 2 193265677
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-3x3
+wbits gray8 3 3 193265678
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-3x4
+wbits gray8 3 4 193265679
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-3x5
+wbits gray8 3 5 193265680
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-3x6
+wbits gray8 3 6 193265681
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-4x1
+wbits gray8 4 1 193265682
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-4x2
+wbits gray8 4 2 193265683
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-4x3
+wbits gray8 4 3 193265684
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-4x4
+wbits gray8 4 4 193265685
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-4x5
+wbits gray8 4 5 193265686
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-4x6
+wbits gray8 4 6 193265687
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-5x1
+wbits gray8 5 1 193265688
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-5x2
+wbits gray8 5 2 193265689
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-5x3
+wbits gray8 5 3 193265690
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-5x4
+wbits gray8 5 4 193265691
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-5x5
+wbits gray8 5 5 193265692
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-5x6
+wbits gray8 5 6 193265693
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-6x1
+wbits gray8 6 1 193265694
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-6x2
+wbits gray8 6 2 193265695
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-6x3
+wbits gray8 6 3 193265696
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-6x4
+wbits gray8 6 4 193265697
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-6x5
+wbits gray8 6 5 193265698
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray8-6x6
+wbits gray8 6 6 193265699
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-bgra-1x1
+wbits bgra 1 1 193265700
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-bgra-1x2
+wbits bgra 1 2 193265701
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-bgra-1x3
+wbits bgra 1 3 193265702
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-bgra-2x1
+wbits bgra 2 1 193265703
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-bgra-2x2
+wbits bgra 2 2 193265704
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-bgra-2x3
+wbits bgra 2 3 193265705
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-bgra-3x1
+wbits bgra 3 1 193265706
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-bgra-3x2
+wbits bgra 3 2 193265707
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-bgra-3x3
+wbits bgra 3 3 193265708
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray16-1x1
+wbits gray16 1 1 193265709
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray16-1x2
+wbits gray16 1 2 193265710
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray16-1x3
+wbits gray16 1 3 193265711
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray16-2x1
+wbits gray16 2 1 193265712
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray16-2x2
+wbits gray16 2 2 193265713
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray16-2x3
+wbits gray16 2 3 193265714
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray16-3x1
+wbits gray16 3 1 193265715
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray16-3x2
+wbits gray16 3 2 193265716
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end
+case wmpturn-size-gray16-3x3
+wbits gray16 3 3 193265717
+wencode wmp Lossless=1 BitmapTransform=1
+wredecode
+wframe 0
+winfo
+wpixels
+end

@@ -1305,17 +1305,25 @@ mod wmp_frames {
     proptest! {
         #![proptest_config(ProptestConfig::with_cases(48))]
         #[test]
-        fn a_frame_written_again_keeps_its_pixels(f in prop_oneof![Just("bgra"), Just("gray8"), Just("bgr24")], w in 1u32..12, h in 1u32..12, q in prop_oneof![Just(" ImageQuality=0.5"), Just(" Lossless=1"), Just("")], seed: u32) {
+        fn a_frame_written_again_keeps_its_pixels(f in prop_oneof![Just("bgra"), Just("gray8"), Just("bgr24")], w in 1u32..12, h in 1u32..12, q in prop_oneof![Just(" ImageQuality=0.5"), Just(" Lossless=1"), Just("")], o in prop_oneof![Just(""), Just(" ImageQuality=0.5"), Just(" ImageQuality=0.9"), Just(" Lossless=1"), Just(" Overlap=0")], seed: u32) {
             let first = format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp{q}\nwredecode\nwframe 0\nwpixels\nend\n");
-            let again = format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp{q}\nwredecode\nwframe 0\nwencode wmp\nwredecode\nwframe 0\nwpixels\nend\n");
+            let again = format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp{q}\nwredecode\nwframe 0\nwencode wmp{o}\nwredecode\nwframe 0\nwpixels\nend\n");
             prop_assert_eq!(pixels(&run(&first)), pixels(&run(&again)));
         }
 
         #[test]
-        fn a_quarter_turned_gray_file_copies_nothing(w in 1u32..12, h in 1u32..12, t in prop_oneof![Just(1u32), Just(9)], q in prop_oneof![Just("Lossless=1"), Just("ImageQuality=1"), Just("ImageQuality=0.5")], seed: u32) {
-            let out = run(&format!("case a\nwbits gray8 {w} {h} {seed}\nwencode wmp {q} BitmapTransform={t}\nwredecode\nwframe 0\nwinfo\nwpixels\nend\n"));
-            prop_assert!(out.iter().any(|l| *l == format!("winfo 00000000 {h} {w} gray8 0.000 0.000")), "{:?}", out);
-            prop_assert!(out.iter().any(|l| l == "wpixels 88982f48 8"), "{:?}", out);
+        fn a_quarter_turned_gray_file_copies_nothing(w in 1u32..12, h in 1u32..12, f in prop_oneof![Just("gray8"), Just("gray16"), Just("bgra")], t in prop_oneof![Just(1u32), Just(9), Just(2)], q in prop_oneof![Just("Lossless=1"), Just("ImageQuality=1"), Just("ImageQuality=0.5")], again: bool, seed: u32) {
+            // (written once, or its frame written again by JPEG XR's encoder with the turn)
+            let text = if again {
+                format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp {q}\nwredecode\nwframe 0\nwencode wmp BitmapTransform={t}\nwredecode\nwframe 0\nwinfo\nwpixels\nend\n")
+            } else {
+                format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp {q} BitmapTransform={t}\nwredecode\nwframe 0\nwinfo\nwpixels\nend\n")
+            };
+            let out = run(&text);
+            let (tw, th) = if t & 1 != 0 { (h, w) } else { (w, h) };
+            prop_assert!(out.iter().any(|l| *l == format!("winfo 00000000 {tw} {th} {f} 0.000 0.000")), "{:?}", out);
+            let fails = f == "gray8" && t & 1 != 0 && w == 2;
+            prop_assert_eq!(out.iter().any(|l| l.starts_with("wpixels 88982f48")), fails, "{:?}", out);
         }
     }
 }

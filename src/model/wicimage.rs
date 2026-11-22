@@ -3521,16 +3521,22 @@ fn encode_wmp(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
     for y in 0..h {
         o.px[y * st..y * st + row].copy_from_slice(&e.decoded[y * row..(y + 1) * row]);
     }
+    Ok(Encoded::Lossy(e.file, "wmp", turned(o, t, i.w)))
+}
+
+/// a JPEG XR file's pixels as its decoder gives them, turned by the BitmapTransform `t` written
+/// into it: a quarter turned 8bppGray picture two pixels wide (before the turn) decodes to its
+/// size and format, but its CopyPixels fails with WINCODEC_ERR_INTERNALERROR (golden optset-0,
+/// 1, 8, 9-wmp-gray8, wmpturn-1, lossless and lossy; wider ones copy: wmpturn-0, 2, 3; other
+/// formats copy: wmpturn-4..6)
+fn turned(o: Img, t: u32, w: u32) -> Written {
     let o = if t == 0 { o } else { flip(&o, t) };
-    // (a quarter turned 8bppGray file decodes to its size and format, but its CopyPixels fails:
-    // golden optset-0, 1, 8, 9-wmp-gray8, lossless and ImageQuality 1, where 32bppBGRA's copy)
-    let o = if rcw && i.fmt == "gray8" {
+    if t & 1 != 0 && o.fmt == "gray8" && w == 2 {
         hit(clause::WICIMAGE_ENCODE_WMP_TURNGRAY);
         Written::NoPixels(o, 0x8898_2f48)
     } else {
         Written::Pixels(o)
-    };
-    Ok(Encoded::Lossy(e.file, "wmp", o))
+    }
 }
 
 #[derive(Default, Clone, Copy)]
@@ -4303,12 +4309,13 @@ impl WicImage {
                     // float's is float2pixel's (golden float-shift-2: past a shift of 31 its
                     // count mod 32), and turned as BitmapTransform writes the file's
                     // orientation, as the lossy file's)
-                    // (a JPEG XR decoder's frame written by JPEG XR's encoder, no option given,
-                    // in its own format: its pixels as decoded, not encoded again (golden
-                    // wmpframe-0..2, 12..14: lossy and lossless files alike))
-                    "wmp" if self.from == Some("wmp") && bag.last().next().is_none() && nf == c.fmt => {
+                    // (a JPEG XR decoder's frame written by JPEG XR's encoder in its own format:
+                    // its pixels as decoded, not encoded again whatever the quality, overlap or
+                    // losslessness asked, only turned by BitmapTransform (golden wmpframe-0..2,
+                    // 12..14 of lossy and lossless files; wmpframe-opt-0..5))
+                    "wmp" if self.from == Some("wmp") && nf == c.fmt => {
                         hit(clause::WICIMAGE_ENCODE_WMP_FRAME);
-                        Encoded::Decodes("wmp", Written::Pixels(img))
+                        Encoded::Decodes("wmp", turned(img, opts.wmp_transform, c.w))
                     }
                     "wmp" if opts.wmp_lossless => match encode_wmp(&img, EncodeOptions { wmp_quality: Some(1.0), ..opts })? {
                         Encoded::Lossy(_, _, o) => Encoded::Decodes("wmp", o),
