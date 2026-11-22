@@ -425,3 +425,13 @@ fn nodev_gates_apart_are_found() {
     let less = old.replace("\"a12\" | ", "");
     assert_eq!(nodev_gates("runner/x.c", c, "ops", "src/model/x.rs", &less, "!self.dev").len(), 2);
 }
+
+#[test]
+fn view_slots_and_removed_views_keep_the_executors_order() {
+    let old = "fn view() {\n    if kind == 3 && !dev.d3d11() {\n        out.push(\"uav none\".into());\n        return Ok(());\n    }\n    if !check {\n        self.views.empty(v);\n    }\n}\nfn op() {\n    match name {\n        \"read\" => {\n            return Ok(true);\n        }\n        \"tex\" | \"buf\" | \"srv\" | \"rtv\" if dev.d3d11() => {}\n    }\n}\n";
+    let r = rust("src/model/d3dres.rs", old);
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: the executor empties the view slot")).count(), 1, "{r:?}");
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden: on a removed device a view of an empty slot")).count(), 1, "{r:?}");
+    let new = "fn view() {\n    if !check {\n        self.views.empty(v);\n    }\n    if kind == 3 && !dev.d3d11() {\n        out.push(\"uav none\".into());\n        return Ok(());\n    }\n}\nfn op() {\n    match name {\n        \"read\" => {\n            return Ok(true);\n        }\n        \"srv\" | \"rtv\" if self.res.at(slot(t, 2)?).is_none() => {\n            return Ok(true);\n        }\n        \"tex\" | \"buf\" if dev.d3d11() => {}\n        \"srv\" | \"rtv\" if dev.d3d11() => {}\n    }\n}\n";
+    assert!(rust("src/model/d3dres.rs", new).is_empty(), "{:?}", rust("src/model/d3dres.rs", new));
+}

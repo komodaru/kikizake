@@ -33555,6 +33555,6076 @@ clear 1 0x3f800000 0 0 0x3f800000
 copy 2 0
 read 2 0 16 4 1
 end
+case probe-uav-slot
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0 0x3f800000
+uav 0 0 nodesc
+clear 0 0 0x3f800000 0 0x3f800000
+read 0 0 8 2 1
+end
+case probe-removed-calls
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+update 0 0 5 8 16 0 0 0 3 1 1
+tex check 2 2 2 1 1 0x1c 0 0x28 0 0 1 0
+buf check 16 0 1 0 0 0
+srv 5 0 check nodesc
+rtv 5 0 check nodesc
+srv 6 7 nodesc
+rtv 6 7 nodesc
+update 7 0 5 8 16
+copy 7 0
+copy 0 7
+copysub 7 0 0 0 0 0 0
+resolve 7 0 0 0 28
+clear 7 0 0 0 0
+cleards 7 0 0 0
+read 7 0 8 2 1
+read 0 0 8 2 1
+device10
+read 0 0 8 2 1
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+read 0 0 8 2 1
+end
+case seq-0
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-1
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-2
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 0 0 0 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-3
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 1 0 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-4
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-5
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-6
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-7
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-8
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-9
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-10
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 1 1 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-11
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-12
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 0 1 1 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 1 0 0 0 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-13
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-14
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-15
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 1 87
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-16
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 1 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-17
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-18
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-19
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-20
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 1 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-21
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-22
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-23
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 1 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-24
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-25
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 1 1 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 0 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-26
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-27
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-28
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-29
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 1 0 0 87
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-30
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-31
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 1 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-32
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-33
+device10
+buf 0 16 0 1 0 0 0 init 1
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-34
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-35
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 1 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-36
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 87
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copy 1 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-37
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 1 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-38
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-39
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-40
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-41
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 87
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-42
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 0 0 5 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-43
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-44
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 1 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-45
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-46
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-47
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 1 1 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-48
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 0 1 1 0 30
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 1 0 0 0 0 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-49
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 1 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-50
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-51
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-52
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-53
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 1 1 0 0 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 1 0 5 8 16 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-54
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-55
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 1 1 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-56
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 1 0 0 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-57
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 0 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-58
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-59
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-60
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-61
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 0 0 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-62
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-63
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 1 0 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-64
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-65
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 1 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-66
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-67
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-68
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 87
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 28
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-69
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-70
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-71
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-72
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-73
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 1 1 0 0 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-74
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 87
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-75
+device10
+buf 0 16 0 1 0 0 0 init 1
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 0 5 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-76
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 1 0 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-77
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-78
+device10
+buf 0 16 0 1 0 0 0 init 1
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-79
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 1 0 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-80
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 1 0 1 0
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-81
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-82
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copy 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-83
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 1 0 0 0 1 1 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 0 1 5 8 16 0 1 0 2 3 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-84
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-85
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 0 0 1 1 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-86
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 87
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-87
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 1 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-88
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 1 0 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-89
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 1 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-90
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-91
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-92
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-93
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 1 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-94
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copy 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-95
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 0 0 0 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-96
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 1 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-97
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-98
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 0 0 1 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-99
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-100
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 87
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 1 0 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-101
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 0 0 0 87
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-102
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-103
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-104
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-105
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 1 1 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-106
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-107
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-108
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 0 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 1 1 0 28
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-109
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-110
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-111
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-112
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-113
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-114
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 1 0 0 0 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 1 1 0 0 0 1 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-115
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 1 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-116
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-117
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-118
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-119
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-120
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-121
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 1 30
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-122
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-123
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-124
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-125
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-126
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-127
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 1 0 2 3 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-128
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-129
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 0 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 1 0 0 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-130
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-131
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-132
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-133
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-134
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-135
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-136
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 1 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-137
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-138
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 30
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-139
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-140
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-141
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 1 30
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-142
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 1 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-143
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-144
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-145
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-146
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-147
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-148
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 1 0 0 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 1 1 0 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-149
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 1 5 8 16 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-150
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 28
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-151
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 28
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-152
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copy 1 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-153
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-154
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-155
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-156
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 87
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-157
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-158
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-159
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 1 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-160
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 1 0 0 0 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-161
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 0 0 0 1 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 0 0 0 0 0 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-162
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 0 0 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 0 0 1 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-163
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 1 0 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-164
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 0 0 1 1 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 1 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-165
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 1 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 0 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-166
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-167
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 1 1 0 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-168
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 0 0 0 28
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 1 0 0 0 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-169
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-170
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 28
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 1 0 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-171
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-172
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-173
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-174
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 1 0 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-175
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copy 1 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-176
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-177
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-178
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-179
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-180
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 87
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 1 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-181
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-182
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-183
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 0 30
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-184
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-185
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-186
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-187
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-188
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-189
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 1 1 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-190
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-191
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 0 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-192
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-193
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-194
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-195
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copy 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-196
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-197
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-198
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-199
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 0 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-200
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 1 1 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-201
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-202
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-203
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-204
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-205
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-206
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 1 1 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-207
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 0 0 5 8 16 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 0 0 0 1 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-208
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-209
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-210
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-211
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-212
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 30
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-213
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 0 0 1 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 1 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-214
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 0 0 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 0 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-215
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-216
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-217
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copy 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-218
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 1 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-219
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copy 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 1 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-220
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-221
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 1 0 0 0 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 0 0 0 0 0 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-222
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 1 0 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-223
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-224
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-225
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-226
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 1 1 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-227
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-228
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-229
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 1 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-230
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-231
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 0 0 0 30
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-232
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-233
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 1 1 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 1 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-234
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-235
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-236
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-237
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 0 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copy 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-238
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-239
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 1 0 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-240
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-241
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 0 0 1 87
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-242
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 87
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-243
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-244
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-245
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 0 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-246
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-247
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-248
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-249
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-250
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-251
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copy 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-252
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-253
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 1 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-254
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-255
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 1 0 1 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-256
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 1 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 1 0 0 0 0 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-257
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 28
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-258
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-259
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 1 0 0 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 1 0 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-260
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-261
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-262
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 1 0 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-263
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 87
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-264
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-265
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-266
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copy 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-267
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-268
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 1 1 0 0 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 0 0 0 1 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-269
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 1 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 1 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-270
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 1 0 0 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 0 5 8 16 0 1 0 2 3 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-271
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 0 0 0 1 1 0 0 1 2 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-272
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 1 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-273
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-274
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+resolve 0 1 1 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-275
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 1 1 0 1 0
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-276
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-277
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-278
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+update 1 0 5 8 16 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 1 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-279
+device10
+tex 0 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 0 0 0 0 0 1 0 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 0 0 0 0 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-280
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 1 0 0 0 0 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 1 1 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-281
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-282
+device10
+tex 0 2 2 2 1 1 0x1c 1 8 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-283
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 0 0 0 0 0 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-284
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 1 1 0 30
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 0 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-285
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 0 0 1 1 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 0 0 0 28
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-286
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 1 0 1 1 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-287
+device10
+tex 0 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 1 16 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1 0 0 0 1 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 1 1 0 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-288
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+update 0 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-289
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-290
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 0 0 0 0 0 1 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-291
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 1 1 0 0 87
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-292
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 0 0 0 0 3 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-293
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+tex 1 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 1 1 0 0 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+copysub 1 0 0 0 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 4 1 1
+read 1 2 8 2 1
+end
+case seq-294
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1c 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 0 1 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 1 5 8 16 1 0 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-295
+device10
+tex 0 2 2 2 1 2 0x1c 0 0x28 0 0 1 0 init 1 8 16
+tex 1 1 4 1 1 1 0x1c 0 0x28 0 0 1 0 init 2 16 16
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 0 0 1 1 28
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 0 1 0 0 0 1 0 0 0 0 1 1 1
+read 0 0 8 2 1
+read 0 1 4 1 1
+read 0 2 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-296
+device10
+buf 0 16 0 1 0 0 0 init 1
+tex 1 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 0 0 0 0 1 1 0 0 0 3 1 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 0 1 0 2 3 1
+read 0 0 16 1 1
+read 0 1 16 1 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-297
+device10
+tex 0 2 2 2 1 1 0x57 0 0x28 0 0 1 0 init 1 8 16
+tex 1 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 1 1 nodesc
+clear 1 0x3f800000 0 0x3f800000 0x3f800000
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 1 1 1 1 0 0 0
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+copysub 0 1 0 0 0 1 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
+case seq-298
+device10
+tex 0 2 2 2 1 1 0x1c 3 0 0x20000 0 1 0 init 1 8 16
+buf 1 16 0 1 0 0 0 init 2
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+copysub 1 0 0 1 0 0 0 1 1 0 2 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+resolve 1 0 0 0 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 16 1 1
+read 1 1 16 1 1
+end
+case seq-299
+device10
+tex 0 2 2 2 1 1 0x1c 0 0x20 0 0 4 0
+rtv 0 0 nodesc
+clear 0 0x3f800000 0 0x3f800000 0x3f800000
+tex 1 2 2 2 1 1 0x1e 0 0x28 0 0 1 0 init 2 8 16
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+update 1 0 5 8 16 1 0 0 1 2 1
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+resolve 0 0 1 1 30
+read 0 0 8 2 1
+read 0 1 8 2 1
+read 1 0 8 2 1
+read 1 1 8 2 1
+end
 case x86-immutable-bound-0
 device10
 tex 0 2 8 8 1 1 0x1c 1 0x28 0 0 1 0 init 1 32 256

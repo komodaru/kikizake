@@ -279,14 +279,23 @@ impl D3dres {
                     out.push(if dev.d3d11() { "read hr 887a0005" } else { "read map hr 887a0005" }.into());
                     return Ok(true);
                 }
-                "tex" | "buf" | "srv" | "rtv" | "dsv" | "uav" if dev.d3d11() => {
+                // (the executor answers a view of an empty slot itself, runner/d3dres.c op_view)
+                "srv" | "rtv" | "dsv" | "uav" if self.res.at(slot(t, 2)?).is_none() => {
+                    out.push(format!("{name} nores"));
+                    return Ok(true);
+                }
+                "tex" | "buf" if dev.d3d11() => {
                     hit(clause::D3DRES_REMOVED_OPS);
-                    if t.get(1).is_some_and(|s| s != "check") && t.get(3).is_none_or(|s| s != "check") {
-                        if name == "tex" || name == "buf" {
-                            self.res.empty(slot(t, 1)?);
-                        } else {
-                            self.views.empty(slot(t, 1)?);
-                        }
+                    if t.get(1).is_some_and(|s| s != "check") {
+                        self.res.empty(slot(t, 1)?);
+                    }
+                    out.push(format!("{name} hr 887a0005"));
+                    return Ok(true);
+                }
+                "srv" | "rtv" | "dsv" | "uav" if dev.d3d11() => {
+                    hit(clause::D3DRES_REMOVED_OPS);
+                    if t.get(3).is_none_or(|s| s != "check") {
+                        self.views.empty(slot(t, 1)?);
                     }
                     out.push(format!("{name} hr 887a0005"));
                     return Ok(true);
@@ -566,12 +575,14 @@ impl D3dres {
             out.push(format!("{} nores", t[0]));
             return Ok(());
         };
+        // (the executor empties the view slot before it finds Direct3D 10 has no UAV,
+        // runner/d3dres.c op_view)
+        if !check {
+            self.views.empty(v);
+        }
         if kind == 3 && !dev.d3d11() {
             out.push("uav none".into());
             return Ok(());
-        }
-        if !check {
-            self.views.empty(v);
         }
         match check_view(dev, kind, res, words.as_deref(), check)? {
             Err(hr) => out.push(format!("{} hr {hr:08x}", t[0])),
