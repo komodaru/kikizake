@@ -217,13 +217,14 @@ impl<'a> Batch<'a> {
             self.sp.wr32(h.wrapping_add(0x08), 0)?;
         }
         if self.sh.gouraud {
-            // the per-pixel steps of I (0: one index) and J
+            // the per-pixel steps of I (0: one index) and J; a step from 2^30 (flag 0x10000: spans
+            // of one pixel, d3dim::raster_as) writes neither, the words stay as the buffer held
+            // them (clean-room notes E)
             let dj = d3dim::trunc(r.step[3] * 256.0).ok_or(Fail::Bad)?;
-            if dj.abs() >= 1 << 30 {
-                return Err(Fail::Unmodeled(crate::spec::open::D3D7_TRI_CLIP));
+            if dj.abs() < 1 << 30 {
+                self.sp.wr32(h.wrapping_add(0x18), 0)?;
+                self.sp.wr32(h.wrapping_add(0x1c), dword(dj))?;
             }
-            self.sp.wr32(h.wrapping_add(0x18), 0)?;
-            self.sp.wr32(h.wrapping_add(0x1c), dword(dj))?;
         }
         if let Some(&p) = self.prims.last() {
             self.sp.wr32(p.wrapping_add(0x54), 1)?;
