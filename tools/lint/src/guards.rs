@@ -60,12 +60,44 @@ pub const FORBIDDEN: &[(&str, &str, &str)] = &[
 ];
 
 /// (file, function, what (a regular expression), why): `forbidden` inside one function only
-pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[(
-    "src/model/dxtenc.rs",
-    "optimize_rgb",
-    r"\bdot\s*<=?\s*F::of\s*\(\s*0(\.0)?\s*\)",
-    "neither build's OptimizeRGB tests the dot below 0: x64 faults on the index -1 (zero-extended, 16 GiB past the table), x86 reads below it (Below; loadtex-dxt-negindex)",
-)];
+pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
+    (
+        "src/model/dxtenc.rs",
+        "optimize_rgb",
+        r"\bdot\s*<=?\s*F::of\s*\(\s*0(\.0)?\s*\)",
+        "neither build's OptimizeRGB tests the dot below 0: x64 faults on the index -1 (zero-extended, 16 GiB past the table), x86 reads below it (Below; loadtex-dxt-negindex)",
+    ),
+    (
+        "src/model/dxgiconv.rs",
+        "decode_block",
+        r"171\s*\*|\*\s*257\b|\*\s*32767\b|\+\s*[23]\s*\)\s*/\s*[57]",
+        "BC1's colours, BC3's alpha and BC4's steps are the pure bc1_codes, bc3_alpha, bc4_code and bc4_snorm_code that tests/laws_conv.rs proves over every endpoint pair; a copy inlined in decode_block escapes them",
+    ),
+    (
+        "src/model/dxgiconv.rs",
+        "encode",
+        r"\.trunc\s*\(|0x7f80_0000",
+        "a 32-bit float's store and an integer clear are the pure f32_store and int_clear that tests/laws_conv.rs proves for every float; a copy inlined in encode escapes them",
+    ),
+    (
+        "src/model/d3d12.rs",
+        "clear_depth",
+        r"\bto_unorm\s*\(|\.clamp\s*\(",
+        "a UNORM depth clear is unorm_depth, which tests/laws_conv.rs proves for every float; a conversion inlined in clear_depth escapes it",
+    ),
+    (
+        "src/model/bptc.rs",
+        "bc6h",
+        r"BC6H_MODES\s*\.\s*iter\s*\(\s*\)\s*\.\s*position",
+        "BC6H's mode is bc6h_mode, which tests/laws_conv.rs proves for every mode value; a lookup inlined in bc6h escapes it",
+    ),
+    (
+        "src/model/bptc.rs",
+        "bc7",
+        r"\.find\s*\(\s*\|_\|\s*s\.take",
+        "BC7's mode is bc7_mode, which tests/laws_conv.rs proves for every first byte; a scan inlined in bc7 escapes it",
+    ),
+];
 
 /// the name of the function `at` lies in (the last `fn name` before it)
 fn enclosing_fn(code: &str, at: usize) -> &str {

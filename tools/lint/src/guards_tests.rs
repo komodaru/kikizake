@@ -215,3 +215,19 @@ fn d3d11_rules_stay_in_the_mirrored_functions() {
     assert_eq!(rust("src/model/d3draster.rs", point).iter().filter(|b| b.contains("forbidden: culling, the scissor test")).count(), 2);
     assert!(rust("src/model/d3draster.rs", "fn tri() { if rules::culls(d.rast[1], d.rast[2] != 0, cw) {} let px = (rules::point_pixel(s.x), 0); }").is_empty());
 }
+
+#[test]
+fn conversions_inlined_past_their_proven_functions_are_found() {
+    let blk = "fn decode_block() {\n    let t = (171 * a[k] + 85 * z[k]) >> 8;\n    let a = ((8 - k) * a0 + (k - 1) * a1 + 3) / 7;\n}\n";
+    assert_eq!(rust("src/model/dxgiconv.rs", blk).iter().filter(|b| b.contains("forbidden in decode_block")).count(), 2);
+    assert!(rust("src/model/dxgiconv.rs", "fn decode_block() { let c = bc1_codes(c0, c1, idx, four); }").is_empty());
+    let enc = "fn encode() {\n    let t = (v as f64).trunc();\n}\n";
+    assert_eq!(rust("src/model/dxgiconv.rs", enc).iter().filter(|b| b.contains("forbidden in encode")).count(), 1);
+    assert!(rust("src/model/dxgiconv.rs", "fn int_clear() { let t = (v as f64).trunc(); }").is_empty());
+    let dsv = "fn clear_depth() {\n    let d = to_unorm(raw.clamp(0.0, 1.0), 24);\n}\n";
+    assert_eq!(rust("src/model/d3d12.rs", dsv).iter().filter(|b| b.contains("forbidden in clear_depth")).count(), 2);
+    assert!(rust("src/model/d3d12.rs", "fn clear_depth() { let d = unorm_depth(depth, 24); }").is_empty());
+    assert_eq!(rust("src/model/bptc.rs", "fn bc6h() { let m = BC6H_MODES.iter().position(|x| x.0 == m); }").len(), 1);
+    assert_eq!(rust("src/model/bptc.rs", "fn bc7() { let m = (0..8).find(|_| s.take(1) == 1); }").len(), 1);
+    assert!(rust("src/model/bptc.rs", "fn bc7() { let m = bc7_mode(b[0]); }").is_empty());
+}

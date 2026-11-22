@@ -218,6 +218,23 @@ fn get(b: &[u8], at: u32, n: u32) -> u64 {
     (0..n).fold(0, |v, i| v | ((b[((at + i) / 8) as usize] >> ((at + i) % 8) & 1) as u64) << i)
 }
 
+/// a 32-bit float as a clear or a render target write stores it (MEASURED: denormals flushed
+/// to a zero of their sign, clear-2-*)
+pub fn f32_store(v: f32) -> u32 {
+    hit(clause::CONV_F32);
+    let b = v.to_bits();
+    if b & 0x7f80_0000 == 0 { b & 0x8000_0000 } else { b }
+}
+
+/// a float clear of an n-bit UINT or SINT component, as its n bits (MEASURED: toward zero,
+/// clamped to the type, NaN 0; clear-3-*, 4, 30, 32)
+pub fn int_clear(v: f32, n: u32, signed: bool) -> u64 {
+    hit(clause::CONV_INTCLEAR);
+    let t = if v.is_nan() { 0.0 } else { (v as f64).trunc() };
+    let (lo, hi) = if signed { (-((1u64 << (n - 1)) as f64), ((1u64 << (n - 1)) - 1) as f64) } else { (0.0, ((1u64 << n) - 1) as f64) };
+    (t.clamp(lo, hi) as i64 as u64) & ((1u64 << n) - 1)
+}
+
 /// one element of `f` holding the color (r, g, b, a) as a render target write or a clear
 /// stores it (unormalized and float formats; the integer formats take the values' bits as
 /// integers: see `encode_int`)
@@ -256,23 +273,12 @@ pub fn encode(f: &Format, c: [f32; 4]) -> Res<Vec<u8>> {
                     }
                     Num::Srgb => to_unorm(v, n) as u64,
                     Num::Snorm => to_snorm(v, n) as u64,
-                    Num::Float if n == 32 => {
-                        // (MEASURED: denormals flushed to a zero of their sign, clear-2-*)
-                        hit(clause::CONV_F32);
-                        let b = v.to_bits();
-                        (if b & 0x7f80_0000 == 0 { b & 0x8000_0000 } else { b }) as u64
-                    }
+                    Num::Float if n == 32 => u64::from(f32_store(v)),
                     Num::Float => {
                         hit(clause::CONV_F16);
                         to_small_float(v, 5, 10, true) as u64
                     }
-                    // (MEASURED: toward zero, clamped to the type, NaN 0; clear-3-*, 4, 30, 32)
-                    Num::Uint | Num::Sint => {
-                        hit(clause::CONV_INTCLEAR);
-                        let t = if v.is_nan() { 0.0 } else { (v as f64).trunc() };
-                        let (lo, hi) = if f.num == Num::Uint { (0.0, ((1u64 << n) - 1) as f64) } else { (-((1u64 << (n - 1)) as f64), ((1u64 << (n - 1)) - 1) as f64) };
-                        (t.clamp(lo, hi) as i64 as u64) & ((1u64 << n) - 1)
-                    }
+                    Num::Uint | Num::Sint => int_clear(v, n, f.num == Num::Sint),
                     _ => return Err(Fail::Unmodeled(open::CONV_OTHER)),
                 };
                 put(&mut out, at, n, bits);
@@ -373,6 +379,71 @@ pub fn decode(f: &Format, b: &[u8]) -> Res<[u32; 4]> {
     Ok(v)
 }
 
+/// a BC1 colour block's 8-bit codes (r, g, b) at index `idx` (0..3) between its endpoints c0
+/// and c1 (5:6:5); `four`: the four colour mode (always in BC2 and BC3, in BC1 when c0 > c1);
+/// None: the black, transparent texel of the three colour mode (MEASURED, WARP, ld-71, 74, 77:
+/// the endpoints widened to 8 bits by repeating their top bits, the thirds (171 a + 85 b) >> 8,
+/// the half (a + b) >> 1)
+pub fn bc1_codes(c0: u32, c1: u32, idx: u32, four: bool) -> Option<[u32; 3]> {
+    let rep = |v: u32, n: u32| v << (8 - n) | v >> (2 * n - 8);
+    let e = |v: u32| [rep(v >> 11, 5), rep(v >> 5 & 63, 6), rep(v & 31, 5)];
+    let (a, z) = (e(c0), e(c1));
+    Some(match (idx, four || c0 > c1) {
+        (0, _) => a,
+        (1, _) => z,
+        (2, true) => [0, 1, 2].map(|k| (171 * a[k] + 85 * z[k]) >> 8),
+        (3, true) => [0, 1, 2].map(|k| (85 * a[k] + 171 * z[k]) >> 8),
+        (2, false) => [0, 1, 2].map(|k| (a[k] + z[k]) >> 1),
+        _ => return None,
+    })
+}
+
+/// BC3's alpha code at index `k` (0..7) between its endpoints (MEASURED: BC3's alpha steps in 8
+/// bits, to nearest, ld-77)
+pub fn bc3_alpha(a0: u32, a1: u32, k: u32) -> u32 {
+    match k {
+        0 => a0,
+        1 => a1,
+        _ if a0 > a1 => ((8 - k) * a0 + (k - 1) * a1 + 3) / 7,
+        6 => 0,
+        7 => 255,
+        _ => ((6 - k) * a0 + (k - 1) * a1 + 2) / 5,
+    }
+}
+
+/// a BC4 UNORM channel's 16-bit code at index `k` (0..7) between its endpoints: six or four
+/// between them (with 0 and 1) (MEASURED, WARP, ld-80, ld-83: in 16 bits, the endpoints times
+/// 257, the steps truncated; read as the code over 65535)
+pub fn bc4_code(e0: u32, e1: u32, k: u32) -> u32 {
+    let (a0, a1) = (e0.saturating_mul(257), e1.saturating_mul(257));
+    match k {
+        0 => a0,
+        1 => a1,
+        _ if e0 > e1 => ((8 - k) * a0 + (k - 1) * a1) / 7,
+        6 => 0,
+        7 => 65535,
+        _ => ((6 - k) * a0 + (k - 1) * a1) / 5,
+    }
+}
+
+/// a BC4 SNORM channel's 16-bit code at index `k` (0..7) between its endpoints (two's
+/// complement bytes) (MEASURED, WARP, ld-table-81, ld-table-84: every texel of 3072: the
+/// endpoints at least -127; the step's exact value over 127, times 32767, truncated toward zero
+/// to a 16-bit code; read as the code times the float 1/32767)
+pub fn bc4_snorm_code(r0: i8, r1: i8, k: i64) -> i16 {
+    let (a0, a1) = (i64::from(r0.max(-127)), i64::from(r1.max(-127)));
+    // (the step as a fraction n / d of the 8-bit range)
+    let (n, d) = match k {
+        0 => (a0, 1),
+        1 => (a1, 1),
+        _ if r0 > r1 => ((8 - k) * a0 + (k - 1) * a1, 7),
+        6 => (-127, 1),
+        7 => (127, 1),
+        _ => ((6 - k) * a0 + (k - 1) * a1, 5),
+    };
+    i16::try_from(n * 32767 / (d * 127)).unwrap_or(i16::MAX)
+}
+
 /// the color (as floats) a format's element holds, for blending (dst read back)
 /// the texel (x, y) of a block (block-compressed formats: Direct3D 11 functional spec, 19.5;
 /// the 2x1 pairs of R8G8_B8G8 and G8R8_G8B8)
@@ -381,62 +452,21 @@ pub fn decode_block(f: &Format, b: &[u8], x: u32, y: u32) -> Res<[u32; 4]> {
     let one = 1.0f32;
     let un = |c: u32, n: u32| c as f32 / ((1u32 << n) - 1) as f32;
     let i = (y * 4 + x) as usize;
-    // a BC1 color block: the colors' endpoints in 5:6:5, two more between them (or one and
-    // black with no alpha when the first is not the larger) (MEASURED, WARP, ld-71, 74, 77: the
-    // endpoints widened to 8 bits by repeating their top bits, the thirds (171 a + 85 b) >> 8,
-    // the half (a + b) >> 1)
+    // a BC1 color block (bc1_codes)
     let color = |c: &[u8], four: bool| -> [f32; 4] {
         let (c0, c1) = (u16::from_le_bytes([c[0], c[1]]) as u32, u16::from_le_bytes([c[2], c[3]]) as u32);
-        let rep = |v: u32, n: u32| v << (8 - n) | v >> (2 * n - 8);
-        let e = |v: u32| [rep(v >> 11, 5), rep(v >> 5 & 63, 6), rep(v & 31, 5)];
-        let (a, z) = (e(c0), e(c1));
         let idx = (u32::from_le_bytes([c[4], c[5], c[6], c[7]]) >> (2 * i)) & 3;
-        let rgb = match (idx, four || c0 > c1) {
-            (0, _) => a,
-            (1, _) => z,
-            (2, true) => [0, 1, 2].map(|k| (171 * a[k] + 85 * z[k]) >> 8),
-            (3, true) => [0, 1, 2].map(|k| (85 * a[k] + 171 * z[k]) >> 8),
-            (2, false) => [0, 1, 2].map(|k| (a[k] + z[k]) >> 1),
-            _ => return [0.0; 4],
-        };
-        [un(rgb[0], 8), un(rgb[1], 8), un(rgb[2], 8), one]
+        match bc1_codes(c0, c1, idx, four) {
+            Some(rgb) => [un(rgb[0], 8), un(rgb[1], 8), un(rgb[2], 8), one],
+            None => [0.0; 4],
+        }
     };
-    // a BC4 channel block: two endpoints, six or four between them (with 0 and 1)
-    // (MEASURED, WARP, ld-80, ld-83: in 16 bits, the endpoints times 257, the steps truncated,
-    // then over 65535)
-    let chan = |c: &[u8]| -> f32 {
-        let (a0, a1) = (c[0] as u32 * 257, c[1] as u32 * 257);
-        let bits = u64::from_le_bytes([c[2], c[3], c[4], c[5], c[6], c[7], 0, 0]);
-        let k = ((bits >> (3 * i)) & 7) as u32;
-        let r = match k {
-            0 => a0,
-            1 => a1,
-            _ if c[0] > c[1] => ((8 - k) * a0 + (k - 1) * a1) / 7,
-            6 => 0,
-            7 => 65535,
-            _ => ((6 - k) * a0 + (k - 1) * a1) / 5,
-        };
-        r as f32 / 65535.0
-    };
-    // a signed BC4 channel block (MEASURED, WARP, ld-table-81, ld-table-84: every texel of 3072:
-    // the endpoints at least -127; the step's exact value over 127, times 32767, truncated
-    // toward zero to a 16-bit code, then times the float 1/32767)
+    // a BC4 channel block's index at the texel
+    let index = |c: &[u8]| ((u64::from_le_bytes([c[2], c[3], c[4], c[5], c[6], c[7], 0, 0]) >> (3 * i)) & 7) as u32;
+    let chan = |c: &[u8]| -> f32 { bc4_code(c[0] as u32, c[1] as u32, index(c)) as f32 / 65535.0 };
     let schan = |c: &[u8]| -> f32 {
         let (r0, r1) = (i8::from_le_bytes([c[0]]), i8::from_le_bytes([c[1]]));
-        let (a0, a1) = (i64::from(r0.max(-127)), i64::from(r1.max(-127)));
-        let bits = u64::from_le_bytes([c[2], c[3], c[4], c[5], c[6], c[7], 0, 0]);
-        let k = i64::try_from((bits >> (3 * i)) & 7).unwrap_or(0);
-        // (the step as a fraction n / d of the 8-bit range)
-        let (n, d) = match k {
-            0 => (a0, 1),
-            1 => (a1, 1),
-            _ if r0 > r1 => ((8 - k) * a0 + (k - 1) * a1, 7),
-            6 => (-127, 1),
-            7 => (127, 1),
-            _ => ((6 - k) * a0 + (k - 1) * a1, 5),
-        };
-        let code = i16::try_from(n * 32767 / (d * 127)).unwrap_or(i16::MAX);
-        f32::from(code) * (1.0f32 / 32767.0)
+        f32::from(bc4_snorm_code(r0, r1, i64::from(index(c)))) * (1.0f32 / 32767.0)
     };
     let v: [f32; 4] = match f.id {
         68 | 69 => {
@@ -450,20 +480,8 @@ pub fn decode_block(f: &Format, b: &[u8], x: u32, y: u32) -> Res<[u32; 4]> {
             c
         }
         77 => {
-            // (MEASURED: BC3's alpha steps in 8 bits, to nearest, ld-77)
-            let (a0, a1) = (b[0] as u32, b[1] as u32);
-            let bits = u64::from_le_bytes([b[2], b[3], b[4], b[5], b[6], b[7], 0, 0]);
-            let k = ((bits >> (3 * i)) & 7) as u32;
-            let a = match k {
-                0 => a0,
-                1 => a1,
-                _ if a0 > a1 => ((8 - k) * a0 + (k - 1) * a1 + 3) / 7,
-                6 => 0,
-                7 => 255,
-                _ => ((6 - k) * a0 + (k - 1) * a1 + 2) / 5,
-            };
             let mut c = color(&b[8..], true);
-            c[3] = un(a, 8);
+            c[3] = un(bc3_alpha(b[0] as u32, b[1] as u32, index(b)), 8);
             c
         }
         80 => [chan(b), 0.0, 0.0, one],

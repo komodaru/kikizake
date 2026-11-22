@@ -307,13 +307,13 @@ file	src/model/dxgi_format.rs	arithmetic_side_effects	9
 file	src/model/dxgi_format.rs	as_conversions	8
 file	src/model/dxgi_format.rs	indexing_slicing	8
 file	src/model/dxgiconv.rs	arithmetic_side_effects	65
-file	src/model/dxgiconv.rs	as_conversions	99
+file	src/model/dxgiconv.rs	as_conversions	97
 file	src/model/dxgiconv.rs	cast_possible_truncation	23
 file	src/model/dxgiconv.rs	cast_possible_wrap	9
 file	src/model/dxgiconv.rs	cast_precision_loss	15
 file	src/model/dxgiconv.rs	cast_sign_loss	8
 file	src/model/dxgiconv.rs	float_cmp	1
-file	src/model/dxgiconv.rs	indexing_slicing	69
+file	src/model/dxgiconv.rs	indexing_slicing	55
 file	src/model/dxgiconv.rs	map_err_ignore	2
 file	src/model/dxgiconv.rs	wildcard_enum_match_arm	2
 file	src/model/dxgifmt.rs	arithmetic_side_effects	1

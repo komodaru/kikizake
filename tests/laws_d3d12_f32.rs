@@ -2,24 +2,8 @@
 //! law runs over all 2^32 bit patterns, so it is a proof for the whole domain (kind exhaustive).
 use kikizake::model::d3d12::{clear_input, to_int, to_small_float, to_snorm, to_srgb, to_unorm};
 
-/// runs `f` over every u32 on the machine's threads; the first failing value, if any
-fn all_u32(f: impl Fn(u32) -> bool + Sync) -> Option<u32> {
-    let n = std::thread::available_parallelism().map_or(4, |n| n.get()).min(16);
-    let chunk = (1u64 << 32) / n as u64;
-    std::thread::scope(|s| {
-        let hs: Vec<_> = (0..n as u64)
-            .map(|k| {
-                let f = &f;
-                s.spawn(move || {
-                    let lo = k * chunk;
-                    let hi = if k + 1 == n as u64 { 1u64 << 32 } else { lo + chunk };
-                    (lo..hi).map(|v| v as u32).find(|&v| !f(v))
-                })
-            })
-            .collect();
-        hs.into_iter().filter_map(|h| h.join().unwrap()).min()
-    })
-}
+mod every;
+use every::all_u32;
 
 /// a small float's value (e exponent, m mantissa bits, the sign bit above them when signed)
 fn small_value(h: u64, e: u32, m: u32, signed: bool) -> f64 {

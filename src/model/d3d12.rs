@@ -507,6 +507,20 @@ pub fn clear_texel(f: u32, rgba: [u32; 4]) -> Option<Vec<u8>> {
 /// the planes of a depth stencil texel cleared to `depth` (float bits) and `stencil`
 pub fn clear_depth(f: u32, depth: u32, stencil: u32) -> Option<Vec<Vec<u8>>> {
     hit(clause::D3D12_CLEARDSV);
+    let raw = clear_input(depth);
+    let s = (stencil & 0xff) as u8;
+    Some(match f {
+        // (MEASURED: a float depth is kept as given, not clamped)
+        40 => vec![raw.to_le_bytes().to_vec()],
+        55 => vec![(unorm_depth(depth, 16) as u16).to_le_bytes().to_vec()],
+        45 => vec![(unorm_depth(depth, 24) as u32).to_le_bytes().to_vec(), vec![s]],
+        20 => vec![raw.to_le_bytes().to_vec(), vec![s]],
+        _ => return None,
+    })
+}
+
+/// a UNORM depth plane's n-bit code of a clear's depth (float bits): clamped to 0..1, a NaN 0
+pub fn unorm_depth(depth: u32, n: u32) -> u64 {
     let raw = f32of(clear_input(depth));
     let d = if raw.is_nan() {
         hit(clause::D3D12_CLEARDSV_NAN);
@@ -514,15 +528,7 @@ pub fn clear_depth(f: u32, depth: u32, stencil: u32) -> Option<Vec<Vec<u8>>> {
     } else {
         raw.clamp(0.0, 1.0)
     };
-    let s = (stencil & 0xff) as u8;
-    Some(match f {
-        // (MEASURED: a float depth is kept as given, not clamped)
-        40 => vec![raw.to_bits().to_le_bytes().to_vec()],
-        55 => vec![(to_unorm(d, 16) as u16).to_le_bytes().to_vec()],
-        45 => vec![(to_unorm(d, 24) as u32).to_le_bytes().to_vec(), vec![s]],
-        20 => vec![raw.to_bits().to_le_bytes().to_vec(), vec![s]],
-        _ => return None,
-    })
+    to_unorm(d, n)
 }
 
 fn hex(b: &[u8]) -> String {

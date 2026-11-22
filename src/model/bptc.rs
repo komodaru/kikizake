@@ -20,30 +20,33 @@ fn sext(v: i32, bits: u32) -> i32 {
     (v << (32 - bits)) >> (32 - bits)
 }
 
-fn lerp(a: i32, b: i32, w: &[i32], i: usize) -> i32 {
+/// the weighted step between two endpoints: ((64 - w) a + w b + 32) >> 6
+pub fn lerp(a: i32, b: i32, w: &[i32], i: usize) -> i32 {
     (a * (64 - w[i]) + b * w[i] + 32) >> 6
 }
 
-const W2: [i32; 4] = [0, 21, 43, 64];
-const W3: [i32; 8] = [0, 9, 18, 27, 37, 46, 55, 64];
-const W4: [i32; 16] = [0, 4, 9, 13, 17, 21, 26, 30, 34, 38, 43, 47, 51, 55, 60, 64];
+pub const W2: [i32; 4] = [0, 21, 43, 64];
+pub const W3: [i32; 8] = [0, 9, 18, 27, 37, 46, 55, 64];
+pub const W4: [i32; 16] = [0, 4, 9, 13, 17, 21, 26, 30, 34, 38, 43, 47, 51, 55, 60, 64];
+
+/// BC6H's endpoint precision of each mode, then the delta precisions of r, g, b
+pub const BC6H_BITS: [[u32; 14]; 4] = [
+    [10, 7, 11, 11, 11, 9, 8, 8, 8, 6, 10, 11, 12, 16],
+    [5, 6, 5, 4, 4, 5, 6, 5, 5, 6, 10, 9, 8, 4],
+    [5, 6, 4, 5, 4, 5, 5, 6, 5, 6, 10, 9, 8, 4],
+    [5, 6, 4, 4, 5, 5, 5, 5, 6, 6, 10, 9, 8, 4],
+];
 
 /// the BC6H texel (x, y) of a block: the three channels as 16-bit floats; a reserved mode gives
 /// zeros
 pub fn bc6h(b: &[u8; 16], signed: bool, x: u32, y: u32) -> [u16; 3] {
-    // (the endpoint precision of each mode, then the delta precisions of r, g, b)
-    const BITS: [[u32; 14]; 4] = [
-        [10, 7, 11, 11, 11, 9, 8, 8, 8, 6, 10, 11, 12, 16],
-        [5, 6, 5, 4, 4, 5, 6, 5, 5, 6, 10, 9, 8, 4],
-        [5, 6, 4, 5, 4, 5, 5, 6, 5, 6, 10, 9, 8, 4],
-        [5, 6, 4, 4, 5, 5, 5, 5, 6, 6, 10, 9, 8, 4],
-    ];
+    const BITS: [[u32; 14]; 4] = BC6H_BITS;
     let mut s = Bits(u128::from_le_bytes(*b));
     let mut m = s.take(2);
     if m > 1 {
         m |= s.take(3) << 2;
     }
-    let Some(mode) = BC6H_MODES.iter().position(|(bits, _)| *bits == m) else { return [0; 3] };
+    let Some(mode) = bc6h_mode(m) else { return [0; 3] };
     let mut e = [0i32; 13];
     for &(t, n, sh, rev) in BC6H_MODES[mode].1 {
         let v = if rev == 1 { s.take_rev(n) } else { s.take(n) };
@@ -92,7 +95,14 @@ pub fn bc6h(b: &[u8; 16], signed: bool, x: u32, y: u32) -> [u16; 3] {
     [0, 1, 2].map(|c| finish(lerp(e[c * 4 + set * 2], e[c * 4 + set * 2 + 1], w, idx), signed))
 }
 
-fn unquantize(v: i32, bits: u32, signed: bool) -> i32 {
+/// the BC6H mode of the mode bits (2 bits, or 5 when the low two are 2 or 3); None: a reserved
+/// mode
+pub fn bc6h_mode(m: u32) -> Option<usize> {
+    BC6H_MODES.iter().position(|(bits, _)| *bits == m)
+}
+
+/// a BC6H endpoint of `bits` bits widened to 16 (unsigned) or 15 bits and a sign
+pub fn unquantize(v: i32, bits: u32, signed: bool) -> i32 {
     if !signed {
         if bits >= 15 {
             v
@@ -118,7 +128,8 @@ fn unquantize(v: i32, bits: u32, signed: bool) -> i32 {
     }
 }
 
-fn finish(v: i32, signed: bool) -> u16 {
+/// an interpolated BC6H value as the bits of a 16-bit float: times 31/64, or 31/32 signed
+pub fn finish(v: i32, signed: bool) -> u16 {
     if !signed {
         ((v * 31) >> 6) as u16
     } else {
@@ -127,13 +138,24 @@ fn finish(v: i32, signed: bool) -> u16 {
     }
 }
 
+/// BC7's colour bits of each mode's endpoints, alpha bits, and the modes with p-bits (a bit each)
+pub const BC7_RGB: [u32; 8] = [4, 6, 5, 7, 5, 7, 7, 5];
+pub const BC7_ALPHA: [u32; 8] = [0, 0, 0, 0, 6, 8, 7, 5];
+pub const BC7_PBITS: u32 = 0b1100_1011;
+
+/// the BC7 mode of a block's first byte: its lowest set bit; None (a 0 byte): the reserved mode
+pub fn bc7_mode(b0: u8) -> Option<usize> {
+    (b0 != 0).then(|| usize::try_from(b0.trailing_zeros()).unwrap_or(0))
+}
+
 /// the BC7 texel (x, y) of a block, RGBA8; a reserved mode gives zeros
 pub fn bc7(b: &[u8; 16], x: u32, y: u32) -> [u8; 4] {
-    const RGB: [u32; 8] = [4, 6, 5, 7, 5, 7, 7, 5];
-    const ALPHA: [u32; 8] = [0, 0, 0, 0, 6, 8, 7, 5];
-    const PBITS: u32 = 0b1100_1011;
+    const RGB: [u32; 8] = BC7_RGB;
+    const ALPHA: [u32; 8] = BC7_ALPHA;
+    const PBITS: u32 = BC7_PBITS;
     let mut s = Bits(u128::from_le_bytes(*b));
-    let Some(mode) = (0..8).find(|_| s.take(1) == 1) else { return [0; 4] };
+    let Some(mode) = bc7_mode(b[0]) else { return [0; 4] };
+    s.take(u8::try_from(mode).unwrap_or(0).saturating_add(1));
     let (mut parts, mut part, mut rot, mut isel) = (1, 0, 0, 0);
     if [0, 1, 2, 3, 7].contains(&mode) {
         parts = if mode == 0 || mode == 2 { 3 } else { 2 };

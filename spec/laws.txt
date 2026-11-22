@@ -120,6 +120,20 @@ tests/laws_d3dres.rs::unorm_is_monotone pbt CONV.UNORM
 tests/laws_d3dres.rs::small_float_truncates pbt CONV.SMALLFLOAT
 tests/laws_d3dres.rs::small_float_is_monotone pbt CONV.SMALLFLOAT
 tests/laws_d3dres.rs::rgb9e5_reads_back_within_its_precision pbt CONV.RGB9E5
+tests/laws_conv.rs::srgb_is_the_curve_of_the_twelve_bit_code exhaustive CONV.SRGB
+tests/laws_conv.rs::srgb_reads_are_warps_table exhaustive CONV.SRGBREAD
+tests/laws_conv.rs::nan_reads_keep_their_payload exhaustive CONV.NANREAD
+tests/laws_conv.rs::float32_is_stored_denormals_flushed exhaustive CONV.F32
+tests/laws_conv.rs::stencil_reads_as_green exhaustive CONV.STENCIL
+tests/laws_conv.rs::int_clears_truncate_and_clamp exhaustive CONV.INTCLEAR
+tests/laws_conv.rs::x8_takes_alpha_or_zero exhaustive CONV.X8
+tests/laws_conv.rs::bc1_colours_are_replicated_thirds_and_halves exhaustive CONV.BLOCK
+tests/laws_conv.rs::bc2_to_bc5_alpha_and_channels exhaustive CONV.BLOCK
+tests/laws_conv.rs::bc4_snorm_steps_truncate exhaustive CONV.BC4SNORM
+tests/laws_conv.rs::bc6h_modes_fill_the_block exhaustive CONV.BC6H
+tests/laws_conv.rs::bc7_modes_fill_the_block exhaustive CONV.BC7
+tests/laws_conv.rs::d3d12_x_byte_is_alpha_or_zero exhaustive D3D12.CLEAR.X D3D12.CLEAR.XALPHA
+tests/laws_conv.rs::depth_clears_clamp_unorm_and_keep_floats exhaustive D3D12.CLEARDSV D3D12.CLEARDSV.NAN
 tests/laws_d3dres.rs::a_shared_edge_is_drawn_once pbt D3DRASTER.TOPLEFT
 tests/laws_d3dres.rs::winding_does_not_change_coverage pbt D3DRASTER.CULL D3DRASTER.TOPLEFT
 tests/laws_d3dres.rs::a_covering_triangle_draws_every_pixel exhaustive D3DRASTER.DRAW
@@ -315,6 +329,7 @@ spec/tla/GdiPlusBitmap.tla::Next tla GP.START GP.CREATE GP.CREATE.SIZE GP.CREATE
 spec/tla/GdiPlusFill.tla::Next tla GP.FILL GP.FILL.NOGRAPHICS GP.FILL.RECT GP.FILL.NEGATIVE GP.FILL.COPY GP.FILL.OVER GP.FILL.INDEXED GP.FILL.QUALITY.OTHER GP.GRAY16
 spec/tla/GdiPlusMatrix.tla::Next tla GP.MATRIX GP.MATRIX.MUL GP.MATRIX.ORDER GP.MATRIX.POINT GP.MATRIX.INVERT
 spec/tla/GdiPlusObjects.tla::Next tla GP.BRUSH GP.BRUSH.HATCH.RANGE GP.BRUSH.TEXTURE GP.BRUSH.TEXTURE.STATUS GP.BRUSH.INFO GP.PEN.MAKE GP.PAINT GP.PAINT.NOBRUSH GP.PAINT.MODES GP.PAINT.NEGATIVE GP.ATTR GP.ATTR.FLAGS GP.DRAW.NOATTR GP.DRAW.SKIPGRAYS GP.DRAW.ALTGRAY GP.DRAW.ALTGRAY.TRANSLATE
+spec/tla/D3D12Make.tla::Next tla D3D12.MAKE.DESCHEAP D3D12.MAKE.QUEUE D3D12.MAKE.LIST D3D12.MAKE.QUERYHEAP D3D12.MAKE.FENCE D3D12.FEATURE.INCREMENT D3D12.CLEAR.REMOVED
 spec/lean/Kikizake/GdiPlus/Conv.lean::expand_truncate lean GP.CONV.EXPAND GP.CONV.TRUNCATE
 spec/lean/Kikizake/GdiPlus/Conv.lean::expand_close lean GP.CONV.EXPAND
 spec/lean/Kikizake/GdiPlus/Conv.lean::premultiply_nearest lean GP.CONV.PREMULTIPLY
