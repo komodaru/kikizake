@@ -1482,12 +1482,12 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         let pieces: Vec<([(i64, i64); 3], Planes, bool)> = clip_pieces(&poly, vp, d.rast[6] != 0).into_iter().filter(|(_, _, cw)| !culled(*cw)).collect();
         // (MEASURED, WARP: probe-clip-w-wire, every value) wireframe: the clipped polygon's
         // edges but those along a clip plane, as lines from the vertices the clipping gives,
-        // not clipped again (D3DRASTER.CLIPW.WIRE); (with culling on: not measured,
-        // probe-clip-w-wire-cull2, -cull3)
+        // not clipped again (D3DRASTER.CLIPW.WIRE); (probe-clip-w-wire-cull2, -cull3) culled
+        // by the pieces' facing, as filled
         if d.rast[0] == 2 {
             hit(clause::D3DRASTER_CLIPW_WIRE);
-            if d.rast[1] != 1 {
-                return Err(Fail::Unmodeled(open::D3DRASTER_CLIPW));
+            if pieces.is_empty() {
+                return Ok(());
             }
             let front = pieces.first().is_some_and(|p| p.2 != (d.rast[2] != 0));
             for (a, b) in poly.iter().zip(poly.iter().cycle().skip(1)) {
