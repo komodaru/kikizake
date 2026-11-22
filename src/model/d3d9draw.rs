@@ -481,6 +481,48 @@ pub fn supported(f: u32, rt: bool, v8: bool) -> bool {
     !rt || !(matches!(f, 40 | 41) || format(f).is_some_and(|m| matches!(m.kind, Kind::Dxt(_))))
 }
 
+/// CheckDeviceFormat's answer for a format, a usage and a resource type (D3D9.FORMATS.CHECK,
+/// FORMATS.USAGE): what CreateTexture / CreateRenderTarget take, Direct3D 8's CheckDeviceFormat
+/// too, though its CreateTexture refuses three more (MEASURED, check, check-usage)
+pub fn check_hr(f: u32, u: i64, rtype: i64, v8: bool) -> Res<u32> {
+    hit(clause::D3D9_FORMATS_CHECK);
+    let tex = supported(f, false, false);
+    const NOTAVAILABLE: u32 = 0x8876_086a;
+    let ok = |b: bool| if b { 0 } else { NOTAVAILABLE };
+    let dxt = format(f).is_some_and(|m| matches!(m.kind, Kind::Dxt(_)));
+    Ok(match (u, rtype) {
+        // (Direct3D 8, MEASURED d3d8draw check-usage: a plain surface INVALIDCALL; a
+        // render target volume as a texture, not the palette nor the DXT formats;
+        // A2R10G10B10, A16B16G16R16 and L16 depth stencil too; no AUTOGENMIPMAP)
+        (0, 1) | (0x400, 3) if v8 => INVALIDCALL,
+        (1, 4) if v8 => ok(tex && !matches!(f, 40 | 41) && !dxt),
+        (2, 1) if v8 && matches!(f, 35 | 36 | 81) => 0,
+        (0, 3) => ok(tex),
+        (1, 1) | (1, 3) => ok(supported(f, true, false)),
+        // (DYNAMIC; volume and cube textures: as textures)
+        (0x200, 3) | (0, 4) | (0, 5) => ok(tex),
+        // (a plain surface: not A8P8 nor the DXT ones, but YUY2)
+        (0, 1) => ok(tex && f != 40 && !dxt || f == fourcc(b"YUY2")),
+        // (a render target volume: INVALIDCALL)
+        (1, 4) => INVALIDCALL,
+        // (a depth stencil surface: D16, D24S8, D24X8, D32F_LOCKABLE; other depth
+        // formats NOTAVAILABLE, the rest INVALIDCALL)
+        (2, 1) => match f {
+            75 | 77 | 80 | 82 => 0,
+            70 | 71 | 73 | 79 | 83 | 84 => NOTAVAILABLE,
+            _ => INVALIDCALL,
+        },
+        // (AUTOGENMIPMAP: D3DOK_NOAUTOGEN for X8R8G8B8, R5G6B5, the palette, signed
+        // and DXT formats)
+        (0x400, 3) if tex => {
+            if dxt || matches!(f, 22 | 23 | 40 | 41 | 60 | 63 | 64 | 110) { 0x0876_086f } else { 0 }
+        }
+        (0x400, 3) => NOTAVAILABLE,
+        // (the generators ask no other pair)
+        _ => return Err(Fail::Bad),
+    })
+}
+
 /// one vertex as the pipeline sees it: screen position (1/256 pixel), rhw, colors, coordinates
 #[derive(Clone, Copy, Debug)]
 struct Vtx {
@@ -1198,7 +1240,7 @@ impl D3d9 {
                 };
                 // (D3D9.CLEAR: the rectangles clipped to the viewport, NULL the whole viewport)
                 let (vx0, vy0, vx1, vy1) = match self.draw.viewport {
-                    Some((x, y, vw, vh, _, _)) => (x, y, x + vw, y + vh),
+                    Some((x, y, vw, vh, _, _)) => (x, y, x.saturating_add(vw), y.saturating_add(vh)),
                     None => (0, 0, w, h),
                 };
                 let (sx0, sy0, sx1, sy1) = (sx0.max(vx0), sy0.max(vy0), sx1.min(vx1), sy1.min(vy1));
@@ -1255,45 +1297,8 @@ impl D3d9 {
             }
             "d9check" => {
                 let (f, u, rtype) = (n(op, 1)?, n(op, 2)?, n(op, 3)?);
-                // (MEASURED, check: what CreateTexture / CreateRenderTarget take, Direct3D 8's
-                // CheckDeviceFormat too, though its CreateTexture refuses three more)
-                hit(clause::D3D9_FORMATS_CHECK);
                 let f = f as u32;
-                let tex = supported(f, false, false);
-                const NOTAVAILABLE: u32 = 0x8876_086a;
-                let ok = |b: bool| if b { 0 } else { NOTAVAILABLE };
-                let dxt = format(f).is_some_and(|m| matches!(m.kind, Kind::Dxt(_)));
-                let hr = match (u, rtype) {
-                    // (Direct3D 8, MEASURED d3d8draw check-usage: a plain surface INVALIDCALL; a
-                    // render target volume as a texture, not the palette nor the DXT formats;
-                    // A2R10G10B10, A16B16G16R16 and L16 depth stencil too; no AUTOGENMIPMAP)
-                    (0, 1) | (0x400, 3) if self.v8 => INVALIDCALL,
-                    (1, 4) if self.v8 => ok(tex && !matches!(f, 40 | 41) && !dxt),
-                    (2, 1) if self.v8 && matches!(f, 35 | 36 | 81) => 0,
-                    (0, 3) => ok(tex),
-                    (1, 1) | (1, 3) => ok(supported(f, true, false)),
-                    // (DYNAMIC; volume and cube textures: as textures)
-                    (0x200, 3) | (0, 4) | (0, 5) => ok(tex),
-                    // (a plain surface: not A8P8 nor the DXT ones, but YUY2)
-                    (0, 1) => ok(tex && f != 40 && !dxt || f == fourcc(b"YUY2")),
-                    // (a render target volume: INVALIDCALL)
-                    (1, 4) => INVALIDCALL,
-                    // (a depth stencil surface: D16, D24S8, D24X8, D32F_LOCKABLE; other depth
-                    // formats NOTAVAILABLE, the rest INVALIDCALL)
-                    (2, 1) => match f {
-                        75 | 77 | 80 | 82 => 0,
-                        70 | 71 | 73 | 79 | 83 | 84 => NOTAVAILABLE,
-                        _ => INVALIDCALL,
-                    },
-                    // (AUTOGENMIPMAP: D3DOK_NOAUTOGEN for X8R8G8B8, R5G6B5, the palette, signed
-                    // and DXT formats)
-                    (0x400, 3) if tex => {
-                        if dxt || matches!(f, 22 | 23 | 40 | 41 | 60 | 63 | 64 | 110) { 0x0876_086f } else { 0 }
-                    }
-                    (0x400, 3) => NOTAVAILABLE,
-                    // (the generators ask no other pair)
-                    _ => return Err(Fail::Bad),
-                };
+                let hr = check_hr(f, u, rtype, self.v8)?;
                 if !matches!((u, rtype), (0, 3) | (1, 1) | (1, 3)) {
                     hit(clause::D3D9_FORMATS_USAGE);
                 }

@@ -9,6 +9,18 @@ const FVF: &str = "spec/lean/Kikizake/D3d9/Fvf.lean";
 const STAGE: &str = "spec/lean/Kikizake/D3d9/Stage.lean";
 const FOG: &str = "spec/lean/Kikizake/D3d9/Fog.lean";
 const ARG: &str = "spec/lean/Kikizake/D3d9/Arg.lean";
+const FORMATS: &str = "spec/lean/Kikizake/D3d9/Formats.lean";
+/// the formats asked: every number to 130 (the D3DFORMATs, the depth ones among them) and the FOURCCs
+fn formats(each: &mut dyn FnMut(i64)) {
+    for f in 0..=130 {
+        each(f);
+    }
+    for c in [b"DXT1", b"DXT2", b"DXT3", b"DXT4", b"DXT5", b"UYVY", b"YUY2", b"NV12"] {
+        each(i64::from(d3d9draw::fourcc(c)));
+    }
+}
+/// the usage and resource type pairs CheckDeviceFormat is asked (cases check, check-usage)
+const CHECKS: [(i64, i64); 10] = [(0, 3), (1, 1), (1, 3), (0, 1), (2, 1), (0x200, 3), (0, 4), (1, 4), (0, 5), (0x400, 3)];
 const U32: i64 = 0xffff_ffff;
 
 pub static MIRRORS: &[Mirror] = &[
@@ -395,6 +407,20 @@ pub static MIRRORS: &[Mirror] = &[
                 Err(_) => vec![],
             })
         },
+    },
+    Mirror {
+        name: "d3d9.supported",
+        lean: FORMATS,
+        domain: Domain::Every("every format number to 130 and the FOURCCs, as a texture and a target, on 9 and 8"),
+        inputs: |each| formats(&mut |f| every(&[(f, f), (0, 1), (0, 1)], each)),
+        model: |a| one(d3d9draw::supported(arg(a, 0)?, arg::<i64>(a, 1)? != 0, arg::<i64>(a, 2)? != 0)),
+    },
+    Mirror {
+        name: "d3d9.check",
+        lean: FORMATS,
+        domain: Domain::Every("every format number to 130 and the FOURCCs, each usage and resource type asked, on 9 and 8"),
+        inputs: |each| formats(&mut |f| for (u, t) in CHECKS { every(&[(f, f), (u, u), (t, t), (0, 1)], each) }),
+        model: |a| one(d3d9draw::check_hr(arg(a, 0)?, arg(a, 1)?, arg(a, 2)?, arg::<i64>(a, 3)? != 0).ok()?),
     },
 ];
 

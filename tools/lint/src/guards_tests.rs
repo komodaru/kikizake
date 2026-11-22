@@ -99,6 +99,10 @@ fn unconfined_uses_are_found() {
     let arg = "pub fn stage_arg(a: u32) -> V { if a & 0x20 != 0 { v = [v[3]; 4]; } v }\nfn arg(&self, a: u32) -> V { if a & 0x20 != 0 { v = [v[3]; 4]; } v }\n";
     let r = rust("src/model/d3d9draw.rs", arg);
     assert!(r.len() == 2 && r.iter().all(|e| e.contains("in arg")), "{r:?}");
+    // (CheckDeviceFormat's codes only in check_hr, which d3d9.check holds to the Lean)
+    let check = "pub fn check_hr(f: u32) -> u32 { 0x8876_086a }\nfn draw_op(&mut self) { out.push(format!(\"{:08x}\", 0x0876_086f)); }\n";
+    let r = rust("src/model/d3d9draw.rs", check);
+    assert!(r.len() == 1 && r[0].contains("in draw_op"), "{r:?}");
 }
 
 #[test]

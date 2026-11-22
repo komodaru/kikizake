@@ -45,6 +45,9 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // (a stage argument's selector and modifiers are stage_arg's, which the Lean mirror d3d9.arg
     // holds to spec/lean/Kikizake/D3d9/Arg.lean)
     ("src/model/d3d9draw.rs", r"\[v\[3\];\s*4\]|D3D9_STAGE_NOTEX|&\s*0x20\s*!=\s*0", &["stage_arg"]),
+    // (CheckDeviceFormat's answers are check_hr's and the formats taken supported's, which the
+    // Lean mirrors d3d9.check, d3d9.supported hold to spec/lean/Kikizake/D3d9/Formats.lean)
+    ("src/model/d3d9draw.rs", r"0x8876_086a|0x0876_086f|D3D9_FORMATS_CHECK|let\s+no_tex\s*=", &["check_hr", "supported"]),
 ];
 
 /// (file, what (a regular expression), why): `forbidden`

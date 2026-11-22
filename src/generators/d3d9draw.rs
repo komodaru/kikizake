@@ -1198,7 +1198,7 @@ fn suite(v8: bool) -> String {
     for i in 0..12 {
         open(&mut s, &format!("clear-viewport-{i}"), 21, 16, 16);
         let (x, y) = (q.range(0, 6), q.range(0, 6));
-        let (w, h) = (q.range(1, 16 - x), q.range(1, 16 - y));
+        let (w, h) = (q.range(1, 16i64.saturating_sub(x)), q.range(1, 16i64.saturating_sub(y)));
         writeln!(s, "d9clear 1 0 0 0\nd9viewport {x} {y} {w} {h} {} {}", fb(0.0), fb(1.0));
         if i % 3 == 2 {
             writeln!(s, "d9target 16 16 21\nd9clear 1 0 0 0");
@@ -1207,7 +1207,7 @@ fn suite(v8: bool) -> String {
         let mut l = format!("d9clear 1 {:#x} 0 0", q.next());
         for _ in 0..q.range(1, 3) {
             let (x0, y0) = (q.range(-2, 14), q.range(-2, 14));
-            write!(l, " {x0} {y0} {} {}", x0 + q.range(1, 8), y0 + q.range(1, 8));
+            write!(l, " {x0} {y0} {} {}", x0.saturating_add(q.range(1, 8)), y0.saturating_add(q.range(1, 8)));
         }
         writeln!(s, "{l}\nd9rt\nend");
     }

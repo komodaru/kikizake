@@ -18,6 +18,7 @@ import Kikizake.D3d9.DeclFvf
 import Kikizake.D3d9.Stage
 import Kikizake.D3d9.Fog
 import Kikizake.D3d9.Arg
+import Kikizake.D3d9.Formats
 import Kikizake.Float
 import Kikizake.F32
 import Kikizake.DWrite.Advance
