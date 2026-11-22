@@ -165,6 +165,9 @@ spec/tla/GdiPath.tla::Next tla GDI.PATH.BEGIN GDI.PATH.BEGINAGAIN GDI.PATH.END G
 spec/tla/D3D9StateBlock.tla::Next tla D3D9.SETGET D3D9.SB.TYPES D3D9.SB.RECORD D3D9.SB.CAPTURE D3D9.SB.APPLY D3D9.RS.DEFAULT
 spec/tla/D3D9States.tla::Next tla D3D9.DEVICE D3D9.RS.DEFAULT D3D9.RS.POINTSIZEMAX D3D9.RS.UNDOC D3D9.TSS.DEFAULT D3D9.TSS.UNDOC D3D9.SS.DEFAULT D3D9.SET.UNDOC
 spec/tla/D3D8States.tla::Next tla D3D8.DEVICE D3D8.RS.DEFAULT D3D8.RS.OWN D3D8.RS.UNDOC D3D8.TSS.DEFAULT D3D8.TSS.UNDOC D3D8.SET.UNDOC
+spec/tla/D3D9Groups.tla::Next tla D3D9.SB.TYPES
+spec/tla/D3D8Groups.tla::Next tla D3D8.SB.GROUPS
+spec/tla/D3DSbMisuse.tla::Next tla D3D9.SB.MISUSE D3D9.SB.BADTYPE
 tests/laws_dd.rs::compares_are_consistent exhaustive D3D7.ZFUNC.ALL D3D7.ALPHATEST
 tests/laws_dd.rs::dither_stays_within_a_step exhaustive D3D7.DITHER
 tests/laws_dd.rs::blend_factors_bound pbt D3D7.BLEND.OTHER

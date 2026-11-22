@@ -105,4 +105,92 @@ TypeOK == mode \in Modes /\ n \in 0..(MaxOps + 1)
         open(f"spec/tla/{module}.cfg", "w").write("CONSTANTS MaxOps = 1\nINIT Init\nNEXT Next\nCONSTRAINT Bound\nINVARIANTS TypeOK\n")
 
 
+GROUPS = [
+    ("D3D9Groups", "d3d9", "golden/d3d9-64/stdout.txt", "D3D9.SB.TYPES"),
+    ("D3D8Groups", "d3d8", "golden/d3d8-32/stdout.txt", "D3D8.SB.GROUPS"),
+]
+
+
+def case_calls(path):
+    out, name = {}, None
+    for line in open(path):
+        line = line.strip()
+        if line.startswith("case "):
+            name = line[5:]
+            out[name] = []
+        elif name is not None and line != "end":
+            out[name].append(line)
+    return out
+
+
+def key_of(call):
+    w = call.split()
+    return " ".join([w[0]] + w[2:-1]) if w[1] == "set" else " ".join([w[0]] + w[2:])
+
+
+def groups():
+    for module, suite, golden, clauses in GROUPS:
+        got = cases(golden)
+        calls = case_calls(f"cases/{suite}.txt")
+        device = calls["create-1"][0]
+        member = {}
+        keys = None
+        for t in (1, 2, 3):
+            name = f"create-{t}"
+            sets = {key_of(c): int(c.split()[-1], 0) for c in calls[name] if " set " in c}
+            answers = {}
+            for l in got[name][1:]:
+                m = re.match(r"^((?:rs|tss|ss) [0-9 ]+?)( = ([0-9a-f]{8})| hr [0-9a-f]{8})$", l)
+                if not m:
+                    raise SystemExit(f"{golden} {name}: unexpected line {l!r}")
+                answers[m.group(1)] = int(m.group(3), 16) if m.group(3) else None
+            ks = [k for k in sets if answers.get(k) is not None]
+            keys = ks if keys is None else [k for k in keys if k in ks]
+            member[t] = {k for k in ks if answers[k] != sets[k]}
+        keys = sorted(keys, key=lambda k: [k.split()[0]] + [int(x) for x in k.split()[1:]])
+        def members(t):
+            return "{" + ", ".join(f'"{k}"' for k in keys if k in member[t]) + "}"
+        text = f"""---------------------------- MODULE {module} ----------------------------
+(* Direct3D {suite[-1]}'s state block types as Windows answers them ({clauses}): a block made by
+   CreateStateBlock of a type (1 ALL, 2 PIXELSTATE, 3 VERTEXSTATE) holds the type's states at the
+   device's values, so a state set after it and then the block applied reads the device's value
+   back where the state is the type's, and what was set where not. The lists are Windows' answers
+   (golden {golden.split('/')[1]} cases create-1, create-2, create-3), written by spec/tla/states.py;
+   the device's values are the defaults (D3D{suite[-1]}States). `log` as in GdiPath.tla. *)
+EXTENDS Integers, Sequences, TLC
+
+CONSTANTS MaxOps
+
+VARIABLES type, log, n
+vars == <<type, log, n>>
+
+Keys == {{{", ".join(f'"{k}"' for k in keys)}}}
+Group(t) == CASE t = 1 -> {members(1)}
+              [] t = 2 -> {members(2)}
+              [] t = 3 -> {members(3)}
+"""
+        text += r"""
+S == INSTANCE """ + module.replace("Groups", "States") + r""" WITH mode <- "DEVICE", log <- log, n <- n
+
+Init == /\ type \in 1..3 /\ n = 0
+        /\ log = <<"> DEVICE", "DEVICEOK", "> sb create 0 " \o ToString(type)>>
+
+\* set after the block was made, then the block applied: the type's states take the device's
+\* values back
+SetApplyRead(k) == /\ log' = log \o <<"> " \o S!SetCall(k), "> sb apply 0", "> " \o S!GetCall(k),
+                                     k \o (IF k \in Group(type) THEN S!Default("DEVICE")[k] ELSE " = 00001234")>>
+                   /\ n' = n + 1 /\ UNCHANGED type
+
+Next == \E k \in Keys : SetApplyRead(k)
+Spec == Init /\ [][Next]_vars
+Bound == n <= MaxOps
+TypeOK == type \in 1..3 /\ n \in 0..(MaxOps + 1)
+=============================================================================
+"""
+        text = text.replace('"DEVICEOK"', '"' + got["create-1"][0] + '"').replace('"> DEVICE"', '"> ' + device + '"').replace('"DEVICE"', '"' + device + '"')
+        open(f"spec/tla/{module}.tla", "w").write(text)
+        open(f"spec/tla/{module}.cfg", "w").write("CONSTANTS MaxOps = 1\nINIT Init\nNEXT Next\nCONSTRAINT Bound\nINVARIANTS TypeOK\n")
+
+
 main()
+groups()
