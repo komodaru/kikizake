@@ -1293,7 +1293,7 @@ mod options_again {
 
 /// a JPEG XR decoder's frame written again by JPEG XR's encoder with no option keeps the frame's
 /// pixels (WICIMAGE.ENCODE.WMP.FRAME), and a quarter turned 8bppGray file's frame copies
-/// nothing (WICIMAGE.ENCODE.WMP.TURNGRAY), whatever the size, quality and seed
+/// nothing when taller than wide (WICIMAGE.ENCODE.WMP.TURNTALL), whatever the size, quality and seed
 mod wmp_frames {
     use super::*;
     fn run(text: &str) -> Vec<String> {
@@ -1312,7 +1312,7 @@ mod wmp_frames {
         }
 
         #[test]
-        fn a_quarter_turned_gray_file_copies_nothing(w in 1u32..12, h in 1u32..12, f in prop_oneof![Just("gray8"), Just("gray16"), Just("bgra")], t in prop_oneof![Just(1u32), Just(9), Just(2)], q in prop_oneof![Just("Lossless=1"), Just("ImageQuality=1"), Just("ImageQuality=0.5")], again: bool, seed: u32) {
+        fn a_quarter_turned_tall_file_copies_nothing(w in 1u32..12, h in 1u32..12, f in prop_oneof![Just("gray8"), Just("gray16"), Just("bgra")], t in prop_oneof![Just(1u32), Just(9), Just(2)], q in prop_oneof![Just("Lossless=1"), Just("ImageQuality=1"), Just("ImageQuality=0.5")], again: bool, seed: u32) {
             // (written once, or its frame written again by JPEG XR's encoder with the turn)
             let text = if again {
                 format!("case a\nwbits {f} {w} {h} {seed}\nwencode wmp {q}\nwredecode\nwframe 0\nwencode wmp BitmapTransform={t}\nwredecode\nwframe 0\nwinfo\nwpixels\nend\n")
@@ -1322,7 +1322,7 @@ mod wmp_frames {
             let out = run(&text);
             let (tw, th) = if t & 1 != 0 { (h, w) } else { (w, h) };
             prop_assert!(out.iter().any(|l| *l == format!("winfo 00000000 {tw} {th} {f} 0.000 0.000")), "{:?}", out);
-            let fails = f == "gray8" && t & 1 != 0 && w == 2;
+            let fails = t & 1 != 0 && w < h;
             prop_assert_eq!(out.iter().any(|l| l.starts_with("wpixels 88982f48")), fails, "{:?}", out);
         }
     }

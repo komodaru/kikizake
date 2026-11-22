@@ -703,7 +703,7 @@ spec/lean/Kikizake/D3d9/Draw.lean::nearest_pixel lean D3D9.DRAW.POINTS
 spec/lean/Kikizake/D3d9/Draw.lean::xzero lean D3D9.DRAW.XZERO
 spec/lean/Kikizake/D3d9/Draw.lean::xzero_any lean D3D9.DRAW.XZERO
 tests/wicimage_laws.rs::a_frame_written_again_keeps_its_pixels pbt WICIMAGE.ENCODE.WMP.FRAME
-tests/wicimage_laws.rs::a_quarter_turned_gray_file_copies_nothing pbt WICIMAGE.ENCODE.WMP.TURNGRAY
+tests/wicimage_laws.rs::a_quarter_turned_tall_file_copies_nothing pbt WICIMAGE.ENCODE.WMP.TURNTALL
 spec/lean/Kikizake/Gdi/Hfd.lean::value_nearest lean GDI.PATH.FLATTENHFD
 spec/lean/Kikizake/Gdi/Hfd.lean::flatten_far lean GDI.PATH.FLATTENHFD
 spec/lean/Kikizake/Gdi/Hfd.lean::flatten_keeps_the_end lean GDI.PATH.FLATTENHFD

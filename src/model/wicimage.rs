@@ -3521,18 +3521,18 @@ fn encode_wmp(i: &Img, opts: EncodeOptions) -> Res<Encoded> {
     for y in 0..h {
         o.px[y * st..y * st + row].copy_from_slice(&e.decoded[y * row..(y + 1) * row]);
     }
-    Ok(Encoded::Lossy(e.file, "wmp", turned(o, t, i.w)))
+    Ok(Encoded::Lossy(e.file, "wmp", turned(o, t, (i.w, i.h))))
 }
 
 /// a JPEG XR file's pixels as its decoder gives them, turned by the BitmapTransform `t` written
-/// into it: a quarter turned 8bppGray picture two pixels wide (before the turn) decodes to its
-/// size and format, but its CopyPixels fails with WINCODEC_ERR_INTERNALERROR (golden optset-0,
-/// 1, 8, 9-wmp-gray8, wmpturn-1, lossless and lossy; wider ones copy: wmpturn-0, 2, 3; other
-/// formats copy: wmpturn-4..6)
-fn turned(o: Img, t: u32, w: u32) -> Written {
+/// into it: a picture taller than wide (`w` < `h` before the turn) turned a quarter decodes to
+/// its turned size and format, but its CopyPixels fails with WINCODEC_ERR_INTERNALERROR (golden
+/// wmpturn-size-*: every 8bppGray size of 1..6 by 1..6, 32bppBGRA and 16bppGray of 1..3, the
+/// taller ones failing, the square and wider ones copying; optset-0, 1, 8, 9-wmp-gray8)
+fn turned(o: Img, t: u32, (w, h): (u32, u32)) -> Written {
     let o = if t == 0 { o } else { flip(&o, t) };
-    if t & 1 != 0 && o.fmt == "gray8" && w == 2 {
-        hit(clause::WICIMAGE_ENCODE_WMP_TURNGRAY);
+    if t & 1 != 0 && w < h {
+        hit(clause::WICIMAGE_ENCODE_WMP_TURNTALL);
         Written::NoPixels(o, 0x8898_2f48)
     } else {
         Written::Pixels(o)
@@ -4315,7 +4315,7 @@ impl WicImage {
                     // 12..14 of lossy and lossless files; wmpframe-opt-0..5))
                     "wmp" if self.from == Some("wmp") && nf == c.fmt => {
                         hit(clause::WICIMAGE_ENCODE_WMP_FRAME);
-                        Encoded::Decodes("wmp", turned(img, opts.wmp_transform, c.w))
+                        Encoded::Decodes("wmp", turned(img, opts.wmp_transform, (c.w, c.h)))
                     }
                     "wmp" if opts.wmp_lossless => match encode_wmp(&img, EncodeOptions { wmp_quality: Some(1.0), ..opts })? {
                         Encoded::Lossy(_, _, o) => Encoded::Decodes("wmp", o),

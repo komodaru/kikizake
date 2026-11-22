@@ -1901,12 +1901,12 @@ pub fn wicencode() -> String {
         writeln!(s, "case wmpframe-opt-{k}\nwbits {f} 7 5 {seed}\nwencode wmp ImageQuality=0.5\nwredecode\nwframe 0\nwencode wmp{to}{o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
     }
     // (added after) quarter turned 8bppGray files of other sizes, lossy too, and of the other
-    // gray formats (WICIMAGE.ENCODE.WMP.TURNGRAY: which of them copy)
+    // gray formats (WICIMAGE.ENCODE.WMP.TURNTALL: which of them copy)
     for ((k, (f, w, h, o)), seed) in [("gray8", 16, 9, "Lossless=1 BitmapTransform=1"), ("gray8", 2, 3, "ImageQuality=0.5 BitmapTransform=1"), ("gray8", 5, 4, "ImageQuality=0.8 BitmapTransform=9"), ("gray8", 4, 4, "Lossless=1 BitmapTransform=1"), ("gray16", 3, 2, "Lossless=1 BitmapTransform=1"), ("bw", 9, 3, "Lossless=1 BitmapTransform=1"), ("bgr24", 3, 2, "Lossless=1 BitmapTransform=1"), ("gray8", 3, 2, "Lossless=1 BitmapTransform=2")].into_iter().enumerate().zip(0x0b84_0000u32..) {
         writeln!(s, "case wmpturn-{k}-{f}\nwbits {f} {w} {h} {seed}\nwencode wmp {o}\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
     }
-    // (added after) which quarter turned files copy, by size (WICIMAGE.ENCODE.WMP.TURNGRAY:
-    // two pixels wide failed, four and wider copied)
+    // (added after) which quarter turned files copy, by size (WICIMAGE.ENCODE.WMP.TURNTALL:
+    // the taller than wide fail)
     for ((f, w, h), seed) in ["gray8"].into_iter().flat_map(|f| (1u32..=6).flat_map(move |w| (1u32..=6).map(move |h| (f, w, h)))).chain(["bgra", "gray16"].into_iter().flat_map(|f| (1u32..=3).flat_map(move |w| (1u32..=3).map(move |h| (f, w, h))))).zip(0x0b85_0000u32..) {
         writeln!(s, "case wmpturn-size-{f}-{w}x{h}\nwbits {f} {w} {h} {seed}\nwencode wmp Lossless=1 BitmapTransform=1\nwredecode\nwframe 0\nwinfo\nwpixels\nend");
     }
