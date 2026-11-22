@@ -388,6 +388,8 @@ spec/lean/Kikizake/D3d9/Fvf.lean::fvf_round_trip lean D3DX9.FVFDECL D3DX9.DECLFV
 spec/lean/Kikizake/D3d9/Fvf.lean::runtime_decl lean D3D9.FVF.DECL D3D9.FVF.TEXCOUNT D3D9.FVF.BLEND5
 spec/lean/Kikizake/F32.lean::mul_comm lean D3D9.STAGE.OP
 spec/lean/Kikizake/F32.lean::add_comm lean D3D9.STAGE.OP
+spec/lean/Kikizake/Float.lean::mul_comm lean D3D9.STAGE.OP
+spec/lean/Kikizake/Float.lean::add_comm lean D3D9.STAGE.OP
 spec/lean/Kikizake/D3d9/Stage.lean::symmetric lean D3D9.STAGE.OP
 spec/lean/Kikizake/D3d9/Stage.lean::selects lean D3D9.STAGE.OP
 spec/lean/Kikizake/D3d9/Stage.lean::past_lerp lean D3D9.STAGE.PASTOP
