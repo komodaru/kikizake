@@ -122,29 +122,4 @@ def clamp (x lo hi : Nat) : Nat := if isNaN F x then x else if lt F x lo then lo
 /-- the same, NaN as the one quiet NaN -/
 def canon (x : Nat) : Nat := if isNaN F x then qnan F else x
 
-/-- binary32 multiplication is commutative, NaNs and infinities too -/
-theorem mul_comm (x y : Nat) : mul F x y = mul F y x := by
-  unfold mul
-  dsimp only
-  rw [bne_comm, Nat.mul_comm (sig F x) (sig F y), Int.add_comm (ex F x) (ex F y)]
-  by_cases hx : isNaN F x <;> by_cases hy : isNaN F y <;> simp only [hx, hy, Bool.or_true, Bool.or_false, ↓reduceIte, Bool.false_eq_true]
-  by_cases ix : isInf F x <;> by_cases iy : isInf F y <;> simp [ix, iy, Bool.or_comm]
-
-private theorem addExact_comm (x y : Nat) : addExact F x y = addExact F y x := by
-  unfold addExact
-  dsimp only
-  rw [Int.min_comm (ex F x) (ex F y), Int.add_comm ((if sign F x = true then -1 else 1) * _)]
-
-/-- binary32 addition is commutative, NaNs, infinities and signed zeros too -/
-theorem add_comm (x y : Nat) : add F x y = add F y x := by
-  unfold add
-  rw [addExact_comm F x y]
-  by_cases hx : isNaN F x <;> by_cases hy : isNaN F y <;> simp only [hx, hy, Bool.or_true, Bool.or_false, ↓reduceIte, Bool.false_eq_true]
-  by_cases ix : isInf F x <;> by_cases iy : isInf F y <;> simp only [ix, iy, Bool.and_true, Bool.and_false, ↓reduceIte, Bool.false_eq_true]
-  · by_cases h : sign F x = sign F y
-    · simp [h]
-    · have : (sign F y == sign F x) = false := by simp; exact fun e => h e.symm
-      simp [h, this]
-  · rw [Bool.and_comm]
-
 end Kikizake.Float

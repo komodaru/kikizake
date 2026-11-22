@@ -18,10 +18,6 @@ abbrev lt := Float.lt fmt
 abbrev canon := Float.canon fmt
 abbrev isNaN := Float.isNaN fmt
 
-/-- binary32 multiplication is commutative, NaNs and infinities too -/
-theorem mul_comm (x y : Nat) : mul x y = mul y x := Float.mul_comm fmt x y
-/-- binary32 addition is commutative, NaNs, infinities and signed zeros too -/
-theorem add_comm (x y : Nat) : add x y = add y x := Float.add_comm fmt x y
 
 end Kikizake.F32
 
@@ -53,8 +49,6 @@ def toF32 (x : Nat) : Nat :=
     let (s, n, d) := Float.toRat fmt x
     Float.round F32.fmt s n d
 
-theorem mul_comm (x y : Nat) : mul x y = mul y x := Float.mul_comm fmt x y
-theorem add_comm (x y : Nat) : add x y = add y x := Float.add_comm fmt x y
 
 /-- a binary64 from its halves, and its halves -/
 def join (hi lo : Nat) : Nat := hi * 2 ^ 32 + lo
@@ -62,7 +56,52 @@ def halves (x : Nat) : List Int := [(x / 2 ^ 32 : Nat), (x % 2 ^ 32 : Nat)]
 
 end Kikizake.F64
 
+/-! (the theorems about Kikizake.Float's operations sit here, beside the mirrors that hold the
+binary32 and binary64 instances to Rust) -/
+namespace Kikizake.Float
+
+variable (F : Fmt)
+
+/-- multiplication in any format is commutative, NaNs and infinities too -/
+theorem fmt_mul_comm (x y : Nat) : mul F x y = mul F y x := by
+  unfold mul
+  dsimp only
+  rw [bne_comm, Nat.mul_comm (sig F x) (sig F y), Int.add_comm (ex F x) (ex F y)]
+  by_cases hx : isNaN F x <;> by_cases hy : isNaN F y <;> simp only [hx, hy, Bool.or_true, Bool.or_false, ↓reduceIte, Bool.false_eq_true]
+  by_cases ix : isInf F x <;> by_cases iy : isInf F y <;> simp [ix, iy, Bool.or_comm]
+
+private theorem addExact_comm (x y : Nat) : addExact F x y = addExact F y x := by
+  unfold addExact
+  dsimp only
+  rw [Int.min_comm (ex F x) (ex F y), Int.add_comm ((if sign F x = true then -1 else 1) * _)]
+
+/-- addition in any format is commutative, NaNs, infinities and signed zeros too -/
+theorem fmt_add_comm (x y : Nat) : add F x y = add F y x := by
+  unfold add
+  rw [addExact_comm F x y]
+  by_cases hx : isNaN F x <;> by_cases hy : isNaN F y <;> simp only [hx, hy, Bool.or_true, Bool.or_false, ↓reduceIte, Bool.false_eq_true]
+  by_cases ix : isInf F x <;> by_cases iy : isInf F y <;> simp only [ix, iy, Bool.and_true, Bool.and_false, ↓reduceIte, Bool.false_eq_true]
+  · by_cases h : sign F x = sign F y
+    · simp [h]
+    · have : (sign F y == sign F x) = false := by simp; exact fun e => h e.symm
+      simp [h, this]
+  · rw [Bool.and_comm]
+
+end Kikizake.Float
+
+namespace Kikizake.F64
+
+theorem mul_comm (x y : Nat) : mul x y = mul y x := Float.fmt_mul_comm fmt x y
+theorem add_comm (x y : Nat) : add x y = add y x := Float.fmt_add_comm fmt x y
+
+end Kikizake.F64
+
 namespace Kikizake.F32
+
+/-- binary32 multiplication is commutative, NaNs and infinities too -/
+theorem mul_comm (x y : Nat) : mul x y = mul y x := Float.fmt_mul_comm fmt x y
+/-- binary32 addition is commutative, NaNs, infinities and signed zeros too -/
+theorem add_comm (x y : Nat) : add x y = add y x := Float.fmt_add_comm fmt x y
 
 open Kikizake.F64 (join halves)
 
