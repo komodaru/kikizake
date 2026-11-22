@@ -13,7 +13,8 @@ def mirrors : List Mirror :=
   D3d11.Raster.mirrors ++ D3d11.Draw.mirrors ++ D3d11.Texture.mirrors ++
   D3d11.Desc.mirrors ++
   D3d11.View.mirrors ++
-  DWrite.Advance.mirrors
+  DWrite.Advance.mirrors ++
+  DWrite.Metrics.mirrors
 
 def answer (line : String) : String :=
   match ((line.replace "\n" "").replace "\r" "").splitOn " " with

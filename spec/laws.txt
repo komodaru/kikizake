@@ -541,3 +541,13 @@ spec/lean/Kikizake/D3d11/View.lean::buf_rest lean D3DRES.VIEW.BUF
 spec/lean/Kikizake/D3d11/View.lean::dsvms lean D3DRES.VIEW.DSVMS
 spec/lean/Kikizake/D3d11/View.lean::bufex10 lean D3DRES.VIEW.BUFEX10
 spec/lean/Kikizake/D3d11/View.lean::default_dim lean D3DRES.VIEW.DEFAULT
+spec/lean/Kikizake/DWrite/Metrics.lean::head lean DW.METRICS.HEAD
+spec/lean/Kikizake/DWrite/Metrics.lean::win lean DW.METRICS.WIN
+spec/lean/Kikizake/DWrite/Metrics.lean::typo lean DW.METRICS.TYPO
+spec/lean/Kikizake/DWrite/Metrics.lean::os2v2 lean DW.METRICS.OS2V2
+spec/lean/Kikizake/DWrite/Metrics.lean::noos2 lean DW.METRICS.NOOS2
+spec/lean/Kikizake/DWrite/Metrics.lean::defaults lean DW.METRICS.DEFAULTS
+spec/lean/Kikizake/DWrite/Metrics.lean::horizontal lean DW.GLYPH.H
+spec/lean/Kikizake/DWrite/Metrics.lean::vmtx lean DW.GLYPH.VMTX
+spec/lean/Kikizake/DWrite/Metrics.lean::novmtx lean DW.GLYPH.NOVMTX
+spec/lean/Kikizake/DWrite/Metrics.lean::novmtx_noos2 lean DW.GLYPH.NOVMTX.NOOS2
