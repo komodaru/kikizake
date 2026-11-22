@@ -75,6 +75,10 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // (blending on targets of other formats is blend_float and factor_f32, which d3d9.blendf holds
     // to spec/lean/Kikizake/D3d9/Blend.lean)
     ("src/model/d3d9draw.rs", r"D3D9_BLEND_FORMAT|\.min\(\s*1\.0\s*-|\|x\|\s*x\.clamp\(0\.0,\s*1\.0\)\s*as\s*f32", &["blend_float", "factor_f32"]),
+    // (point and linear filtering's coordinates, weights and sums are point_at, bilinear_at,
+    // bilinear_weights, bilinear_bytes, bilinear_unit and bilinear_float, which d3d9.point,
+    // d3d9.bilinear, d3d9.bibytes and d3d9.bifloat hold to spec/lean/Kikizake/D3d9/Filter.lean)
+    ("src/model/d3d9draw.rs", r"\*\s*64\.0\)\.round\(\)|\*\s*(32\.0|q\s+as\s+f64)\)\.floor\(\)|/\s*BILERP_ONE|\(q\s*-\s*fx\)|\(Q\s*-\s*fx\)", &["point_at", "bilinear_at", "bilinear_weights", "bilinear_unit", "bilinear_float"]),
 ];
 
 /// (file, what (a regular expression), why): `forbidden`

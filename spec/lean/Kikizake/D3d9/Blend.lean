@@ -88,8 +88,10 @@ def blendFloat (s d : List Nat) (b : States) : Option (List Nat) :=
 blends as it is), the destination taken as read; the products with the factors added,
 subtracted either way, and MIN and MAX of the source and destination alone, whatever the factors;
 the alpha blends by the separate states exactly where they are on; a factor outside the
-enumeration (0, 16) blends nothing -/
+enumeration (0, 16) blends nothing; the blended color is the four channels of the clamped source
+and the destination -/
 theorem blend_format (s d : C4) (b : States) (k x : Nat) :
+    (blendFloat s d b = [0, 1, 2, 3].mapM fun k => do pure (F64.ofF32 (← channel (src32 s) (dst32 d) b k))) ∧
     (F64.lt x 0 = true → Float.isNaN F64.fmt x = false → F64.clamp x 0 0x3ff0000000000000 = 0) ∧
     (F64.lt x 0 = false → F64.lt 0x3ff0000000000000 x = true → Float.isNaN F64.fmt x = false →
       F64.clamp x 0 0x3ff0000000000000 = 0x3ff0000000000000) ∧
@@ -99,7 +101,7 @@ theorem blend_format (s d : C4) (b : States) (k x : Nat) :
     (channel s d { b with separate := true } 3 = channel s d { b with separate := true, src := b.srcA, dst := b.dstA, op := b.opA } 3) ∧
     (k ≠ 3 → channel s d { b with separate := true } k = channel s d { b with separate := false } k) ∧
     (∀ bf, factorF 0 k s d bf = none ∧ factorF 12 k s d bf = none ∧ factorF 13 k s d bf = none ∧ factorF 16 k s d bf = none) := by
-  refine ⟨fun h hn => ?_, fun h1 h2 hn => ?_, fun h1 h2 => ?_, fun _ _ _ _ => ⟨rfl, rfl, rfl, rfl, rfl⟩, ?_, fun hk => ?_, fun bf => ?_⟩
+  refine ⟨rfl, fun h hn => ?_, fun h1 h2 hn => ?_, fun h1 h2 => ?_, fun _ _ _ _ => ⟨rfl, rfl, rfl, rfl, rfl⟩, ?_, fun hk => ?_, fun bf => ?_⟩
   · simp [F64.clamp, Float.clamp, hn, show F64.lt x 0 = true from h]
   · simp [F64.clamp, Float.clamp, hn, show F64.lt x 0 = false from h1, show F64.lt 0x3ff0000000000000 x = true from h2]
   · simp only [F64.clamp, Float.clamp, show F64.lt x 0 = false from h1, show F64.lt 0x3ff0000000000000 x = false from h2]

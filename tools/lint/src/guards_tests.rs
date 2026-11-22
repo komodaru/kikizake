@@ -117,6 +117,8 @@ fn unconfined_uses_are_found() {
         ("fn stages(&self) { let r = self.tss(st, 2) & 0xf == 2; }", "stage_plan"),
         ("fn stages(&self) { t[k] = ((c * l * 255.0).round_ties_even() / 255.0) as f64; }", "bump_scale"),
         ("fn blend(&self) { let s = s.map(|x| x.clamp(0.0, 1.0) as f32); let f = s[3].min(1.0 - d[3]); }", "blend_float"),
+        ("fn sample(&self) { let near64 = |x: f64| ((x * 64.0).round() / 64.0).floor() as i64; }", "point_at"),
+        ("fn bilinear_sum(&self) { let fx = ((x - x0) * q as f64).floor() as i64; let w = (q - fx) * (q - fy); }", "bilinear_at"),
     ];
     for (code, only) in inlined {
         let r = rust("src/model/d3d9draw.rs", code);

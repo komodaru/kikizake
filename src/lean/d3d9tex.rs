@@ -8,6 +8,30 @@ const TEX: &str = "spec/lean/Kikizake/D3d9/Tex.lean";
 const TEXEL: &str = "spec/lean/Kikizake/D3d9/Texel.lean";
 const CHAIN: &str = "spec/lean/Kikizake/D3d9/Chain.lean";
 const BLEND: &str = "spec/lean/Kikizake/D3d9/Blend.lean";
+const FILTER: &str = "spec/lean/Kikizake/D3d9/Filter.lean";
+
+/// texel coordinates as the samplers make them: u of k / 4096 in -2..2 times widths 1 .. 256,
+/// the points 1/128 and 1/64 apart either side of, and on, by 0 .. 2 ulps each way, and
+/// 100,000 binary64s of any bits
+fn coords(each: &mut dyn FnMut(&[i64])) {
+    for w in [1.0f64, 2.0, 3.0, 4.0, 5.0, 7.0, 8.0, 16.0, 256.0] {
+        for k in -8192..=8192 {
+            each(&f64_halves(f64::from(k) / 4096.0 * w));
+        }
+    }
+    for k in -1024..=1024 {
+        let x = f64::from(k) / 128.0;
+        for d in -2i64..=2 {
+            let b = x.to_bits().cast_signed().saturating_add(d).cast_unsigned();
+            each(&f64_halves(f64::from_bits(b)));
+        }
+    }
+    let mut rng = crate::rng::XorShift32::new(0xf11e_d009);
+    for _ in 0..100_000 {
+        let b = u64::from(rng.next()) << 32 | u64::from(rng.next());
+        each(&f64_halves(f64::from_bits(b)));
+    }
+}
 /// COLOROPs and ALPHAOPs of the plan: DISABLE, SELECTARG1, MODULATE, PREMODULATE, the bump mapping
 /// ones, DOTPRODUCT3, one past LERP
 const PLAN_OPS: [i64; 8] = [1, 2, 4, 17, 22, 23, 24, 27];
@@ -310,6 +334,84 @@ pub static MIRRORS: &[Mirror] = &[
             let c4 = |i: usize| -> Option<[f64; 4]> { Some([arg_f64(a, i)?, arg_f64(a, i.checked_add(2)?)?, arg_f64(a, i.checked_add(4)?)?, arg_f64(a, i.checked_add(6)?)?]) };
             let b = BlendStates { src: arg(a, 16)?, dst: arg(a, 17)?, op: arg(a, 18)?, separate: arg::<u8>(a, 19)? != 0, src_alpha: arg(a, 20)?, dst_alpha: arg(a, 21)?, op_alpha: arg(a, 22)?, factor: arg(a, 23)? };
             Some(d3d9draw::blend_float(c4(0)?, c4(8)?, &b).map_or(vec![], |v| v.iter().flat_map(|&x| f64_halves(x)).collect()))
+        },
+    },
+    Mirror {
+        name: "d3d9.point",
+        lean: FILTER,
+        domain: Domain::Sampled("texel coordinates (coords): u of k / 4096 in -2..2 times widths 1 .. 256, 64ths and 128ths and the binary64s 2 ulps about them, any binary64 bits"),
+        inputs: coords,
+        model: |a| Some(vec![d3d9draw::point_at(arg_f64(a, 0)?)]),
+    },
+    Mirror {
+        name: "d3d9.bilinear",
+        lean: FILTER,
+        domain: Domain::Sampled("texel coordinates (coords): u of k / 4096 in -2..2 times widths 1 .. 256, 64ths and 128ths and the binary64s 2 ulps about them, any binary64 bits"),
+        inputs: coords,
+        model: |a| {
+            let (i, f) = d3d9draw::bilinear_at(arg_f64(a, 0)?);
+            Some(vec![i, f])
+        },
+    },
+    Mirror {
+        name: "d3d9.bibytes",
+        lean: FILTER,
+        domain: Domain::Sampled("every weight 0..32 each way, with 60 samples of four 8-bit texels each, their ends included"),
+        inputs: |each| {
+            let mut rng = crate::rng::XorShift32::new(0xb1b1_d009);
+            for fx in 0..=32 {
+                for fy in 0..=32 {
+                    for i in 0..60 {
+                        let t: [i64; 4] = match i {
+                            0 => [0; 4],
+                            1 => [255; 4],
+                            2 => [255, 0, 0, 255],
+                            _ => std::array::from_fn(|_| rng.range(0, 255)),
+                        };
+                        each(&[t[0], t[1], t[2], t[3], fx, fy]);
+                    }
+                }
+            }
+        },
+        model: |a| {
+            let t = [arg::<u64>(a, 0)?, arg(a, 1)?, arg(a, 2)?, arg(a, 3)?];
+            let w = d3d9draw::bilinear_weights(arg(a, 4)?, arg(a, 5)?);
+            let v = d3d9draw::bilinear_bytes(t, w);
+            let mut out = w.to_vec();
+            out.push(v);
+            out.extend(f64_halves(d3d9draw::bilinear_unit(v)));
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "d3d9.bifloat",
+        lean: FILTER,
+        domain: Domain::Sampled("every weight 0..32 each way, with 40 samples of four texels: f32 values in -2..2, 0, -0, 1, NaN, infinities and any binary64 bits"),
+        inputs: |each| {
+            let mut rng = crate::rng::XorShift32::new(0xb1f1_d009);
+            let special = [0.0f64, -0.0, 1.0, 0.5, f64::NAN, f64::INFINITY, f64::NEG_INFINITY, -1.0];
+            for fx in 0..=32 {
+                for fy in 0..=32 {
+                    for i in 0..40 {
+                        let mut w = vec![];
+                        for _ in 0..4 {
+                            let x = match (i, rng.range(0, 2)) {
+                                (0, _) => -0.0,
+                                (_, 0) => special.get(usize::try_from(rng.range(0, 7)).unwrap_or(0)).copied().unwrap_or(0.0),
+                                (_, 1) => f64::from_bits(u64::from(rng.next()) << 32 | u64::from(rng.next())),
+                                _ => f64::from(-2.0 + 4.0 * (f32::from(u16::try_from(rng.range(0, 0xffff)).unwrap_or(0)) / 65535.0)),
+                            };
+                            w.extend(f64_halves(x));
+                        }
+                        w.extend([fx, fy]);
+                        each(&w);
+                    }
+                }
+            }
+        },
+        model: |a| {
+            let t = [arg_f64(a, 0)?, arg_f64(a, 2)?, arg_f64(a, 4)?, arg_f64(a, 6)?];
+            Some(f64_halves(d3d9draw::bilinear_float(t, d3d9draw::bilinear_weights(arg(a, 8)?, arg(a, 9)?))))
         },
     },
 ];

@@ -1037,6 +1037,47 @@ enum Setup {
 /// one in the bilinear filter's weights (32nds of a texel each way)
 const BILERP_ONE: i64 = 1024;
 
+/// point filtering's texel of the texel coordinate x (u times the width): x rounded to the
+/// nearest 64th, then taken down (MEASURED d3d8draw filter2-3-4 takes texel 2 at 1.99375; 1/16,
+/// 1/32 break d3d9draw filter2-3-*, 1/128 misses it; D3D9.TEX.POINT);
+/// spec/lean/Kikizake/D3d9/Filter.lean `pointAt`
+pub fn point_at(x: f64) -> i64 {
+    ((x * 64.0).round() / 64.0).floor() as i64
+}
+
+/// linear filtering's first texel of the texel coordinate x and the next one's weight in 32nds of
+/// a texel: x - 0.5 taken down, its fraction times 32 taken down (MEASURED filter-*, filter2-*,
+/// filter-uv-*; D3D9.TEX.LINEAR); Filter.lean `bilinearAt`
+pub fn bilinear_at(x: f64) -> (i64, i64) {
+    let x = x - 0.5;
+    let x0 = x.floor();
+    (x0 as i64, ((x - x0) * 32.0).floor() as i64)
+}
+
+/// the weights of the texels (x0, y0), (x0 + 1, y0), (x0, y0 + 1), (x0 + 1, y0 + 1) of the next
+/// ones' weights fx, fy (in 32nds, BILERP_ONE in all); Filter.lean `weights`
+pub fn bilinear_weights(fx: i64, fy: i64) -> [i64; 4] {
+    const Q: i64 = 32;
+    const _: () = assert!(Q * Q == BILERP_ONE);
+    [(Q - fx) * (Q - fy), fx * (Q - fy), (Q - fx) * fy, fx * fy]
+}
+
+/// 8-bit texels' (0..255) weighted sum, in 1/BILERP_ONE of 255; Filter.lean `bytesSum`
+pub fn bilinear_bytes(t: [u64; 4], w: [i64; 4]) -> i64 {
+    t.iter().zip(w).map(|(&t, w)| t as i64 * w).sum()
+}
+
+/// an 8-bit weighted sum truncated to a whole 255th (MEASURED filter-*: the sum truncated), f32;
+/// Filter.lean `unit`
+pub fn bilinear_unit(v: i64) -> f64 {
+    ((v / BILERP_ONE) as f32 / 255.0) as f64
+}
+
+/// other texels' weighted sum, in f64; Filter.lean `floatSum`
+pub fn bilinear_float(t: [f64; 4], w: [i64; 4]) -> f64 {
+    t.iter().zip(w).map(|(&t, w)| t * w as f64).sum::<f64>() / BILERP_ONE as f64
+}
+
 /// a bilinear filter's weighted sum
 enum Weighted {
     /// of 8-bit texels, in 1/BILERP_ONE of 255
@@ -1866,7 +1907,7 @@ impl D3d9 {
         // (MEASURED, filter-*, filter2-*, filter-uv-*: weights in 32nds of a texel taken
         // down, the weighted sum of 8-bit texels truncated)
         Ok(match self.bilinear_sum(st, tx, x, y, mu, mv)? {
-            Weighted::Bytes(v) => v.map(|v| ((v / BILERP_ONE) as f32 / 255.0) as f64),
+            Weighted::Bytes(v) => v.map(bilinear_unit),
             Weighted::Float(c) => c,
         })
     }
@@ -1874,21 +1915,15 @@ impl D3d9 {
     /// the bilinear filter's weighted sum at texel coordinates (x, y): of 8-bit texels in
     /// 1/BILERP_ONE, before it is truncated, or of other texels' values
     fn bilinear_sum(&self, st: u32, tx: &Surface, x: f64, y: f64, mu: u32, mv: u32) -> Res<Weighted> {
-        let (x, y) = (x - 0.5, y - 0.5);
-        let (x0, y0) = (x.floor(), y.floor());
-        const Q: i64 = 32;
-        const _: () = assert!(Q * Q == BILERP_ONE);
-        let q = Q;
-        let (fx, fy) = (((x - x0) * q as f64).floor() as i64, ((y - y0) * q as f64).floor() as i64);
-        let (x0, y0) = (x0 as i64, y0 as i64);
+        let ((x0, fx), (y0, fy)) = (bilinear_at(x), bilinear_at(y));
         let t = [self.texel(st, tx, x0, y0, mu, mv)?, self.texel(st, tx, x0 + 1, y0, mu, mv)?, self.texel(st, tx, x0, y0 + 1, mu, mv)?, self.texel(st, tx, x0 + 1, y0 + 1, mu, mv)?];
-        let w = [(q - fx) * (q - fy), fx * (q - fy), (q - fx) * fy, fx * fy];
+        let w = bilinear_weights(fx, fy);
         let fm = format(tx.fmt).ok_or(Fail::Bad)?;
         let bytes = fm.kind == Kind::Int && fm.ch.iter().all(|c| c.bits == 8 && !matches!(c.c, b'u' | b'v' | b'w' | b'q'));
         Ok(if bytes {
-            Weighted::Bytes(std::array::from_fn(|k| (0..4).map(|i| unorm(t[i][k], 8) as i64 * w[i]).sum()))
+            Weighted::Bytes(std::array::from_fn(|k| bilinear_bytes(t.map(|c| unorm(c[k], 8)), w)))
         } else {
-            Weighted::Float(std::array::from_fn(|k| (0..4).map(|i| t[i][k] * w[i] as f64).sum::<f64>() / (q * q) as f64))
+            Weighted::Float(std::array::from_fn(|k| bilinear_float(t.map(|c| c[k]), w)))
         })
     }
 
@@ -1989,11 +2024,7 @@ impl D3d9 {
         match filter {
             TexFilter::Point => {
                 hit(clause::D3D9_TEX_POINT);
-                // (MEASURED: the texel coordinate rounded to the nearest 64th, then taken down:
-                // d3d8draw filter2-3-4 takes texel 2 at 1.99375; 1/16, 1/32 break d3d9draw filter2-3-*,
-                // 1/128 misses it)
-                let near64 = |x: f64| ((x * 64.0).round() / 64.0).floor() as i64;
-                self.texel(st, tx, near64(x), near64(y), mu, mv)
+                self.texel(st, tx, point_at(x), point_at(y), mu, mv)
             }
             TexFilter::Linear => {
                 hit(clause::D3D9_TEX_LINEAR);
