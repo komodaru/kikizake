@@ -571,3 +571,6 @@ tests/laws_dwrite_face.rs::gdi_sizes_at_most_zero_are_invalid exhaustive DW.GDI.
 tests/laws_dwrite_face.rs::shaping_properties_for_every_bmp_character exhaustive DW.SHAPE.PROPS
 tests/laws_dwrite_face.rs::placements_are_the_scaled_advance exhaustive DW.SHAPE.PLACE
 tests/laws_dwrite_face.rs::a_font_without_a_family_name_has_no_layout exhaustive DW.LAYOUT.NAME
+tests/laws_dwrite_script.rs::every_character_alone_is_its_script exhaustive DW.SCRIPT.UCD DW.SCRIPT.WINDOWS
+tests/laws_dwrite_script.rs::common_text_is_one_zzzz_run exhaustive DW.SCRIPT.ALLCOMMON
+tests/laws_dwrite_script.rs::no_visual_and_unassigned_characters_in_context exhaustive DW.SCRIPT.NOVISUAL
