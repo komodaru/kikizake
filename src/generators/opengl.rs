@@ -644,7 +644,83 @@ pub fn opengl() -> String {
             writeln!(s, "case edge-{name}\n{pre}\nend");
         }
     }
+    textures_more(&mut s);
     s
+}
+
+/// what textured fragments do not settle yet (GL.RASTER.MODE), after every other case
+fn textures_more(s: &mut String) {
+    const T2: u32 = 0xde1;
+    let head = |s: &mut String, name: &str, bpp: u32| {
+        writeln!(s, "case {name}\n{}{ORTHO}gl glDisable 0xbd0", ctx(bpp));
+    };
+    let q = |s: &mut String, kind: &str, args: &str, ty: &str, n: u32| {
+        writeln!(s, "gltexq {kind} {args} {ty} {n}");
+    };
+    let quad = |s: &mut String, s0: f32, t0: f32, s1: f32, t1: f32| {
+        writeln!(s, "gl glColor4ub 255 255 255 255\ngl glBegin 7\ngl glTexCoord2f {s0} {t0}\ngl glVertex2f 0 0\ngl glTexCoord2f {s1} {t0}\ngl glVertex2f 16 0\ngl glTexCoord2f {s1} {t1}\ngl glVertex2f 16 16\ngl glTexCoord2f {s0} {t1}\ngl glVertex2f 0 16\ngl glEnd");
+    };
+    let levels = [0x1000u32, 0x1001, 0x1003, 0x1005, 0x805c, 0x805d, 0x805e, 0x805f, 0x8060, 0x8061];
+    // fast spans dithered, blended,
+    // into alpha bits, depth tested on 16 and 32 bits and under GL_NICEST; a smooth polygon
+    // fogged; outlines, wide and deep lines, smooth lines blended; an eye plane under another
+    // modelview; a proxy image; a copy from outside the window; color index mode
+    let fast = |s: &mut String, name: &str, glctx: &str, setup: &str| {
+        writeln!(s, "case tex-open-more-{name}\n{glctx}{ORTHO}gl glDisable 0xbd0\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 18 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexParameteri {T2} 10240 9728\ngl glEnable {T2}\ngl glClear 0x4100\n{setup}");
+        writeln!(s, "gl glBegin 4\ngl glColor4ub 255 0 0 200\ngl glTexCoord2f 0 0\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 100\ngl glTexCoord2f 1 0\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glTexCoord2f 0.5 1\ngl glVertex3f 6 13 0\ngl glEnd");
+        read_all(s);
+        writeln!(s, "glread 0 0 16 16 0x1902 0x1405 1024\nglerr\nend");
+    };
+    let c32 = ctx(32);
+    fast(s, "0", &c32, "gl glEnable 0xbd0\ngl glTexEnvi 8960 8704 7681");
+    fast(s, "1", &c32, "gl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303\ngl glClearColor 0.25 0.5 0.75 1\ngl glClear 0x4000");
+    fast(s, "2", "glctx 32 choose 0x38 0 32 8 0 32 8\n", "gl glClearColor 0.25 0.5 0.75 0.5\ngl glClear 0x4000");
+    fast(s, "3", "glctx 32 choose 0x38 0 32 0 0 16 8\n", "gl glEnable 0xb71");
+    fast(s, "4", &c32, "gl glEnable 0xb71");
+    fast(s, "5", &c32, "gl glEnable 0xb71\ngl glHint 0xc50 0x1102");
+    fast(s, "6", &c32, "gl glEnable 0xb71\ngl glDepthFunc 0x207");
+    fast(s, "7", &c32, "gl glEnable 0xb41\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1");
+    fast(s, "8", &c32, "gl glPolygonMode 0x408 0x1b01");
+    fast(s, "9", &c32, "gl glPolygonMode 0x408 0x1b00\ngl glPointSize 3");
+    let line = |s: &mut String, name: &str, setup: &str| {
+        writeln!(s, "case tex-open-more-{name}\n{}{ORTHO}gl glDisable 0xbd0\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 19 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 8448\ngl glEnable {T2}\ngl glClear 0x4100\ngl glColor4ub 200 150 100 255\n{setup}", ctx(32));
+        writeln!(s, "gl glBegin 1\ngl glTexCoord2f 0 0\ngl glVertex3f 1.5 2.25 0.5\ngl glTexCoord2f 1 1\ngl glVertex3f 14.5 11.75 -0.25\ngl glEnd");
+        read_all(s);
+        writeln!(s, "glerr\nend");
+    };
+    line(s, "line-wide", "gl glLineWidth 3");
+    line(s, "line-deep", "gl glEnable 0xb71");
+    line(s, "line-smooth-blend", "gl glEnable 0xb20\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303");
+    line(s, "line-smooth-wide", "gl glEnable 0xb20\ngl glLineWidth 2.5");
+    line(s, "line-smooth-fog", "gl glEnable 0xb20\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1");
+    line(s, "line-smooth-depth", "gl glEnable 0xb20\ngl glEnable 0xb71");
+    line(s, "line-smooth-flat", "gl glEnable 0xb20\ngl glShadeModel 0x1d00");
+    line(s, "line-flat", "gl glShadeModel 0x1d00");
+    // an eye plane given under a translated, scaled modelview
+    head(s, "tex-open-more-eye", 32);
+    writeln!(s, "gltex {T2} 0 4 4 4 0 0x1908 0x1401 20 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 7681\ngl glEnable {T2}\ngl glTranslatef 2 1 0\ngl glScalef 0.5 2 1\ngl glTexGeni 8192 9472 9216\ngl glTexGeni 8193 9472 9216\ngltexv gen 8192 9474 f 0.125 0.03125 0 0\ngltexv gen 8193 9474 f 0 0.125 0 0.25\ngl glLoadIdentity\ngl glEnable 0xc60\ngl glEnable 0xc61\ngl glClear 0x4000");
+    quad(s, 0.0, 0.0, 1.0, 1.0);
+    read_all(s);
+    q(s, "gen", "8192 9474", "f", 4);
+    q(s, "gen", "8193 9474", "f", 4);
+    writeln!(s, "glerr\nend");
+    // proxy images: their level parameters, too big and fitting
+    head(s, "tex-open-more-proxy", 32);
+    writeln!(s, "gltex 0x8064 0 4 8 8 0 0x1908 0x1401 21 256\nglerr");
+    for l in levels {
+        q(s, "level", &format!("0x8064 0 {l}"), "i", 1);
+    }
+    writeln!(s, "gltex 0x8064 0 4 2048 8 0 0x1908 0x1401 21 256\nglerr");
+    q(s, "level", "0x8064 0 4096", "i", 1);
+    writeln!(s, "gltex 0x8063 0 4 8 1 0 0x1908 0x1401 21 32\nglerr");
+    q(s, "level", "0x8063 0 4096", "i", 1);
+    q(s, "level", &format!("{T2} 0 4096"), "i", 1);
+    writeln!(s, "glerr\nend");
+    // copies reaching past the window
+    head(s, "tex-open-more-copy", 32);
+    writeln!(s, "gldraw 16 16 0x1908 0x1401 22 1024\ngl glCopyTexImage2D {T2} 0 0x8058 12 -2 8 8 0\nglerr\nglteximg {T2} 0 0x1908 0x1401 256\ngl glCopyTexSubImage2D {T2} 0 0 0 -3 14 4 4\nglerr\nglteximg {T2} 0 0x1908 0x1401 256\nglerr\nend");
+    // color index mode: a texture enabled over an index polygon, line and point
+    writeln!(s, "case tex-open-more-ci\nglctx 8 29\n{ORTHO}gl glDisable 0xbd0\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 23 64\ngl glTexParameteri {T2} 10241 9728\ngl glEnable {T2}\ngl glClearIndex 3\ngl glClear 0x4000\ngl glIndexi 9\ngl glBegin 4\ngl glTexCoord2f 0 0\ngl glVertex2f 2 2\ngl glTexCoord2f 1 0\ngl glVertex2f 13 4\ngl glTexCoord2f 0.5 1\ngl glVertex2f 6 13\ngl glEnd\nglread 0 0 16 16 0x1900 0x1405 1024\nglerr\nend");
 }
 
 /// a vertex coordinate in 1/8 steps (three subpixel bits) in lo..hi
@@ -3251,66 +3327,6 @@ fn textures(s: &mut String) {
         read_all(s);
         writeln!(s, "glerr\nend");
     }
-    // what textured fragments do not settle yet (GL.RASTER.MODE): fast spans dithered, blended,
-    // into alpha bits, depth tested on 16 and 32 bits and under GL_NICEST; a smooth polygon
-    // fogged; outlines, wide and deep lines, smooth lines blended; an eye plane under another
-    // modelview; a proxy image; a copy from outside the window; color index mode
-    let fast = |s: &mut String, name: &str, glctx: &str, setup: &str| {
-        writeln!(s, "case tex-open-more-{name}\n{glctx}{ORTHO}gl glDisable 0xbd0\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 18 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexParameteri {T2} 10240 9728\ngl glEnable {T2}\ngl glClear 0x4100\n{setup}");
-        writeln!(s, "gl glBegin 4\ngl glColor4ub 255 0 0 200\ngl glTexCoord2f 0 0\ngl glVertex3f 2 2 0.5\ngl glColor4ub 0 255 0 100\ngl glTexCoord2f 1 0\ngl glVertex3f 13 4 -0.25\ngl glColor4ub 0 0 255 255\ngl glTexCoord2f 0.5 1\ngl glVertex3f 6 13 0\ngl glEnd");
-        read_all(s);
-        writeln!(s, "glread 0 0 16 16 0x1902 0x1405 1024\nglerr\nend");
-    };
-    let c32 = ctx(32);
-    fast(s, "0", &c32, "gl glEnable 0xbd0\ngl glTexEnvi 8960 8704 7681");
-    fast(s, "1", &c32, "gl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303\ngl glClearColor 0.25 0.5 0.75 1\ngl glClear 0x4000");
-    fast(s, "2", "glctx 32 choose 0x38 0 32 8 0 32 8\n", "gl glClearColor 0.25 0.5 0.75 0.5\ngl glClear 0x4000");
-    fast(s, "3", "glctx 32 choose 0x38 0 32 0 0 16 8\n", "gl glEnable 0xb71");
-    fast(s, "4", &c32, "gl glEnable 0xb71");
-    fast(s, "5", &c32, "gl glEnable 0xb71\ngl glHint 0xc50 0x1102");
-    fast(s, "6", &c32, "gl glEnable 0xb71\ngl glDepthFunc 0x207");
-    fast(s, "7", &c32, "gl glEnable 0xb41\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1");
-    fast(s, "8", &c32, "gl glPolygonMode 0x408 0x1b01");
-    fast(s, "9", &c32, "gl glPolygonMode 0x408 0x1b00\ngl glPointSize 3");
-    let line = |s: &mut String, name: &str, setup: &str| {
-        writeln!(s, "case tex-open-more-{name}\n{}{ORTHO}gl glDisable 0xbd0\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 19 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 8448\ngl glEnable {T2}\ngl glClear 0x4100\ngl glColor4ub 200 150 100 255\n{setup}", ctx(32));
-        writeln!(s, "gl glBegin 1\ngl glTexCoord2f 0 0\ngl glVertex3f 1.5 2.25 0.5\ngl glTexCoord2f 1 1\ngl glVertex3f 14.5 11.75 -0.25\ngl glEnd");
-        read_all(s);
-        writeln!(s, "glerr\nend");
-    };
-    line(s, "line-wide", "gl glLineWidth 3");
-    line(s, "line-deep", "gl glEnable 0xb71");
-    line(s, "line-smooth-blend", "gl glEnable 0xb20\ngl glEnable 0xbe2\ngl glBlendFunc 0x302 0x303");
-    line(s, "line-smooth-wide", "gl glEnable 0xb20\ngl glLineWidth 2.5");
-    line(s, "line-smooth-fog", "gl glEnable 0xb20\ngl glEnable 0xb60\ngl glFogf 0xb65 9729\ngl glFogf 0xb63 0\ngl glFogf 0xb64 1");
-    line(s, "line-smooth-depth", "gl glEnable 0xb20\ngl glEnable 0xb71");
-    line(s, "line-smooth-flat", "gl glEnable 0xb20\ngl glShadeModel 0x1d00");
-    line(s, "line-flat", "gl glShadeModel 0x1d00");
-    // an eye plane given under a translated, scaled modelview
-    head(s, "tex-open-more-eye", 32);
-    writeln!(s, "gltex {T2} 0 4 4 4 0 0x1908 0x1401 20 64\ngl glTexParameteri {T2} 10241 9728\ngl glTexEnvi 8960 8704 7681\ngl glEnable {T2}\ngl glTranslatef 2 1 0\ngl glScalef 0.5 2 1\ngl glTexGeni 8192 9472 9216\ngl glTexGeni 8193 9472 9216\ngltexv gen 8192 9474 f 0.125 0.03125 0 0\ngltexv gen 8193 9474 f 0 0.125 0 0.25\ngl glLoadIdentity\ngl glEnable 0xc60\ngl glEnable 0xc61\ngl glClear 0x4000");
-    quad(s, 0.0, 0.0, 1.0, 1.0);
-    read_all(s);
-    q(s, "gen", "8192 9474", "f", 4);
-    q(s, "gen", "8193 9474", "f", 4);
-    writeln!(s, "glerr\nend");
-    // proxy images: their level parameters, too big and fitting
-    head(s, "tex-open-more-proxy", 32);
-    writeln!(s, "gltex 0x8064 0 4 8 8 0 0x1908 0x1401 21 256\nglerr");
-    for l in levels {
-        q(s, "level", &format!("0x8064 0 {l}"), "i", 1);
-    }
-    writeln!(s, "gltex 0x8064 0 4 2048 8 0 0x1908 0x1401 21 256\nglerr");
-    q(s, "level", "0x8064 0 4096", "i", 1);
-    writeln!(s, "gltex 0x8063 0 4 8 1 0 0x1908 0x1401 21 32\nglerr");
-    q(s, "level", "0x8063 0 4096", "i", 1);
-    q(s, "level", &format!("{T2} 0 4096"), "i", 1);
-    writeln!(s, "glerr\nend");
-    // copies reaching past the window
-    head(s, "tex-open-more-copy", 32);
-    writeln!(s, "gldraw 16 16 0x1908 0x1401 22 1024\ngl glCopyTexImage2D {T2} 0 0x8058 12 -2 8 8 0\nglerr\nglteximg {T2} 0 0x1908 0x1401 256\ngl glCopyTexSubImage2D {T2} 0 0 0 -3 14 4 4\nglerr\nglteximg {T2} 0 0x1908 0x1401 256\nglerr\nend");
-    // color index mode: a texture enabled over an index polygon, line and point
-    writeln!(s, "case tex-open-more-ci\nglctx 8 29\n{ORTHO}gl glDisable 0xbd0\ngltex {T2} 0 4 4 4 0 0x1908 0x1401 23 64\ngl glTexParameteri {T2} 10241 9728\ngl glEnable {T2}\ngl glClearIndex 3\ngl glClear 0x4000\ngl glIndexi 9\ngl glBegin 4\ngl glTexCoord2f 0 0\ngl glVertex2f 2 2\ngl glTexCoord2f 1 0\ngl glVertex2f 13 4\ngl glTexCoord2f 0.5 1\ngl glVertex2f 6 13\ngl glEnd\nglread 0 0 16 16 0x1900 0x1405 1024\nglerr\nend");
     // the texture bit of glPushAttrib, and texture objects' state across binds
     head(s, "tex-open-state", 32);
     writeln!(s, "glgentex 2\ngl glBindTexture {T2} 1\ngltex {T2} 0 4 2 2 0 0x1908 0x1401 16 16\ngl glTexParameteri {T2} 10241 9729\ngl glBindTexture {T2} 2\ngltex {T2} 0 3 4 4 0 0x1908 0x1401 17 64");
