@@ -647,7 +647,34 @@ pub fn opengl() -> String {
     textures_more(&mut s);
     arrays_more(&mut s);
     eye_more(&mut s);
+    raster_rest(&mut s);
     s
+}
+
+/// what GL.RASTER.MODE still holds after raster-more-*: antialiased lines blended with the
+/// source alpha and other destination factors, in 32 and 16 bits; a smooth polygon reaching
+/// behind the eye with face culling; after every other case
+fn raster_rest(s: &mut String) {
+    let blends: [(&str, &str); 6] = [("one", "0x302 0x1"), ("zero", "0x302 0x0"), ("src-color", "0x302 0x300"), ("one-minus-dst", "0x302 0x307"), ("one-msa", "0x1 0x303"), ("dst-one", "0x306 0x1")];
+    for bits in [32u32, 16] {
+        for (name, f) in blends {
+            writeln!(s, "case raster-rest-aa-line-{bits}-{name}\nglctx {bits} choose 0x38 0 {bits} 0 0 32 8\n{ORTHO}gl glDisable 0xbd0\ngl glClearColor 0.25 0.5 0.75 1\ngl glClear 0x4000\ngl glEnable 0xb20\ngl glEnable 0xbe2\ngl glBlendFunc {f}\ngl glColor4ub 200 150 100 180\ngl glBegin 1\ngl glVertex2f 1.5 2.25\ngl glVertex2f 14.5 11.75\ngl glVertex2f 2.5 13.5\ngl glVertex2f 12.25 1.5\ngl glEnd");
+            read_all(s);
+            writeln!(s, "glerr\nend");
+        }
+    }
+    for (name, cull) in [("back", "0x405"), ("front", "0x404")] {
+        for (order, v) in [("ccw", ["-1 -1 -2", "1 -0.5 -2", "0 1 1"]), ("cw", ["1 -0.5 -2", "-1 -1 -2", "0 1 1"])] {
+            writeln!(s, "case raster-rest-smooth-behind-{name}-{order}\n{}gl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glFrustum -1 1 -1 1 1 10\ngl glMatrixMode 0x1700\ngl glDisable 0xbd0\ngl glClear 0x4000\ngl glEnable 0xb41\ngl glEnable 0xb44\ngl glCullFace {cull}\ngl glBegin 4", ctx(32));
+            for (k, p) in v.iter().enumerate() {
+                let c = ["255 0 0", "0 255 0", "0 0 255"].get(k).copied().unwrap_or("0 0 0");
+                writeln!(s, "gl glColor4ub {c} 255\ngl glVertex3f {p}");
+            }
+            writeln!(s, "gl glEnd");
+            read_all(s);
+            writeln!(s, "glerr\nend");
+        }
+    }
 }
 
 /// eye planes (GL.TEX.GEN) through modelviews past tex-open-more-eye-rot: the modelview as

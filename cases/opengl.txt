@@ -121611,3 +121611,355 @@ gltexq gen 8194 9474 f 4
 gltexq gen 8195 9474 f 4
 glerr
 end
+case raster-rest-aa-line-32-one
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x302 0x1
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-32-zero
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x302 0x0
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-32-src-color
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x302 0x300
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-32-one-minus-dst
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x302 0x307
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-32-one-msa
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x1 0x303
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-32-dst-one
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x306 0x1
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-16-one
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x302 0x1
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-16-zero
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x302 0x0
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-16-src-color
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x302 0x300
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-16-one-minus-dst
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x302 0x307
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-16-one-msa
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x1 0x303
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-aa-line-16-dst-one
+glctx 16 choose 0x38 0 16 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClearColor 0.25 0.5 0.75 1
+gl glClear 0x4000
+gl glEnable 0xb20
+gl glEnable 0xbe2
+gl glBlendFunc 0x306 0x1
+gl glColor4ub 200 150 100 180
+gl glBegin 1
+gl glVertex2f 1.5 2.25
+gl glVertex2f 14.5 11.75
+gl glVertex2f 2.5 13.5
+gl glVertex2f 12.25 1.5
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-smooth-behind-back-ccw
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glFrustum -1 1 -1 1 1 10
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glEnable 0xb41
+gl glEnable 0xb44
+gl glCullFace 0x405
+gl glBegin 4
+gl glColor4ub 255 0 0 255
+gl glVertex3f -1 -1 -2
+gl glColor4ub 0 255 0 255
+gl glVertex3f 1 -0.5 -2
+gl glColor4ub 0 0 255 255
+gl glVertex3f 0 1 1
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-smooth-behind-back-cw
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glFrustum -1 1 -1 1 1 10
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glEnable 0xb41
+gl glEnable 0xb44
+gl glCullFace 0x405
+gl glBegin 4
+gl glColor4ub 255 0 0 255
+gl glVertex3f 1 -0.5 -2
+gl glColor4ub 0 255 0 255
+gl glVertex3f -1 -1 -2
+gl glColor4ub 0 0 255 255
+gl glVertex3f 0 1 1
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-smooth-behind-front-ccw
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glFrustum -1 1 -1 1 1 10
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glEnable 0xb41
+gl glEnable 0xb44
+gl glCullFace 0x404
+gl glBegin 4
+gl glColor4ub 255 0 0 255
+gl glVertex3f -1 -1 -2
+gl glColor4ub 0 255 0 255
+gl glVertex3f 1 -0.5 -2
+gl glColor4ub 0 0 255 255
+gl glVertex3f 0 1 1
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end
+case raster-rest-smooth-behind-front-cw
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glFrustum -1 1 -1 1 1 10
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4000
+gl glEnable 0xb41
+gl glEnable 0xb44
+gl glCullFace 0x404
+gl glBegin 4
+gl glColor4ub 255 0 0 255
+gl glVertex3f 1 -0.5 -2
+gl glColor4ub 0 255 0 255
+gl glVertex3f -1 -1 -2
+gl glColor4ub 0 0 255 255
+gl glVertex3f 0 1 1
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end

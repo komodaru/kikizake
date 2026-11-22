@@ -2708,7 +2708,7 @@ impl Ctx {
         // (scissored, stencil tested, masked, under a logic op or another blend: the general
         // path, the fragments cut by the box or tested, raster-open-14, 15, 16, 21, 22)
         // (textured: the general path, MEASURED, golden opengl-32 / 64 tex-open-prim-line-smooth)
-        if self.line_texture.is_none() && !index_mode && self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) && !self.cap(STENCIL_TEST) && self.color_mask == [true; 4] && !self.cap(COLOR_LOGIC_OP) && (!self.cap(BLEND) || self.blend == (SRC_ALPHA, ONE_MINUS_SRC_ALPHA)) {
+        if self.line_texture.is_none() && !index_mode && self.pf.rgba[3].0 == 0 && thin && stipple.is_none() && self.hint(LINE_SMOOTH_HINT) != NICEST && !self.cap(SCISSOR_TEST) && !self.cap(STENCIL_TEST) && self.color_mask == [true; 4] && !self.cap(COLOR_LOGIC_OP) && (!self.cap(BLEND) || matches!(self.blend, (SRC_ALPHA, ONE_MINUS_SRC_ALPHA | ONE))) {
             let narrow = self.bits()[..3].iter().any(|b| *b < 8);
 
             hit(clause::GL_RASTER_LINE_SMOOTH);
@@ -2734,10 +2734,8 @@ impl Ctx {
             return Ok(());
         }
         // (the general path into channels under 8 bits: stored as an antialiased triangle's,
-        // raster-open-51; blended (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) as a triangle, raster-open-57; other blends not measured)
-        if !index_mode && self.cap(BLEND) && self.blend != (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) && self.bits()[..3].iter().any(|b| *b < 8) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
+        // raster-open-51; blended (SRC_ALPHA, ONE_MINUS_SRC_ALPHA) as a triangle, raster-open-57;
+        // other blends as any fragment, MEASURED, golden opengl-32 / 64 raster-more-aa-line-16-0, 1)
         hit(if thin { clause::GL_RASTER_LINE_SMOOTH } else { clause::GL_RASTER_LINE_SMOOTH_WIDE });
         // (MEASURED, golden opengl-32 / 64 tex-open-more-line-smooth-depth-read, -wide-: textured
         // under a depth test, an aliased line's depths from the first end's pixel, a pixel taking
@@ -2852,7 +2850,9 @@ impl Ctx {
         if self.pf.rgba[3].0 % 8 != 0 {
             return Err(Fail::Bad);
         }
-        if clip.iter().any(|c| c[3] <= 0.0) {
+        // (a corner at w <= 0: cut by the view volume as any other, MEASURED, golden opengl-32 /
+        // 64 raster-more-smooth-behind; culled, the area of corners past the eye not measured)
+        if clip.iter().any(|c| c[3] <= 0.0) && self.cap(CULL_FACE) {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         // (culled as any polygon, then drawn antialiased: raster-open-6)
@@ -4043,7 +4043,13 @@ impl Ctx {
                     let w = u32::from(w);
                     let d = self.fb.get(i).copied().ok_or(Fail::Bad)?;
                     // (c: the fast path's channel bytes)
-                    let wu = |d: u32, c: f32| m(255u32.wrapping_sub(w), d).wrapping_add(m(w, u32::try_from(tri::trunc(c)).unwrap_or(0)));
+                    // (MEASURED, golden opengl-32 / 64 raster-more-aa-line-16-2: blended
+                    // (SRC_ALPHA, ONE) the weighted color added to the destination, held to 255)
+                    let add = self.cap(BLEND) && self.blend == (SRC_ALPHA, ONE);
+                    let wu = |d: u32, c: f32| {
+                        let cw = m(w, u32::try_from(tri::trunc(c)).unwrap_or(0));
+                        if add { d.saturating_add(cw).min(255) } else { m(255u32.wrapping_sub(w), d).wrapping_add(cw) }
+                    };
                     // (channels under 8 bits: in 8 bits, the 16.16 color c16 >> 13 and the
                     // destination shifted up by 3 (no copied top bits), the sum shifted back
                     // down, raster-open-35)

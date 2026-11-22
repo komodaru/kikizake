@@ -240,11 +240,11 @@ file	src/model/d3d9draw.rs	map_err_ignore	1
 file	src/model/d3d9draw.rs	unreachable	1
 file	src/model/d3d9draw.rs	wildcard_enum_match_arm	6
 file	src/model/d3draster.rs	arithmetic_side_effects	124
-file	src/model/d3draster.rs	as_conversions	73
-file	src/model/d3draster.rs	cast_possible_truncation	25
+file	src/model/d3draster.rs	as_conversions	71
+file	src/model/d3draster.rs	cast_possible_truncation	23
 file	src/model/d3draster.rs	cast_precision_loss	15
 file	src/model/d3draster.rs	cast_sign_loss	8
-file	src/model/d3draster.rs	float_cmp	15
+file	src/model/d3draster.rs	float_cmp	14
 file	src/model/d3draster.rs	indexing_slicing	148
 file	src/model/d3draster.rs	string_slice	1
 file	src/model/d3draster.rs	wildcard_enum_match_arm	4
