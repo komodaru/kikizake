@@ -1020,6 +1020,77 @@ pub static CLIP_MIRRORS: &[Mirror] = &[
         model: |a| {
             let zs = a.iter().map(|&x| u32::try_from(x).ok().map(f32::from_bits)).collect::<Option<Vec<f32>>>()?;
             one(crate::model::d3draster::depth_away(&zs))
+const COPY: &str = "spec/lean/Kikizake/D3d11/Copy.lean";
+
+/// numbers as the mirror's arguments
+fn nums(v: &[u64]) -> Option<Vec<i64>> {
+    v.iter().map(|&x| i64::try_from(x).ok()).collect()
+}
+
+/// a box's six arguments from `i`
+fn box6(a: &[i64], i: usize) -> Option<[u64; 6]> {
+    let g = |k: usize| arg::<u64>(a, i.checked_add(k)?);
+    Some([g(0)?, g(1)?, g(2)?, g(3)?, g(4)?, g(5)?])
+}
+
+/// three arguments from `i`
+fn three(a: &[i64], i: usize) -> Option<[u64; 3]> {
+    let g = |k: usize| arg::<u64>(a, i.checked_add(k)?);
+    Some([g(0)?, g(1)?, g(2)?])
+}
+
+fn plan_code(p: crate::model::d3dres::Plan) -> Option<Vec<i64>> {
+    use crate::model::d3dres::Plan;
+    one(match p {
+        Plan::Nothing => 0,
+        Plan::Removed => 1,
+        Plan::Copy => 2,
+    })
+}
+
+pub static COPY_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.box",
+        lean: COPY,
+        domain: Domain::Sampled("a box or none, of a buffer or not, blocks 0..4 by 0..4 and boxes 0..3 each: every one; 300,000 of blocks 0..16, boxes of any 32-bit numbers, wholes 0..2^40"),
+        inputs: |each| {
+            every(&[(0, 1), (0, 1), (0, 4), (0, 4), (0, 3), (0, 3), (0, 3), (0, 3), (0, 3), (0, 3), (2, 2), (3, 3), (1, 1)], each);
+            sampled(&[(0, 1), (0, 1), (0, 16), (0, 16), (0, U32), (0, U32), (0, U32), (0, U32), (0, U32), (0, U32), (0, 1 << 40), (0, 1 << 40), (0, 1 << 40)], 300_000, 0x0b0c_d311, each);
+        },
+        model: |a| {
+            let x: Vec<u32> = (4..10).map(|i| arg::<u32>(a, i)).collect::<Option<_>>()?;
+            let bx = if flag(a, 0)? { Some(x.as_slice()) } else { None };
+            nums(&crate::model::d3dres::box_elems(bx, flag(a, 1)?, (arg(a, 2)?, arg(a, 3)?), three(a, 10)?))
+        },
+    },
+    Mirror {
+        name: "d3d11.update",
+        lean: COPY,
+        domain: Domain::Sampled("subresources 0..1 of 1..2, usages 0..1, 1 or 2 samples, boxes 0..2 each in subresources 1..2 each: every one; 300,000 of 0..5 each"),
+        inputs: |each| {
+            every(&[(0, 1), (1, 2), (0, 1), (1, 2), (0, 2), (0, 2), (0, 2), (0, 2), (0, 2), (0, 2), (1, 2), (1, 2), (1, 2)], each);
+            sampled(&[(0, 5); 13], 300_000, 0x0bd8_d311, each);
+        },
+        model: |a| plan_code(crate::model::d3dres::update_plan(arg(a, 0)?, arg(a, 1)?, arg(a, 2)?, arg(a, 3)?, box6(a, 4)?, three(a, 10)?)),
+    },
+    Mirror {
+        name: "d3d11.region",
+        lean: COPY,
+        domain: Domain::Sampled("ignored or not, each kind of sides, boxes 0..2 each, a source and a destination of 1..2 each, offsets 0..1: every one; 400,000 of 0..5 each"),
+        inputs: |each| {
+            every(&[(0, 1), (0, 3), (0, 2), (0, 2), (0, 2), (0, 2), (0, 2), (0, 2), (1, 2), (1, 2), (1, 1), (1, 2), (1, 2), (1, 1), (0, 1), (0, 1), (0, 0)], each);
+            sampled(&[(0, 1), (0, 3), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5), (0, 5)], 400_000, 0x0e91_d311, each);
+        },
+        model: |a| {
+            use crate::model::d3dres::Sides;
+            let sides = match arg::<u8>(a, 1)? {
+                0 => Sides::Buffers,
+                1 => Sides::Textures { compatible: false },
+                2 => Sides::Textures { compatible: true },
+                3 => Sides::Mixed,
+                _ => return None,
+            };
+            plan_code(crate::model::d3dres::region_plan(flag(a, 0)?, sides, box6(a, 2)?, three(a, 8)?, three(a, 11)?, three(a, 14)?))
         },
     },
 ];

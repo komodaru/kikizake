@@ -354,6 +354,14 @@ fn check_view_with_reads_the_format_tables_only_through_its_facts() {
 }
 
 #[test]
+fn box_rules_stay_in_the_mirrored_functions() {
+    let inlined = "fn update() {\n    if sub >= res.nsubs() {\n        hit(clause::D3DRES_UPDATE_IGNORED);\n    }\n    let r = x[3].div_ceil(bw);\n}\nfn copy_region() {\n    hit(clause::D3DRES_COPYSUB_BAD);\n}\n";
+    let r = rust("src/model/d3dres.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:") && (b.contains(" in update") || b.contains(" in copy_region"))).count(), 3, "{r:?}");
+    assert!(rust("src/model/d3dres.rs", "fn update_plan() { hit(clause::D3DRES_UPDATE_IGNORED); }\nfn box_elems() { g(3).div_ceil(bw) }\nfn region_plan() { hit(clause::D3DRES_COPYSUB_BAD); }\n").is_empty());
+}
+
+#[test]
 fn filter_arithmetic_stays_in_the_mirrored_functions() {
     let inlined = "fn sample() {\n    let s = c * n as f32 - 0.5;\n    let f = (lod.fract() * 256.0).round();\n    if index(dw) <= px {}\n}\n";
     let r = rust("src/model/d3draster.rs", inlined);

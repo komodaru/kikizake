@@ -89,6 +89,27 @@ pub fn xorbytes(seed: u32, n: usize) -> Vec<u8> {
 /// the initial data the executor passes: 4 MiB from xorshift32
 pub const INIT: usize = 4 << 20;
 
+thread_local! {
+    /// the last seeds' initial data (a case makes and updates from a few seeds, each 4 MiB)
+    static INIT_DATA: std::cell::RefCell<Vec<(u32, std::rc::Rc<[u8]>)>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// `xorbytes(seed, INIT)`, kept for the next lines of the same seeds
+pub fn init_data(seed: u32) -> std::rc::Rc<[u8]> {
+    INIT_DATA.with(|c| {
+        let mut c = c.borrow_mut();
+        if let Some((_, d)) = c.iter().find(|(s, _)| *s == seed) {
+            return d.clone();
+        }
+        let d: std::rc::Rc<[u8]> = xorbytes(seed, INIT).into();
+        if c.len() >= 4 {
+            c.remove(0);
+        }
+        c.push((seed, d.clone()));
+        d
+    })
+}
+
 impl Resource {
     pub fn fmt(&self) -> Option<&'static Format> {
         format(self.d.fmt)
@@ -323,7 +344,9 @@ impl D3dres {
         // UpdateSubresource", "CopySubresourceRegion": a multisampled resource takes neither,
         // nor a region of one) an update of a multisampled resource, or a region copy with a box
         // or an offset to or from one, changes nothing
-        if at.iter().any(|&i| slot(t, i).ok().and_then(|k| self.res.at(k)).is_some_and(|r| r.d.count > 1)) {
+        // (a slot without a resource is the executor's nores first, runner/d3dres.c op_copy)
+        let held = |i: usize| slot(t, i).ok().and_then(|k| self.res.at(k));
+        if at.iter().all(|&i| held(i).is_some()) && at.iter().any(|&i| held(i).is_some_and(|r| r.d.count > 1)) {
             hit(clause::D3DRES_MS_REGION);
             return Ok(true);
         }
@@ -346,7 +369,7 @@ impl D3dres {
                     out.push("update nores".into());
                     return Ok(true);
                 };
-                self.removed |= update(res, sub, &xorbytes(seed, INIT), rp, dp, bx.as_deref())?;
+                self.removed |= update(res, sub, &init_data(seed), rp, dp, bx.as_deref())?;
             }
             ResOp::Copy => {
                 if t.len() != 3 {
@@ -532,7 +555,7 @@ impl D3dres {
         let mut r = Resource::zeroed(g)?;
         hit(clause::D3DRES_ZERO);
         if let Some((seed, rp, sp)) = init {
-            let data = xorbytes(seed, INIT);
+            let data = init_data(seed);
             for sub in 0..r.nsubs() {
                 let (rb, rows, sl) = r.layout(sub)?;
                 let (rp, sp) = if buf { (rb, rb) } else { (rp as usize, sp as usize) };
@@ -792,47 +815,137 @@ fn fill_subs(res: &mut Resource, subs: &[u32], el: &[u8]) -> Res<()> {
     Ok(())
 }
 
-/// true: the device is removed
-fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: Option<&[u32]>) -> Res<bool> {
-    hit(clause::D3DRES_UPDATE);
+/// what an update or a region copy does: nothing, remove the device, or copy its box
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Plan {
+    Nothing,
+    Removed,
+    Copy,
+}
+
+/// a box (D3D11_BOX: left, top, front inclusive, right, bottom, back exclusive; in pixels,
+/// block aligned; a buffer's in bytes, its left and right only) in elements of `block` pixels,
+/// or none: the whole of a subresource of `whole` elements a row, rows and slices
+/// (D3DRES.UPDATE.BOX)
+pub fn box_elems(bx: Option<&[u32]>, buffer: bool, block: (u32, u32), whole: [u64; 3]) -> [u64; 6] {
+    let Some(x) = bx else { return [0, 0, 0, whole[0], whole[1], whole[2]] };
+    let g = |i: usize| x.get(i).copied().map_or(0, u64::from);
+    if buffer {
+        return [g(0), 0, 0, g(3), 1, 1];
+    }
+    let (bw, bh) = (u64::from(block.0.max(1)), u64::from(block.1.max(1)));
+    [g(0).checked_div(bw).unwrap_or(0), g(1).checked_div(bh).unwrap_or(0), g(2), g(3).div_ceil(bw), g(4).div_ceil(bh), g(5)]
+}
+
+/// a box of no element (D3DRES.UPDATE.EMPTY, COPYSUB.BAD)
+pub fn box_empty(b: [u64; 6]) -> bool {
+    b[0] >= b[3] || b[1] >= b[4] || b[2] >= b[5]
+}
+
+/// a box's extent put at `at` reaches past `whole` (D3DRES.REMOVED)
+pub fn box_past(b: [u64; 6], at: [u64; 3], whole: [u64; 3]) -> bool {
+    let reach = |i: usize, j: usize| at[i].saturating_add(b[j].saturating_sub(b[i])) > whole[i];
+    reach(0, 3) || reach(1, 4) || reach(2, 5)
+}
+
+/// UpdateSubresource of subresource `sub` of `nsubs` of a resource of `usage` and `count`
+/// samples, the box `b` in elements of a subresource of `whole` (D3DRES.UPDATE.IGNORED,
+/// UPDATE.BAD, UPDATE.EMPTY, REMOVED)
+pub fn update_plan(sub: u32, nsubs: u32, usage: u32, count: u32, b: [u64; 6], whole: [u64; 3]) -> Plan {
     // (MEASURED: a subresource past the last changes nothing, probe-update-sub)
-    if sub >= res.nsubs() {
+    if sub >= nsubs {
         hit(clause::D3DRES_UPDATE_IGNORED);
-        return Ok(false);
+        return Plan::Nothing;
     }
     // (MEASURED: not a default resource, or multisampled: nothing changes, probe-update-immutable,
     // -dynamic, -staging, -ms)
-    if res.d.usage != 0 || res.d.count > 1 {
+    if usage != 0 || count > 1 {
         hit(clause::D3DRES_UPDATE_BAD);
-        return Ok(false);
+        return Plan::Nothing;
     }
-    let (rb, rows, sl) = res.layout(sub)?;
-    let (bw, bh, el) = match res.fmt() {
-        Some(f) => (f.bw as usize, f.bh as usize, (f.bits / 8) as usize),
-        None => (1, 1, 1),
-    };
-    // the box in elements (bytes for a buffer)
-    let (l, tp, fr, r, b, bk) = match bx {
-        None => (0, 0, 0, rb / el, rows, sl),
-        Some(x) => {
-            hit(clause::D3DRES_UPDATE_BOX);
-            let x: Vec<usize> = x.iter().map(|v| *v as usize).collect();
-            if res.d.dim == 4 {
-                (x[0], 0, 0, x[3], 1, 1)
-            } else {
-                (x[0] / bw, x[1] / bh, x[2], x[3].div_ceil(bw), x[4].div_ceil(bh), x[5])
-            }
-        }
-    };
-    if l >= r || tp >= b || fr >= bk {
+    if box_empty(b) {
         hit(clause::D3DRES_UPDATE_EMPTY);
-        return Ok(false);
+        return Plan::Nothing;
     }
     // (MEASURED: a box past the subresource removes the device (WARP), probe-update-past)
-    if r * el > rb || b > rows || bk > sl {
+    if box_past(b, [b[0], b[1], b[2]], whole) {
         hit(clause::D3DRES_REMOVED);
-        return Ok(true);
+        return Plan::Removed;
     }
+    Plan::Copy
+}
+
+/// the two sides of CopySubresourceRegion: buffers, textures (of compatible formats with
+/// elements of one size, or not), or one of each
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Sides {
+    Buffers,
+    Textures { compatible: bool },
+    Mixed,
+}
+
+/// CopySubresourceRegion of the box `b` (in the source's elements) of a source subresource of
+/// `src` to `at` of a destination one of `dst`; `ignored`: a subresource missing on either side,
+/// an immutable destination or sample counts that differ (D3DRES.COPYSUB.IGNORED, COPYSUB.BAD,
+/// COPY.IGNORED, REMOVED)
+pub fn region_plan(ignored: bool, sides: Sides, b: [u64; 6], src: [u64; 3], dst: [u64; 3], at: [u64; 3]) -> Plan {
+    // (MEASURED: a missing subresource on either side, an immutable destination, or sample
+    // counts that differ: nothing changes, probe-copysub-dsub, -ssub, -immutable, -ms)
+    if ignored {
+        hit(clause::D3DRES_COPYSUB_IGNORED);
+        return Plan::Nothing;
+    }
+    match sides {
+        // (MEASURED: a buffer to a texture or back changes nothing, probe-copysub-buftex, -texbuf)
+        Sides::Mixed => {
+            hit(clause::D3DRES_COPYSUB_BAD);
+            return Plan::Nothing;
+        }
+        Sides::Textures { compatible: false } => {
+            hit(clause::D3DRES_COPY_IGNORED);
+            return Plan::Nothing;
+        }
+        Sides::Buffers | Sides::Textures { compatible: true } => {}
+    }
+    // (MEASURED: an empty box changes nothing, probe-copysub-empty, -buf)
+    if box_empty(b) {
+        hit(clause::D3DRES_COPYSUB_BAD);
+        return Plan::Nothing;
+    }
+    // (MEASURED: a box past the source removes the device too, probe-copysub-srcbox; a region
+    // past the destination (WARP), probe-copysub-past, -buf)
+    if box_past(b, [b[0], b[1], b[2]], src) || box_past(b, at, dst) {
+        hit(clause::D3DRES_REMOVED);
+        return Plan::Removed;
+    }
+    Plan::Copy
+}
+
+/// a subresource's (row bytes, rows, slices) as (elements of `el` bytes a row, rows, slices)
+fn whole_of(layout: (usize, usize, usize), el: usize) -> [u64; 3] {
+    let n = |v: usize| u64::try_from(v).unwrap_or(u64::MAX);
+    [n(layout.0.checked_div(el).unwrap_or(0)), n(layout.1), n(layout.2)]
+}
+
+/// true: the device is removed
+fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: Option<&[u32]>) -> Res<bool> {
+    hit(clause::D3DRES_UPDATE);
+    let (rb, rows, sl) = res.layout(sub)?;
+    let (block, el) = match res.fmt() {
+        Some(f) => ((f.bw, f.bh), usize::try_from(f.bits / 8).unwrap_or(1)),
+        None => ((1, 1), 1),
+    };
+    if bx.is_some() {
+        hit(clause::D3DRES_UPDATE_BOX);
+    }
+    let whole = whole_of((rb, rows, sl), el);
+    let e = box_elems(bx, res.d.dim == 4, block, whole);
+    match update_plan(sub, res.nsubs(), res.d.usage, res.d.count, e, whole) {
+        Plan::Nothing => return Ok(false),
+        Plan::Removed => return Ok(true),
+        Plan::Copy => {}
+    }
+    let [l, tp, fr, r, b, bk] = e.map(|v| usize::try_from(v).unwrap_or(usize::MAX));
     let w = (r - l) * el;
     // (the source is the executor's 4 MiB: a box whose last row lies past it reads outside)
     let last = (bk - fr - 1).checked_mul(dp).zip((b - tp - 1).checked_mul(rp)).and_then(|(a, c)| a.checked_add(c)?.checked_add(w));
@@ -875,70 +988,44 @@ fn copy_resource(dev: Dev, dst: &mut Resource, src: &Resource) -> Res<()> {
 /// true: the device is removed
 fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: &Resource, ss: u32, bx: Option<&[u32]>) -> Res<bool> {
     hit(clause::D3DRES_COPYSUB);
-    // (MEASURED: a missing subresource on either side, an immutable destination, or sample
-    // counts that differ: nothing changes, probe-copysub-dsub, -ssub, -immutable, -ms)
-    if ds >= dst.nsubs() || ss >= src.nsubs() || dst.d.usage == 1 || dst.d.count != src.d.count {
-        hit(clause::D3DRES_COPYSUB_IGNORED);
-        return Ok(false);
-    }
-    // (MEASURED: textures of other dimensions copy the box all the same, probe-copysub-dim; a
-    // buffer to a texture or back changes nothing, probe-copysub-buftex, -texbuf)
-    if (dst.d.dim == 4) != (src.d.dim == 4) {
-        hit(clause::D3DRES_COPYSUB_BAD);
-        return Ok(false);
-    }
-    if dst.d.dim == 4 {
-        let (l, r) = bx.map_or((0, src.d.w as usize), |x| (x[0] as usize, x[3] as usize));
-        let x = at.0 as usize;
+    let ignored = ds >= dst.nsubs() || ss >= src.nsubs() || dst.d.usage == 1 || dst.d.count != src.d.count;
+    let n = |v: u32| u64::from(v);
+    let removed = |plan: Plan| match plan {
+        Plan::Nothing => Some(false),
+        Plan::Removed => Some(true),
+        Plan::Copy => None,
+    };
+    match (dst.d.dim == 4, src.d.dim == 4) {
         // (as for textures: an empty box changes nothing, one past either buffer removes the
-        // device, probe-copysub-buf)
-        if r <= l {
-            hit(clause::D3DRES_COPYSUB_BAD);
+        // device, probe-copysub-buf; the destination's y and z are not read)
+        (true, true) => {
+            let e = box_elems(bx, true, (1, 1), [n(src.d.w), 1, 1]);
+            if let Some(r) = removed(region_plan(ignored, Sides::Buffers, e, [n(src.d.w), 1, 1], [n(dst.d.w), 1, 1], [n(at.0), 0, 0])) {
+                return Ok(r);
+            }
+            let [l, _, _, r, _, _] = e.map(|v| usize::try_from(v).unwrap_or(usize::MAX));
+            let x = usize::try_from(at.0).unwrap_or(usize::MAX);
+            let s = filled(&src.subs, 0)?[l..r].to_vec();
+            filled_mut(&mut dst.subs, 0)?[x..x + (r - l)].copy_from_slice(&s);
             return Ok(false);
         }
-        if x.saturating_add(r - l) > dst.d.w as usize || r > src.d.w as usize {
-            hit(clause::D3DRES_REMOVED);
-            return Ok(true);
-        }
-        let s = filled(&src.subs, 0)?[l..r].to_vec();
-        filled_mut(&mut dst.subs, 0)?[x..x + (r - l)].copy_from_slice(&s);
-        return Ok(false);
-    }
-    if !copy_compatible(dst.d.fmt, src.d.fmt, dev) {
-        hit(clause::D3DRES_COPY_IGNORED);
-        return Ok(false);
+        // (MEASURED: textures of other dimensions copy the box all the same, probe-copysub-dim)
+        (false, false) => {}
+        _ => return Ok(removed(region_plan(ignored, Sides::Mixed, [0; 6], [0; 3], [0; 3], [0; 3])).unwrap_or(false)),
     }
     let (sf, df) = (src.texture_format()?, dst.texture_format()?);
     let (srb, srows, ssl) = src.layout(ss)?;
     let (drb, drows, dsl) = dst.layout(ds)?;
-    let (sel, del) = ((sf.bits / 8) as usize, (df.bits / 8) as usize);
-    if sel != del {
-        hit(clause::D3DRES_COPY_IGNORED);
-        return Ok(false);
+    let (sel, del) = (usize::try_from(sf.bits / 8).unwrap_or(1), usize::try_from(df.bits / 8).unwrap_or(1));
+    let compatible = !ignored && copy_compatible(dst.d.fmt, src.d.fmt, dev) && sel == del;
+    let whole = whole_of((srb, srows, ssl), sel);
+    let e = box_elems(bx, false, (sf.bw, sf.bh), whole);
+    let to = [n(at.0).checked_div(n(df.bw)).unwrap_or(0), n(at.1).checked_div(n(df.bh)).unwrap_or(0), n(at.2)];
+    if let Some(r) = removed(region_plan(ignored, Sides::Textures { compatible }, e, whole, whole_of((drb, drows, dsl), del), to)) {
+        return Ok(r);
     }
-    let (l, t, f, r, b, k) = match bx {
-        None => (0, 0, 0, srb / sel, srows, ssl),
-        Some(x) => {
-            let x: Vec<usize> = x.iter().map(|v| *v as usize).collect();
-            (x[0] / sf.bw as usize, x[1] / sf.bh as usize, x[2], x[3].div_ceil(sf.bw as usize), x[4].div_ceil(sf.bh as usize), x[5])
-        }
-    };
-    let (dx, dy, dz) = (at.0 as usize / df.bw as usize, at.1 as usize / df.bh as usize, at.2 as usize);
-    // (MEASURED: an empty box changes nothing, probe-copysub-empty)
-    if r <= l || b <= t || k <= f {
-        hit(clause::D3DRES_COPYSUB_BAD);
-        return Ok(false);
-    }
-    // (MEASURED: a box past the source removes the device too, probe-copysub-srcbox)
-    if r * sel > srb || b > srows || k > ssl {
-        hit(clause::D3DRES_REMOVED);
-        return Ok(true);
-    }
-    // (MEASURED: a region past the destination removes the device (WARP), probe-copysub-past)
-    if dx + (r - l) > drb / del || dy + (b - t) > drows || dz + (k - f) > dsl {
-        hit(clause::D3DRES_REMOVED);
-        return Ok(true);
-    }
+    let [l, t, f, r, b, k] = e.map(|v| usize::try_from(v).unwrap_or(usize::MAX));
+    let [dx, dy, dz] = to.map(|v| usize::try_from(v).unwrap_or(usize::MAX));
     let s = filled(&src.subs, ss as usize)?.clone();
     let d = filled_mut(&mut dst.subs, ds as usize)?;
     for z in f..k {
