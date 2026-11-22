@@ -1,14 +1,6 @@
 # The settled clauses (doc, measured) of trace::PROVEN_FILES that no formal law proves yet
 # (spec/laws.txt kinds exhaustive, kani, tla, lean). It only shrinks: prove a clause and take
 # its line out; a new clause comes proven (tests/spec.rs unproven_only_shrinks).
-D3D9.DRAW.XYZ
-D3D9.DRAW.XYZ.CLIP
-D3D9.DRAW.LINES
-D3D9.DRAW.LINEEND
-D3D9.DRAW.LINECLIP
-D3D9.DRAW.LINECLIP_NEAR
-D3D9.DRAW.POINTSLINES
-D3D9.DRAW.RHW
 D3D9.TEX.ANISO2
 D3D9.TEX.ANISON
 D3D9.STAGE.TCIGEN

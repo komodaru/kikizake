@@ -110,6 +110,11 @@ fn unconfined_uses_are_found() {
     let r = rust("src/model/d3d9draw.rs", "fn point_pixel(x: f32) -> i64 { (x - 0.5).ceil() as i64 }\nfn points(&self) { let px = (x - 0.5).ceil() as i64; }\n");
     assert!(r.len() == 1 && r[0].contains("in points"), "{r:?}");
     assert!(!rust("src/model/d3d9draw.rs", "fn encode_x(&self) { ch.iter().filter(|c| c.c != b'x' || x_alpha); }").is_empty());
+    // (the perspective weights only in rhw_attrs, rhw_value; the divide by w only in transform_xyz,
+    // xyz_vertex)
+    let r = rust("src/model/d3d9draw.rs", "fn rhw_attrs(at: A) -> A { at[k] * at[11] }\nfn triangle(&mut self) { at[k] *= at[11]; }\n");
+    assert!(r.len() == 1 && r[0].contains("in triangle"), "{r:?}");
+    assert!(!rust("src/model/d3d9draw.rs", "fn triangle(&mut self) { let rhw = 1.0 / q[3]; }").is_empty());
     // (the FVF and the declaration only through set_fvf, set_decl)
     assert!(!rust("src/model/d3d9draw.rs", "fn op(&mut self) { self.draw.fvf = 0; }").is_empty());
     assert!(rust("src/model/d3d9draw.rs", "fn op(&mut self) { (self.draw.fvf, self.draw.decl, self.draw.decl_from) = set_decl(e); if self.draw.fvf == 0 {} }").is_empty());

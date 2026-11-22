@@ -98,6 +98,11 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // lights and a pixel's packing are assemble, vertex_words, point_pixel and pack, which the Lean
     // mirrors d3d9.assemble, vertices, pointpixel, pack hold to spec/lean/Kikizake/D3d9/Draw.lean)
     ("src/model/d3d9draw.rs", r"D3D9_DRAW_(ASSEMBLY|STRIDE)\b|-\s*0\.5\)\.ceil\(\)|\|\|\s*x_alpha\b|chunks\(stride\)", &["assemble", "vertex_words", "point_pixel", "pack"]),
+    // (a line's cut, an untransformed vertex's transform and clipping and the perspective-correct
+    // attributes are line_cut, transform_xyz, clip_xyz, xyz_vertex, rhw_attrs and rhw_value, which
+    // the Lean mirrors d3d9.linecut, xyz, clipxyz, xyzvertex, rhw hold to
+    // spec/lean/Kikizake/D3d9/Line.lean and Xyz.lean)
+    ("src/model/d3d9draw.rs", r"D3D9_DRAW_(LINECLIP(_NEAR)?|XYZ_CLIP|RHW)\b|\*=?\s*at\[11\]|/\s*at32\[11\]|1\.0\s*/\s*[cq]\[3\]", &["line_cut", "transform_xyz", "clip_xyz", "xyz_vertex", "rhw_attrs", "rhw_value"]),
     // (blending on targets of other formats is blend_float and factor_f32, which d3d9.blendf holds
     // to spec/lean/Kikizake/D3d9/Blend.lean)
     ("src/model/d3d9draw.rs", r"D3D9_BLEND_FORMAT|\.min\(\s*1\.0\s*-|\|x\|\s*x\.clamp\(0\.0,\s*1\.0\)\s*as\s*f32", &["blend_float", "factor_f32"]),

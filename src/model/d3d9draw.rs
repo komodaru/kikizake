@@ -1365,6 +1365,140 @@ fn clip_line(a: (f32, f32), b: (f32, f32), max: (f32, f32)) -> Option<((f32, f32
     Some((at(t0), at(t1)))
 }
 
+/// D3D9.DRAW.LINECLIP, LINECLIP_NEAR: the line of pretransformed ends a, b on a w x h target as
+/// it is rasterized: (the ends snapped, the segment drawn: past the target cut to it in f32 and
+/// snapped again) in 1/256 pixel; None: nothing drawn
+pub fn line_cut(a: (f32, f32), b: (f32, f32), w: i32, h: i32, v8: bool) -> Option<((i128, i128), (i128, i128), (i128, i128), (i128, i128))> {
+    let inside = |v: &(f32, f32)| (-0.5..=w as f32 - 0.5).contains(&v.0) && (-0.5..=h as f32 - 0.5).contains(&v.1);
+    let snap = |v: f32| i128::from(snap256(v));
+    let l = Seg9 { a: (snap(a.0), snap(a.1)), b: (snap(b.0), snap(b.1)) };
+    if l.a == l.b {
+        return None;
+    }
+    // (the segment rasterized: a line past the target cut to it in f32 and snapped again)
+    let r = match (inside(&a), inside(&b)) {
+        (true, true) => {
+            Seg9 { a: l.a, b: l.b }
+        }
+        (ia, ib) => {
+            let unsnap = |p: (i128, i128)| (p.0 as f32 / 256.0, p.1 as f32 / 256.0);
+            let (mut pa, mut pb) = (unsnap(l.a), unsnap(l.b));
+            if !ia && !ib {
+                // (MEASURED line-both-*: past the target at both ends, an end past it only
+                // on the right or bottom side and by at most half a pixel is moved onto it)
+                hit(clause::D3D9_DRAW_LINECLIP_NEAR);
+                let (rx, by) = (w as f32 - 0.5, h as f32 - 0.5);
+                for p in [&mut pa, &mut pb] {
+                    let past = p.0 > rx || p.1 > by;
+                    let near = p.0 >= -0.5 && p.1 >= -0.5 && p.0 <= rx + 0.5 && p.1 <= by + 0.5;
+                    if past && near {
+                        *p = (p.0.min(rx), p.1.min(by));
+                    }
+                }
+            }
+            // (MEASURED points-lines-2 of d3d8draw: Direct3D 8's right (bottom) edge at the
+            // size itself where an end is at the width (height), as D3D9.RASTER.CLIP8SIDE)
+            let side = |size: i32, at: bool| if v8 && at { size as f32 } else { size as f32 - 0.5 };
+            let (wf, hf) = (w as f32, h as f32);
+            let max = (side(w, pa.0 == wf || pb.0 == wf), side(h, pa.1 == hf || pb.1 == hf));
+            if max != (wf - 0.5, hf - 0.5) {
+                hit(clause::D3D9_RASTER_CLIP8SIDE);
+            }
+            let Some((ca, cb)) = clip_line(pa, pb, max) else {
+                hit(clause::D3D9_DRAW_LINECLIP);
+                return None;
+            };
+            let snap = |v: f32| i128::from(snap256(v));
+            let r = Seg9 { a: (snap(ca.0), snap(ca.1)), b: (snap(cb.0), snap(cb.1)) };
+            // (MEASURED line-clip-*, line-random-*, line-end-*-clip, line-corner-*,
+            // line-both-*: a line past the target cut to it in f32, t = (edge - a) / (b - a),
+            // a + t (b - a), D3D9.DRAW.LINECLIP)
+            hit(clause::D3D9_DRAW_LINECLIP);
+            r
+        }
+    };
+    if r.a == r.b {
+        return None;
+    }
+    Some((l.a, l.b, r.a, r.b))
+}
+
+/// D3D9.DRAW.XYZ: an untransformed position through WORLD, VIEW, PROJECTION (m: the three, the
+/// product WORLD VIEW first, then times PROJECTION, each entry a sum from 0 in f32) as a row vector,
+/// divided by w, through the viewport (vx, vy, vw, vh, z0, z1): (x, y, z, rhw, the clip-space
+/// position)
+pub fn transform_xyz(p: [f32; 3], m: [[f32; 16]; 3], vp: (i32, i32, i32, i32, f32, f32)) -> (f32, f32, f32, f32, [f32; 4]) {
+    let mul = |a: [f32; 16], b: [f32; 16]| -> [f32; 16] { std::array::from_fn(|i| (0..4).fold(0.0f32, |s, k| s + a[i / 4 * 4 + k] * b[k * 4 + i % 4])) };
+    let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
+    let c = xv([p[0], p[1], p[2], 1.0], mul(mul(m[0], m[1]), m[2]));
+    let (vx, vy, vw, vh, z0, z1) = vp;
+    let rhw = 1.0 / c[3];
+    let (x, y, z) = (c[0] * rhw, c[1] * rhw, c[2] * rhw);
+    let (hw, hh) = (vw as f32 / 2.0, vh as f32 / 2.0);
+    (vx as f32 + (1.0 + x) * hw, vy as f32 + (1.0 - y) * hh, z0 + z * (z1 - z0), rhw, c)
+}
+
+/// D3D9.DRAW.XYZ.CLIP: an untransformed triangle (clip-space positions, attributes) clipped in clip
+/// space to the planes half a pixel in from a vw x vh viewport's edges (the positions shifted by
+/// (w / vw, -w / vh), then -w <= x <= w, -w <= y <= w in turn, Sutherland-Hodgman, each new vertex
+/// a + (b - a) t, t = da / (da - db), in f32); None: no vertex outside, nothing clipped
+pub fn clip_xyz(poly: &[([f32; 4], [f32; ATTRS])], vw: i32, vh: i32) -> Option<Vec<([f32; 4], [f32; ATTRS])>> {
+    let sh = |c: &[f32; 4]| [c[0] + c[3] / vw as f32, c[1] - c[3] / vh as f32, c[2], c[3]];
+    let dist = |q: &[f32; 4], plane: usize| match plane {
+        0 => q[3] + q[0],
+        1 => q[3] - q[0],
+        2 => q[3] + q[1],
+        _ => q[3] - q[1],
+    };
+    let mut poly: Vec<([f32; 4], [f32; ATTRS])> = poly.iter().map(|(c, at)| (sh(c), *at)).collect();
+    if !poly.iter().any(|(q, _)| (0..4).any(|p| dist(q, p) < 0.0)) {
+        return None;
+    }
+    hit(clause::D3D9_DRAW_XYZ_CLIP);
+    for plane in 0..4 {
+        let mut out = Vec::new();
+        for (i, &p) in poly.iter().enumerate() {
+            let Some(&q) = poly.get((i + 1) % poly.len()) else { continue };
+            let (dp, dq) = (dist(&p.0, plane), dist(&q.0, plane));
+            if dp >= 0.0 {
+                out.push(p);
+            }
+            if (dp >= 0.0) != (dq >= 0.0) {
+                let t = dp / (dp - dq);
+                out.push((std::array::from_fn(|k| p.0[k] + (q.0[k] - p.0[k]) * t), std::array::from_fn(|k| p.1[k] + (q.1[k] - p.1[k]) * t)));
+            }
+        }
+        poly = out;
+    }
+    Some(poly)
+}
+
+/// D3D9.DRAW.XYZ.CLIP: a clipped vertex (shifted clip-space position q) on the screen of viewport
+/// (vx, vy, vw, vh): x, y, rhw = 1 / w, and its clip-space position unshifted
+pub fn xyz_vertex(q: [f32; 4], vp: (i32, i32, i32, i32)) -> (f32, f32, f32, [f32; 4]) {
+    let (vx, vy, vw, vh) = vp;
+    let rhw = 1.0 / q[3];
+    (
+        vx as f32 - 0.5 + (1.0 + q[0] * rhw) * (vw as f32 / 2.0),
+        vy as f32 - 0.5 + (1.0 - q[1] * rhw) * (vh as f32 / 2.0),
+        rhw,
+        [q[0] - q[3] / vw as f32, q[1] + q[3] / vh as f32, q[2], q[3]],
+    )
+}
+
+/// D3D9.DRAW.RHW: a pretransformed vertex's attributes for perspective-correct interpolation:
+/// every one but z (0) and rhw itself (11) times rhw, in f32
+pub fn rhw_attrs(at: [f32; ATTRS]) -> [f32; ATTRS] {
+    hit(clause::D3D9_DRAW_RHW);
+    std::array::from_fn(|k| if PERSP.contains(&k) { at[k] * at[11] } else { at[k] })
+}
+
+/// D3D9.DRAW.RHW: the value at a pixel of the attributes interpolated so: each but z and rhw divided
+/// by the interpolated rhw, in f32
+pub fn rhw_value(at32: [f32; ATTRS]) -> [f64; ATTRS] {
+    std::array::from_fn(|k| f64::from(if PERSP.contains(&k) { at32[k] / at32[11] } else { at32[k] }))
+}
+
 /// a line's snapped ends (1/256 pixel, Direct3D 9's pixel centers at whole pixels)
 struct Seg9 {
     a: (i128, i128),
@@ -2523,14 +2657,7 @@ impl D3d9 {
     fn transform(&self, p: [f32; 3]) -> (f32, f32, f32, f32, [f32; 4]) {
         let id: [f32; 16] = std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 });
         let m = |t: u32| *self.draw.xform.get(&t).unwrap_or(&id);
-        let mul = |a: [f32; 16], b: [f32; 16]| -> [f32; 16] { std::array::from_fn(|i| (0..4).fold(0.0f32, |s, k| s + a[i / 4 * 4 + k] * b[k * 4 + i % 4])) };
-        let xv = |v: [f32; 4], a: [f32; 16]| -> [f32; 4] { std::array::from_fn(|j| (0..4).fold(0.0f32, |s, k| s + v[k] * a[k * 4 + j])) };
-        let c = xv([p[0], p[1], p[2], 1.0], mul(mul(m(256), m(2)), m(3)));
-        let (vx, vy, vw, vh, z0, z1) = self.viewport();
-        let rhw = 1.0 / c[3];
-        let (x, y, z) = (c[0] * rhw, c[1] * rhw, c[2] * rhw);
-        let (hw, hh) = (vw as f32 / 2.0, vh as f32 / 2.0);
-        (vx as f32 + (1.0 + x) * hw, vy as f32 + (1.0 - y) * hh, z0 + z * (z1 - z0), rhw, c)
+        transform_xyz(p, [m(256), m(2), m(3)], self.viewport())
     }
 
     /// a line of pretransformed vertices: as WARP's Direct3D 10 rasterizer draws them
@@ -2548,57 +2675,8 @@ impl D3d9 {
             // (the generators draw lines of pretransformed vertices of rhw 1 only)
             return Err(Fail::Bad);
         }
-        let inside = |v: &Vtx| (-0.5..=w as f32 - 0.5).contains(&v.x) && (-0.5..=h as f32 - 0.5).contains(&v.y);
-        let snap = |v: f32| i128::from(snap256(v));
-        let l = Seg9 { a: (snap(a.x), snap(a.y)), b: (snap(b.x), snap(b.y)) };
-        if l.a == l.b {
-            return Ok(());
-        }
-        // (the segment rasterized: a line past the target cut to it in f32 and snapped again)
-        let r = match (inside(&a), inside(&b)) {
-            (true, true) => {
-                Seg9 { a: l.a, b: l.b }
-            }
-            (ia, ib) => {
-                let unsnap = |p: (i128, i128)| (p.0 as f32 / 256.0, p.1 as f32 / 256.0);
-                let (mut pa, mut pb) = (unsnap(l.a), unsnap(l.b));
-                if !ia && !ib {
-                    // (MEASURED line-both-*: past the target at both ends, an end past it only
-                    // on the right or bottom side and by at most half a pixel is moved onto it)
-                    hit(clause::D3D9_DRAW_LINECLIP_NEAR);
-                    let (rx, by) = (w as f32 - 0.5, h as f32 - 0.5);
-                    for p in [&mut pa, &mut pb] {
-                        let past = p.0 > rx || p.1 > by;
-                        let near = p.0 >= -0.5 && p.1 >= -0.5 && p.0 <= rx + 0.5 && p.1 <= by + 0.5;
-                        if past && near {
-                            *p = (p.0.min(rx), p.1.min(by));
-                        }
-                    }
-                }
-                // (MEASURED points-lines-2 of d3d8draw: Direct3D 8's right (bottom) edge at the
-                // size itself where an end is at the width (height), as D3D9.RASTER.CLIP8SIDE)
-                let side = |size: i32, at: bool| if self.v8 && at { size as f32 } else { size as f32 - 0.5 };
-                let (wf, hf) = (w as f32, h as f32);
-                let max = (side(w, pa.0 == wf || pb.0 == wf), side(h, pa.1 == hf || pb.1 == hf));
-                if max != (wf - 0.5, hf - 0.5) {
-                    hit(clause::D3D9_RASTER_CLIP8SIDE);
-                }
-                let Some((ca, cb)) = clip_line(pa, pb, max) else {
-                    hit(clause::D3D9_DRAW_LINECLIP);
-                    return Ok(());
-                };
-                let snap = |v: f32| i128::from(snap256(v));
-                let r = Seg9 { a: (snap(ca.0), snap(ca.1)), b: (snap(cb.0), snap(cb.1)) };
-                // (MEASURED line-clip-*, line-random-*, line-end-*-clip, line-corner-*,
-                // line-both-*: a line past the target cut to it in f32, t = (edge - a) / (b - a),
-                // a + t (b - a), D3D9.DRAW.LINECLIP)
-                hit(clause::D3D9_DRAW_LINECLIP);
-                r
-            }
-        };
-        if r.a == r.b {
-            return Ok(());
-        }
+        let Some((la, lb, ra, rb)) = line_cut((a.x, a.y), (b.x, b.y), w, h, self.v8) else { return Ok(()) };
+        let (l, r) = (Seg9 { a: la, b: lb }, Seg9 { a: ra, b: rb });
         hit(clause::D3D9_DRAW_LINES);
         // (WARP's aliased line in Direct3D 10's coordinates, half a pixel on: D3D9.DRAW.LINES,
         // D3D9.DRAW.LINEEND, its ties D3D9.DRAW.POINTSLINES)
@@ -2674,42 +2752,19 @@ impl D3d9 {
             // half a pixel in, x = vx - 0.5 .. vx + w - 0.5 (as pretransformed vertices are,
             // D3D9.RASTER.CLIP), each new vertex a + (b - a) t; the polygon cut into a fan)
             let (vx, vy, vw, vh, ..) = self.viewport();
-            let sh = |c: &[f32; 4]| [c[0] + c[3] / vw as f32, c[1] - c[3] / vh as f32, c[2], c[3]];
-            let dist = |q: &[f32; 4], plane: usize| match plane {
-                0 => q[3] + q[0],
-                1 => q[3] - q[0],
-                2 => q[3] + q[1],
-                _ => q[3] - q[1],
-            };
-            let mut poly: Vec<([f32; 4], [f32; ATTRS])> = vs.iter().zip(&clips).map(|(v, c)| (sh(c), v.attrs())).collect();
-            if poly.iter().any(|(q, _)| (0..4).any(|p| dist(q, p) < 0.0)) {
-                hit(clause::D3D9_DRAW_XYZ_CLIP);
-                for plane in 0..4 {
-                    let mut out = Vec::new();
-                    for i in 0..poly.len() {
-                        let (p, q) = (poly[i], poly[(i + 1) % poly.len()]);
-                        let (dp, dq) = (dist(&p.0, plane), dist(&q.0, plane));
-                        if dp >= 0.0 {
-                            out.push(p);
-                        }
-                        if (dp >= 0.0) != (dq >= 0.0) {
-                            let t = dp / (dp - dq);
-                            out.push((std::array::from_fn(|k| p.0[k] + (q.0[k] - p.0[k]) * t), std::array::from_fn(|k| p.1[k] + (q.1[k] - p.1[k]) * t)));
-                        }
-                    }
-                    poly = out;
-                }
+            let poly: Vec<([f32; 4], [f32; ATTRS])> = vs.iter().zip(&clips).map(|(v, c)| (*c, v.attrs())).collect();
+            if let Some(poly) = clip_xyz(&poly, vw, vh) {
                 let vtx = |(q, at): ([f32; 4], [f32; ATTRS])| {
-                    let rhw = 1.0 / q[3];
+                    let (x, y, rhw, clip) = xyz_vertex(q, (vx, vy, vw, vh));
                     Vtx {
-                        x: vx as f32 - 0.5 + (1.0 + q[0] * rhw) * (vw as f32 / 2.0),
-                        y: vy as f32 - 0.5 + (1.0 - q[1] * rhw) * (vh as f32 / 2.0),
+                        x,
+                        y,
                         z: at[0] as f64,
                         rhw: rhw as f64,
                         diffuse: std::array::from_fn(|k| at[1 + k] as f64),
                         specular: std::array::from_fn(|k| at[5 + k] as f64),
                         uv: std::array::from_fn(|i| [at[UV_AT[i]] as f64, at[UV_AT[i] + 1] as f64, at[Q_AT[i]] as f64]),
-                        clip: Some([q[0] - q[3] / vw as f32, q[1] + q[3] / vh as f32, q[2], q[3]]),
+                        clip: Some(clip),
                     }
                 };
                 let flat = (a.diffuse, a.specular);
@@ -2746,16 +2801,9 @@ impl D3d9 {
             }
         }
         let corners = vs.map(|v| {
-            let mut at = v.attrs();
-            if persp {
-                // (the attributes times rhw, interpolated in screen space, then divided by the
-                // interpolated rhw)
-                hit(clause::D3D9_DRAW_RHW);
-                for k in PERSP {
-                    at[k] *= at[11];
-                }
-            }
-            PolyVtx { x: v.x, y: v.y, at }
+            // (the attributes times rhw, interpolated in screen space, then divided by the
+            // interpolated rhw)
+            PolyVtx { x: v.x, y: v.y, at: if persp { rhw_attrs(v.attrs()) } else { v.attrs() } }
         });
         let snap = |v: &PolyVtx| (snap256(v.x), snap256(v.y));
         // the pieces drawn: the triangle itself, or the clipped polygon's vertices snapped to
@@ -2828,7 +2876,8 @@ impl D3d9 {
                     });
                     let at: [f64; ATTRS] = match &planes {
                         Some(p) => p.at(sx, sy),
-                        None => std::array::from_fn(|k| if persp && PERSP.contains(&k) { (at32[k] / at32[11]) as f64 } else { at32[k] as f64 }),
+                        None if persp => rhw_value(at32),
+                        None => at32.map(f64::from),
                     };
                     let (diffuse, specular) = shaded(flat, (a.diffuse, a.specular), (std::array::from_fn(|k| at[1 + k]), std::array::from_fn(|k| at[5 + k])));
                     if !persp {

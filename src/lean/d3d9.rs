@@ -14,6 +14,8 @@ const DECL: &str = "spec/lean/Kikizake/D3d9/Decl.lean";
 const SHADE: &str = "spec/lean/Kikizake/D3d9/Shade.lean";
 const CLIP: &str = "spec/lean/Kikizake/D3d9/Clip.lean";
 const DRAW: &str = "spec/lean/Kikizake/D3d9/Draw.lean";
+const LINE: &str = "spec/lean/Kikizake/D3d9/Line.lean";
+const XYZ: &str = "spec/lean/Kikizake/D3d9/Xyz.lean";
 /// a vertex position on the 1/16 grid over -3 .. 19 (the raster-* cases' grid), as binary32 bits
 fn grid16(rng: &mut crate::rng::Sample64) -> i64 {
     i64::from(to_f32(f64::from(i32::try_from(rng.range(-48, 19 * 16)).unwrap_or(0)) / 16.0).to_bits())
@@ -765,6 +767,199 @@ pub static MIRRORS: &[Mirror] = &[
             }
             let w = d3d9draw::pack(&ch, &raws, arg::<i64>(a, 0)? != 0);
             (0..4u32).map(|k| i64::try_from(w.checked_shr(32 * k)? & 0xffff_ffff).ok()).collect()
+        },
+    },
+    Mirror {
+        name: "d3d9.line",
+        lean: LINE,
+        domain: Domain::Sampled("targets 1 .. 12 square and not, 30,000 lines of ends on the 1/256 grid over -2 .. 14 pixels, and 30,000 of ends near pixel centers and diamond corners (k/256 off them, |k| <= 3) and 45-degree lines among them; the pixels lit, whether a crossing was a tie, and the setup (start, direction, x-major)"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x11e0_0001);
+            for i in 0..60_000 {
+                let (w, h) = (rng.range(1, 12), rng.range(1, 12));
+                let end = |rng: &mut crate::rng::Sample64| -> [i64; 2] {
+                    if i < 30_000 {
+                        [rng.range(-512, 14 * 256), rng.range(-512, 14 * 256)]
+                    } else {
+                        let c = [rng.range(-1, 13) * 256 + 128, rng.range(-1, 13) * 256 + 128];
+                        let corner = *rng.pick(&[(0i64, 0i64), (128, 0), (-128, 0), (0, 128), (0, -128)]);
+                        [c[0] + corner.0 + rng.range(-3, 3), c[1] + corner.1 + rng.range(-3, 3)]
+                    }
+                };
+                let a = end(&mut rng);
+                let mut b = end(&mut rng);
+                if i >= 30_000 && rng.chance(4) {
+                    let k = rng.range(-6, 6) * 128;
+                    b = [a[0] + k, a[1] + if rng.chance(2) { k } else { -k }];
+                }
+                each(&[a[0], a[1], b[0], b[1], w, h]);
+            }
+        },
+        model: |a| {
+            let p = |i: usize| -> Option<(i32, i32)> { Some((arg(a, i)?, arg(a, i + 1)?)) };
+            let (lit, tie) = crate::model::warpline::coverage(p(0)?, p(2)?, arg(a, 4)?, arg(a, 5)?);
+            let mut r: Vec<i64> = lit.iter().flat_map(|q| [i64::from(q.0), i64::from(q.1)]).collect();
+            r.push(i64::from(tie));
+            match crate::model::warpline::setup(p(0)?, p(2)?) {
+                None => r.push(-1),
+                Some(((x, y), (dx, dy), xm)) => r.extend([x, y, dx, dy].map(canon32).into_iter().chain([i64::from(xm)])),
+            }
+            Some(r)
+        },
+    },
+    Mirror {
+        name: "d3d9.linecut",
+        lean: LINE,
+        domain: Domain::Sampled("targets 1 .. 16 square and not, 9 and 8, 300,000 lines of ends on the 1/16 grid over -3 .. 19 (the edges, half a pixel past them and the size itself among them); -1 for nothing drawn"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x11e0_0002);
+            for _ in 0..300_000 {
+                let (w, h) = (rng.range(1, 16), rng.range(1, 16));
+                let mut v = Vec::with_capacity(7);
+                for k in 0..4 {
+                    let size = if k % 2 == 0 { w } else { h };
+                    let special = [-8i64, size * 16 - 8, size * 16, size * 16 + 4];
+                    let n = if rng.chance(4) { *rng.pick(&special) } else { rng.range(-48, 19 * 16) };
+                    v.push(i64::from(to_f32(f64::from(i32::try_from(n).unwrap_or(0)) / 16.0).to_bits()));
+                }
+                v.extend([w, h, i64::from(rng.chance(2))]);
+                each(&v);
+            }
+        },
+        model: |a| {
+            let f = |i| bits32(a, i);
+            let k = |p: (i128, i128)| -> Option<[i64; 2]> { Some([i64::try_from(p.0).ok()?, i64::try_from(p.1).ok()?]) };
+            Some(match d3d9draw::line_cut((f(0)?, f(1)?), (f(2)?, f(3)?), arg(a, 4)?, arg(a, 5)?, arg::<i64>(a, 6)? != 0) {
+                None => vec![-1],
+                Some((la, lb, ra, rb)) => [k(la)?, k(lb)?, k(ra)?, k(rb)?].concat(),
+            })
+        },
+    },
+    Mirror {
+        name: "d3d9.xyz",
+        lean: XYZ,
+        domain: Domain::Sampled("100,000 positions in -4..4 on the 1/256 grid or any finite binary32, through WORLD, VIEW, PROJECTION of identities, scales and translations on the 1/16 grid, perspective projections, and entries any binary32 in -2..2, viewports at 0..8 of 1..16 pixels, depth ranges in 0..1"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x8f1a_0001);
+            let bits = |x: f32| i64::from(x.to_bits());
+            for _ in 0..100_000 {
+                let mut v: Vec<i64> = (0..3).map(|_| if rng.chance(8) { attribute(&mut rng) } else { bits(to_f32(f64::from(i32::try_from(rng.range(-1024, 1024)).unwrap_or(0)) / 256.0)) }).collect();
+                let (vw, vh) = (rng.range(1, 16), rng.range(1, 16));
+                v.extend([rng.range(0, 8), rng.range(0, 8), vw, vh]);
+                let z0 = to_f32(f64::from(i32::try_from(rng.range(0, 8)).unwrap_or(0)) / 16.0);
+                v.extend([bits(z0), bits(z0 + to_f32(f64::from(i32::try_from(rng.range(0, 8)).unwrap_or(0)) / 16.0))]);
+                for _ in 0..3 {
+                    let g = |rng: &mut crate::rng::Sample64| to_f32(f64::from(i32::try_from(rng.range(-32, 32)).unwrap_or(0)) / 16.0);
+                    let m: [f32; 16] = match rng.range(0, 3) {
+                        0 => std::array::from_fn(|i| if i % 5 == 0 { 1.0 } else { 0.0 }),
+                        1 => {
+                            let (sx, sy, sz, tx, ty, tz) = (g(&mut rng), g(&mut rng), g(&mut rng), g(&mut rng), g(&mut rng), g(&mut rng));
+                            [sx, 0.0, 0.0, 0.0, 0.0, sy, 0.0, 0.0, 0.0, 0.0, sz, 0.0, tx, ty, tz, 1.0]
+                        }
+                        2 => {
+                            let (a, b, q) = (g(&mut rng), g(&mut rng), to_f32(f64::from(i32::try_from(rng.range(1, 64)).unwrap_or(1)) / 32.0));
+                            [a, 0.0, 0.0, 0.0, 0.0, b, 0.0, 0.0, 0.0, 0.0, q, 1.0, 0.0, 0.0, -q * 0.25, 0.0]
+                        }
+                        _ => std::array::from_fn(|_| to_f32(f64::from(rng.word() % 0x0100_0001) / 4_194_304.0 - 2.0)),
+                    };
+                    v.extend(m.map(bits));
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let f = |i| bits32(a, i);
+            let m = |k: usize| -> Option<[f32; 16]> {
+                let mut r = [0f32; 16];
+                for (i, x) in r.iter_mut().enumerate() {
+                    *x = f(9 + 16 * k + i)?;
+                }
+                Some(r)
+            };
+            let (x, y, z, rhw, c) = d3d9draw::transform_xyz([f(0)?, f(1)?, f(2)?], [m(0)?, m(1)?, m(2)?], (arg(a, 3)?, arg(a, 4)?, arg(a, 5)?, arg(a, 6)?, f(7)?, f(8)?));
+            Some([x, y, z, rhw].into_iter().chain(c).map(canon32).collect())
+        },
+    },
+    Mirror {
+        name: "d3d9.clipxyz",
+        lean: XYZ,
+        domain: Domain::Sampled("100,000 triangles of clip-space positions (w in 1/4 .. 4, x and y within -2w .. 2w and z in -w .. w, on the 1/64 grid) with 19 attributes as d3d9.grad's, viewports of 1 .. 16 pixels; -1 for none clipped"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x8f1a_0002);
+            for _ in 0..100_000 {
+                let mut v = vec![rng.range(1, 16), rng.range(1, 16), 19];
+                for _ in 0..3 {
+                    let w = rng.range(16, 256);
+                    let q = |rng: &mut crate::rng::Sample64, lo: i64, hi: i64| i64::from(to_f32(f64::from(i32::try_from(rng.range(lo, hi)).unwrap_or(0)) / 64.0).to_bits());
+                    v.extend([q(&mut rng, -2 * w, 2 * w), q(&mut rng, -2 * w, 2 * w), q(&mut rng, -w, w), q(&mut rng, w, w)]);
+                    v.extend((0..19).map(|_| attribute(&mut rng)));
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let f = |i| bits32(a, i);
+            if arg::<i64>(a, 2)? != 19 || a.len() != 3 + 3 * 23 {
+                return None;
+            }
+            let v = |k: usize| -> Option<([f32; 4], [f32; d3d9draw::ATTRS])> {
+                let b = 3 + 23 * k;
+                let mut at = [0f32; d3d9draw::ATTRS];
+                for (j, x) in at.iter_mut().enumerate() {
+                    *x = f(b + 4 + j)?;
+                }
+                Some(([f(b)?, f(b + 1)?, f(b + 2)?, f(b + 3)?], at))
+            };
+            Some(match d3d9draw::clip_xyz(&[v(0)?, v(1)?, v(2)?], arg(a, 0)?, arg(a, 1)?) {
+                None => vec![-1],
+                Some(out) => out.iter().flat_map(|(q, at)| q.iter().chain(at.iter())).map(|&x| canon32(x)).collect(),
+            })
+        },
+    },
+    Mirror {
+        name: "d3d9.xyzvertex",
+        lean: XYZ,
+        domain: Domain::Sampled("100,000 clip-space positions as d3d9.clipxyz's and any finite binary32 ones, viewports at 0..8 of 1..16 pixels"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x8f1a_0003);
+            for _ in 0..100_000 {
+                let mut v = vec![rng.range(0, 8), rng.range(0, 8), rng.range(1, 16), rng.range(1, 16)];
+                let w = rng.range(16, 256);
+                for (lo, hi) in [(-2 * w, 2 * w), (-2 * w, 2 * w), (-w, w), (w, w)] {
+                    v.push(if rng.chance(8) { attribute(&mut rng) } else { i64::from(to_f32(f64::from(i32::try_from(rng.range(lo, hi)).unwrap_or(0)) / 64.0).to_bits()) });
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let f = |i| bits32(a, i);
+            let (x, y, rhw, c) = d3d9draw::xyz_vertex([f(4)?, f(5)?, f(6)?, f(7)?], (arg(a, 0)?, arg(a, 1)?, arg(a, 2)?, arg(a, 3)?));
+            Some([x, y, rhw].into_iter().chain(c).map(canon32).collect())
+        },
+    },
+    Mirror {
+        name: "d3d9.rhw",
+        lean: XYZ,
+        domain: Domain::Sampled("300,000 sets of 19 attributes as d3d9.grad's, rhw (11) in 1/64 .. 4 or any finite binary32: times rhw, and as interpolated values over it"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x8f1a_0004);
+            for _ in 0..300_000 {
+                let mut v: [i64; 19] = std::array::from_fn(|_| attribute(&mut rng));
+                if rng.chance(2) {
+                    v[11] = i64::from(to_f32(f64::from(i32::try_from(rng.range(1, 256)).unwrap_or(1)) / 64.0).to_bits());
+                }
+                each(&v);
+            }
+        },
+        model: |a| {
+            let mut at = [0f32; d3d9draw::ATTRS];
+            for (j, x) in at.iter_mut().enumerate() {
+                *x = bits32(a, j)?;
+            }
+            if a.len() != d3d9draw::ATTRS {
+                return None;
+            }
+            Some(d3d9draw::rhw_attrs(at).into_iter().map(canon32).chain(d3d9draw::rhw_value(at).into_iter().map(|x| canon32(to_f32(x)))).collect())
         },
     },
 ];

@@ -40,7 +40,7 @@ fn in_diamond(p: (f32, f32), c: (f32, f32), xmajor: bool) -> bool {
 }
 
 /// the line's setup: start, direction (None: nothing is lit)
-fn setup(a: (i32, i32), b: (i32, i32)) -> Option<((f32, f32), (f32, f32), bool)> {
+pub fn setup(a: (i32, i32), b: (i32, i32)) -> Option<((f32, f32), (f32, f32), bool)> {
     let fx = |v: i32| float(v) * (1.0 / 256.0);
     let (x0, y0, x1, y1) = (fx(a.0), fx(a.1), fx(b.0), fx(b.1));
     if same(x0, x1) && same(y0, y1) {

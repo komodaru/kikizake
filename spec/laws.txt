@@ -734,3 +734,19 @@ spec/lean/Kikizake/D3d11/Clip.lean::depth_front lean D3DRASTER.DEPTHCLIP
 spec/lean/Kikizake/D3d11/Clip.lean::line_out lean D3DRASTER.CLIPZ.LINE
 spec/lean/Kikizake/D3d11/Clip.lean::point_away lean D3DRASTER.CLIPW.AWAY
 spec/lean/Kikizake/D3d11/Clip.lean::nan_not_finite lean D3DRASTER.CLIPW.NAN
+spec/lean/Kikizake/D3d9/Line.lean::point_unlit lean D3D9.DRAW.LINES
+spec/lean/Kikizake/D3d9/Line.lean::one_diamond lean D3D9.DRAW.LINES
+spec/lean/Kikizake/D3d9/Line.lean::lit_within lean D3D9.DRAW.LINES D3D9.DRAW.POINTSLINES
+spec/lean/Kikizake/D3d9/Line.lean::start_kept lean D3D9.DRAW.LINEEND
+spec/lean/Kikizake/D3d9/Line.lean::inside_kept lean D3D9.DRAW.LINECLIP
+spec/lean/Kikizake/D3d9/Line.lean::one_point lean D3D9.DRAW.LINECLIP
+spec/lean/Kikizake/D3d9/Line.lean::drawn_apart lean D3D9.DRAW.LINECLIP
+spec/lean/Kikizake/D3d9/Line.lean::cut_one_inside lean D3D9.DRAW.LINECLIP
+spec/lean/Kikizake/D3d9/Line.lean::cut_near lean D3D9.DRAW.LINECLIP_NEAR
+spec/lean/Kikizake/D3d9/Line.lean::near_keeps lean D3D9.DRAW.LINECLIP_NEAR
+spec/lean/Kikizake/D3d9/Xyz.lean::order lean D3D9.DRAW.XYZ
+spec/lean/Kikizake/D3d9/Xyz.lean::viewport lean D3D9.DRAW.XYZ
+spec/lean/Kikizake/D3d9/Xyz.lean::inside_none lean D3D9.DRAW.XYZ.CLIP
+spec/lean/Kikizake/D3d9/Xyz.lean::pass_keeps lean D3D9.DRAW.XYZ.CLIP
+spec/lean/Kikizake/D3d9/Xyz.lean::rhw_keeps lean D3D9.DRAW.RHW
+spec/lean/Kikizake/D3d9/Xyz.lean::rhw_weights lean D3D9.DRAW.RHW

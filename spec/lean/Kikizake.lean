@@ -31,6 +31,8 @@ import Kikizake.D3d9.Decl
 import Kikizake.D3d9.Shade
 import Kikizake.D3d9.Clip
 import Kikizake.D3d9.Draw
+import Kikizake.D3d9.Line
+import Kikizake.D3d9.Xyz
 import Kikizake.D3d9.Blend
 import Kikizake.D3d9.Filter
 import Kikizake.D3d9.Coord
