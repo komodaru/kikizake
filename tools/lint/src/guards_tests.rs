@@ -249,6 +249,8 @@ fn optimize_rgb_testing_the_dot_below_zero_is_found() {
     assert!(r[0].starts_with("src/model/dxtenc.rs:2: forbidden in optimize_rgb: neither build"), "{r:?}");
     assert_eq!(rust("src/model/dxtenc.rs", "fn optimize_rgb() { if dot < F::of(0) { } }").len(), 1);
     assert!(rust("src/model/dxtenc.rs", "fn optimize_rgb() { if !(fsteps > dot) { n - 1 } else { t } }").is_empty());
+    assert_eq!(rust("src/model/dxtenc.rs", "fn optimize_rgb() { let i = (dot + h).store().trunc_i(); }").len(), 1);
+    assert!(rust("src/model/dxtenc.rs", "fn optimize_rgb() { let i = step_index(dot, fsteps, n); }").is_empty());
     // (the alpha fit and the indices of encode_bc1 do test it)
     assert!(rust("src/model/dxtenc.rs", "fn optimize_alpha() { let i = if dot <= F::of(0.0) { 0 } else { t }; }").is_empty());
 }

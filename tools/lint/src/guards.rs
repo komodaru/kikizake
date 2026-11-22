@@ -168,6 +168,12 @@ pub const FORBIDDEN_IN: &[(&str, &str, &str, &str)] = &[
         "neither build's OptimizeRGB tests the dot below 0: x64 faults on the index -1 (zero-extended, 16 GiB past the table), x86 reads below it (Below; loadtex-dxt-negindex)",
     ),
     (
+        "src/model/dxtenc.rs",
+        "optimize_rgb",
+        r"F::BELOW|trunc_i\s*\(",
+        "a point's step and the fault below 0 are step_index, which tests/laws_dxtenc.rs proves for every f32 dot; an index taken inline in optimize_rgb escapes it",
+    ),
+    (
         "src/model/dxgiconv.rs",
         "decode_block",
         r"171\s*\*|\*\s*257\b|\*\s*32767\b|\+\s*[23]\s*\)\s*/\s*[57]",
