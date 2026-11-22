@@ -1,8 +1,8 @@
 ---------------------------- MODULE GdiPlusPath ----------------------------
 (* GDI+ paths, from spec/gdiplus.txt: GraphicsPath::GraphicsPath, AddLine, AddLines, AddBeziers,
    AddRectangle, AddPolygon, AddCurve, AddClosedCurve, CloseFigure, StartFigure, GetPathPoints,
-   GetPathTypes, GetBounds and FillPath (GP.PATH.BUILD, GP.PATH.CURVE, GP.PATH.BOUNDS,
-   GP.PATH.FILLMODE). The points are whole and the tensions 0, 1.5 and 3 (T 0, 1/2, 1), so every
+   GetPathTypes, GetBounds, FillPath and Flatten of a flatness of 0 (GP.PATH.BUILD, GP.PATH.CURVE,
+   GP.PATH.BOUNDS, GP.PATH.FILLMODE, GP.PATH.FLATTEN.ZERO). The points are whole and the tensions 0, 1.5 and 3 (T 0, 1/2, 1), so every
    control point is exact in single precision (the floats of GdiPlusMatrix, INSTANCE); a fill is
    asked only of a path of rectangles, aliased with no pixel offset, where Alternate fills the
    pixels an odd number of them cover and Winding (their corners all turning the same way) every
@@ -131,6 +131,21 @@ FillPath ==
   IN Call(<<"> gpfillpath 0 0 0 copy 0 3 3", "fillpath 0 0">>, path,
           [bmp EXCEPT ![0].px = [i \in 1..4 |-> IF in(i - 1) THEN Color ELSE b.px[i]]])
 
+\* GP.PATH.FLATTEN.ZERO: Flatten of a flatness of 0 (and no matrix) makes each figure its start and a
+\* line point for each line point and each Bezier segment (the last one closing a closed figure),
+\* every point 0 (+0 here, -0 + 0 rounded to nearest: GP.MATRIX.X86); a path of no curves stays
+Z(t, c) == [x |-> F(0), y |-> F(0), t |-> t, close |-> c]
+RECURSIVE FlatFrom(_, _, _)
+FlatFrom(ps, i, run) ==
+  IF i > Len(ps) THEN <<>>
+  ELSE IF ps[i].t = 3 THEN (IF run % 3 = 2 THEN <<Z(1, ps[i].close)>> ELSE <<>>) \o FlatFrom(ps, i + 1, run + 1)
+  ELSE <<Z(ps[i].t, ps[i].close)>> \o FlatFrom(ps, i + 1, 0)
+Flatten0 ==
+  Call(<<"> gpflat 0 - 0", "flat 0">>,
+       IF \E i \in DOMAIN path.pts : path.pts[i].t = 3
+       THEN [path EXCEPT !.pts = FlatFrom(path.pts, 1, 0), !.fresh = TRUE, !.other = TRUE]
+       ELSE path, bmp)
+
 Next == /\ n < MaxOps
         /\ \/ AddLine(<<0, 0>>, <<2, 1>>) \/ AddLine(<<2, 1>>, <<3, 0>>)
            \/ \E l \in {<<>>, <<<<1, 1>>>>, <<<<0, 1>>, <<2, 0>>, <<2, 1>>>>} : AddLines(l)
@@ -143,6 +158,7 @@ Next == /\ n < MaxOps
            \/ Call(<<"> gpadd 0 close", "add 0">>, Close(path), bmp)
            \/ Call(<<"> gpadd 0 start", "add 0">>, Start(path), bmp)
            \/ (~path.other /\ FillPath)
+           \/ Flatten0
 
 Bound == n <= MaxOps
 
