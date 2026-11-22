@@ -624,6 +624,7 @@ fn ico_pairs_order_alike_in_both_file_orders() {
                 Frame::Pixels(i) => (i.w, i.h, false),
                 Frame::NoPixels(i, hr) => { assert_eq!(hr, wi::INSUFFICIENT_BUFFER); (i.w, i.h, true) }
                 Frame::NoInfo(hr) => panic!("no frame info {hr:x}"),
+                Frame::ShortRows(i, ..) => panic!("an ICO frame of short rows {}x{}", i.w, i.h),
             }).collect()
         };
         let pb = order(&wicimage_ico(&[(pw, ph, 32, p.clone()), (bw, bh, depth, b.clone())]));
@@ -1107,5 +1108,32 @@ proptest! {
         prop_assert!((f64::from(g) - f64::from(f)).abs() <= ulp / 2.0 + 1e-30, "{f} -> {g}");
         prop_assert_eq!(g.is_sign_negative(), neg);
         prop_assert_eq!(kikizake::model::jxr::float_through(0.0), 0.0);
+    }
+}
+
+proptest! {
+    /// WIC's PNG decoder on an 8x8 interlaced picture whose data ends early (golden wicdecode
+    /// broken-adam7-*): the first pass's pixel is there once its row is whole, the second to the
+    /// sixth passes' only once the sixth is whole, the seventh's as far as the data goes
+    #[test]
+    fn png_cut_in_its_passes(cut in 0usize..79, seed in any::<u8>()) {
+        use kikizake::generators::wicimage_png;
+        let sizes = [2usize, 2, 3, 6, 10, 20, 36];
+        let mut all = Vec::new();
+        for (k, n) in sizes.iter().enumerate() {
+            let cols = [1, 1, 2, 2, 4, 4, 8][k];
+            for j in 0..*n {
+                all.push(if j % (cols + 1) == 0 { 0 } else { 1 + (seed.wrapping_add(j as u8) % 200) });
+            }
+        }
+        let f = wicimage_png(8, 8, 8, 0, true, &[], &all[..cut], 1 << 16);
+        let d = wi::decode(&f).map_err(|e| TestCaseError::fail(format!("{e:?}")))?.map_err(|hr| TestCaseError::fail(format!("{hr:x}")))?;
+        let Some(Ok(wi::Frame::Pixels(img))) = d.frames.into_iter().next() else { return Err(TestCaseError::fail("no pixels")) };
+        let px = |x: usize, y: usize| img.px[y * img.stride() + x] != 0;
+        prop_assert_eq!(px(0, 0), cut >= 2);
+        prop_assert_eq!(px(4, 0), cut >= 43);
+        prop_assert_eq!(px(2, 0), cut >= 43);
+        prop_assert_eq!(px(1, 0), cut >= 43);
+        prop_assert_eq!(px(0, 1), cut >= 45);
     }
 }
