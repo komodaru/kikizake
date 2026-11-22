@@ -875,25 +875,38 @@ impl D3d12 {
 /// 16 tiles of 4KB, in the standard tile shapes of the format's element size
 pub fn small(d: &Desc) -> bool {
     hit(clause::D3D12_DESC_SMALL);
-    let Some((bytes, bw, bh)) = block(d.fmt) else { return false };
-    let (w, h) = (d.w.div_ceil(bw) as u64, d.h.div_ceil(bh) as u64);
-    // (MEASURED, golden d3d12-* alloc-edge-small-*-rgb32-*: 12-byte elements as 16-byte ones)
-    let i = bytes.next_power_of_two().trailing_zeros() as usize;
-    if i > 4 {
-        return false;
-    }
-    let tiles = match d.kind() {
-        Dim::Tex1D => w.div_ceil(4096 / bytes as u64),
-        Dim::Tex2D => {
-            let (tw, th) = [(64, 64), (64, 32), (32, 32), (32, 16), (16, 16)][i];
-            w.div_ceil(tw) * h.div_ceil(th)
-        }
-        _ => {
-            let (tw, th, td) = [(16, 16, 16), (16, 8, 16), (16, 8, 8), (8, 8, 8), (8, 8, 4)][i];
-            w.div_ceil(tw) * h.div_ceil(th) * (d.d as u64).div_ceil(td)
-        }
-    };
-    tiles <= 16
+    let Some(elem) = block(d.fmt) else { return false };
+    small_tiles(d.kind(), d.w, d.h, d.d, elem).is_some_and(|t| t <= 16)
+}
+
+/// the 4KB tiles of the standard shapes the most detailed level of a texture takes (None: an
+/// element of more than 16 bytes); 12-byte elements as 16-byte ones (MEASURED, golden d3d12-*
+/// alloc-edge-small-*-rgb32-*)
+pub fn small_tiles(kind: Dim, w: u32, h: u32, d: u32, (bytes, bw, bh): (u32, u32, u32)) -> Option<u64> {
+    let (w, h) = (u64::from(w.div_ceil(bw)), u64::from(h.div_ceil(bh)));
+    let (tw, th, td) = small_tile(kind == Dim::Tex2D, bytes.next_power_of_two().trailing_zeros())?;
+    Some(match kind {
+        Dim::Tex1D => w.div_ceil(4096 / u64::from(bytes)),
+        Dim::Tex2D => w.div_ceil(tw) * h.div_ceil(th),
+        Dim::Unknown | Dim::Buffer | Dim::Tex3D | Dim::Other => w.div_ceil(tw) * h.div_ceil(th) * u64::from(d).div_ceil(td),
+    })
+}
+
+/// D3D12.DESC.SMALL: the 4KB tile of the standard shapes, in elements, for elements of 2^i bytes
+pub fn small_tile(tex2d: bool, i: u32) -> Option<(u64, u64, u64)> {
+    Some(match (tex2d, i) {
+        (true, 0) => (64, 64, 1),
+        (true, 1) => (64, 32, 1),
+        (true, 2) => (32, 32, 1),
+        (true, 3) => (32, 16, 1),
+        (true, 4) => (16, 16, 1),
+        (false, 0) => (16, 16, 16),
+        (false, 1) => (16, 8, 16),
+        (false, 2) => (16, 8, 8),
+        (false, 3) => (8, 8, 8),
+        (false, 4) => (8, 8, 4),
+        _ => return None,
+    })
 }
 
 /// GetResourceAllocationInfo: (size, alignment); an invalid description gives UINT64_MAX
@@ -937,22 +950,7 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
             },
         };
         hit(clause::D3D12_ALLOC_SWIZZLE);
-        let (tw, th, td) = match (d.kind() == Dim::Tex2D, bytes) {
-            (true, 1) => (256, 256, 1),
-            (true, 2) => (256, 128, 1),
-            (true, 4) => (128, 128, 1),
-            (true, 8) => (128, 64, 1),
-            (true, _) => (64, 64, 1),
-            (_, 1) => (64, 32, 32),
-            (_, 2) => (32, 32, 32),
-            (_, 4) => (32, 32, 16),
-            (_, 8) => (32, 16, 16),
-            _ => (16, 16, 16),
-        };
-        let mips = if d.mips == 0 { full_chain(d) } else { d.mips };
-        let (array, depth) = if d.kind() == Dim::Tex3D { (1, d.d) } else { (d.d, 1) };
-        let tiles: u64 = (0..mips).map(|m| ((d.w >> m).max(1).div_ceil(bw) as u64).div_ceil(tw) * ((d.h >> m).max(1).div_ceil(bh) as u64).div_ceil(th) * ((depth >> m).max(1) as u64).div_ceil(td)).sum();
-        return Ok((tiles * array as u64 * 65536, 65536));
+        return Ok((swizzle_bytes(&Texels::of(d, (bytes, bw, bh))), 65536));
     }
     assert_eq!(d.layout, 0, "CreateCommittedResource refuses the other layouts");
     // (MEASURED, golden d3d12-64 alloc-other: NV12 in its two planes, 1.5 bytes a texel; the
@@ -975,32 +973,98 @@ pub fn alloc(d: &Desc) -> Res<(u64, u64)> {
     // (MEASURED, golden d3d12-32 alloc-texture-*, 165 descriptions of 9 formats: WARP packs every
     // subresource tightly, rows of whole elements, one after the other)
     hit(clause::D3D12_ALLOC_TEXTURE);
-    let mips = if d.mips == 0 { full_chain(d) } else { d.mips };
-    let array = if d.kind() == Dim::Tex3D { 1 } else { d.d };
-    let mut total = 0u64;
-    for _ in 0..array {
-        for m in 0..mips {
-            let w = (d.w >> m).max(1).div_ceil(bw) as u64;
-            let h = if d.kind() == Dim::Tex1D { 1 } else { (d.h >> m).max(1).div_ceil(bh) as u64 };
-            let depth = if d.kind() == Dim::Tex3D { (d.d >> m).max(1) as u64 } else { 1 };
-            total += w * bytes as u64 * h * depth;
-        }
-    }
+    let total = tight_bytes(&Texels::of(d, (bytes, bw, bh)));
     if d.samples > 1 {
-        // (MEASURED, golden d3d12-64 alloc-other, 7 descriptions: every sample stored, in 4MB, or
-        // in 64KB when that is the alignment asked)
         hit(clause::D3D12_ALLOC_MSAA);
-        let al = if d.align == 65536 { 65536 } else { 4194304 };
-        return Ok((align(total * d.samples as u64, al), al));
-    }
-    if d.kind() == Dim::Tex1D && d.flags & 1 != 0 {
-        // (FITTED, golden d3d12-64 alloc-rt1d, 10 descriptions of 4 formats: a 1D render target
-        // takes twice the tight size)
+    } else if d.kind() == Dim::Tex1D && d.flags & 1 != 0 {
         hit(clause::D3D12_ALLOC_RT1D);
-        total *= 2;
     }
-    let al = if d.align == 4096 { 4096 } else { 65536 };
-    Ok((align(total, al), al))
+    Ok(alloc_size(total, d.samples, d.align, d.kind() == Dim::Tex1D && d.flags & 1 != 0))
+}
+
+/// a texture's subresources as the allocation counts them: the dimension, the size, the levels
+/// (MipLevels 0 resolved to the full chain), and the element (bytes, block width, block height)
+#[derive(Clone, Copy, Debug)]
+pub struct Texels {
+    pub kind: Dim,
+    pub w: u32,
+    pub h: u32,
+    pub d: u32,
+    pub mips: u32,
+    pub elem: (u32, u32, u32),
+}
+
+impl Texels {
+    fn of(d: &Desc, elem: (u32, u32, u32)) -> Texels {
+        Texels { kind: d.kind(), w: d.w, h: d.h, d: d.d, mips: if d.mips == 0 { full_chain(d) } else { d.mips }, elem }
+    }
+
+    /// level m's elements across, down and deep
+    fn level(&self, m: u32) -> (u64, u64, u64) {
+        let (_, bw, bh) = self.elem;
+        let w = u64::from((self.w >> m).max(1).div_ceil(bw));
+        let h = if self.kind == Dim::Tex1D { 1 } else { u64::from((self.h >> m).max(1).div_ceil(bh)) };
+        let depth = if self.kind == Dim::Tex3D { u64::from((self.d >> m).max(1)) } else { 1 };
+        (w, h, depth)
+    }
+
+    /// the array's slices (a 3D texture's depth is its levels')
+    fn array(&self) -> u64 {
+        if self.kind == Dim::Tex3D { 1 } else { u64::from(self.d) }
+    }
+}
+
+/// D3D12.ALLOC.TEXTURE: WARP packs every subresource tightly one after the other, rows of whole
+/// elements (MEASURED, golden d3d12-32 alloc-texture-*, 165 descriptions of 9 formats)
+pub fn tight_bytes(t: &Texels) -> u64 {
+    let bytes = u64::from(t.elem.0);
+    t.array() * (0..t.mips).map(|m| {
+        let (w, h, depth) = t.level(m);
+        w * bytes * h * depth
+    }).sum::<u64>()
+}
+
+/// D3D12.ALLOC.SWIZZLE: the 64KB tile of the standard shapes, in elements, for a 2D texture or a
+/// 3D one and the element's bytes
+pub fn std_tile(tex2d: bool, bytes: u32) -> (u64, u64, u64) {
+    match (tex2d, bytes) {
+        (true, 1) => (256, 256, 1),
+        (true, 2) => (256, 128, 1),
+        (true, 4) => (128, 128, 1),
+        (true, 8) => (128, 64, 1),
+        (true, _) => (64, 64, 1),
+        (false, 1) => (64, 32, 32),
+        (false, 2) => (32, 32, 32),
+        (false, 4) => (32, 32, 16),
+        (false, 8) => (32, 16, 16),
+        (false, _) => (16, 16, 16),
+    }
+}
+
+/// D3D12.ALLOC.SWIZZLE: whole 64KB tiles of the standard shape, each mip level in its own, times
+/// the array (MEASURED, golden d3d12-64 alloc-other)
+pub fn swizzle_bytes(t: &Texels) -> u64 {
+    let (tw, th, td) = std_tile(t.kind == Dim::Tex2D, t.elem.0);
+    let tiles: u64 = (0..t.mips).map(|m| {
+        let (w, h, depth) = t.level(m);
+        w.div_ceil(tw) * h.div_ceil(th) * depth.div_ceil(td)
+    }).sum();
+    tiles * t.array() * 65536
+}
+
+/// GetResourceAllocationInfo's (size, alignment) of a texture of `total` tight bytes:
+/// D3D12.ALLOC.MSAA every sample stored, in 4MB, or 64KB when that alignment is asked (MEASURED,
+/// golden d3d12-64 alloc-other, 7 descriptions); D3D12.ALLOC.RT1D a 1D render target twice the
+/// tight size (FITTED, golden d3d12-64 alloc-rt1d, 10 descriptions of 4 formats); else in 4KB when
+/// asked (and allowed), 64KB otherwise
+pub fn alloc_size(total: u64, samples: u32, asked: u32, rt1d: bool) -> (u64, u64) {
+    if samples > 1 {
+        let al = if asked == 65536 { 65536 } else { 4194304 };
+        return (align(total * u64::from(samples), al), al);
+    }
+    let total = if rt1d { total * 2 } else { total };
+    let al = if asked == 4096 { 4096 } else { 65536 };
+    (align(total, al), al)
 }
 
 /// CreateHeap's verdict on a heap type, size, alignment and flags (MEASURED, golden d3d12-* make-*)

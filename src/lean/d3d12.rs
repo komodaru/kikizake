@@ -1,8 +1,16 @@
 //! Direct3D 12's mirrors (spec/lean/Kikizake/D3d12/).
 use super::{arg, every, one, sampled, Domain, Mirror};
-use crate::model::d3d12::{self, Dim, Layout};
+use crate::model::d3d12::{self, Dim, Layout, Texels};
 
 const FOOTPRINT: &str = "spec/lean/Kikizake/D3d12/Footprint.lean";
+const ALLOC: &str = "spec/lean/Kikizake/D3d12/Alloc.lean";
+/// element sizes (bytes) the formats have
+const BYTES: [i64; 6] = [1, 2, 4, 8, 12, 16];
+
+/// the entry `i` of a table of choices (0 past its end)
+fn pick(t: &[i64], i: i64) -> i64 {
+    usize::try_from(i).ok().and_then(|i| t.get(i)).copied().unwrap_or(0)
+}
 
 pub static MIRRORS: &[Mirror] = &[
     Mirror {
@@ -60,5 +68,65 @@ pub static MIRRORS: &[Mirror] = &[
             }
         },
         model: |a| one(i64::try_from(d3d12::align(arg(a, 0)?, arg(a, 1)?)).ok()?),
+    },
+    Mirror {
+        name: "d3d12.tight",
+        lean: ALLOC,
+        domain: Domain::Sampled("1D, 2D and 3D textures up to 300 texels a side and 40 slices, 1..9 levels, elements of 1, 2, 4, 8, 12, 16 bytes, blocks 1x1 and 4x4: 60,000 textures"),
+        inputs: |each| {
+            sampled(&[(2, 4), (1, 300), (1, 300), (1, 40), (1, 9), (0, 5), (0, 1)], 60_000, 0xa110_c001, &mut |v| {
+                if let [kind, w, h, d, mips, b, block] = *v {
+                    let k = if block == 1 { 4 } else { 1 };
+                    each(&[kind, w, h, d, mips, pick(&BYTES, b), k, k]);
+                }
+            })
+        },
+        model: |a| {
+            let t = Texels { kind: Dim::of(arg(a, 0)?), w: arg(a, 1)?, h: arg(a, 2)?, d: arg(a, 3)?, mips: arg(a, 4)?, elem: (arg(a, 5)?, arg(a, 6)?, arg(a, 7)?) };
+            Some(vec![i64::try_from(d3d12::tight_bytes(&t)).ok()?, i64::try_from(d3d12::swizzle_bytes(&t)).ok()?])
+        },
+    },
+    Mirror {
+        name: "d3d12.alloc_size",
+        lean: ALLOC,
+        domain: Domain::Every("totals 0..70,000 and around 4MB, 0..17 samples, the alignments 0, 4KB, 64KB, 4MB and 1, a 1D render target or not"),
+        inputs: |each| {
+            for total in (0..=70_000).chain(4_194_000..=4_194_700) {
+                for samples in [0, 1, 2, 4, 8, 16, 17] {
+                    for asked in [0, 1, 4096, 65536, 4_194_304] {
+                        for rt1d in [0, 1] {
+                            each(&[total, samples, asked, rt1d]);
+                        }
+                    }
+                }
+            }
+        },
+        model: |a| {
+            let (s, al) = d3d12::alloc_size(arg(a, 0)?, arg(a, 1)?, arg(a, 2)?, arg::<u8>(a, 3)? != 0);
+            Some(vec![i64::try_from(s).ok()?, i64::try_from(al).ok()?])
+        },
+    },
+    Mirror {
+        name: "d3d12.small_tiles",
+        lean: ALLOC,
+        domain: Domain::Every("1D, 2D and 3D textures up to 140 texels a side (3D: 70) and 18 deep, elements of 1..20 bytes, blocks 1x1 and 4x4"),
+        inputs: |each| {
+            every(&[(2, 3), (1, 140), (1, 140), (1, 20), (0, 1)], &mut |v| {
+                if let [kind, w, h, bytes, block] = *v {
+                    let k = if block == 1 { 4 } else { 1 };
+                    each(&[kind, w, h, 1, bytes, k, k]);
+                }
+            });
+            every(&[(1, 70), (1, 70), (1, 18), (1, 20), (0, 1)], &mut |v| {
+                if let [w, h, d, bytes, block] = *v {
+                    let k = if block == 1 { 4 } else { 1 };
+                    each(&[4, w, h, d, bytes, k, k]);
+                }
+            });
+        },
+        model: |a| {
+            let t = d3d12::small_tiles(Dim::of(arg(a, 0)?), arg(a, 1)?, arg(a, 2)?, arg(a, 3)?, (arg(a, 4)?, arg(a, 5)?, arg(a, 6)?));
+            Some(t.into_iter().map(|n| i64::try_from(n).unwrap_or(-1)).collect())
+        },
     },
 ];
