@@ -519,3 +519,9 @@ spec/lean/Kikizake/D3d9/DeclFvf.lean::refused_examples lean D3DX9.DECLFVF.INVALI
 spec/lean/Kikizake/D3d9/Arg.lean::no_texture lean D3D9.STAGE.NOTEX
 spec/lean/Kikizake/D3d9/Arg.lean::temp_constant lean D3D9.STAGE.ARG
 spec/lean/Kikizake/D3d9/Arg.lean::modifiers lean D3D9.STAGE.ARG
+tests/laws_d3dx9_f16.rs::sse_halves_are_ties_toward_zero_for_every_float exhaustive D3DX9.F16
+tests/laws_d3dx9_f16.rs::one_by_one_halves_are_ties_to_even_for_every_float exhaustive D3DX9.F16
+tests/laws_d3dx9_f16.rs::amd_halves_are_ties_to_even_for_every_float exhaustive D3DX9.F16
+tests/laws_d3dx9_f16.rs::amd_rest_is_the_sum_trick_for_every_float exhaustive D3DX9.F16
+tests/laws_d3dx9_f16.rs::every_half_is_its_value exhaustive D3DX9.F32
+tests/laws_d3dx9_f16.rs::the_routine_is_the_place_and_the_processor exhaustive D3DX9.F16.CPU
