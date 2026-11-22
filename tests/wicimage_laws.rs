@@ -296,6 +296,22 @@ fn fant_spends_every_source_span() {
 }
 
 proptest! {
+    /// a part of a scaler made alone (as of one too large to hold, WICIMAGE.SCALE.BIG) is that
+    /// part of the whole picture, in every mode and format
+    #[test]
+    fn scaler_parts_are_parts_of_the_whole(w in 1u32..7, h in 1u32..7, dw in 1u32..14, dh in 1u32..14, seed in 0u32..1000, f in 0usize..6, m in 0usize..5, cut in (0u32..14, 0u32..14, 1u32..14, 1u32..14)) {
+        let fmt = ["bgr24", "bgra", "gray8", "gray16", "rgba64", "rgb48"][f];
+        let mode = ["nn", "linear", "cubic", "fant", "hqcubic"][m];
+        let (x, y) = (cut.0 % dw, cut.1 % dh);
+        let (cw, ch) = (1 + (cut.2 - 1) % (dw - x), 1 + (cut.3 - 1) % (dh - y));
+        let s = img(fmt, w, h, seed);
+        let whole = wi::scale(&s, dw, dh, mode).unwrap();
+        let part = wi::scale_in(&s, dw, dh, mode, &wi::Win { xs: x..x + cw, ys: y..y + ch }).unwrap();
+        prop_assert_eq!(pixels(&part), pixels(&wi::clip(&whole, x, y, cw, ch)));
+    }
+}
+
+proptest! {
     /// a filter of only nonnegative weights (Linear, Fant) keeps every channel between the
     /// source's least and greatest; every filter keeps a flat picture flat, but Cubic down,
     /// whose four floored products may lose up to a level (MEASURED: Windows' flat columns come

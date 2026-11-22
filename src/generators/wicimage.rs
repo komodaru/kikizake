@@ -122,6 +122,29 @@ pub fn wicscale() -> String {
     for m in ["hqcubic", "fant", "linear"] {
         writeln!(s, "case bigsize-fmt-{m}\nwbits bgra 4 4 77\nwscale 4096 2048 {m}\nwinfo\nwscale 3 2 nn\nwinfo\nend");
     }
+    // the pixels of scalers past 2^22 pixels: parts of them, a clipper over one, a whole one
+    // just past (each part from the source alone, as of a small scaler)
+    let mut r = XorShift32::new(0xb16);
+    for f in ["bgr24", "bgra", "gray8", "gray16", "rgba64", "rgb48", "idx8"] {
+        for m in MODES {
+            let (sw, sh) = (r.range(2, 9), r.range(2, 9));
+            for (j, (dw, dh)) in [(30000i64, 17000i64), (65535, 8000), (100_000, 50), (2049, 2049)].into_iter().enumerate() {
+                let seed = r.next();
+                let mut c = format!("case bigread-{f}-{m}-{j}\nwbits {f} {sw} {sh} {seed}\nwscale {dw} {dh} {m}\n");
+                for (x, y) in [(0, 0), (dw - 3, dh - 2), (dw / 2 - 1, dh / 2 - 1), (r.range(0, dw - 4), r.range(0, dh - 3))] {
+                    writeln!(c, "wpixels {x} {y} 3 2");
+                }
+                writeln!(c, "wpixels {} 0 1 {}", dw - 1, dh.min(3));
+                s.push_str(&c);
+                s.push_str("end\n");
+            }
+        }
+    }
+    for m in MODES {
+        writeln!(s, "case bigread-clip-{m}\nwbits bgr24 5 4 61\nwscale 30000 17000 {m}\nwclip 12345 3456 9000 9000\nwinfo\nwpixels 8990 8995 4 3\nwclip 100 200 6 5\nwinfo\nwpixels\nwflip 3\nwpixels\nend");
+        writeln!(s, "case bigread-whole-{m}\nwbits gray8 3 3 62\nwscale 2049 2049 {m}\nwpixels\nend");
+        writeln!(s, "case bigread-bad-{m}\nwbits gray8 3 3 63\nwscale 65535 65535 {m}\nwpixels 65533 0 3 1\nwpixels -1 0 1 1\nwpixels 0 0 0 1\nwpixels 0 0 2 2 1 4\nwclip 65535 0 1 1\nwinfo\nend");
+    }
     // (HighQualityCubic of 16 bits one pass at a time: 64 random rows scaled across only, 64
     // random columns scaled down only: each pass's f32 order apart)
     for (i, (a, b)) in [(8u32, 3u32), (3, 8), (4, 9), (7, 3), (6, 7), (5, 2), (13, 4), (2, 5)].into_iter().enumerate() {
@@ -1173,6 +1196,32 @@ pub fn wicdecode() -> String {
         let im = TiffImage { w, h, photometric: ph, bits, samples: spp, extra, planar: 1, rps: h, px: bytes(&mut r, total), map, res: None, format: 1 };
         decode_case(&mut s, &format!("tiff-other-{k}"), &tiff(false, &[im]), 1, ph == 3);
     }
+    // every photometric, depth and sample count around the table (and extra samples, sample
+    // formats) with no table entry known: what Windows makes of each
+    let mut k = 0;
+    for ph in [0u16, 1, 2, 3, 5, 7, 8, 9, 10, 32844, 32845] {
+        let base = match ph {
+            2 | 8 | 9 | 10 => 3,
+            5 => 4,
+            _ => 1,
+        };
+        for bits in [1u16, 2, 4, 8, 12, 16, 24, 32, 64] {
+            for spp in 1..=6u16 {
+                let extras: &[Option<u16>] = if spp > base && (bits == 8 || bits == 16) { &[None, Some(0), Some(1), Some(2)] } else { &[None] };
+                let formats: &[u16] = if matches!(bits, 16 | 32 | 64) && spp <= base + 1 { &[1, 2, 3] } else { &[1] };
+                for &extra in extras {
+                    for &format in formats {
+                        let (w, h) = (5u32, 3u32);
+                        let total = ((w * bits as u32 * spp as u32).div_ceil(8) * h) as usize;
+                        let map = if ph == 3 && bits <= 8 { (0..3 * (1usize << bits)).map(|_| r.next() as u16).collect() } else { vec![] };
+                        let im = TiffImage { w, h, photometric: ph, bits, samples: spp, extra, planar: 1, rps: h, px: bytes(&mut r, total), map, res: None, format };
+                        decode_case(&mut s, &format!("tiff-sweep-{k}-{ph}-{bits}-{spp}-{}-{format}", extra.map_or("n".to_string(), |e| e.to_string())), &tiff(false, &[im]), 1, ph == 3);
+                        k += 1;
+                    }
+                }
+            }
+        }
+    }
     // CMYK with an associated alpha: alphas of 0, 1, 2, 128, 255 against every level
     let px: Vec<u8> = [0u8, 1, 2, 128, 255].iter().flat_map(|&a| [0u8, 1, 2, 127, 128, 254, 255, 77].chunks(4).flat_map(move |c| [c[0], c[1], c[2], c[3], a]).collect::<Vec<u8>>()).collect();
     let im = TiffImage { w: 2, h: 5, photometric: 5, bits: 8, samples: 5, extra: Some(1), planar: 1, rps: 5, px, map: vec![], res: None, format: 1 };
@@ -1212,6 +1261,18 @@ pub fn wicdecode() -> String {
         }
         f.extend_from_slice(&bytes(&mut r, 64 * array as usize));
         decode_case(&mut s, &format!("dds-dx10-{fmt}-{array}"), &f, array, false);
+    }
+    // DX10 arrays of mip chains (each slice then its levels), arrays past 64 slices, an array
+    // size of 0
+    for (fmt, w, h, mips, array) in [(71u32, 8u32, 8u32, 2u32, 2u32), (71, 8, 8, 4, 3), (74, 8, 4, 3, 2), (77, 16, 8, 5, 2), (77, 8, 8, 2, 4), (71, 4, 4, 1, 65), (77, 4, 4, 1, 100), (71, 4, 4, 1, 512), (71, 8, 8, 2, 70), (71, 4, 4, 1, 0)] {
+        let mut f = dds(w, h, mips, Some(b"DX10"), &[]);
+        for v in [fmt, 3, 0, array, 0] {
+            le32(&mut f, v);
+        }
+        let bs = if fmt == 71 { 8 } else { 16 };
+        let per: u32 = (0..mips).map(|m| (w >> m).max(1).div_ceil(4) * (h >> m).max(1).div_ceil(4) * bs).sum();
+        f.extend_from_slice(&bytes(&mut r, (per * array.max(1)) as usize));
+        decode_case(&mut s, &format!("dds-dx10-mips-{fmt}-{w}x{h}-{mips}-{array}"), &f, (array.max(1) * mips).min(80), false);
     }
     // an ICO's PNG entry with a resolution of its own (pHYs 150 by 72 dots an inch)
     {

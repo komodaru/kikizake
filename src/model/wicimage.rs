@@ -1144,12 +1144,17 @@ pub struct Taps {
 /// - Fant: Fant's resampling (each output pixel the average over its span of the source
 ///   interpolated linearly from each pixel's start), exact, so weights over n * d
 pub fn taps(mode: &str, n: u32, d: u32) -> Taps {
+    taps_in(mode, n, d, 0..d)
+}
+
+/// `taps` of the outputs in `r` only (a part of a scaler too large to hold)
+pub fn taps_in(mode: &str, n: u32, d: u32, r: std::ops::Range<u32>) -> Taps {
     let last = n as i64 - 1;
     let at = |k: i64| k.clamp(0, last) as usize;
     match mode {
         "linear" => Taps {
             den: 256,
-            taps: (0..d)
+            taps: r
                 .map(|i| {
                     let p = fixed_center(i, n, d).max(0);
                     let (k, f) = (p >> 16, (p & 0xffff) >> 8);
@@ -1159,7 +1164,7 @@ pub fn taps(mode: &str, n: u32, d: u32) -> Taps {
         },
         "cubic" => Taps {
             den: 1 << 16,
-            taps: (0..d)
+            taps: r
                 .map(|i| {
                     let p = fixed_center(i, n, d);
                     let (k, t) = (p >> 16, ((p & 0xffff) >> 10) as f64 / 64.0);
@@ -1175,7 +1180,8 @@ pub fn taps(mode: &str, n: u32, d: u32) -> Taps {
             let mut taps = vec![];
             let mut cur: Vec<(usize, i64)> = vec![];
             let (mut u, mut inseg, mut outseg) = (0i64, d6, n6);
-            while taps.len() < d as usize {
+            let mut i = 0u32;
+            while i < r.end.min(d) {
                 let seg = inseg.min(outseg);
                 // (the source at the segment's start: inseg of pixel u, the rest of the next)
                 for (k, w) in [(at(u), inseg * seg), (at(u + 1), (d6 - inseg) * seg)] {
@@ -1191,7 +1197,11 @@ pub fn taps(mode: &str, n: u32, d: u32) -> Taps {
                 } else {
                     inseg -= outseg;
                     outseg = n6;
-                    taps.push(std::mem::take(&mut cur));
+                    let t = std::mem::take(&mut cur);
+                    if i >= r.start {
+                        taps.push(t);
+                    }
+                    i += 1;
                 }
             }
             Taps { den: d6 * n6, taps }
@@ -1203,8 +1213,13 @@ pub fn taps(mode: &str, n: u32, d: u32) -> Taps {
 /// center, widened by the ratio when shrinking, the weights normalized, the taps outside the
 /// picture its edge pixels
 pub fn hq_taps(n: u32, d: u32) -> Vec<Vec<(usize, f64)>> {
+    hq_taps_in(n, d, 0..d)
+}
+
+/// `hq_taps` of the outputs in `outs` only
+pub fn hq_taps_in(n: u32, d: u32, outs: std::ops::Range<u32>) -> Vec<Vec<(usize, f64)>> {
     let r = (n as f64 / d as f64).max(1.0);
-    (0..d)
+    outs
         .map(|i| {
             let p = (i as f64 + 0.5) * n as f64 / d as f64 - 0.5;
             let (lo, hi) = ((p - 2.0 * r).floor() as i64, (p + 2.0 * r).ceil() as i64);
@@ -1215,17 +1230,37 @@ pub fn hq_taps(n: u32, d: u32) -> Vec<Vec<(usize, f64)>> {
         .collect()
 }
 
+/// the part of a scaler's output that is made: columns `xs`, rows `ys` (all of it, or the
+/// rectangle a caller reads of a scaler too large to hold)
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Win {
+    pub xs: std::ops::Range<u32>,
+    pub ys: std::ops::Range<u32>,
+}
+
+impl Win {
+    pub fn all(w: u32, h: u32) -> Win {
+        Win { xs: 0..w, ys: 0..h }
+    }
+    pub fn w(&self) -> u32 {
+        self.xs.end.saturating_sub(self.xs.start)
+    }
+    pub fn h(&self) -> u32 {
+        self.ys.end.saturating_sub(self.ys.start)
+    }
+}
+
 /// a filter over a picture of 8-bit channels (8bppGray, 24bppBGR, 32bppPBGRA)
-fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
+fn filter(s: &Img, w: u32, h: u32, mode: &str, win: &Win) -> Res<Img> {
     let c = (bits_of(s.fmt) / 8) as usize;
-    let mut o = s.like(w, h);
+    let mut o = s.like(win.w(), win.h());
     let src = |x: usize, y: usize, k: usize| s.px[y * s.stride() + x * c + k] as i64;
-    let ow = w as usize;
+    let ow = win.w() as usize;
     let ost = o.stride();
     match mode {
         "linear" | "cubic" => {
             // (MEASURED: across, then down, each pass truncated to 8 bits)
-            let (tx, ty) = (taps(mode, s.w, w), taps(mode, s.h, h));
+            let (tx, ty) = (taps_in(mode, s.w, w, win.xs.clone()), taps_in(mode, s.h, h, win.ys.clone()));
             let mut mid = vec![0i64; ow * s.h as usize * c];
             for y in 0..s.h as usize {
                 for (x, t) in tx.taps.iter().enumerate() {
@@ -1261,7 +1296,7 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
         }
         "fant" => {
             // (MEASURED: exact in both directions, rounded once, halves up)
-            let (tx, ty) = (taps(mode, s.w, w), taps(mode, s.h, h));
+            let (tx, ty) = (taps_in(mode, s.w, w, win.xs.clone()), taps_in(mode, s.h, h, win.ys.clone()));
             let den = tx.den as i128 * ty.den as i128;
             for (y, a) in ty.taps.iter().enumerate() {
                 for (x, b) in tx.taps.iter().enumerate() {
@@ -1274,7 +1309,7 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
         }
         _ => {
             // (MEASURED: without rounding between the passes, rounded once)
-            let (tx, ty) = (hq_taps(s.w, w), hq_taps(s.h, h));
+            let (tx, ty) = (hq_taps_in(s.w, w, win.xs.clone()), hq_taps_in(s.h, h, win.ys.clone()));
             for (y, a) in ty.iter().enumerate() {
                 for (x, b) in tx.iter().enumerate() {
                     for k in 0..c {
@@ -1290,11 +1325,11 @@ fn filter(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
 
 /// HighQualityCubic in a format of its own (16 bits a channel, 32bppRGBA, 8bppAlpha): as over 8
 /// bits, every channel alike
-fn hq_wide(s: &Img, w: u32, h: u32) -> Res<Img> {
+fn hq_wide(s: &Img, w: u32, h: u32, win: &Win) -> Res<Img> {
     // (MEASURED: golden wicscale rgrid-hqcubic-rgba-*, fmt-rgba-hqcubic: straight alpha filtered
     // premultiplied, as 32bppPRGBA, and back)
     if s.fmt == "rgba" {
-        let p = hq_plain(&wic_convert(s, "prgba")?, w, h)?;
+        let p = hq_plain(&wic_convert(s, "prgba")?, w, h, win)?;
         return wic_convert(&p, "rgba");
     }
     // (MEASURED: golden rgrid-hqcubic-rgba64-*, fmt-rgba64-hqcubic: 64bppRGBA is premultiplied
@@ -1311,7 +1346,7 @@ fn hq_wide(s: &Img, w: u32, h: u32) -> Res<Img> {
                 px[2 * k..2 * k + 2].copy_from_slice(&v.to_le_bytes());
             }
         }
-        let mut q = hq_plain(&p, w, h)?;
+        let mut q = hq_plain(&p, w, h, win)?;
         for px in q.px.chunks_exact_mut(8) {
             let a = u32::from(u16::from_le_bytes([px[6], px[7]]));
             for k in 0..3 {
@@ -1323,7 +1358,7 @@ fn hq_wide(s: &Img, w: u32, h: u32) -> Res<Img> {
         }
         return Ok(q);
     }
-    hq_plain(s, w, h)
+    hq_plain(s, w, h, win)
 }
 
 /// one output's taps of a 16-bit HighQualityCubic pass: the window's first source index and one
@@ -1357,6 +1392,11 @@ fn hq_weight(d: f32, ir: f32) -> f32 {
 /// one f32 rounding, weighed by hq_weight, added in tap order into the slot of its source index
 /// held to the edges; every slot then divided by the f32 sum of all
 pub fn hq_taps32(n: u32, d: u32) -> Vec<HqTaps> {
+    hq_taps32_in(n, d, 0..d)
+}
+
+/// `hq_taps32` of the outputs in `outs` only
+pub fn hq_taps32_in(n: u32, d: u32, outs: std::ops::Range<u32>) -> Vec<HqTaps> {
     let s = n as f32 / d as f32;
     let r = s.max(1.0);
     let ir = 1.0f32 / r;
@@ -1364,7 +1404,7 @@ pub fn hq_taps32(n: u32, d: u32) -> Vec<HqTaps> {
     let tun = if n < d { 6usize } else { ((s + s) + (s + s)).ceil() as usize + 1 };
     let t = tun.min(n as usize);
     let n = n as i64;
-    (0..d)
+    outs
         .map(|i| {
             let center = (i as f32 + 0.5f32) * s;
             let first = (center - r2).floor() as i64;
@@ -1388,15 +1428,15 @@ pub fn hq_taps32(n: u32, d: u32) -> Vec<HqTaps> {
         .collect()
 }
 
-fn hq_plain(s: &Img, w: u32, h: u32) -> Res<Img> {
+fn hq_plain(s: &Img, w: u32, h: u32, win: &Win) -> Res<Img> {
     if matches!(s.fmt, "gray16" | "rgb48" | "rgba64") {
-        return hq_wide16(s, w, h);
+        return hq_wide16(s, w, h, win);
     }
     let c = bits_of(s.fmt) as usize / 8;
-    let mut o = s.like(w, h);
+    let mut o = s.like(win.w(), win.h());
     let src = |x: usize, y: usize, k: usize| f64::from(s.px[y * s.stride() + x * c + k]);
     let ost = o.stride();
-    let (tx, ty) = (hq_taps(s.w, w), hq_taps(s.h, h));
+    let (tx, ty) = (hq_taps_in(s.w, w, win.xs.clone()), hq_taps_in(s.h, h, win.ys.clone()));
     for (y, a) in ty.iter().enumerate() {
         for (x, b) in tx.iter().enumerate() {
             let sum = |f: &dyn Fn(usize, usize) -> f64| -> f64 { a.iter().map(|&(jy, wy)| wy * b.iter().map(|&(jx, wx)| wx * f(jx, jy)).sum::<f64>()).sum() };
@@ -1412,9 +1452,9 @@ fn hq_plain(s: &Img, w: u32, h: u32) -> Res<Img> {
 /// HighQualityCubic over 16 bits a channel (found clean-room; confirmed by golden wicscale
 /// rgrid-hqcubic-*, hq16*): across, then down, in f32 (hq_taps32), each sum trunc(f32(v + 0.5))
 /// held to 0..=65535
-fn hq_wide16(s: &Img, w: u32, h: u32) -> Res<Img> {
-    let (mut o, v) = hq16_sums(s, w, h);
-    let (n, ost) = (v.len() / h.max(1) as usize, o.stride());
+fn hq_wide16(s: &Img, w: u32, h: u32, win: &Win) -> Res<Img> {
+    let (mut o, v) = hq16_sums(s, w, h, win);
+    let (n, ost) = (v.len() / win.h().max(1) as usize, o.stride());
     for (k, v) in v.into_iter().enumerate() {
         let v = round16(v);
         let i = k / n * ost + k % n * 2;
@@ -1441,15 +1481,15 @@ fn round16(v: f32) -> u16 {
 /// SSE row) in four lanes, lane l taking slots l, l + 4, ..., the rest of 2 or 3 into lanes 0
 /// and 1, a last odd one into lane 0, then (L0 + L2) + (L1 + L3); down, in slot order from 0,
 /// a slot of weight 0 left out
-fn hq16_sums(s: &Img, w: u32, h: u32) -> (Img, Vec<f32>) {
+fn hq16_sums(s: &Img, w: u32, h: u32, win: &Win) -> (Img, Vec<f32>) {
     hit(clause::WICIMAGE_SCALE_HQ16);
     let c = bits_of(s.fmt) as usize / 16;
     let src = |x: usize, y: usize, k: usize| {
         let i = y * s.stride() + (x * c + k) * 2;
         f32::from(u16::from_le_bytes([s.px[i], s.px[i + 1]]))
     };
-    let (tx, ty) = (hq_taps32(s.w, w), hq_taps32(s.h, h));
-    let ow = w as usize;
+    let (tx, ty) = (hq_taps32_in(s.w, w, win.xs.clone()), hq_taps32_in(s.h, h, win.ys.clone()));
+    let ow = win.w() as usize;
     let mut mid = vec![0f32; ow * s.h as usize * c];
     for y in 0..s.h as usize {
         for (x, t) in tx.iter().enumerate() {
@@ -1480,7 +1520,7 @@ fn hq16_sums(s: &Img, w: u32, h: u32) -> (Img, Vec<f32>) {
             }
         }
     }
-    let mut out = vec![0f32; ow * h as usize * c];
+    let mut out = vec![0f32; ow * win.h() as usize * c];
     for (y, t) in ty.iter().enumerate() {
         for x in 0..ow {
             for k in 0..c {
@@ -1488,14 +1528,14 @@ fn hq16_sums(s: &Img, w: u32, h: u32) -> (Img, Vec<f32>) {
             }
         }
     }
-    let o = s.like(w, h);
+    let o = s.like(win.w(), win.h());
     (o, out)
 }
 
 /// a filter over a picture of f32 channels (32bppGrayFloat, 128bppPRGBAFloat)
-fn filter_float(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
+fn filter_float(s: &Img, w: u32, h: u32, mode: &str, win: &Win) -> Res<Img> {
     let c = (bits_of(s.fmt) / 32) as usize;
-    let mut o = s.like(w, h);
+    let mut o = s.like(win.w(), win.h());
     let src = |x: usize, y: usize, k: usize| {
         let i = y * s.stride() + (x * c + k) * 4;
         f64::from(f32::from_le_bytes([s.px[i], s.px[i + 1], s.px[i + 2], s.px[i + 3]]))
@@ -1511,9 +1551,9 @@ fn filter_float(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
             // every one as this): across, then down, in f32: each tap's weight its integer
             // weight times the f32 reciprocal of the pass's denominator, each product rounded, then
             // added in the order of the taps
-            let (tx, ty) = (taps(mode, s.w, w), taps(mode, s.h, h));
+            let (tx, ty) = (taps_in(mode, s.w, w, win.xs.clone()), taps_in(mode, s.h, h, win.ys.clone()));
             let (rx, ry) = (1.0 / tx.den as f32, 1.0 / ty.den as f32);
-            let ow = w as usize;
+            let ow = win.w() as usize;
             let mut mid = vec![0f32; ow * s.h as usize * c];
             for y in 0..s.h as usize {
                 for (x, t) in tx.taps.iter().enumerate() {
@@ -1537,15 +1577,21 @@ fn filter_float(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
 }
 
 pub fn scale(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
+    scale_in(s, w, h, mode, &Win::all(w, h))
+}
+
+/// the part `win` of `scale`'s picture: every output pixel is made from the source alone, so a
+/// part of it is the same as that part of the whole
+pub fn scale_in(s: &Img, w: u32, h: u32, mode: &str, win: &Win) -> Res<Img> {
     let (work, out) = scale_formats(s.fmt, mode);
     hit(clause::WICIMAGE_SCALE_FORMAT);
     if mode == "hqcubic" && ["gray16", "rgb48", "rgba64", "rgba", "alpha8"].contains(&work) {
         hit(clause::WICIMAGE_SCALE_HQCUBIC);
-        return hq_wide(&wic_convert(s, work)?, w, h);
+        return hq_wide(&wic_convert(s, work)?, w, h, win);
     }
     if mode == "fant" && ["grayfloat", "prgbafloat"].contains(&work) {
         hit(clause::WICIMAGE_SCALE_FANT);
-        let o = filter_float(&wic_convert(s, work)?, w, h, mode)?;
+        let o = filter_float(&wic_convert(s, work)?, w, h, mode, win)?;
         return wic_convert(&o, out);
     }
     if mode != "nn" {
@@ -1554,7 +1600,7 @@ pub fn scale(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
             return Err(Fail::Bad);
         }
         let s = wic_convert(s, work)?;
-        let o = filter(&s, w, h, mode)?;
+        let o = filter(&s, w, h, mode, win)?;
         hit(match mode {
             "linear" => clause::WICIMAGE_SCALE_LINEAR,
             "cubic" => clause::WICIMAGE_SCALE_CUBIC,
@@ -1565,10 +1611,10 @@ pub fn scale(s: &Img, w: u32, h: u32, mode: &str) -> Res<Img> {
     }
     let s = wic_convert(s, work)?;
     hit(clause::WICIMAGE_SCALE_NEAREST);
-    let mut o = s.like(w, h);
-    for y in 0..h {
-        for x in 0..w {
-            o.put(x, y, &s.get(nearest(x, s.w, w), nearest(y, s.h, h)));
+    let mut o = s.like(win.w(), win.h());
+    for y in win.ys.clone() {
+        for x in win.xs.clone() {
+            o.put(x - win.xs.start, y - win.ys.start, &s.get(nearest(x, s.w, w), nearest(y, s.h, h)));
         }
     }
     wic_convert(&o, out)
@@ -3127,10 +3173,7 @@ fn dds(b: &[u8]) -> Res<Result<Decoded, u32>> {
                     return Ok(Err(0x8898_2f61));
                 }
             };
-            if array > 1 && mips > 1 || array > 64 {
-                return Err(Fail::Unmodeled(open::WICIMAGE_DDS_FOURCC));
-            }
-            hit(clause::WICIMAGE_DDS_DX10);
+            hit(if array > 1 && mips > 1 || array > 64 { clause::WICIMAGE_DDS_FOURCC } else { clause::WICIMAGE_DDS_DX10 });
             (kind, false, 148usize, array.max(1))
         }
         _ => {
@@ -3466,9 +3509,110 @@ pub enum Encoded {
 
 /* ---------------------------------------------------------------------------------------- */
 
+/// a scaler past 2^22 pixels: its source, its size and mode, and the corner of `cur` in it (a
+/// clipper over it)
+struct Big {
+    src: Img,
+    w: u32,
+    h: u32,
+    mode: &'static str,
+    at: (u32, u32),
+    /// `cur`'s size and format, to know it is still the picture this stands behind
+    of: (u32, u32, &'static str),
+}
+
+impl Big {
+    /// the part of the scaler at (x, y) of `cur`, w x h
+    fn part(&self, x: u32, y: u32, w: u32, h: u32) -> Res<Img> {
+        let (x, y) = (self.at.0 + x, self.at.1 + y);
+        hit(clause::WICIMAGE_SCALE_BIG);
+        scale_in(&self.src, self.w, self.h, self.mode, &Win { xs: x..x + w, ys: y..y + h })
+    }
+}
+
+impl WicImage {
+    /// a command on a scaler too large to hold (MEASURED, golden wicscale bigread-*): the pixels
+    /// of a rectangle are those of that rectangle of the whole picture, each made from the source
+    /// alone; a clipper over it is the same part; a picture of no more than 2^22 pixels so cut is
+    /// held from then on
+    fn big_command(&mut self, t: &[&str], out: &mut Vec<String>) -> Res<bool> {
+        let c = self.cur.clone().ok_or(Fail::Empty)?;
+        let c = &c;
+        let Some(big) = self.big.take().filter(|b| b.of == (c.w, c.h, c.fmt)) else {
+            // (a scaler over a scaler too large to hold: no case asks; a new case shows as a difference)
+            return Err(Fail::Bad);
+        };
+        let n = |i: usize| t.get(i).and_then(|v| v.parse::<i64>().ok()).ok_or(Fail::Bad);
+        match t.first().copied() {
+            Some("wpixels") => {
+                let rect = match t.len() {
+                    1 => (0, 0, i64::from(c.w), i64::from(c.h)),
+                    5 | 7 => (n(1)?, n(2)?, n(3)?, n(4)?),
+                    _ => return Err(Fail::Bad),
+                };
+                let bufs = if t.len() == 7 { Some((n(5)?, n(6)?)) } else { None };
+                let (x, y, w, h) = rect;
+                let ok = x >= 0 && y >= 0 && w > 0 && h > 0 && inside(c, x, y, w, h);
+                if !ok || w * h > 1 << 26 {
+                    if ok {
+                        // (a read past 2^26 pixels: no case asks; a new case shows as a difference)
+                        return Err(Fail::Bad);
+                    }
+                    self.big = Some(big);
+                    let (hr, _) = copy(c, Some(rect), bufs);
+                    out.push(format!("wpixels {hr:08x} {}", bits_of(c.fmt)));
+                    return Ok(true);
+                }
+                let p = big.part(x as u32, y as u32, w as u32, h as u32)?;
+                self.big = Some(big);
+                let p = wic_convert(&p, c.fmt)?;
+                let (hr, rows) = copy(&p, Some((0, 0, w, h)), bufs);
+                out.push(format!("wpixels {hr:08x} {}", bits_of(c.fmt)));
+                let b = i64::from(bits_of(c.fmt));
+                for mut r in rows {
+                    let tail = w * b % 8;
+                    if tail != 0 && let Some(l) = r.last_mut() {
+                        *l &= (0xff00u32 >> tail) as u8;
+                    }
+                    out.push(hexs(&r));
+                }
+                Ok(true)
+            }
+            Some("wclip") => {
+                let (x, y, w, h) = (n(1)?, n(2)?, n(3)?, n(4)?);
+                if !inside(c, x, y, w, h) {
+                    self.big = Some(big);
+                    hit(clause::WICIMAGE_CLIP_RECT);
+                    out.push(format!("wclip {E_INVALIDARG:08x}"));
+                    return Ok(true);
+                }
+                hit(clause::WICIMAGE_CLIP);
+                out.push("wclip 00000000".into());
+                let (x, y, w, h) = (x as u32, y as u32, w as u32, h as u32);
+                let dpi = c.dpi;
+                if u64::from(w) * u64::from(h) <= 1 << 22 {
+                    let mut p = wic_convert(&big.part(x, y, w, h)?, c.fmt)?;
+                    p.dpi = dpi;
+                    self.cur = Some(p);
+                } else {
+                    self.cur = Some(Img { w, h, px: vec![], ..c.clone() });
+                    self.big = Some(Big { at: (big.at.0 + x, big.at.1 + y), of: (w, h, c.fmt), ..big });
+                }
+                Ok(true)
+            }
+            // (a flipper, converter or color transform over a scaler too large to hold: no case
+            // asks; a new case shows as a difference)
+            _ => Err(Fail::Bad),
+        }
+    }
+}
+
 #[derive(Default)]
 pub struct WicImage {
     cur: Option<Img>,
+    /// the scaler behind `cur` when it is too large to hold (`cur` its size, no pixels): made
+    /// only in the parts that are read
+    big: Option<Big>,
     fail: Option<FrameFail>,
     dec: Option<Decoded>,
     enc: Option<Encoded>,
@@ -3561,8 +3705,8 @@ impl WicImage {
         } else if t[0] == "wbits" || t[0] == "wdecode" {
             self.fail = None;
         }
-        if needs_cur && self.cur.as_ref().is_some_and(|c| c.px.is_empty()) && !matches!(t[0], "winfo" | "wscale") {
-            return Err(Fail::Unmodeled(open::WICIMAGE_SCALE_BIG));
+        if needs_cur && self.cur.as_ref().is_some_and(|c| c.px.is_empty() && c.w * c.h != 0) && !matches!(t[0], "winfo" | "wscale") {
+            return self.big_command(&t, out);
         }
         if needs_cur && self.cur.is_none() {
             if t[0] == "wpixels" && ![1, 5, 7].contains(&t.len()) {
@@ -3608,9 +3752,13 @@ impl WicImage {
                     return Ok(true);
                 }
                 if w * h > 1 << 22 || c.px.is_empty() {
-                    // (a picture the model does not hold: its size only)
-                    let (wf, _) = scale_formats(c.fmt, m);
-                    self.cur = Some(Img { w: w as u32, h: h as u32, px: vec![], fmt: scale_formats(c.fmt, m).1, ..Img::new(1, 1, wf) });
+                    // (a picture the model does not hold: its size, and its source to make the
+                    // parts that are read; a scaler over such a picture is not made)
+                    let (wf, of) = scale_formats(c.fmt, m);
+                    let mode = ["nn", "linear", "cubic", "fant", "hqcubic"].into_iter().find(|x| *x == m).ok_or(Fail::Bad)?;
+                    let (w, h) = (w as u32, h as u32);
+                    self.big = (!c.px.is_empty()).then(|| Big { src: c.clone(), w, h, mode, at: (0, 0), of: (w, h, of) });
+                    self.cur = Some(Img { w, h, px: vec![], fmt: of, ..Img::new(1, 1, wf) });
                     self.cur.as_mut().ok_or(Fail::Empty)?.dpi = c.dpi;
                     return Ok(true);
                 }
