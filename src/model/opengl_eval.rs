@@ -21,6 +21,10 @@ fn initial(target: i32) -> Option<(&'static [f32], bool)> {
     Some((point, surface))
 }
 
+pub(crate) fn control_index(i: usize, j: usize, u_stride: usize, v_stride: usize, component: usize) -> Option<usize> {
+    i.checked_mul(u_stride)?.checked_add(j.checked_mul(v_stride)?)?.checked_add(component)
+}
+
 struct Axis {
     domain: [f32; 2],
     stride: usize,
@@ -68,9 +72,12 @@ impl Ctx {
             bytes.as_chunks::<8>().0.iter().map(|w| tri::narrow(f64::from_le_bytes(*w))).collect()
         } else { bytes.as_chunks::<4>().0.iter().map(|w| f32::from_le_bytes(*w)).collect() };
         let (v_order, v_stride) = v.map_or((1, 0), |v| (v.order, v.stride));
+        let last = control_index(usize::from(u.order.saturating_sub(1)), usize::from(v_order.saturating_sub(1)),
+            u.stride, v_stride, width.saturating_sub(1));
+        if last.is_none_or(|index| index >= values.len()) { return Err(Fail::Unmodeled(GL_EVAL)); }
         for i in 0..usize::from(u.order) {
             for j in 0..usize::from(v_order) {
-                let start = i.checked_mul(u.stride).and_then(|x| x.checked_add(j.checked_mul(v_stride)?)).ok_or(Fail::Unmodeled(GL_EVAL))?;
+                let start = control_index(i, j, u.stride, v_stride, 0).ok_or(Fail::Unmodeled(GL_EVAL))?;
                 let row = values.get(start..).and_then(|v| v.get(..width)).ok_or(Fail::Unmodeled(GL_EVAL))?;
                 map.coefficients.extend_from_slice(row);
             }

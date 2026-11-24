@@ -16,6 +16,7 @@ mod d3dx9;
 mod f32;
 mod dwrite;
 mod dxgi;
+mod opengl;
 mod gdi;
 mod gdiglyph;
 mod gdiplus;
@@ -47,6 +48,7 @@ pub struct Mirror {
 pub fn mirrors() -> Vec<&'static Mirror> {
     // (one API a line)
     let all: &[&[Mirror]] = &[
+        opengl::MIRRORS,
         gdi::MIRRORS,
         gdiglyph::MIRRORS,
         gdiplus::MIRRORS,

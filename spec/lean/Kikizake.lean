@@ -63,3 +63,4 @@ import Kikizake.D3d11.Line
 import Kikizake.D3d11.Layout
 import Kikizake.D3d11.Lod
 import Kikizake.D3d11.Copy
+import Kikizake.OpenGL.Evaluator

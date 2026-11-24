@@ -274,7 +274,7 @@ mod pixelmap;
 #[path = "opengl_gaps.rs"]
 mod gaps;
 #[path = "opengl_eval.rs"]
-mod eval;
+pub(crate) mod eval;
 #[path = "opengl_list.rs"]
 pub mod list;
 #[path = "opengl_texdraw.rs"]
