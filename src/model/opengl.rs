@@ -2420,9 +2420,9 @@ impl Ctx {
     /// a textured polygon's outline cut by the view volume (MEASURED, golden opengl-32 / 64
     /// tex-open-more-outline-cut: the cut polygon's edges, the one along the cut too, as a
     /// GL_LINE_LOOP, each new corner's texture coordinates and color between its ends' in clip
-    /// space); flat-shaded, fogged, generated coordinates, offset or in GL_POINT mode not measured
+    /// space); under flat shading all corners use the original provoking color
     fn cut_textured_outline(&mut self, q: &[(Obj, [f32; 4])], clip: &[[f32; 4]], colors: &[[f32; 4]], face: u32, edges: &[bool]) -> Res<()> {
-        if self.shade == FLAT || self.cap(FOG) || [0xc60u32, 0xc61, 0xc62, 0xc63].iter().any(|g| self.cap(*g)) || (self.cap(POLYGON_OFFSET_LINE) && self.cap(DEPTH_TEST)) {
+        if self.cap(FOG) || [0xc60u32, 0xc61, 0xc62, 0xc63].iter().any(|g| self.cap(*g)) {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         let at: Vec<[f32; 12]> = q.iter().zip(clip).zip(colors).map(|((v, p), c)| {
@@ -3223,19 +3223,16 @@ impl Ctx {
                 // (textured, uncut: the edges a GL_LINE_LOOP's, the corners GL_POINTS', each
                 // with its vertex's texture coordinates)
                 if self.texturing() {
-                    if offset_line && face == POLY_POINT {
-                        return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-                    }
-                    if cut != at {
-                        return self.cut_textured_outline(q, &clip, &fogged, face, &edges);
-                    }
-                    self.verts = if self.shade == FLAT { q.iter().map(|v| (v.0, q.get(provoking).map_or(v.1, |p| p.1))).collect() } else { q.to_vec() };
-                    // (MEASURED, golden opengl-32 / 64 tex-open-more-outline-offset: offset,
-                    // each edge its fan triangle's offset as untextured ones)
                     if offset_line {
-                        self.loop_offsets = (0..q.len()).map(|k| fan.get(k.saturating_sub(1).min(fan.len().saturating_sub(1))).copied().unwrap_or(0.0)).collect();
+                        self.loop_offsets = (0..cut.len()).map(|k| fan.get(k.saturating_sub(1).min(fan.len().saturating_sub(1))).copied().unwrap_or(0.0)).collect();
                     }
-                    let drawn = self.end_with_edges(if face == POLY_POINT { POINTS } else { LINE_LOOP }, Some(&edges));
+                    let drawn = if cut != at {
+                        let colors = if self.shade == FLAT { vec![c; q.len()] } else { fogged };
+                        self.cut_textured_outline(q, &clip, &colors, face, &edges)
+                    } else {
+                        self.verts = if self.shade == FLAT { q.iter().map(|v| (v.0, q.get(provoking).map_or(v.1, |p| p.1))).collect() } else { q.to_vec() };
+                        self.end_with_edges(if face == POLY_POINT { POINTS } else { LINE_LOOP }, Some(&edges))
+                    };
                     (self.line_z_offset, self.loop_offsets) = (0.0, Vec::new());
                     return drawn;
                 }
@@ -3468,7 +3465,8 @@ impl Ctx {
                         hit(clause::GL_RASTER_PERSPECTIVE);
                         continue;
                     }
-                    let w = self.window(v)?;
+                    let mut w = self.window(v)?;
+                    if let Some(offset) = self.loop_offsets.get(i) { w[2] = f64::from(tri::narrow(w[2]) + offset); }
                     self.frag_tex = Some(texdraw::Stq::at(self.tex_coords(&v)));
                     let r = self.point(w, self.fogged(c, v));
                     self.frag_tex = None;

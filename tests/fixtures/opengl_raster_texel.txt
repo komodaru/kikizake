@@ -1,0 +1,25 @@
+case raster-texel
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gltex 3553 0 4 4 4 0 0x1908 0x1401 19 64
+gl glTexParameteri 3553 10241 9728
+gl glTexParameteri 3553 10240 9728
+gl glTexEnvi 8960 8704 7681
+gl glEnable 3553
+gl glClear 0x4000
+gl glTexCoord2f {s} {t}
+gl glRasterPos2i 2 2
+gl glTexCoord2f 0 0
+gldraw 1 1 0x1908 0x1401 3 4
+glread 2 2 1 1 0x1908 0x1401 4
+gl glClear 0x4000
+gl glCopyPixels 0 0 1 1 0x1800
+glread 2 2 1 1 0x1908 0x1401 4
+gl glClear 0x4000
+glp glBitmap iiffff 1 1 0 0 0 0 ub 128
+glread 2 2 1 1 0x1908 0x1401 4
+glerr
+end

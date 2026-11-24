@@ -1550,3 +1550,36 @@ proptest! {
         prop_assert_eq!(&result[1..], [read.as_str(), "glerr 0"]);
     }
 }
+
+// Windows RGBA reads from the centers of the 4x4 texture in the fixture.
+const RASTER_TEXELS: [[&str; 4]; 4] = [
+    ["525093ff", "aef7c5ff", "3f6b72ff", "ea29b9ff"],
+    ["2f9661ff", "56155aff", "f7f618ff", "3d7135ff"],
+    ["291a21ff", "8c7678ff", "829163ff", "082fc0ff"],
+    ["ef751fff", "b89cb1ff", "538de5ff", "be64e9ff"],
+];
+
+fn check_raster_texel(x: usize, y: usize, s: f32, t: f32) {
+    let input = include_str!("fixtures/opengl_raster_texel.txt").replace("{s}", &s.to_string()).replace("{t}", &t.to_string());
+    let cases = kikizake::case::parse_cases(&input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    let pixel = format!("read {}", RASTER_TEXELS[y][x]);
+    assert_eq!(&output[1..], [pixel.as_str(), pixel.as_str(), pixel.as_str(), "glerr 0"]);
+}
+
+#[test]
+fn pixel_images_use_the_latched_raster_texel() {
+    for y in 0u8..4 {
+        for x in 0u8..4 {
+            check_raster_texel(usize::from(x), usize::from(y), (f32::from(x) + 0.5) / 4.0, (f32::from(y) + 0.5) / 4.0);
+        }
+    }
+}
+
+proptest! {
+    #[test]
+    fn pixel_images_agree_inside_each_nearest_texel(x in 0u8..4, y in 0u8..4, ds in 1u8..64, dt in 1u8..64) {
+        let coord = |cell, offset| (f32::from(cell) + f32::from(offset) / 64.0) / 4.0;
+        check_raster_texel(usize::from(x), usize::from(y), coord(x, ds), coord(y, dt));
+    }
+}
