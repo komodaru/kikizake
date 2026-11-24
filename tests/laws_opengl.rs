@@ -2365,3 +2365,63 @@ fn zero_font_base_executes_the_first_glyph_without_defining_list_zero() {
         }
     }
 }
+
+#[test]
+fn evaluator_grids_preserve_native_domains_and_segments() {
+    let input = "case grid
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMapGrid1d 3 0.1000000000001 -4.5
+gl glMapGrid2d 2 4 4 5 2.5 -3.25
+glget d 0xdd0 2
+glget i 0xdd1 1
+glget d 0xdd2 4
+glget i 0xdd3 2
+gl glPushAttrib 0x10000
+gl glMapGrid1f 6 3 -2
+gl glMapGrid2f 7 1 2 8 3 4
+glget f 0xdd0 2
+glget i 0xdd3 2
+gl glPopAttrib
+gl glMapGrid2f 1 -1 0 0 8 9
+glerr
+gl glMapGrid1f -2 1 1
+glerr
+gl glBegin 0
+gl glMapGrid1d 0 0 1
+gl glEnd
+glerr
+glget d 0xdd0 2
+glget i 0xdd1 1
+glget d 0xdd2 4
+glget i 0xdd3 2
+end
+";
+    let cases = kikizake::case::parse_cases(input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    let u = "get dd0 = 3fb99999a0000000 c012000000000000";
+    let uv = "get dd2 = 4010000000000000 4010000000000000 4004000000000000 c00a000000000000";
+    assert_eq!(&output[1..], [u, "get dd1 = 3", uv, "get dd3 = 2 5",
+        "get dd0 = 40400000 c0000000", "get dd3 = 7 8", "glerr 501", "glerr 501", "glerr 502",
+        u, "get dd1 = 3", uv, "get dd3 = 2 5"]);
+}
+
+proptest! {
+    #[test]
+    fn invalid_evaluator_grid_keeps_both_axes(
+        u in 1..=i32::MAX, v in 1..=i32::MAX, invalid in i32::MIN..=0, first in any::<bool>(),
+    ) {
+        let (bad_u, bad_v) = if first { (invalid, 1) } else { (1, invalid) };
+        let input = format!("case grid\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMapGrid2d {u} 2 1 {v} -1 -2\ngl glMapGrid2f {bad_u} 0 1 {bad_v} 0 1\nglerr\nglget i 0xdd3 2\nglget i 0xdd2 4\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        prop_assert_eq!(&output[1..], ["glerr 501".to_string(), format!("get dd3 = {u} {v}"), "get dd2 = 2 1 -1 -2".into()]);
+    }
+}
+
+#[test]
+fn grid_segment_counts_keep_integer_precision_in_double_queries() {
+    let input = "case wide\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMapGrid2d 2147483647 0 1 16777217 2 3\nglget i 0xdd3 2\nglget d 0xdd3 2\nglerr\nend\n";
+    let cases = kikizake::case::parse_cases(input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["get dd3 = 2147483647 16777217", "get dd3 = 41dfffffffc00000 4170000010000000", "glerr 0"]);
+}

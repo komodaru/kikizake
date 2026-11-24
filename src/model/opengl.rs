@@ -440,6 +440,16 @@ fn enum_offset(value: u32, base: u32) -> Option<usize> {
     usize::try_from(value.checked_sub(base)?).ok()
 }
 
+#[derive(Clone, Copy, Debug)]
+struct GridAxis {
+    segments: i64,
+    domain: [f32; 2],
+}
+
+impl GridAxis {
+    const UNIT: Self = Self { segments: 1, domain: [0.0, 1.0] };
+}
+
 /// the state of a context (glGet's table of initial values)
 #[derive(Clone, Debug)]
 pub struct Ctx {
@@ -485,6 +495,8 @@ pub struct Ctx {
     pub color_mask: [bool; 4],
     /// the GLboolean bytes glColorMask was given (glGet gives them back as they are: GL.COLORMASK)
     pub color_mask_raw: [u32; 4],
+    grid1: GridAxis,
+    grid2: [GridAxis; 2],
     pub viewport: [i64; 4],
     pub scissor: [i64; 4],
     pub shade: u32,
@@ -865,6 +877,8 @@ impl Ctx {
             stencil_undefined: vec![false; W * H],
             color_mask: [true; 4],
             color_mask_raw: [1; 4],
+            grid1: GridAxis::UNIT,
+            grid2: [GridAxis::UNIT; 2],
             viewport: [0, 0, W as i64, H as i64],
             scissor: [0, 0, W as i64, H as i64],
             scene_ambient: [ambient, ambient, ambient, 1.0],
@@ -1153,10 +1167,10 @@ impl Ctx {
             0xd57 => i(pf.stencil as i64),
             0xd58..=0xd5b => i(pf.accum_rgba[(p - 0xd58) as usize] as i64),
             0xd70 => i(0),
-            0xdd0 => vec![F(0.0), F(1.0)],
-            0xdd1 => i(1),
-            0xdd2 => vec![F(0.0), F(1.0), F(0.0), F(1.0)],
-            0xdd3 => vec![I(1), I(1)],
+            0xdd0 => self.grid1.domain.map(F).to_vec(),
+            0xdd1 => i(self.grid1.segments),
+            0xdd2 => self.grid2.iter().flat_map(|axis| axis.domain.map(F)).collect(),
+            0xdd3 => self.grid2.map(|axis| I(axis.segments)).to_vec(),
             // (MEASURED, golden opengl-32 defaults-*: the feedback type reads 0, not GL_2D)
             0xdf1 | 0xdf2 | 0xdf4 => i(0),
             0x8038 => vec![F(self.offset.0)],
@@ -1205,7 +1219,7 @@ pub fn print_value(kind: &str, v: V) -> String {
         match v {
             I(i) => i as f32,
             F(x) | C(x) => x,
-            B(b) => b as i32 as f32,
+            B(b) => f32::from(u8::from(b)),
         }
     };
     match kind {
@@ -1219,7 +1233,13 @@ pub fn print_value(kind: &str, v: V) -> String {
             B(b) => (b as i32).to_string(),
         },
         "f" => format!("{:08x}", as_f(v).to_bits()),
-        "d" => format!("{:016x}", (as_f(v) as f64).to_bits()),
+        "d" => {
+            let value = match v {
+                I(i) => i as f64,
+                other => f64::from(as_f(other)),
+            };
+            format!("{:016x}", value.to_bits())
+        }
         _ => {
             let b = match v {
                 I(i) => i != 0,
@@ -2365,6 +2385,21 @@ impl Ctx {
                 } else {
                     self.color_material = (face, mode);
                     self.track_current_color();
+                }
+            }
+            "glMapGrid1f" | "glMapGrid1d" | "glMapGrid2f" | "glMapGrid2d" => {
+                let axis = |args: &[A]| GridAxis {
+                    segments: int(args, 0),
+                    domain: [tri::narrow(fl(args, 1)), tri::narrow(fl(args, 2))],
+                };
+                let u = axis(a);
+                let v = a.get(3..).filter(|args| !args.is_empty()).map(axis);
+                if u.segments < 1 || v.is_some_and(|v| v.segments < 1) {
+                    self.error(INVALID_VALUE);
+                } else if let Some(v) = v {
+                    self.grid2 = [u, v];
+                } else {
+                    self.grid1 = u;
                 }
             }
             "glShadeModel" => {
@@ -5170,6 +5205,7 @@ impl Ctx {
             index_shift,
             depth_transfer,
             zoom,
+            grid1, grid2,
             // LIGHTING_BIT
             shade, scene_ambient, local_viewer, two_sided, materials, color_material, lights,
             // FOG_BIT
@@ -5281,6 +5317,10 @@ impl Ctx {
             self.lights = lights;
             self.materials = materials;
             self.color_material = color_material;
+        }
+        if on(attrib::EVAL) {
+            self.grid1 = grid1;
+            self.grid2 = grid2;
         }
         if on(attrib::FOG) {
             self.fog = fog;
