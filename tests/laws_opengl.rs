@@ -2558,7 +2558,11 @@ glread 10 5 1 1 0x1908 0x1401 4
 glerr
 end
 ";
-    for commands in [input.to_owned(), input.replace("glEvalCoord2f", "glEvalCoord2d")] {
+    let vector = |ty| input.replace("gl glEvalCoord2f 0.5 0.5", &format!("glp glEvalCoord2{ty}v - {ty} 0.5 -0.5"))
+        .replace("glread 6 9", "glread 6 5");
+    let grid = input.replace("gl glBegin 0", "gl glMapGrid2f 4 0 2 4 -1 1\ngl glBegin 0")
+        .replace("gl glEvalCoord2f 0.5 0.5", "gl glEvalPoint2 1 3");
+    for commands in [input.to_owned(), input.replace("glEvalCoord2f", "glEvalCoord2d"), vector("f"), vector("d"), grid] {
         let cases = kikizake::case::parse_cases(&commands);
         let output = kikizake::model::run_case(&cases[0]).unwrap();
         assert_eq!(&output[1..], ["read ffffffff", "read 00000000", "glerr 0"]);
