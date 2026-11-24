@@ -12,7 +12,6 @@ pub fn of(name: &str) -> Option<OpenId> {
         "glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer" | "glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" => open::GL_SELECT,
         "glLightf" | "glLighti" | "glLightfv" | "glLightiv" | "glLightModelf" | "glLightModeli" | "glLightModelfv" | "glLightModeliv" | "glMaterialf" | "glMateriali" | "glMaterialfv" | "glMaterialiv" | "glColorMaterial" | "glGetLightfv" | "glGetLightiv" | "glGetMaterialfv" | "glGetMaterialiv" => open::GL_LIGHT_STATE,
         "glClipPlane" | "glGetClipPlane" => open::GL_CLIPPLANE,
-        "glBitmap" => open::GL_BITMAP,
         "glCopyPixels" => open::GL_COPYPIXELS,
         _ => return None,
     })

@@ -1370,6 +1370,13 @@ impl Gl {
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glPixelMapfv" | "glPixelMapuiv" | "glPixelMapusv")) => ctx.set_pixel_map(t)?,
             CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glGetPixelMapfv" | "glGetPixelMapuiv" | "glGetPixelMapusv")) => ctx.get_pixel_map(t, out)?,
             CtxOp::Glp if t.get(1).is_some_and(|n| n == "glPolygonStipple") => ctx.set_polygon_pattern(t)?,
+            CtxOp::Glp if t.get(1).is_some_and(|n| n == "glBitmap") => {
+                let [rs, rt, _, rq] = ctx.raster_tex;
+                ctx.frag_tex = Some(texdraw::Stq::at([rs, rt, rq]));
+                let result = ctx.bitmap(t);
+                ctx.frag_tex = None;
+                result?;
+            }
             CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPolygonStipple") => ctx.get_polygon_pattern(t, out)?,
             CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf | CtxOp::Wglx => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
@@ -4915,6 +4922,50 @@ impl Ctx {
             }
         }
         self.polygon_pattern = rows;
+        Ok(())
+    }
+
+    fn bitmap(&mut self, t: &[String]) -> Res<()> {
+        hit(clause::GL_BITMAP);
+        let [_, _, sig, w, h, xorig, yorig, xmove, ymove, ty, ..] = t else { return Err(Fail::Bad) };
+        if sig != "iiffff" { return Err(Fail::Bad); }
+        let w = i64::from(crate::case::windows_long(w).ok_or(Fail::Bad)?);
+        let h = i64::from(crate::case::windows_long(h).ok_or(Fail::Bad)?);
+        let scalar = |s: &str| s.parse::<f64>().ok().map(tri::narrow).ok_or(Fail::Bad);
+        let (xorig, yorig, dx, dy) = (scalar(xorig)?, scalar(yorig)?, scalar(xmove)?, scalar(ymove)?);
+        if self.in_begin.is_some() {
+            self.error(INVALID_OPERATION);
+            return Ok(());
+        }
+        if w < 0 || h < 0 {
+            self.error(INVALID_VALUE);
+            return Ok(());
+        }
+        let Some([rx, ry, z]) = self.raster else { return Ok(()) };
+        if w > 0 && h > 0 && ty != "null" {
+            let mut src = array::glp_bytes(t)?.unwrap_or_else(|| vec![0xcc; 4096]);
+            src.resize(4096, 0);
+            let ox = tri::trunc((self.raster_get[0] - xorig).floor());
+            let oy = tri::trunc((self.raster_get[1] - yorig).floor());
+            let color = if self.cap(FOG) { self.fog_at(self.raster_color, self.raster_eye) } else { self.raster_color };
+            for y in 0..HEIGHT {
+                let j = y.saturating_sub(oy);
+                if !(0..h).contains(&j) { continue; }
+                for x in 0..WIDTH {
+                    let i = x.saturating_sub(ox);
+                    if !(0..w).contains(&i) { continue; }
+                    let (offset, mask) = bitmap_bit(&self.unpack, w, usize::try_from(i).ok().ok_or(Fail::Bad)?,
+                        usize::try_from(j).ok().ok_or(Fail::Bad)?);
+                    if src.get(offset).ok_or(Fail::Bad)? & mask != 0 {
+                        self.fragment(Frag { x, y, c: color, z, fixed: ToFixed::Trunc, zfixed: None })?;
+                    }
+                }
+            }
+        }
+        let [x, y, _, _] = &mut self.raster_get;
+        *x = ((*x + tri::RASTER_BIAS) + dx) - tri::RASTER_BIAS;
+        *y = ((*y + tri::RASTER_BIAS) + dy) - tri::RASTER_BIAS;
+        self.raster = Some([rx + f64::from(dx), ry + f64::from(dy), z]);
         Ok(())
     }
 
