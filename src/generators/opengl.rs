@@ -651,6 +651,9 @@ pub fn opengl() -> String {
     raster_rest(&mut s);
     attrib_more(&mut last);
     lists_more(&mut last);
+    for (name, depth) in [("near", "-1"), ("interior", "-0.5"), ("far", "1")] {
+        writeln!(last, "case selection-depth-{name}\n{}glp glSelectBuffer i 64 obuf\nglr glRenderMode i i 0x1c02\ngl glInitNames\ngl glPushName 7\ngl glBegin 0\ngl glVertex3f 0 0 {depth}\ngl glVertex3f 0 0 0.5\ngl glEnd\ngl glLoadName 8\ngl glBegin 0\ngl glVertex3f 0 0 0\ngl glEnd\nglr glRenderMode i i 0x1c00\nglobuf u 8\nend", ctx(32));
+    }
     for (mode, name) in [(4, "triangles"), (5, "triangle-strip"), (6, "triangle-fan"), (7, "quads"), (8, "quad-strip"), (9, "polygon")] {
         writeln!(last, "case feedback-topology-{name}\n{}glp glFeedbackBuffer ii 64 1536 obuf\nglr glRenderMode i i 0x1c01\ngl glBegin {mode}", ctx(32));
         for (x, y) in [("-0.5", "-0.5"), ("0.5", "-0.5"), ("0.5", "0.5"), ("-0.5", "0.5")] {
