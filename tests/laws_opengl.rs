@@ -2734,6 +2734,13 @@ glq glGetMapiv ii 0xd93 0xa00 i 10
 glerr
 end
 ", "q 0 0 8388607 8388608 8388610 8388612 -8388610 -8388612 16777216 -16777216"),
+        ("case exceptional
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glMap1f iffii 0xd93 0 1 1 8 ui 0 0x80000000 1 0x80000001 0x7f800000 0xff800000 0x7fc12345 0xffc12345
+glq glGetMapiv ii 0xd93 0xa00 i 8
+glerr
+end
+", "q 0 0 0 0 -2147483648 -2147483648 -2147483648 -2147483648"),
     ] {
         let cases = kikizake::case::parse_cases(input);
         let output = kikizake::model::run_case(&cases[0]).unwrap();

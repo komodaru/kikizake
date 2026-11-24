@@ -10,6 +10,11 @@ pub(super) struct Map {
     coefficients: Vec<f32>,
 }
 
+/// glGetMapiv applies the signed bias in binary32 before converting to a Windows LONG.
+pub(crate) fn query_integer(v: f32) -> i32 {
+    i32::try_from(float_to_int(v + 0.5f32.copysign(v))).unwrap_or(i32::MIN)
+}
+
 fn initial(target: i32) -> Option<(&'static [f32], bool)> {
     let surface = (0xdb0..=0xdb8).contains(&target);
     let index = target.checked_sub(if surface { 0xdb0 } else { 0xd90 })?;
@@ -107,7 +112,7 @@ impl Ctx {
                 for (w, &v) in dst.chunks_exact_mut(8).zip(values) { w.copy_from_slice(&f64::from(v).to_le_bytes()); }
             } else {
                 for (w, &v) in dst.chunks_exact_mut(4).zip(values) {
-                    let bytes = if name == "glGetMapiv" { i32::try_from(float_to_int(v + 0.5f32.copysign(v))).unwrap_or(i32::MIN).to_le_bytes() } else { v.to_le_bytes() };
+                    let bytes = if name == "glGetMapiv" { query_integer(v).to_le_bytes() } else { v.to_le_bytes() };
                     w.copy_from_slice(&bytes);
                 }
             }

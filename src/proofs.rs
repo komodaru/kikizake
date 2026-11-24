@@ -434,3 +434,30 @@ fn evaluator_grid_updates_both_axes_atomically() {
         assert_eq!(actual.domain[1].to_bits(), wanted.domain[1].to_bits());
     }
 }
+
+#[kani::proof]
+fn evaluator_integer_query_matches_binary32_fields() {
+    let bits: u32 = kani::any();
+    let magnitude = bits & 0x7fff_ffff;
+    let exponent = magnitude >> 23;
+    let significand = (magnitude & 0x007f_ffff) | 0x0080_0000;
+    let expected = if exponent >= 158 {
+        // Includes both signs of 2^31, infinities and every NaN payload.
+        i32::MIN
+    } else {
+        let rounded = match exponent {
+            // The predecessor of 0.5 plus 0.5 ties at the midpoint below 1.
+            0..=125 => u32::from(magnitude == 0x3eff_ffff),
+            126..=149 => {
+                let shift = 150 - exponent;
+                (significand + (1 << (shift - 1))) >> shift
+            }
+            // A spacing of one makes the half-unit bias a tie to even.
+            150 => significand + (significand & 1),
+            _ => significand << (exponent - 150),
+        };
+        let signed = i32::try_from(rounded).unwrap();
+        if bits >> 31 == 0 { signed } else { -signed }
+    };
+    assert_eq!(crate::model::opengl::eval::query_integer(f32::from_bits(bits)), expected);
+}

@@ -900,3 +900,4 @@ tests/laws_opengl.rs::invalid_evaluator_grid_keeps_both_axes pbt GL.EVAL GL.EVAL
 spec/lean/Kikizake/OpenGL/Evaluator.lean::gridFits lean GL.EVAL
 tests/laws_opengl.rs::evaluator_map_orders_round_trip_for_every_target exhaustive GL.EVAL
 src/proofs.rs::evaluator_grid_updates_both_axes_atomically kani GL.EVAL.GRID
+src/proofs.rs::evaluator_integer_query_matches_binary32_fields kani GL.EVAL
