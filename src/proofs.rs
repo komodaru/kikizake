@@ -498,3 +498,34 @@ fn feedback_keeps_the_maximal_prefix_within_capacity() {
         assert!(count == requested || used + count as u128 == limit);
     }
 }
+
+#[kani::proof]
+fn selection_depths_preserve_extrema_and_first_hit() {
+    use crate::model::opengl::{feedback_prefix, SelectionDepth};
+
+    let (first, min, max, depth, previous): (u32, u32, u32, u32, u32) = kani::any();
+    kani::assume(min <= first && first <= max);
+    kani::assume(min <= previous && previous <= max);
+    let mut hit = SelectionDepth { first, min, max };
+    hit.include(depth);
+    assert_eq!(hit.first, first);
+    assert!(hit.min <= depth && depth <= hit.max);
+    assert!(hit.min <= previous && previous <= hit.max);
+    assert!(hit.min == min || hit.min == depth);
+    assert!(hit.max == max || hit.max == depth);
+
+    let (used, names, capacity): (usize, usize, i32) = kani::any();
+    kani::assume(names <= 128);
+    let len = names + 3;
+    let room = feedback_prefix(0, used, len, capacity);
+    let encoded = hit.record_depths(room == len);
+    if used <= usize::try_from(capacity).unwrap_or(0).saturating_sub(len)
+        && usize::try_from(capacity).unwrap_or(0) >= len
+    {
+        assert_eq!(room, len);
+        assert_eq!(encoded, [hit.min, hit.max]);
+    } else {
+        assert!(room < len);
+        assert_eq!(encoded, [first; 2]);
+    }
+}

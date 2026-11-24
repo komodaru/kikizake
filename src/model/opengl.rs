@@ -514,6 +514,56 @@ impl NameStack {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct SelectionDepth {
+    pub(crate) first: u32,
+    pub(crate) min: u32,
+    pub(crate) max: u32,
+}
+
+impl SelectionDepth {
+    fn new(depth: u32) -> Self {
+        Self { first: depth, min: depth, max: depth }
+    }
+
+    pub(crate) fn include(&mut self, depth: u32) {
+        self.min = self.min.min(depth);
+        self.max = self.max.max(depth);
+    }
+
+    pub(crate) fn record_depths(self, complete: bool) -> [u32; 2] {
+        // A hit truncated by capacity retains its first depth in both fields.
+        if complete { [self.min, self.max] } else { [self.first; 2] }
+    }
+}
+
+#[derive(Default, Clone, Debug)]
+struct Selection {
+    depths: Option<SelectionDepth>,
+    words: Vec<u32>,
+    hits: i32,
+    overflow: bool,
+}
+
+impl Selection {
+    fn include(&mut self, depth: u32) {
+        self.depths.get_or_insert_with(|| SelectionDepth::new(depth)).include(depth);
+    }
+
+    fn finish_hit(&mut self, names: &NameStack, capacity: i32) -> Res<()> {
+        let Some(depths) = self.depths.take() else { return Ok(()); };
+        let names = names.names.get(..names.depth).ok_or(Fail::Bad)?;
+        let len = names.len() + 3;
+        let room = feedback_prefix(0, self.words.len(), len, capacity);
+        let [min, max] = depths.record_depths(room == len);
+        let count = u32::try_from(names.len()).ok().ok_or(Fail::Bad)?;
+        self.words.extend([count, min, max].into_iter().chain(names.iter().copied()).take(room));
+        self.hits = self.hits.saturating_add(1);
+        self.overflow |= room < len;
+        Ok(())
+    }
+}
+
 /// the state of a context (glGet's table of initial values)
 #[derive(Clone, Debug)]
 pub struct Ctx {
@@ -565,6 +615,7 @@ pub struct Ctx {
     feedback_buffer: (i32, i32, array::Ptr),
     selection_buffer: (i32, array::Ptr),
     selecting: bool,
+    selection: Selection,
     feedback: Option<Feedback>,
     selection_names: NameStack,
     pub viewport: [i64; 4],
@@ -953,6 +1004,7 @@ impl Ctx {
             feedback_buffer: (0, 0, array::Ptr::Null),
             selection_buffer: (0, array::Ptr::Null),
             selecting: false,
+            selection: Selection::default(),
             feedback: None,
             selection_names: NameStack::default(),
             viewport: [0, 0, W as i64, H as i64],
@@ -1860,6 +1912,10 @@ impl Gl {
             let name = t.get(1).map(String::as_str);
             let supported = matches!(cmd, CtxOp::Glget | CtxOp::Glerr | CtxOp::Glisen | CtxOp::Glstr)
                 || (matches!(cmd, CtxOp::Gl) && matches!(name, Some("glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" | "glFlush" | "glFinish")))
+                || (ctx.selecting && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n,
+                    "glBegin" | "glRectf" | "glRecti" | "glEdgeFlag" | "glCullFace" | "glFrontFace" | "glEnable" | "glDisable"
+                    | "glRasterPos2i" | "glRasterPos2f" | "glRasterPos3f" | "glRasterPos4f"
+                    | "glDepthRange" | "glMatrixMode" | "glLoadIdentity" | "glOrtho") || BEGIN_OK.contains(&n)))
                 || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n, "glBegin" | "glEdgeFlag" | "glPolygonMode" | "glShadeModel" | "glCopyPixels" | "glRasterPos2f" | "glRasterPos2i" | "glRasterPos4f") || BEGIN_OK.contains(&n)))
                 || (ctx.feedback.is_some() && (matches!(cmd, CtxOp::Gldraw) || (matches!(cmd, CtxOp::Glp) && name == Some("glBitmap"))))
                 || (matches!(cmd, CtxOp::Glr | CtxOp::Glp) && matches!(name, Some("glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer")));
@@ -2072,6 +2128,22 @@ impl Gl {
                 else {
                     if let Some(previous) = ctx.feedback.take() {
                         count = if previous.overflow { -1 } else { i32::try_from(previous.written).ok().ok_or(Fail::Bad)? };
+                    }
+                    if ctx.selecting {
+                        ctx.selection.finish_hit(&ctx.selection_names, ctx.selection_buffer.0)?;
+                        if !ctx.selection.words.is_empty() {
+                            match ctx.selection_buffer.1 {
+                                array::Ptr::Other => {
+                                    let mut output = self.output.borrow_mut();
+                                    output.resize(1024, 0);
+                                    output.get_mut(..ctx.selection.words.len()).ok_or(Fail::Bad)?.copy_from_slice(&ctx.selection.words);
+                                }
+                                array::Ptr::Slot(slot, _) => ctx.arrays.write_words(slot, 0, &ctx.selection.words)?,
+                                array::Ptr::Null => return Err(Fail::Bad),
+                            }
+                        }
+                        count = if ctx.selection.overflow { -1 } else { ctx.selection.hits };
+                        ctx.selection = Selection::default();
                     }
                     ctx.selecting = mode == 0x1c02;
                     if ctx.selecting { ctx.selection_names.depth = 0; }
@@ -2588,15 +2660,19 @@ impl Ctx {
                     buffer.emit(&[1792.0, tri::narrow(fl(a, 0))], self.feedback_buffer.0);
                 }
             }
-            "glInitNames" if self.selecting => self.selection_names.depth = 0,
-            "glPushName" if self.selecting => {
-                if let Err(error) = self.selection_names.push(u(a, 0)) { self.error(error); }
-            }
-            "glPopName" if self.selecting => {
-                if let Err(error) = self.selection_names.pop() { self.error(error); }
-            }
-            "glLoadName" if self.selecting => {
-                if let Err(error) = self.selection_names.load(u(a, 0)) { self.error(error); }
+            "glInitNames" | "glLoadName" | "glPushName" | "glPopName" if self.selecting => {
+                let previous = self.selection.depths.is_some().then(|| self.selection_names.clone());
+                let result = match name {
+                    "glPushName" => self.selection_names.push(u(a, 0)),
+                    "glPopName" => self.selection_names.pop(),
+                    "glLoadName" => self.selection_names.load(u(a, 0)),
+                    _ => { self.selection_names.depth = 0; Ok(()) }
+                };
+                if let Err(error) = result {
+                    self.error(error);
+                } else if let Some(names) = previous {
+                    self.selection.finish_hit(&names, self.selection_buffer.0)?;
+                }
             }
             "glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" => {}
             "glEvalMesh1" => {
@@ -2745,12 +2821,16 @@ impl Ctx {
                     }
                 }
             }
-            "glRasterPos2i" | "glRasterPos2f" | "glRasterPos4f" => {
+            "glRasterPos2i" | "glRasterPos2f" | "glRasterPos3f" | "glRasterPos4f" => {
                 // (MEASURED, golden opengl-32 other-calls-0: the position through the matrices
                 // and the viewport; one outside the view volume is invalid and images at it draw
                 // nothing: GL.RASTER.POS; z and w of the other forms, gap-forms-0)
                 hit(clause::GL_RASTER_POS);
-                let (z, w) = if name == "glRasterPos4f" { (fl(a, 2), fl(a, 3)) } else { (0.0, 1.0) };
+                let (z, w) = match name {
+                    "glRasterPos4f" => (fl(a, 2), fl(a, 3)),
+                    "glRasterPos3f" => (fl(a, 2), 1.0),
+                    _ => (0.0, 1.0),
+                };
                 let v = [fl(a, 0), fl(a, 1), z];
                 let e = xform(self.top(0), [v[0], v[1], v[2], w]);
                 // (under a projection: inside the view volume of its w, then times 1 / w and
@@ -2766,6 +2846,7 @@ impl Ctx {
                 let clip = c;
                 let c = c.map(|v| v * (1.0 / c[3]));
                 if inside {
+                    if self.selecting { self.selection_vertex(clip); }
                     let tri::Raster([rx, ry]) = tri::Raster::of(clip, self.viewport, HEIGHT);
                     let h = tri::RASTER_BIAS + tri::float(HEIGHT);
                     self.raster_get = [rx - tri::RASTER_BIAS, (h - ry) - 1.0 / 256.0, self.window_z(c[2]), clip[3]];
@@ -2876,7 +2957,7 @@ impl Ctx {
                     return Ok(());
                 }
                 hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
-                if self.in_begin != Some(POINTS) || self.feedback.is_some() {
+                if self.in_begin != Some(POINTS) || self.feedback.is_some() || self.selecting {
                     // (MEASURED, golden opengl-32 persp-more-3..5: the clip coordinates of
                     // (x, y, z, w), cut and divided as any others)
                     self.submit_vertex(Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_on(), back_color: None, fog_factor: None }, [fl(a, 0), fl(a, 1), fl(a, 2), w]);
@@ -3998,6 +4079,19 @@ impl Ctx {
             } else { q }
         } else { q };
 
+        if self.selecting {
+            let clip: Vec<_> = q.iter().map(|v| self.clip_coords(v.0)).collect();
+            let (cut, _) = self.clip_polygon(q, &clip);
+            if cut.len() < 3 { return Ok(()); }
+            if self.cap(CULL_FACE) {
+                let window: Vec<_> = cut.iter().map(|&[x, y, _, w]| [f64::from(x / w), f64::from(y / w)]).collect();
+                let front = (tri::signed_area(&window) > 0.0) == (self.front_face == CCW);
+                if self.cull_mode != (if front { BACK } else { FRONT }) { return Ok(()); }
+            }
+            for vertex in cut { self.selection_vertex(vertex); }
+            return Ok(());
+        }
+
         if self.feedback.is_some() {
             let flat = q.get(provoking).ok_or(Fail::Bad)?.1;
             let attrs: Vec<_> = q.iter().map(|&(obj, color)| {
@@ -4338,6 +4432,14 @@ impl Ctx {
         self.end_with_edges(mode, None)
     }
 
+    fn selection_vertex(&mut self, [_, _, z, w]: [f32; 4]) {
+        // The Windows software renderer scales normalized selection depths by this factor.
+        let depth = self.window_z(z * (1.0 / w));
+        let scale = f32::from_bits(0x4f7f_fff7); // 4,294,964,992
+        let word = u32::try_from(tri::trunc(depth.clamp(0.0, 1.0) * scale)).unwrap_or(0);
+        self.selection.include(word);
+    }
+
     fn feedback_vertex(&self, record: &mut Vec<f32>, clip: [f32; 4], color: [f32; 4], tex: [f32; 4]) {
         let inv = 1.0 / clip[3];
         let [vx, vy, vw, vh] = self.viewport.map(tri::float);
@@ -4388,8 +4490,12 @@ impl Ctx {
                     // (a point under a projection outside the view volume: not drawn, as one at
                     // w = 1 outside the near or far plane)
                     let p = self.clip_coords(v);
-                    if (p[3] != 1.0 || self.feedback.is_some()) && !p[..3].iter().all(|q| (-p[3]..=p[3]).contains(q)) {
+                    if (p[3] != 1.0 || self.feedback.is_some() || self.selecting) && !p[..3].iter().all(|q| (-p[3]..=p[3]).contains(q)) {
                         hit(clause::GL_RASTER_PERSPECTIVE);
+                        continue;
+                    }
+                    if self.selecting {
+                        self.selection_vertex(p);
                         continue;
                     }
                     let mut w = self.window(v)?;
@@ -4409,6 +4515,10 @@ impl Ctx {
             }
             QUADS => {
                 for q in verts.chunks(4).filter(|q| q.len() == 4) {
+                    if self.selecting {
+                        self.polygon(q, 3)?;
+                        continue;
+                    }
                     if self.feedback.is_some() {
                         if self.poly_mode != [POLY_FILL; 2] { self.polygon(q, 3)?; continue; }
                         let &[a, b, c, d] = q else { return Err(Fail::Bad); };
@@ -4586,6 +4696,13 @@ impl Ctx {
                     let Some(ends) = self.clip_user_line([verts[i], verts[j]]) else { continue };
                     let [a, b] = &ends;
                     if self.culled_z(&[a.0, b.0]) {
+                        continue;
+                    }
+                    if self.selecting {
+                        if let Some((pa, pb)) = tri::clip_segment(self.clip_coords(a.0), self.clip_coords(b.0)) {
+                            self.selection_vertex(pa);
+                            self.selection_vertex(pb);
+                        }
                         continue;
                     }
                     if self.feedback.is_some() {
@@ -5543,7 +5660,7 @@ impl Ctx {
             index_shift,
             depth_transfer,
             zoom,
-            evaluator_maps: _, grid1, grid2, feedback_buffer: _, selection_buffer: _, selecting: _, feedback: _, selection_names: _,
+            evaluator_maps: _, grid1, grid2, feedback_buffer: _, selection_buffer: _, selecting: _, selection: _, feedback: _, selection_names: _,
             // LIGHTING_BIT
             shade, scene_ambient, local_viewer, two_sided, materials, color_material, lights,
             // FOG_BIT

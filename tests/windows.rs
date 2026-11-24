@@ -67,6 +67,10 @@ fn models_match_windows() {
                 let modeled = case::parse_output(&want);
                 for name in [
                     "gap-light-0", "gap-eval-0",
+                    "gap-select-0", "gap-select-1", "gap-select-2",
+                    "gap-select-3", "gap-select-4", "gap-select-5",
+                    "selection-depth-near", "selection-depth-interior", "selection-depth-far",
+                    "selection-depth-partial-header", "selection-depth-partial-second", "selection-depth-exact",
                     "feedback-topology-triangles", "feedback-topology-triangle-strip",
                     "feedback-topology-triangle-fan", "feedback-topology-quads",
                     "feedback-topology-quad-strip", "feedback-topology-polygon",

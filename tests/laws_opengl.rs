@@ -3124,3 +3124,46 @@ end
         assert_eq!(&output[1..], ["ret 0".into(), format!("ret {count}"), format!("obuf {words}")]);
     }
 }
+
+proptest! {
+    #[test]
+    fn selection_writes_only_the_prefix_that_fits(
+        capacity in 0usize..=10, first_name in any::<u32>(), next_name in any::<u32>(), descending in any::<bool>(),
+    ) {
+        let (first_z, second_z) = if descending { (0.5, -0.5) } else { (-0.5, 0.5) };
+        let input = format!("case hits
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glSelectBuffer i {capacity} obuf
+glr glRenderMode i i 0x1c02
+gl glInitNames
+gl glPushName {first_name}
+gl glBegin 0
+gl glVertex3f 0 0 {first_z}
+gl glVertex3f 0 0 {second_z}
+gl glEnd
+gl glLoadName {next_name}
+gl glBegin 0
+gl glVertex3f 0 0 0
+gl glEnd
+glr glRenderMode i i 0x1c00
+globuf u 10
+end
+");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        let (near, far) = (1_073_741_248u32, 3_221_223_680u32);
+        let center = 2_147_482_496u32;
+        let first_depth = if descending { far } else { near };
+        let depths = if capacity >= 4 { [near, far] } else { [first_depth; 2] };
+        let [lo, hi] = depths;
+        let words = [1, lo, hi, first_name, 1, center, center, next_name];
+        let mut expected = String::from("obuf");
+        for i in 0..10 {
+            let word = words.get(i).filter(|_| i < capacity).copied().unwrap_or(0xcccc_cccc);
+            use std::fmt::Write;
+            write!(&mut expected, " {word}").unwrap();
+        }
+        let count = if capacity >= words.len() { "ret 2" } else { "ret -1" };
+        prop_assert_eq!(&output[1..], ["ret 0".into(), count.into(), expected]);
+    }
+}

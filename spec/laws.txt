@@ -903,3 +903,5 @@ src/proofs.rs::evaluator_grid_updates_both_axes_atomically kani GL.EVAL.GRID
 src/proofs.rs::evaluator_integer_query_matches_binary32_fields kani GL.EVAL
 src/proofs.rs::selection_stack_preserves_every_unwritten_name kani GL.SELECT
 src/proofs.rs::feedback_keeps_the_maximal_prefix_within_capacity kani GL.SELECT
+src/proofs.rs::selection_depths_preserve_extrema_and_first_hit kani GL.SELECT
+tests/laws_opengl.rs::selection_writes_only_the_prefix_that_fits pbt GL.SELECT
