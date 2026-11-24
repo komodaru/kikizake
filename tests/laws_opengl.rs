@@ -3028,3 +3028,39 @@ end
         assert_eq!(&output[1..], ["ret 0".into(), format!("ret {count}"), format!("obuf {words}"), "glerr 0".into()]);
     }
 }
+
+#[test]
+fn line_feedback_clips_segments_and_marks_resets() {
+    let input = "case line
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glFeedbackBuffer ii 64 1536 obuf
+glr glRenderMode i i 0x1c01
+gl glBegin MODE
+gl glVertex2f -2 0
+gl glVertex2f 0 0
+gl glVertex2f 0 0.5
+gl glVertex2f 0.5 0.5
+gl glEnd
+glr glRenderMode i i 0x1c00
+globuf f COUNT
+end
+";
+    let flat = input.replace("64 1536", "64 1538").replace("COUNT", "15")
+        .replace("gl glBegin MODE", "gl glShadeModel 0x1d00\ngl glBegin 1")
+        .replace("gl glVertex2f -2 0", "gl glColor4f 1 0 0 1\ngl glVertex2f -2 0")
+        .replace("gl glVertex2f 0 0\n", "gl glColor4f 0 1 0 1\ngl glVertex2f 0 0\n")
+        .replace("gl glVertex2f 0 0.5\ngl glVertex2f 0.5 0.5\n", "");
+    let cases = kikizake::case::parse_cases(&flat);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(output[3], "obuf 1799 0.00390625 8 0.5 0 1 0 1 8 8 0.5 0 1 0 1");
+    for (mode, count, words) in [
+        (1, 10, "1799 0.00390625 8 8 8 1799 8 12 12 12"),
+        (3, 15, "1799 0.00390625 8 8 8 1794 8 8 8 12 1794 8 12 12 12"),
+        (2, 20, "1799 0.00390625 8 8 8 1794 8 8 8 12 1794 8 12 12 12 1794 12 12 0.00390625 9.59765625"),
+    ] {
+        let program = input.replace("MODE", &mode.to_string()).replace("COUNT", &count.to_string());
+        let cases = kikizake::case::parse_cases(&program);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], ["ret 0".into(), format!("ret {count}"), format!("obuf {words}")]);
+    }
+}

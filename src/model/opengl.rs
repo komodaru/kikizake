@@ -1860,7 +1860,7 @@ impl Gl {
             let name = t.get(1).map(String::as_str);
             let supported = matches!(cmd, CtxOp::Glget | CtxOp::Glerr | CtxOp::Glisen | CtxOp::Glstr)
                 || (matches!(cmd, CtxOp::Gl) && matches!(name, Some("glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" | "glFlush" | "glFinish")))
-                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| n == "glBegin" || BEGIN_OK.contains(&n)))
+                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n, "glBegin" | "glShadeModel") || BEGIN_OK.contains(&n)))
                 || (matches!(cmd, CtxOp::Glr | CtxOp::Glp) && matches!(name, Some("glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer")));
             if !supported { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
         }
@@ -4297,8 +4297,24 @@ impl Ctx {
         self.end_with_edges(mode, None)
     }
 
+    fn feedback_vertex(&self, record: &mut Vec<f32>, clip: [f32; 4], color: [f32; 4], tex: [f32; 4]) {
+        let ty = self.feedback_buffer.1;
+        let inv = 1.0 / clip[3];
+        let [vx, vy, vw, vh] = self.viewport.map(tri::float);
+        let window = |q: f32, origin, size| f64::from((q * inv + 1.0) * size * 0.5 + origin);
+        record.push(tri::float(self.snap_window(window(clip[0], vx, vw), Axis::X)) / 256.0);
+        record.push(tri::float(self.snap_window(window(clip[1], vy, vh), Axis::Y)) / 256.0);
+        if ty >= 0x601 { record.push(self.window_z(clip[2] * inv)); }
+        if ty == 0x604 { record.push(clip[3]); }
+        if ty >= 0x602 {
+            if self.pf.ty == 0 { record.extend(color.map(|v| (v.clamp(0.0, 1.0) * 255.0) * (1.0 / 255.0))); }
+            else { record.push(color[0]); }
+        }
+        if ty >= 0x603 { record.extend(tex); }
+    }
+
     fn end_with_edges(&mut self, mode: u32, edges: Option<&[bool]>) -> Res<()> {
-        if self.feedback.is_some() && mode != POINTS { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
+        if self.feedback.is_some() && !matches!(mode, POINTS | LINES | LINE_STRIP | LINE_LOOP) { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
         let visible = |i| edges.and_then(|e| e.get(i)).copied().unwrap_or(true);
         let texturing = self.texturing();
         self.line_texture = None;
@@ -4326,18 +4342,8 @@ impl Ctx {
                     }
                     let mut w = self.window(v)?;
                     if self.feedback.is_some() {
-                        let ty = self.feedback_buffer.1;
-                        let x = tri::float(self.snap_window(w[0], Axis::X)) / 256.0;
-                        let y = tri::float(self.snap_window(w[1], Axis::Y)) / 256.0;
-                        let z = tri::narrow(w[2]);
-                        let mut record = vec![1793.0, x, y]; // GL_POINT_TOKEN
-                        if ty >= 0x601 { record.push(z); }
-                        if ty == 0x604 { record.push(p[3]); }
-                        if ty >= 0x602 {
-                            if self.pf.ty == 0 { record.extend(c.map(|v| (v.clamp(0.0, 1.0) * 255.0) * (1.0 / 255.0))); }
-                            else { record.push(c[0]); }
-                        }
-                        if ty >= 0x603 { record.extend(self.tex_coords4(&v)); }
+                        let mut record = vec![1793.0]; // GL_POINT_TOKEN
+                        self.feedback_vertex(&mut record, p, c, self.tex_coords4(&v));
                         self.feedback.as_mut().ok_or(Fail::Bad)?.emit(&record, self.feedback_buffer.0);
                         continue;
                     }
@@ -4497,6 +4503,7 @@ impl Ctx {
                 // (the stipple counter from 0 at glBegin, and at each segment of GL_LINES; a strip's
                 // and a loop's run on: GL 1.1 3.4.2)
                 self.stipple = (0, None);
+                let mut first_feedback_line = true;
                 for (i, j) in pairs {
                     if !visible(i) { continue; }
                     if mode == LINES {
@@ -4509,6 +4516,21 @@ impl Ctx {
                     let Some(ends) = self.clip_user_line([verts[i], verts[j]]) else { continue };
                     let [a, b] = &ends;
                     if self.culled_z(&[a.0, b.0]) {
+                        continue;
+                    }
+                    if self.feedback.is_some() {
+                        let ca = self.clip_coords(a.0);
+                        let cb = self.clip_coords(b.0);
+                        let colors = if self.shade == FLAT { [verts[j].1; 2] } else { [a.1, b.1] };
+                        let Some(((pa, pb), [fa, fb])) = tri::clip_segment_carrying(ca, cb, colors) else { continue; };
+                        let coords = [self.tex_coords4(&a.0), self.tex_coords4(&b.0)];
+                        let (_, [ta, tb]) = tri::clip_segment_carrying(ca, cb, coords).ok_or(Fail::Bad)?;
+                        let reset = mode == LINES || first_feedback_line;
+                        let mut record = vec![if reset { 1799.0 } else { 1794.0 }];
+                        first_feedback_line = false;
+                        self.feedback_vertex(&mut record, pa, fa, ta);
+                        self.feedback_vertex(&mut record, pb, fb, tb);
+                        self.feedback.as_mut().ok_or(Fail::Bad)?.emit(&record, self.feedback_buffer.0);
                         continue;
                     }
                     // (textured: the coordinates along the line, as the aliased one's)
