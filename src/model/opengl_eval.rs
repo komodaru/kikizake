@@ -108,3 +108,55 @@ impl Ctx {
         Ok(())
     }
 }
+
+/// Evaluate a Bezier curve by interpolating adjacent control points down to one.
+fn curve_value(points: &[f32], width: usize, t: f32) -> Res<[f32; 4]> {
+    let mut work: Vec<[f32; 4]> = points.chunks_exact(width).map(|components| {
+        let mut value = [0.0, 0.0, 0.0, 1.0];
+        for (dst, &src) in value.iter_mut().zip(components) { *dst = src; }
+        value
+    }).collect();
+    while work.len() > 1 {
+        let Some(mut left) = work.first().copied() else { return Err(Fail::Bad) };
+        for i in 1..work.len() {
+            let right = *work.get(i).ok_or(Fail::Bad)?;
+            let dst = work.get_mut(i.saturating_sub(1)).ok_or(Fail::Bad)?;
+            *dst = tri::zip4(left, right, |a, b| (1.0 - t) * a + t * b);
+            left = right;
+        }
+        work.pop();
+    }
+    work.first().copied().ok_or(Fail::Bad)
+}
+
+impl Ctx {
+    fn curve_attribute(&self, target: i32, u: f32) -> Res<Option<[f32; 4]>> {
+        if !self.cap(target.cast_unsigned()) { return Ok(None); }
+        let (initial, _) = initial(target).ok_or(Fail::Bad)?;
+        let value = if let Some(map) = self.evaluator_maps.get(&target) {
+            let [lo, hi] = map.domain.as_slice() else { return Err(Fail::Bad) };
+            curve_value(&map.coefficients, initial.len(), (u - lo) / (hi - lo))?
+        } else { curve_value(initial, initial.len(), 0.0)? };
+        Ok(Some(value))
+    }
+
+    pub(super) fn eval_curve(&mut self, u: f32) -> Res<()> {
+        if self.in_begin.is_none() { return Ok(()); }
+        let vertex = if let Some(v) = self.curve_attribute(0xd98, u)? { v }
+            else if let Some(v) = self.curve_attribute(0xd97, u)? { v }
+            else { return Ok(()) };
+        let (color, normal, index, tex, materials) = (self.color, self.normal, self.index, self.tex.coord, self.materials);
+        let color_map = self.curve_attribute(0xd90, u)?;
+        let normal_map = self.curve_attribute(0xd92, u)?;
+        let index_map = self.curve_attribute(0xd91, u)?;
+        let texture_map = (0xd93i32..=0xd96).rev().find(|t| self.cap(t.cast_unsigned()))
+            .map(|t| self.curve_attribute(t, u)).transpose()?.flatten();
+        if let Some(v) = color_map { self.color = v; self.track_current_color(); }
+        if let Some([x, y, z, _]) = normal_map { self.normal = [x, y, z]; }
+        if let Some(v) = index_map { self.index = v[0]; }
+        if let Some(v) = texture_map { self.tex.coord = v; }
+        let result = self.call("glVertex4f", &vertex.map(|v| super::A::F(f64::from(v))));
+        (self.color, self.normal, self.index, self.tex.coord, self.materials) = (color, normal, index, tex, materials);
+        result
+    }
+}

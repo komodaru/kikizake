@@ -1421,7 +1421,7 @@ fn mat_mul(a: &[f32; 16], b: &[f32; 16]) -> [f32; 16] {
     r
 }
 
-const BEGIN_OK: &[&str] = &["glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glMateriali", "glMaterialf", "glIndexi", "glIndexf", "glTexCoord1f", "glTexCoord2f", "glTexCoord3f", "glTexCoord4f", "glEnd"];
+const BEGIN_OK: &[&str] = &["glEvalCoord1f", "glEvalCoord1d", "glEvalPoint1", "glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glMateriali", "glMaterialf", "glIndexi", "glIndexf", "glTexCoord1f", "glTexCoord2f", "glTexCoord3f", "glTexCoord4f", "glEnd"];
 
 crate::model::words! {
     /// the commands that run on the current context
@@ -1866,6 +1866,20 @@ impl Gl {
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glLightModelfv" | "glLightModeliv")) => ctx.set_scene_vector(t)?,
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glLightfv" | "glLightiv")) => ctx.set_light_vector(t)?,
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glMaterialfv" | "glMaterialiv")) => ctx.set_material_vector(t)?,
+            CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glEvalCoord1fv" | "glEvalCoord1dv")) => {
+                if t.get(2).map(String::as_str) != Some("-") { return Err(Fail::Bad); }
+                let double = t.get(1).is_some_and(|n| n == "glEvalCoord1dv");
+                let mut bytes = if t.get(3).is_some_and(|s| s == "obuf") && t.len() == 4 { vec![0xcc; 8] }
+                    else { array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_EVAL))? };
+                bytes.resize(8, 0);
+                let u = if double {
+                    tri::narrow(f64::from_le_bytes(bytes.try_into().ok().ok_or(Fail::Bad)?))
+                } else {
+                    f32::from_le_bytes(*bytes.as_chunks::<4>().0.first().ok_or(Fail::Bad)?)
+                };
+                ctx.eval_curve(u)?;
+
+            }
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glMap1f" | "glMap1d" | "glMap2f" | "glMap2d")) => ctx.define_map(t)?,
             CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glGetMapfv" | "glGetMapdv" | "glGetMapiv")) => ctx.query_map(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetMaterialfv" | "glGetMaterialiv")) => ctx.get_material(t, out)?,
@@ -2392,6 +2406,12 @@ impl Ctx {
                     self.color_material = (face, mode);
                     self.track_current_color();
                 }
+            }
+            "glEvalCoord1f" | "glEvalCoord1d" => self.eval_curve(tri::narrow(fl(a, 0)))?,
+            "glEvalPoint1" => {
+                let [lo, hi] = self.grid1.domain;
+                let step = (hi - lo) / tri::narrow(f64::from(i32::try_from(self.grid1.segments).ok().ok_or(Fail::Bad)?));
+                self.eval_curve(lo + tri::narrow(fl(a, 0)) * step)?;
             }
             "glMapGrid1f" | "glMapGrid1d" | "glMapGrid2f" | "glMapGrid2d" => {
                 let axis = |args: &[A]| GridAxis {
@@ -2975,13 +2995,15 @@ impl Ctx {
     /// how a point's fragments become channel values (MEASURED, golden opengl-32 fog-points: 192
     /// fogged channels truncated, without the 32nd polygons add: GL.FOG.TOFIXED)
     /// (MEASURED, golden opengl-32 / 64 array-more-color-*: points of glDrawArrays truncated
-    /// too, 0.5 drawn 127 where glVertex's 128: GL.ARRAY)
+    /// too; immediate vertices on the reference 8-bit RGBA channels also draw 0.5 as 127)
     fn point_fixed(&self) -> ToFixed {
         if self.from_arrays {
             hit(clause::GL_ARRAY);
             ToFixed::Trunc
         } else if self.cap(FOG) || self.cap(LIGHTING) {
             hit(clause::GL_FOG_TOFIXED);
+            ToFixed::Trunc
+        } else if self.pf.rgba[0].0 == 8 && self.pf.ty == 0 {
             ToFixed::Trunc
         } else {
             ToFixed::Nearest

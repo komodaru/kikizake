@@ -2476,3 +2476,37 @@ end
     let output = kikizake::model::run_case(&cases[0]).unwrap();
     assert_eq!(&output[1..], ["q 0.200000003 0.300000012", "q 0.100000001 1", "glerr 500", "glerr 501", "q 8 -12345", "glerr 0"]);
 }
+
+#[test]
+fn evaluator_curve_vertices_use_mapped_color_without_changing_current_color() {
+    let input = "case curve
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glDisable 0xbd0
+gl glColor4f 1 1 1 1
+glp glMap1f iffii 0xd97 -1 1 3 3 f -0.5 0 0 0 0.5 0 0.5 0 0
+glp glMap1f iffii 0xd90 -1 1 4 2 f 1 0 0 1 0 0 1 1
+gl glEnable 0xd97
+gl glEnable 0xd90
+gl glMapGrid1f 4 -1 1
+gl glBegin 0
+gl glEvalCoord1f -1
+gl glEvalPoint1 2
+gl glEvalCoord1d 1
+gl glEnd
+glget f 0xb00 4
+glread 4 7 1 1 0x1908 0x1401 4
+glread 8 9 1 1 0x1908 0x1401 4
+glread 12 7 1 1 0x1908 0x1401 4
+gl glEvalPoint1 3
+glerr
+end
+";
+    let vector = input.replace("gl glEvalCoord1f -1", "glp glEvalCoord1fv - f -1")
+        .replace("gl glEvalCoord1d 1", "glp glEvalCoord1dv - d 1");
+    for commands in [input, vector.as_str()] {
+        let cases = kikizake::case::parse_cases(commands);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], ["get b00 = 3f800000 3f800000 3f800000 3f800000",
+            "read ff0000ff", "read 7f007fff", "read 0000ffff", "glerr 0"]);
+    }
+}
