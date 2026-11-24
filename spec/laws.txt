@@ -859,3 +859,8 @@ src/proofs.rs::nt_rejected_integer_calls_leave_the_specified_outputs kani NT.I2A
 src/proofs.rs::nt_signed_hexadecimal_parse kani NT.SIGN NT.U2I.PREFIX NT.A2I.SYNTAX NT.DIGITS
 src/proofs.rs::nt_hex_digits_and_unicode_destination kani NT.I2A.DIGITS NT.I2U.ANSI
 src/proofs.rs::d2d_unit_curve_tolerance_uses_the_dominant_axis kani D2D.AREA.CURVE
+tests/laws_gdicurve.rs::empty_box_preserves_open_figure pbt GDI.PATH.EMPTYBOX
+spec/tla/GdiPathEmpty.tla::EmptyNext tla GDI.PATH.EMPTYBOX
+src/proofs.rs::mapped_ellipse_coordinate_conversions kani GDI.PATH.ELLIPSEMAP
+tests/laws_gdicurve.rs::mapped_ellipse_returns_logical_control_points pbt GDI.PATH.ELLIPSEMAP
+src/proofs.rs::polygon_notcopy_uses_packed_brush_word kani GDI.SHAPE.POLYNOTCOPY

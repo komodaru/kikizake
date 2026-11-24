@@ -298,3 +298,28 @@ fn d2d_unit_curve_tolerance_uses_the_dominant_axis() {
     assert_eq!(area_tolerance(1.0, 1.0, sx, sy), expected);
     assert_eq!(area_tolerance(1.0, 1.0, sy, sx), expected);
 }
+
+/// The two 1:16 path conversions against IEEE binary32 for every logical LONG.
+#[kani::proof]
+fn mapped_ellipse_coordinate_conversions() {
+    use crate::model::gdipath::{sixteenths_to_logical, sixteenths_to_pixel};
+    let x: i32 = kani::any();
+    let rounded = (x as f32) as i64;
+    assert_eq!(i64::from(sixteenths_to_pixel(x)), (rounded + 8).div_euclid(16));
+    assert_eq!(sixteenths_to_logical(x), rounded as i32);
+}
+
+/// Every stored brush value and horizontal DWORD position in the packed DIB formats.
+#[kani::proof]
+fn polygon_notcopy_uses_packed_brush_word() {
+    use crate::model::gdiline::polygon_notcopy_source;
+    let x: u8 = kani::any();
+    let bpp: u32 = kani::any();
+    kani::assume(matches!(bpp, 1 | 4 | 8 | 16));
+    let brush: u32 = kani::any();
+    let mask = (1_u32 << bpp) - 1;
+    kani::assume(brush <= mask);
+    let pos = (u32::from(x) * bpp) % 32;
+    let shift = if bpp < 8 { (pos / 8) * 8 + (8 - bpp - pos % 8) } else { pos };
+    assert_eq!(polygon_notcopy_source(bpp, i32::from(x), brush), (brush >> shift) & mask);
+}

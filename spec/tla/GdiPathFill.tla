@@ -107,14 +107,14 @@ Stroke == bracket # "open" /\ IF bracket = "closed"
           THEN bracket' = "none" /\ path' = <<>> /\ UNCHANGED <<clip, pos, rgn>> /\ Call(<<"> strokepath 0", "strokepath 1">>, Lines(px, StrokeLines(path), clip))
           ELSE UNCHANGED <<clip, bracket, path, pos, rgn>> /\ Call(<<"> strokepath 0", "strokepath 0">>, px)
 \* GDI.PATH.NOPATH: no closed path fails, the DC as it was; GDI.PATH.EMPTYFILL: an empty one
-\* fails and is discarded; GDI.PATH.FILL: the interior filled (and the figures outlined), made
+\* is discarded, with success for drawing and failure for a region; GDI.PATH.FILL: the interior filled (and the figures outlined), made
 \* a region or the clip region, the path discarded
 FillOp(op, line) ==
   LET fs == Figs(path, <<>>)
       inner == Interior(fs)
   IN IF bracket # "closed" THEN UNCHANGED <<clip, bracket, path, pos, rgn>> /\ Call(<<line, op \o " 0">>, px)
      ELSE /\ bracket' = "none" /\ path' = <<>> /\ UNCHANGED pos
-          /\ IF fs = <<>> THEN UNCHANGED <<clip, rgn>> /\ Call(<<line, op \o " 0">>, px)
+          /\ IF fs = <<>> THEN UNCHANGED <<clip, rgn>> /\ Call(<<line, op \o (IF op \in {"fillpath", "strokefill"} THEN " 1" ELSE " 0")>>, px)
              ELSE CASE op = "fillpath" -> UNCHANGED <<clip, rgn>> /\ Call(<<line, "fillpath 1">>, Fill(px, inner, clip))
                     [] op = "strokefill" -> UNCHANGED <<clip, rgn>> /\ Call(<<line, "strokefill 1">>, Lines(Fill(px, inner, clip), OutlineLines(path), clip))
                     [] op = "pathrgn" -> rgn' = inner /\ UNCHANGED clip /\ Call(<<line, "pathrgn 1">>, px)
