@@ -5029,43 +5029,69 @@ impl Ctx {
             return Ok(());
         }
         let Some([rx, ry, rz]) = self.raster else { return Ok(()) };
-        let mut samples = Vec::new();
-        for y in sy.max(0)..sy.saturating_add(height).min(HEIGHT) {
-            let j = usize::try_from(y.saturating_sub(sy)).map_err(|_| Fail::Bad)?;
-            for x in sx.max(0)..sx.saturating_add(width).min(WIDTH) {
-                let p = usize::try_from(y.saturating_mul(WIDTH).saturating_add(x)).map_err(|_| Fail::Bad)?;
-                let i = usize::try_from(x.saturating_sub(sx)).map_err(|_| Fail::Bad)?;
-                samples.push((i, j, *self.fb.get(p).ok_or(Fail::Bad)?,
-                    *self.depth.get(p).ok_or(Fail::Bad)?, *self.stencil.get(p).ok_or(Fail::Bad)?,
-                    *self.fb_undefined.get(p).ok_or(Fail::Bad)?, *self.depth_undefined.get(p).ok_or(Fail::Bad)?,
-                    *self.stencil_undefined.get(p).ok_or(Fail::Bad)?));
+        let start = sy.max(0);
+        let end = sy.saturating_add(height).min(HEIGHT);
+        if end <= start { return Ok(()); }
+        let mut batches = Vec::new();
+        let zy = f64::from(self.zoom.1);
+        if kind == 0x1800 && zy < 0.0 && zy > -1.0 {
+            // In reflected reductions the two source spans advance away from the
+            // fixed point. Read both spans of a step before emitting either one.
+            let pivot = tri::trunc(tri::narrow(((ry - sy as f64 - 0.5) / (1.0 - zy)).ceil()));
+            let mid = sy.saturating_add(pivot).clamp(start, end);
+            let mut down = (start..mid).rev();
+            let mut up = mid..end;
+            let j = mid.saturating_sub(sy) as f64;
+            if ((mid as f64 - ry + 0.5) / zy).floor() != j - 1.0 {
+                if let Some(y) = down.next() { batches.push(vec![y]); }
             }
+            loop {
+                let pair: Vec<_> = down.next().into_iter().chain(up.next()).collect();
+                if pair.is_empty() { break; }
+                batches.push(pair);
+            }
+        } else {
+            batches.push((start..end).collect());
         }
-        for (i, j, color, depth, stencil, color_undefined, depth_undefined, stencil_undefined) in samples {
-            let pixels = if self.zoom == (1.0, 1.0) {
-                self.image_pixels(rx, ry, i, j)
-            } else {
-                self.image_pixels(f64::from(self.raster_get[0]), ry, i, j)
-            };
-            if kind == 0x1802 {
-                let v = self.index_map(true, self.shifted(f64::from(stencil)));
-                for (x, y) in pixels { self.draw_stencil_from(x, y, v, stencil_undefined); }
-                continue;
+        for rows in batches {
+            let mut samples = Vec::new();
+            for y in rows {
+                let j = usize::try_from(y.saturating_sub(sy)).map_err(|_| Fail::Bad)?;
+                for x in sx.max(0)..sx.saturating_add(width).min(WIDTH) {
+                    let p = usize::try_from(y.saturating_mul(WIDTH).saturating_add(x)).map_err(|_| Fail::Bad)?;
+                    let i = usize::try_from(x.saturating_sub(sx)).map_err(|_| Fail::Bad)?;
+                    samples.push((i, j, *self.fb.get(p).ok_or(Fail::Bad)?,
+                        *self.depth.get(p).ok_or(Fail::Bad)?, *self.stencil.get(p).ok_or(Fail::Bad)?,
+                        *self.fb_undefined.get(p).ok_or(Fail::Bad)?, *self.depth_undefined.get(p).ok_or(Fail::Bad)?,
+                        *self.stencil_undefined.get(p).ok_or(Fail::Bad)?));
+                }
             }
-            let (c, z, zfixed) = if kind == 0x1801 {
-                let d = if self.pf.depth == 16 { depth.bits() << 16 } else { depth.bits() };
-                let normalized = tri::narrow(f64::from(d) / 4_294_967_296.0);
-                let (z, value) = depth_element(&normalized.to_le_bytes(), FLOAT, self.depth_transfer);
-                (self.raster_color, z, Some(FixedZ { bits: 32, value }))
-            } else {
-                let c = if self.pf.ty == 0 { self.transfer(self.dst_color_raw(color))?.map(tri::narrow) }
-                    else { [tri::narrow(self.index_map(false, self.shifted(f64::from(color[0])))), 0.0, 0.0, 0.0] };
-                (c, rz, None)
-            };
-            let c = if self.cap(FOG) { self.fog_at(c, self.raster_eye) } else { c };
-            for (x, y) in pixels {
-                self.fragment_from(Frag { x, y, c, z, fixed: ToFixed::Trunc, zfixed },
-                    if kind == 0x1800 { color_undefined } else { [false; 4] }, kind == 0x1801 && depth_undefined)?;
+            for (i, j, color, depth, stencil, color_undefined, depth_undefined, stencil_undefined) in samples {
+                let pixels = if self.zoom == (1.0, 1.0) {
+                    self.image_pixels(rx, ry, i, j)
+                } else {
+                    self.image_pixels(f64::from(self.raster_get[0]), ry, i, j)
+                };
+                if kind == 0x1802 {
+                    let v = self.index_map(true, self.shifted(f64::from(stencil)));
+                    for (x, y) in pixels { self.draw_stencil_from(x, y, v, stencil_undefined); }
+                    continue;
+                }
+                let (c, z, zfixed) = if kind == 0x1801 {
+                    let d = if self.pf.depth == 16 { depth.bits() << 16 } else { depth.bits() };
+                    let normalized = tri::narrow(f64::from(d) / 4_294_967_296.0);
+                    let (z, value) = depth_element(&normalized.to_le_bytes(), FLOAT, self.depth_transfer);
+                    (self.raster_color, z, Some(FixedZ { bits: 32, value }))
+                } else {
+                    let c = if self.pf.ty == 0 { self.transfer(self.dst_color_raw(color))?.map(tri::narrow) }
+                        else { [tri::narrow(self.index_map(false, self.shifted(f64::from(color[0])))), 0.0, 0.0, 0.0] };
+                    (c, rz, None)
+                };
+                let c = if self.cap(FOG) { self.fog_at(c, self.raster_eye) } else { c };
+                for (x, y) in pixels {
+                    self.fragment_from(Frag { x, y, c, z, fixed: ToFixed::Trunc, zfixed },
+                        if kind == 0x1800 { color_undefined } else { [false; 4] }, kind == 0x1801 && depth_undefined)?;
+                }
             }
         }
         Ok(())
