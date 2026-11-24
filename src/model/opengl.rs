@@ -1151,13 +1151,42 @@ fn wgl_dc(ctx: &Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             let byte = |arg| integer(arg).map(|v| i64::from(v.to_le_bytes()[0]));
             choose(&[i64::from(integer(flags)?), byte(ty)?, byte(color)?, byte(alpha)?, byte(accum)?, byte(depth)?, byte(stencil)?]).to_string()
         }
+        ("layer", [pf, plane]) => {
+            // The software-only Windows reference leaves last error clear for the main plane.
+            let valid = index(integer(pf)?).is_some();
+            if integer(plane)? == 0 && valid {
+                "0 0".into()
+            } else {
+                "0 87".into()
+            }
+        }
+        ("getlayerpal" | "setlayerpal", [plane, start, count]) => {
+            let plane = integer(plane)?;
+            integer(start)?;
+            if !(0..=256).contains(&integer(count)?) { return Err(Fail::Bad); }
+            if plane == 0 { return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)); }
+            "0 87".into()
+        }
+        ("realize", [plane, on]) => {
+            integer(on)?;
+            if integer(plane)? == 0 { return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)); }
+            "0 87".into()
+        }
+        ("layerctx", [plane]) => match integer(plane)?.cmp(&0) {
+            std::cmp::Ordering::Less => "0 5".into(),
+            std::cmp::Ordering::Equal => "1 0".into(),
+            std::cmp::Ordering::Greater => "0 87".into(),
+        },
+        ("share", []) => "1 0".into(),
+        ("copy", [mask]) => { integer(mask)?; "1 0".into() }
         ("swap", []) => "1 0".into(),
         ("swaplayer", [mask]) => { integer(mask)?; "1 0".into() }
         ("swapmultiple", [arg]) => {
             let n = u32::try_from(integer(arg)?).ok().filter(|&v| v <= 16).ok_or(Fail::Bad)?;
             format!("{} 0", low_bits(n))
         }
-        ("getpf" | "descpf" | "setpf" | "choose" | "swap" | "swaplayer" | "swapmultiple", _) => return Err(Fail::Bad),
+        ("getpf" | "descpf" | "setpf" | "choose" | "swap" | "swaplayer" | "swapmultiple" | "layer" | "realize" | "getlayerpal"
+         | "setlayerpal" | "layerctx" | "share" | "copy", _) => return Err(Fail::Bad),
         _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
     };
     out.push(format!("wglx {name} {result}"));

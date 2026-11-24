@@ -1638,3 +1638,26 @@ fn wgl_dib_swap_counts_and_pixel_format_results() {
     let cases = kikizake::case::parse_cases(&input);
     assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), expected);
 }
+
+#[test]
+fn wgl_layer_planes_and_temporary_contexts() {
+    let operations = [
+        ("layer 1 0", "layer 0 0"), ("layer 0 0", "layer 0 87"),
+        ("layer 1 -1", "layer 0 87"), ("layer 36 1", "layer 0 87"),
+        ("getlayerpal -1 -1 0", "getlayerpal 0 87"),
+        ("setlayerpal 1 0 256", "setlayerpal 0 87"), ("realize 1 1", "realize 0 87"),
+        ("layerctx -1", "layerctx 0 5"), ("layerctx 0", "layerctx 1 0"),
+        ("layerctx 1", "layerctx 0 87"), ("share", "share 1 0"),
+        ("copy -1", "copy 1 0"), ("copy 0", "copy 1 0"),
+    ];
+    let mut input = String::from("case layers\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+    let mut expected = vec![String::from("glctx ok 1")];
+    for (command, result) in operations {
+        input.push_str(&format!("wglx {command}\n"));
+        expected.push(format!("wglx {result}"));
+    }
+    input.push_str("wglx getpf\nglerr\nend\n");
+    expected.extend(["wglx getpf 1", "glerr 0"].map(String::from));
+    let cases = kikizake::case::parse_cases(&input);
+    assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), expected);
+}
