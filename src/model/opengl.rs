@@ -489,6 +489,7 @@ pub struct Ctx {
     pub raster_get: [f32; 4],
     pub raster_color: [f32; 4],
     /// the raster position's eye z, for fog on images
+    pub clip_planes: [[f32; 4]; 6],
     pub raster_eye: f64,
     /// the raster position's texture coordinates (s, t, r, q)
     pub raster_tex: [f32; 4],
@@ -610,6 +611,7 @@ impl Ctx {
             raster: Some([0.0; 3]),
             raster_color: [1.0; 4],
             raster_get: [0.0, 0.0, 0.0, 1.0],
+            clip_planes: [[0.0; 4]; 6],
             raster_eye: 0.0,
             raster_tex: [0.0, 0.0, 0.0, 1.0],
             frag_tex: None,
@@ -1377,6 +1379,7 @@ impl Gl {
                 ctx.frag_tex = None;
                 result?;
             }
+            CtxOp::Glp | CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glClipPlane" | "glGetClipPlane")) => ctx.clip_plane_call(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPolygonStipple") => ctx.get_polygon_pattern(t, out)?,
             CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf | CtxOp::Wglx => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
@@ -4494,6 +4497,7 @@ impl Ctx {
             viewport,
             depth_range,
             // TRANSFORM_BIT
+            clip_planes,
             mode,
             // COLOR_BUFFER_BIT (and the draw buffer, buffers[0]; the read buffer, buffers[1],
             // is PIXEL_MODE_BIT's)
@@ -4602,6 +4606,7 @@ impl Ctx {
             self.depth_range = depth_range;
         }
         if on(attrib::TRANSFORM) {
+            self.clip_planes = clip_planes;
             self.mode = mode;
         }
         if on(attrib::COLOR) {
@@ -4922,6 +4927,39 @@ impl Ctx {
             }
         }
         self.polygon_pattern = rows;
+        Ok(())
+    }
+
+    fn clip_plane_call(&mut self, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        let [_, name, sig, slot, ty, rest @ ..] = t else { return Err(Fail::Bad) };
+        if sig != "i" { return Err(Fail::Bad); }
+        let slot = num(slot).ok_or(Fail::Bad)?.checked_sub(0x3000).and_then(|n| usize::try_from(n).ok()).filter(|n| *n < 6);
+        let err = if self.in_begin.is_some() { Some(INVALID_OPERATION) } else if slot.is_none() { Some(INVALID_ENUM) } else { None };
+        if let Some(e) = err { self.error(e); }
+        if name == "glGetClipPlane" {
+            let [count] = rest else { return Err(Fail::Bad) };
+            out.push(query_bytes(ty, count, |dst| {
+                if let Some(plane) = slot.and_then(|n| self.clip_planes.get(n)).filter(|_| err.is_none()) {
+                    for (bytes, v) in dst.chunks_exact_mut(8).zip(plane) { bytes.copy_from_slice(&f64::from(*v).to_le_bytes()); }
+                }
+                Ok(())
+            })?);
+        } else if let Some(plane) = slot.filter(|_| err.is_none()) {
+            let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Bad)?;
+            bytes.resize(32, 0);
+            let mut p = [0.0; 4];
+            for (v, b) in p.iter_mut().zip(bytes.chunks_exact(8)) {
+                *v = tri::narrow(f64::from_le_bytes(b.try_into().map_err(|_| Fail::Bad)?));
+            }
+            let matrix = self.stacks.first().map_or(IDENTITY, |m| *m.top());
+            if let Some(inv) = tex::invert(&matrix) {
+                let input = p;
+                for (v, col) in p.iter_mut().zip(inv.chunks_exact(4)) {
+                    *v = col.iter().zip(input).fold(0.0, |sum, (a, b)| sum + a * b);
+                }
+            }
+            *self.clip_planes.get_mut(plane).ok_or(Fail::Bad)? = p;
+        }
         Ok(())
     }
 

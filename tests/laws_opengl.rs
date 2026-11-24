@@ -1362,3 +1362,18 @@ fn bitmap_fractional_moves_match_windows() {
     expected.push(String::from("glerr 0"));
     assert_eq!(output, expected);
 }
+
+#[test]
+fn clip_plane_equations_match_windows() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_clip_state.txt"));
+    assert_eq!(cases.len(), 18);
+    for case in cases {
+        let result = kikizake::model::run_case(&case).unwrap();
+        let equation = if case.name.ends_with("-scaled") {
+            "q 0.5 2 -2 3 -12345"
+        } else {
+            "q 1 8 -16 3 -12345"
+        };
+        assert_eq!(&result[1..], ["q 0 0 0 0 -12345", equation, "glerr 0"], "{}", case.name);
+    }
+}
