@@ -38,19 +38,8 @@ jobs:
       stale: ${{ steps.stale.outputs.list }}
     steps:
       - uses: actions/checkout@v7.0.1
-      - id: debs
-        uses: actions/cache/restore@v6.1.0
-        with:
-          path: ~/debs
-          key: debs-ubuntu-24.04-mingw-1
       - name: mingw-w64
-        run: |
-          if [ "${{ steps.debs.outputs.cache-hit }}" = true ]; then
-            sudo dpkg -i ~/debs/*.deb >/dev/null
-          else
-            sudo apt-get update -q
-            sudo apt-get install -y -q --no-install-recommends gcc-mingw-w64-i686 gcc-mingw-w64-x86-64 binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 mingw-w64-common mingw-w64-i686-dev mingw-w64-x86-64-dev
-          fi
+        run: tools/ci/apt.sh gcc-mingw-w64-i686 gcc-mingw-w64-x86-64 binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 mingw-w64-common mingw-w64-i686-dev mingw-w64-x86-64-dev
       - name: Build the executors
         run: runner/build.sh exe
       - id: stale

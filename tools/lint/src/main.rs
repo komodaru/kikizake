@@ -10,6 +10,7 @@
 // (Rust 1.97: a pub item nothing in the binary uses is dead; tests use more of it, so not under test)
 #![cfg_attr(not(test), warn(dead_code_pub_in_binary))]
 mod cases;
+mod ci;
 mod code;
 mod dup;
 mod escape;
@@ -108,6 +109,10 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     }
     if let Err(error) = escape::check(&root) {
+        eprintln!("{error}");
+        return ExitCode::FAILURE;
+    }
+    if let Err(error) = ci::check(&root) {
         eprintln!("{error}");
         return ExitCode::FAILURE;
     }
