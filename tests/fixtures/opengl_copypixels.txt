@@ -888,3 +888,18 @@ gl glCopyPixels 0 0 6 6 0x1800
 glread 0 0 12 12 0x1908 0x1401 576
 glerr
 end
+case g--0.625-7
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 2 7
+gl glPixelZoom 1.25 -0.625
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
