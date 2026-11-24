@@ -1594,3 +1594,26 @@ fn clipped_outlines_select_the_minification_filter() {
         assert_eq!(&output[1..], [expected, "glerr 0"], "{}", case.name);
     }
 }
+
+#[test]
+fn clipped_outline_fog_matches_windows() {
+    let mut expected = include_str!("fixtures/opengl_outline_fog_reads.txt").lines();
+    for fog in ["0 0 0", "0.25 0.5 0.75"] {
+        for mode in ["gl glPolygonMode 0x408 0x1b01", "gl glPolygonMode 0x408 0x1b00",
+                     "gl glEnable 0xb20\ngl glPolygonMode 0x408 0x1b01"] {
+            for [a, b, c] in [["0"; 3], ["0.5"; 3], ["0.25", "0.75", "-0.5"]] {
+                let input = include_str!("fixtures/opengl_outline_fog.txt").replace("{fog}", fog)
+                    .replace("{mode}", mode).replace("{a}", a).replace("{b}", b).replace("{c}", c);
+                let cases = kikizake::case::parse_cases(&input);
+                let output = kikizake::model::run_case(&cases[0]).unwrap();
+                let mut read = String::from("read ");
+                for run in expected.next().unwrap().split_whitespace() {
+                    let (count, pixel) = run.split_once('*').unwrap();
+                    read.push_str(&pixel.repeat(count.parse().unwrap()));
+                }
+                assert_eq!(&output[1..], [read.as_str(), "glerr 0"], "{fog} {mode} {a} {b} {c}");
+            }
+        }
+    }
+    assert!(expected.next().is_none());
+}

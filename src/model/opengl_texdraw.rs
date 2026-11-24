@@ -75,6 +75,7 @@ pub struct LineTex {
     first: i64,
     sign: i64,
     y_major: bool,
+    carried_fog: bool,
 }
 
 impl LineTex {
@@ -88,12 +89,17 @@ impl LineTex {
         (v, self.sample_coords(v))
     }
 
-    /// at pixel (x, y)
-    pub fn at(&self, x: i64, y: i64) -> Stq {
+    fn distance(&self, x: i64, y: i64) -> i64 {
         let j = if self.y_major { y } else { x };
-        let n = tri::float(j.saturating_sub(self.first).saturating_mul(self.sign));
-        let v: [f32; 4] = std::array::from_fn(|k| self.c0.get(k).copied().unwrap_or(0.0) + n * self.step.get(k).copied().unwrap_or(0.0));
-        self.sample_coords(v)
+        j.saturating_sub(self.first).saturating_mul(self.sign)
+    }
+
+    pub fn fog_at(&self, x: i64, y: i64) -> Option<f32> {
+        self.carried_fog.then(|| self.c0[3] + tri::float(self.distance(x, y)) * self.step[3])
+    }
+
+    pub fn at(&self, x: i64, y: i64) -> Stq {
+        self.along(self.distance(x, y)).1
     }
 
     fn sample_coords(&self, [s, t, q, _]: [f32; 4]) -> Stq {
@@ -556,7 +562,7 @@ impl Ctx {
         let (from, run) = if y_major { (wa[1], wb[1] - wa[1]) } else { (wa[0], wb[0] - wa[0]) };
         let four = |v: &Obj| -> [f32; 4] {
             let [s, t, q] = self.tex_coords(v);
-            [s, t, q, self.fog.factor(super::xform(self.top(0), [v.xyz[0], v.xyz[1], v.xyz[2], v.w])[2])]
+            [s, t, q, v.fog_factor.unwrap_or_else(|| self.fog.factor(super::xform(self.top(0), [v.xyz[0], v.xyz[1], v.xyz[2], v.w])[2]))]
         };
         let (c0, c1) = (four(a), four(b));
         let first = first.unwrap_or_else(|| tri::trunc(tri::narrow(if y_major { from.ceil() - 1.0 } else { from.floor() })));
@@ -566,7 +572,7 @@ impl Ctx {
         let d = (tri::float(first.saturating_mul(256).saturating_add(128).saturating_sub(e0)) / 256.0) * if srun < 0.0 { -1.0 } else { 1.0 };
         let step: [f32; 4] = std::array::from_fn(|k| (c1.get(k).copied().unwrap_or(0.0) - c0.get(k).copied().unwrap_or(0.0)) / srun.abs());
         let c0: [f32; 4] = std::array::from_fn(|k| c0.get(k).copied().unwrap_or(0.0) + d * step.get(k).copied().unwrap_or(0.0));
-        LineTex { c0, step, first, sign: if run < 0.0 { -1 } else { 1 }, y_major }
+        LineTex { c0, step, first, sign: if run < 0.0 { -1 } else { 1 }, y_major, carried_fog: a.fog_factor.is_some() }
     }
 
     /// A point's, line's or image's fragment `f` textured at `stq` (GL 1.1 3.8): its color in

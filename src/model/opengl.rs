@@ -264,7 +264,6 @@ pub fn pname(name: &str) -> u32 {
     PNAMES.iter().find(|p| p.0 == name).map(|p| p.1).unwrap_or_else(|| panic!("{name}"))
 }
 
-use crate::spec::open;
 use crate::spec::clause;
 use super::{Fail, Res};
 
@@ -1373,8 +1372,7 @@ impl Gl {
             CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glGetPixelMapfv" | "glGetPixelMapuiv" | "glGetPixelMapusv")) => ctx.get_pixel_map(t, out)?,
             CtxOp::Glp if t.get(1).is_some_and(|n| n == "glPolygonStipple") => ctx.set_polygon_pattern(t)?,
             CtxOp::Glp if t.get(1).is_some_and(|n| n == "glBitmap") => {
-                let [rs, rt, _, rq] = ctx.raster_tex;
-                ctx.frag_tex = Some(texdraw::Stq::at([rs, rt, rq]));
+                ctx.frag_tex = Some(ctx.raster_texture_sample());
                 let result = ctx.bitmap(t);
                 ctx.frag_tex = None;
                 result?;
@@ -1412,8 +1410,7 @@ impl Gl {
                 }
                 let mut r = crate::rng::XorShift32::new(v[4] as u32);
                 let given: Vec<u8> = (0..v[5]).map(|_| r.next() as u8).collect();
-                let [rs, rt, _, rq] = ctx.raster_tex;
-                ctx.frag_tex = Some(texdraw::Stq::at([rs, rt, rq]));
+                ctx.frag_tex = Some(ctx.raster_texture_sample());
                 let r = ctx.draw_pixels(v[0], v[1], v[2] as u32, v[3] as u32, &Given::new(given));
                 ctx.frag_tex = None;
                 r?;
@@ -1546,11 +1543,13 @@ pub struct Obj {
     pub tc: [f32; 4],
     /// the edge flag current when it was given: whether a polygon's edge from it is a boundary
     pub edge: bool,
+    /// Fog factor carried through clipping before replaying a textured outline.
+    pub fog_factor: Option<f32>,
 }
 
 impl Obj {
     pub const fn at(xyz: [f64; 3]) -> Obj {
-        Obj { xyz, w: 1.0, tc: [0.0, 0.0, 0.0, 1.0], edge: true }
+        Obj { xyz, w: 1.0, tc: [0.0, 0.0, 0.0, 1.0], edge: true, fog_factor: None }
     }
     /// the vertex with texture coordinates `tc`
     pub const fn with(self, tc: [f32; 4]) -> Obj {
@@ -2007,8 +2006,7 @@ impl Ctx {
                 self.offset = (fl(a, 0) as f32, fl(a, 1) as f32);
             }
             "glCopyPixels" => {
-                let [s, t, _, q] = self.raster_tex;
-                self.frag_tex = Some(texdraw::Stq::at([s, t, q]));
+                self.frag_tex = Some(self.raster_texture_sample());
                 let result = self.copy_pixels(int(a, 0), int(a, 1), int(a, 2), int(a, 3), u(a, 4));
                 self.frag_tex = None;
                 result?;
@@ -2090,7 +2088,7 @@ impl Ctx {
                 if self.in_begin != Some(POINTS) {
                     // (MEASURED, golden opengl-32 persp-more-3..5: the clip coordinates of
                     // (x, y, z, w), cut and divided as any others)
-                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_on() }, self.lit(self.current())));
+                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_on(), fog_factor: None }, self.lit(self.current())));
                 } else if w > 0.0 {
                     self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]).with(self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w)).edged(self.edge_on()), self.lit(self.current())));
                 } else {
@@ -2373,7 +2371,7 @@ impl Ctx {
     /// a vertex's color fogged at its eye z (GL.FOG.APPLY): the RGB toward the fog color, alpha
     /// kept; a color index plus the fog index times one less the factor
     fn fogged(&self, c: [f32; 4], v: Obj) -> [f32; 4] {
-        if !self.cap(FOG) {
+        if v.fog_factor.is_some() || !self.cap(FOG) {
             return c;
         }
         hit(clause::GL_FOG_APPLY);
@@ -2422,12 +2420,12 @@ impl Ctx {
     /// GL_LINE_LOOP, each new corner's texture coordinates and color between its ends' in clip
     /// space); under flat shading all corners use the original provoking color
     fn cut_textured_outline(&mut self, q: &[(Obj, [f32; 4])], clip: &[[f32; 4]], colors: &[[f32; 4]], face: u32, edges: &[bool]) -> Res<()> {
-        if self.cap(FOG) {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
-        let at: Vec<[f32; 12]> = q.iter().zip(clip).zip(colors).map(|((v, p), c)| {
+        hit(clause::GL_RASTER_MODE);
+        let at: Vec<[f32; 13]> = q.iter().zip(clip).zip(colors).map(|((v, p), c)| {
             let [s, t, r, w] = v.0.tc;
-            [p[0], p[1], p[2], p[3], c[0], c[1], c[2], c[3], s, t, r, w]
+            let [x, y, z] = v.0.xyz;
+            let fog = self.fog.factor(xform(self.top(0), [x, y, z, v.0.w])[2]);
+            [p[0], p[1], p[2], p[3], c[0], c[1], c[2], c[3], s, t, r, w, fog]
         }).collect();
         let cut = self.clip_polygon(q, &at).0;
         // (the cut corners given as clip coordinates through identity matrices)
@@ -2436,8 +2434,8 @@ impl Ctx {
             *self.stacks.get_mut(m).ok_or(Fail::Bad)?.top_mut() = IDENTITY;
         }
         self.verts = cut.iter().map(|p| {
-            let [x, y, z, w, r, g, b, a, s, t, tr, tq] = *p;
-            (Obj { xyz: [f64::from(x), f64::from(y), f64::from(z)], w: f64::from(w), tc: [s, t, tr, tq], edge: true }, [r, g, b, a])
+            let [x, y, z, w, r, g, b, a, s, t, tr, tq, fog] = *p;
+            (Obj { xyz: [f64::from(x), f64::from(y), f64::from(z)], w: f64::from(w), tc: [s, t, tr, tq], edge: true, fog_factor: self.cap(FOG).then_some(fog) }, [r, g, b, a])
         }).collect();
         // These vertices are already clipped and are now in clip coordinates.
         let enabled: Vec<_> = (0x3000..=0x3005).filter(|&cap| self.cap(cap)).collect();
@@ -2642,20 +2640,20 @@ impl Ctx {
         if enabled.is_empty() {
             return tri::clip_crossing_edges(vertices, flag);
         }
-        // Four clip coordinates, up to eight color and texture components, then six distances.
-        const { assert!(D <= 12); }
-        let extended: Vec<[f32; 18]> = q.iter().zip(vertices).map(|((obj, _), vertex)| {
+        // Four clip coordinates, color, texture coordinates, optional fog, then six distances.
+        const { assert!(D <= 13); }
+        let extended: Vec<[f32; 19]> = q.iter().zip(vertices).map(|((obj, _), vertex)| {
             let [x, y, z] = obj.xyz;
             let eye = xform(self.top(0), [x, y, z, obj.w]).map(tri::narrow);
-            let mut record = [0.0; 18];
+            let mut record = [0.0; 19];
             for (dst, src) in record.iter_mut().zip(vertex) { *dst = *src; }
-            for (distance, plane) in record[12..].iter_mut().zip(&enabled) {
+            for (distance, plane) in record[13..].iter_mut().zip(&enabled) {
                 *distance = Self::user_clip_distance(plane, eye);
             }
             record
         }).collect();
         let (mut cut, crossed) = tri::clip_crossing_edges(&extended, flag);
-        for (slot, _) in (12..18).zip(enabled) {
+        for (slot, _) in (13..19).zip(enabled) {
             cut = tri::clip_halfspace_edges(&cut, flag, |v| v.get(slot).copied().unwrap_or_default()).0;
         }
         (cut.iter().filter_map(|p| p.first_chunk::<D>().copied()).collect(), crossed)
@@ -2680,6 +2678,7 @@ impl Ctx {
                 w: coord(a.w, b.w),
                 tc: tri::zip4(a.tc, b.tc, mix),
                 edge: b.edge,
+                fog_factor: a.fog_factor.zip(b.fog_factor).map(|(fa, fb)| mix(fa, fb)),
             };
             let color = if self.shade == FLAT { cb } else { tri::zip4(ca, cb, mix) };
             *ends.get_mut(outside)? = (v, color);
@@ -3227,7 +3226,7 @@ impl Ctx {
                         self.loop_offsets = (0..cut.len()).map(|k| fan.get(k.saturating_sub(1).min(fan.len().saturating_sub(1))).copied().unwrap_or(0.0)).collect();
                     }
                     let drawn = if cut != at {
-                        let colors = if self.shade == FLAT { vec![c; q.len()] } else { fogged };
+                        let colors = q.iter().map(|v| if self.shade == FLAT { q.get(provoking).map_or(v.1, |p| p.1) } else { v.1 }).collect::<Vec<_>>();
                         self.cut_textured_outline(q, &clip, &colors, face, &edges)
                     } else {
                         self.verts = if self.shade == FLAT { q.iter().map(|v| (v.0, q.get(provoking).map_or(v.1, |p| p.1))).collect() } else { q.to_vec() };
@@ -3468,8 +3467,9 @@ impl Ctx {
                     let mut w = self.window(v)?;
                     if let Some(offset) = self.loop_offsets.get(i) { w[2] = f64::from(tri::narrow(w[2]) + offset); }
                     self.frag_tex = Some(texdraw::Stq::at(self.tex_coords(&v)));
+                    self.frag_fog = v.fog_factor;
                     let r = self.point(w, self.fogged(c, v));
-                    self.frag_tex = None;
+                    (self.frag_tex, self.frag_fog) = (None, None);
                     r?;
                 }
             }
@@ -3681,8 +3681,9 @@ impl Ctx {
                         for (x, y) in pixels {
                             if self.stipple_keeps([x, y][major]) {
                                 self.frag_tex = texturing.then(|| coords.at(x, y));
+                                self.frag_fog = coords.fog_at(x, y);
                                 let r = self.fragment(Frag { x, y, c, z: wa[2], fixed: self.span(), zfixed: None });
-                                self.frag_tex = None;
+                                (self.frag_tex, self.frag_fog) = (None, None);
                                 r?;
                             }
                         }
@@ -3872,8 +3873,9 @@ impl Ctx {
                 _ => (ends[1], self.span()),
             };
             self.frag_tex = self.line_texture.map(|t| t.at(x, y));
+            self.frag_fog = self.line_texture.and_then(|t| t.fog_at(x, y));
             let drawn = self.fragment(Frag { x, y, c, z: f64::from(za), fixed, zfixed });
-            self.frag_tex = None;
+            (self.frag_tex, self.frag_fog) = (None, None);
             drawn?;
         }
         Ok(())
@@ -4060,10 +4062,8 @@ impl Ctx {
         let f = match self.frag_tex {
             _ if self.textured_frags => f,
             Some(stq) if self.texturing() => self.texture_frag(f, stq)?,
-            _ => {
-                self.untextured()?;
-                f
-            }
+            None if self.texturing() => return Err(Fail::Bad),
+            _ => f,
         };
         if self.buffers[0] == 0 {
             hit(clause::GL_BUFFER_NONE);
@@ -5140,6 +5140,12 @@ impl Ctx {
             *self.clip_planes.get_mut(plane).ok_or(Fail::Bad)? = p;
         }
         Ok(())
+    }
+
+    fn raster_texture_sample(&self) -> texdraw::Stq {
+        if self.texturing() { hit(clause::GL_RASTER_MODE); }
+        let [s, t, _, q] = self.raster_tex;
+        texdraw::Stq::at([s, t, q])
     }
 
     fn bitmap(&mut self, t: &[String]) -> Res<()> {

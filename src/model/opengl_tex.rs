@@ -9,7 +9,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::e::{BITMAP, COLOR_INDEX, INVALID_ENUM, INVALID_OPERATION, INVALID_VALUE};
 use super::{Ctx, Fail, Given, Res, A, V};
 use crate::case::num;
-use crate::spec::{clause, hit, open};
+use crate::spec::{clause, hit};
 
 pub const TEXTURE_1D: u32 = 0xde0;
 pub const TEXTURE_2D: u32 = 0xde1;
@@ -635,16 +635,6 @@ fn enum_at(v: &[i64], k: usize) -> Res<u32> {
 type Pixels = Vec<[f32; 4]>;
 
 impl Ctx {
-    /// a texture on with an image: its fragments are the open clause GL.RASTER.MODE (tex-open-env-*
-    /// .. prim-*, the goldens to fit); with no image fragments are untextured (MEASURED, golden
-    /// opengl-32 raster-open-23)
-    pub(super) fn untextured(&self) -> Res<()> {
-        if self.texturing() {
-            return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
-        }
-        Ok(())
-    }
-
     /// the GL error of a call, if any
     fn tex_err(&mut self, r: Result<(), Bad>) {
         if let Err(b) = r {

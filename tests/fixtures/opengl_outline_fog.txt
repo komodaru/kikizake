@@ -1,0 +1,30 @@
+case clipped-fog
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gltex 3553 0 4 4 4 0 0x1908 0x1401 19 64
+gl glTexParameteri 3553 10241 9728
+gl glTexEnvi 8960 8704 8448
+gl glEnable 3553
+gl glClear 0x4000
+glfogv 0xb66 {fog} 1
+gl glEnable 0xb60
+gl glFogi 0xb65 0x2601
+gl glFogf 0xb63 0
+gl glFogf 0xb64 1
+{mode}
+gl glColor4ub 200 150 100 255
+gl glBegin 4
+gl glTexCoord2f 0 0
+gl glVertex3f -6 3 {a}
+gl glTexCoord2f 1 0
+gl glVertex3f 13 4 {b}
+gl glTexCoord2f 0.5 1
+gl glVertex3f 6 13 {c}
+gl glEnd
+glread 0 0 16 16 0x1908 0x1401 1024
+glerr
+end

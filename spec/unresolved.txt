@@ -93,7 +93,6 @@ GDI.TEXT.FONT open
 GDI.TRANS.KEY assumed
 GL.EVAL open
 GL.LIGHT.STATE open
-GL.RASTER.MODE open
 GL.SELECT open
 GP.PEN open
 WGL.OTHER open
