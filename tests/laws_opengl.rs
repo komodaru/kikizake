@@ -2299,3 +2299,19 @@ fn bitmap_fonts_finish_an_active_list_with_the_first_glyph() {
         }
     }
 }
+
+#[test]
+fn outline_failure_finishes_the_active_list_and_deletes_only_the_first_target() {
+    for encoding in ["a", "w"] {
+        for fmt in [0, 1] {
+            for (mode, immediate) in [(4864, "00000000"), (4865, "3f18e000")] {
+                let input = format!("case outline\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glNewList 100 4864\ngl glEndList\ngl glNewList 101 4864\ngl glListBase 11\ngl glEndList\ngl glEnable -1\ngl glNewList 55 {mode}\ngl glListBase 12\nwglx fontoutline {encoding} 65 2 100 {fmt}\nglerr\nglget i 0xb33 1\nglget f 0xba6 16\ngl glEndList\nglerr\nglr glIsList b i 100\nglr glIsList b i 101\ngl glLoadIdentity\ngl glCallList 55\nglget i 0xb32 1\nglget f 0xba6 16\ngl glCallList 101\nglget i 0xb32 1\nglerr\nend\n");
+                let cases = kikizake::case::parse_cases(&input);
+                let output = kikizake::model::run_case(&cases[0]).unwrap();
+                let matrix = |x| format!("get ba6 = 3f800000 00000000 00000000 00000000 00000000 3f800000 00000000 00000000 00000000 00000000 3f800000 00000000 {x} 00000000 00000000 3f800000");
+                assert_eq!(&output[1..], ["wglx fontoutline 0 8", "glerr 0", "get b33 = 0", &matrix(immediate),
+                    "glerr 502", "ret 0", "ret 1", "get b32 = 12", &matrix("3f18e000"), "get b32 = 11", "glerr 0"]);
+            }
+        }
+    }
+}

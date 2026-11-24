@@ -589,6 +589,22 @@ pub(crate) fn tracks_material(enabled: bool, selector: (u32, u32), target: u32, 
 }
 
 impl Ctx {
+    fn scalar_command(&mut self, tokens: &[String]) -> Res<()> {
+        let [_, name, args @ ..] = tokens else { return Err(Fail::Bad) };
+        let (_, signature) = CALLS.iter().find(|(n, _)| *n == name).ok_or(Fail::Bad)?;
+        if args.len() != signature.len() { return Err(Fail::Bad); }
+        let mut parsed = Vec::with_capacity(args.len());
+        for (tok, ty) in args.iter().zip(signature.chars()) {
+            parsed.push(match ty {
+                'i' => A::I(num(tok).ok_or(Fail::Bad)?),
+                'f' => A::F(f64::from(tri::narrow(parse_float(tok)?))),
+                'd' => A::F(parse_float(tok)?),
+                _ => return Err(Fail::Bad),
+            });
+        }
+        self.call(name, &parsed)
+    }
+
     fn track_current_color(&mut self) {
         if !self.cap(COLOR_MATERIAL) { return; }
         let selector = self.color_material;
@@ -1459,6 +1475,9 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             let count = integer(count)?;
             let base = integer(base)?.cast_unsigned();
             if !(0..=64).contains(&count) { return Err(Fail::Bad); }
+            let compiling_primitive = ctx.lists.compiling.as_ref().is_some_and(|current| current.lines.iter().rev()
+                .filter_map(|line| line.tok.get(1)).find(|n| matches!(n.as_str(), "glBegin" | "glEnd"))
+                .is_some_and(|n| n == "glBegin"));
             match (name.as_str(), rest) {
                 ("fontbmp", []) if count == 0 => "0 87".into(),
                 ("fontbmp", []) if encoding == "a" && first >= 0 && i64::from(first) + i64::from(count) > 256 => "0 87".into(),
@@ -1468,14 +1487,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                     ctx.error(INVALID_OPERATION);
                     "0 0".into()
                 }
-                ("fontbmp", []) if wgl_font_last_name(base, count).is_some() && ctx.in_begin.is_none() => {
-                    if let Some(current) = &ctx.lists.compiling {
-                        let boundary = current.lines.iter().rev().filter_map(|line| line.tok.get(1))
-                            .find(|name| matches!(name.as_str(), "glBegin" | "glEnd"));
-                        if boundary.is_some_and(|name| name == "glBegin") {
-                            return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER));
-                        }
-                    }
+                ("fontbmp", []) if wgl_font_last_name(base, count).is_some() && ctx.in_begin.is_none() && !compiling_primitive => {
                     let mut glyphs = Vec::new();
                     for offset in 0..count {
                         let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
@@ -1503,7 +1515,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                 ("fontoutline", [fmt]) if !matches!(integer(fmt)?, 0 | 1) => "0 8".into(),
                 ("fontoutline", [_]) if count == 0 => "1 0".into(),
                 ("fontoutline", [fmt]) if wgl_font_last_name(base, count).is_some()
-                    && ctx.in_begin.is_none() && ctx.lists.compiling.is_none() => {
+                    && ctx.in_begin.is_none() && !compiling_primitive => {
                     let mut lists = Vec::new();
                     let mut metrics = Vec::new();
                     for offset in 0..count {
@@ -1521,10 +1533,22 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                             _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
                         };
                         let translate = format!("gl glTranslatef {advance} 0 0");
-                        let lines = ["gl glFrontFace 0x901", "gl glNormal3f 0 0 1"].into_iter()
+                        let lines: Vec<list::Line> = ["gl glFrontFace 0x901", "gl glNormal3f 0 0 1"].into_iter()
                             .chain(geometry.lines()).chain([translate.as_str()]).map(|command| list::Line {
                                 tok: command.split_whitespace().map(String::from).collect(), unpack: None, arrays: None,
                             }).collect();
+                        if let Some(mut current) = ctx.lists.compiling.take() {
+                            if current.mode == list::COMPILE_AND_EXECUTE {
+                                for line in &lines { ctx.scalar_command(&line.tok)?; }
+                            }
+                            current.lines.extend(lines);
+                            ctx.lists.lists.insert(current.name, current.lines);
+                            ctx.lists.lists.remove(&base);
+                            // WGL consumes the GL error while checking the first outline.
+                            ctx.err = 0;
+                            out.push("wglx fontoutline 0 8".into());
+                            return Ok(());
+                        }
                         lists.push((base.checked_add(offset.cast_unsigned()).ok_or(Fail::Bad)?, lines));
                         metrics.push(format!("glyph {glyph}"));
                     }
@@ -1673,24 +1697,7 @@ impl Gl {
             return Ok(true);
         };
         match cmd {
-            CtxOp::Gl => {
-                let Some(call) = t.get(1).and_then(|n| CALLS.iter().find(|c| c.0 == n)) else { return Err(Fail::Bad) };
-                if t.len() != 2 + call.1.len() {
-                    return Err(Fail::Bad);
-                }
-                let mut a = Vec::new();
-                for (k, ty) in call.1.chars().enumerate() {
-                    let tok = &t[2 + k];
-                    // (a GLfloat argument reaches the call as an f32, a GLdouble one as it is)
-                    a.push(match ty {
-                        'i' => A::I(num(tok).ok_or(Fail::Bad)?),
-                        'f' => A::F(f64::from(parse_float(tok)? as f32)),
-                        'd' => A::F(parse_float(tok)?),
-                        _ => return Err(Fail::Bad),
-                    });
-                }
-                ctx.call(call.0, &a)?;
-            }
+            CtxOp::Gl => ctx.scalar_command(t)?,
             CtxOp::Glmat => {
                 if t.len() != 18 || !(t[1] == "load" || t[1] == "mult") {
                     return Err(Fail::Bad);
