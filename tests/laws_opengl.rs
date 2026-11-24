@@ -1959,3 +1959,18 @@ fn material_vectors_preserve_face_selection_and_round_indices() {
     assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), ["glctx ok 1", "q -1.5 2.5 4.75 -12345",
         "q -2 3 5 2125315823", "q -3 4 7", "q -1.5 2.5 4.75", "q 3", "glerr 0"]);
 }
+
+proptest! {
+    #[test]
+    fn wgl_layer_palette_results_depend_on_plane(
+        plane in prop_oneof![Just(0i32), any::<i32>()], start in any::<i32>(),
+        count in 0u16..=256, realize in any::<i32>(),
+    ) {
+        let input = format!("case palette\nglctx 32 choose 0x38 0 32 0 0 32 8\nwglx getlayerpal {plane} {start} {count}\nwglx setlayerpal {plane} {start} {count}\nwglx realize {plane} {realize}\nglerr\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        let error = if plane == 0 { 0 } else { 87 };
+        prop_assert_eq!(output, ["glctx ok 1".into(), format!("wglx getlayerpal 0 {error}"),
+            format!("wglx setlayerpal 0 {error}"), format!("wglx realize 0 {error}"), "glerr 0".into()]);
+    }
+}

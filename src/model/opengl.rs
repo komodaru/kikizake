@@ -555,6 +555,101 @@ pub struct Ctx {
 pub const IDENTITY: [f32; 16] = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0];
 
 impl Ctx {
+    fn set_material_vector(&mut self, t: &[String]) -> Res<()> {
+        let [_, name, sig, face, pname, ..] = t else { return Err(Fail::Bad) };
+        if sig != "ii" { return Err(Fail::Bad); }
+        let face = crate::case::windows_long(face).ok_or(Fail::Bad)?;
+        let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
+        if !matches!(face, 0x404 | 0x405 | 0x408) {
+            self.error(INVALID_ENUM);
+        } else if matches!(pname, 0x1601 | 0x1603) {
+            let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
+            bytes.resize(12, 0);
+            let mut values = [0.0; 3];
+            for (v, chunk) in values.iter_mut().zip(bytes.chunks_exact(4)) {
+                let word = chunk.try_into().map_err(|_| Fail::Bad)?;
+                *v = if name == "glMaterialfv" { f32::from_le_bytes(word) } else { i32::from_le_bytes(word) as f32 };
+            }
+            if pname == 0x1601 && !(0.0..=128.0).contains(&values[0]) {
+                self.error(INVALID_VALUE);
+            } else {
+                for (i, target) in [0x404, 0x405].into_iter().enumerate() {
+                    if face == target || face == 0x408 {
+                        if pname == 0x1601 { self.shininess[i] = values[0]; }
+                        else { self.material_indices[i] = values; }
+                    }
+                }
+            }
+        } else if matches!(pname, 0x1200..=0x1202 | 0x1600 | 0x1602) {
+            return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE));
+        } else { self.error(INVALID_ENUM); }
+        Ok(())
+    }
+
+    fn get_material(&mut self, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        let [_, name, sig, face, pname, ty, count] = t else { return Err(Fail::Bad) };
+        if sig != "ii" { return Err(Fail::Bad); }
+        let face = crate::case::windows_long(face).ok_or(Fail::Bad)?;
+        let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
+        let values: &[f32] = if self.in_begin.is_some() {
+            self.error(INVALID_OPERATION);
+            &[]
+        } else if !matches!(face, 0x404 | 0x405) {
+            self.error(INVALID_ENUM);
+            &[]
+        } else {
+            match pname {
+                0x1601 => std::slice::from_ref(&self.shininess[usize::from(face == 0x405)]),
+                0x1603 => &self.material_indices[usize::from(face == 0x405)],
+                0x1200..=0x1202 | 0x1600 => return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE)),
+                _ => { self.error(INVALID_ENUM); &[] }
+            }
+        };
+        out.push(query_bytes(ty, count, |dst| {
+            for (word, &value) in dst.chunks_exact_mut(4).zip(values) {
+                let bytes = if name == "glGetMaterialfv" { value.to_le_bytes() }
+                    else { (value.round() as i32).to_le_bytes() };
+                word.copy_from_slice(&bytes);
+            }
+            Ok(())
+        })?);
+        Ok(())
+    }
+
+    fn get_light(&mut self, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        let [_, name, sig, light, pname, ty, count] = t else { return Err(Fail::Bad) };
+        if sig != "ii" { return Err(Fail::Bad); }
+        let light = crate::case::windows_long(light).ok_or(Fail::Bad)?;
+        let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
+        let values: &[i32] = if self.in_begin.is_some() {
+            self.error(INVALID_OPERATION);
+            &[]
+        } else if !(0x4000..=0x4007).contains(&light) || !(0x1200..=0x1209).contains(&pname) {
+            self.error(INVALID_ENUM);
+            &[]
+        } else {
+            match pname {
+                0x1201 | 0x1202 if light == 0x4000 => &[1, 1, 1, 1],
+                0x1200..=0x1202 => &[0, 0, 0, 1],
+                0x1203 => &[0, 0, 1, 0],
+                0x1204 => &[0, 0, -1],
+                0x1206 => &[180],
+                0x1207 => &[1],
+                _ => &[0],
+            }
+        };
+        out.push(query_bytes(ty, count, |dst| {
+            for (word, &value) in dst.chunks_exact_mut(4).zip(values) {
+                let bytes = if name == "glGetLightfv" { (value as f32).to_le_bytes() }
+                    else if pname <= 0x1202 { (value * 2_147_482_496).to_le_bytes() }
+                    else { value.to_le_bytes() };
+                word.copy_from_slice(&bytes);
+            }
+            Ok(())
+        })?);
+        Ok(())
+    }
+
     pub fn new(pf: Pfd, bpp: u32) -> Ctx {
         hit(clause::GL_INIT);
         let stencil_bits = pf.stencil;
@@ -1261,13 +1356,13 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             let plane = integer(plane)?;
             integer(start)?;
             if !(0..=256).contains(&integer(count)?) { return Err(Fail::Bad); }
-            if plane == 0 { return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)); }
-            "0 87".into()
+            hit(clause::WGL_LAYER_PALETTE);
+            if plane == 0 { "0 0" } else { "0 87" }.into()
         }
         ("realize", [plane, on]) => {
             integer(on)?;
-            if integer(plane)? == 0 { return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)); }
-            "0 87".into()
+            hit(clause::WGL_LAYER_PALETTE);
+            if integer(plane)? == 0 { "0 0" } else { "0 87" }.into()
         }
         ("layerctx", [plane]) => match integer(plane)?.cmp(&0) {
             std::cmp::Ordering::Less => "0 5".into(),
@@ -1515,95 +1610,9 @@ impl Gl {
                     ctx.array_glp(t, at)?;
                 }
             }
-            CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glMaterialfv" | "glMaterialiv")) => {
-                let [_, name, sig, face, pname, ..] = t else { return Err(Fail::Bad) };
-                if sig != "ii" { return Err(Fail::Bad); }
-                let face = crate::case::windows_long(face).ok_or(Fail::Bad)?;
-                let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
-                if !matches!(face, 0x404 | 0x405 | 0x408) {
-                    ctx.error(INVALID_ENUM);
-                } else if matches!(pname, 0x1601 | 0x1603) {
-                    let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
-                    bytes.resize(12, 0);
-                    let mut values = [0.0; 3];
-                    for (v, chunk) in values.iter_mut().zip(bytes.chunks_exact(4)) {
-                        let word = chunk.try_into().map_err(|_| Fail::Bad)?;
-                        *v = if name == "glMaterialfv" { f32::from_le_bytes(word) } else { i32::from_le_bytes(word) as f32 };
-                    }
-                    if pname == 0x1601 && !(0.0..=128.0).contains(&values[0]) {
-                        ctx.error(INVALID_VALUE);
-                    } else {
-                        for (i, target) in [0x404, 0x405].into_iter().enumerate() {
-                            if face == target || face == 0x408 {
-                                if pname == 0x1601 { ctx.shininess[i] = values[0]; }
-                                else { ctx.material_indices[i] = values; }
-                            }
-                        }
-                    }
-                } else if matches!(pname, 0x1200..=0x1202 | 0x1600 | 0x1602) {
-                    return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE));
-                } else { ctx.error(INVALID_ENUM); }
-            }
-            CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetMaterialfv" | "glGetMaterialiv")) => {
-                let [_, name, sig, face, pname, ty, count] = t else { return Err(Fail::Bad) };
-                if sig != "ii" { return Err(Fail::Bad); }
-                let face = crate::case::windows_long(face).ok_or(Fail::Bad)?;
-                let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
-                let values: &[f32] = if ctx.in_begin.is_some() {
-                    ctx.error(INVALID_OPERATION);
-                    &[]
-                } else if !matches!(face, 0x404 | 0x405) {
-                    ctx.error(INVALID_ENUM);
-                    &[]
-                } else {
-                    match pname {
-                        0x1601 => std::slice::from_ref(&ctx.shininess[usize::from(face == 0x405)]),
-                        0x1603 => &ctx.material_indices[usize::from(face == 0x405)],
-                        0x1200..=0x1202 | 0x1600 => return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE)),
-                        _ => { ctx.error(INVALID_ENUM); &[] }
-                    }
-                };
-                out.push(query_bytes(ty, count, |dst| {
-                    for (word, &value) in dst.chunks_exact_mut(4).zip(values) {
-                        let bytes = if name == "glGetMaterialfv" { value.to_le_bytes() }
-                            else { (value.round() as i32).to_le_bytes() };
-                        word.copy_from_slice(&bytes);
-                    }
-                    Ok(())
-                })?);
-            }
-            CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetLightfv" | "glGetLightiv")) => {
-                let [_, name, sig, light, pname, ty, count] = t else { return Err(Fail::Bad) };
-                if sig != "ii" { return Err(Fail::Bad); }
-                let light = crate::case::windows_long(light).ok_or(Fail::Bad)?;
-                let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
-                let values: &[i32] = if ctx.in_begin.is_some() {
-                    ctx.error(INVALID_OPERATION);
-                    &[]
-                } else if !(0x4000..=0x4007).contains(&light) || !(0x1200..=0x1209).contains(&pname) {
-                    ctx.error(INVALID_ENUM);
-                    &[]
-                } else {
-                    match pname {
-                        0x1201 | 0x1202 if light == 0x4000 => &[1, 1, 1, 1],
-                        0x1200..=0x1202 => &[0, 0, 0, 1],
-                        0x1203 => &[0, 0, 1, 0],
-                        0x1204 => &[0, 0, -1],
-                        0x1206 => &[180],
-                        0x1207 => &[1],
-                        _ => &[0],
-                    }
-                };
-                out.push(query_bytes(ty, count, |dst| {
-                    for (word, &value) in dst.chunks_exact_mut(4).zip(values) {
-                        let bytes = if name == "glGetLightfv" { (value as f32).to_le_bytes() }
-                            else if pname <= 0x1202 { (value * 2_147_482_496).to_le_bytes() }
-                            else { value.to_le_bytes() };
-                        word.copy_from_slice(&bytes);
-                    }
-                    Ok(())
-                })?);
-            }
+            CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glMaterialfv" | "glMaterialiv")) => ctx.set_material_vector(t)?,
+            CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetMaterialfv" | "glGetMaterialiv")) => ctx.get_material(t, out)?,
+            CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetLightfv" | "glGetLightiv")) => ctx.get_light(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPointerv") => {
                 // (glq glGetPointerv i <pname> p <n>: the slot, MEASURED, golden opengl-32 / 64
                 // gap-array-0)
