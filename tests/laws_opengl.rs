@@ -1715,3 +1715,19 @@ fn wgl_ansi_bitmap_range_failure_preserves_the_whole_list_range() {
             ["glctx ok 1", "wglx fontbmp 0 87", "ret 0", "ret 1", "glerr 0"]);
     }
 }
+
+#[test]
+fn wgl_bitmap_lists_draw_and_advance_like_windows() {
+    let input = include_str!("../cases/opengl.txt").lines().skip_while(|line| *line != "case gap-wgl-1")
+        .skip(1).take_while(|line| !line.starts_with("wglx fontbmp w")).collect::<Vec<_>>().join("\n");
+    let cases = kikizake::case::parse_cases(&format!("case bitmap\n{input}\nend\n"));
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    for recording in [include_str!("../golden/opengl-32/stdout.txt"), include_str!("../golden/opengl-64/stdout.txt")] {
+        let expected: Vec<_> = recording.lines().skip_while(|line| *line != "case gap-wgl-1")
+            .skip(1).take_while(|line| !line.starts_with("read ")).collect();
+        assert_eq!(&output[..expected.len()], expected);
+        let pixels = recording.lines().skip_while(|line| *line != "case gap-wgl-1")
+            .find(|line| line.starts_with("read ")).unwrap();
+        assert_eq!(output.last().unwrap(), pixels);
+    }
+}

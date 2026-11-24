@@ -1122,7 +1122,22 @@ crate::model::words! {
 }
 
 /// WGL operations on the executor's current bitmap DC.
-fn wgl_dc(ctx: &Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
+/// Monochrome glyphs measured with the runner's -12 pixel Arial and generic DIB.
+fn wgl_bitmap_line(code: i32) -> Res<list::Line> {
+    let args = match code {
+        32 => "0 0 0 0 3 0 null",
+        65 => "7 9 0 0 7 0 ub 130 130 68 124 68 40 40 40 16",
+        66 => "6 9 -1 0 8 0 ub 248 132 132 132 252 132 132 132 248",
+        67 => "7 9 -1 0 9 0 ub 56 68 130 128 128 128 130 68 56",
+        12354 => "8 11 -1 2 9 0 ub 204 34 17 49 169 170 124 32 254 32 32",
+        _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
+    };
+    let tok = ["glp", "glBitmap", "iiffff"].into_iter().chain(args.split_whitespace())
+        .map(String::from).collect();
+    Ok(list::Line { tok, unpack: Some([0, 0, 0, 0, 0, 1]), arrays: None })
+}
+
+fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
     let [_, name, args @ ..] = tokens else { return Err(Fail::Bad) };
     let integer = |arg: &String| crate::case::windows_long(arg).ok_or(Fail::Bad);
     let table = formats();
@@ -1155,11 +1170,21 @@ fn wgl_dc(ctx: &Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             if !matches!(encoding.as_str(), "a" | "w") { return Err(Fail::Bad); }
             let first = integer(first)?;
             let count = integer(count)?;
-            integer(base)?;
+            let base = integer(base)?.cast_unsigned();
             if !(0..=64).contains(&count) { return Err(Fail::Bad); }
             match (name.as_str(), rest) {
                 ("fontbmp", []) if count == 0 => "0 87".into(),
                 ("fontbmp", []) if encoding == "a" && first >= 0 && i64::from(first) + i64::from(count) > 256 => "0 87".into(),
+                ("fontbmp", []) if base > 0 && base.checked_add((count - 1).cast_unsigned()).is_some()
+                    && ctx.in_begin.is_none() && ctx.lists.compiling.is_none() => {
+                    let mut lines = Vec::new();
+                    for offset in 0..count {
+                        let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
+                        lines.push((base + offset.cast_unsigned(), vec![wgl_bitmap_line(code)?]));
+                    }
+                    ctx.lists.lists.extend(lines);
+                    "1 0".into()
+                }
                 ("fontoutline", [fmt]) if !matches!(integer(fmt)?, 0 | 1) => "0 8".into(),
                 ("fontoutline", [_]) if count == 0 => "1 0".into(),
                 ("fontbmp", []) | ("fontoutline", [_]) => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
