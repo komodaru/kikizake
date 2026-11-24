@@ -11260,3 +11260,157 @@ ellipse 0 -536870917 3 -268435459 11
 endpath 0
 getpath 0
 end
+case ellipse-outside-0-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 2 1 7 6
+dump 0
+end
+case ellipse-outside-0-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 2 1 7 6
+dump 0
+end
+case ellipse-outside-1-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 268435458 1 268435463 6
+dump 0
+end
+case ellipse-outside-1-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 268435458 1 268435463 6
+dump 0
+end
+case ellipse-outside-2-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 2 -268435455 7 -268435450
+dump 0
+end
+case ellipse-outside-2-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 2 -268435455 7 -268435450
+dump 0
+end
+case ellipse-outside-3-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 -268435454 -268435455 -268435449 -268435450
+dump 0
+end
+case ellipse-outside-3-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 -268435454 -268435455 -268435449 -268435450
+dump 0
+end
+case ellipse-outside-4-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 2 1 268435463 6
+dump 0
+end
+case ellipse-outside-4-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 2 1 268435463 6
+dump 0
+end
+case ellipse-outside-5-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 2 1 268435458 6
+dump 0
+end
+case ellipse-outside-5-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 2 1 268435458 6
+dump 0
+end
+case ellipse-outside-6-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 2 1 134217730 6
+dump 0
+end
+case ellipse-outside-6-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 2 1 134217730 6
+dump 0
+end
+case ellipse-outside-7-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 2 1 134217735 6
+dump 0
+end
+case ellipse-outside-7-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 2 1 134217735 6
+dump 0
+end
+case ellipse-outside-8-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 2 1 2 6
+dump 0
+end
+case ellipse-outside-8-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 2 1 2 6
+dump 0
+end
+case ellipse-outside-9-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 2 6 3 1
+dump 0
+end
+case ellipse-outside-9-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 2 6 3 1
+dump 0
+end
+case ellipse-outside-10-null
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 null
+ellipse 0 -2147483646 1 2147483646 6
+dump 0
+end
+case ellipse-outside-10-solid
+dib 0 8 8 8
+pen 0 0 1 #ffffff
+brush 0 solid #ff0000
+ellipse 0 -2147483646 1 2147483646 6
+dump 0
+end

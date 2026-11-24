@@ -211,5 +211,17 @@ pub fn path() -> String {
             }
         }
     }
+    // Ellipse without a path: 28.4 translation by a whole period, wrapped widths,
+    // half-period widths, LONG limits, and zero or reversed one-pixel axes.
+    for (i, (l, t, r, b)) in [
+        (2, 1, 7, 6), (268435458, 1, 268435463, 6), (2, -268435455, 7, -268435450),
+        (-268435454, -268435455, -268435449, -268435450), (2, 1, 268435463, 6),
+        (2, 1, 268435458, 6), (2, 1, 134217730, 6), (2, 1, 134217735, 6),
+        (2, 1, 2, 6), (2, 6, 3, 1), (-2147483646, 1, 2147483646, 6),
+    ].into_iter().enumerate() {
+        for (brush, name) in [("null", "null"), ("solid #ff0000", "solid")] {
+            writeln!(s, "case ellipse-outside-{i}-{name}\ndib 0 8 8 8\npen 0 0 1 #ffffff\nbrush 0 {brush}\nellipse 0 {l} {t} {r} {b}\ndump 0\nend");
+        }
+    }
     s
 }

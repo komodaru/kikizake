@@ -865,3 +865,8 @@ src/model/opengl_pixelmap.rs::all_unsigned_short_map_entries_round_trip exhausti
 tests/laws_opengl.rs::pixel_map_queries_preserve_entries_and_query_tail pbt GL.PIXELMAP
 tests/laws_opengl.rs::bitmap_every_byte_in_both_orders exhaustive GL.BITMAP
 tests/laws_opengl.rs::bitmap_unpack_skip_and_width pbt GL.BITMAP
+tests/laws_gdicurve.rs::empty_box_preserves_open_figure pbt GDI.PATH.EMPTYBOX
+spec/tla/GdiPathEmpty.tla::EmptyNext tla GDI.PATH.EMPTYBOX
+src/proofs.rs::mapped_ellipse_coordinate_conversions kani GDI.PATH.ELLIPSEMAP
+tests/laws_gdicurve.rs::mapped_ellipse_returns_logical_control_points pbt GDI.PATH.ELLIPSEMAP
+src/proofs.rs::polygon_notcopy_uses_packed_brush_word kani GDI.SHAPE.POLYNOTCOPY
