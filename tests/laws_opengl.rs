@@ -1891,3 +1891,24 @@ fn pixel_format_requests_use_windows_field_widths_at_every_entry_point() {
             ["glchoose 1", "glctx ok 1", "wglx choose 1"], "{request}");
     }
 }
+
+#[test]
+fn light_defaults_match_native_queries_and_write_widths() {
+    use std::fmt::Write;
+    let recorded: Vec<_> = include_str!("fixtures/opengl_light_defaults.txt").lines().collect();
+    assert_eq!(recorded.len(), 40);
+    for light in 0x4000..=0x4007 {
+        let mut input = String::from("case defaults\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+        for parameter in 0x1200..=0x1209 {
+            for ty in ["f", "i"] {
+                writeln!(input, "glq glGetLight{ty}v ii {light} {parameter} {ty} 4").unwrap();
+            }
+        }
+        input.push_str("glerr\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        let offset = if light == 0x4000 { 0 } else { 20 };
+        assert_eq!(&output[1..21], &recorded[offset..offset + 20]);
+        assert_eq!(output[21], "glerr 0");
+    }
+}

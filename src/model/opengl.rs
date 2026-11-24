@@ -1511,6 +1511,38 @@ impl Gl {
                     ctx.array_glp(t, at)?;
                 }
             }
+            CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetLightfv" | "glGetLightiv")) => {
+                let [_, name, sig, light, pname, ty, count] = t else { return Err(Fail::Bad) };
+                if sig != "ii" { return Err(Fail::Bad); }
+                let light = crate::case::windows_long(light).ok_or(Fail::Bad)?;
+                let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
+                let values: &[i32] = if ctx.in_begin.is_some() {
+                    ctx.error(INVALID_OPERATION);
+                    &[]
+                } else if !(0x4000..=0x4007).contains(&light) || !(0x1200..=0x1209).contains(&pname) {
+                    ctx.error(INVALID_ENUM);
+                    &[]
+                } else {
+                    match pname {
+                        0x1201 | 0x1202 if light == 0x4000 => &[1, 1, 1, 1],
+                        0x1200..=0x1202 => &[0, 0, 0, 1],
+                        0x1203 => &[0, 0, 1, 0],
+                        0x1204 => &[0, 0, -1],
+                        0x1206 => &[180],
+                        0x1207 => &[1],
+                        _ => &[0],
+                    }
+                };
+                out.push(query_bytes(ty, count, |dst| {
+                    for (word, &value) in dst.chunks_exact_mut(4).zip(values) {
+                        let bytes = if name == "glGetLightfv" { (value as f32).to_le_bytes() }
+                            else if pname <= 0x1202 { (value * 2_147_482_496).to_le_bytes() }
+                            else { value.to_le_bytes() };
+                        word.copy_from_slice(&bytes);
+                    }
+                    Ok(())
+                })?);
+            }
             CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPointerv") => {
                 // (glq glGetPointerv i <pname> p <n>: the slot, MEASURED, golden opengl-32 / 64
                 // gap-array-0)
