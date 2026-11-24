@@ -2162,3 +2162,12 @@ fn specular_highlights_follow_light_viewer_and_shininess() {
         }
     }
 }
+
+#[test]
+fn combined_material_update_keeps_face_selection_and_diffuse_alpha() {
+    let input = "case materials\nglctx 32 choose 0x38 0 32 8 0 32 8\ngl glDisable 0xbd0\ngl glEnable 0xb50\nglp glLightModelfv i 0xb53 f 1 1 1 1\nglp glMaterialfv ii 0x408 0x1602 f 0.1 0.25 0.75 0.5\nglp glMaterialfv ii 0x405 0x1200 f 0 1 0 1\nglq glGetMaterialfv ii 0x404 0x1200 f 4\nglq glGetMaterialfv ii 0x405 0x1200 f 4\nglq glGetMaterialiv ii 0x405 0x1201 i 4\ngl glBegin 0\ngl glVertex2i 0 0\ngl glEnd\nglread 8 7 1 1 0x1908 0x1401 4\nglerr\nend\n";
+    let cases = kikizake::case::parse_cases(input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["q 0.100000001 0.25 0.75 0.5", "q 0 1 0 1",
+        "q 214748256 536870624 1610611840 1073741248", "read 193fbf7f", "glerr 0"]);
+}

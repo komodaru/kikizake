@@ -476,6 +476,8 @@ pub struct Ctx {
     light_colors: [[[f32; 4]; 3]; 8],
     spot_directions: [[f32; 3]; 8],
     material_indices: [[f32; 3]; 2],
+    ambient_material: [[f32; 4]; 2],
+    diffuse_material: [[f32; 4]; 2],
     emission: [[f32; 4]; 2],
     specular: [[f32; 4]; 2],
     pub hints: [u32; 5],
@@ -572,13 +574,13 @@ impl Ctx {
         let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
         if !matches!(face, 0x404 | 0x405 | 0x408) {
             self.error(INVALID_ENUM);
-        } else if matches!(pname, 0x1202 | 0x1600 | 0x1601 | 0x1603) {
+        } else if matches!(pname, 0x1200..=0x1202 | 0x1600..=0x1603) {
             let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
             bytes.resize(16, 0);
             let mut values = [0.0; 4];
             for (v, chunk) in values.iter_mut().zip(bytes.chunks_exact(4)) {
                 let word = chunk.try_into().map_err(|_| Fail::Bad)?;
-                *v = if name == "glMaterialfv" { f32::from_le_bytes(word) } else if matches!(pname, 0x1202 | 0x1600) { array::color_component(INT, f64::from(i32::from_le_bytes(word))) }
+                *v = if name == "glMaterialfv" { f32::from_le_bytes(word) } else if matches!(pname, 0x1200..=0x1202 | 0x1600 | 0x1602) { array::color_component(INT, f64::from(i32::from_le_bytes(word))) }
                     else { i32::from_le_bytes(word) as f32 };
             }
             if pname == 0x1601 && !(0.0..=128.0).contains(&values[0]) {
@@ -587,6 +589,9 @@ impl Ctx {
                 for (i, target) in [0x404, 0x405].into_iter().enumerate() {
                     if face == target || face == 0x408 {
                         match pname {
+                            0x1200 => self.ambient_material[i] = values,
+                            0x1201 => self.diffuse_material[i] = values,
+                            0x1602 => { self.ambient_material[i] = values; self.diffuse_material[i] = values; }
                             0x1202 => self.specular[i] = values,
                             0x1600 => self.emission[i] = std::array::from_fn(|k| self.scaled_color_component(k, values[k])),
                             0x1601 => self.shininess[i] = values[0],
@@ -595,8 +600,7 @@ impl Ctx {
                     }
                 }
             }
-        } else if matches!(pname, 0x1200 | 0x1201 | 0x1602) {
-            return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE));
+
         } else { self.error(INVALID_ENUM); }
         Ok(())
     }
@@ -618,14 +622,15 @@ impl Ctx {
                 0x1603 => &self.material_indices[usize::from(face == 0x405)],
                 0x1202 => &self.specular[usize::from(face == 0x405)],
                 0x1600 => &self.emission[usize::from(face == 0x405)],
-                0x1200 | 0x1201 => return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE)),
+                0x1200 => &self.ambient_material[usize::from(face == 0x405)],
+                0x1201 => &self.diffuse_material[usize::from(face == 0x405)],
                 _ => { self.error(INVALID_ENUM); &[] }
             }
         };
         out.push(query_bytes(ty, count, |dst| {
             for (word, &value) in dst.chunks_exact_mut(4).zip(values) {
                 let bytes = if name == "glGetMaterialfv" { value.to_le_bytes() }
-                    else if matches!(pname, 0x1202 | 0x1600) { (color_to_int(value) as i32).to_le_bytes() }
+                    else if matches!(pname, 0x1200..=0x1202 | 0x1600 | 0x1602) { (color_to_int(value) as i32).to_le_bytes() }
                     else { (value.round() as i32).to_le_bytes() };
                 word.copy_from_slice(&bytes);
             }
@@ -804,6 +809,8 @@ impl Ctx {
             })),
             spot_directions: [[0.0, 0.0, -1.0]; 8],
             material_indices: [[0.0, 1.0, 1.0]; 2],
+            ambient_material: [[0.2, 0.2, 0.2, 1.0]; 2],
+            diffuse_material: [[0.8, 0.8, 0.8, 1.0]; 2],
             emission: [[0.0, 0.0, 0.0, 1.0]; 2],
             specular: [[0.0, 0.0, 0.0, 1.0]; 2],
             shade: SMOOTH,
@@ -2925,8 +2932,8 @@ impl Ctx {
         // (the sums clamped to 0..1 at the vertex, before they are interpolated (MEASURED,
         // golden opengl-32 / 64 interp-open-9: corners of 1.2 times the color as if 1))
         let tracked = self.cap(COLOR_MATERIAL);
-        let ambient = if tracked { c } else { [0.2; 4] };
-        let diffuse = if tracked { c } else { [0.8; 4] };
+        let ambient = if tracked { c } else { self.ambient_material[0] };
+        let diffuse = if tracked { c } else { self.diffuse_material[0] };
         let mut lit = std::array::from_fn(|k| self.emission[0][k] + self.scene_ambient[k] * ambient[k]);
         let eye = xform(self.top(0), vertex).map(|v| v as f32);
         for (i, position) in self.light_positions.iter().enumerate() {
@@ -2974,8 +2981,7 @@ impl Ctx {
             }
         }
         lit = lit.map(|v| v.clamp(0.0, 1.0));
-        lit[3] = 1.0;
-        if tracked { lit[3] = c[3]; }
+        lit[3] = diffuse[3].clamp(0.0, 1.0);
         lit
     }
 
@@ -5020,7 +5026,7 @@ impl Ctx {
             depth_transfer,
             zoom,
             // LIGHTING_BIT
-            shade, scene_ambient, local_viewer, two_sided, shininess, material_indices, emission, specular, light_scalars, light_positions, spot_directions, light_colors,
+            shade, scene_ambient, local_viewer, two_sided, shininess, material_indices, ambient_material, diffuse_material, emission, specular, light_scalars, light_positions, spot_directions, light_colors,
             // FOG_BIT
             fog,
             // DEPTH_BUFFER_BIT
@@ -5133,6 +5139,8 @@ impl Ctx {
             self.spot_directions = spot_directions;
             self.light_colors = light_colors;
             self.material_indices = material_indices;
+            self.ambient_material = ambient_material;
+            self.diffuse_material = diffuse_material;
             self.emission = emission;
             self.specular = specular;
         }
