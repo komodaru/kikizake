@@ -467,6 +467,8 @@ pub struct Ctx {
     pub scissor: [i64; 4],
     pub shade: u32,
     shininess: [f32; 2],
+    // Spot exponent, cutoff, constant/linear/quadratic attenuation for GL_LIGHT0..7.
+    light_scalars: [[f32; 5]; 8],
     material_indices: [[f32; 3]; 2],
     pub hints: [u32; 5],
     /// PACK_SWAP_BYTES.. PACK_ALIGNMENT (0xd00..0xd05), UNPACK (0xcf0..0xcf5)
@@ -621,7 +623,7 @@ impl Ctx {
         if sig != "ii" { return Err(Fail::Bad); }
         let light = crate::case::windows_long(light).ok_or(Fail::Bad)?;
         let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
-        let values: &[i32] = if self.in_begin.is_some() {
+        let values: &[f32] = if self.in_begin.is_some() {
             self.error(INVALID_OPERATION);
             &[]
         } else if !(0x4000..=0x4007).contains(&light) || !(0x1200..=0x1209).contains(&pname) {
@@ -629,20 +631,18 @@ impl Ctx {
             &[]
         } else {
             match pname {
-                0x1201 | 0x1202 if light == 0x4000 => &[1, 1, 1, 1],
-                0x1200..=0x1202 => &[0, 0, 0, 1],
-                0x1203 => &[0, 0, 1, 0],
-                0x1204 => &[0, 0, -1],
-                0x1206 => &[180],
-                0x1207 => &[1],
-                _ => &[0],
+                0x1201 | 0x1202 if light == 0x4000 => &[1.0; 4],
+                0x1200..=0x1202 => &[0.0, 0.0, 0.0, 1.0],
+                0x1203 => &[0.0, 0.0, 1.0, 0.0],
+                0x1204 => &[0.0, 0.0, -1.0],
+                _ => std::slice::from_ref(&self.light_scalars[(light - 0x4000) as usize][(pname - 0x1205) as usize]),
             }
         };
         out.push(query_bytes(ty, count, |dst| {
             for (word, &value) in dst.chunks_exact_mut(4).zip(values) {
-                let bytes = if name == "glGetLightfv" { (value as f32).to_le_bytes() }
-                    else if pname <= 0x1202 { (value * 2_147_482_496).to_le_bytes() }
-                    else { value.to_le_bytes() };
+                let bytes = if name == "glGetLightfv" { value.to_le_bytes() }
+                    else if pname <= 0x1202 { ((value * 2_147_482_496.0) as i32).to_le_bytes() }
+                    else { (value.round() as i32).to_le_bytes() };
                 word.copy_from_slice(&bytes);
             }
             Ok(())
@@ -695,6 +695,7 @@ impl Ctx {
             viewport: [0, 0, W as i64, H as i64],
             scissor: [0, 0, W as i64, H as i64],
             shininess: [0.0; 2],
+            light_scalars: [[0.0, 180.0, 1.0, 0.0, 0.0]; 8],
             material_indices: [[0.0, 1.0, 1.0]; 2],
             shade: SMOOTH,
             hints: [DONT_CARE; 5],
@@ -2277,6 +2278,19 @@ impl Ctx {
                 self.raster_color = self.current();
                 self.raster_eye = e[2];
                 self.raster_tex = self.tex_coords4(&Obj::at(v).with(self.vertex_coords(v, 1.0)));
+            }
+            "glLightf" | "glLighti" => {
+                let light = u(a, 0);
+                let pname = u(a, 1);
+                let value = fl(a, 2) as f32;
+                if !(0x4000..=0x4007).contains(&light) || !(0x1205..=0x1209).contains(&pname) {
+                    self.error(INVALID_ENUM);
+                } else if value < 0.0 || (pname == 0x1205 && value > 128.0)
+                    || (pname == 0x1206 && value > 90.0 && value != 180.0) {
+                    self.error(INVALID_VALUE);
+                } else {
+                    self.light_scalars[(light - 0x4000) as usize][(pname - 0x1205) as usize] = value;
+                }
             }
             "glMaterialf" | "glMateriali" => {
                 let face = u(a, 0);
@@ -4866,7 +4880,7 @@ impl Ctx {
             depth_transfer,
             zoom,
             // LIGHTING_BIT
-            shade, shininess, material_indices,
+            shade, shininess, material_indices, light_scalars,
             // FOG_BIT
             fog,
             // DEPTH_BUFFER_BIT
@@ -4971,6 +4985,7 @@ impl Ctx {
         if on(attrib::LIGHTING) {
             self.shade = shade;
             self.shininess = shininess;
+            self.light_scalars = light_scalars;
             self.material_indices = material_indices;
         }
         if on(attrib::FOG) {

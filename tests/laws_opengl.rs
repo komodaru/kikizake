@@ -2002,3 +2002,18 @@ fn bitmap_font_creation_inside_a_primitive_preserves_existing_lists() {
         }
     }
 }
+
+#[test]
+fn light_scalar_validation_preserves_the_previous_value() {
+    use std::fmt::Write;
+    let mut input = String::from("case scalars\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+    for pname in 0x1205..=0x1209 {
+        for value in ["2.5", "-1", "91", "129", "180"] {
+            writeln!(input, "gl glLightf 0x4007 {pname} {value}\nglq glGetLightiv ii 0x4007 {pname} i 1\nglerr").unwrap();
+        }
+    }
+    input.push_str("end\n");
+    let cases = kikizake::case::parse_cases(&input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(output[1..], include_str!("fixtures/opengl_light_scalars.txt").lines().collect::<Vec<_>>());
+}
