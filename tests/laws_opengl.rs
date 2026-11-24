@@ -3125,6 +3125,28 @@ end
     }
 }
 
+#[test]
+fn feedback_rectangles_follow_polygon_mode() {
+    for (mode, count, words) in [
+        (0x1b02, 16, "1795 3 4 4 12 4 12 12 1795 3 12 12 4 12 4 4"),
+        (0x1b01, 20, "1799 4 4 12 4 1794 12 4 12 12 1794 12 12 4 12 1794 4 12 4 4"),
+    ] {
+        let input = format!("case rectangle
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glFeedbackBuffer ii 64 1536 obuf
+glr glRenderMode i i 0x1c01
+gl glPolygonMode 0x408 {mode}
+gl glRectf -0.5 -0.5 0.5 0.5
+glr glRenderMode i i 0x1c00
+globuf f {count}
+end
+");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], ["ret 0".into(), format!("ret {count}"), format!("obuf {words}")]);
+    }
+}
+
 proptest! {
     #[test]
     fn selection_writes_only_the_prefix_that_fits(

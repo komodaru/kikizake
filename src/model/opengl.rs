@@ -1894,7 +1894,7 @@ impl Gl {
                 || t.get(1).is_some_and(|name| matches!(name.as_str(), "glFlush" | "glFinish"));
             if synchronous && !feedback.pending.is_empty() {
                 let end = feedback.written.checked_add(feedback.pending.len()).ok_or(Fail::Bad)?;
-                if end > 1024 { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
+                if end > 1024 { return Err(Fail::Bad); }
                 match ctx.feedback_buffer.2 {
                     array::Ptr::Other => {
                         let mut output = self.output.borrow_mut();
@@ -1916,10 +1916,10 @@ impl Gl {
                     "glBegin" | "glRectf" | "glRecti" | "glEdgeFlag" | "glCullFace" | "glFrontFace" | "glEnable" | "glDisable"
                     | "glRasterPos2i" | "glRasterPos2f" | "glRasterPos3f" | "glRasterPos4f"
                     | "glDepthRange" | "glMatrixMode" | "glLoadIdentity" | "glOrtho") || BEGIN_OK.contains(&n)))
-                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n, "glBegin" | "glEdgeFlag" | "glPolygonMode" | "glShadeModel" | "glCopyPixels" | "glRasterPos2f" | "glRasterPos2i" | "glRasterPos4f") || BEGIN_OK.contains(&n)))
+                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n, "glBegin" | "glRectf" | "glRecti" | "glEdgeFlag" | "glPolygonMode" | "glShadeModel" | "glCopyPixels" | "glRasterPos2f" | "glRasterPos2i" | "glRasterPos4f") || BEGIN_OK.contains(&n)))
                 || (ctx.feedback.is_some() && (matches!(cmd, CtxOp::Gldraw) || (matches!(cmd, CtxOp::Glp) && name == Some("glBitmap"))))
                 || (matches!(cmd, CtxOp::Glr | CtxOp::Glp) && matches!(name, Some("glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer")));
-            if !supported { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
+            if !supported { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT_INTERACTION)); }
         }
         match cmd {
             CtxOp::Gl => ctx.scalar_command(t)?,
@@ -2102,6 +2102,7 @@ impl Gl {
                 let [_, name, sig, size, rest @ ..] = t else { return Err(Fail::Bad); };
                 let feedback = name == "glFeedbackBuffer";
                 if sig != if feedback { "ii" } else { "i" } { return Err(Fail::Bad); }
+                hit(clause::GL_SELECT);
                 let size = crate::case::windows_long(size).ok_or(Fail::Bad)?;
                 let ty = if feedback { rest.first().and_then(|s| crate::case::windows_long(s)).ok_or(Fail::Bad)? } else { 0 };
                 let ptr = ctx.arrays.last.ok_or(Fail::Bad)?;
@@ -2116,6 +2117,7 @@ impl Gl {
                 let [_, _, _, sig, mode] = t else { return Err(Fail::Bad); };
                 if sig != "i" { return Err(Fail::Bad); }
                 let mode = crate::case::windows_long(mode).ok_or(Fail::Bad)?;
+                hit(clause::GL_SELECT);
                 let valid = match mode {
                     0x1c00 => true,
                     0x1c01 => ctx.feedback_buffer.2 != array::Ptr::Null,

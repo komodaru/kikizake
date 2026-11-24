@@ -8,7 +8,6 @@ use crate::spec::{open, OpenId};
 /// the open clause of a function the model does not follow, by its name
 pub fn of(name: &str) -> Option<OpenId> {
     Some(match name {
-        "glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer" => open::GL_SELECT,
         "glLightfv" | "glLightiv" | "glLightModelfv" | "glLightModeliv" | "glMaterialfv" | "glMaterialiv" | "glGetLightfv" | "glGetLightiv" | "glGetMaterialfv" | "glGetMaterialiv" => open::GL_LIGHT_STATE,
         _ => return None,
     })
@@ -20,10 +19,9 @@ pub fn call(name: &str) -> Option<OpenId> {
 }
 
 /// the open clause an executor op of arrays, results or WGL reaches (glp, glq, glr: by the function
-/// it names; globuf: selection and feedback; wglx: the other WGL functions)
+/// it names)
 pub fn op(t: &[String]) -> Res<OpenId> {
     match t.first().map(String::as_str) {
-        Some("globuf") => Ok(open::GL_SELECT),
         Some("glp" | "glq" | "glr") => t.get(1).and_then(|n| of(n)).ok_or(Fail::Bad),
         Some(_) | None => Err(Fail::Bad),
     }
