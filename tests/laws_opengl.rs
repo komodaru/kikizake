@@ -883,11 +883,15 @@ proptest! {
         for last in [[0.0, 0.0, 0.0], w] {
             let m: [f32; 16] = [c * sx, s * sx, 0.0, last[0], -s * sy, c * sy, 0.0, last[1], 0.0, 0.0, sz, last[2], t[0], t[1], t[2], 1.0];
             let inv = kikizake::model::opengl::tex::invert(&m).ok_or_else(|| TestCaseError::fail("singular"))?;
+            // The normwise residual bound scales with the matrix condition number.
+            let norm = |matrix: &[f32; 16]| (0..4).map(|r| (0..4)
+                .map(|c| f64::from(matrix[4 * c + r]).abs()).sum::<f64>()).fold(0.0, f64::max);
+            let scale = norm(&m) * norm(&inv);
             for r in 0..4 {
                 for col in 0..4 {
                     let v: f64 = (0..4).map(|k| f64::from(inv[k * 4 + r]) * f64::from(m[col * 4 + k])).sum();
                     let want = if r == col { 1.0 } else { 0.0 };
-                    prop_assert!((v - want).abs() < 1e-3, "({r}, {col}) {v}");
+                    prop_assert!((v - want).abs() <= 32.0 * f64::from(f32::EPSILON) * scale, "({r}, {col}) {v}, scale {scale}");
                 }
             }
         }
@@ -1946,4 +1950,12 @@ fn material_shininess_tracks_faces_and_the_lighting_stack() {
     let cases = kikizake::case::parse_cases(input);
     assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), ["glctx ok 1", "glerr 501",
         "q 3", "q 2.5 -12345", "q 20", "q 20", "q 0 1 1 2125315823", "glerr 0"]);
+}
+
+#[test]
+fn material_vectors_preserve_face_selection_and_round_indices() {
+    let input = "case vectors\nglctx 32 choose 0x38 0 32 0 0 32 8\nglp glMaterialfv ii 0x408 0x1603 f -1.5 2.5 4.75\nglq glGetMaterialfv ii 0x404 0x1603 f 4\nglq glGetMaterialiv ii 0x405 0x1603 i 4\ngl glPushAttrib 0x40\nglp glMaterialiv ii 0x405 0x1603 i -3 4 7\nglq glGetMaterialfv ii 0x405 0x1603 f 3\ngl glPopAttrib\nglq glGetMaterialfv ii 0x405 0x1603 f 3\nglp glMaterialfv ii 0x408 0x1601 f 2.5\nglq glGetMaterialiv ii 0x405 0x1601 i 1\nglerr\nend\n";
+    let cases = kikizake::case::parse_cases(input);
+    assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), ["glctx ok 1", "q -1.5 2.5 4.75 -12345",
+        "q -2 3 5 2125315823", "q -3 4 7", "q -1.5 2.5 4.75", "q 3", "glerr 0"]);
 }

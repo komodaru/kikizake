@@ -467,6 +467,7 @@ pub struct Ctx {
     pub scissor: [i64; 4],
     pub shade: u32,
     shininess: [f32; 2],
+    material_indices: [[f32; 3]; 2],
     pub hints: [u32; 5],
     /// PACK_SWAP_BYTES.. PACK_ALIGNMENT (0xd00..0xd05), UNPACK (0xcf0..0xcf5)
     pub pack: [i64; 6],
@@ -599,6 +600,7 @@ impl Ctx {
             viewport: [0, 0, W as i64, H as i64],
             scissor: [0, 0, W as i64, H as i64],
             shininess: [0.0; 2],
+            material_indices: [[0.0, 1.0, 1.0]; 2],
             shade: SMOOTH,
             hints: [DONT_CARE; 5],
             pack: [0, 0, 0, 0, 0, 4],
@@ -1513,6 +1515,35 @@ impl Gl {
                     ctx.array_glp(t, at)?;
                 }
             }
+            CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glMaterialfv" | "glMaterialiv")) => {
+                let [_, name, sig, face, pname, ..] = t else { return Err(Fail::Bad) };
+                if sig != "ii" { return Err(Fail::Bad); }
+                let face = crate::case::windows_long(face).ok_or(Fail::Bad)?;
+                let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
+                if !matches!(face, 0x404 | 0x405 | 0x408) {
+                    ctx.error(INVALID_ENUM);
+                } else if matches!(pname, 0x1601 | 0x1603) {
+                    let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
+                    bytes.resize(12, 0);
+                    let mut values = [0.0; 3];
+                    for (v, chunk) in values.iter_mut().zip(bytes.chunks_exact(4)) {
+                        let word = chunk.try_into().map_err(|_| Fail::Bad)?;
+                        *v = if name == "glMaterialfv" { f32::from_le_bytes(word) } else { i32::from_le_bytes(word) as f32 };
+                    }
+                    if pname == 0x1601 && !(0.0..=128.0).contains(&values[0]) {
+                        ctx.error(INVALID_VALUE);
+                    } else {
+                        for (i, target) in [0x404, 0x405].into_iter().enumerate() {
+                            if face == target || face == 0x408 {
+                                if pname == 0x1601 { ctx.shininess[i] = values[0]; }
+                                else { ctx.material_indices[i] = values; }
+                            }
+                        }
+                    }
+                } else if matches!(pname, 0x1200..=0x1202 | 0x1600 | 0x1602) {
+                    return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE));
+                } else { ctx.error(INVALID_ENUM); }
+            }
             CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetMaterialfv" | "glGetMaterialiv")) => {
                 let [_, name, sig, face, pname, ty, count] = t else { return Err(Fail::Bad) };
                 if sig != "ii" { return Err(Fail::Bad); }
@@ -1527,7 +1558,7 @@ impl Gl {
                 } else {
                     match pname {
                         0x1601 => std::slice::from_ref(&ctx.shininess[usize::from(face == 0x405)]),
-                        0x1603 => &[0.0, 1.0, 1.0],
+                        0x1603 => &ctx.material_indices[usize::from(face == 0x405)],
                         0x1200..=0x1202 | 0x1600 => return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE)),
                         _ => { ctx.error(INVALID_ENUM); &[] }
                     }
@@ -4817,7 +4848,7 @@ impl Ctx {
             depth_transfer,
             zoom,
             // LIGHTING_BIT
-            shade, shininess,
+            shade, shininess, material_indices,
             // FOG_BIT
             fog,
             // DEPTH_BUFFER_BIT
@@ -4922,6 +4953,7 @@ impl Ctx {
         if on(attrib::LIGHTING) {
             self.shade = shade;
             self.shininess = shininess;
+            self.material_indices = material_indices;
         }
         if on(attrib::FOG) {
             self.fog = fog;
