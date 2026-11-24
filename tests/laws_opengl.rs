@@ -2992,3 +2992,39 @@ end
         assert_eq!(output[5], "glerr 0");
     }
 }
+
+#[test]
+fn feedback_points_match_all_five_windows_formats() {
+    let input = "case point
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glFeedbackBuffer ii 64 TYPE obuf
+glr glRenderMode i i 0x1c01
+gl glBegin 0
+gl glColor4f 0.25 0.5 0.75 1
+gl glTexCoord4f 0.125 0.25 0.5 2
+gl glVertex4f -0.5 0.5 0.25 2
+gl glVertex3f 2 0 0
+gl glEnd
+glr glRenderMode i i 0x1c00
+globuf f COUNT
+glerr
+end
+";
+    let expected = ["1793 6 10", "1793 6 10 0.5625", "1793 6 10 0.5625 0.25 0.5 0.75000006 1",
+        "1793 6 10 0.5625 0.25 0.5 0.75000006 1 0.125 0.25 0.5 2",
+        "1793 6 10 0.5625 2 0.25 0.5 0.75000006 1 0.125 0.25 0.5 2"];
+    for (vertex, words) in [("-0.031 0.042 0.55 1", "obuf 1793 7.75390625 8.3359375"), ("1 -1 0 1", "obuf 1793 15.9960938 0.00390625")] {
+        let program = input.replace("TYPE", "1536").replace("COUNT", "3").replace("-0.5 0.5 0.25 2", vertex);
+        let cases = kikizake::case::parse_cases(&program);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(output[3], words);
+    }
+    for (index, words) in expected.into_iter().enumerate() {
+        let ty = 1536 + index;
+        let count = words.split_whitespace().count();
+        let program = input.replace("TYPE", &ty.to_string()).replace("COUNT", &count.to_string());
+        let cases = kikizake::case::parse_cases(&program);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], ["ret 0".into(), format!("ret {count}"), format!("obuf {words}"), "glerr 0".into()]);
+    }
+}

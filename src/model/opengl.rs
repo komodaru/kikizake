@@ -1860,6 +1860,7 @@ impl Gl {
             let name = t.get(1).map(String::as_str);
             let supported = matches!(cmd, CtxOp::Glget | CtxOp::Glerr | CtxOp::Glisen | CtxOp::Glstr)
                 || (matches!(cmd, CtxOp::Gl) && matches!(name, Some("glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" | "glFlush" | "glFinish")))
+                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| n == "glBegin" || BEGIN_OK.contains(&n)))
                 || (matches!(cmd, CtxOp::Glr | CtxOp::Glp) && matches!(name, Some("glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer")));
             if !supported { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
         }
@@ -2874,7 +2875,7 @@ impl Ctx {
                     return Ok(());
                 }
                 hit(clause::GL_RASTER_PERSPECTIVE_DIVIDE);
-                if self.in_begin != Some(POINTS) {
+                if self.in_begin != Some(POINTS) || self.feedback.is_some() {
                     // (MEASURED, golden opengl-32 persp-more-3..5: the clip coordinates of
                     // (x, y, z, w), cut and divided as any others)
                     self.submit_vertex(Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_on(), back_color: None, fog_factor: None }, [fl(a, 0), fl(a, 1), fl(a, 2), w]);
@@ -4297,6 +4298,7 @@ impl Ctx {
     }
 
     fn end_with_edges(&mut self, mode: u32, edges: Option<&[bool]>) -> Res<()> {
+        if self.feedback.is_some() && mode != POINTS { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
         let visible = |i| edges.and_then(|e| e.get(i)).copied().unwrap_or(true);
         let texturing = self.texturing();
         self.line_texture = None;
@@ -4318,11 +4320,27 @@ impl Ctx {
                     // (a point under a projection outside the view volume: not drawn, as one at
                     // w = 1 outside the near or far plane)
                     let p = self.clip_coords(v);
-                    if p[3] != 1.0 && !p[..3].iter().all(|q| (-p[3]..=p[3]).contains(q)) {
+                    if (p[3] != 1.0 || self.feedback.is_some()) && !p[..3].iter().all(|q| (-p[3]..=p[3]).contains(q)) {
                         hit(clause::GL_RASTER_PERSPECTIVE);
                         continue;
                     }
                     let mut w = self.window(v)?;
+                    if self.feedback.is_some() {
+                        let ty = self.feedback_buffer.1;
+                        let x = tri::float(self.snap_window(w[0], Axis::X)) / 256.0;
+                        let y = tri::float(self.snap_window(w[1], Axis::Y)) / 256.0;
+                        let z = tri::narrow(w[2]);
+                        let mut record = vec![1793.0, x, y]; // GL_POINT_TOKEN
+                        if ty >= 0x601 { record.push(z); }
+                        if ty == 0x604 { record.push(p[3]); }
+                        if ty >= 0x602 {
+                            if self.pf.ty == 0 { record.extend(c.map(|v| (v.clamp(0.0, 1.0) * 255.0) * (1.0 / 255.0))); }
+                            else { record.push(c[0]); }
+                        }
+                        if ty >= 0x603 { record.extend(self.tex_coords4(&v)); }
+                        self.feedback.as_mut().ok_or(Fail::Bad)?.emit(&record, self.feedback_buffer.0);
+                        continue;
+                    }
                     if let Some(offset) = self.loop_offsets.get(i) { w[2] = f64::from(tri::narrow(w[2]) + offset); }
                     self.frag_tex = Some(texdraw::Stq::at(self.tex_coords(&v)));
                     self.frag_fog = v.fog_factor;
