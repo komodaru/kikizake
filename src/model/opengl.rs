@@ -3998,6 +3998,31 @@ impl Ctx {
             } else { q }
         } else { q };
 
+        if self.feedback.is_some() {
+            let flat = q.get(provoking).ok_or(Fail::Bad)?.1;
+            let attrs: Vec<_> = q.iter().map(|&(obj, color)| {
+                let [x, y, z, w] = self.clip_coords(obj);
+                let [r, g, b, a] = if self.shade == FLAT { flat } else { color };
+                let [s, t, u, v] = self.tex_coords4(&obj);
+                [x, y, z, w, r, g, b, a, s, t, u, v]
+            }).collect();
+            let cut = self.clip_polygon(q, &attrs).0;
+            if cut.len() < 3 { return Ok(()); }
+            let window: Vec<_> = cut.iter().map(|p| [f64::from(p[0] / p[3]), f64::from(p[1] / p[3])]).collect();
+            let front = (tri::signed_area(&window) > 0.0) == (self.front_face == CCW);
+            if self.cap(CULL_FACE) && self.cull_mode != (if front { BACK } else { FRONT }) { return Ok(()); }
+            if (if front { self.poly_mode[0] } else { self.poly_mode[1] }) != POLY_FILL { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
+            let (first, rest) = cut.split_first().ok_or(Fail::Bad)?;
+            for [second, third] in rest.array_windows() {
+                let mut record = vec![1795.0, 3.0]; // GL_POLYGON_TOKEN, vertex count
+                for &[x, y, z, w, r, g, b, a, s, t, u, v] in [first, second, third] {
+                    self.feedback_vertex(&mut record, [x, y, z, w], [r, g, b, a], [s, t, u, v]);
+                }
+                self.feedback.as_mut().ok_or(Fail::Bad)?.emit(&record, self.feedback_buffer.0);
+            }
+            return Ok(());
+        }
+
         // (filled polygons only: other polygon modes, stipple, antialiasing and offsets on
         // triangles are not measured)
         if self.poly_mode != [POLY_FILL, POLY_FILL] {
@@ -4327,7 +4352,6 @@ impl Ctx {
     }
 
     fn end_with_edges(&mut self, mode: u32, edges: Option<&[bool]>) -> Res<()> {
-        if self.feedback.is_some() && !matches!(mode, POINTS | LINES | LINE_STRIP | LINE_LOOP) { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
         let visible = |i| edges.and_then(|e| e.get(i)).copied().unwrap_or(true);
         let texturing = self.texturing();
         self.line_texture = None;
@@ -4370,6 +4394,14 @@ impl Ctx {
             }
             QUADS => {
                 for q in verts.chunks(4).filter(|q| q.len() == 4) {
+                    if self.feedback.is_some() {
+                        let &[a, b, c, d] = q else { return Err(Fail::Bad); };
+                        for vertices in [[a, b, c], [c, d, a]] {
+                            let triangle = vertices.map(|(obj, color)| (obj, if self.shade == FLAT { d.1 } else { color }));
+                            self.polygon(&triangle, 2)?;
+                        }
+                        continue;
+                    }
                     if self.culled_z(&q.iter().map(|v| v.0).collect::<Vec<_>>()) {
                         continue;
                     }
@@ -4498,7 +4530,16 @@ impl Ctx {
                     _ => 2,
                 };
                 for p in polys {
-                    self.polygon(&p.iter().map(|k| verts[*k]).collect::<Vec<_>>(), provoking)?;
+                    let vertices = p.iter().map(|&k| verts.get(k).copied().ok_or(Fail::Bad)).collect::<Res<Vec<_>>>()?;
+                    if mode == QUAD_STRIP && self.feedback.is_some() {
+                        let &[a, b, c, d] = vertices.as_slice() else { return Err(Fail::Bad); };
+                        for corners in [[a, b, c], [c, d, a]] {
+                            let triangle = corners.map(|(obj, color)| (obj, if self.shade == FLAT { c.1 } else { color }));
+                            self.polygon(&triangle, 2)?;
+                        }
+                    } else {
+                        self.polygon(&vertices, provoking)?;
+                    }
                 }
             }
             LINES | LINE_LOOP | LINE_STRIP => {

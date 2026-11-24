@@ -651,6 +651,13 @@ pub fn opengl() -> String {
     raster_rest(&mut s);
     attrib_more(&mut last);
     lists_more(&mut last);
+    for (mode, name) in [(4, "triangles"), (5, "triangle-strip"), (6, "triangle-fan"), (7, "quads"), (8, "quad-strip"), (9, "polygon")] {
+        writeln!(last, "case feedback-topology-{name}\n{}glp glFeedbackBuffer ii 64 1536 obuf\nglr glRenderMode i i 0x1c01\ngl glBegin {mode}", ctx(32));
+        for (x, y) in [("-0.5", "-0.5"), ("0.5", "-0.5"), ("0.5", "0.5"), ("-0.5", "0.5")] {
+            writeln!(last, "gl glVertex2f {x} {y}");
+        }
+        writeln!(last, "gl glEnd\nglr glRenderMode i i 0x1c00\nglobuf f 16\nend");
+    }
     s + &last
 }
 
