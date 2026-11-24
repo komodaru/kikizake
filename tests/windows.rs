@@ -67,6 +67,17 @@ fn models_match_windows() {
                 let actual = case::parse_output(&want).cases.into_iter().find(|(name, _)| name == "gap-light-0").unwrap();
                 assert_eq!(actual, expected, "lighting state and color-material rendering on {arch}-bit Windows");
             }
+            if matches!(*s, "d3d10res" | "d3d11res") {
+                let expected = case::parse_output(&g);
+                let actual = case::parse_output(&want);
+                for index in 0..=20 {
+                    let name = format!("probe-box-{index}");
+                    let reference = expected.cases.iter().find(|(n, _)| *n == name)
+                        .unwrap_or_else(|| panic!("missing Windows recording for {s}-{arch} {name}"));
+                    let modeled = actual.cases.iter().find(|(n, _)| *n == name);
+                    assert_eq!(modeled, Some(reference), "{s}-{arch} {name}");
+                }
+            }
             let r = compare::compare_text(&want, &g);
             eprintln!("kikizake_{s}-{arch}: {} cases, {} as Windows, {} unmodeled, {} differ", r.cases, r.same, r.unmodeled, r.differ.len());
             bad.extend(r.differ.iter().map(|d| format!("{s}-{arch} {d}")));
