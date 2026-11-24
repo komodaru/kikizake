@@ -8,6 +8,25 @@ be usable without a Windows machine.
 
 The name is 利き酒, sake tasting: telling by taste whether it is right.
 
+### Building on Windows with MSVC
+
+Open an x86 or x64 Visual Studio Developer Command Prompt with the Windows SDK
+installed. Install the pinned header package into a Python environment and run:
+
+```bat
+python -m pip install ziglang==0.14.1
+for /f "delims=" %i in ('python -c "import pathlib,ziglang; print(pathlib.Path(ziglang.__file__).parent / 'lib/libc/include/any-windows-any')"') do set "KZ_HEADERS=%i"
+python runner/msvc/build.py --mingw-headers "%KZ_HEADERS%" --out out ntcase d2d
+```
+
+The script compiles every runner module with `cl` and links one executable per
+requested suite, e.g. `out/msvc_d2d-64.exe`. The architecture follows the
+Developer Command Prompt. Direct3D 8 drawing requires x86. The build uses
+MinGW-w64's C declarations for Direct2D, DirectWrite and Direct3D 8, and the
+Windows SDK and MSVC runtime for the remaining headers and libraries. An existing
+directory containing the same MinGW-w64 headers can also be passed directly.
+The canonical recordings in `golden/` use `runner/build.sh` for their source hashes.
+
 ## How it works
 
 ```
