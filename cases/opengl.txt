@@ -122454,6 +122454,57 @@ gl glEnd
 glr glRenderMode i i 0x1c00
 globuf u 8
 end
+case selection-depth-partial-header
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glSelectBuffer i 3 obuf
+glr glRenderMode i i 0x1c02
+gl glInitNames
+gl glPushName 7
+gl glBegin 0
+gl glVertex3f 0 0 -0.5
+gl glVertex3f 0 0 0.5
+gl glEnd
+gl glLoadName 8
+gl glBegin 0
+gl glVertex3f 0 0 0
+gl glEnd
+glr glRenderMode i i 0x1c00
+globuf u 8
+end
+case selection-depth-partial-second
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glSelectBuffer i 7 obuf
+glr glRenderMode i i 0x1c02
+gl glInitNames
+gl glPushName 7
+gl glBegin 0
+gl glVertex3f 0 0 -0.5
+gl glVertex3f 0 0 0.5
+gl glEnd
+gl glLoadName 8
+gl glBegin 0
+gl glVertex3f 0 0 0
+gl glEnd
+glr glRenderMode i i 0x1c00
+globuf u 8
+end
+case selection-depth-exact
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glSelectBuffer i 8 obuf
+glr glRenderMode i i 0x1c02
+gl glInitNames
+gl glPushName 7
+gl glBegin 0
+gl glVertex3f 0 0 -0.5
+gl glVertex3f 0 0 0.5
+gl glEnd
+gl glLoadName 8
+gl glBegin 0
+gl glVertex3f 0 0 0
+gl glEnd
+glr glRenderMode i i 0x1c00
+globuf u 8
+end
 case feedback-topology-triangles
 glctx 32 choose 0x38 0 32 0 0 32 8
 glp glFeedbackBuffer ii 64 1536 obuf
