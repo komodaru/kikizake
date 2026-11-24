@@ -2051,3 +2051,13 @@ fn spot_direction_is_transformed_without_translation_or_normalization() {
     assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(),
         ["glctx ok 1", "q 2 2 -2 -12345", "q 0.5 0.666666687 -0.25 -12345", "glerr 0"]);
 }
+
+#[test]
+fn light_color_conversions_match_windows_outside_the_unit_interval() {
+    let input = "case lightcolor\nglctx 32 choose 0x38 0 32 0 0 32 8\nglp glLightfv ii 0x4003 0x1201 f -0.5 0.25 1 2\nglq glGetLightfv ii 0x4003 0x1201 f 4\nglq glGetLightiv ii 0x4003 0x1201 i 4\nglp glLightiv ii 0x4003 0x1202 i -2147483648 -1 0 2147483647\nglq glGetLightfv ii 0x4003 0x1202 f 4\nglq glGetLightiv ii 0x4003 0x1202 i 4\nglerr\nend\n";
+    let cases = kikizake::case::parse_cases(input);
+    assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), ["glctx ok 1", "q -0.5 0.25 1 2",
+        "q -1073741248 536870624 2147482496 -2147483648",
+        "q -1.0000006 -2.32830782e-10 2.32830782e-10 1.0000006",
+        "q -2147483648 -1 0 -2147483648", "glerr 0"]);
+}

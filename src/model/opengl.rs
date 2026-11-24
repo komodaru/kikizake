@@ -470,6 +470,7 @@ pub struct Ctx {
     // Spot exponent, cutoff, constant/linear/quadratic attenuation for GL_LIGHT0..7.
     light_scalars: [[f32; 5]; 8],
     light_positions: [[f32; 4]; 8],
+    light_colors: [[[f32; 4]; 3]; 8],
     spot_directions: [[f32; 3]; 8],
     material_indices: [[f32; 3]; 2],
     pub hints: [u32; 5],
@@ -640,15 +641,21 @@ impl Ctx {
             self.error(INVALID_OPERATION);
         } else if !(0x4000..=0x4007).contains(&light) || !(0x1200..=0x1209).contains(&pname) {
             self.error(INVALID_ENUM);
-        } else if pname >= 0x1203 {
+        } else {
             let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
             bytes.resize(16, 0);
             let mut values = [0.0; 4];
             for (value, chunk) in values.iter_mut().zip(bytes.chunks_exact(4)) {
                 let word = chunk.try_into().map_err(|_| Fail::Bad)?;
-                *value = if name == "glLightfv" { f32::from_le_bytes(word) } else { i32::from_le_bytes(word) as f32 };
+                *value = if name == "glLightfv" { f32::from_le_bytes(word) }
+                    else if pname <= 0x1202 {
+                        // Measured glLightiv color scale, including the half-step at zero.
+                        (2.0 * f64::from(i32::from_le_bytes(word)) + 1.0) as f32 * f32::from_bits(0x2f80_0005)
+                    } else { i32::from_le_bytes(word) as f32 };
             }
-            if pname == 0x1203 {
+            if pname <= 0x1202 {
+                self.light_colors[(light - 0x4000) as usize][(pname - 0x1200) as usize] = values;
+            } else if pname == 0x1203 {
                 let m = self.top(0);
                 let [x, y, z, w] = values;
                 let eye = std::array::from_fn(|r| ((m[12 + r] * w + m[r] * x) + m[4 + r] * y) + m[8 + r] * z);
@@ -660,8 +667,6 @@ impl Ctx {
             } else {
                 self.set_light_scalar(light, pname, values[0]);
             }
-        } else {
-            return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE));
         }
         Ok(())
     }
@@ -679,8 +684,7 @@ impl Ctx {
             &[]
         } else {
             match pname {
-                0x1201 | 0x1202 if light == 0x4000 => &[1.0; 4],
-                0x1200..=0x1202 => &[0.0, 0.0, 0.0, 1.0],
+                0x1200..=0x1202 => &self.light_colors[(light - 0x4000) as usize][(pname - 0x1200) as usize],
                 0x1203 => &self.light_positions[(light - 0x4000) as usize],
                 0x1204 => &self.spot_directions[(light - 0x4000) as usize],
                 _ => std::slice::from_ref(&self.light_scalars[(light - 0x4000) as usize][(pname - 0x1205) as usize]),
@@ -689,7 +693,7 @@ impl Ctx {
         out.push(query_bytes(ty, count, |dst| {
             for (word, &value) in dst.chunks_exact_mut(4).zip(values) {
                 let bytes = if name == "glGetLightfv" { value.to_le_bytes() }
-                    else if pname <= 0x1202 { ((value * 2_147_482_496.0) as i32).to_le_bytes() }
+                    else if pname <= 0x1202 { (color_to_int(value) as i32).to_le_bytes() }
                     else { (value.round() as i32).to_le_bytes() };
                 word.copy_from_slice(&bytes);
             }
@@ -745,6 +749,9 @@ impl Ctx {
             shininess: [0.0; 2],
             light_scalars: [[0.0, 180.0, 1.0, 0.0, 0.0]; 8],
             light_positions: [[0.0, 0.0, 1.0, 0.0]; 8],
+            light_colors: std::array::from_fn(|light| std::array::from_fn(|color| {
+                if light == 0 && color != 0 { [1.0; 4] } else { [0.0, 0.0, 0.0, 1.0] }
+            })),
             spot_directions: [[0.0, 0.0, -1.0]; 8],
             material_indices: [[0.0, 1.0, 1.0]; 2],
             shade: SMOOTH,
@@ -1447,6 +1454,41 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
 }
 
 impl Gl {
+    fn create_context(&mut self, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        self.ctx = None;
+        let bpp = t.get(1).and_then(|v| num(v)).ok_or(Fail::Bad)? as u32;
+        let pf = if t.get(2).is_some_and(|v| v == "choose") {
+            choose_pfd(&t[3..])?
+        } else {
+            if t.len() != 3 {
+                return Err(Fail::Bad);
+            }
+            num(&t[2]).ok_or(Fail::Bad)? as usize
+        };
+        let f = formats();
+        let Some(p) = pf.checked_sub(1).and_then(|i| f.get(i)) else {
+            // (MEASURED, golden opengl-32 edge-pf-range: ERROR_INVALID_PARAMETER, no context)
+            hit(clause::WGL_SETPIXELFORMAT_RANGE);
+            out.push("glctx set failed 87".into());
+            return Ok(());
+        };
+        if p.flags & PFD_DRAW_TO_BITMAP == 0 {
+            hit(clause::WGL_SETPIXELFORMAT_BITMAP);
+            out.push("glctx set failed 87".into());
+        } else if p.color != bpp {
+            hit(clause::WGL_SETPIXELFORMAT_DEPTH);
+            out.push("glctx set failed 1".into());
+        } else {
+            hit(clause::WGL_CONTEXT);
+            if p.ty != 0 {
+                hit(clause::GL_COLORINDEX);
+            }
+            self.ctx = Some(Ctx::new(p.clone(), bpp));
+            out.push(format!("glctx ok {pf}"));
+        }
+        Ok(())
+    }
+
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
         let name = t[0].as_str();
@@ -1467,40 +1509,7 @@ impl Gl {
                 out.push(format!("glchoose {}", choose_pfd(args)?));
                 return Ok(true);
             }
-            "glctx" => {
-                self.ctx = None;
-                let bpp = t.get(1).and_then(|v| num(v)).ok_or(Fail::Bad)? as u32;
-                let pf = if t.get(2).is_some_and(|v| v == "choose") {
-                    choose_pfd(&t[3..])?
-                } else {
-                    if t.len() != 3 {
-                        return Err(Fail::Bad);
-                    }
-                    num(&t[2]).ok_or(Fail::Bad)? as usize
-                };
-                let f = formats();
-                let Some(p) = pf.checked_sub(1).and_then(|i| f.get(i)) else {
-                    // (MEASURED, golden opengl-32 edge-pf-range: ERROR_INVALID_PARAMETER, no context)
-                    hit(clause::WGL_SETPIXELFORMAT_RANGE);
-                    out.push("glctx set failed 87".into());
-                    return Ok(true);
-                };
-                if p.flags & PFD_DRAW_TO_BITMAP == 0 {
-                    hit(clause::WGL_SETPIXELFORMAT_BITMAP);
-                    out.push("glctx set failed 87".into());
-                } else if p.color != bpp {
-                    hit(clause::WGL_SETPIXELFORMAT_DEPTH);
-                    out.push("glctx set failed 1".into());
-                } else {
-                    hit(clause::WGL_CONTEXT);
-                    if p.ty != 0 {
-                        hit(clause::GL_COLORINDEX);
-                    }
-                    self.ctx = Some(Ctx::new(p.clone(), bpp));
-                    out.push(format!("glctx ok {pf}"));
-                }
-                return Ok(true);
-            }
+            "glctx" => { self.create_context(t, out)?; return Ok(true); }
             "glcur" => {
                 hit(clause::WGL_CURRENT);
                 let c = self.ctx.is_some() as u32;
@@ -4923,7 +4932,7 @@ impl Ctx {
             depth_transfer,
             zoom,
             // LIGHTING_BIT
-            shade, shininess, material_indices, light_scalars, light_positions, spot_directions,
+            shade, shininess, material_indices, light_scalars, light_positions, spot_directions, light_colors,
             // FOG_BIT
             fog,
             // DEPTH_BUFFER_BIT
@@ -5031,6 +5040,7 @@ impl Ctx {
             self.light_scalars = light_scalars;
             self.light_positions = light_positions;
             self.spot_directions = spot_directions;
+            self.light_colors = light_colors;
             self.material_indices = material_indices;
         }
         if on(attrib::FOG) {
