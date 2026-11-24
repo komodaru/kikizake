@@ -2640,17 +2640,30 @@ impl Ctx {
         };
         let [_, _, vw, vh] = self.viewport.map(|v| v as f64);
         let center = self.viewport_center();
-        let clip: Vec<[f32; 11]> = q
+        let enabled: Vec<usize> = (0..6).filter(|&i| self.cap(0x3000 + i as u32)).collect();
+        let clip: Vec<[f32; 17]> = q
             .iter()
             .zip(colors)
             .enumerate()
             .map(|(k, (v, c))| {
                 let p = self.clip_coords(v.0);
                 let [ts, tt, tq] = stq.and_then(|t| t.get(k)).copied().unwrap_or([0.0; 3]);
-                [p[0], p[1], p[2], p[3], c[0] as f32, c[1] as f32, c[2] as f32, c[3] as f32, ts, tt, tq]
+                let mut vertex = [0.0; 17];
+                vertex[..11].copy_from_slice(&[p[0], p[1], p[2], p[3], c[0] as f32, c[1] as f32, c[2] as f32, c[3] as f32, ts, tt, tq]);
+                if !enabled.is_empty() {
+                    let [x, y, z] = v.0.xyz;
+                    let eye = xform(self.top(0), [x, y, z, v.0.w]).map(|a| a as f32);
+                    for &i in &enabled {
+                        vertex[11 + i] = self.clip_planes[i].iter().zip(eye).map(|(a, b)| a * b).sum();
+                    }
+                }
+                vertex
             })
             .collect();
-        let (poly, crossed) = tri::clip_crossing(&clip);
+        let (mut poly, crossed) = tri::clip_crossing(&clip);
+        for i in enabled {
+            poly = tri::clip_halfspace(&poly, |v| v[11 + i]).0;
+        }
         if poly.len() < 3 {
             return Ok(Vec::new());
         }
@@ -2672,7 +2685,7 @@ impl Ctx {
         let col: Vec<[f64; 4]> = poly.iter().map(|c| [c[4], c[5], c[6], c[7]].map(f64::from)).collect();
         let zs: Vec<f32> = ndc.iter().map(|c| self.window_z(c[2])).collect();
         // (s, t and q times 1 / w, as the colors' planes: texture.md 4.7)
-        let tq: Vec<[f64; 4]> = poly.iter().map(|&[.., w, _, _, _, _, s, t, q]| [s, t, q, 0.0].map(|v| f64::from(v * (1.0 / w)))).collect();
+        let tq: Vec<[f64; 4]> = poly.iter().map(|&[_, _, _, w, _, _, _, _, s, t, q, ..]| [s, t, q, 0.0].map(|v| f64::from(v * (1.0 / w)))).collect();
         let (w, h) = (W as i64, H as i64);
         let mut out = Vec::new();
         for k in 1..v.len() - 1 {
@@ -6655,27 +6668,32 @@ pub mod tri {
         let mut poly = poly.to_vec();
         let mut most = 0;
         for (axis, sign) in [(0, -1.0f32), (0, 1.0), (1, -1.0), (1, 1.0), (2, -1.0), (2, 1.0)] {
-            let mut out = Vec::new();
-            let mut crossed = 0;
-            for (i, b) in poly.iter().enumerate() {
-                let a = poly[(i + poly.len() - 1) % poly.len()];
-                let (da, db) = (a[3] - sign * a[axis], b[3] - sign * b[axis]);
-                if (da >= 0.0) != (db >= 0.0) {
-                    crossed += 1;
-                    let (inside, outside, di, dout) = if da >= 0.0 { (a, *b, da, db) } else { (*b, a, db, da) };
-                    let t = di / (di - dout);
-                    // (the cut point as interpolated, its cut coordinate not set to the plane's:
-                    // golden opengl-32 persp-4)
-                    out.push(std::array::from_fn(|k| inside[k] + t * (outside[k] - inside[k])));
-                }
-                if db >= 0.0 {
-                    out.push(*b);
-                }
-            }
+            let (out, crossed) = clip_halfspace(&poly, |v| v[3] - sign * v[axis]);
             most = most.max(crossed);
             poly = out;
         }
         (poly, most)
+    }
+
+    pub fn clip_halfspace<const D: usize>(poly: &[[f32; D]], distance: impl Fn(&[f32; D]) -> f32) -> (Vec<[f32; D]>, usize) {
+        let mut out = Vec::new();
+        let mut crossed = 0;
+        for (i, b) in poly.iter().enumerate() {
+            let a = poly[(i + poly.len() - 1) % poly.len()];
+            let (da, db) = (distance(&a), distance(b));
+            if (da >= 0.0) != (db >= 0.0) {
+                crossed += 1;
+                let (inside, outside, di, dout) = if da >= 0.0 { (a, *b, da, db) } else { (*b, a, db, da) };
+                let t = di / (di - dout);
+                // (the cut point as interpolated, its cut coordinate not set to the plane's:
+                // golden opengl-32 persp-4)
+                out.push(std::array::from_fn(|k| inside[k] + t * (outside[k] - inside[k])));
+            }
+            if db >= 0.0 {
+                out.push(*b);
+            }
+        }
+        (out, crossed)
     }
 
     /// A line cut to the view volume as `clip` cuts a polygon's edges (the planes in the same
