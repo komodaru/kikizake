@@ -3126,6 +3126,34 @@ end
 }
 
 #[test]
+fn light_position_and_spot_direction_follow_the_modelview() {
+    for (scale_y, w, expected) in [
+        (4, 1, ["q -9 1.99999952 3 1", "q -0.75000006 0.99999994 8", "q -9 2 3 1", "q -1 1 8"]),
+        (4, 0, ["q -9 1.99999952 2 0", "q -0.75000006 0.99999994 8", "q -9 2 2 0", "q -1 1 8"]),
+        (0, 1, ["q 2.99999976 2 3 1", "q 2 3 4", "q 3 2 3 1", "q 2 3 4"]),
+    ] {
+        let input = format!("case lights
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glTranslatef 3 -2 1
+gl glRotatef 90 0 0 1
+gl glScalef 2 {scale_y} 0.5
+glp glLightfv ii 0x4002 0x1203 f 2 3 4 {w}
+glp glLightfv ii 0x4002 0x1204 f 2 3 4
+glq glGetLightfv ii 0x4002 0x1203 f 4
+glq glGetLightfv ii 0x4002 0x1204 f 3
+glq glGetLightiv ii 0x4002 0x1203 i 4
+glq glGetLightiv ii 0x4002 0x1204 i 3
+glerr
+end
+");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        let [position, direction, integer_position, integer_direction] = expected;
+        assert_eq!(&output[1..], [position, direction, integer_position, integer_direction, "glerr 0"]);
+    }
+}
+
+#[test]
 fn feedback_rectangles_follow_polygon_mode() {
     for (mode, count, words) in [
         (0x1b02, 16, "1795 3 4 4 12 4 12 12 1795 3 12 12 4 12 4 4"),
@@ -3187,5 +3215,27 @@ end
         }
         let count = if capacity >= words.len() { "ret 2" } else { "ret -1" };
         prop_assert_eq!(&output[1..], ["ret 0".into(), count.into(), expected]);
+    }
+}
+
+proptest! {
+    #[test]
+    fn light_translation_scales_with_the_homogeneous_component(
+        light in 0x4000..=0x4007u32, x in -16..=16i32, y in -16..=16i32, z in -16..=16i32,
+        tx in -16..=16i32, ty in -16..=16i32, tz in -16..=16i32, w in -1..=1i32,
+    ) {
+        let input = format!("case light-translation
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glTranslatef {tx} {ty} {tz}
+glp glLightfv ii {light} 0x1203 f {x} {y} {z} {w}
+gl glLoadIdentity
+glq glGetLightfv ii {light} 0x1203 f 4
+glerr
+end
+");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        let position = format!("q {} {} {} {w}", x + tx * w, y + ty * w, z + tz * w);
+        prop_assert_eq!(&output[1..], [position, "glerr 0".into()]);
     }
 }

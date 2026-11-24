@@ -908,13 +908,26 @@ impl Ctx {
                 let m = self.top(0);
                 let [x, y, z, w] = values;
                 let [cx, cy, cz, cw] = m.as_chunks::<4>().0 else { return Err(Fail::Bad) };
-                let wx = tri::zip4(*cw, *cx, |a, b| a * w + b * x);
+                let [_, yx, zx, wx] = *cx;
+                let [xy, _, zy, wy] = *cy;
+                let [xz, yz, _, wz] = *cz;
+                let [tx, ty, tz, tw] = *cw;
+                // The Windows XY affine path uses the unscaled XY translation.
+                let zero = |value: f32| value.to_bits() & 0x7fff_ffff == 0;
+                let xy_affine = (!zero(xy) || !zero(yx))
+                    && [zx, wx, zy, wy, xz, yz, wz].into_iter().all(zero)
+                    && tw.to_bits() == 1.0f32.to_bits();
+                let xy_w = if xy_affine { 1.0 } else { w };
+                let translation = [tx * xy_w, ty * xy_w, tz * w, tw * w];
+                let wx = tri::zip4(translation, *cx, |a, b| a + b * x);
                 let wxy = tri::zip4(wx, *cy, |a, b| a + b * y);
                 let eye = tri::zip4(wxy, *cz, |a, b| a + b * z);
                 self.lights.get_mut(index).ok_or(Fail::Bad)?.position = eye;
             } else if pname == 0x1204 {
                 let [x, y, z, _] = values;
-                let direction = self.transform_normal([x, y, z]).ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
+                // With a singular modelview, Windows stores the supplied direction unchanged.
+                let direction = [x, y, z];
+                let direction = self.transform_normal(direction).unwrap_or(direction);
                 self.lights.get_mut(index).ok_or(Fail::Bad)?.spot_direction = direction;
             } else {
                 self.set_light_scalar(light, pname, values[0]);
@@ -2989,6 +3002,7 @@ impl Ctx {
             }
             "glRectf" | "glRecti" => {
                 hit(clause::GL_RECT);
+                if self.selecting || self.feedback.is_some() { hit(clause::GL_SELECT_INTERACTION); }
                 let (x0, y0, x1, y1) = (fl(a, 0), fl(a, 1), fl(a, 2), fl(a, 3));
                 self.verts.clear();
                 for (x, y) in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] {
