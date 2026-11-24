@@ -1454,6 +1454,7 @@ fn parse_float(t: &str) -> Res<f64> {
 #[derive(Default)]
 pub struct Gl {
     pub ctx: Option<Ctx>,
+    pub(super) output: std::rc::Rc<std::cell::RefCell<Vec<u32>>>,
 }
 
 fn clamp01(v: f64) -> f32 {
@@ -1477,7 +1478,7 @@ const BEGIN_OK: &[&str] = &["glEvalCoord2f", "glEvalCoord2d", "glEvalCoord1f", "
 
 crate::model::words! {
     /// the commands that run on the current context
-    enum CtxOp { Gl = "gl", Glmat = "glmat", Glfogv = "glfogv", Glerr = "glerr", Glget = "glget", Glisen = "glisen", Glstr = "glstr", Glread = "glread", Gldraw = "gldraw", Gldib = "gldib", Glrelease = "glrelease", Gltex = "gltex", Gltexsub = "gltexsub", Glteximg = "glteximg", Gltexq = "gltexq", Gltexv = "gltexv", Glgentex = "glgentex", Gldeltex = "gldeltex", Glistex = "glistex", Glprio = "glprio", Glresident = "glresident", Glp = "glp", Glq = "glq", Glr = "glr", Globuf = "globuf", Wglx = "wglx" }
+    enum CtxOp { Gl = "gl", Glmat = "glmat", Glfogv = "glfogv", Glerr = "glerr", Glget = "glget", Glisen = "glisen", Glstr = "glstr", Glread = "glread", Gldraw = "gldraw", Gldib = "gldib", Glrelease = "glrelease", Gltex = "gltex", Gltexsub = "gltexsub", Glteximg = "glteximg", Gltexq = "gltexq", Gltexv = "gltexv", Glgentex = "glgentex", Gldeltex = "gldeltex", Glistex = "glistex", Glprio = "glprio", Glresident = "glresident", Glp = "glp", Glq = "glq", Glr = "glr", Wglx = "wglx" }
 }
 
 /// WGL operations on the executor's current bitmap DC.
@@ -1762,6 +1763,24 @@ impl Gl {
                 out.push(format!("glchoose {}", choose_pfd(args)?));
                 return Ok(true);
             }
+            "globuf" => {
+                let [_, ty, n] = t else { return Err(Fail::Bad); };
+                let count = num(n).and_then(|v| usize::try_from(v).ok()).filter(|v| (1..=1024).contains(v)).ok_or(Fail::Bad)?;
+                let words = self.output.borrow();
+                let mut line = String::from("obuf");
+                for index in 0..count {
+                    let bits = words.get(index).copied().unwrap_or(0);
+                    let value = match ty.as_str() {
+                        "u" => bits.to_string(),
+                        "f" => tex::g9(f64::from(f32::from_bits(bits))),
+                        _ => return Err(Fail::Bad),
+                    };
+                    line.push(' ');
+                    line.push_str(&value);
+                }
+                out.push(line);
+                return Ok(true);
+            }
             "glctx" => { self.create_context(t, out)?; return Ok(true); }
             "glcur" => {
                 hit(clause::WGL_CURRENT);
@@ -1779,6 +1798,11 @@ impl Gl {
         if let (CtxOp::Glp, Some(ctx)) = (cmd, self.ctx.as_mut()) {
             if ctx.lists.depth == 0 {
                 ctx.arrays.last = ctx.arrays.fill(t)?;
+                if ctx.arrays.last == Some(array::Ptr::Other) {
+                    let mut words = self.output.borrow_mut();
+                    words.resize(1024, 0);
+                    words.fill(0xcccc_cccc);
+                }
                 eval::check_input(t)?;
             }
         }
@@ -2014,7 +2038,7 @@ impl Gl {
                 hit(clause::WGL_DEBUG_ENTRY);
                 out.push("ret 0".into());
             }
-            CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf => return Err(Fail::Unmodeled(gaps::op(t)?)),
+            CtxOp::Glp | CtxOp::Glq | CtxOp::Glr => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
                 self.ctx = None;

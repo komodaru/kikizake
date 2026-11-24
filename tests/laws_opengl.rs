@@ -2935,3 +2935,29 @@ fn selection_name_stack_overflows_only_after_128_pushes() {
     let output = kikizake::model::run_case(&cases[0]).unwrap();
     assert_eq!(&output[1..], ["ret 0", "glerr 0", "glerr 503", "get d70 = 128", "get d70 = 0", "ret 0"]);
 }
+
+#[test]
+fn executor_output_buffer_survives_context_and_case_reset() {
+    let input = "case shared
+globuf u 2
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glSelectBuffer i 8 obuf
+globuf u 2
+globuf f 2
+glr glRenderMode i i 0x1c02
+globuf u 1
+glr glRenderMode i i 0x1c00
+glrelease
+globuf u 1
+end
+case next
+globuf u 1
+end
+";
+    let cases = kikizake::case::parse_cases(input);
+    let rows: Vec<_> = kikizake::model::evaluate_cases(&cases).map(|(_, result, _)| result.unwrap()).collect();
+    assert_eq!(rows[0][0], "obuf 0 0");
+    assert_eq!(&rows[0][2..], ["obuf 3435973836 3435973836", "obuf -107374176 -107374176",
+        "ret 0", "obuf 3435973836", "ret 0", "glrelease 1 1", "obuf 3435973836"]);
+    assert_eq!(rows[1], ["obuf 3435973836"]);
+}

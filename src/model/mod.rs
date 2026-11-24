@@ -236,7 +236,11 @@ pub fn run_case(case: &Case) -> Res<Vec<String>> {
 
 /// one case's lines, or why the model has none, and whether the executor lives on
 pub fn run_case_ended(case: &Case) -> (Res<Vec<String>>, Ended) {
-    let (r, e) = run_ops(case);
+    run_case_with_gl(case, opengl::Gl::default())
+}
+
+fn run_case_with_gl(case: &Case, gl: opengl::Gl) -> (Res<Vec<String>>, Ended) {
+    let (r, e) = run_ops(case, gl);
     if let Err(Fail::Unmodeled(id)) = &r {
         crate::spec::hit((*id).into());
     }
@@ -326,7 +330,7 @@ impl Api for d2d::D2d {
 }
 
 /// every API's model, fresh for a case, in the order a line is offered to them (one line each)
-fn apis() -> Vec<Box<dyn Api>> {
+fn apis(gl: opengl::Gl) -> Vec<Box<dyn Api>> {
     vec![
         Box::new(gdi::Gdi::new()),
         Box::new(d3d9::D3d9::default()),
@@ -340,15 +344,15 @@ fn apis() -> Vec<Box<dyn Api>> {
         Box::new(d2d::D2d::default()),
         Box::new(wicimage::WicImage::default()),
         Box::new(d3dx9::D3dx9),
-        Box::new(opengl::Gl::default()),
+        Box::new(gl),
         Box::new(ntstr::Ntstr),
         Box::new(ntcase::Ntcase),
     ]
 }
 
-fn run_ops(case: &Case) -> (Res<Vec<String>>, Ended) {
+fn run_ops(case: &Case, gl: opengl::Gl) -> (Res<Vec<String>>, Ended) {
     let mut out = Vec::new();
-    let mut apis = apis();
+    let mut apis = apis(gl);
     // (the executor's output reaches the file at its flushes, so a crash loses what came after
     // the last: at a case's start, before each Direct3D 10/11 resource ("tex", runner/
     // d3dres.c op_tex))
@@ -396,10 +400,11 @@ fn run_ops(case: &Case) -> (Res<Vec<String>>, Ended) {
 
 /// Evaluate in executor order. A crash includes the interrupted case.
 pub fn evaluate_cases(cases: &[Case]) -> impl Iterator<Item = (&Case, Res<Vec<String>>, Ended)> {
+    let output = std::rc::Rc::default();
     let mut stopped = false;
     cases.iter().map_while(move |case| {
         if stopped { return None; }
-        let (result, ended) = run_case_ended(case);
+        let (result, ended) = run_case_with_gl(case, opengl::Gl { ctx: None, output: std::rc::Rc::clone(&output) });
         stopped = ended == Ended::Crash;
         Some((case, result, ended))
     })
