@@ -470,6 +470,7 @@ pub struct Ctx {
     // Spot exponent, cutoff, constant/linear/quadratic attenuation for GL_LIGHT0..7.
     light_scalars: [[f32; 5]; 8],
     light_positions: [[f32; 4]; 8],
+    spot_directions: [[f32; 3]; 8],
     material_indices: [[f32; 3]; 2],
     pub hints: [u32; 5],
     /// PACK_SWAP_BYTES.. PACK_ALIGNMENT (0xd00..0xd05), UNPACK (0xcf0..0xcf5)
@@ -639,7 +640,7 @@ impl Ctx {
             self.error(INVALID_OPERATION);
         } else if !(0x4000..=0x4007).contains(&light) || !(0x1200..=0x1209).contains(&pname) {
             self.error(INVALID_ENUM);
-        } else if pname == 0x1203 || pname >= 0x1205 {
+        } else if pname >= 0x1203 {
             let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
             bytes.resize(16, 0);
             let mut values = [0.0; 4];
@@ -652,6 +653,10 @@ impl Ctx {
                 let [x, y, z, w] = values;
                 let eye = std::array::from_fn(|r| ((m[12 + r] * w + m[r] * x) + m[4 + r] * y) + m[8 + r] * z);
                 self.light_positions[(light - 0x4000) as usize] = eye;
+            } else if pname == 0x1204 {
+                let [x, y, z, _] = values;
+                let direction = self.transform_normal([x, y, z]).ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
+                self.spot_directions[(light - 0x4000) as usize] = direction;
             } else {
                 self.set_light_scalar(light, pname, values[0]);
             }
@@ -677,7 +682,7 @@ impl Ctx {
                 0x1201 | 0x1202 if light == 0x4000 => &[1.0; 4],
                 0x1200..=0x1202 => &[0.0, 0.0, 0.0, 1.0],
                 0x1203 => &self.light_positions[(light - 0x4000) as usize],
-                0x1204 => &[0.0, 0.0, -1.0],
+                0x1204 => &self.spot_directions[(light - 0x4000) as usize],
                 _ => std::slice::from_ref(&self.light_scalars[(light - 0x4000) as usize][(pname - 0x1205) as usize]),
             }
         };
@@ -740,6 +745,7 @@ impl Ctx {
             shininess: [0.0; 2],
             light_scalars: [[0.0, 180.0, 1.0, 0.0, 0.0]; 8],
             light_positions: [[0.0, 0.0, 1.0, 0.0]; 8],
+            spot_directions: [[0.0, 0.0, -1.0]; 8],
             material_indices: [[0.0, 1.0, 1.0]; 2],
             shade: SMOOTH,
             hints: [DONT_CARE; 5],
@@ -2878,12 +2884,16 @@ impl Ctx {
 
     /// the current normal in eye coordinates: times the inverse of the modelview's upper 3 by 3
     fn eye_normal(&self) -> [f32; 3] {
+        self.transform_normal(self.normal).unwrap_or([0.0; 3])
+    }
+
+    fn transform_normal(&self, normal: [f32; 3]) -> Option<[f32; 3]> {
         let m = self.top(0);
         let a = |r: usize, c: usize| f64::from(m[c * 4 + r]);
         let det = a(0, 0) * (a(1, 1) * a(2, 2) - a(1, 2) * a(2, 1)) - a(0, 1) * (a(1, 0) * a(2, 2) - a(1, 2) * a(2, 0)) + a(0, 2) * (a(1, 0) * a(2, 1) - a(1, 1) * a(2, 0));
-        let n = self.normal.map(f64::from);
+        let n = normal.map(f64::from);
         if det == 0.0 {
-            return [0.0; 3];
+            return None;
         }
         // n' = n M^-1 (a row vector): component k is n . column k of the inverse
         let inv = |r: usize, c: usize| {
@@ -2895,7 +2905,7 @@ impl Ctx {
         for k in 0..3 {
             out[k] = (0..3).map(|i| n[i] * inv(i, k)).sum::<f64>() as f32;
         }
-        out
+        Some(out)
     }
 
     /// whether every vertex is past the same near or far plane, the primitive then not drawn
@@ -4913,7 +4923,7 @@ impl Ctx {
             depth_transfer,
             zoom,
             // LIGHTING_BIT
-            shade, shininess, material_indices, light_scalars, light_positions,
+            shade, shininess, material_indices, light_scalars, light_positions, spot_directions,
             // FOG_BIT
             fog,
             // DEPTH_BUFFER_BIT
@@ -5020,6 +5030,7 @@ impl Ctx {
             self.shininess = shininess;
             self.light_scalars = light_scalars;
             self.light_positions = light_positions;
+            self.spot_directions = spot_directions;
             self.material_indices = material_indices;
         }
         if on(attrib::FOG) {
