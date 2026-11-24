@@ -1188,6 +1188,20 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                 }
                 ("fontoutline", [fmt]) if !matches!(integer(fmt)?, 0 | 1) => "0 8".into(),
                 ("fontoutline", [_]) if count == 0 => "1 0".into(),
+                ("fontoutline", [_]) if count == 1 && matches!(first, 32 | 160) && base != 0
+                    && ctx.in_begin.is_none() && ctx.lists.compiling.is_none() => {
+                    // Both outline formats compile these state changes even for an empty contour.
+                    let commands = ["gl glFrontFace 0x901", "gl glNormal3f 0 0 1",
+                        "gl glTranslatef 0.24853515625 0 0"];
+                    let lines = commands.iter().map(|command| list::Line {
+                        tok: command.split_whitespace().map(String::from).collect(),
+                        unpack: None, arrays: None,
+                    }).collect();
+                    ctx.lists.lists.insert(base, lines);
+                    out.push("wglx fontoutline 1 0".into());
+                    out.push("glyph 0.00048828125 0.00048828125 0 0 0.248535156 0".into());
+                    return Ok(());
+                }
                 ("fontbmp", []) | ("fontoutline", [_]) => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
                 _ => return Err(Fail::Bad),
             }

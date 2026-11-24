@@ -1752,3 +1752,23 @@ fn wgl_byte_range_bitmaps_match_native_pixels_and_positions() {
     }
     assert_eq!(digest, 0xb452b9f8);
 }
+
+#[test]
+fn wgl_outline_spaces_apply_state_only_when_called() {
+    for encoding in ["a", "w"] {
+        for code in [32, 160] {
+            for format in [0, 1] {
+                let input = format!("case space\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glNormal3f 1 0 0\ngl glFrontFace 0x900\nwglx fontoutline {encoding} {code} 1 100 {format}\nglget f 0xb02 3\nglget i 0xb46 1\nglr glIsList b i 100\ngl glCallList 100\nglget f 0xb02 3\nglget i 0xb46 1\nglget f 0xba6 16\nglerr\nend\n");
+                let cases = kikizake::case::parse_cases(&input);
+                assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), [
+                    "glctx ok 1", "wglx fontoutline 1 0",
+                    "glyph 0.00048828125 0.00048828125 0 0 0.248535156 0",
+                    "get b02 = 3f800000 00000000 00000000", "get b46 = 2304", "ret 1",
+                    "get b02 = 00000000 00000000 3f800000", "get b46 = 2305",
+                    "get ba6 = 3f800000 00000000 00000000 00000000 00000000 3f800000 00000000 00000000 00000000 00000000 3f800000 00000000 3e7e8000 00000000 00000000 3f800000",
+                    "glerr 0",
+                ]);
+            }
+        }
+    }
+}
