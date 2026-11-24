@@ -17,6 +17,8 @@ concurrency:
 
 jobs:
   msvc:
+    env:
+      CONFORMANCE_SUITES: ntcase ntstr d2d path glstipple
     runs-on: windows-2025
     timeout-minutes: 15
     strategy:
@@ -41,11 +43,11 @@ jobs:
         run: |
           call "%KZ_VS%\Common7\Tools\VsDevCmd.bat" -arch=${{ matrix.target }} -host_arch=x64
           if errorlevel 1 exit /b 1
-          python runner/msvc/build.py --mingw-headers "%KZ_HEADERS%" --out out ntcase d2d
+          python runner/msvc/build.py --mingw-headers "%KZ_HEADERS%" --out out %CONFORMANCE_SUITES%
       - name: Compare MSVC output with Windows recordings
         shell: bash
         run: |
-          for suite in ntcase d2d; do
+          for suite in $CONFORMANCE_SUITES; do
             name="$suite-${{ matrix.bits }}"
             "out/msvc_$name.exe" > "$name.txt"
             diff --strip-trailing-cr -u "golden/$name/stdout.txt" "$name.txt"
