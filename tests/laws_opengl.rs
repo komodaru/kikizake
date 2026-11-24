@@ -2622,3 +2622,37 @@ end
             "read 000000000000000000000000ffffffff", "glerr 0"]);
     }
 }
+
+#[test]
+fn evaluator_auto_normal_lights_surface_and_preserves_current_normal() {
+    let input = "case surface
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glClearColor 0 0 0 0
+gl glClear 0x4000
+gl glDisable 0xbd0
+glp glMap2f iffiiffii 0xdb7 0 2 6 2 -1 1 3 2 f -0.5 -0.5 0 -0.5 0.5 0 0.5 -0.5 0 0.5 0.5 0
+gl glEnable 0xdb7
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glEnable 0xd80
+gl glNormal3f 0 0 -1
+gl glBegin 0
+gl glEvalCoord2f 0.5 0.5
+gl glEnd
+glread 6 9 1 1 0x1908 0x1401 4
+glread 10 5 1 1 0x1908 0x1401 4
+glget f 0xb02 3
+glerr
+end
+";
+    let off = input.replace("gl glEnable 0xd80", "gl glDisable 0xd80");
+    let reversed = input.replace("0xdb7 0 2", "0xdb7 2 0").replace("2f 0.5 0.5", "2f 1.5 0.5");
+    let rational = input.replace("0xdb7 0 2 6 2 -1 1 3 2 f -0.5 -0.5 0 -0.5 0.5 0 0.5 -0.5 0 0.5 0.5 0",
+        "0xdb8 0 2 8 2 -1 1 4 2 f -0.5 -0.5 -0.5 1 -0.5 0.5 -0.5 1 1 -1 1 2 1 1 1 2")
+        .replace("glEnable 0xdb7", "glEnable 0xdb8").replace("glread 6 9", "glread 7 9");
+    for (program, pixel) in [(input, "read d6d6d6ff"), (&rational, "read 9a9a9aff"), (&reversed, "read d6d6d6ff"), (&off, "read 0a0a0aff")] {
+        let cases = kikizake::case::parse_cases(program);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], [pixel, "read 00000000", "get b02 = 00000000 00000000 bf800000", "glerr 0"]);
+    }
+}

@@ -112,12 +112,19 @@ impl Ctx {
 
 /// Evaluate a Bezier curve by interpolating adjacent control points down to one.
 fn curve_value(points: &[f32], width: usize, t: f32) -> Res<[f32; 4]> {
+    Ok(curve_frame(points, width, t)?.0)
+}
+
+// The final de Casteljau segment is parallel to the curve tangent.
+fn curve_frame(points: &[f32], width: usize, t: f32) -> Res<([f32; 4], [f32; 4])> {
+    let mut tangent = [0.0; 4];
     let mut work: Vec<[f32; 4]> = points.chunks_exact(width).map(|components| {
         let mut value = [0.0, 0.0, 0.0, 1.0];
         for (dst, &src) in value.iter_mut().zip(components) { *dst = src; }
         value
     }).collect();
     while work.len() > 1 {
+        if let [a, b] = work.as_slice() { tangent = tri::zip4(*b, *a, |x, y| x - y); }
         let Some(mut left) = work.first().copied() else { return Err(Fail::Bad) };
         for i in 1..work.len() {
             let right = *work.get(i).ok_or(Fail::Bad)?;
@@ -127,10 +134,36 @@ fn curve_value(points: &[f32], width: usize, t: f32) -> Res<[f32; 4]> {
         }
         work.pop();
     }
-    work.first().copied().ok_or(Fail::Bad)
+    Ok((work.first().copied().ok_or(Fail::Bad)?, tangent))
 }
 
 impl Ctx {
+    fn surface_normal(&self, u: f32, v: f32, vertex: [f32; 4]) -> Res<[f32; 4]> {
+        let (target, width) = if self.cap(0xdb8) { (0xdb8, 4) } else { (0xdb7, 3) };
+        let Some(map) = self.evaluator_maps.get(&target) else { return Ok([0.0; 4]); };
+        let [u0, u1, v0, v1] = map.domain.as_slice() else { return Err(Fail::Bad); };
+        let u = (u - u0) / (u1 - u0);
+        let v = (v - v0) / (v1 - v0);
+        let order = usize::try_from(float_to_int(*map.order.get(1).ok_or(Fail::Bad)?)).ok().ok_or(Fail::Bad)?;
+        let stride = order.checked_mul(width).filter(|&n| n > 0).ok_or(Fail::Bad)?;
+        let mut rows = Vec::new();
+        let mut derivatives = Vec::new();
+        for row in map.coefficients.chunks_exact(stride) {
+            let (position, tangent) = curve_frame(row, width, v)?;
+            rows.extend(position);
+            derivatives.extend(tangent);
+        }
+        let (_, du) = curve_frame(&rows, 4, u)?;
+        let dv = curve_value(&derivatives, 4, u)?;
+        // Differentiate xyz/w. The common positive denominator cancels on normalization.
+        let tangent = |d: [f32; 4]| tri::zip4(d, vertex, |x, p| x * vertex[3] - p * d[3]);
+        let [a, b, c, _] = tangent(du);
+        let [x, y, z, _] = tangent(dv);
+        let n = [b*z - c*y, c*x - a*z, a*y - b*x, 0.0];
+        let length = (n[0]*n[0] + n[1]*n[1] + n[2]*n[2]).sqrt();
+        Ok(if length > 0.0 { n.map(|x| x / length) } else { n })
+    }
+
     fn eval_attribute(&self, target: i32, u: f32, v: Option<f32>) -> Res<Option<[f32; 4]>> {
         if !self.cap(target.cast_unsigned()) { return Ok(None); }
         let (initial, _) = initial(target).ok_or(Fail::Bad)?;
@@ -159,10 +192,12 @@ impl Ctx {
         let vertex = if let Some(v) = attribute(8)? { v }
             else if let Some(v) = attribute(7)? { v }
             else { return Ok(()) };
-        if v.is_some() && self.cap(0xd80) { return Err(Fail::Unmodeled(GL_EVAL)); }
         let (color, normal, index, tex, materials) = (self.color, self.normal, self.index, self.tex.coord, self.materials);
         let color_map = attribute(0)?;
-        let normal_map = attribute(2)?;
+        let normal_map = match v {
+            Some(v) if self.cap(0xd80) => Some(self.surface_normal(u, v, vertex)?),
+            _ => attribute(2)?,
+        };
         let index_map = attribute(1)?;
         let texture_map = (3..=6).rev().find(|t| self.cap(base.saturating_add(*t).cast_unsigned()))
             .map(attribute).transpose()?.flatten();
