@@ -1617,3 +1617,24 @@ fn clipped_outline_fog_matches_windows() {
     }
     assert!(expected.next().is_none());
 }
+
+#[test]
+fn wgl_dib_swap_counts_and_pixel_format_results() {
+    let mut input = String::from("case wgl-dib\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+    input.push_str("wglx getpf\nwglx choose 0x38 0 32 0 0 32 8\nwglx setpf 1\nwglx setpf 2\nwglx setpf 0\nwglx descpf 99\nwglx swap\n");
+    let mut expected = ["glctx ok 1", "wglx getpf 1", "wglx choose 1", "wglx setpf 1 0",
+        "wglx setpf 0 2000", "wglx setpf 0 87", "wglx descpf 0", "wglx swap 1 0"]
+        .map(String::from).to_vec();
+    for mask in [-1, 0, 1, 2, 3, 65536] {
+        input.push_str(&format!("wglx swaplayer {mask}\n"));
+        expected.push("wglx swaplayer 1 0".into());
+    }
+    for count in 0..=16 {
+        input.push_str(&format!("wglx swapmultiple {count}\n"));
+        expected.push(format!("wglx swapmultiple {} 0", (1u32 << count) - 1));
+    }
+    input.push_str("glerr\nend\n");
+    expected.push("glerr 0".into());
+    let cases = kikizake::case::parse_cases(&input);
+    assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), expected);
+}

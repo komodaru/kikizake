@@ -1121,6 +1121,49 @@ crate::model::words! {
     enum CtxOp { Gl = "gl", Glmat = "glmat", Glfogv = "glfogv", Glerr = "glerr", Glget = "glget", Glisen = "glisen", Glstr = "glstr", Glread = "glread", Gldraw = "gldraw", Gldib = "gldib", Glrelease = "glrelease", Gltex = "gltex", Gltexsub = "gltexsub", Glteximg = "glteximg", Gltexq = "gltexq", Gltexv = "gltexv", Glgentex = "glgentex", Gldeltex = "gldeltex", Glistex = "glistex", Glprio = "glprio", Glresident = "glresident", Glp = "glp", Glq = "glq", Glr = "glr", Globuf = "globuf", Wglx = "wglx" }
 }
 
+/// WGL operations on the executor's current bitmap DC.
+fn wgl_dc(ctx: &Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
+    let [_, name, args @ ..] = tokens else { return Err(Fail::Bad) };
+    let integer = |arg: &String| crate::case::windows_long(arg).ok_or(Fail::Bad);
+    let table = formats();
+    let index = |n: i32| usize::try_from(n).ok().and_then(|v| v.checked_sub(1)).and_then(|v| table.get(v));
+    let result = match (name.as_str(), args) {
+        ("getpf", []) => {
+            let i = table.iter().position(|p| p == &ctx.pf).ok_or(Fail::Bad)?;
+            i.saturating_add(1).to_string()
+        }
+        ("descpf", [arg]) => {
+            let n = integer(arg)?;
+            if let Some(p) = index(n) {
+                hit(clause::WGL_FORMATS);
+                out.push(format!("wglx descpf {}", table.len()));
+                out.push(format!("pf {n} {}", p.describe()));
+                return Ok(());
+            }
+            "0".into()
+        }
+        ("setpf", [arg]) => match index(integer(arg)?) {
+            Some(p) if p == &ctx.pf => "1 0".into(),
+            Some(_) => "0 2000".into(),
+            None => "0 87".into(),
+        },
+        ("choose", [flags, ty, color, alpha, accum, depth, stencil]) => {
+            let byte = |arg| integer(arg).map(|v| i64::from(v.to_le_bytes()[0]));
+            choose(&[i64::from(integer(flags)?), byte(ty)?, byte(color)?, byte(alpha)?, byte(accum)?, byte(depth)?, byte(stencil)?]).to_string()
+        }
+        ("swap", []) => "1 0".into(),
+        ("swaplayer", [mask]) => { integer(mask)?; "1 0".into() }
+        ("swapmultiple", [arg]) => {
+            let n = u32::try_from(integer(arg)?).ok().filter(|&v| v <= 16).ok_or(Fail::Bad)?;
+            format!("{} 0", low_bits(n))
+        }
+        ("getpf" | "descpf" | "setpf" | "choose" | "swap" | "swaplayer" | "swapmultiple", _) => return Err(Fail::Bad),
+        _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
+    };
+    out.push(format!("wglx {name} {result}"));
+    Ok(())
+}
+
 impl Gl {
     pub fn op(&mut self, op: &Op, out: &mut Vec<String>) -> Res<bool> {
         let t = op.tok.as_slice();
@@ -1379,7 +1422,8 @@ impl Gl {
             }
             CtxOp::Glp | CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glClipPlane" | "glGetClipPlane")) => ctx.clip_plane_call(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPolygonStipple") => ctx.get_polygon_pattern(t, out)?,
-            CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf | CtxOp::Wglx => return Err(Fail::Unmodeled(gaps::op(t)?)),
+            CtxOp::Wglx => wgl_dc(ctx, t, out)?,
+            CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
                 self.ctx = None;
