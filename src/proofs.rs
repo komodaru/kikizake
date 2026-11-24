@@ -372,3 +372,23 @@ fn wgl_swap_result_identifies_every_entry() {
     let result = crate::model::opengl::low_bits(count);
     assert_eq!((result >> bit) & 1 != 0, bit < count);
 }
+
+/// For every GLuint base and signed count, accepted font batches have exactly
+/// count nonzero names, and every offset used to build a list is in range.
+#[kani::proof]
+fn wgl_font_batch_has_exact_nonzero_names() {
+    let base: u32 = kani::any();
+    let count: i32 = kani::any();
+    let offset: u32 = kani::any();
+    let result = crate::model::opengl::wgl_font_last_name(base, count);
+    let end = i64::from(base) + i64::from(count) - 1;
+    assert_eq!(result.is_some(), base != 0 && (1..=64).contains(&count) && end <= i64::from(u32::MAX));
+    if let Some(last) = result {
+        assert_eq!(i64::from(last), end);
+        if offset < count.cast_unsigned() {
+            let name = base + offset;
+            assert!(name != 0 && name <= last);
+            assert_eq!(name - base, offset);
+        }
+    }
+}

@@ -1138,6 +1138,12 @@ fn wgl_bitmap_line(code: i32, encoding: &str) -> Res<list::Line> {
     Ok(list::Line { tok, unpack: Some([0, 0, 0, 0, 0, 1]), arrays: None })
 }
 
+/// Last list name in a nonempty font batch supported by the runner.
+pub(crate) fn wgl_font_last_name(base: u32, count: i32) -> Option<u32> {
+    if base == 0 || !(1..=64).contains(&count) { return None; }
+    base.checked_add((count - 1).cast_unsigned())
+}
+
 fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
     let [_, name, args @ ..] = tokens else { return Err(Fail::Bad) };
     let integer = |arg: &String| crate::case::windows_long(arg).ok_or(Fail::Bad);
@@ -1176,19 +1182,20 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             match (name.as_str(), rest) {
                 ("fontbmp", []) if count == 0 => "0 87".into(),
                 ("fontbmp", []) if encoding == "a" && first >= 0 && i64::from(first) + i64::from(count) > 256 => "0 87".into(),
-                ("fontbmp", []) if base > 0 && base.checked_add((count - 1).cast_unsigned()).is_some()
+                ("fontbmp", []) if wgl_font_last_name(base, count).is_some()
                     && ctx.in_begin.is_none() && ctx.lists.compiling.is_none() => {
                     let mut lines = Vec::new();
                     for offset in 0..count {
                         let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
                         lines.push((base + offset.cast_unsigned(), vec![wgl_bitmap_line(code, encoding)?]));
                     }
+                    hit(clause::WGL_FONT_LIST_RANGE);
                     ctx.lists.lists.extend(lines);
                     "1 0".into()
                 }
                 ("fontoutline", [fmt]) if !matches!(integer(fmt)?, 0 | 1) => "0 8".into(),
                 ("fontoutline", [_]) if count == 0 => "1 0".into(),
-                ("fontoutline", [fmt]) if base != 0 && base.checked_add((count - 1).cast_unsigned()).is_some()
+                ("fontoutline", [fmt]) if wgl_font_last_name(base, count).is_some()
                     && ctx.in_begin.is_none() && ctx.lists.compiling.is_none() => {
                     let mut lists = Vec::new();
                     let mut metrics = Vec::new();
@@ -1214,6 +1221,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                         lists.push((base + offset.cast_unsigned(), lines));
                         metrics.push(format!("glyph {glyph}"));
                     }
+                    hit(clause::WGL_FONT_LIST_RANGE);
                     ctx.lists.lists.extend(lists);
                     out.push("wglx fontoutline 1 0".into());
                     out.extend(metrics);
