@@ -2408,6 +2408,18 @@ impl Ctx {
                 }
             }
             "glEvalCoord1f" | "glEvalCoord1d" => self.eval_curve(tri::narrow(fl(a, 0)))?,
+            "glEvalMesh1" => {
+                let primitive = match int(a, 0) {
+                    0x1b00 => 0,
+                    0x1b01 => 3,
+                    _ => { self.error(INVALID_ENUM); return Ok(()); }
+                };
+                self.call("glBegin", &[A::I(primitive)])?;
+                for index in int(a, 1)..=int(a, 2) {
+                    self.call("glEvalPoint1", &[A::I(index)])?;
+                }
+                self.call("glEnd", &[])?;
+            }
             "glEvalPoint1" => {
                 let [lo, hi] = self.grid1.domain;
                 let step = (hi - lo) / tri::narrow(f64::from(i32::try_from(self.grid1.segments).ok().ok_or(Fail::Bad)?));

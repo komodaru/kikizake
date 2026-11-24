@@ -2503,10 +2503,39 @@ end
 ";
     let vector = input.replace("gl glEvalCoord1f -1", "glp glEvalCoord1fv - f -1")
         .replace("gl glEvalCoord1d 1", "glp glEvalCoord1dv - d 1");
-    for commands in [input, vector.as_str()] {
+    let mesh = input.replace(
+        "gl glBegin 0\ngl glEvalCoord1f -1\ngl glEvalPoint1 2\ngl glEvalCoord1d 1\ngl glEnd",
+        "gl glEvalMesh1 0x1b00 0 4",
+    );
+    for commands in [input, vector.as_str(), mesh.as_str()] {
         let cases = kikizake::case::parse_cases(commands);
         let output = kikizake::model::run_case(&cases[0]).unwrap();
         assert_eq!(&output[1..], ["get b00 = 3f800000 3f800000 3f800000 3f800000",
             "read ff0000ff", "read 7f007fff", "read 0000ffff", "glerr 0"]);
     }
+}
+
+#[test]
+fn evaluator_line_mesh_matches_grid_points_and_rejects_fill() {
+    let input = "case mesh
+glctx 32 choose 0x38 0 32 8 0 32 8
+glp glMap1f iffii 0xd97 0 1 3 2 f -0.5 0 0 0.5 0 0
+gl glEnable 0xd97
+gl glMapGrid1f 2 0 1
+gl glEvalMesh1 0x1b01 0 2
+glread 4 7 8 1 0x1908 0x1401 32
+gl glEvalMesh1 0x1b02 0 2
+glerr
+end
+";
+    let reference = input.replace("gl glEvalMesh1 0x1b01 0 2",
+        "gl glBegin 3\ngl glEvalPoint1 0\ngl glEvalPoint1 1\ngl glEvalPoint1 2\ngl glEnd");
+    let run = |commands| {
+        let cases = kikizake::case::parse_cases(commands);
+        kikizake::model::run_case(&cases[0]).unwrap()
+    };
+    let output = run(input);
+    assert_eq!(output, run(&reference));
+    assert!(output[1].contains("ffffffff"));
+    assert_eq!(output[2], "glerr 500");
 }
