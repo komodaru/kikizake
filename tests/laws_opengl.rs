@@ -2536,6 +2536,7 @@ end
     };
     let output = run(input);
     assert_eq!(output, run(&reference));
-    assert!(output[1].contains("ffffffff"));
+    // The Windows x86 and x64 runners return opaque white for all eight pixels.
+    assert_eq!(output[1], format!("read {}", "ffffffff".repeat(8)));
     assert_eq!(output[2], "glerr 500");
 }
