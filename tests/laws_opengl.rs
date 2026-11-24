@@ -2140,3 +2140,25 @@ fn emission_draws_with_lights_off_and_specular_is_per_face() {
         "q -1.00000048 -2.32830755e-10 2.32830755e-10 1.00000048",
         "q 536870624 1073741248 1610611968 2147482496", "read 3f7fbfff", "glerr 0"]);
 }
+
+#[test]
+fn specular_highlights_follow_light_viewer_and_shininess() {
+    for (local, dir, native) in [
+        (0, "0 0 1", [255, 255, 255]), (0, "0.6 0 0.8", [255, 207, 108]),
+        (0, "0 0 -1", [0; 3]), (1, "0 0 1", [255, 0, 0]),
+        (1, "0.6 0 0.8", [0; 3]), (1, "0 0 -1", [0; 3]),
+    ] {
+        for (shine, red) in [0, 4, 16].into_iter().zip(native) {
+            let input = format!("case spec\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glDisable 0xbd0\ngl glEnable 0xb50\ngl glEnable 0x4000\nglp glLightModelfv i 0xb53 f 0 0 0 1\nglp glLightfv ii 0x4000 0x1201 f 0 0 0 1\nglp glLightfv ii 0x4000 0x1203 f {dir} 0\nglp glMaterialfv ii 0x404 0x1202 f 1 0.5 0.25 1\ngl glMateriali 0x404 0x1601 {shine}\ngl glLightModeli 0xb51 {local}\ngl glBegin 0\ngl glVertex3f 0 0 0.5\ngl glEnd\nglread 8 7 1 1 0x1908 0x1401 4\nglerr\nend\n");
+            let cases = kikizake::case::parse_cases(&input);
+            let output = kikizake::model::run_case(&cases[0]).unwrap();
+            let pixel = output[1].strip_prefix("read ").unwrap();
+            for (k, expected) in [red, red / 2, red / 4, 255u8].into_iter().enumerate() {
+                let channel = u8::from_str_radix(&pixel[2*k..2*k+2], 16).unwrap();
+                let oblique = local == 0 && dir == "0.6 0 0.8" && shine > 0 && k < 3;
+                assert!(channel.abs_diff(expected) <= u8::from(oblique), "{dir} {shine} {pixel}");
+            }
+            assert_eq!(output[2], "glerr 0");
+        }
+    }
+}

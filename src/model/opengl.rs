@@ -2953,9 +2953,24 @@ impl Ctx {
             let attenuation = if w == 0.0 { 1.0 } else {
                 (constant + linear * length + quadratic * length * length).recip()
             };
-            let [light_ambient, light_diffuse, _] = self.light_colors[i];
+            let [light_ambient, light_diffuse, light_specular] = self.light_colors[i];
+            let highlight = if cosine > 0.0 && self.specular[0][..3].iter().any(|&v| v != 0.0) {
+                let mut view = [0.0, 0.0, 1.0];
+                if self.local_viewer {
+                    let norm = (eye[0] * eye[0] + eye[1] * eye[1] + eye[2] * eye[2]).sqrt();
+                    if norm > 0.0 { view = std::array::from_fn(|k| -eye[k] / norm); }
+                }
+                let half = [x / length + view[0], y / length + view[1], z / length + view[2]];
+                let norm = half.iter().map(|v| v * v).sum::<f32>().sqrt();
+                let n_dot_h = if norm > 0.0 {
+                    (normal[0] * half[0] + normal[1] * half[1] + normal[2] * half[2]) / norm
+                } else { 0.0 };
+                // The reference quantizes intermediate powers at oblique angles.
+                if n_dot_h < 0.0 { 0.0 } else { n_dot_h.powf(self.shininess[0]) }
+            } else { 0.0 };
             for k in 0..3 {
-                lit[k] += spot * attenuation * (light_ambient[k] * ambient[k] + cosine * light_diffuse[k] * diffuse[k]);
+                lit[k] += spot * attenuation * (light_ambient[k] * ambient[k] + cosine * light_diffuse[k] * diffuse[k]
+                    + highlight * light_specular[k] * self.specular[0][k]);
             }
         }
         lit = lit.map(|v| v.clamp(0.0, 1.0));
