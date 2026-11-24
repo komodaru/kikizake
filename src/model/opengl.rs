@@ -465,6 +465,35 @@ impl GridAxis {
     }
 }
 
+#[derive(Clone, Debug)]
+pub(crate) struct NameStack {
+    pub(crate) names: [u32; 128],
+    pub(crate) depth: usize,
+}
+
+impl Default for NameStack {
+    fn default() -> Self { Self { names: [0; 128], depth: 0 } }
+}
+
+impl NameStack {
+    pub(crate) fn push(&mut self, name: u32) -> Result<(), u32> {
+        *self.names.get_mut(self.depth).ok_or(STACK_OVERFLOW)? = name;
+        self.depth = self.depth.saturating_add(1);
+        Ok(())
+    }
+
+    pub(crate) fn pop(&mut self) -> Result<(), u32> {
+        self.depth = self.depth.checked_sub(1).ok_or(STACK_UNDERFLOW)?;
+        Ok(())
+    }
+
+    pub(crate) fn load(&mut self, name: u32) -> Result<(), u32> {
+        let top = self.depth.checked_sub(1).ok_or(INVALID_OPERATION)?;
+        *self.names.get_mut(top).ok_or(INVALID_OPERATION)? = name;
+        Ok(())
+    }
+}
+
 /// the state of a context (glGet's table of initial values)
 #[derive(Clone, Debug)]
 pub struct Ctx {
@@ -515,6 +544,8 @@ pub struct Ctx {
     grid2: [GridAxis; 2],
     feedback_buffer: (i32, i32, array::Ptr),
     selection_buffer: (i32, array::Ptr),
+    selecting: bool,
+    selection_names: NameStack,
     pub viewport: [i64; 4],
     pub scissor: [i64; 4],
     pub shade: u32,
@@ -900,6 +931,8 @@ impl Ctx {
             grid2: [GridAxis::UNIT; 2],
             feedback_buffer: (0, 0, array::Ptr::Null),
             selection_buffer: (0, array::Ptr::Null),
+            selecting: false,
+            selection_names: NameStack::default(),
             viewport: [0, 0, W as i64, H as i64],
             scissor: [0, 0, W as i64, H as i64],
             scene_ambient: [ambient, ambient, ambient, 1.0],
@@ -1153,7 +1186,7 @@ impl Ctx {
             0xc31 => vec![B(true)],
             0xc32 => vec![B(pf.flags & PFD_DOUBLEBUFFER != 0)],
             0xc33 => vec![B(false)],
-            0xc40 => i(0x1c00),
+            0xc40 => i(if self.selecting { 0x1c02 } else { 0x1c00 }),
             0xc50..=0xc54 => i(self.hints[(p - 0xc50) as usize] as i64),
             0xcb0..=0xcb9 => i(self.pixel_maps.size(p.saturating_sub(0x40))),
             0xcf0..=0xcf5 => {
@@ -1187,7 +1220,7 @@ impl Ctx {
             0xd56 => i(pf.depth as i64),
             0xd57 => i(pf.stencil as i64),
             0xd58..=0xd5b => i(pf.accum_rgba[(p - 0xd58) as usize] as i64),
-            0xd70 => i(0),
+            0xd70 => i(i64::try_from(self.selection_names.depth).ok().ok_or(Fail::Bad)?),
             0xdd0 => self.grid1.domain.map(F).to_vec(),
             0xdd1 => i(self.grid1.segments),
             0xdd2 => self.grid2.iter().flat_map(|axis| axis.domain.map(F)).collect(),
@@ -1756,6 +1789,15 @@ impl Gl {
             out.push("noctx".into());
             return Ok(true);
         };
+        // Selection geometry must produce hit records. Only state operations whose
+        // behavior is shared with rendering may use the normal dispatcher here.
+        if ctx.selecting {
+            let name = t.get(1).map(String::as_str);
+            let supported = matches!(cmd, CtxOp::Glget | CtxOp::Glerr | CtxOp::Glisen | CtxOp::Glstr)
+                || (matches!(cmd, CtxOp::Gl) && matches!(name, Some("glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough")))
+                || (matches!(cmd, CtxOp::Glr | CtxOp::Glp) && matches!(name, Some("glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer")));
+            if !supported { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
+        }
         match cmd {
             CtxOp::Gl => ctx.scalar_command(t)?,
             CtxOp::Glmat => {
@@ -1940,7 +1982,7 @@ impl Gl {
                 let size = crate::case::windows_long(size).ok_or(Fail::Bad)?;
                 let ty = if feedback { rest.first().and_then(|s| crate::case::windows_long(s)).ok_or(Fail::Bad)? } else { 0 };
                 let ptr = ctx.arrays.last.ok_or(Fail::Bad)?;
-                if ctx.in_begin.is_some() { ctx.error(INVALID_OPERATION); }
+                if ctx.in_begin.is_some() || (ctx.selecting && !feedback) { ctx.error(INVALID_OPERATION); }
                 else if feedback && !(0x600..=0x604).contains(&ty) { ctx.error(INVALID_ENUM); }
                 else if size < 0 { ctx.error(INVALID_VALUE); }
                 else if ptr == array::Ptr::Null { ctx.error(0x505); }
@@ -1955,9 +1997,9 @@ impl Gl {
                     ctx.error(INVALID_OPERATION);
                 } else {
                     match mode {
-                        0x1c00 => {}
+                        0x1c00 => ctx.selecting = false,
                         0x1c01 if ctx.feedback_buffer.2 != array::Ptr::Null => return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)),
-                        0x1c02 if ctx.selection_buffer.1 != array::Ptr::Null => return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)),
+                        0x1c02 if ctx.selection_buffer.1 != array::Ptr::Null => { ctx.selection_names.depth = 0; ctx.selecting = true; }
                         0x1c01 | 0x1c02 => ctx.error(INVALID_OPERATION),
                         _ => ctx.error(INVALID_ENUM),
                     }
@@ -2463,8 +2505,16 @@ impl Ctx {
             "glEvalCoord1f" | "glEvalCoord1d" => self.eval_coord(tri::narrow(fl(a, 0)), None)?,
             "glEvalCoord2f" | "glEvalCoord2d" => self.eval_coord(tri::narrow(fl(a, 0)), Some(tri::narrow(fl(a, 1))))?,
             "glEvalMesh2" => self.eval_mesh2(int(a, 0), int(a, 1), int(a, 2), int(a, 3), int(a, 4))?,
-            // The default GL_RENDER mode ignores name-stack and feedback commands.
-            // Entry into selection or feedback is handled separately by glRenderMode.
+            "glInitNames" if self.selecting => self.selection_names.depth = 0,
+            "glPushName" if self.selecting => {
+                if let Err(error) = self.selection_names.push(u(a, 0)) { self.error(error); }
+            }
+            "glPopName" if self.selecting => {
+                if let Err(error) = self.selection_names.pop() { self.error(error); }
+            }
+            "glLoadName" if self.selecting => {
+                if let Err(error) = self.selection_names.load(u(a, 0)) { self.error(error); }
+            }
             "glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" => {}
             "glEvalMesh1" => {
                 let primitive = match int(a, 0) {
@@ -5302,7 +5352,7 @@ impl Ctx {
             index_shift,
             depth_transfer,
             zoom,
-            evaluator_maps: _, grid1, grid2, feedback_buffer: _, selection_buffer: _,
+            evaluator_maps: _, grid1, grid2, feedback_buffer: _, selection_buffer: _, selecting: _, selection_names: _,
             // LIGHTING_BIT
             shade, scene_ambient, local_viewer, two_sided, materials, color_material, lights,
             // FOG_BIT

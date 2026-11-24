@@ -2896,3 +2896,42 @@ end
         assert_eq!(&output[1..], expected);
     }
 }
+
+#[test]
+fn selection_reentry_clears_names_and_exit_preserves_depth() {
+    let input = "case stack
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glSelectBuffer i 8 obuf
+glr glRenderMode i i 0x1c02
+glget i 0xc40 1
+gl glLoadName 7
+glerr
+gl glPopName
+glerr
+gl glPushName 9
+gl glLoadName 8
+glget i 0xd70 1
+glr glRenderMode i i 0x1c02
+glget i 0xd70 1
+gl glPushName 5
+glr glRenderMode i i 0x1c00
+glget i 0xd70 1
+glerr
+end
+";
+    for program in [input.to_owned(), input.replace("Buffer i 8", "Buffer i 0")] {
+        let cases = kikizake::case::parse_cases(&program);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], ["ret 0", "get c40 = 7170", "glerr 502", "glerr 504",
+            "get d70 = 1", "ret 0", "get d70 = 0", "ret 0", "get d70 = 1", "glerr 0"]);
+    }
+}
+
+#[test]
+fn selection_name_stack_overflows_only_after_128_pushes() {
+    let pushes = "gl glPushName 7\n".repeat(128);
+    let input = format!("case bound\nglctx 32 choose 0x38 0 32 0 0 32 8\nglp glSelectBuffer i 8 obuf\nglr glRenderMode i i 0x1c02\n{pushes}glerr\ngl glPushName 9\nglerr\nglget i 0xd70 1\ngl glInitNames\nglget i 0xd70 1\nglr glRenderMode i i 0x1c00\nend\n");
+    let cases = kikizake::case::parse_cases(&input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["ret 0", "glerr 0", "glerr 503", "get d70 = 128", "get d70 = 0", "ret 0"]);
+}

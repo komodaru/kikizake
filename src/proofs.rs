@@ -461,3 +461,26 @@ fn evaluator_integer_query_matches_binary32_fields() {
     };
     assert_eq!(crate::model::opengl::eval::query_integer(f32::from_bits(bits)), expected);
 }
+
+#[kani::proof]
+fn selection_stack_preserves_every_unwritten_name() {
+    use crate::model::opengl::{e::{INVALID_OPERATION, STACK_OVERFLOW, STACK_UNDERFLOW}, NameStack};
+    let depth: usize = kani::any();
+    let index: usize = kani::any();
+    kani::assume(depth <= 128 && index < 128);
+    let mut stack = NameStack { names: kani::any(), depth };
+    let old = stack.names[index];
+    let name: u32 = kani::any();
+    let op: u8 = kani::any();
+    let (result, expected, next, changed) = match op {
+        0 if depth == 128 => (stack.push(name), Err(STACK_OVERFLOW), depth, false),
+        0 => (stack.push(name), Ok(()), depth + 1, index == depth),
+        1 if depth == 0 => (stack.pop(), Err(STACK_UNDERFLOW), depth, false),
+        1 => (stack.pop(), Ok(()), depth - 1, false),
+        _ if depth == 0 => (stack.load(name), Err(INVALID_OPERATION), depth, false),
+        _ => (stack.load(name), Ok(()), depth, index == depth - 1),
+    };
+    assert_eq!(result, expected);
+    assert_eq!(stack.depth, next);
+    assert_eq!(stack.names[index], if changed { name } else { old });
+}
