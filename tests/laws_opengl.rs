@@ -2035,3 +2035,11 @@ proptest! {
         prop_assert_eq!(scalar, vector);
     }
 }
+
+#[test]
+fn light_position_is_transformed_when_specified() {
+    let input = "case position\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glTranslatef 3 4 5\ngl glScalef 2 3 4\nglp glLightfv ii 0x4002 0x1203 f 1 2 -1 0\nglp glLightiv ii 0x4003 0x1203 i 1 2 -1 1\ngl glLoadIdentity\nglq glGetLightfv ii 0x4002 0x1203 f 4\nglq glGetLightfv ii 0x4003 0x1203 f 4\nglerr\nend\n";
+    let cases = kikizake::case::parse_cases(input);
+    assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(),
+        ["glctx ok 1", "q 2 6 -4 0", "q 5 10 1 1", "glerr 0"]);
+}

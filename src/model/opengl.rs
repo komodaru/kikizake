@@ -469,6 +469,7 @@ pub struct Ctx {
     shininess: [f32; 2],
     // Spot exponent, cutoff, constant/linear/quadratic attenuation for GL_LIGHT0..7.
     light_scalars: [[f32; 5]; 8],
+    light_positions: [[f32; 4]; 8],
     material_indices: [[f32; 3]; 2],
     pub hints: [u32; 5],
     /// PACK_SWAP_BYTES.. PACK_ALIGNMENT (0xd00..0xd05), UNPACK (0xcf0..0xcf5)
@@ -638,12 +639,22 @@ impl Ctx {
             self.error(INVALID_OPERATION);
         } else if !(0x4000..=0x4007).contains(&light) || !(0x1200..=0x1209).contains(&pname) {
             self.error(INVALID_ENUM);
-        } else if pname >= 0x1205 {
+        } else if pname == 0x1203 || pname >= 0x1205 {
             let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
-            bytes.resize(4, 0);
-            let word = bytes.as_slice().try_into().map_err(|_| Fail::Bad)?;
-            let value = if name == "glLightfv" { f32::from_le_bytes(word) } else { i32::from_le_bytes(word) as f32 };
-            self.set_light_scalar(light, pname, value);
+            bytes.resize(16, 0);
+            let mut values = [0.0; 4];
+            for (value, chunk) in values.iter_mut().zip(bytes.chunks_exact(4)) {
+                let word = chunk.try_into().map_err(|_| Fail::Bad)?;
+                *value = if name == "glLightfv" { f32::from_le_bytes(word) } else { i32::from_le_bytes(word) as f32 };
+            }
+            if pname == 0x1203 {
+                let m = self.top(0);
+                let [x, y, z, w] = values;
+                let eye = std::array::from_fn(|r| ((m[12 + r] * w + m[r] * x) + m[4 + r] * y) + m[8 + r] * z);
+                self.light_positions[(light - 0x4000) as usize] = eye;
+            } else {
+                self.set_light_scalar(light, pname, values[0]);
+            }
         } else {
             return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE));
         }
@@ -665,7 +676,7 @@ impl Ctx {
             match pname {
                 0x1201 | 0x1202 if light == 0x4000 => &[1.0; 4],
                 0x1200..=0x1202 => &[0.0, 0.0, 0.0, 1.0],
-                0x1203 => &[0.0, 0.0, 1.0, 0.0],
+                0x1203 => &self.light_positions[(light - 0x4000) as usize],
                 0x1204 => &[0.0, 0.0, -1.0],
                 _ => std::slice::from_ref(&self.light_scalars[(light - 0x4000) as usize][(pname - 0x1205) as usize]),
             }
@@ -728,6 +739,7 @@ impl Ctx {
             scissor: [0, 0, W as i64, H as i64],
             shininess: [0.0; 2],
             light_scalars: [[0.0, 180.0, 1.0, 0.0, 0.0]; 8],
+            light_positions: [[0.0, 0.0, 1.0, 0.0]; 8],
             material_indices: [[0.0, 1.0, 1.0]; 2],
             shade: SMOOTH,
             hints: [DONT_CARE; 5],
@@ -4901,7 +4913,7 @@ impl Ctx {
             depth_transfer,
             zoom,
             // LIGHTING_BIT
-            shade, shininess, material_indices, light_scalars,
+            shade, shininess, material_indices, light_scalars, light_positions,
             // FOG_BIT
             fog,
             // DEPTH_BUFFER_BIT
@@ -5007,6 +5019,7 @@ impl Ctx {
             self.shade = shade;
             self.shininess = shininess;
             self.light_scalars = light_scalars;
+            self.light_positions = light_positions;
             self.material_indices = material_indices;
         }
         if on(attrib::FOG) {
