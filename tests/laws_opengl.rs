@@ -1939,3 +1939,11 @@ fn invalid_light_queries_preserve_output_and_prioritize_begin_errors() {
         }
     }
 }
+
+#[test]
+fn material_shininess_tracks_faces_and_the_lighting_stack() {
+    let input = "case shine\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMateriali 0x408 0x1601 20\ngl glPushAttrib 0x40\ngl glMaterialf 0x404 0x1601 2.5\ngl glMateriali 0x405 0x1601 129\nglerr\nglq glGetMaterialiv ii 0x404 0x1601 i 1\nglq glGetMaterialfv ii 0x404 0x1601 f 2\nglq glGetMaterialfv ii 0x405 0x1601 f 1\ngl glPopAttrib\nglq glGetMaterialfv ii 0x404 0x1601 f 1\nglq glGetMaterialiv ii 0x405 0x1603 i 4\nglerr\nend\n";
+    let cases = kikizake::case::parse_cases(input);
+    assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), ["glctx ok 1", "glerr 501",
+        "q 3", "q 2.5 -12345", "q 20", "q 20", "q 0 1 1 2125315823", "glerr 0"]);
+}

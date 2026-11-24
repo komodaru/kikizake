@@ -466,6 +466,7 @@ pub struct Ctx {
     pub viewport: [i64; 4],
     pub scissor: [i64; 4],
     pub shade: u32,
+    shininess: [f32; 2],
     pub hints: [u32; 5],
     /// PACK_SWAP_BYTES.. PACK_ALIGNMENT (0xd00..0xd05), UNPACK (0xcf0..0xcf5)
     pub pack: [i64; 6],
@@ -597,6 +598,7 @@ impl Ctx {
             color_mask_raw: [1; 4],
             viewport: [0, 0, W as i64, H as i64],
             scissor: [0, 0, W as i64, H as i64],
+            shininess: [0.0; 2],
             shade: SMOOTH,
             hints: [DONT_CARE; 5],
             pack: [0, 0, 0, 0, 0, 4],
@@ -1114,7 +1116,7 @@ fn mat_mul(a: &[f32; 16], b: &[f32; 16]) -> [f32; 16] {
     r
 }
 
-const BEGIN_OK: &[&str] = &["glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glIndexi", "glIndexf", "glTexCoord1f", "glTexCoord2f", "glTexCoord3f", "glTexCoord4f", "glEnd"];
+const BEGIN_OK: &[&str] = &["glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glMateriali", "glMaterialf", "glIndexi", "glIndexf", "glTexCoord1f", "glTexCoord2f", "glTexCoord3f", "glTexCoord4f", "glEnd"];
 
 crate::model::words! {
     /// the commands that run on the current context
@@ -1510,6 +1512,34 @@ impl Gl {
                     let at = ctx.arrays.last;
                     ctx.array_glp(t, at)?;
                 }
+            }
+            CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetMaterialfv" | "glGetMaterialiv")) => {
+                let [_, name, sig, face, pname, ty, count] = t else { return Err(Fail::Bad) };
+                if sig != "ii" { return Err(Fail::Bad); }
+                let face = crate::case::windows_long(face).ok_or(Fail::Bad)?;
+                let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?;
+                let values: &[f32] = if ctx.in_begin.is_some() {
+                    ctx.error(INVALID_OPERATION);
+                    &[]
+                } else if !matches!(face, 0x404 | 0x405) {
+                    ctx.error(INVALID_ENUM);
+                    &[]
+                } else {
+                    match pname {
+                        0x1601 => std::slice::from_ref(&ctx.shininess[usize::from(face == 0x405)]),
+                        0x1603 => &[0.0, 1.0, 1.0],
+                        0x1200..=0x1202 | 0x1600 => return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE)),
+                        _ => { ctx.error(INVALID_ENUM); &[] }
+                    }
+                };
+                out.push(query_bytes(ty, count, |dst| {
+                    for (word, &value) in dst.chunks_exact_mut(4).zip(values) {
+                        let bytes = if name == "glGetMaterialfv" { value.to_le_bytes() }
+                            else { (value.round() as i32).to_le_bytes() };
+                        word.copy_from_slice(&bytes);
+                    }
+                    Ok(())
+                })?);
             }
             CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetLightfv" | "glGetLightiv")) => {
                 let [_, name, sig, light, pname, ty, count] = t else { return Err(Fail::Bad) };
@@ -2198,6 +2228,18 @@ impl Ctx {
                 self.raster_color = self.current();
                 self.raster_eye = e[2];
                 self.raster_tex = self.tex_coords4(&Obj::at(v).with(self.vertex_coords(v, 1.0)));
+            }
+            "glMaterialf" | "glMateriali" => {
+                let face = u(a, 0);
+                let value = fl(a, 2) as f32;
+                if !matches!(face, 0x404 | 0x405 | 0x408) || u(a, 1) != 0x1601 {
+                    self.error(INVALID_ENUM);
+                } else if !(0.0..=128.0).contains(&value) {
+                    self.error(INVALID_VALUE);
+                } else {
+                    if face != 0x405 { self.shininess[0] = value; }
+                    if face != 0x404 { self.shininess[1] = value; }
+                }
             }
             "glFogf" => self.fog_param(u(a, 0), &[fl(a, 1) as f32], false),
             "glPolygonOffset" => {
@@ -4775,7 +4817,7 @@ impl Ctx {
             depth_transfer,
             zoom,
             // LIGHTING_BIT
-            shade,
+            shade, shininess,
             // FOG_BIT
             fog,
             // DEPTH_BUFFER_BIT
@@ -4879,6 +4921,7 @@ impl Ctx {
         }
         if on(attrib::LIGHTING) {
             self.shade = shade;
+            self.shininess = shininess;
         }
         if on(attrib::FOG) {
             self.fog = fog;
