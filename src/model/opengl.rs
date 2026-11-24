@@ -1540,6 +1540,14 @@ impl Gl {
             CtxOp::Glp | CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glClipPlane" | "glGetClipPlane")) => ctx.clip_plane_call(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPolygonStipple") => ctx.get_polygon_pattern(t, out)?,
             CtxOp::Wglx => wgl_dc(ctx, t, out)?,
+            CtxOp::Glr if t.get(1).is_some_and(|name| name == "glDebugEntry") => {
+                let [_, _, _, sig, a, b] = t else { return Err(Fail::Bad) };
+                if sig != "ii" || [a, b].iter().any(|v| crate::case::windows_long(v).is_none()) {
+                    return Err(Fail::Bad);
+                }
+                hit(clause::WGL_DEBUG_ENTRY);
+                out.push("ret 0".into());
+            }
             CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);

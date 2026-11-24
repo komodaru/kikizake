@@ -1841,3 +1841,13 @@ proptest! {
         prop_assert_eq!(actual.next(), None);
     }
 }
+
+proptest! {
+    #[test]
+    fn debug_entry_preserves_pending_gl_errors(a in any::<i32>(), b in any::<i32>()) {
+        let input = format!("case debug\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glEnable -1\nglr glDebugEntry i ii {a} {b}\nglerr\ngl glBegin 0\nglr glDebugEntry i ii {b} {a}\ngl glEnd\nglerr\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        prop_assert_eq!(output, ["glctx ok 1", "ret 0", "glerr 500", "ret 0", "glerr 0"]);
+    }
+}
