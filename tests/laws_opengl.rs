@@ -1419,3 +1419,13 @@ fn crossing_lines_match_windows_in_both_directions() {
         "000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff");
     assert_eq!(&output[1..], [pixels, "glerr 0"]);
 }
+
+#[test]
+fn clipped_polygon_draws_new_corners_and_edge() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_clip_outline.txt"));
+    let reads = ["read ffffffff000000ff000000ff000000ffffffffff000000ff", "read ffffffffffffffffffffffffffffffffffffffff000000ff"];
+    for (case, read) in zip_eq(&cases, reads) {
+        let output = kikizake::model::run_case(case).unwrap();
+        assert_eq!(&output[1..], [read, "glerr 0"], "{}", case.name);
+    }
+}

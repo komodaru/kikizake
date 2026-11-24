@@ -11,7 +11,6 @@ pub fn of(name: &str) -> Option<OpenId> {
         "glMap1f" | "glMap1d" | "glMap2f" | "glMap2d" | "glMapGrid1f" | "glMapGrid2f" | "glMapGrid1d" | "glMapGrid2d" | "glEvalCoord1f" | "glEvalCoord2f" | "glEvalCoord1d" | "glEvalCoord2d" | "glEvalCoord1fv" | "glEvalCoord2fv" | "glEvalCoord1dv" | "glEvalCoord2dv" | "glEvalPoint1" | "glEvalPoint2" | "glEvalMesh1" | "glEvalMesh2" | "glGetMapfv" | "glGetMapdv" | "glGetMapiv" => open::GL_EVAL,
         "glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer" | "glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" => open::GL_SELECT,
         "glLightf" | "glLighti" | "glLightfv" | "glLightiv" | "glLightModelf" | "glLightModeli" | "glLightModelfv" | "glLightModeliv" | "glMaterialf" | "glMateriali" | "glMaterialfv" | "glMaterialiv" | "glColorMaterial" | "glGetLightfv" | "glGetLightiv" | "glGetMaterialfv" | "glGetMaterialiv" => open::GL_LIGHT_STATE,
-        "glClipPlane" | "glGetClipPlane" => open::GL_CLIPPLANE,
         "glCopyPixels" => open::GL_COPYPIXELS,
         _ => return None,
     })
