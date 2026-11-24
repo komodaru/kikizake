@@ -1880,3 +1880,14 @@ fn wgl_format_exports_cover_every_generic_dib_descriptor() {
         }
     }
 }
+
+#[test]
+fn pixel_format_requests_use_windows_field_widths_at_every_entry_point() {
+    for request in ["0x38 0 32 0 0 32 8", "070 256 288 -256 512 040 264",
+                    "+0x38 -256 -224 256 0x100 0x120 -248"] {
+        let input = format!("case pfd\nglchoose 32 {request}\nglctx 32 choose {request}\nwglx choose {request}\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(),
+            ["glchoose 1", "glctx ok 1", "wglx choose 1"], "{request}");
+    }
+}

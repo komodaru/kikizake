@@ -1144,6 +1144,15 @@ pub(crate) fn wgl_font_last_name(base: u32, count: i32) -> Option<u32> {
     base.checked_add((count - 1).cast_unsigned())
 }
 
+/// All three runner entry points populate the same PIXELFORMATDESCRIPTOR.
+fn choose_pfd(args: &[String]) -> Res<usize> {
+    let [flags, ty, color, alpha, accum, depth, stencil] = args else { return Err(Fail::Bad) };
+    let long = |arg: &String| crate::case::windows_long(arg).ok_or(Fail::Bad);
+    let byte = |arg| long(arg).map(|v| i64::from(v.to_le_bytes()[0]));
+    Ok(choose(&[i64::from(long(flags)?), byte(ty)?, byte(color)?, byte(alpha)?,
+        byte(accum)?, byte(depth)?, byte(stencil)?]))
+}
+
 fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
     let [_, name, args @ ..] = tokens else { return Err(Fail::Bad) };
     let integer = |arg: &String| crate::case::windows_long(arg).ok_or(Fail::Bad);
@@ -1169,10 +1178,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             Some(_) => "0 2000".into(),
             None => "0 87".into(),
         },
-        ("choose", [flags, ty, color, alpha, accum, depth, stencil]) => {
-            let byte = |arg| integer(arg).map(|v| i64::from(v.to_le_bytes()[0]));
-            choose(&[i64::from(integer(flags)?), byte(ty)?, byte(color)?, byte(alpha)?, byte(accum)?, byte(depth)?, byte(stencil)?]).to_string()
-        }
+        ("choose", args) => choose_pfd(args)?.to_string(),
         ("fontbmp" | "fontoutline", [encoding, first, count, base, rest @ ..]) => {
             if !matches!(encoding.as_str(), "a" | "w") { return Err(Fail::Bad); }
             let first = integer(first)?;
@@ -1273,7 +1279,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             hit(clause::WGL_SWAP_MULTIPLE);
             format!("{} 0", low_bits(n))
         }
-        ("getpf" | "descpf" | "setpf" | "choose" | "swap" | "swaplayer" | "swapmultiple" | "layer" | "realize" | "getlayerpal"
+        ("getpf" | "descpf" | "setpf" | "swap" | "swaplayer" | "swapmultiple" | "layer" | "realize" | "getlayerpal"
          | "setlayerpal" | "layerctx" | "share" | "copy" | "proc" | "defproc" | "fontbmp" | "fontoutline", _) => return Err(Fail::Bad),
         _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
     };
@@ -1297,24 +1303,16 @@ impl Gl {
                 return Ok(true);
             }
             "glchoose" => {
-                let v: Option<Vec<i64>> = t[1..].iter().map(|x| num(x)).collect();
-                let v = v.ok_or(Fail::Bad)?;
-                if v.len() != 8 {
-                    return Err(Fail::Bad);
-                }
-                out.push(format!("glchoose {}", choose(&v[1..])));
+                let [_, bpp, args @ ..] = t else { return Err(Fail::Bad) };
+                crate::case::windows_long(bpp).ok_or(Fail::Bad)?;
+                out.push(format!("glchoose {}", choose_pfd(args)?));
                 return Ok(true);
             }
             "glctx" => {
                 self.ctx = None;
                 let bpp = t.get(1).and_then(|v| num(v)).ok_or(Fail::Bad)? as u32;
                 let pf = if t.get(2).is_some_and(|v| v == "choose") {
-                    let v: Option<Vec<i64>> = t[3..].iter().map(|x| num(x)).collect();
-                    let v = v.ok_or(Fail::Bad)?;
-                    if v.len() != 7 {
-                        return Err(Fail::Bad);
-                    }
-                    choose(&v)
+                    choose_pfd(&t[3..])?
                 } else {
                     if t.len() != 3 {
                         return Err(Fail::Bad);
