@@ -1188,18 +1188,35 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                 }
                 ("fontoutline", [fmt]) if !matches!(integer(fmt)?, 0 | 1) => "0 8".into(),
                 ("fontoutline", [_]) if count == 0 => "1 0".into(),
-                ("fontoutline", [_]) if count == 1 && matches!(first, 32 | 160) && base != 0
+                ("fontoutline", [fmt]) if base != 0 && base.checked_add((count - 1).cast_unsigned()).is_some()
                     && ctx.in_begin.is_none() && ctx.lists.compiling.is_none() => {
-                    // Both outline formats compile these state changes even for an empty contour.
-                    let commands = ["gl glFrontFace 0x901", "gl glNormal3f 0 0 1",
-                        "gl glTranslatef 0.24853515625 0 0"];
-                    let lines = commands.iter().map(|command| list::Line {
-                        tok: command.split_whitespace().map(String::from).collect(),
-                        unpack: None, arrays: None,
-                    }).collect();
-                    ctx.lists.lists.insert(base, lines);
+                    let mut lists = Vec::new();
+                    let mut metrics = Vec::new();
+                    for offset in 0..count {
+                        let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
+                        let (glyph, advance, geometry) = match code {
+                            32 | 160 => ("0.00048828125 0.00048828125 0 0 0.248535156 0", "0.24853515625", ""),
+                            65 | 66 => {
+                                let section = integer(fmt)? * 2 + code - 65;
+                                let geometry = include_str!("opengl_arial_outline.txt").split('|')
+                                    .nth(usize::try_from(section).map_err(|_| Fail::Bad)?).ok_or(Fail::Bad)?;
+                                let glyph = if code == 65 { "0.599609375 0.640625 -0.0009765625 0.640625 0.597167969 0" }
+                                    else { "0.483886719 0.640625 0.0654296875 0.640625 0.597167969 0" };
+                                (glyph, "0.59716796875", geometry)
+                            }
+                            _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
+                        };
+                        let translate = format!("gl glTranslatef {advance} 0 0");
+                        let lines = ["gl glFrontFace 0x901", "gl glNormal3f 0 0 1"].into_iter()
+                            .chain(geometry.lines()).chain([translate.as_str()]).map(|command| list::Line {
+                                tok: command.split_whitespace().map(String::from).collect(), unpack: None, arrays: None,
+                            }).collect();
+                        lists.push((base + offset.cast_unsigned(), lines));
+                        metrics.push(format!("glyph {glyph}"));
+                    }
+                    ctx.lists.lists.extend(lists);
                     out.push("wglx fontoutline 1 0".into());
-                    out.push("glyph 0.00048828125 0.00048828125 0 0 0.248535156 0".into());
+                    out.extend(metrics);
                     return Ok(());
                 }
                 ("fontbmp", []) | ("fontoutline", [_]) => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
