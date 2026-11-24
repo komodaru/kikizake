@@ -1661,3 +1661,24 @@ fn wgl_layer_planes_and_temporary_contexts() {
     let cases = kikizake::case::parse_cases(&input);
     assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), expected);
 }
+
+#[test]
+fn wgl_generic_extension_lookup_matches_windows() {
+    let mut input = String::from("case extensions\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+    let mut expected = vec![String::from("glctx ok 1")];
+    for (names, available) in [
+        ("glAddSwapHintRectWIN glColorTableEXT glColorSubTableEXT glGetColorTableEXT glGetColorTableParameterivEXT glGetColorTableParameterfvEXT glDrawRangeElementsWIN", 1),
+        ("glDrawRangeElementsEXT glBegin glcolortableEXT wglSwapIntervalEXT unknown", 0),
+    ] {
+        for name in names.split_whitespace() {
+            for query in ["proc", "defproc"] {
+                input.push_str(&format!("wglx {query} {name}\n"));
+                expected.push(format!("wglx {query} {available}"));
+            }
+        }
+    }
+    input.push_str("glerr\nend\n");
+    expected.push(String::from("glerr 0"));
+    let cases = kikizake::case::parse_cases(&input);
+    assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), expected);
+}

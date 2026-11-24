@@ -1151,6 +1151,13 @@ fn wgl_dc(ctx: &Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             let byte = |arg| integer(arg).map(|v| i64::from(v.to_le_bytes()[0]));
             choose(&[i64::from(integer(flags)?), byte(ty)?, byte(color)?, byte(alpha)?, byte(accum)?, byte(depth)?, byte(stencil)?]).to_string()
         }
+        ("proc" | "defproc", [symbol]) => {
+            let available = matches!(symbol.as_str(),
+                "glAddSwapHintRectWIN" | "glDrawRangeElementsWIN" | "glColorTableEXT"
+                | "glColorSubTableEXT" | "glGetColorTableEXT" | "glGetColorTableParameterivEXT"
+                | "glGetColorTableParameterfvEXT");
+            u8::from(available).to_string()
+        }
         ("layer", [pf, plane]) => {
             // The software-only Windows reference leaves last error clear for the main plane.
             let valid = index(integer(pf)?).is_some();
@@ -1186,7 +1193,7 @@ fn wgl_dc(ctx: &Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             format!("{} 0", low_bits(n))
         }
         ("getpf" | "descpf" | "setpf" | "choose" | "swap" | "swaplayer" | "swapmultiple" | "layer" | "realize" | "getlayerpal"
-         | "setlayerpal" | "layerctx" | "share" | "copy", _) => return Err(Fail::Bad),
+         | "setlayerpal" | "layerctx" | "share" | "copy" | "proc" | "defproc", _) => return Err(Fail::Bad),
         _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
     };
     out.push(format!("wglx {name} {result}"));
