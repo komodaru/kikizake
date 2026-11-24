@@ -859,3 +859,7 @@ src/proofs.rs::nt_rejected_integer_calls_leave_the_specified_outputs kani NT.I2A
 src/proofs.rs::nt_signed_hexadecimal_parse kani NT.SIGN NT.U2I.PREFIX NT.A2I.SYNTAX NT.DIGITS
 src/proofs.rs::nt_hex_digits_and_unicode_destination kani NT.I2A.DIGITS NT.I2U.ANSI
 src/proofs.rs::d2d_unit_curve_tolerance_uses_the_dominant_axis kani D2D.AREA.CURVE
+src/model/opengl.rs::stipple_preserves_every_other_packed_bit exhaustive GL.POLYGON.STIPPLE.PATTERN
+tests/laws_opengl.rs::polygon_stipple_pack_unpack pbt GL.POLYGON.STIPPLE.PATTERN
+src/model/opengl_pixelmap.rs::all_unsigned_short_map_entries_round_trip exhaustive GL.PIXELMAP
+tests/laws_opengl.rs::pixel_map_queries_preserve_entries_and_query_tail pbt GL.PIXELMAP

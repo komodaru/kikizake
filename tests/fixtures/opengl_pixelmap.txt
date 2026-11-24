@@ -1,0 +1,88 @@
+case color-index
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glRasterPos2i 0 0
+gl glClear 0x4400
+glp glPixelMapfv ii 3184 4 f 3 1 2 0
+glp glPixelMapfv ii 3185 4 f 3 1 2 0
+glp glPixelMapfv ii 3186 4 f 0.25 0.5 0.75 1
+glp glPixelMapfv ii 3187 4 f 1 0.5 0.25 0
+glp glPixelMapfv ii 3188 4 f 0 1 0.5 0
+glp glPixelMapfv ii 3189 4 f 1 1 1 1
+glp glPixelMapfv ii 3190 4 f 0.25 0.5 0.75 1
+glp glPixelMapfv ii 3191 4 f 1 0.5 0.25 0
+glp glPixelMapfv ii 3192 4 f 0 1 0.5 0
+glp glPixelMapfv ii 3193 4 f 1 1 1 1
+gl glPixelTransferi 0xd10 0
+gl glPixelTransferi 0xd11 0
+gl glPixelTransferi 0xd12 0
+gldraw 4 2 6400 0x1401 77 8
+glread 0 0 4 2 6408 0x1401 32
+glerr
+gl glPixelTransferi 0xd10 0
+gl glPixelTransferi 0xd11 0
+gl glPixelTransferi 0xd12 1
+gldraw 4 2 6400 0x1401 77 8
+glread 0 0 4 2 6408 0x1401 32
+glerr
+gl glPixelTransferi 0xd10 1
+gl glPixelTransferi 0xd11 1
+gl glPixelTransferi 0xd12 0
+gldraw 4 2 6400 0x1401 77 8
+glread 0 0 4 2 6408 0x1401 32
+glerr
+gl glPixelTransferi 0xd10 1
+gl glPixelTransferi 0xd11 1
+gl glPixelTransferi 0xd12 1
+gldraw 4 2 6400 0x1401 77 8
+glread 0 0 4 2 6408 0x1401 32
+glerr
+end
+case stencil
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glRasterPos2i 0 0
+gl glClear 0x4400
+glp glPixelMapfv ii 3184 4 f 3 1 2 0
+glp glPixelMapfv ii 3185 4 f 3 1 2 0
+glp glPixelMapfv ii 3186 4 f 0.25 0.5 0.75 1
+glp glPixelMapfv ii 3187 4 f 1 0.5 0.25 0
+glp glPixelMapfv ii 3188 4 f 0 1 0.5 0
+glp glPixelMapfv ii 3189 4 f 1 1 1 1
+glp glPixelMapfv ii 3190 4 f 0.25 0.5 0.75 1
+glp glPixelMapfv ii 3191 4 f 1 0.5 0.25 0
+glp glPixelMapfv ii 3192 4 f 0 1 0.5 0
+glp glPixelMapfv ii 3193 4 f 1 1 1 1
+gl glPixelTransferi 0xd10 0
+gl glPixelTransferi 0xd11 0
+gl glPixelTransferi 0xd12 0
+gldraw 4 2 6401 0x1401 77 8
+glread 0 0 4 2 6401 0x1401 8
+glerr
+gl glPixelTransferi 0xd10 0
+gl glPixelTransferi 0xd11 0
+gl glPixelTransferi 0xd12 1
+gldraw 4 2 6401 0x1401 77 8
+glread 0 0 4 2 6401 0x1401 8
+glerr
+gl glPixelTransferi 0xd10 1
+gl glPixelTransferi 0xd11 1
+gl glPixelTransferi 0xd12 0
+gldraw 4 2 6401 0x1401 77 8
+glread 0 0 4 2 6401 0x1401 8
+glerr
+gl glPixelTransferi 0xd10 1
+gl glPixelTransferi 0xd11 1
+gl glPixelTransferi 0xd12 1
+gldraw 4 2 6401 0x1401 77 8
+glread 0 0 4 2 6401 0x1401 8
+glerr
+end

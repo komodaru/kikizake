@@ -270,6 +270,8 @@ use super::{Fail, Res};
 
 #[path = "opengl_tex.rs"]
 pub mod tex;
+#[path = "opengl_pixelmap.rs"]
+mod pixelmap;
 #[path = "opengl_gaps.rs"]
 mod gaps;
 #[path = "opengl_list.rs"]
@@ -473,6 +475,7 @@ pub struct Ctx {
     pub transfer: [(f32, f32); 4],
     /// GL_MAP_COLOR, GL_MAP_STENCIL (glPixelTransfer): the pixel maps the model does not follow
     pub map: [bool; 2],
+    pixel_maps: pixelmap::Maps,
     /// GL_INDEX_SHIFT, GL_INDEX_OFFSET
     pub index_shift: (i64, i64),
     /// GL_DEPTH_SCALE, GL_DEPTH_BIAS
@@ -521,6 +524,7 @@ pub struct Ctx {
     pub line_width: f32,
     /// glLineStipple's repeat factor (1..255) and pattern
     pub line_stipple: (i64, u16),
+    polygon_pattern: [u32; 32],
     /// a smooth stippled strip's place in the pattern (position, count), `tri::AaStipple`
     pub aa_stipple: (u8, u8),
     /// the stipple counter: the next step's count, and the major coordinate and count of the
@@ -599,6 +603,7 @@ impl Ctx {
             unpack: [0, 0, 0, 0, 0, 4],
             transfer: [(1.0, 0.0); 4],
             map: [false; 2],
+            pixel_maps: pixelmap::Maps::default(),
             index_shift: (0, 0),
             depth_transfer: (1.0, 0.0),
             zoom: (1.0, 1.0),
@@ -623,6 +628,7 @@ impl Ctx {
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
             line_stipple: (1, 0xffff),
+            polygon_pattern: [u32::MAX; 32],
             aa_stipple: (0, 0),
             stipple: (0, None),
             point_size: 1.0,
@@ -830,7 +836,7 @@ impl Ctx {
             0xc33 => vec![B(false)],
             0xc40 => i(0x1c00),
             0xc50..=0xc54 => i(self.hints[(p - 0xc50) as usize] as i64),
-            0xcb0..=0xcb9 => i(1),
+            0xcb0..=0xcb9 => i(self.pixel_maps.size(p.saturating_sub(0x40))),
             0xcf0..=0xcf5 => {
                 let v = self.unpack[(p - 0xcf0) as usize];
                 if p <= 0xcf1 { vec![B(v != 0)] } else { i(v) }
@@ -1361,6 +1367,10 @@ impl Gl {
                 out.push(format!("q {shown}"));
             }
             CtxOp::Glp if t.get(1).is_some_and(|n| forms::parse(n).is_some_and(|f| f.vector) || matches!(n.as_str(), "glLoadMatrixd" | "glMultMatrixd" | "glFogiv")) => ctx.form_glp(t)?,
+            CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glPixelMapfv" | "glPixelMapuiv" | "glPixelMapusv")) => ctx.set_pixel_map(t)?,
+            CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glGetPixelMapfv" | "glGetPixelMapuiv" | "glGetPixelMapusv")) => ctx.get_pixel_map(t, out)?,
+            CtxOp::Glp if t.get(1).is_some_and(|n| n == "glPolygonStipple") => ctx.set_polygon_pattern(t)?,
+            CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPolygonStipple") => ctx.get_polygon_pattern(t, out)?,
             CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf | CtxOp::Wglx => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
@@ -2181,6 +2191,7 @@ pub mod attrib {
     pub const POINT: u32 = 0x2;
     pub const LINE: u32 = 0x4;
     pub const POLYGON: u32 = 0x8;
+    pub const STIPPLE_PATTERN: u32 = 0x10;
     pub const PIXEL_MODE: u32 = 0x20;
     pub const LIGHTING: u32 = 0x40;
     pub const FOG: u32 = 0x80;
@@ -3035,7 +3046,7 @@ impl Ctx {
                     let along = |j: usize| tri::aa_plane(r, [k(i0, j), k(i1, j), k(i2, j)], p.at);
                     texdraw::Stq::at([along(0), along(1), along(2)])
                 });
-                let drawn = self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed });
+                let drawn = self.polygon_fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed });
                 self.frag_tex = None;
                 self.frag_fog = None;
                 drawn?;
@@ -3261,8 +3272,7 @@ impl Ctx {
                 return Ok(());
             }
         }
-        // (stippled by the pattern, all set: glPolygonStipple is not among the calls the
-        // executor makes, so every pixel, golden opengl-32 raster-mode-1)
+        // The initial all-set mask keeps every pixel (golden opengl-32 raster-mode-1).
         if self.cap(POLYGON_STIPPLE) {
             hit(clause::GL_POLYGON_STIPPLE);
         }
@@ -3339,7 +3349,7 @@ impl Ctx {
         }
         self.never = NeverPath::Other;
         for (x, y, c, zfixed) in px {
-            self.fragment(Frag { x, y, c: c.map(|v| v as f32), z: z0, fixed, zfixed: zfixed.or(offset_fixed) })?;
+            self.polygon_fragment(Frag { x, y, c: c.map(|v| v as f32), z: z0, fixed, zfixed: zfixed.or(offset_fixed) })?;
         }
         Ok(())
     }
@@ -3458,7 +3468,7 @@ impl Ctx {
                         for y in 0..H as i64 {
                             for x in 0..W as i64 {
                                 if (x as f64 + 1.0) > x0 && (x as f64) < x1 && (y as f64 + 1.0) > y0 && (y as f64) < y1 {
-                                    self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed })?;
+                                    self.polygon_fragment(Frag { x, y, c, z, fixed: self.span(), zfixed })?;
                                 }
                             }
                         }
@@ -3473,7 +3483,7 @@ impl Ctx {
                     let mut px = self.fill(q, &[c.map(f64::from); 4], None)?;
                     px.sort_by_key(|(x, y, _, _)| (*y, *x));
                     for (x, y, _, _) in px {
-                        let r = self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
+                        let r = self.polygon_fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
                         if r.is_err() {
                             self.never = NeverPath::Other;
                         }
@@ -4445,6 +4455,7 @@ impl Ctx {
             // LINE_BIT
             line_width,
             line_stipple,
+            polygon_pattern,
             // POLYGON_BIT
             cull_mode,
             front_face,
@@ -4453,6 +4464,7 @@ impl Ctx {
             // PIXEL_MODE_BIT (the read buffer, the transfer modes, the zoom)
             transfer,
             map,
+            pixel_maps,
             index_shift,
             depth_transfer,
             zoom,
@@ -4546,9 +4558,13 @@ impl Ctx {
             self.poly_mode = poly_mode;
             self.offset = offset;
         }
+        if on(attrib::STIPPLE_PATTERN) {
+            self.polygon_pattern = polygon_pattern;
+        }
         if on(attrib::PIXEL_MODE) {
             self.transfer = transfer;
             self.map = map;
+            self.pixel_maps = pixel_maps;
             self.index_shift = index_shift;
             self.depth_transfer = depth_transfer;
             self.zoom = zoom;
@@ -4873,6 +4889,125 @@ fn bitmap_bit(store: &[i64; 6], w: i64, i: usize, j: usize) -> (usize, u8) {
     (store[3] as usize * k + j * k + p / 8, if store[1] != 0 { 1 << bit } else { 0x80 >> bit })
 }
 
+impl Ctx {
+    fn set_polygon_pattern(&mut self, t: &[String]) -> Res<()> {
+        hit(clause::GL_POLYGON_STIPPLE_PATTERN);
+        if t.get(2).map(String::as_str) != Some("-") {
+            return Err(Fail::Bad);
+        }
+        if self.in_begin.is_some() {
+            self.error(INVALID_OPERATION);
+            return Ok(());
+        }
+        let mut src = match array::glp_bytes(t)? {
+            Some(bytes) => bytes,
+            None if t.get(3).is_some_and(|s| s == "obuf") => vec![0xcc; 4096],
+            None => return Err(Fail::Bad),
+        };
+        src.resize(4096, 0);
+        let mut rows = [0; 32];
+        for (y, row) in rows.iter_mut().enumerate() {
+            for x in 0..32 {
+                let (offset, mask) = bitmap_bit(&self.unpack, 32, x, y);
+                if src.get(offset).ok_or(Fail::Bad)? & mask != 0 {
+                    *row |= 1 << x;
+                }
+            }
+        }
+        self.polygon_pattern = rows;
+        Ok(())
+    }
+
+    fn get_polygon_pattern(&mut self, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        hit(clause::GL_POLYGON_STIPPLE_PATTERN);
+        let [_, _, sig, ty, count] = t else { return Err(Fail::Bad) };
+        if sig != "-" { return Err(Fail::Bad); }
+        out.push(query_bytes(ty, count, |dst| {
+            if self.in_begin.is_some() {
+                self.error(INVALID_OPERATION);
+            } else {
+                for (y, row) in self.polygon_pattern.iter().enumerate() {
+                    for x in 0..32 {
+                        let (offset, mask) = bitmap_bit(&self.pack, 32, x, y);
+                        let byte = dst.get_mut(offset).ok_or(Fail::Bad)?;
+                        *byte = stipple_bit(*byte, mask, row & (1 << x) != 0);
+                    }
+                }
+            }
+            Ok(())
+        })?);
+        Ok(())
+    }
+
+    fn polygon_fragment(&mut self, f: Frag) -> Res<()> {
+        if self.cap(POLYGON_STIPPLE) {
+            let x = f.x.rem_euclid(32);
+            let y = usize::try_from(f.y.rem_euclid(32)).ok().ok_or(Fail::Bad)?;
+            if self.polygon_pattern.get(y).ok_or(Fail::Bad)? & (1 << x) == 0 {
+                return Ok(());
+            }
+        }
+        self.fragment(f)
+    }
+}
+
+/// The typed scratch buffer and printed values of runner/opengl.c's glq.
+fn query_bytes(ty: &str, count: &str, fill: impl FnOnce(&mut [u8]) -> Res<()>) -> Res<String> {
+    let count = num(count).and_then(|n| usize::try_from(n).ok()).ok_or(Fail::Bad)?;
+    let sentinel = match ty {
+        "b" | "ub" => vec![0xcc],
+        "s" | "us" => vec![0xcc; 2],
+        "i" | "ui" => 0x7eadbeefu32.to_le_bytes().to_vec(),
+        "f" => (-12345.0f32).to_le_bytes().to_vec(),
+        "d" => (-12345.0f64).to_le_bytes().to_vec(),
+        "p" => vec![0; if super::arch() == 32 { 4 } else { 8 }],
+        _ => return Err(Fail::Bad),
+    };
+    let width = sentinel.len();
+    let capacity = 4096usize.checked_div(width).ok_or(Fail::Bad)?;
+    if count == 0 || count > capacity { return Err(Fail::Bad); }
+    let mut dst = sentinel.repeat(capacity);
+    fill(&mut dst)?;
+    let mut line = String::from("q");
+    for bytes in dst.chunks_exact(width).take(count) {
+        let bad = |_| Fail::Bad;
+        let value = match ty {
+            "ub" => u8::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+            "b" => i8::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+            "us" => u16::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+            "s" => i16::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+            "ui" => u32::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+            "i" => i32::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+            "f" => tex::g9(f64::from(f32::from_le_bytes(bytes.try_into().map_err(bad)?))),
+            "d" => tex::g9(f64::from_le_bytes(bytes.try_into().map_err(bad)?)),
+            "p" => if bytes.iter().all(|b| *b == 0) { "0" } else { "-1" }.into(),
+            _ => return Err(Fail::Bad),
+        };
+        line.push(' ');
+        line.push_str(&value);
+    }
+    Ok(line)
+}
+
+fn stipple_bit(byte: u8, mask: u8, on: bool) -> u8 {
+    if on { byte | mask } else { byte & !mask }
+}
+
+#[test]
+fn stipple_preserves_every_other_packed_bit() {
+    for byte in 0..=u8::MAX {
+        for pos in 0..8 {
+            for on in [false, true] {
+                let got = stipple_bit(byte, 1 << pos, on);
+                for bit in 0..8 {
+                    let expected = if bit == pos { on } else { byte & (1 << bit) != 0 };
+                    assert_eq!(got & (1 << bit) != 0, expected);
+                }
+            }
+        }
+    }
+}
+
 /// the element offsets of a w x h image under the pack / unpack parameters (glPixelStore):
 /// (start of row j, elements a row), in elements of `size` bytes
 fn layout(store: &[i64; 6], n: usize, size: usize, w: i64) -> (usize, usize) {
@@ -5079,7 +5214,7 @@ impl Ctx {
     fn index_map(&self, stencil: bool, v: f64) -> f64 {
         if self.map[usize::from(stencil)] {
             hit(clause::GL_PIXELTRANSFER_MAPINDEX);
-            0.0
+            self.pixel_maps.indexed(usize::from(stencil), v)
         } else {
             v
         }
@@ -5090,15 +5225,15 @@ impl Ctx {
             // (MEASURED, golden opengl-32 transfer-map-color: through the initial maps, each
             // one entry of 0, every component of an image drawn or read is 0: GL.PIXELTRANSFER.MAP)
             hit(clause::GL_PIXELTRANSFER_MAP);
-            return Ok([0.0; 4]);
         }
         let mut r = c;
-        for k in 0..4 {
+        for (k, value) in r.iter_mut().enumerate() {
             let (s, b) = self.transfer[k];
             if (s, b) != (1.0, 0.0) {
                 hit(clause::GL_PIXELTRANSFER_APPLY);
             }
-            r[k] = (c[k] * s as f64 + b as f64).clamp(0.0, 1.0);
+            *value = (*value * f64::from(s) + f64::from(b)).clamp(0.0, 1.0);
+            if self.map[0] { *value = self.pixel_maps.channel(k, *value); }
         }
         Ok(r)
     }
@@ -5122,7 +5257,7 @@ impl Ctx {
                     }
                     let p = py as usize * W + px as usize;
                     let v = if f == COLOR_INDEX { self.fb[p][0] } else { self.stencil[p] };
-                    let v = if self.map[usize::from(f != COLOR_INDEX)] { self.index_map(f != COLOR_INDEX, 0.0) as u32 } else { v };
+                    let v = index_bits(self.index_map(f != COLOR_INDEX, self.shifted(f64::from(v))));
                     let (at, m) = bitmap_bit(&self.pack, w, i, j);
                     let Some(b) = buf.get_mut(at) else {
                         hit(clause::GL_READ_BUFFER);
@@ -5148,8 +5283,12 @@ impl Ctx {
                     continue;
                 }
                 let p = py as usize * W + px as usize;
-                let c = self.dst_color(p).map(|v| v as f64);
-                let c = self.transfer(c)?.map(|v| v as f32);
+                let c = if self.pf.ty != 0 {
+                    self.pixel_maps.index_rgba(self.shifted(f64::from(self.fb.get(p).ok_or(Fail::Bad)?[0]))).map(tri::narrow)
+                } else {
+                    let c = self.transfer(self.dst_color(p).map(f64::from))?.map(tri::narrow);
+                    if self.map[0] { c.map(|v| (v * 255.0) * (1.0 / 255.0)) } else { c }
+                };
                 for (n, which) in comps.iter().enumerate() {
                     let und = match which {
                         0..=3 => self.fb_undefined[p][*which],
@@ -5286,16 +5425,16 @@ impl Ctx {
                     let v: f32 = if b & m != 0 { 1.0 } else { 0.0 };
                     if f == STENCIL_INDEX {
                         for (x, y) in self.image_pixels(rx, ry, i, j) {
-                            self.draw_stencil(x, y, f64::from(v));
+                            self.draw_stencil(x, y, self.index_map(true, self.shifted(f64::from(v))));
                         }
                         continue;
                     }
                     let c = if self.pf.ty != 0 {
                         hit(clause::GL_COLORINDEX);
-                        [v, 0.0, 0.0, 0.0]
+                        [tri::narrow(self.index_map(false, self.shifted(f64::from(v)))), 0.0, 0.0, 0.0]
                     } else {
                         hit(clause::GL_DRAW_INDEX);
-                        self.transfer([0.0; 4])?.map(|v| v as f32)
+                        self.pixel_maps.index_rgba(self.shifted(f64::from(v))).map(tri::narrow)
                     };
                     let c = fog(self, c);
                     for (x, y) in self.image_pixels(rx, ry, i, j) {
@@ -5373,12 +5512,13 @@ impl Ctx {
                             // an index in RGBA mode through GL_PIXEL_MAP_I_TO_R.. A, whose
                             // initial tables hold one zero each
                             hit(clause::GL_DRAW_INDEX);
-                            c = [0.0; 4];
+                            let index = self.shifted(index_value(&e, t)?);
+                            c = self.pixel_maps.index_rgba(index);
                         }
                         _ => c[*which] = v,
                     }
                 }
-                let c = if self.pf.ty != 0 { c } else { self.transfer(c)? };
+                let c = if self.pf.ty != 0 || f == COLOR_INDEX { c } else { self.transfer(c)? };
                 let c = fog(self, c.map(|v| v as f32));
                 if !zoomed {
                     self.fragment(Frag { x: ox + i as i64, y: oy + j as i64, c, z: rz, fixed: ToFixed::Trunc, zfixed: None })?;

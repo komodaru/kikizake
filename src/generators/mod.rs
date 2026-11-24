@@ -100,6 +100,7 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("wicdecode", wicimage::wicdecode),
     ("wicencode", wicimage::wicencode),
     ("opengl", opengl::opengl),
+    ("glstipple", opengl::glstipple),
     ("ntstr", ntstr::ntstr),
     ("ntcase", ntcase::ntcase),
     ("ddclip", ddraw::ddclip),

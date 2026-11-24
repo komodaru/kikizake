@@ -3874,3 +3874,26 @@ fn gaps(s: &mut String) {
     read_all(s);
     writeln!(s, "wglx fontbmp w 0x3042 2 110\nwglx fontoutline a 65 2 120 0\nwglx fontoutline w 65 1 130 1\nglr glIsList b i 120\nglerr\nend");
 }
+/// Bitmap pack/unpack addressing for glPolygonStipple and glGetPolygonStipple.
+pub fn glstipple() -> String {
+    let mut s = String::from("# kikizake suite glstipple: polygon stipple pixel storage\n");
+    let mut bytes = (0..=u8::MAX).map(|i| i.wrapping_mul(37).wrapping_add(11));
+    let mut words = String::new();
+    for _ in 0..64 {
+        let value = u32::from_le_bytes(std::array::from_fn(|_| bytes.next().unwrap_or_default()));
+        write!(words, " {value}");
+    }
+    for (lsb, align, row, rows, pixels) in [(0,4,0,0,0), (1,4,0,0,0), (0,8,40,1,3), (1,8,40,2,5), (0,1,16,0,0)] {
+        writeln!(s, "case s-{lsb}-{align}-{row}-{rows}-{pixels}\nglctx 32 choose 0x38 0 32 0 0 32 8");
+        for base in [0xcf0, 0xd00] {
+            for (p, value) in (base..).zip([0, lsb, row, rows, pixels, align]) {
+                writeln!(s, "gl glPixelStorei {p} {value}");
+            }
+            if base == 0xcf0 {
+                writeln!(s, "glp glPolygonStipple - ui{words}\nglq glGetPolygonStipple - ub 128");
+            }
+        }
+        writeln!(s, "glq glGetPolygonStipple - ub 320\nglerr\nend");
+    }
+    s
+}

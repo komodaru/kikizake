@@ -1181,3 +1181,124 @@ mod lists_far {
         }
     }
 }
+#[test]
+fn stipple_display_lists_capture_unpack_and_attribute_stack_restores_pattern() {
+    let text = "case state
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glPixelStorei 0xcf1 1
+gl glNewList 17 0x1300
+glp glPolygonStipple - ub 1
+gl glEndList
+gl glPixelStorei 0xcf1 0
+glq glGetPolygonStipple - ub 2
+gl glCallList 17
+glq glGetPolygonStipple - ub 2
+gl glPushAttrib 0x10
+glp glPolygonStipple - ub 127
+glq glGetPolygonStipple - ub 2
+gl glPopAttrib
+glq glGetPolygonStipple - ub 2
+glerr
+end";
+    let output = kikizake::model::run_case(&kikizake::case::parse_cases(text)[0]).unwrap();
+    assert_eq!(&output[1..], ["q 255 255", "q 128 0", "q 127 0", "q 128 0", "glerr 0"]);
+}
+
+proptest! {
+    // glq starts with 0xcc, so partial destination bytes test preservation too.
+    #[test]
+    fn polygon_stipple_pack_unpack(words in prop::collection::vec(any::<u32>(), 64),
+        layouts in prop::collection::vec((any::<bool>(), 0u32..4, 0usize..49, 0usize..4, 0usize..12), 2)) {
+        use std::fmt::Write;
+        let mut text = String::from("case law\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+        let mut src = words.iter().flat_map(|w| w.to_le_bytes()).collect::<Vec<_>>();
+        src.resize(4096, 0);
+        for (k, &(lsb, shift, row, skip_y, skip_x)) in layouts.iter().enumerate() {
+            let base = if k == 0 { 0xcf0 } else { 0xd00 };
+            for (i, v) in [usize::from(lsb), row, skip_y, skip_x, 1 << shift].into_iter().enumerate() {
+                writeln!(text, "gl glPixelStorei {} {v}", base + i + 1).unwrap();
+            }
+            if k == 0 {
+                text.push_str("glp glPolygonStipple - ui");
+                for word in &words { write!(text, " {word}").unwrap(); }
+                text.push('\n');
+            }
+        }
+        text.push_str("glq glGetPolygonStipple - ub 400\nend\n");
+        let address = |k: usize, x: usize, y: usize| {
+            let (lsb, shift, row, skip_y, skip_x) = layouts[k];
+            let align = 1usize << shift;
+            let bytes = (if row == 0 { 32 } else { row }).div_ceil(8);
+            let stride = bytes.next_multiple_of(align);
+            let pos = skip_x + x;
+            ((skip_y + y) * stride + pos / 8, 1u8 << if lsb { pos % 8 } else { 7 - pos % 8 })
+        };
+        let mut expected = [0xcc; 400];
+        for y in 0..32 {
+            for x in 0..32 {
+                let (from, source_mask) = address(0, x, y);
+                let (to, mask) = address(1, x, y);
+                if src[from] & source_mask != 0 { expected[to] |= mask; } else { expected[to] &= !mask; }
+            }
+        }
+        let case = kikizake::case::parse_cases(&text);
+        let actual = kikizake::model::run_case(&case[0]).unwrap();
+        let query = format!("q {}", expected.map(|b| b.to_string()).join(" "));
+        prop_assert_eq!(actual.last(), Some(&query));
+    }
+}
+proptest! {
+    #[test]
+    fn pixel_map_queries_preserve_entries_and_query_tail(
+        entries in prop::collection::vec(any::<u16>(), 8),
+        slot in 0xc70u32..=0xc79,
+    ) {
+        let input = entries.iter().map(u16::to_string).collect::<Vec<_>>().join(" ");
+        let text = format!("case map\nglctx 32 choose 0x38 0 32 0 0 32 8\n\
+            glp glPixelMapusv ii {slot} 8 us {input}\n\
+            glget i {} 1\nglq glGetPixelMapusv i {slot} us 9\nglerr\nend", slot + 0x40);
+        let actual = kikizake::model::run_case(&kikizake::case::parse_cases(&text)[0]).unwrap();
+        let size = format!("get {:x} = 8", slot + 0x40);
+        let query = format!("q {input} 52428");
+        prop_assert_eq!(&actual[1..], &[size, query, "glerr 0".into()]);
+    }
+}
+
+#[test]
+fn pixel_map_native_integer_scales_and_zero_reset() {
+    let text = "case map
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glPixelMapfv ii 0xc70 4 f -1.5 -0.5 0.5 1.5
+glq glGetPixelMapfv i 0xc70 f 4
+glp glPixelMapuiv ii 0xc76 4 ui 1 2147483647 2147483648 4294967295
+glq glGetPixelMapuiv i 0xc76 ui 5
+glq glGetPixelMapusv i 0xc76 us 5
+glp glPixelMapfv ii 0xc76 0 f 0.75
+glget i 0xcb6 1
+glq glGetPixelMapfv i 0xc76 f 3
+glerr
+end";
+    let output = kikizake::model::run_case(&kikizake::case::parse_cases(text)[0]).unwrap();
+    assert_eq!(&output[1..], ["q -2 -1 1 2", "q 1 2147483520 2147483520 4294967040 2125315823",
+        "q 0 32768 32768 65535 52428", "get cb6 = 1", "q 0 -12345 -12345", "glerr 0"]);
+}
+#[test]
+fn index_and_stencil_pixel_maps_match_windows() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_pixelmap.txt"));
+    // RGBA bytes or stencil indices, with mapping off/on and index shift 0/1.
+    let expected = [
+        ["7f7fffff7f7fffff3fff00ff3fff00ffff0000ffff0000ffbf3f7fffff0000ff",
+         "bf3f7fffbf3f7fff3fff00ff3fff00ffbf3f7fffbf3f7fff3fff00ffbf3f7fff",
+         "808000ff808000ff400000ff400000ffffff00ffffff00ffbfffffffffff00ff",
+         "bfffffffbfffffff400000ff400000ffbfffffffbfffffff400000ffbfffffff"],
+        ["6941b0f08f7f122f", "a404c0c03cfc48bc", "0101000003030203", "0303020203030203"],
+    ];
+    for (case, reads) in zip_eq(&cases, expected) {
+        let output = kikizake::model::run_case(case).unwrap();
+        let mut want = vec!["glctx ok 1".to_string()];
+        for bytes in reads {
+            want.extend([format!("read {bytes}"), "glerr 0".to_string()]);
+        }
+        assert_eq!(output, want, "{}", case.name);
+    }
+}

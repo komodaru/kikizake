@@ -12,6 +12,10 @@ on:
       - 'cases/ntstr.txt'
       - 'golden/ntcase-*/**'
       - 'golden/ntstr-*/**'
+      - 'cases/glstipple.txt'
+      - 'golden/glstipple-*/**'
+      - 'src/model/opengl*.rs'
+      - 'src/generators/opengl.rs'
       - 'src/model/nt*.rs'
       - 'src/generators/nt*.rs'
       - 'src/case.rs'
@@ -76,7 +80,7 @@ jobs:
       - id: stale
         name: Which ones Windows has not answered
         run: |
-          if [ "${{ github.event_name }}" = pull_request ]; then l='kikizake_ntcase-32 kikizake_ntcase-64 kikizake_ntstr-32 kikizake_ntstr-64'
+          if [ "${{ github.event_name }}" = pull_request ]; then l='kikizake_ntcase-32 kikizake_ntcase-64 kikizake_ntstr-32 kikizake_ntstr-64 kikizake_glstipple-32 kikizake_glstipple-64'
           elif [ "${{ inputs.all }}" = true ]; then l=$(ls exe | sed -n 's/\.exe$//p' | tr '\n' ' ')
           else l=$(python3 runner/golden.py stale exe | tr '\n' ' '); fi
           echo "stale: $l"
@@ -131,15 +135,16 @@ jobs:
             echo $st > "ref/$n/exit"
             echo "$n: exit $(cat "ref/$n/exit"), $(wc -l < "ref/$n/stdout.txt") lines, $((SECONDS - s)) s"
           done
-      - name: Compare fresh NT measurements with both recorded architectures
+      - name: Compare fresh measurements with both recorded architectures
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
-          for name in ntcase-32 ntcase-64 ntstr-32 ntstr-64; do
+          for name in ntcase-32 ntcase-64 ntstr-32 ntstr-64 glstipple-32 glstipple-64; do
             test "$(cat "ref/kikizake_$name/exit")" = 0
             diff --strip-trailing-cr -u "golden/$name/stdout.txt" "ref/kikizake_$name/stdout.txt"
           done
       - uses: actions/upload-artifact@v7.0.2
+        if: ${{ !cancelled() }}
         with:
           name: windows
           path: ref
