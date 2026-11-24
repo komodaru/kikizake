@@ -513,6 +513,8 @@ pub struct Ctx {
     evaluator_maps: std::collections::BTreeMap<i32, eval::Map>,
     grid1: GridAxis,
     grid2: [GridAxis; 2],
+    feedback_buffer: (i32, i32, array::Ptr),
+    selection_buffer: (i32, array::Ptr),
     pub viewport: [i64; 4],
     pub scissor: [i64; 4],
     pub shade: u32,
@@ -896,6 +898,8 @@ impl Ctx {
             evaluator_maps: Default::default(),
             grid1: GridAxis::UNIT,
             grid2: [GridAxis::UNIT; 2],
+            feedback_buffer: (0, 0, array::Ptr::Null),
+            selection_buffer: (0, array::Ptr::Null),
             viewport: [0, 0, W as i64, H as i64],
             scissor: [0, 0, W as i64, H as i64],
             scene_ambient: [ambient, ambient, ambient, 1.0],
@@ -1189,7 +1193,9 @@ impl Ctx {
             0xdd2 => self.grid2.iter().flat_map(|axis| axis.domain.map(F)).collect(),
             0xdd3 => self.grid2.map(|axis| I(axis.segments)).to_vec(),
             // (MEASURED, golden opengl-32 defaults-*: the feedback type reads 0, not GL_2D)
-            0xdf1 | 0xdf2 | 0xdf4 => i(0),
+            0xdf1 => i(i64::from(self.feedback_buffer.0)),
+            0xdf2 => i(i64::from(self.feedback_buffer.1)),
+            0xdf4 => i(i64::from(self.selection_buffer.0)),
             0x8038 => vec![F(self.offset.0)],
             0x2a00 => vec![F(self.offset.1)],
             0x8068 => i(i64::from(*self.tex.bound.get(tex::Target::One))),
@@ -1927,6 +1933,20 @@ impl Gl {
             CtxOp::Glp | CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glClipPlane" | "glGetClipPlane")) => ctx.clip_plane_call(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPolygonStipple") => ctx.get_polygon_pattern(t, out)?,
             CtxOp::Wglx => wgl_dc(ctx, t, out)?,
+            CtxOp::Glp if t.get(1).is_some_and(|name| matches!(name.as_str(), "glFeedbackBuffer" | "glSelectBuffer")) => {
+                let [_, name, sig, size, rest @ ..] = t else { return Err(Fail::Bad); };
+                let feedback = name == "glFeedbackBuffer";
+                if sig != if feedback { "ii" } else { "i" } { return Err(Fail::Bad); }
+                let size = crate::case::windows_long(size).ok_or(Fail::Bad)?;
+                let ty = if feedback { rest.first().and_then(|s| crate::case::windows_long(s)).ok_or(Fail::Bad)? } else { 0 };
+                let ptr = ctx.arrays.last.ok_or(Fail::Bad)?;
+                if ctx.in_begin.is_some() { ctx.error(INVALID_OPERATION); }
+                else if feedback && !(0x600..=0x604).contains(&ty) { ctx.error(INVALID_ENUM); }
+                else if size < 0 { ctx.error(INVALID_VALUE); }
+                else if ptr == array::Ptr::Null { ctx.error(0x505); }
+                else if feedback { ctx.feedback_buffer = (size, ty, ptr); }
+                else { ctx.selection_buffer = (size, ptr); }
+            }
             CtxOp::Glr if t.get(1).is_some_and(|name| name == "glRenderMode") => {
                 let [_, _, _, sig, mode] = t else { return Err(Fail::Bad); };
                 if sig != "i" { return Err(Fail::Bad); }
@@ -1936,7 +1956,8 @@ impl Gl {
                 } else {
                     match mode {
                         0x1c00 => {}
-                        // Buffer registration is still unmodeled, so neither buffer is set here.
+                        0x1c01 if ctx.feedback_buffer.2 != array::Ptr::Null => return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)),
+                        0x1c02 if ctx.selection_buffer.1 != array::Ptr::Null => return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)),
                         0x1c01 | 0x1c02 => ctx.error(INVALID_OPERATION),
                         _ => ctx.error(INVALID_ENUM),
                     }
@@ -5281,7 +5302,7 @@ impl Ctx {
             index_shift,
             depth_transfer,
             zoom,
-            evaluator_maps: _, grid1, grid2,
+            evaluator_maps: _, grid1, grid2, feedback_buffer: _, selection_buffer: _,
             // LIGHTING_BIT
             shade, scene_ambient, local_viewer, two_sided, materials, color_material, lights,
             // FOG_BIT

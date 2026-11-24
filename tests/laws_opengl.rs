@@ -2846,3 +2846,53 @@ end
         "get c40 = 7168", "glerr 502", "ret 0", "get c40 = 7168", "glerr 502",
         "ret 0", "glerr 0", "ret 0", "glerr 502"]);
 }
+
+#[test]
+fn feedback_and_selection_registration_match_windows() {
+    for (input, expected) in [
+        ("case buffer-errors
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glFeedbackBuffer ii -1 99 obuf
+glerr
+glp glFeedbackBuffer ii 1 99 obuf
+glerr
+glp glFeedbackBuffer ii -1 1536 obuf
+glerr
+glp glSelectBuffer i -1 obuf
+glerr
+glget i 0xdf1 1
+glget i 0xdf2 1
+glget i 0xdf4 1
+gl glBegin 0
+glp glFeedbackBuffer ii -1 99 obuf
+gl glEnd
+glerr
+end
+", &["glerr 500", "glerr 500", "glerr 501", "glerr 501", "get df1 = 0", "get df2 = 0", "get df4 = 0", "glerr 502"][..]),
+        ("case buffers
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glSelectBuffer i 8 ui 0
+glp glFeedbackBuffer ii 16 1538 obuf
+glget i 0xdf1 1
+glget i 0xdf2 1
+glget i 0xdf4 1
+glq glGetPointerv i 0xdf0 p 1
+glq glGetPointerv i 0xdf3 p 1
+glerr
+glp glFeedbackBuffer ii 0 1539 f 0
+glp glSelectBuffer i 0 obuf
+glget i 0xdf1 1
+glget i 0xdf2 1
+glget i 0xdf4 1
+glq glGetPointerv i 0xdf0 p 1
+glq glGetPointerv i 0xdf3 p 1
+glerr
+end
+", &["get df1 = 16", "get df2 = 1538", "get df4 = 8", "q -1", "q 1", "glerr 0",
+            "get df1 = 0", "get df2 = 1539", "get df4 = 0", "q 2", "q -1", "glerr 0"][..]),
+    ] {
+        let cases = kikizake::case::parse_cases(input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], expected);
+    }
+}

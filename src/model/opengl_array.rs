@@ -690,12 +690,18 @@ impl Ctx {
 
     /// glGetPointerv(pname): the slot an array points into (from 1), 0 for none, -1 elsewhere
     pub(super) fn array_pointer(&mut self, pname: u32) -> Option<i64> {
-        let k = Kind::ALL.into_iter().find(|k| k.pointer() == pname);
-        let Some(k) = k else {
-            self.error(INVALID_ENUM);
-            return None;
+        let ptr = match pname {
+            0xdf0 => self.feedback_buffer.2,
+            0xdf3 => self.selection_buffer.1,
+            _ => {
+                let Some(k) = Kind::ALL.into_iter().find(|k| k.pointer() == pname) else {
+                    self.error(INVALID_ENUM);
+                    return None;
+                };
+                self.arrays.spec(k).ptr
+            }
         };
-        Some(match self.arrays.spec(k).ptr {
+        Some(match ptr {
             Ptr::Null => 0,
             Ptr::Slot(id, _) => i64::from(id.shown()),
             Ptr::Other => -1,
