@@ -1860,7 +1860,7 @@ impl Gl {
             let name = t.get(1).map(String::as_str);
             let supported = matches!(cmd, CtxOp::Glget | CtxOp::Glerr | CtxOp::Glisen | CtxOp::Glstr)
                 || (matches!(cmd, CtxOp::Gl) && matches!(name, Some("glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" | "glFlush" | "glFinish")))
-                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n, "glBegin" | "glShadeModel" | "glCopyPixels" | "glRasterPos2f" | "glRasterPos2i" | "glRasterPos4f") || BEGIN_OK.contains(&n)))
+                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n, "glBegin" | "glEdgeFlag" | "glPolygonMode" | "glShadeModel" | "glCopyPixels" | "glRasterPos2f" | "glRasterPos2i" | "glRasterPos4f") || BEGIN_OK.contains(&n)))
                 || (ctx.feedback.is_some() && (matches!(cmd, CtxOp::Gldraw) || (matches!(cmd, CtxOp::Glp) && name == Some("glBitmap"))))
                 || (matches!(cmd, CtxOp::Glr | CtxOp::Glp) && matches!(name, Some("glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer")));
             if !supported { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
@@ -4004,21 +4004,36 @@ impl Ctx {
                 let [x, y, z, w] = self.clip_coords(obj);
                 let [r, g, b, a] = if self.shade == FLAT { flat } else { color };
                 let [s, t, u, v] = self.tex_coords4(&obj);
-                [x, y, z, w, r, g, b, a, s, t, u, v]
+                [x, y, z, w, r, g, b, a, s, t, u, v, f32::from(obj.edge)]
             }).collect();
-            let cut = self.clip_polygon(q, &attrs).0;
+            let cut = self.clip_polygon_edges(q, &attrs, Some(12)).0;
             if cut.len() < 3 { return Ok(()); }
             let window: Vec<_> = cut.iter().map(|p| [f64::from(p[0] / p[3]), f64::from(p[1] / p[3])]).collect();
             let front = (tri::signed_area(&window) > 0.0) == (self.front_face == CCW);
             if self.cap(CULL_FACE) && self.cull_mode != (if front { BACK } else { FRONT }) { return Ok(()); }
-            if (if front { self.poly_mode[0] } else { self.poly_mode[1] }) != POLY_FILL { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
-            let (first, rest) = cut.split_first().ok_or(Fail::Bad)?;
-            for [second, third] in rest.array_windows() {
-                let mut record = vec![1795.0, 3.0]; // GL_POLYGON_TOKEN, vertex count
-                for &[x, y, z, w, r, g, b, a, s, t, u, v] in [first, second, third] {
-                    self.feedback_vertex(&mut record, [x, y, z, w], [r, g, b, a], [s, t, u, v]);
+            let face = if front { self.poly_mode[0] } else { self.poly_mode[1] };
+            let vertex = |ctx: &Self, record: &mut Vec<f32>, &[x, y, z, w, r, g, b, a, s, t, u, v, _]: &[f32; 13]| {
+                ctx.feedback_vertex(record, [x, y, z, w], [r, g, b, a], [s, t, u, v]);
+            };
+            if face == POLY_FILL {
+                let (first, rest) = cut.split_first().ok_or(Fail::Bad)?;
+                for [second, third] in rest.array_windows() {
+                    let mut record = vec![1795.0, 3.0]; // GL_POLYGON_TOKEN, vertex count
+                    for corner in [first, second, third] { vertex(self, &mut record, corner); }
+                    self.feedback.as_mut().ok_or(Fail::Bad)?.emit(&record, self.feedback_buffer.0);
                 }
-                self.feedback.as_mut().ok_or(Fail::Bad)?.emit(&record, self.feedback_buffer.0);
+            } else {
+                let mut line_token = 1799.0; // GL_LINE_RESET_TOKEN on the first visible edge
+                for (corner, next) in cut.iter().zip(cut.iter().cycle().skip(1)) {
+                    if corner[12] == 0.0 { continue; }
+                    let mut record = vec![if face == POLY_POINT { 1793.0 } else { line_token }];
+                    vertex(self, &mut record, corner);
+                    if face == POLY_LINE {
+                        vertex(self, &mut record, next);
+                        line_token = 1794.0;
+                    }
+                    self.feedback.as_mut().ok_or(Fail::Bad)?.emit(&record, self.feedback_buffer.0);
+                }
             }
             return Ok(());
         }
@@ -4395,6 +4410,7 @@ impl Ctx {
             QUADS => {
                 for q in verts.chunks(4).filter(|q| q.len() == 4) {
                     if self.feedback.is_some() {
+                        if self.poly_mode != [POLY_FILL; 2] { self.polygon(q, 3)?; continue; }
                         let &[a, b, c, d] = q else { return Err(Fail::Bad); };
                         for vertices in [[a, b, c], [c, d, a]] {
                             let triangle = vertices.map(|(obj, color)| (obj, if self.shade == FLAT { d.1 } else { color }));
@@ -4531,7 +4547,7 @@ impl Ctx {
                 };
                 for p in polys {
                     let vertices = p.iter().map(|&k| verts.get(k).copied().ok_or(Fail::Bad)).collect::<Res<Vec<_>>>()?;
-                    if mode == QUAD_STRIP && self.feedback.is_some() {
+                    if mode == QUAD_STRIP && self.feedback.is_some() && self.poly_mode == [POLY_FILL; 2] {
                         let &[a, b, c, d] = vertices.as_slice() else { return Err(Fail::Bad); };
                         for corners in [[a, b, c], [c, d, a]] {
                             let triangle = corners.map(|(obj, color)| (obj, if self.shade == FLAT { c.1 } else { color }));

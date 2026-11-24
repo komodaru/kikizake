@@ -3093,3 +3093,34 @@ end
     assert_eq!(output[3], "ret 52");
     assert_eq!(output[4], "obuf 1796 6 10 0.5625 2 0.25 0.5 0.75000006 1 0.125 0.25 0.5 2");
 }
+
+#[test]
+fn polygon_feedback_follows_visible_boundary_edges() {
+    for (primitive, mode, edge, count, words) in [
+        (7, 0x1b00, 1, 12, "1793 4 4 1793 12 4 1793 12 12 1793 4 12"),
+        (7, 0x1b01, 1, 20, "1799 4 4 12 4 1794 12 4 12 12 1794 12 12 4 12 1794 4 12 4 4"),
+        (4, 0x1b00, 0, 6, "1793 12 4 1793 12 12"),
+        (4, 0x1b01, 0, 10, "1799 12 4 12 12 1794 12 12 4 4"),
+    ] {
+        let input = format!("case boundary
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glFeedbackBuffer ii 64 1536 obuf
+glr glRenderMode i i 0x1c01
+gl glPolygonMode 0x0408 {mode}
+gl glBegin {primitive}
+gl glEdgeFlag {edge}
+gl glVertex2f -0.5 -0.5
+gl glEdgeFlag 1
+gl glVertex2f 0.5 -0.5
+gl glVertex2f 0.5 0.5
+gl glVertex2f -0.5 0.5
+gl glEnd
+glr glRenderMode i i 0x1c00
+globuf f {count}
+end
+");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], ["ret 0".into(), format!("ret {count}"), format!("obuf {words}")]);
+    }
+}
