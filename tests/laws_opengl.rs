@@ -2198,3 +2198,43 @@ end
     assert_eq!(&output[1..], ["q 0.25 0.5 0.75 1", "q 0.25 0.5 0.75 1", "q 1 0 0 1",
         "q 1 0 0 1", "q 0.25 0.5 0.75 1", "q 0 1 0 1", "glerr 0"]);
 }
+
+#[test]
+fn every_color_material_selector_protects_exactly_its_components() {
+    use std::fmt::Write;
+    let faces = [(FRONT, 1), (BACK, 2), (FRONT_AND_BACK, 3)];
+    // Bit positions represent ambient, diffuse, specular and emission respectively.
+    let modes = [(0x1200, 1), (0x1201, 2), (0x1202, 4), (0x1600, 8), (0x1602, 3)];
+    for (track_face, tracked_faces) in faces {
+        for (track_mode, tracked_properties) in modes {
+            for (write_face, written_faces) in faces {
+                for (write_mode, written_properties) in modes {
+                    let mut input = String::from("case selectors\nglctx 32 choose 0x38 0 32 8 0 32 8\n");
+                    for &(property, _) in &modes[..4] {
+                        writeln!(input, "glp glMaterialfv ii {FRONT_AND_BACK} {property} f 0 0 0 1").unwrap();
+                    }
+                    writeln!(input, "gl glColor4f 1 0 0 1\ngl glColorMaterial {track_face} {track_mode}\ngl glEnable 0xb57").unwrap();
+                    writeln!(input, "glp glMaterialfv ii {write_face} {write_mode} f 0 1 0 1").unwrap();
+                    let mut expected = Vec::new();
+                    for &(face, side) in &faces[..2] {
+                        for &(property, channel) in &modes[..4] {
+                            writeln!(input, "glq glGetMaterialfv ii {face} {property} f 4").unwrap();
+                            expected.push(if tracked_faces & side != 0 && tracked_properties & channel != 0 {
+                                "q 1 0 0 1"
+                            } else if written_faces & side != 0 && written_properties & channel != 0 {
+                                "q 0 1 0 1"
+                            } else {
+                                "q 0 0 0 1"
+                            });
+                        }
+                    }
+                    input.push_str("glerr\nend\n");
+                    expected.push("glerr 0");
+                    let cases = kikizake::case::parse_cases(&input);
+                    let output = kikizake::model::run_case(&cases[0]).unwrap();
+                    assert_eq!(&output[1..], expected, "{input}");
+                }
+            }
+        }
+    }
+}
