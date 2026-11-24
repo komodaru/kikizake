@@ -591,7 +591,7 @@ impl Ctx {
             index_mask,
             acc: vec![[None; 4]; W * H],
             fb_undefined: vec![[false, false, false, alpha_init != 0]; W * H],
-            depth_undefined: vec![false; W * H],
+            depth_undefined: vec![true; W * H],
             stencil_undefined: vec![false; W * H],
             color_mask: [true; 4],
             color_mask_raw: [1; 4],
@@ -2001,6 +2001,13 @@ impl Ctx {
             "glPolygonOffset" => {
                 hit(clause::GL_POLYGON_OFFSET_STATE);
                 self.offset = (fl(a, 0) as f32, fl(a, 1) as f32);
+            }
+            "glCopyPixels" => {
+                let [s, t, _, q] = self.raster_tex;
+                self.frag_tex = Some(texdraw::Stq::at([s, t, q]));
+                let result = self.copy_pixels(int(a, 0), int(a, 1), int(a, 2), int(a, 3), u(a, 4));
+                self.frag_tex = None;
+                result?;
             }
             "glPixelZoom" => {
                 // (golden opengl-32 edge-other-call: no error; images drawn zoomed: GL.DRAW.ZOOM)
@@ -3968,6 +3975,10 @@ impl Ctx {
     /// the per-fragment operations in their order: scissor, alpha, stencil, depth, blending,
     /// dithering, logic operation, masks
     pub fn fragment(&mut self, f: Frag) -> Res<()> {
+        self.fragment_from(f, [false; 4], false)
+    }
+
+    fn fragment_from(&mut self, f: Frag, source_color: [bool; 4], source_depth: bool) -> Res<()> {
         let f = match self.frag_tex {
             _ if self.textured_frags => f,
             Some(stq) if self.texturing() => self.texture_frag(f, stq)?,
@@ -4005,6 +4016,10 @@ impl Ctx {
             // truncated in 8-bit units, raster-open-18)
             let a = if f.fixed == ToFixed::Scaled { u64::try_from(tri::trunc(c[3] * (255.0 / self.channel_scales()[3]))).unwrap_or(0) } else { (c[3] * 255.0 + 0.5).floor() as u64 };
             let r = (self.alpha.1 * 255.0).floor() as u64;
+            if source_color[3] && !matches!(self.alpha.0, ALWAYS | NEVER) {
+                self.spoil(i, self.cap(STENCIL_TEST), self.cap(DEPTH_TEST) && self.depth_mask);
+                return Ok(());
+            }
             if !compare_u(self.alpha.0, a, r) {
                 return Ok(());
             }
@@ -4039,7 +4054,7 @@ impl Ctx {
             // viewport draws nothing; one the viewport cuts is drawn whole, its depth not written,
             // once a rectangle inside it has been drawn under NEVER and while the depth mask is on,
             // and draws nothing before)
-            if self.depth_undefined[i] && self.depth_func != NEVER && self.depth_func != ALWAYS {
+            if (source_depth || self.depth_undefined[i]) && self.depth_func != NEVER && self.depth_func != ALWAYS {
                 self.spoil(i, has_stencil && self.stencil_op[1] != self.stencil_op[2], self.depth_mask);
                 return Ok(());
             }
@@ -4075,7 +4090,7 @@ impl Ctx {
             // (a rectangle drawn under NEVER leaves the depth as it is)
             if self.depth_mask && self.depth_func != NEVER {
                 self.depth[i] = Depth(z);
-                self.depth_undefined[i] = false;
+                self.depth_undefined[i] = source_depth;
             }
         }
         if has_stencil {
@@ -4228,7 +4243,10 @@ impl Ctx {
                 if undefined[k] {
                     hit(clause::GL_UNDEFINED);
                 }
-                self.fb_undefined[i][k] = undefined[k];
+                let uses_src = !self.cap(COLOR_LOGIC_OP) || !matches!(self.logic_op, 0x1500 | 0x1505 | 0x150a | 0x150f);
+                let alpha_factor = self.cap(BLEND) && [self.blend.0, self.blend.1].iter()
+                    .any(|v| matches!(*v, SRC_ALPHA | ONE_MINUS_SRC_ALPHA | SRC_ALPHA_SATURATE));
+                self.fb_undefined[i][k] = undefined[k] || (uses_src && (source_color[k] || (source_color[3] && alpha_factor)));
             }
         }
         Ok(())
@@ -4270,6 +4288,10 @@ impl Ctx {
 
     /// a stencil image's element at (i, j) written to the stencil buffer
     fn draw_stencil(&mut self, x: i64, y: i64, v: f64) {
+        self.draw_stencil_from(x, y, v, false);
+    }
+
+    fn draw_stencil_from(&mut self, x: i64, y: i64, v: f64, source_undefined: bool) {
         if self.buffers[0] == 0 || x < 0 || y < 0 || x >= W as i64 || y >= H as i64 {
             return;
         }
@@ -4282,7 +4304,7 @@ impl Ctx {
         let p = y as usize * W + x as usize;
         let m = self.stencil_mask & low_bits(self.pf.stencil);
         self.stencil[p] = (self.stencil[p] & !m) | (index_bits(v) & m);
-        self.stencil_undefined[p] &= m != low_bits(self.pf.stencil);
+        self.stencil_undefined[p] = (source_undefined && m != 0) || (self.stencil_undefined[p] && m != low_bits(self.pf.stencil));
     }
 
     fn stencil_update(&mut self, i: usize, op: u32) {
@@ -4922,6 +4944,59 @@ impl Ctx {
             }
         }
         self.polygon_pattern = rows;
+        Ok(())
+    }
+
+    fn copy_pixels(&mut self, sx: i64, sy: i64, width: i64, height: i64, kind: u32) -> Res<()> {
+        hit(clause::GL_COPYPIXELS);
+        if width < 0 || height < 0 {
+            self.error(INVALID_VALUE);
+            return Ok(());
+        }
+        if !matches!(kind, 0x1800..=0x1802) {
+            self.error(INVALID_ENUM);
+            return Ok(());
+        }
+        let Some([rx, ry, rz]) = self.raster else { return Ok(()) };
+        let mut samples = Vec::new();
+        for y in sy.max(0)..sy.saturating_add(height).min(HEIGHT) {
+            let j = usize::try_from(y.saturating_sub(sy)).map_err(|_| Fail::Bad)?;
+            for x in sx.max(0)..sx.saturating_add(width).min(WIDTH) {
+                let p = usize::try_from(y.saturating_mul(WIDTH).saturating_add(x)).map_err(|_| Fail::Bad)?;
+                let i = usize::try_from(x.saturating_sub(sx)).map_err(|_| Fail::Bad)?;
+                samples.push((i, j, *self.fb.get(p).ok_or(Fail::Bad)?,
+                    *self.depth.get(p).ok_or(Fail::Bad)?, *self.stencil.get(p).ok_or(Fail::Bad)?,
+                    *self.fb_undefined.get(p).ok_or(Fail::Bad)?, *self.depth_undefined.get(p).ok_or(Fail::Bad)?,
+                    *self.stencil_undefined.get(p).ok_or(Fail::Bad)?));
+            }
+        }
+        for (i, j, color, depth, stencil, color_undefined, depth_undefined, stencil_undefined) in samples {
+            let pixels = if self.zoom == (1.0, 1.0) {
+                self.image_pixels(rx, ry, i, j)
+            } else {
+                self.image_pixels(f64::from(self.raster_get[0]), ry, i, j)
+            };
+            if kind == 0x1802 {
+                let v = self.index_map(true, self.shifted(f64::from(stencil)));
+                for (x, y) in pixels { self.draw_stencil_from(x, y, v, stencil_undefined); }
+                continue;
+            }
+            let (c, z, zfixed) = if kind == 0x1801 {
+                let d = if self.pf.depth == 16 { depth.bits() << 16 } else { depth.bits() };
+                let normalized = tri::narrow(f64::from(d) / 4_294_967_296.0);
+                let (z, value) = depth_element(&normalized.to_le_bytes(), FLOAT, self.depth_transfer);
+                (self.raster_color, z, Some(FixedZ { bits: 32, value }))
+            } else {
+                let c = if self.pf.ty == 0 { self.transfer(self.dst_color_raw(color))?.map(tri::narrow) }
+                    else { [tri::narrow(self.index_map(false, self.shifted(f64::from(color[0])))), 0.0, 0.0, 0.0] };
+                (c, rz, None)
+            };
+            let c = if self.cap(FOG) { self.fog_at(c, self.raster_eye) } else { c };
+            for (x, y) in pixels {
+                self.fragment_from(Frag { x, y, c, z, fixed: ToFixed::Trunc, zfixed },
+                    if kind == 0x1800 { color_undefined } else { [false; 4] }, kind == 0x1801 && depth_undefined)?;
+            }
+        }
         Ok(())
     }
 

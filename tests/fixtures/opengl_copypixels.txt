@@ -1,0 +1,890 @@
+case cp_observe-copy-color-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2i 2 2
+gl glPixelZoom 1 1
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case cp_observe-copy-color-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2i 1 2
+gl glPixelZoom 1 1
+gl glCopyPixels 3 2 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case cp_observe-copy-color-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2i 1 1
+gl glPixelZoom 1 1
+gl glCopyPixels -2 -2 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case cp_observe-copy-color-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2i 8 7
+gl glPixelZoom -1 0.5
+gl glCopyPixels 3 2 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case cp_observe-copy-color-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2i 1 1
+gl glPixelZoom 0.5 2
+gl glCopyPixels 2 2 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case cp_observe-copy-depth-5
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gldraw 8 8 0x1902 0x1405 21 256
+gl glRasterPos2i 2 2
+gl glPixelZoom 1 1
+gl glCopyPixels 0 0 6 6 0x1801
+glread 0 0 12 12 0x1902 0x1405 576
+glerr
+end
+case cp_observe-copy-depth-6
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gldraw 8 8 0x1902 0x1405 21 256
+gl glRasterPos2i 1 2
+gl glPixelZoom 1 1
+gl glCopyPixels 3 2 6 6 0x1801
+glread 0 0 12 12 0x1902 0x1405 576
+glerr
+end
+case cp_observe-copy-depth-7
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gldraw 8 8 0x1902 0x1405 21 256
+gl glRasterPos2i 1 1
+gl glPixelZoom 1 1
+gl glCopyPixels -2 -2 6 6 0x1801
+glread 0 0 12 12 0x1902 0x1405 576
+glerr
+end
+case cp_observe-copy-depth-8
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gldraw 8 8 0x1902 0x1405 21 256
+gl glRasterPos2i 8 7
+gl glPixelZoom -1 0.5
+gl glCopyPixels 3 2 6 6 0x1801
+glread 0 0 12 12 0x1902 0x1405 576
+glerr
+end
+case cp_observe-copy-depth-9
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gldraw 8 8 0x1902 0x1405 21 256
+gl glRasterPos2i 1 1
+gl glPixelZoom 0.5 2
+gl glCopyPixels 2 2 6 6 0x1801
+glread 0 0 12 12 0x1902 0x1405 576
+glerr
+end
+case cp_observe-copy-stencil-10
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1901 0x1401 21 64
+gl glRasterPos2i 2 2
+gl glPixelZoom 1 1
+gl glCopyPixels 0 0 6 6 0x1802
+glread 0 0 12 12 0x1901 0x1401 144
+glerr
+end
+case cp_observe-copy-stencil-11
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1901 0x1401 21 64
+gl glRasterPos2i 1 2
+gl glPixelZoom 1 1
+gl glCopyPixels 3 2 6 6 0x1802
+glread 0 0 12 12 0x1901 0x1401 144
+glerr
+end
+case cp_observe-copy-stencil-12
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1901 0x1401 21 64
+gl glRasterPos2i 1 1
+gl glPixelZoom 1 1
+gl glCopyPixels -2 -2 6 6 0x1802
+glread 0 0 12 12 0x1901 0x1401 144
+glerr
+end
+case cp_observe-copy-stencil-13
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1901 0x1401 21 64
+gl glRasterPos2i 8 7
+gl glPixelZoom -1 0.5
+gl glCopyPixels 3 2 6 6 0x1802
+glread 0 0 12 12 0x1901 0x1401 144
+glerr
+end
+case cp_observe-copy-stencil-14
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1901 0x1401 21 64
+gl glRasterPos2i 1 1
+gl glPixelZoom 0.5 2
+gl glCopyPixels 2 2 6 6 0x1802
+glread 0 0 12 12 0x1901 0x1401 144
+glerr
+end
+case cp_transfer-copy-color-0
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2i 2 2
+gl glPixelZoom 1 1
+gl glPixelTransferf 0xd14 0.6
+gl glPixelTransferf 0xd15 0.1
+gl glCopyPixels 0 0 6 6 0x1800
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case cp_transfer-copy-color-1
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2i 1 2
+gl glPixelZoom 1 1
+gl glPixelTransferf 0xd14 0.6
+gl glPixelTransferf 0xd15 0.1
+gl glCopyPixels 3 2 6 6 0x1800
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case cp_transfer-copy-color-2
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2i 1 1
+gl glPixelZoom 1 1
+gl glPixelTransferf 0xd14 0.6
+gl glPixelTransferf 0xd15 0.1
+gl glCopyPixels -2 -2 6 6 0x1800
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case cp_transfer-copy-color-3
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2i 8 7
+gl glPixelZoom -1 0.5
+gl glPixelTransferf 0xd14 0.6
+gl glPixelTransferf 0xd15 0.1
+gl glCopyPixels 3 2 6 6 0x1800
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case cp_transfer-copy-color-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2i 1 1
+gl glPixelZoom 0.5 2
+gl glPixelTransferf 0xd14 0.6
+gl glPixelTransferf 0xd15 0.1
+gl glCopyPixels 2 2 6 6 0x1800
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case cp_transfer-copy-depth-5
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gldraw 8 8 0x1902 0x1405 21 256
+gl glRasterPos2i 2 2
+gl glPixelZoom 1 1
+gl glPixelTransferf 0xd1e 0.625
+gl glPixelTransferf 0xd1f 0.125
+gl glCopyPixels 0 0 6 6 0x1801
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1902 0x1405 576
+glerr
+end
+case cp_transfer-copy-depth-6
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gldraw 8 8 0x1902 0x1405 21 256
+gl glRasterPos2i 1 2
+gl glPixelZoom 1 1
+gl glPixelTransferf 0xd1e 0.625
+gl glPixelTransferf 0xd1f 0.125
+gl glCopyPixels 3 2 6 6 0x1801
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1902 0x1405 576
+glerr
+end
+case cp_transfer-copy-depth-7
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gldraw 8 8 0x1902 0x1405 21 256
+gl glRasterPos2i 1 1
+gl glPixelZoom 1 1
+gl glPixelTransferf 0xd1e 0.625
+gl glPixelTransferf 0xd1f 0.125
+gl glCopyPixels -2 -2 6 6 0x1801
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1902 0x1405 576
+glerr
+end
+case cp_transfer-copy-depth-8
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gldraw 8 8 0x1902 0x1405 21 256
+gl glRasterPos2i 8 7
+gl glPixelZoom -1 0.5
+gl glPixelTransferf 0xd1e 0.625
+gl glPixelTransferf 0xd1f 0.125
+gl glCopyPixels 3 2 6 6 0x1801
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1902 0x1405 576
+glerr
+end
+case cp_transfer-copy-depth-9
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gl glEnable 0xb71
+gl glDepthFunc 0x207
+gldraw 8 8 0x1902 0x1405 21 256
+gl glRasterPos2i 1 1
+gl glPixelZoom 0.5 2
+gl glPixelTransferf 0xd1e 0.625
+gl glPixelTransferf 0xd1f 0.125
+gl glCopyPixels 2 2 6 6 0x1801
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1902 0x1405 576
+glerr
+end
+case cp_transfer-copy-stencil-10
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1901 0x1401 21 64
+gl glRasterPos2i 2 2
+gl glPixelZoom 1 1
+gl glPixelTransferi 0xd12 1
+gl glPixelTransferi 0xd13 5
+gl glCopyPixels 0 0 6 6 0x1802
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1901 0x1401 144
+glerr
+end
+case cp_transfer-copy-stencil-11
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1901 0x1401 21 64
+gl glRasterPos2i 1 2
+gl glPixelZoom 1 1
+gl glPixelTransferi 0xd12 1
+gl glPixelTransferi 0xd13 5
+gl glCopyPixels 3 2 6 6 0x1802
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1901 0x1401 144
+glerr
+end
+case cp_transfer-copy-stencil-12
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1901 0x1401 21 64
+gl glRasterPos2i 1 1
+gl glPixelZoom 1 1
+gl glPixelTransferi 0xd12 1
+gl glPixelTransferi 0xd13 5
+gl glCopyPixels -2 -2 6 6 0x1802
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1901 0x1401 144
+glerr
+end
+case cp_transfer-copy-stencil-13
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1901 0x1401 21 64
+gl glRasterPos2i 8 7
+gl glPixelZoom -1 0.5
+gl glPixelTransferi 0xd12 1
+gl glPixelTransferi 0xd13 5
+gl glCopyPixels 3 2 6 6 0x1802
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1901 0x1401 144
+glerr
+end
+case cp_transfer-copy-stencil-14
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1901 0x1401 21 64
+gl glRasterPos2i 1 1
+gl glPixelZoom 0.5 2
+gl glPixelTransferi 0xd12 1
+gl glPixelTransferi 0xd13 5
+gl glCopyPixels 2 2 6 6 0x1802
+gl glPixelTransferf 0xd14 1
+gl glPixelTransferf 0xd15 0
+gl glPixelTransferf 0xd1e 1
+gl glPixelTransferf 0xd1f 0
+gl glPixelTransferi 0xd12 0
+gl glPixelTransferi 0xd13 0
+glread 0 0 12 12 0x1901 0x1401 144
+glerr
+end
+case f-0-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4 4
+gl glPixelZoom 0.25 0.25
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-0-4.25
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.25 4.25
+gl glPixelZoom 0.25 0.25
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-0-4.5
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.5 4.5
+gl glPixelZoom 0.25 0.25
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-0-4.75
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.75 4.75
+gl glPixelZoom 0.25 0.25
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-1-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4 4
+gl glPixelZoom 1.5 1.5
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-1-4.25
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.25 4.25
+gl glPixelZoom 1.5 1.5
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-1-4.5
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.5 4.5
+gl glPixelZoom 1.5 1.5
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-1-4.75
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.75 4.75
+gl glPixelZoom 1.5 1.5
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-2-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4 4
+gl glPixelZoom -0.5 -0.5
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-2-4.25
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.25 4.25
+gl glPixelZoom -0.5 -0.5
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-2-4.5
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.5 4.5
+gl glPixelZoom -0.5 -0.5
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-2-4.75
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.75 4.75
+gl glPixelZoom -0.5 -0.5
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-3-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4 4
+gl glPixelZoom -0.75 1.25
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-3-4.25
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.25 4.25
+gl glPixelZoom -0.75 1.25
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-3-4.5
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.5 4.5
+gl glPixelZoom -0.75 1.25
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-3-4.75
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.75 4.75
+gl glPixelZoom -0.75 1.25
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-4-4
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4 4
+gl glPixelZoom 1.25 -0.75
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-4-4.25
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.25 4.25
+gl glPixelZoom 1.25 -0.75
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-4-4.5
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.5 4.5
+gl glPixelZoom 1.25 -0.75
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end
+case f-4-4.75
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+gl glClear 0x4500
+gl glRasterPos2i 0 0
+gldraw 8 8 0x1908 0x1401 21 256
+gl glRasterPos2f 4.75 4.75
+gl glPixelZoom 1.25 -0.75
+gl glCopyPixels 0 0 6 6 0x1800
+glread 0 0 12 12 0x1908 0x1401 576
+glerr
+end

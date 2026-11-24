@@ -865,3 +865,5 @@ src/model/opengl_pixelmap.rs::all_unsigned_short_map_entries_round_trip exhausti
 tests/laws_opengl.rs::pixel_map_queries_preserve_entries_and_query_tail pbt GL.PIXELMAP
 tests/laws_opengl.rs::bitmap_every_byte_in_both_orders exhaustive GL.BITMAP
 tests/laws_opengl.rs::bitmap_unpack_skip_and_width pbt GL.BITMAP
+tests/laws_opengl.rs::copy_pixels_every_overlapping_byte exhaustive GL.COPYPIXELS
+tests/laws_opengl.rs::copy_pixels_region_uses_original_source pbt GL.COPYPIXELS

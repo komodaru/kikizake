@@ -1362,3 +1362,61 @@ fn bitmap_fractional_moves_match_windows() {
     expected.push(String::from("glerr 0"));
     assert_eq!(output, expected);
 }
+
+#[test]
+fn copy_pixels_matches_initialized_windows_buffers() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_copypixels.txt"));
+    let reads: Vec<_> = include_str!("fixtures/opengl_copypixels_reads.txt").lines().collect();
+    for (case, read) in zip_eq(&cases, reads) {
+        let output = kikizake::model::run_case(case).unwrap();
+        assert_eq!(output.len(), 3, "{}", case.name);
+        assert_eq!(output[0], "glctx ok 1");
+        assert_eq!(output[2], "glerr 0");
+        let bytes = |line: &str| {
+            let hex = line.strip_prefix("read ").unwrap();
+            (0..hex.len()).step_by(2)
+                .map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap())
+                .collect::<Vec<_>>()
+        };
+        let (actual, expected) = (bytes(&output[1]), bytes(read));
+        assert_eq!(actual.len(), expected.len());
+        for (i, (got, want)) in actual.iter().zip(&expected).enumerate() {
+            assert_eq!(got, want, "{} at byte {i}", case.name);
+        }
+    }
+}
+
+fn copy_bitmap_row(pattern: u8, src: usize, dst: usize, width: usize) -> (String, String) {
+    let text = format!("case overlap\nglctx 32 choose 0x38 0 32 0 0 32 8\n\
+        gl glMatrixMode 0x1701\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700\n\
+        gl glDisable 0xbd0\ngl glClear 0x4000\ngl glRasterPos2i 0 0\n\
+        glp glBitmap iiffff 8 1 0 0 0 0 ub {pattern}\ngl glRasterPos2i {dst} 0\n\
+        gl glCopyPixels {src} 0 {width} 1 0x1800\nglread 0 0 8 1 0x1908 0x1401 32\nglerr\nend");
+    let result = kikizake::model::run_case(&kikizake::case::parse_cases(&text)[0]).unwrap();
+    assert_eq!(result.last().unwrap(), "glerr 0");
+    let mut expected = String::from("read ");
+    for x in 0..8 {
+        let from = if (dst..dst + width).contains(&x) { src + x - dst } else { x };
+        expected.push_str(if from < 8 && pattern & (128 >> from) != 0 { "ffffffff" } else { "000000ff" });
+    }
+    (result[1].clone(), expected)
+}
+
+#[test]
+fn copy_pixels_every_overlapping_byte() {
+    for pattern in u8::MIN..=u8::MAX {
+        for (src, dst) in [(0, 1), (1, 0)] {
+            let (actual, expected) = copy_bitmap_row(pattern, src, dst, 7);
+            assert_eq!(actual, expected);
+        }
+    }
+}
+
+proptest! {
+    #[test]
+    fn copy_pixels_region_uses_original_source(pattern in any::<u8>(), src in 0usize..8,
+        dst in 0usize..8, width in 0usize..=8) {
+        let (actual, expected) = copy_bitmap_row(pattern, src, dst, width);
+        prop_assert_eq!(actual, expected);
+    }
+}
