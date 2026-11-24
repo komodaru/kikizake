@@ -1204,9 +1204,8 @@ end";
     assert_eq!(&output[1..], ["q 255 255", "q 128 0", "q 127 0", "q 128 0", "glerr 0"]);
 }
 
-/// The C executor supplies 4096 zero-filled bytes. glGetPolygonStipple starts
-/// its byte query with 0xcc, so partial destination bytes test preservation too.
 proptest! {
+    // glq starts with 0xcc, so partial destination bytes test preservation too.
     #[test]
     fn polygon_stipple_pack_unpack(words in prop::collection::vec(any::<u32>(), 64),
         layouts in prop::collection::vec((any::<bool>(), 0u32..4, 0usize..49, 0usize..4, 0usize..12), 2)) {
