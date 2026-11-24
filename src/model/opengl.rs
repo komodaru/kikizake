@@ -1266,6 +1266,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             let n = integer(arg)?;
             if let Some(p) = index(n) {
                 hit(clause::WGL_FORMATS);
+                hit(clause::WGL_DC_EXPORTS);
                 out.push(format!("wglx descpf {}", table.len()));
                 out.push(format!("pf {n} {}", p.describe()));
                 return Ok(());
@@ -1378,10 +1379,12 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             hit(clause::WGL_SWAP_MULTIPLE);
             format!("{} 0", low_bits(n))
         }
-        ("getpf" | "descpf" | "setpf" | "swap" | "swaplayer" | "swapmultiple" | "layer" | "realize" | "getlayerpal"
-         | "setlayerpal" | "layerctx" | "share" | "copy" | "proc" | "defproc" | "fontbmp" | "fontoutline", _) => return Err(Fail::Bad),
-        _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
+        _ => return Err(Fail::Bad),
     };
+    if matches!(name.as_str(), "getpf" | "setpf" | "descpf" | "choose" | "swap" | "swaplayer"
+        | "proc" | "defproc" | "layer" | "layerctx" | "share" | "copy") {
+        hit(clause::WGL_DC_EXPORTS);
+    }
     out.push(format!("wglx {name} {result}"));
     Ok(())
 }

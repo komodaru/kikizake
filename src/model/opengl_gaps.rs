@@ -25,7 +25,6 @@ pub fn call(name: &str) -> Option<OpenId> {
 pub fn op(t: &[String]) -> Res<OpenId> {
     match t.first().map(String::as_str) {
         Some("globuf") => Ok(open::GL_SELECT),
-        Some("wglx") => Ok(open::WGL_OTHER),
         Some("glp" | "glq" | "glr") => t.get(1).and_then(|n| of(n)).ok_or(Fail::Bad),
         Some(_) | None => Err(Fail::Bad),
     }

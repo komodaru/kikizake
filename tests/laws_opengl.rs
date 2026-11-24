@@ -1974,3 +1974,17 @@ proptest! {
             format!("wglx setlayerpal 0 {error}"), format!("wglx realize 0 {error}"), "glerr 0".into()]);
     }
 }
+
+proptest! {
+    #[test]
+    fn single_buffer_swaps_preserve_pixels_and_gl_error(
+        color in proptest::array::uniform3(any::<u8>()), mask in any::<i32>(),
+    ) {
+        let [r, g, b] = color.map(|v| f32::from(v) / 255.0);
+        let input = format!("case swap\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glClearColor {r} {g} {b} 1\ngl glClear 0x4000\nglread 0 0 1 1 0x1908 0x1401 4\ngl glEnable -1\nwglx swap\nwglx swaplayer {mask}\nglerr\nglread 0 0 1 1 0x1908 0x1401 4\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        prop_assert_eq!(&output[2..5], ["wglx swap 1 0", "wglx swaplayer 1 0", "glerr 500"]);
+        prop_assert_eq!(&output[1], &output[5]);
+    }
+}
