@@ -117740,6 +117740,13 @@ wglx layerctx 0
 wglx share
 wglx copy 0x40000
 glerr
+gl glEnable -1
+glr glDebugEntry i ii 0 0
+glerr
+gl glBegin 0
+glr glDebugEntry i ii 1 1
+gl glEnd
+glerr
 end
 case gap-wgl-1
 glctx 32 choose 0x38 0 32 0 0 32 8
