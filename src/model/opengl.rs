@@ -443,9 +443,15 @@ fn enum_offset(value: u32, base: u32) -> Option<usize> {
 }
 
 #[derive(Clone, Copy, Debug)]
-struct GridAxis {
-    segments: i64,
-    domain: [f32; 2],
+pub(crate) struct GridAxis {
+    pub(crate) segments: i64,
+    pub(crate) domain: [f32; 2],
+}
+
+pub(crate) fn set_grid<const N: usize>(grid: &mut [GridAxis; N], axes: [GridAxis; N]) -> bool {
+    if axes.iter().any(|axis| axis.segments < 1) { return false; }
+    *grid = axes;
+    true
 }
 
 impl GridAxis {
@@ -2437,19 +2443,18 @@ impl Ctx {
                 self.eval_coord(u.coordinate(fl(a, 0))?, Some(v.coordinate(fl(a, 1))?))?;
             }
             "glMapGrid1f" | "glMapGrid1d" | "glMapGrid2f" | "glMapGrid2d" => {
+                hit(clause::GL_EVAL_GRID);
                 let axis = |args: &[A]| GridAxis {
                     segments: int(args, 0),
                     domain: [tri::narrow(fl(args, 1)), tri::narrow(fl(args, 2))],
                 };
                 let u = axis(a);
                 let v = a.get(3..).filter(|args| !args.is_empty()).map(axis);
-                if u.segments < 1 || v.is_some_and(|v| v.segments < 1) {
-                    self.error(INVALID_VALUE);
-                } else if let Some(v) = v {
-                    self.grid2 = [u, v];
-                } else {
-                    self.grid1 = u;
-                }
+                let accepted = match v {
+                    Some(v) => set_grid(&mut self.grid2, [u, v]),
+                    None => set_grid(std::array::from_mut(&mut self.grid1), [u]),
+                };
+                if !accepted { self.error(INVALID_VALUE); }
             }
             "glShadeModel" => {
                 let m = u(a, 0);

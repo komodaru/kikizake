@@ -896,6 +896,7 @@ spec/lean/Kikizake/D3d11/Copy.lean::word_round_tie lean D3DRES.RESOLVE.MEAN.WORD
 spec/lean/Kikizake/D3d11/Copy.lean::word_mean_range lean D3DRES.RESOLVE.MEAN.WORD
 tests/laws_opengl.rs::debug_entry_preserves_each_gl_error_inside_and_outside_primitives exhaustive WGL.DEBUG.ENTRY
 src/proofs.rs::layer_palette_rejects_every_nonzero_plane kani WGL.LAYER.PALETTE
-tests/laws_opengl.rs::invalid_evaluator_grid_keeps_both_axes pbt GL.EVAL
+tests/laws_opengl.rs::invalid_evaluator_grid_keeps_both_axes pbt GL.EVAL GL.EVAL.GRID
 spec/lean/Kikizake/OpenGL/Evaluator.lean::gridFits lean GL.EVAL
 tests/laws_opengl.rs::evaluator_map_orders_round_trip_for_every_target exhaustive GL.EVAL
+src/proofs.rs::evaluator_grid_updates_both_axes_atomically kani GL.EVAL.GRID

@@ -416,3 +416,21 @@ fn layer_palette_rejects_every_nonzero_plane() {
     assert_eq!(result == 0, plane == 0);
     assert_eq!(result == 87, plane != 0);
 }
+
+#[kani::proof]
+#[kani::unwind(4)]
+fn evaluator_grid_updates_both_axes_atomically() {
+    use crate::model::opengl::{set_grid, GridAxis};
+    let axis = || GridAxis { segments: i64::from(kani::any::<i32>()), domain: kani::any::<[u32; 2]>().map(f32::from_bits) };
+    let before = [axis(), axis()];
+    let next = [axis(), axis()];
+    let mut grid = before;
+    let valid = next[0].segments > 0 && next[1].segments > 0;
+    assert_eq!(set_grid(&mut grid, next), valid);
+    let expected = if valid { next } else { before };
+    for (actual, wanted) in grid.iter().zip(expected) {
+        assert_eq!(actual.segments, wanted.segments);
+        assert_eq!(actual.domain[0].to_bits(), wanted.domain[0].to_bits());
+        assert_eq!(actual.domain[1].to_bits(), wanted.domain[1].to_bits());
+    }
+}
