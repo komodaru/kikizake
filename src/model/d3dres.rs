@@ -446,6 +446,7 @@ impl D3dres {
                     let el = (f.bits / 8) as usize;
                     // (every format a multisampled target takes, but the integer ones, has its Mean)
                     let mean = Mean::of(f).ok_or(Fail::Bad)?;
+                    if matches!(mean, Mean::Bytes | Mean::Packed) { hit(clause::D3DRES_RESOLVE_MEAN_INTEGER); }
                     let (n, plane) = (src.d.count as usize, sv.len());
                     for y in 0..srows.min(drows) {
                         for x in 0..w / el {
@@ -1157,6 +1158,11 @@ enum Mean {
     Decoded,
 }
 
+/// The packed and byte UNORM paths round component sums halfway upward.
+pub(crate) fn integer_resolve_mean(sum: u64, count: u64) -> Option<u64> {
+    sum.checked_add(count / 2)?.checked_div(count)
+}
+
 impl Mean {
     fn of(f: &Format) -> Option<Mean> {
         let all = |b: u32| f.comps.iter().all(|&c| c == b);
@@ -1175,6 +1181,7 @@ impl Mean {
 
     fn resolve<'a>(self, f: &Format, n: usize, sample: impl Fn(usize) -> &'a [u8]) -> Res<Vec<u8>> {
         let el = (f.bits / 8) as usize;
+        let count = u64::try_from(n).ok().ok_or(Fail::Bad)?;
         let word = |k: usize| sample(k).iter().rev().fold(0u64, |a, &b| a << 8 | u64::from(b));
         Ok(match self {
             Mean::Packed | Mean::Norm => {
@@ -1185,7 +1192,7 @@ impl Mean {
                     let field = |k: usize| word(k) >> shift & mask;
                     let v = if self == Mean::Packed {
                         let sum: u64 = (0..n).map(field).sum();
-                        ((sum + n as u64 / 2) / n as u64).min(mask)
+                        integer_resolve_mean(sum, count).ok_or(Fail::Bad)?.min(mask)
                     } else {
                         let (top, signed) = if f.num == Num::Snorm { ((mask >> 1) as f32, true) } else { (mask as f32, false) };
                         let value = |k: usize| {
@@ -1214,9 +1221,9 @@ impl Mean {
                 super::dxgiconv::encode(f, sum.map(|v| v / n as f32))?
             }
             Mean::Bytes => (0..el).map(|i| {
-                let sum: usize = (0..n).map(|k| usize::from(sample(k)[i])).sum();
-                u8::try_from((sum + n / 2) / n).unwrap_or(u8::MAX)
-            }).collect(),
+                let sum = (0..n).map(|k| u64::from(sample(k)[i])).sum();
+                integer_resolve_mean(sum, count).and_then(|v| u8::try_from(v).ok()).ok_or(Fail::Bad)
+            }).collect::<Res<Vec<_>>>()?,
             Mean::Words => (0..el / 2).flat_map(|i| {
                 let mean = (0..n).fold(0f32, |a, k| a + f32::from(u16::from_le_bytes([sample(k)[2 * i], sample(k)[2 * i + 1]])) / 65535.0) / n as f32;
                 ((mean * 65535.0).round_ties_even() as u16).to_le_bytes()

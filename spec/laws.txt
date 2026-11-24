@@ -890,3 +890,5 @@ tests/laws_opengl.rs::wgl_layer_palette_results_depend_on_plane pbt WGL.LAYER.PA
 tests/laws_opengl.rs::single_buffer_swaps_preserve_pixels_and_gl_error pbt WGL.DC.EXPORTS
 tests/laws_opengl.rs::every_color_material_selector_protects_exactly_its_components exhaustive GL.LIGHT.STATE
 src/proofs.rs::tracked_material_matches_face_and_property_masks kani GL.LIGHT.STATE
+spec/lean/Kikizake/D3d11/Copy.lean::integer_mean_interval lean D3DRES.RESOLVE.MEAN.INTEGER
+spec/lean/Kikizake/D3d11/Copy.lean::integer_mean_tie lean D3DRES.RESOLVE.MEAN.INTEGER

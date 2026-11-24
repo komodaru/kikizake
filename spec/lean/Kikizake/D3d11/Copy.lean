@@ -312,9 +312,30 @@ theorem copy_unknown (d10 : Bool) (a b ga gb : Nat) (fb : Option Fmt) (h : ga �
     compatible d10 a b ga gb none fb = false := by
   simp [compatible, h]
 
+def integerMean (sum count : Nat) : Nat := (sum + count / 2) / count
+
+/-- The exact interval of sums that round to the given value. -/
+theorem integer_mean_interval (sum count value : Nat) (h : 0 < count) :
+    integerMean sum count = value ↔
+      value * count ≤ sum + count / 2 ∧ sum + count / 2 ≤ value * count + count - 1 := by
+  exact Nat.div_eq_iff h
+
+/-- An exact tie is resolved to the higher integer for every even sample count. -/
+theorem integer_mean_tie (value half : Nat) (h : 0 < half) :
+    integerMean ((2 * half) * value + half) (2 * half) = value + 1 := by
+  unfold integerMean
+  have hd : 0 < 2 * half := by omega
+  have hn : (2 * half) * value + half + 2 * half / 2 = (2 * half) * (value + 1) := by
+    rw [Nat.mul_add]
+    omega
+  rw [hn, Nat.mul_div_cancel_left _ hd]
+
 def args6 (a : List Int) : Option (List Nat) := a.mapM nat
 
 def mirrors : List Mirror := [
+  ⟨"d3d11.integerMean", fun a => match a with
+    | [s, n] => some [if s < 0 || n ≤ 0 then -1 else (integerMean s.toNat n.toNat : Int)]
+    | _ => some [-1]⟩,
   ⟨"d3d11.box", fun a => do
     let v ← args6 a
     match v with

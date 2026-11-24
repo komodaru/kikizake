@@ -1073,6 +1073,33 @@ fn plan_code(p: crate::model::d3dres::Plan) -> Option<Vec<i64>> {
 
 pub static COPY_MIRRORS: &[Mirror] = &[
     Mirror {
+        name: "d3d11.integerMean",
+        lean: COPY,
+        domain: Domain::Every("every possible UNORM field sum through 10 bits for 1, 2, 4, 8, 16 and 32 samples"),
+        inputs: |each| {
+            for count in [1, 2, 4, 8, 16, 32] {
+                for sum in 0..=1023 * count { each(&[sum, count]); }
+            }
+            let mut rng = crate::rng::Sample64::new(0x18d3_d011);
+            for _ in 0..128 {
+                each(&[rng.range(-32736, -1), rng.range(1, 32)]);
+                each(&[rng.range(0, 32736), rng.range(-32, 0)]);
+            }
+            each(&[]);
+            each(&[1]);
+            each(&[1, 2, 3]);
+        },
+        model: |a| {
+            let result = match a {
+                [s, n] => u64::try_from(*s).ok().zip(u64::try_from(*n).ok())
+                    .and_then(|(s, n)| crate::model::d3dres::integer_resolve_mean(s, n))
+                    .and_then(|v| i64::try_from(v).ok()),
+                _ => None,
+            };
+            one(result.unwrap_or(-1))
+        },
+    },
+    Mirror {
         name: "d3d11.box",
         lean: COPY,
         domain: Domain::Sampled("a box or none, flat or not, blocks 0..4 by 0..4 and boxes 0..3 each: every one; 300,000 of blocks 0..16, boxes of any 32-bit numbers, wholes 0..2^40"),
