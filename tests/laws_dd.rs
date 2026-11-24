@@ -943,3 +943,31 @@ fn unknown_bytes_are_never_computed_with() {
     assert!(!poked.iter().any(|l| l.contains('?')), "{poked:?}");
     model::set_arch(32);
 }
+
+// x86 Windows build 26100, d3d7dev runner, RGB and MMX. Each image was read
+// through Lock after clearing to zero. Values are little-endian RGB565 bytes.
+#[test]
+fn long_endpoints_match_the_windows_line_images() {
+    let vertical = ["0000", "01f0", "04d8", "07c0", "0ba0", "0e88",
+                    "1170", "1458", "1740", "1a28", "1d08", "0100"];
+    for device in ["rgb", "mmx"] {
+        for token in ["2147483647", "-2147483648", "0x80000000", "-2147483649",
+                      "4294967296", "0x100000000"] {
+            let out = run(&format!(
+                "d3d 7\nd3ddev {device} 565 12 12\nd3drs set 22 1\nd3dclear 0\n\
+                 d3dline 0xffff0000/0xff0000ff 8 8 {token} 170\nd3ddump\n"
+            ));
+            assert_eq!(&out[..3], ["d3d ok", "d3ddev ok", "dd rt 12 12 16"]);
+            assert_eq!(out.len(), 15);
+            for (y, row) in out[3..].iter().enumerate() {
+                let expected = match token {
+                    "4294967296" | "0x100000000" => format!("{}{}", vertical[y], "0000".repeat(11)),
+                    "2147483647" if y == 0 => format!("0000{}", "00f8".repeat(11)),
+                    _ if y == 0 => format!("00f8{}", "0000".repeat(11)),
+                    _ => "0000".repeat(12),
+                };
+                assert_eq!(row, &expected, "{device} {token} row {y}");
+            }
+        }
+    }
+}

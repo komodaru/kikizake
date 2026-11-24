@@ -1,2 +1,8 @@
 # (laws, one a line, added by several hands at once: a merge keeps both sides' lines)
 spec/laws.txt merge=union
+
+# golden/src identifies the exact bytes compiled into the Windows executors.
+cases/*.txt text eol=lf
+runner/*.c text eol=lf
+runner/*.h text eol=lf
+runner/build.sh text eol=lf

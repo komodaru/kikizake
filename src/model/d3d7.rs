@@ -384,6 +384,14 @@ pub struct D3d7 {
     rs: std::collections::BTreeMap<i64, u32>,
 }
 
+/// The executor stores a LONG coordinate in a TL vertex as FLOAT pixels.
+fn px16(v: i64) -> Res<f32> {
+    let value = i32::try_from(v).ok().ok_or(Fail::Bad)?;
+    Ok(crate::model::gppath::to32(crate::model::gdiplus::Round::Nearest, f64::from(value)) / 16.0)
+}
+fn vertex_coord(op: &Op, i: usize) -> Res<i64> {
+    op.tok.get(i).and_then(|s| crate::case::windows_long(s)).map(i64::from).ok_or(Fail::Bad)
+}
 fn n(op: &Op, i: usize) -> Res<i64> {
     op.tok.get(i).and_then(|t| num(t)).ok_or(Fail::Bad)
 }
@@ -743,7 +751,7 @@ impl D3d7 {
                 let [c, c1] = line_colors(t.get(1).ok_or(Fail::Bad)?)?;
                 let mut v = [(0i64, 0i64); 2];
                 for (k, p) in v.iter_mut().enumerate() {
-                    *p = (n(op, 2 + 2 * k)?, n(op, 3 + 2 * k)?);
+                    *p = (vertex_coord(op, 2 + 2 * k)?, vertex_coord(op, 3 + 2 * k)?);
                 }
                 if t.len() != 6 {
                     return Err(Fail::Bad);
@@ -779,7 +787,7 @@ impl D3d7 {
                 let c = colors(t.get(1).ok_or(Fail::Bad)?)?;
                 let mut v = [(0i64, 0i64); 3];
                 for (k, p) in v.iter_mut().enumerate() {
-                    *p = (n(op, 2 + 2 * k)?, n(op, 3 + 2 * k)?);
+                    *p = (vertex_coord(op, 2 + 2 * k)?, vertex_coord(op, 3 + 2 * k)?);
                 }
                 let mut z = 0.5f32;
                 let mut spec = [0u32; 3];
@@ -1235,9 +1243,8 @@ const GB_PLANES: [(fn(&ClipEnd) -> f32, fn(&mut ClipEnd)); 4] = [
 /// (in 28.4); None when the line lies wholly outside one side
 pub fn guard_clip(ends: [((i64, i64), [u8; 4]); 2]) -> Res<Option<([(i64, i64); 2], [[u8; 4]; 2])>> {
     let bad = || Fail::Bad;
-    let sixteenth = f32::from_bits(0x3d80_0000);
-    let px = |v: i64| crate::model::d3dim::f32_of(v).map(|v| v * sixteenth).ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
-    let end = |((x, y), c): ((i64, i64), [u8; 4])| -> Res<ClipEnd> { Ok(ClipEnd { x: px(x)?, y: px(y)?, c: c.map(f32::from) }) };
+
+    let end = |((x, y), c): ((i64, i64), [u8; 4])| -> Res<ClipEnd> { Ok(ClipEnd { x: px16(x)?, y: px16(y)?, c: c.map(f32::from) }) };
     let [e0, e1] = ends;
     let mut p = [end(e0)?, end(e1)?];
     for (dist, onto) in GB_PLANES {
@@ -1689,7 +1696,7 @@ fn draw_tri(dev: &mut Device, st: &States, tri: &Tri) -> Res<()> {
             let fmt = rt.fmt;
             ramp_writes(&mut dev.spans, &mut dev.heap, st, tri, Prim::Tri, w, h, fmt)?
         }
-        (Fill::Solid, Family::Soft { .. }) => soft_writes(family, st, tri, w, h, rt.fmt)?,
+        (Fill::Solid, Family::Soft { .. }) => soft_writes(st, tri, w, h, rt.fmt)?,
         (Fill::Point, Family::Soft { .. } | Family::Hw { .. }) => point_writes(family, dev.ver, st, tri, w, h)?,
         (Fill::Wireframe, Family::Soft { .. } | Family::Hw { .. }) => edge_writes(family, dev.ver, st, tri, w, h)?,
         (Fill::Solid, Family::Hw { .. }) => cover_writes(&coverage(family, v, w, h)?, w),
@@ -1757,7 +1764,6 @@ fn ramp_writes(spans: &mut crate::model::ramp::Spans, heap: &mut Heap, st: &Stat
     let fog = st.fog.map(|fc| [0u32, 8, 16].map(|sh| u16::try_from(fc >> sh & 255).unwrap_or(0)));
     let sh = Shading { fill, i: 0x8000, j: alpha << 16, gouraud, specular: st.specular, fog };
     let mut b = Batch::begin(spans, sh);
-    let px16 = |v: i64| i32::try_from(v).map(|v| crate::model::gppath::to32(crate::model::gdiplus::Round::Nearest, f64::from(v)) / 16.0).ok().ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
     let inside = |v: &[(i64, i64)]| v.iter().all(|&(x, y)| (0..w.wrapping_mul(16)).contains(&x) && (0..h.wrapping_mul(16)).contains(&y));
     match (prim, st.fill) {
         (Prim::Line, _) => {
@@ -1857,11 +1863,11 @@ enum Col {
     Unit([f32; 3]),
 }
 
-/// a solid triangle of the RGB, MMX or ramp rasterizer (crate::model::d3dim: the setup, edge
+/// a solid triangle of the RGB or MMX rasterizer (crate::model::d3dim: the setup, edge
 /// walk and Gouraud spans of d3dim700): the pixels it writes, a span past the right side on in
 /// memory, into the row's padding (a system-memory surface's pitch, DDRAW.PITCH) and then the
 /// next row
-fn soft_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt) -> Res<Vec<Write>> {
+fn soft_writes(st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt) -> Res<Vec<Write>> {
     let vert = |i: usize| -> Res<crate::model::d3dim::Vert> {
         let c = tri.c[i];
         let ch = |sh: u32| u8::try_from(c >> sh & 255).unwrap_or(u8::MAX);
@@ -1869,8 +1875,7 @@ fn soft_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt)
         // −4096..4095, past 2048 pixels too, and past it (the front end's clip at the guard band
         // leaves the pixels in the target as the walk of the whole triangle has them); past 2^20
         // pixels not asked)
-        let px = |v: i64| i32::try_from(v).map(|v| crate::model::gppath::to32(crate::model::gdiplus::Round::Nearest, f64::from(v)) / 16.0).ok().ok_or(Fail::Unmodeled(open::D3D7_TRI_CLIP));
-        Ok(crate::model::d3dim::Vert { x: px(tri.v[i].0)?, y: px(tri.v[i].1)?, c: [ch(0), ch(8), ch(16), ch(24)] })
+        Ok(crate::model::d3dim::Vert { x: px16(tri.v[i].0)?, y: px16(tri.v[i].1)?, c: [ch(0), ch(8), ch(16), ch(24)] })
     };
     let clip = crate::model::d3dim::Clip { l: 0, t: 0, r: w, b: h };
     let gouraud = !st.flat;
@@ -1888,9 +1893,9 @@ fn soft_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt)
         hit(clause::D3D7_FLAT);
     }
     let walker = r.walker;
-    match (walker, family) {
-        (crate::model::d3dim::Walker::NoClip, _) => hit(clause::D3D7_TRI),
-        (crate::model::d3dim::Walker::Clip, Family::Soft { .. } | Family::Ramp | Family::Hw { .. }) => hit(clause::D3D7_TRI_GUARD),
+    match walker {
+        crate::model::d3dim::Walker::NoClip => hit(clause::D3D7_TRI),
+        crate::model::d3dim::Walker::Clip => hit(clause::D3D7_TRI_GUARD),
     }
     let mut out = Vec::with_capacity(r.px.len());
     for q in &r.px {
@@ -1903,12 +1908,8 @@ fn soft_writes(family: Family, st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt)
         out.push(Write { k, x: q.x, y: q.y, c: Col::Words([f(2), f(1), f(0)]) });
     }
     let all = out.len() == usize::try_from(w * h).unwrap_or(0);
-    match (walker, family, all) {
-        (crate::model::d3dim::Walker::Clip, _, true) => hit(clause::D3D7_TRI_COVERALL),
-        // (the ramp device's red on a triangle crossing the target but not covering it: 0x80 or
-        // 0xf8 in 565, d3d7rast clip-2-ramp; D3D7.TRI.CLIP)
-        (crate::model::d3dim::Walker::Clip, Family::Ramp, false) => return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP)),
-        (crate::model::d3dim::Walker::Clip, Family::Soft { .. } | Family::Hw { .. }, false) | (crate::model::d3dim::Walker::NoClip, _, _) => {}
+    if walker == crate::model::d3dim::Walker::Clip && all {
+        hit(clause::D3D7_TRI_COVERALL);
     }
     Ok(out)
 }

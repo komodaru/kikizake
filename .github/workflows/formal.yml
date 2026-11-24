@@ -44,6 +44,18 @@ jobs:
           grep -E "^Checking harness|VERIFICATION|Complete -" kani.log >> "$GITHUB_STEP_SUMMARY"
           [ "$s" -eq 0 ] || exit "$s"
           grep -qE "^Complete - [1-9][0-9]* successfully verified harnesses, 0 failures" kani.log || { echo "no harness verified" | tee -a "$GITHUB_STEP_SUMMARY"; exit 1; }
+          {
+            awk '$2 == "kani" { split($1, a, "::"); print a[2] }' spec/laws.txt
+            # The comparator checks the test framework itself and has no Windows API clause.
+            printf '%s\n' comparator_question_mark comparator_exact_alternatives
+          } | sort -u > expected.txt
+          sed -nE 's/^Checking harness .*::([[:alnum:]_]+)\.\.\.$/\1/p' kani.log | sort -u > checked.txt
+          comm -23 expected.txt checked.txt > missing.txt
+          if test -s missing.txt; then
+            echo "Registered Kani harnesses missing from the run:"
+            cat missing.txt
+            exit 1
+          fi
 
   lean:
     runs-on: ubuntu-24.04

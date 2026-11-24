@@ -67,8 +67,14 @@ fn laws_name_tests_and_clauses() {
     }
     let listed: BTreeSet<String> = kikizake::trace::laws().iter().map(|l| format!("{}::{}", l.file, l.test)).collect();
     let proofs = std::fs::read_to_string(root.join("src/proofs.rs")).unwrap();
-    for h in proofs.split("#[kani::proof]\nfn ").skip(1) {
-        let h = h.split('(').next().unwrap();
+    let mut lines = proofs.lines().map(str::trim);
+    while let Some(line) = lines.next() {
+        if line != "#[kani::proof]" {
+            continue;
+        }
+        let declaration = lines.find(|l| !l.is_empty() && !l.starts_with("#[")).unwrap();
+        let h = declaration.strip_prefix("fn ").and_then(|s| s.split_once('('))
+            .unwrap_or_else(|| panic!("expected a proof function, found {declaration}")).0;
         assert!(listed.contains(&format!("src/proofs.rs::{h}")), "spec/laws.txt does not list the Kani harness {h}");
     }
     for e in std::fs::read_dir(root.join("spec/tla")).unwrap() {

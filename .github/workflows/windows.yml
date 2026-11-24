@@ -5,6 +5,20 @@
 name: windows
 
 on:
+  pull_request:
+    paths:
+      - 'runner/**'
+      - 'cases/ntcase.txt'
+      - 'cases/ntstr.txt'
+      - 'golden/ntcase-*/**'
+      - 'golden/ntstr-*/**'
+      - 'src/model/nt*.rs'
+      - 'src/generators/nt*.rs'
+      - 'src/case.rs'
+      - '.gitattributes'
+      - 'tests/laws_nt.rs'
+      - 'tests/windows.rs'
+      - '.github/workflows/windows.yml'
   push:
     branches: [main]
     paths:
@@ -62,7 +76,8 @@ jobs:
       - id: stale
         name: Which ones Windows has not answered
         run: |
-          if [ "${{ inputs.all }}" = true ]; then l=$(ls exe | sed -n 's/\.exe$//p' | tr '\n' ' ')
+          if [ "${{ github.event_name }}" = pull_request ]; then l='kikizake_ntcase-32 kikizake_ntcase-64 kikizake_ntstr-32 kikizake_ntstr-64'
+          elif [ "${{ inputs.all }}" = true ]; then l=$(ls exe | sed -n 's/\.exe$//p' | tr '\n' ' ')
           else l=$(python3 runner/golden.py stale exe | tr '\n' ' '); fi
           echo "stale: $l"
           echo "list=$l" >> "$GITHUB_OUTPUT"
@@ -78,16 +93,22 @@ jobs:
     runs-on: windows-2025
     timeout-minutes: 30
     steps:
+      - uses: actions/checkout@v7.0.1
+        if: github.event_name == 'pull_request'
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@v8.0.2
         with:
           name: exe
           path: exe
       # (D3DX 9 is not part of Windows: the DirectX end-user runtime of June 2010 brings d3dx9_43.dll)
       - uses: actions/cache@v6.1.0
+        if: github.event_name != 'pull_request'
         with:
           path: ~/dxredist.exe
           key: directx-jun2010-redist
       - name: DirectX end-user runtime (D3DX)
+        if: github.event_name != 'pull_request'
         shell: pwsh
         continue-on-error: true
         run: |
@@ -110,6 +131,14 @@ jobs:
             echo $st > "ref/$n/exit"
             echo "$n: exit $(cat "ref/$n/exit"), $(wc -l < "ref/$n/stdout.txt") lines, $((SECONDS - s)) s"
           done
+      - name: Compare fresh NT measurements with both recorded architectures
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          for name in ntcase-32 ntcase-64 ntstr-32 ntstr-64; do
+            test "$(cat "ref/kikizake_$name/exit")" = 0
+            diff --strip-trailing-cr -u "golden/$name/stdout.txt" "ref/kikizake_$name/stdout.txt"
+          done
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: windows
@@ -120,6 +149,7 @@ jobs:
   # only if its sources there are still the same (one that changed since waits for a later run).
   golden:
     needs: windows
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:

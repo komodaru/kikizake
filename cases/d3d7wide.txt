@@ -1,0 +1,114 @@
+# kikizake suite d3d7wide: wide software triangle and line coordinates.
+# x86 only
+case triangle-7-rgb
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 2147483647 40 40 170
+d3ddump
+end
+case triangle-7-mmx
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 2147483647 40 40 170
+d3ddump
+end
+case triangle-3-rgb
+d3d 3
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 2147483647 40 40 170
+d3ddump
+end
+case triangle-3-mmx
+d3d 3
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 2147483647 40 40 170
+d3ddump
+end
+case triangle-2-rgb
+d3d 2
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 2147483647 40 40 170
+d3ddump
+end
+case triangle-2-mmx
+d3d 2
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 2147483647 40 40 170
+d3ddump
+end
+case triangle-2-ramp
+d3d 2
+d3ddev ramp 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 2147483647 40 40 170
+d3ddump
+end
+case steep-rising
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff -2147483648 0 2147483647 1 40 170
+d3ddump
+end
+case steep-falling
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffff0000/0xff00ff00/0xff0000ff 2147483647 0 -2147483648 1 40 170
+d3ddump
+end
+case line-rgb
+d3d 7
+d3ddev rgb 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dline 0xffff0000/0xff0000ff 8 8 2147483647 170
+d3ddump
+d3dclear 0
+d3dline 0xffff0000/0xff0000ff 8 8 -2147483648 170
+d3ddump
+d3dclear 0
+d3dline 0xffff0000/0xff0000ff 8 8 0x80000000 170
+d3ddump
+d3dclear 0
+d3dline 0xffff0000/0xff0000ff 8 8 4294967296 170
+d3ddump
+d3dclear 0
+d3dline 0xffff0000/0xff0000ff 8 8 -2147483649 170
+d3ddump
+end
+case line-mmx
+d3d 7
+d3ddev mmx 565 12 12
+d3drs set 22 1
+d3dclear 0
+d3dline 0xffff0000/0xff0000ff 8 8 2147483647 170
+d3ddump
+d3dclear 0
+d3dline 0xffff0000/0xff0000ff 8 8 -2147483648 170
+d3ddump
+d3dclear 0
+d3dline 0xffff0000/0xff0000ff 8 8 0x80000000 170
+d3ddump
+d3dclear 0
+d3dline 0xffff0000/0xff0000ff 8 8 4294967296 170
+d3ddump
+d3dclear 0
+d3dline 0xffff0000/0xff0000ff 8 8 -2147483649 170
+d3ddump
+end

@@ -57,6 +57,39 @@ cases/<suite>.txt ──► runner/ (executor, a Win32 console program) ──�
   stand in for Windows: an implementation can be checked against the model on any number of
   freshly generated cases.
 
+### Win32 base APIs (ntdll)
+
+The ntcase and ntstr suites require exact output and a successful exit on both x86 and
+x86-64. Pull requests touching their runners, cases, models or recordings replay both
+suites on windows-2025 and compare fresh output with the proposed recordings.
+Run the focused checks with:
+
+```sh
+cargo test --release --test laws_nt
+KIKIZAKE_SUITES=ntcase,ntstr cargo test --release --test windows models_match_windows
+cargo kani --harness proofs::nt_
+```
+
+| Native entry points in ntdll | What the checks cover |
+| --- | --- |
+| `RtlUpcaseUnicodeChar`, `RtlDowncaseUnicodeChar`, `towupper`, `towlower` | Native table entries and model output for every UTF-16 code unit, including surrogates. |
+| `RtlCharToInteger`, `RtlUnicodeStringToInteger` | Signs, prefixes, accepted bases, truncation, wraparound and the output value on rejection. |
+| `RtlIntegerToChar`, `RtlIntegerToUnicodeString` | Digits, padding, terminators, status and destination bytes across buffer boundaries. |
+| `RtlAnsiStringToUnicodeString` | Counted ASCII input, caller-owned destinations, capacity, null buffers and preserved bytes on failure. |
+
+The case-table laws enumerate all 65,536 UTF-16 units. The integer parser tests enumerate
+each possible leading ANSI byte and UTF-16 unit before a decimal digit. Other numeric tests
+exercise formatting boundaries and sample longer inputs. Kani checks every source length,
+destination capacity, null-buffer choice and output byte position in the runner's
+non-allocating ASCII conversion contract. It also checks the integer digit step
+for every accumulator and UTF-16 unit, invalid bases on four-unit inputs, and
+the integer writer for every digit count and signed length the runner allows.
+For hexadecimal conversion Kani checks signed, prefixed parsing with overflow and
+ANSI and UTF-16 formatting across all 32-bit values. Other bases have boundary
+tests and generated comparisons against the Windows recordings.
+The remaining formal gaps are in
+`spec/unproven.txt`; the clause-to-law mapping is in `spec/laws.txt`.
+
 ## What the executor calls (shirusu)
 
 The `shirusu` workflow runs the GDI suites' executors on Windows under

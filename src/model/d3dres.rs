@@ -835,8 +835,11 @@ pub fn box_empty(b: [u64; 6]) -> bool {
 
 /// a box's extent put at `at` reaches past `whole` (D3DRES.REMOVED)
 pub fn box_past(b: [u64; 6], at: [u64; 3], whole: [u64; 3]) -> bool {
-    let reach = |i: usize, j: usize| at[i].saturating_add(b[j].saturating_sub(b[i])) > whole[i];
-    reach(0, 3) || reach(1, 4) || reach(2, 5)
+    let reach = |start: u64, end: u64, offset: u64, limit: u64| {
+        offset > limit || end.saturating_sub(start) > limit.saturating_sub(offset)
+    };
+    reach(b[0], b[3], at[0], whole[0]) || reach(b[1], b[4], at[1], whole[1])
+        || reach(b[2], b[5], at[2], whole[2])
 }
 
 /// UpdateSubresource of subresource `sub` of `nsubs` of a resource of `usage` and `count`
@@ -966,9 +969,15 @@ fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: O
         hit(clause::D3DRES_UPDATE_BOX);
     }
     let whole = whole_of((rb, rows, sl), el);
+    // WARP discards an empty input box before projecting a 1D texture onto a
+    // single row and slice (probe-box-5..7, D3D10 and D3D11, both architectures).
     // (MEASURED: a 1D texture's box is one row from its top whatever its bottom, d3d11res
     // seq-100, seq-187, seq-254; a buffer's has its rows, seq-117)
-    let e = box_elems(bx, res.d.dim == 1, block, whole);
+    let e = if let Some(&[l, t, f, r, b, k]) = bx && (l >= r || t >= b || f >= k) {
+        [0; 6]
+    } else {
+        box_elems(bx, res.d.dim == 1, block, whole)
+    };
     match update_plan(sub, res.nsubs(), res.d.usage, res.d.count, e, whole_of(res.layout(0)?, el)) {
         Plan::Nothing => return Ok(false),
         Plan::Removed => return Ok(true),
@@ -1030,10 +1039,10 @@ fn copy_region(dev: Dev, dst: &mut Resource, ds: u32, at: (u32, u32, u32), src: 
     };
     match (dst.d.dim == 4, src.d.dim == 4) {
         // (as for textures: an empty box changes nothing, one past either buffer removes the
-        // device, probe-copysub-buf; the destination's y and z are not read)
+        // device, including a nonzero destination y or z: probe-box-12 and -13)
         (true, true) => {
             let e = box_elems(bx, false, (1, 1), [n(src.d.w), 1, 1]);
-            if let Some(r) = removed(region_plan(ignored, Sides::Buffers, e, [n(src.d.w), 1, 1], [n(dst.d.w), 1, 1], [n(at.0), 0, 0])) {
+            if let Some(r) = removed(region_plan(ignored, Sides::Buffers, e, [n(src.d.w), 1, 1], [n(dst.d.w), 1, 1], [n(at.0), n(at.1), n(at.2)])) {
                 return Ok(r);
             }
             let [l, _, _, r, _, _] = e.map(|v| usize::try_from(v).unwrap_or(usize::MAX));
@@ -1085,7 +1094,8 @@ fn read(dev: Dev, res: &Resource, sub: u32, rb: usize, rows: usize, slices: usiz
     if sub >= res.nsubs() {
         hit(clause::D3DRES_READ_BAD);
         out.push(format!("read {rows} {slices}"));
-        out.extend(std::iter::repeat_n("00".repeat(rb), rows.saturating_mul(slices).min(1 << 16)));
+        let count = rows.saturating_mul(slices).min(1 << 16);
+        out.extend((0..count).map(|_| "00".repeat(rb)));
         return Ok(());
     }
     let (srb, srows, ssl) = res.layout(sub)?;
@@ -1097,7 +1107,7 @@ fn read(dev: Dev, res: &Resource, sub: u32, rb: usize, rows: usize, slices: usiz
     if res.d.count > 1 {
         hit(clause::D3DRES_READ_MS);
         out.push(format!("read {rows} {slices}"));
-        out.extend(std::iter::repeat_n("00".repeat(rb), rows * slices));
+        out.extend((0..rows * slices).map(|_| "00".repeat(rb)));
         return Ok(());
     }
     let Some(b) = &res.subs[sub as usize] else { return Err(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN)) };

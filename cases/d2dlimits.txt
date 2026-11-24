@@ -1,0 +1,48 @@
+# kikizake suite d2dlimits: Direct2D render-target boundary cases.
+case bitmap-src-nan
+d2target 4 4
+d2clear 39 70 111 255
+d2bmp 0 2 2 0000ffff00ff00ffff0000ffffffffff
+d2drawbmp 0 0 0 4 4 1 nearest NaN 0 2 2
+d2read
+end
+case bitmap-src-infinity
+d2target 4 4
+d2clear 39 70 111 255
+d2bmp 0 2 2 0000ffff00ff00ffff0000ffffffffff
+d2drawbmp 0 0 0 4 4 1 linear 0 0 inf 2
+d2read
+end
+case gradient-empty
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 clamp 0 0 4 4 0
+d2read
+end
+case gradient-singular
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 1 1 1 0 0
+d2grad 0 0 4 4 lin 22 clamp 0 0 4 4 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case gradient-coincident
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 clamp 2 2 2 2 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case curve-outside-fixed-range
+d2target 4 4
+d2clear 39 70 111 255
+d2ell 0 8388608 2 8388608 2
+d2fillg 0 255 255 255 255
+d2read
+end
+case stroke-nan
+d2target 4 4
+d2clear 39 70 111 255
+d2ell 0 2 2 1 1
+d2drawg 0 NaN 255 255 255 255
+d2read
+end

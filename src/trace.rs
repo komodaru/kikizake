@@ -54,7 +54,17 @@ pub const FORMAL_KINDS: &[&str] = &["exhaustive", "kani", "tla", "lean"];
 
 /// the clause files whose every settled clause (doc, measured) has a formal law
 /// (FORMAL_KINDS) or is listed in spec/unproven.txt, which only shrinks
-pub const PROVEN_FILES: &[&str] = &["gdi", "gdiblend", "gdiddb", "gdiline", "gdipath", "gdirgn", "gditext", "gdixform", "gdiplus", "dwrite", "d3d8", "d3d9", "d3d9draw", "d3dres", "d3dx9", "d3d12", "dxgi"];
+pub const PROVEN_FILES: &[&str] = &{
+    let mut names = [""; crate::spec::FILES.len()];
+    let mut files = crate::spec::FILES;
+    let mut slots = names.as_mut_slice();
+    while let ([file, rest @ ..], [slot, tail @ ..]) = (files, slots) {
+        *slot = file.0;
+        files = rest;
+        slots = tail;
+    }
+    names
+};
 
 /// How far a clause's formal laws reach the implementation (the models' Rust functions), kept
 /// apart from whether the clause is proved of the specification: an exhaustive law, a Kani

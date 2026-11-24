@@ -631,3 +631,45 @@ proptest! {
         prop_assert_eq!(a, b);
     }
 }
+
+/// Windows 26100 x86 and x64 gave identical f32 bits. The axis order,
+/// aspect ratio, and coarse tolerances distinguish the two workspace scales.
+#[test]
+fn large_curve_areas_match_windows_at_seven_tolerances() {
+    let cases = [
+        (Geom::Ell([200000000.0, 100000000.0, 300000000.0, 150000000.0]), [0x5bfb325f, 0x5bfb325f, 0x5bfb30c7, 0x5bf9ea3d, 0x5bf4c769, 0x5be217e4, 0x5be217e4]),
+        (Geom::Ell([200000000.0, 100000000.0, 150000000.0, 300000000.0]), [0x5bfb325e, 0x5bfb325e, 0x5bfb30c7, 0x5bf9ea3d, 0x5bf4c769, 0x5be217e4, 0x5be217e4]),
+        (Geom::Ell([200000000.0, 100000000.0, 300000000.0, 300000000.0]), [0x5c7b325e, 0x5c7b325e, 0x5c7b30c7, 0x5c7acaff, 0x5c74c769, 0x5c74c769, 0x5c6217e4]),
+        (Geom::Ell([200000000.0, 100000000.0, 300000000.0, 30000000.0]), [0x5ac8f519, 0x5ac8f509, 0x5ac8ea7e, 0x5ac3d2bb, 0x5ab4dfe9, 0x5a7fcb9e, 0x5a7fcb9e]),
+        (Geom::Ell([200000000.0, 100000000.0, 300000000.0, 3000000.0]), [0x5920c415, 0x5920c310, 0x592081ed, 0x5910b322, 0x58cca2e5, 0x58cca2e5, 0x58cca2e5]),
+        (Geom::RRect([-100000000.0, -50000000.0, 500000000.0, 250000000.0, 150000000.0, 15000000.0]), [0x5c1e288f, 0x5c1e288e, 0x5c1e285d, 0x5c1e161f, 0x5c1d87e5, 0x5c1d87e5, 0x5c1be014]),
+        (Geom::RRect([-100000000.0, -50000000.0, 500000000.0, 250000000.0, 30000000.0, 1000000.0]), [0x5c1fd96a, 0x5c1fd969, 0x5c1fd966, 0x5c1fd8dd, 0x5c1fd19f, 0x5c1fd19f, 0x5c1fd19f]),
+        (Geom::RRect([-100000000.0, -50000000.0, 500000000.0, 250000000.0, 123456.0, 987654.0]), [0x5c1fdf3d, 0x5c1fdf3d, 0x5c1fdf3d, 0x5c1fdf35, 0x5c1fdf35, 0x5c1fdf35, 0x5c1fdf35]),
+        (Geom::RRect([-100000000.0, -50000000.0, 500000000.0, 250000000.0, 0.0, 1.0]), [0x5c1fdf43, 0x5c1fdf43, 0x5c1fdf43, 0x5c1fdf43, 0x5c1fdf43, 0x5c1fdf43, 0x5c1fdf43]),
+    ];
+    let tolerances = [0.25, 100.0, 10000.0, 1e6, 1e7, 2e7, 5e7];
+    for (g, expected) in cases {
+        for (i, tol) in tolerances.into_iter().enumerate() {
+            let Measure::Value(v) = area(&g, tol).unwrap() else { panic!("{g:?} {tol}") };
+            assert_eq!(v.to_bits(), expected[i], "{g:?} {tol}");
+        }
+    }
+}
+
+#[test]
+fn transformed_curve_area_matches_windows_in_the_centered_workspace() {
+    let g = Geom::Ell([2e8, 1e8, 3e8, 1.5e8]);
+    for (m, fine, coarse) in [
+        ([1., 0., 0., 1., 4., 9.], 0x5bfb325f, 0x5bf4c76a),
+        ([2., 0., 0., 3., 0., 0.], 0x5d3c65c7, 0x5d3b3008),
+        ([0., 1., -1., 0., 0., 0.], 0x5bfb325f, 0x5bf4c769),
+        ([0.5, 0.25, -0.125, 1.5, 10., -100.], 0x5bc43f5a, 0x5bbf3bcb),
+        ([1., 1., 1., 1., 0., 0.], 0, 0),
+    ] {
+        let transformed = Geom::Xf(Box::new(g.clone()), m);
+        for (tol, expected) in [(0.25, fine), (1e7, coarse)] {
+            let Measure::Value(v) = area(&transformed, tol).unwrap() else { panic!("{m:?} {tol}") };
+            assert_eq!(v.to_bits(), expected, "{m:?} {tol}");
+        }
+    }
+}

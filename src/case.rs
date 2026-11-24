@@ -121,3 +121,44 @@ pub fn num(t: &str) -> Option<i64> {
     }
     t.parse::<i64>().ok()
 }
+
+/// runner/main.c's num for a token consumed as a Windows long. A leading minus
+/// selects strtol; all other tokens use strtoul and the low bits are read as LONG.
+pub(crate) fn windows_long(token: &str) -> Option<i32> {
+    let negative = token.starts_with('-');
+    let magnitude = token.trim_prefix(['-', '+']);
+    let (radix, digits) = if let Some(hex) = magnitude.strip_prefix("0x").or_else(|| magnitude.strip_prefix("0X")) {
+        (16, hex)
+    } else if magnitude.starts_with('0') {
+        (8, magnitude)
+    } else {
+        (10, magnitude)
+    };
+    if digits.is_empty() {
+        return None;
+    }
+    let mut value = 0u32;
+    for c in digits.chars() {
+        value = value.saturating_mul(radix).saturating_add(c.to_digit(radix)?);
+    }
+    Some(if negative {
+        i32::try_from(value).map_or(i32::MIN, i32::saturating_neg)
+    } else {
+        value.cast_signed()
+    })
+}
+
+#[test]
+fn windows_long_uses_the_runners_sign_base_and_width() {
+    for (s, expected) in [
+        ("+42", 42), ("010", 8), ("0", 0), ("-0X10", -16),
+        ("2147483648", i32::MIN), ("0x80000000", i32::MIN),
+        ("037777777777", -1), ("4294967296", -1), ("0x100000000", -1),
+        ("-2147483648", i32::MIN), ("-2147483649", i32::MIN),
+    ] {
+        assert_eq!(windows_long(s), Some(expected), "{s}");
+    }
+    for s in ["", "-", "++1", "0x", "08", "429496729600000000000!"] {
+        assert_eq!(windows_long(s), None, "{s}");
+    }
+}

@@ -867,21 +867,20 @@ fn rrect_points(l: f32, t: f32, r: f32, b: f32, rx: f32, ry: f32) -> [P; 16] {
     ]
 }
 
-/// the figures ComputeArea's scanner sweeps, in workspace units, and the fill mode (winding);
-/// None for a geometry the analysis does not cover yet
-fn area_figures(g: &Geom, tol: f32, ext: f64) -> Option<(bool, Vec<Vec<(f64, f64)>>)> {
-    let ws = |p: P| (area_snap(f64::from(p.0)), area_snap(f64::from(p.1)));
-    let (wind, _, figs) = match g {
-        Geom::Ell(_) | Geom::RRect(_) => shape(g),
-        Geom::Path { wind, figs } => {
-            return Some((*wind, figs.iter().map(|f| f.pts.iter().map(|&p| ws(p)).collect()).collect()));
-        }
-        Geom::Rect(_) | Geom::Xf(..) => return None,
-    };
-    // (the tolerance: 0.25 when not above 0, at least 1e-6, at least 3e-12 of the bounds'
-    // larger side, in workspace units)
+/// Convert the user tolerance to the scanner's workspace units.
+pub(crate) fn area_tolerance(tol: f32, ext: f64, sx: f64, sy: f64) -> f64 {
     let tol = if tol > 0.0 { tol.max(f32::from_bits(0x358637bd)) } else { 0.25 };
-    let tol = AREA_SCALE * f64::from(tol).max(ext * 3e-12);
+    sx.max(sy) * f64::from(tol).max(ext * 3e-12)
+}
+
+/// The figures ComputeArea's scanner sweeps, in workspace units, and the fill mode.
+fn area_figures(g: &Geom, tol: f64, ws: impl Fn(P) -> (f64, f64)) -> (bool, Vec<Vec<(f64, f64)>>) {
+    let (wind, _, figs) = match g {
+        Geom::Ell(_) | Geom::RRect(_) | Geom::Rect(_) | Geom::Xf(..) => shape(g),
+        Geom::Path { wind, figs } => {
+            return (*wind, figs.iter().map(|f| f.pts.iter().map(|&p| ws(p)).collect()).collect());
+        }
+    };
     // (the flattened points are rounded to integers too, half away from zero)
     let r = |u: f64| (if u >= 0.0 { u + 0.5 } else { u - 0.5 }).trunc();
     let mut all = Vec::new();
@@ -900,7 +899,7 @@ fn area_figures(g: &Geom, tol: f32, ext: f64) -> Option<(bool, Vec<Vec<(f64, f64
         }
         all.push(out);
     }
-    Some((wind, all))
+    (wind, all)
 }
 
 /// whether two figures' edges cross or touch anywhere but at shared ends of neighbours (exact
@@ -924,7 +923,7 @@ fn simple_polygon(p: &[(f64, f64)]) -> bool {
 }
 
 /// ComputeArea of what is not a rectangle. MEASURED (D2D.AREA.POLY, from the clean-room notes on
-/// CArea, the scanner's workspace; crossing figures D2D.AREA.CURVE, open): points snapped to the 2^-20 grid (area_snap), curves
+/// CArea, the scanner's workspace; large curved figures D2D.AREA.CURVE): points snapped to the 2^-20 grid (area_snap), curves
 /// flattened there in f64 and their points snapped; the area is half the sum of the cross
 /// products of the filled region's boundary edges, times 2^-20 2^-20, in f64, as an f32
 fn scanner_area(g: &Geom, tol: f32) -> Res<Measure> {
@@ -934,22 +933,16 @@ fn scanner_area(g: &Geom, tol: f32) -> Res<Measure> {
     if !ext.is_finite() {
         return Ok(Measure::BadNumber);
     }
-    // (beyond about 1.8e8 the workspace is centered and scaled to 2^48 instead: not modelled)
+    // Beyond about 1.8e8 the workspace is centered and scaled to 2^48.
     let big = 2f64.powi(48);
     let inside = (f64::from(bb[0]) - 1.0) * AREA_SCALE * 1.5 > -big && (f64::from(bb[1]) - 1.0) * AREA_SCALE * 1.5 > -big && (f64::from(bb[2]) + 1.0) * AREA_SCALE * 1.5 < big && (f64::from(bb[3]) + 1.0) * AREA_SCALE * 1.5 < big;
     // (MEASURED, D2D.AREA.HUGE, from the clean-room notes: beyond that each axis is centered
     // and scaled to 2^48 by itself, SetWithScaleFactor)
     let (figs, inv2) = if inside {
-        let Some(f) = area_figures(g, tol, ext) else {
-            return Err(Fail::Unmodeled(open::D2D_AREA_CURVE));
-        };
+        let ws = |p: P| (area_snap(f64::from(p.0)), area_snap(f64::from(p.1)));
+        let f = area_figures(g, area_tolerance(tol, ext, AREA_SCALE, AREA_SCALE), ws);
         (f, (1.0 / AREA_SCALE) * (1.0 / AREA_SCALE))
     } else {
-        // (a figure with curves there, its flattening tolerance per axis: the spec's open
-        // D2D.AREA.CURVE, asked by pareahuge-4)
-        let Geom::Path { wind, figs } = g else {
-            return Err(Fail::Unmodeled(open::D2D_AREA_CURVE));
-        };
         hit(clause::D2D_AREA_HUGE);
         let axis = |lo: f32, hi: f32| {
             let (lo, hi) = (f64::from(lo), f64::from(hi));
@@ -966,17 +959,22 @@ fn scanner_area(g: &Geom, tol: f32) -> Res<Measure> {
         let ((cx, sx, ix), (cy, sy, iy)) = (axis(bb[0], bb[2]), axis(bb[1], bb[3]));
         let r = |u: f64| (if u >= 0.0 { u + 0.5 } else { u - 0.5 }).trunc();
         let ws = |p: P| (r((f64::from(p.0) - cx) * sx), r((f64::from(p.1) - cy) * sy));
-        ((*wind, figs.iter().map(|f| f.pts.iter().map(|&p| ws(p)).collect()).collect()), ix * iy)
+        // Windows uses the larger axis scale for the scalar flattening tolerance.
+        if !matches!(g, Geom::Path { .. }) {
+            hit(clause::D2D_AREA_CURVE);
+        }
+        let f = area_figures(g, area_tolerance(tol, ext, sx, sy), ws);
+        (f, ix * iy)
     };
     let (wind, figs) = figs;
-    let a = if inside && let [f] = figs.as_slice() && simple_polygon(f) {
+    let a = if let [f] = figs.as_slice() && (matches!(g, Geom::Ell(_) | Geom::RRect(_)) || inside && simple_polygon(f)) {
         let n = f.len();
         (0..n).map(|i| f[i].0 * f[(i + 1) % n].1 - f[(i + 1) % n].0 * f[i].1).sum::<f64>().abs() * 0.5
     } else {
         // (crossings: the scanner's sweep, the boundary of what the fill mode fills cut at
         // its crossings, their points the f64 copies the tessellator shares)
         let figs: Vec<Vec<(i128, i128)>> = figs.iter().map(|f| f.iter().map(|p| (p.0 as i128, p.1 as i128)).collect()).collect();
-        let acc = super::d2dtess::scan(wind, &figs).map_err(|_| Fail::Unmodeled(open::D2D_AREA_CURVE))?.acc;
+        let acc = super::d2dtess::scan(wind, &figs)?.acc;
         if acc < 0.0 { 0.0 } else { acc * 0.5 }
     };
     hit(clause::D2D_AREA_POLY);
@@ -998,11 +996,8 @@ pub fn area(g: &Geom, tol: f32) -> Res<Measure> {
         hit(clause::D2D_AREA_RECT);
         return Ok(Measure::Value(((r - l) * (b - t)).abs()));
     }
-    if let Geom::Xf(..) = g {
+    if let Geom::Xf(..) = g && let Some((wind, figs, m)) = g.lines() {
         // (MEASURED, xbounds-*: a rectangle through a transform, exact)
-        let Some((wind, figs, m)) = g.lines() else {
-            return Err(Fail::Unmodeled(open::D2D_AREA_CURVE));
-        };
         hit(clause::D2D_AREA_POLY);
         return Ok(Measure::Value(region_area(&polys(&figs, &m), wind) as f32));
     }
@@ -2712,9 +2707,10 @@ impl D2d {
                     out.push("nort".into());
                     return Ok(());
                 };
-                // (a collection of no stops: D2D.RT, the spec's open part)
                 if stops.is_empty() {
-                    return Err(Fail::Unmodeled(open::D2D_RT));
+                    hit(clause::D2D_GRAD);
+                    out.push("grad 80070057".into());
+                    return Ok(());
                 }
                 let ramp = if lin {
                     let (s0, e0) = ((f(op, 8)?, f(op, 9)?), (f(op, 10)?, f(op, 11)?));
@@ -2788,14 +2784,9 @@ impl D2d {
                 if tg.fault.is_some() {
                     return Ok(());
                 }
-                if w.is_infinite() {
-                    // (MEASURED, D2D.STROKE.INF, strkinf-0: a width of infinity draws nothing)
+                if !w.is_finite() {
                     hit(clause::D2D_STROKE_INF);
                     return Ok(());
-                }
-                if w.is_nan() {
-                    // (a width not a number: the spec's open D2D.RT, asked by strknan-0)
-                    return Err(Fail::Unmodeled(open::D2D_RT));
                 }
                 if let Geom::Path { .. } | Geom::Ell(_) | Geom::RRect(_) | Geom::Xf(..) = g {
                     // (MEASURED, D2D.STROKE.POLY: the widener's polygon of every figure, filled
@@ -2891,8 +2882,11 @@ impl D2d {
                     // staying, so what is left stretches over all of it; a side moved past the
                     // other turns the rectangle round onto the texels beyond that edge, which the
                     // clamp repeats, either interpolation; one of no width or height draws nothing)
-                    let src = extra.as_deref().map_or(full, |e| [lo(e[0], e[2]).max(0.0), lo(e[1], e[3]).max(0.0), hi(e[0], e[2]).min(full[2]), hi(e[1], e[3]).min(full[3])]);
                     hit(clause::D2D_BITMAP_SRC);
+                    if extra.as_ref().is_some_and(|e| e.iter().any(|v| v.is_nan())) {
+                        return Ok(());
+                    }
+                    let src = extra.as_deref().map_or(full, |e| [lo(e[0], e[2]).max(0.0), lo(e[1], e[3]).max(0.0), hi(e[0], e[2]).min(full[2]), hi(e[1], e[3]).min(full[3])]);
                     if src[0] == src[2] || src[1] == src[3] {
                         return Ok(());
                     }
