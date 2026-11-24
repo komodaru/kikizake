@@ -2568,3 +2568,28 @@ end
         assert_eq!(&output[1..], ["read ffffffff", "read 00000000", "glerr 0"]);
     }
 }
+
+#[test]
+fn evaluator_mesh2_modes_match_windows() {
+    let input = "case surface
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glClearColor 0 0 0 0
+gl glClear 0x4000
+gl glDisable 0xbd0
+glp glMap2f iffiiffii 0xdb7 0 2 6 2 -1 1 3 2 f -0.5 -0.5 0 -0.5 0.5 0 0.5 -0.5 0 0.5 0.5 0
+gl glEnable 0xdb7
+gl glMapGrid2f 2 0 2 2 -1 1
+gl glEvalMesh2 MODE 0 2 0 2
+glread 4 7 8 1 0x1908 0x1401 32
+glread 10 5 1 1 0x1908 0x1401 4
+glerr
+end
+";
+    let white = "ffffffff".repeat(8);
+    let dots = "ffffffff000000000000000000000000".repeat(2);
+    for (mode, row, interior) in [("0x1b00", &dots, "00000000"), ("0x1b01", &white, "00000000"), ("0x1b02", &white, "ffffffff")] {
+        let cases = kikizake::case::parse_cases(&input.replace("MODE", mode));
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], [format!("read {row}"), format!("read {interior}"), "glerr 0".to_owned()]);
+    }
+}

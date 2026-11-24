@@ -38,6 +38,7 @@ fn axis(args: &[String], width: usize) -> Res<Option<Axis>> {
 
 impl Ctx {
     pub(super) fn define_map(&mut self, t: &[String]) -> Res<()> {
+        super::hit(GL_EVAL.into());
         let [_, name, sig, target, args @ ..] = t else { return Err(Fail::Bad) };
         let signature = match name.as_str() {
             "glMap1f" => "iffii", "glMap1d" => "iddii", "glMap2f" => "iffiiffii", "glMap2d" => "iddiiddii",
@@ -172,5 +173,49 @@ impl Ctx {
         let result = self.call("glVertex4f", &vertex.map(|v| super::A::F(f64::from(v))));
         (self.color, self.normal, self.index, self.tex.coord, self.materials) = (color, normal, index, tex, materials);
         result
+    }
+}
+
+impl Ctx {
+    pub(super) fn eval_mesh2(&mut self, mode: i64, i1: i64, i2: i64, j1: i64, j2: i64) -> Res<()> {
+        use super::A::I;
+        if (0x1b00..=0x1b02).contains(&mode)
+            && (i1 > i2 || j1 > j2 || !(self.cap(0xdb7) || self.cap(0xdb8))) {
+            return Ok(());
+        }
+        let point = |ctx: &mut Self, i, j| ctx.call("glEvalPoint2", &[I(i), I(j)]);
+        match mode {
+            0x1b00 => {
+                self.call("glBegin", &[I(0)])?;
+                for j in j1..=j2 {
+                    for i in i1..=i2 { point(self, i, j)?; }
+                }
+                self.call("glEnd", &[])?;
+            }
+            0x1b01 => {
+                for j in j1..=j2 {
+                    self.call("glBegin", &[I(3)])?;
+                    for i in i1..=i2 { point(self, i, j)?; }
+                    self.call("glEnd", &[])?;
+                }
+                for i in i1..=i2 {
+                    self.call("glBegin", &[I(3)])?;
+                    for j in j1..=j2 { point(self, i, j)?; }
+                    self.call("glEnd", &[])?;
+                }
+            }
+            0x1b02 => {
+                for j in j1..j2 {
+                    self.call("glBegin", &[I(8)])?;
+                    for i in i1..=i2 {
+                        point(self, i, j)?;
+                        point(self, i, j.saturating_add(1))?;
+                    }
+                    self.call("glEnd", &[])?;
+                }
+            }
+            _ => self.error(INVALID_ENUM),
+        }
+        Ok(())
     }
 }
