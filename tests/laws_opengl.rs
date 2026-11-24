@@ -2131,3 +2131,12 @@ fn spot_cutoff_and_exponent_match_native_point_pixels() {
         }
     }
 }
+
+#[test]
+fn emission_draws_with_lights_off_and_specular_is_per_face() {
+    let input = "case mat\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glDisable 0xbd0\ngl glEnable 0xb50\nglp glLightModelfv i 0xb53 f 0 0 0 1\nglp glMaterialfv ii 0x404 0x1600 f 0.25 0.5 0.75 1\nglp glMaterialiv ii 0x405 0x1202 i -2147483648 -1 0 2147483647\nglq glGetMaterialfv ii 0x405 0x1202 f 4\nglq glGetMaterialiv ii 0x404 0x1600 i 4\ngl glBegin 0\ngl glVertex2i 0 0\ngl glEnd\nglread 8 7 1 1 0x1908 0x1401 4\nglerr\nend\n";
+    let cases = kikizake::case::parse_cases(input);
+    assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), ["glctx ok 1",
+        "q -1.00000048 -2.32830755e-10 2.32830755e-10 1.00000048",
+        "q 536870624 1073741248 1610611968 2147482496", "read 3f7fbfff", "glerr 0"]);
+}
