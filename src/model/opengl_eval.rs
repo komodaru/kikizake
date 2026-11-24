@@ -107,7 +107,7 @@ impl Ctx {
                 for (w, &v) in dst.chunks_exact_mut(8).zip(values) { w.copy_from_slice(&f64::from(v).to_le_bytes()); }
             } else {
                 for (w, &v) in dst.chunks_exact_mut(4).zip(values) {
-                    let bytes = if name == "glGetMapiv" { i32::try_from(float_to_int(v.round())).unwrap_or(i32::MIN).to_le_bytes() } else { v.to_le_bytes() };
+                    let bytes = if name == "glGetMapiv" { i32::try_from(float_to_int(v + 0.5f32.copysign(v))).unwrap_or(i32::MIN).to_le_bytes() } else { v.to_le_bytes() };
                     w.copy_from_slice(&bytes);
                 }
             }

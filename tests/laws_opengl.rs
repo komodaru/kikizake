@@ -2715,3 +2715,28 @@ end
     let output = kikizake::model::run_case(&cases[0]).unwrap();
     assert_eq!(&output[1..], ["read 00000000", "read ffffffff", "read ffffffff", "glerr 0"]);
 }
+
+#[test]
+fn evaluator_integer_query_rounds_bias_in_single_precision() {
+    // Windows rounds the signed half-unit addition to float32 before truncation.
+    for (input, expected) in [
+        ("case integer
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glMap1f iffii 0xd93 0 1 1 12 f -2.5 -1.5 -0.5 0.5 1.5 2.5 2147483520 2147483648 -2147483648 -2147483904 0.49999997 -0.49999997
+glq glGetMapiv ii 0xd93 0xa00 i 12
+glerr
+end
+", "q -3 -2 -1 1 2 3 2147483520 -2147483648 -2147483648 -2147483648 1 -1"),
+        ("case integer
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glMap1f iffii 0xd93 0 1 1 10 f 0.49999994 -0.49999994 8388607 8388608 8388609 8388611 -8388609 -8388611 16777215 -16777215
+glq glGetMapiv ii 0xd93 0xa00 i 10
+glerr
+end
+", "q 0 0 8388607 8388608 8388610 8388612 -8388610 -8388612 16777216 -16777216"),
+    ] {
+        let cases = kikizake::case::parse_cases(input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], [expected, "glerr 0"]);
+    }
+}
