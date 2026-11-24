@@ -1409,3 +1409,13 @@ fn point_and_raster_position_include_the_clip_boundary() {
     let output = kikizake::model::run_case(&cases[0]).unwrap();
     assert_eq!(&output[1..], ["get b08 = 0", "get b08 = 1", "get b08 = 1", "read 000000ffffffffffffffffff", "glerr 0"]);
 }
+
+#[test]
+fn crossing_lines_match_windows_in_both_directions() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_clip_line.txt"));
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    let pixels = concat!("read ", "000000ff000000ffbf003fff9f005fff7f007fff5f009fff000000ff000000ff000000ff",
+        "000000ff000000ff000000ff9f005fff7f007fff5f009fff3f00bfff000000ff000000ff",
+        "000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff");
+    assert_eq!(&output[1..], [pixels, "glerr 0"]);
+}

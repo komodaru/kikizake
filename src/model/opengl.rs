@@ -2621,6 +2621,35 @@ impl Ctx {
         self.clip_planes[i].iter().zip(eye).map(|(a, b)| a * b).sum()
     }
 
+    fn clip_user_line(&self, mut ends: [(Obj, [f32; 4]); 2]) -> Option<[(Obj, [f32; 4]); 2]> {
+        for i in self.enabled_clip_planes() {
+            let distances = ends.map(|(v, _)| {
+                let [x, y, z] = v.xyz;
+                self.user_clip_distance(i, xform(self.top(0), [x, y, z, v.w]).map(|n| n as f32))
+            });
+            let outside = match distances.map(|d| d >= 0.0) {
+                [true, true] => continue,
+                [false, false] => return None,
+                [false, true] => 0,
+                [true, false] => 1,
+            };
+            let inside = 1 - outside;
+            let t = distances[inside] / (distances[inside] - distances[outside]);
+            let ((a, ca), (b, cb)) = (ends[inside], ends[outside]);
+            let mix = |x: f32, y: f32| x + t * (y - x);
+            let coord = |x: f64, y: f64| x + f64::from(t) * (y - x);
+            let v = Obj {
+                xyz: std::array::from_fn(|k| coord(a.xyz[k], b.xyz[k])),
+                w: coord(a.w, b.w),
+                tc: tri::zip4(a.tc, b.tc, mix),
+                edge: b.edge,
+            };
+            let color = if self.shade == FLAT { cb } else { tri::zip4(ca, cb, mix) };
+            ends[outside] = (v, color);
+        }
+        Some(ends)
+    }
+
     /// The pixels a filled polygon covers (GL.RASTER.TRIANGLE), each with the color `colors`
     /// (one per vertex) interpolate to there and, given the buffer, its depth: cut to the view
     /// volume (the colors and depths with it, `tri::clip`), then a fan from its first vertex,
@@ -3573,7 +3602,8 @@ impl Ctx {
                     if let Some(o) = self.loop_offsets.get(i) {
                         self.line_z_offset = *o;
                     }
-                    let (a, b) = (&verts[i], &verts[j]);
+                    let Some(ends) = self.clip_user_line([verts[i], verts[j]]) else { continue };
+                    let [a, b] = &ends;
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
                     }
