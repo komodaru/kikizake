@@ -2071,3 +2071,32 @@ fn scene_light_model_preserves_per_channel_ambient_and_flags() {
         "get b51 = 1", "get b52 = 1", "get b53 = bf000000 3dccccce 3e99999a 40000000",
         "get b51 = 0", "get b52 = 0", "glerr 0"]);
 }
+
+#[test]
+fn scene_ambient_channels_match_native_point_pixels() {
+    for (ambient, default, tracked) in [
+        ("1 0 0", "330000ff", "3f0000ff"),
+        ("0 1 0", "003300ff", "007f00ff"),
+        ("0 0 1", "000033ff", "0000ffff"),
+        ("1 0.5 0.25", "33190cff", "3f3f3fff"),
+    ] {
+        for (material, pixel) in [("", default), ("gl glEnable 0xb57\ngl glColor4f 0.25 0.5 1 1\n", tracked)] {
+            let input = format!("case ambient\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glDisable 0xbd0\ngl glEnable 0xb50\n{material}glp glLightModelfv i 0xb53 f {ambient} 1\ngl glBegin 0\ngl glVertex2i 0 0\ngl glEnd\nglread 7 7 2 2 0x1908 0x1401 16\nglerr\nend\n");
+            let cases = kikizake::case::parse_cases(&input);
+            let output = kikizake::model::run_case(&cases[0]).unwrap();
+            let expected = format!("read 000000ff{pixel}000000ff000000ff");
+            assert_eq!(&output[1..], [expected.as_str(), "glerr 0"], "{ambient} {material}");
+        }
+    }
+}
+
+#[test]
+fn directional_light_colors_match_native_point_pixels() {
+    for (z, pixel) in [(-1, "001900ff"), (0, "001900ff"), (1, "cc1966ff")] {
+        let input = format!("case directional\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glDisable 0xbd0\ngl glEnable 0xb50\ngl glEnable 0x4003\nglp glLightModelfv i 0xb53 f 0 0 0 1\nglp glLightfv ii 0x4003 0x1200 f 0 0.5 0 1\nglp glLightfv ii 0x4003 0x1201 f 1 0 0.5 1\nglp glLightfv ii 0x4003 0x1203 f 0 0 {z} 0\ngl glBegin 0\ngl glVertex2i 0 0\ngl glEnd\nglread 7 7 2 2 0x1908 0x1401 16\nglerr\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        let expected = format!("read 000000ff{pixel}000000ff000000ff");
+        assert_eq!(&output[1..], [expected.as_str(), "glerr 0"]);
+    }
+}

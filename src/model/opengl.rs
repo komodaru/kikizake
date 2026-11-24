@@ -2897,16 +2897,9 @@ impl Ctx {
             return c;
         }
         hit(clause::GL_LIGHTING);
-        // n . L for GL_LIGHT0, the only light whose initial diffuse is not 0: its direction
-        // (0, 0, 1) in eye coordinates, the normal through the modelview's inverse transpose
-        // (MEASURED, golden opengl-32 other-calls-8: 0.04 plus 0.8 for the normal (0, 0, 1))
-        let d = if self.cap(0x4000) {
-            let n = self.eye_normal();
-            f32::max(n[2], 0.0)
-        } else {
-            0.0
-        };
+        let normal = self.eye_normal();
         if self.pf.ty != 0 {
+            let d = if self.cap(0x4000) { normal[2].max(0.0) } else { 0.0 };
             // color index lighting (GL 1.1 2.13.5) with the initial material indices (0, 1, 1):
             // the ambient index 0 alone with no light on (MEASURED, golden opengl-32
             // other-calls-9); with GL_LIGHT0 the specular index 1 where n . L > 0, the
@@ -2916,12 +2909,23 @@ impl Ctx {
         // (the sums clamped to 0..1 at the vertex, before they are interpolated (MEASURED,
         // golden opengl-32 / 64 interp-open-9: corners of 1.2 times the color as if 1))
         let tracked = self.cap(COLOR_MATERIAL);
-        let mut lit = [1.0; 4];
-        for k in 0..3 {
-            let ambient = if tracked { c[k] } else { 0.2 };
-            let diffuse = if tracked { c[k] } else { 0.8 };
-            lit[k] = (self.scene_ambient[k] * ambient + d * diffuse).clamp(0.0, 1.0);
+        let ambient = if tracked { c } else { [0.2; 4] };
+        let diffuse = if tracked { c } else { [0.8; 4] };
+        let mut lit = std::array::from_fn(|k| self.scene_ambient[k] * ambient[k]);
+        for (i, position) in self.light_positions.iter().enumerate() {
+            if !self.cap(0x4000 + i as u32) { continue; }
+            let [x, y, z, _] = *position;
+            let length = (x * x + y * y + z * z).sqrt();
+            let cosine = if length > 0.0 {
+                ((normal[0] * x + normal[1] * y + normal[2] * z) / length).max(0.0)
+            } else { 0.0 };
+            let [light_ambient, light_diffuse, _] = self.light_colors[i];
+            for k in 0..3 {
+                lit[k] += light_ambient[k] * ambient[k] + cosine * light_diffuse[k] * diffuse[k];
+            }
         }
+        lit = lit.map(|v| v.clamp(0.0, 1.0));
+        lit[3] = 1.0;
         if tracked { lit[3] = c[3]; }
         lit
     }
