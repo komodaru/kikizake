@@ -1,4 +1,4 @@
-kikizake calls ddb-32 cases bc31e0e3adf83766 src 15fc913f0b889fe92db14c34b57e23468bd973596ddceef81f04926481d91c2c shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 17740 other 0
+kikizake calls ddb-32 cases bc31e0e3adf83766 src 8ce174b4a4697597898b690669bc202899d03bb24246ff618a554fe874ed35a5 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 17740 other 0
 case kind-0
 CreateBitmap(9,5,1,1,h0) = h1
 CreateCompatibleDC(h0) = h2

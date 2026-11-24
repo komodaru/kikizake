@@ -1,4 +1,4 @@
-kikizake calls region-32 cases 5f6cb5318a772412 src 0395a1c8045bfd359802c1f709aa78e15ab1b86ba7572fa396839d726ecec120 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 618178 other 0
+kikizake calls region-32 cases 5f6cb5318a772412 src 21994508b441cbf1c46e29b65510f83ba4a1e5fd97db8020834d0896b422e7fb shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout truncated events 618178 other 0
 case combine-0
 CreateRectRgn(10,12,20,10) = h1
 CreateRectRgn(-3,0,1,9) = h2

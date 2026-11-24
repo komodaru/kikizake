@@ -1,4 +1,4 @@
-kikizake calls pixel-64 cases 95956f70cf3c4a0f src 03310ca4c4449ff43f54abb4cb0e3bfec44a9ad1a653d071b6327d6c342ee359 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 2992 other 0
+kikizake calls pixel-64 cases 95956f70cf3c4a0f src e63cfb4f182673bfa0dfeb1fa24367914bda3f9d2377b899a9b345efe5a830b4 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 2992 other 0
 case pixel-1
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2

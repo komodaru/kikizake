@@ -1,4 +1,4 @@
-kikizake calls path-64 cases f976ad774f113035 src 6d573dd54cb982da90fce987ef3c823fe27f3f46d8e018971e31c1276db4a554 shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 54268 other 0
+kikizake calls path-64 cases f976ad774f113035 src 0fc9277d416269efc82cca5e06664200bc0cb15ee8447e07277647b5ffb056de shirusu ee0452b4e404443ad956f9cafd9f4f5be1912b2b stdout same events 54268 other 0
 case shape-0-2
 CreateCompatibleDC(h0) = h1
 CreateDIBSection(h1,p,0,p,h0,0) = h2
