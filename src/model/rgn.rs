@@ -333,7 +333,7 @@ fn normalize(mut s: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
 /// left edge lies in [left, right); ALTERNATE pairs the edges in x order, WINDING keeps the
 /// spans of nonzero winding (MEASURED, GDI.PATH.FILLFIX)
 pub fn fix_polygon_pixels(polys: &[Vec<(i32, i32)>], winding: bool) -> Rgn {
-    let mut g = fix_polygon_rows(polys, winding);
+    let mut g = fix_polygon_rows(polys, winding, i32::MIN..i32::MAX);
     // (the general converter's bound reaches the row after its edges' lowest: GDI.RGN.LOOSE)
     let ceil16 = |v: i32| v.div_euclid(16) + i32::from(v.rem_euclid(16) != 0);
     let low = polys.iter().filter(|p| p.len() >= 2).flatten().map(|q| ceil16(q.1)).max();
@@ -344,7 +344,7 @@ pub fn fix_polygon_pixels(polys: &[Vec<(i32, i32)>], winding: bool) -> Rgn {
     g
 }
 
-fn fix_polygon_rows(polys: &[Vec<(i32, i32)>], winding: bool) -> Rgn {
+pub(super) fn fix_polygon_rows(polys: &[Vec<(i32, i32)>], winding: bool, rows_to_draw: std::ops::Range<i32>) -> Rgn {
     let edges: Vec<((i64, i64), (i64, i64))> = polys
         .iter()
         .filter(|p| p.len() >= 2)
@@ -357,7 +357,9 @@ fn fix_polygon_rows(polys: &[Vec<(i32, i32)>], winding: bool) -> Rgn {
     // ceil(n / d) for d > 0
     let ceil = |n: i64, d: i64| n.div_euclid(d) + i64::from(n.rem_euclid(d) != 0);
     let mut rows = Vec::new();
-    for y in lo.div_euclid(16)..=hi.div_euclid(16) + 1 {
+    let first = lo.div_euclid(16).max(i64::from(rows_to_draw.start));
+    let end = hi.div_euclid(16).saturating_add(2).min(i64::from(rows_to_draw.end));
+    for y in first..end {
         let yc = y * 16;
         // (the first pixel whose left edge is at or right of the crossing, the edge's direction)
         let mut xs: Vec<(i64, i32)> = Vec::new();

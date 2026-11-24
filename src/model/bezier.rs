@@ -74,14 +74,14 @@ impl Basis {
 }
 
 /// the points (28.4) after the first that flatten the Bézier p (28.4), the last being p[3]'s;
-/// None for a curve the 32 bit flattener does not take
+/// large curves use a coarse subdivision before their final flattening
 pub fn flatten(p: [(i32, i32); 4]) -> Option<Vec<(i32, i32)>> {
     // (relative to the bound box, one pixel loose, as the flattener works)
     let left = i128::from(p.iter().map(|q| q.0).min().unwrap_or(0)) - 16;
     let top = i128::from(p.iter().map(|q| q.1).min().unwrap_or(0)) - 16;
     let (px, py) = (p.map(|q| i128::from(q.0) - left), p.map(|q| i128::from(q.1) - top));
     if px.iter().chain(py.iter()).any(|&v| v >= MAX_SIZE) {
-        return None;
+        return Some(flatten_large(p));
     }
     let mut x = Basis::new(px);
     let mut y = Basis::new(py);
@@ -119,4 +119,38 @@ pub fn flatten(p: [(i32, i32); 4]) -> Option<Vec<(i32, i32)>> {
         x.step();
         y.step();
     }
+}
+
+
+/// Subdivide in 36.28, rebuilding the controls in 28.4 between the two passes.
+fn flatten_large(p: [(i32, i32); 4]) -> Vec<(i32, i32)> {
+    type Point = [i128; 2];
+    fn visit(p: [Point; 4], coarse: bool, out: &mut Vec<(i32, i32)>) {
+        let limit = if coarse { 196608_i128 << 28 } else { 4_i128 << 32 };
+        let bend = |a: Point, b: Point, c: Point| {
+            a.into_iter().zip(b).zip(c).map(|((start, middle), end)| {
+                start.saturating_sub(middle).saturating_add(end.saturating_sub(middle)).saturating_abs().saturating_mul(6)
+            }).max().unwrap_or(0)
+        };
+        let round = |v: i128| v.saturating_add(1_i128 << 27) >> 28;
+        if bend(p[0], p[1], p[2]).max(bend(p[1], p[2], p[3])) <= limit {
+            if coarse {
+                visit(p.map(|q| q.map(|v| round(v) << 28)), false, out);
+            } else {
+                let [x, y] = p[3].map(|v| i32::try_from(round(v)).unwrap_or(i32::MAX));
+                out.push((x, y));
+            }
+            return;
+        }
+        let mid = |a: Point, b: Point| [a[0].saturating_add(b[0]) >> 1, a[1].saturating_add(b[1]) >> 1];
+        let [a, b, c, d] = p;
+        let (ab, bc, cd) = (mid(a,b), mid(b,c), mid(c,d));
+        let (left, right) = (mid(ab,bc), mid(bc,cd));
+        let center = mid(left,right);
+        visit([a,ab,left,center], coarse, out);
+        visit([center,right,cd,d], coarse, out);
+    }
+    let mut out = Vec::new();
+    visit(p.map(|(x,y)| [i128::from(x) << 28, i128::from(y) << 28]), true, &mut out);
+    out
 }

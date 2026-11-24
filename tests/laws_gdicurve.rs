@@ -340,3 +340,16 @@ proptest::proptest! {
         proptest::prop_assert_eq!(&output[7..], expected.as_slice());
     }
 }
+
+#[test]
+fn large_flattened_ellipse_matches_windows_point_stream() {
+    let text = "case narrow\ndib 0 8 8 8\nbeginpath 0\nellipse 0 2 1 134217735 6\nendpath 0\nflatten 0\ngetpath 0\nend";
+    let cases = kikizake::case::parse_cases(text);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    let points = output.iter().filter(|s| s.starts_with("pt ")).collect::<Vec<_>>();
+    assert_eq!(points.len(), 29805);
+    // FNV-1a of the newline-terminated GetPath point records from Windows x86 and x64.
+    let digest = points.iter().flat_map(|s| s.bytes().chain([b'\n'])).fold(
+        0xcbf29ce484222325u64, |hash, byte| (hash ^ u64::from(byte)).wrapping_mul(1099511628211));
+    assert_eq!(digest, 0x5e2316cb2ef5798);
+}

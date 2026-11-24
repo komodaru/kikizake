@@ -334,11 +334,6 @@ pub fn ellipse_shape(sl: &mut Slot, a: (i32, i32), b: (i32, i32), filled: bool) 
         // A zero device extent or exactly half the 28.4 period produces no figure.
         return Ok(());
     };
-    // Wrapping a logical endpoint by 2^28 can put the whole curve back on the DIB.
-    // Check the resulting control points before handing it to the 32-bit flattener.
-    if c.iter().any(|&(x, y)| !(-(1 << 30)..1 << 30).contains(&x) || !(-(1 << 30)..1 << 30).contains(&y)) {
-        return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE));
-    }
     let mut p = vec![Pt::fix(c[0], Kind::Move)];
     for q in &c[1..] {
         p.push(Pt::fix(*q, Kind::Bezier));
@@ -372,7 +367,7 @@ fn draw_shape(sl: &mut Slot, p: &[Pt], filled: bool) -> Res<()> {
         return stroke(sl, p);
     }
     let figs = figures(p)?;
-    for q in super::rgn::fix_polygon_pixels(&figs, sl.ext.polyfill == 2).rects() {
+    for q in super::rgn::fix_polygon_rows(&figs, sl.ext.polyfill == 2, 0..sl.s.h).rects() {
         sl.fill_shape(q.0, q.1, q.2, q.3)?;
     }
     for f in &figs {

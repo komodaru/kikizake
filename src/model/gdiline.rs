@@ -228,6 +228,10 @@ impl Slot {
     /// a line between 28.4 points with the pen (GDI.LINE.GIQ)
     pub fn line_fix(&mut self, a: Fix28, b: Fix28) -> Res<()> {
         if let Some(v) = self.pen_value()? {
+            if a.0.max(b.0) < -16 || a.1.max(b.1) < -16
+                || a.0.min(b.0) > i64::from(self.s.w).saturating_mul(16) || a.1.min(b.1) > i64::from(self.s.h).saturating_mul(16) {
+                return Ok(());
+            }
             let Some(px) = giq_pixels(a, b) else { return Err(Fail::Bad) };
             for (x, y) in px {
                 self.plot(x, y, v);

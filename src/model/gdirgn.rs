@@ -89,9 +89,9 @@ pub fn round_rect(r: (i32, i32, i32, i32), w: i32, h: i32) -> Res<Rgn> {
     let (fx, fy) = if hx == 0.0 || hy == 0.0 {
         (0.0f32, 0.0f32)
     } else {
-        // (|i32::MIN| stays negative, as GDI's)
+        // The magnitude of LONG_MIN exceeds either corner extent and clamps to the box.
         let f = |v: i32, d: f32| {
-            let s = v.wrapping_abs() as f32 / d;
+            let s = v.unsigned_abs() as f32 / d;
             if s > 2.0 { 1.0 } else { s * 0.5 }
         };
         (f(w, hx), f(h, hy))
