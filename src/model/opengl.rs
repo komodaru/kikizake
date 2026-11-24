@@ -1123,15 +1123,16 @@ crate::model::words! {
 
 /// WGL operations on the executor's current bitmap DC.
 /// Monochrome glyphs measured with the runner's -12 pixel Arial and generic DIB.
-fn wgl_bitmap_line(code: i32) -> Res<list::Line> {
-    let args = match code {
-        32 => "0 0 0 0 3 0 null",
-        65 => "7 9 0 0 7 0 ub 130 130 68 124 68 40 40 40 16",
-        66 => "6 9 -1 0 8 0 ub 248 132 132 132 252 132 132 132 248",
-        67 => "7 9 -1 0 9 0 ub 56 68 130 128 128 128 130 68 56",
-        12354 => "8 11 -1 2 9 0 ub 204 34 17 49 169 170 124 32 254 32 32",
+fn wgl_bitmap_line(code: i32, encoding: &str) -> Res<list::Line> {
+    // Unicode byte range, ANSI code-page overrides, then the two measured kana.
+    let index = match code {
+        128..=159 if encoding == "a" => code + 128,
+        0..=255 => code,
+        12354..=12355 if encoding == "w" => code - 12354 + 288,
         _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
     };
+    let args = include_str!("opengl_arial_bitmap.txt").lines()
+        .nth(usize::try_from(index).map_err(|_| Fail::Bad)?).ok_or(Fail::Bad)?;
     let tok = ["glp", "glBitmap", "iiffff"].into_iter().chain(args.split_whitespace())
         .map(String::from).collect();
     Ok(list::Line { tok, unpack: Some([0, 0, 0, 0, 0, 1]), arrays: None })
@@ -1180,7 +1181,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                     let mut lines = Vec::new();
                     for offset in 0..count {
                         let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
-                        lines.push((base + offset.cast_unsigned(), vec![wgl_bitmap_line(code)?]));
+                        lines.push((base + offset.cast_unsigned(), vec![wgl_bitmap_line(code, encoding)?]));
                     }
                     ctx.lists.lists.extend(lines);
                     "1 0".into()

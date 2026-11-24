@@ -1731,3 +1731,24 @@ fn wgl_bitmap_lists_draw_and_advance_like_windows() {
         assert_eq!(output.last().unwrap(), pixels);
     }
 }
+
+#[test]
+fn wgl_byte_range_bitmaps_match_native_pixels_and_positions() {
+    // FNV-1a of the raster-position and RGBA readback lines from both Windows runners.
+    let mut digest = 2166136261u32;
+    for encoding in ["a", "w"] {
+        for code in (0..256).chain((12354..=12355).filter(|_| encoding == "w")) {
+            let input = format!("case glyph\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMatrixMode 0x1701\ngl glLoadIdentity\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700\ngl glRasterPos2i 2 4\nwglx fontbmp {encoding} {code} 1 100\ngl glCallList 100\nglget f 0xb07 4\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\nend\n");
+            let cases = kikizake::case::parse_cases(&input);
+            let output = kikizake::model::run_case(&cases[0]).unwrap();
+            assert_eq!(output[1], "wglx fontbmp 1 0");
+            assert_eq!(output[4], "glerr 0");
+            for line in &output[2..4] {
+                for byte in line.bytes().chain([b'\n']) {
+                    digest = (digest ^ u32::from(byte)).wrapping_mul(16777619);
+                }
+            }
+        }
+    }
+    assert_eq!(digest, 0xb452b9f8);
+}
