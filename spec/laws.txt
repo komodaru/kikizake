@@ -867,3 +867,11 @@ tests/laws_opengl.rs::bitmap_every_byte_in_both_orders exhaustive GL.BITMAP
 tests/laws_opengl.rs::bitmap_unpack_skip_and_width pbt GL.BITMAP
 tests/laws_opengl.rs::copy_pixels_every_overlapping_byte exhaustive GL.COPYPIXELS
 tests/laws_opengl.rs::copy_pixels_region_uses_original_source pbt GL.COPYPIXELS
+tests/laws_gdicurve.rs::empty_box_preserves_open_figure pbt GDI.PATH.EMPTYBOX
+spec/tla/GdiPathEmpty.tla::EmptyNext tla GDI.PATH.EMPTYBOX
+src/proofs.rs::mapped_ellipse_coordinate_conversions kani GDI.PATH.ELLIPSEMAP
+tests/laws_gdicurve.rs::mapped_ellipse_returns_logical_control_points pbt GDI.PATH.ELLIPSEMAP
+src/proofs.rs::polygon_notcopy_uses_packed_brush_word kani GDI.SHAPE.POLYNOTCOPY
+tests/laws_opengl.rs::filled_rectangle_obeys_enabled_clip_planes pbt GL.CLIPPLANE
+src/proofs.rs::clip_plane_triangle_preserves_edge_interpolants kani GL.CLIPPLANE
+src/proofs.rs::clip_line_classifies_both_ends kani GL.CLIPPLANE

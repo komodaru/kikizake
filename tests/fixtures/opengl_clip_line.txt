@@ -1,0 +1,25 @@
+case clip-line
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+glp glClipPlane i 0x3002 d 1 0 0 -2.5
+glp glClipPlane i 0x3005 d -1 0 0 6.5
+gl glEnable 0x3002
+gl glEnable 0x3005
+gl glClear 0x4000
+gl glBegin 1
+gl glColor3f 1 0 0
+gl glVertex2f 0.5 1.5
+gl glColor3f 0 0 1
+gl glVertex2f 8.5 1.5
+gl glVertex2f 8.5 2.5
+gl glColor3f 1 0 0
+gl glVertex2f 0.5 2.5
+gl glVertex2f 0.5 3.5
+gl glVertex2f 1.5 3.5
+gl glEnd
+glread 0 1 9 3 0x1908 0x1401 108
+glerr
+end

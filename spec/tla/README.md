@@ -23,6 +23,7 @@ differently. So a model that breaks a clause on any short sequence fails, withou
 | GdiDdb | CreateBitmap, CreateCompatibleBitmap and their failures, GetObject, GetBitmapBits, GetDeviceCaps, GetObjectType, BitBlt between monochrome and color DDBs (GDI.DDB.*) | 219,661 (3) |
 | GdiBlit | AlphaBlend, TransparentBlt, MaskBlt, PlgBlt: refusals and pixels (GDI.ALPHA.*, GDI.TRANS.*, GDI.MASK.*, GDI.PLG.*) on a 4 by 2 32 bpp DIB | 87,165 (3) |
 | GdiText | SetTextAlign, SetTextCharacterExtra, ExtTextOut's opaque rectangle without characters (GDI.TEXT.ALIGN, EXTRA, NOTEXT, OPAQUE, OPAQUEORDER) | 65,641 (3) |
+| GdiPathEmpty | zero-width and zero-height shapes in an open path, current position and GetPath readback (GDI.PATH.EMPTYBOX) | 3,278 (4) |
 | GdiPathFill | FlattenPath, StrokePath, FillPath, StrokeAndFillPath, PathToRegion, SelectClipPath of whole figures (GDI.PATH.FLATTEN, STROKE, NOPATH, FILL, EMPTYFILL), Polygon (GDI.SHAPE.POLYFILL) on a 3 by 3 8 bpp DIB | 195,565 (4) |
 | GdiWarm | LPtoDP / DPtoLP on 32-bit Windows after LPtoDP, ModifyWorldTransform, SetWorldTransform and mapping changes; MM_ISOTROPIC points; extents of 0 (GDI.MAP.ROUNDX86, GDI.XFORM.WARMX86, GDI.MAP.ISOLP, GDI.MAP.ZEROEXT): integer page rule, world entries k / 32 exact in f32 | 346,178 (4) |
 | GdiDibits | GetDIBits and SetDIBits between 16 (5-5-5, 5-6-5), 24 and 32 bpp bitmaps and DIBs (and 8 bpp DIBs) (GDI.DIBITS.GET, GET16, SET) | 266,305 (3) |

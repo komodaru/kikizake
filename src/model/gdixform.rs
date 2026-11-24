@@ -38,6 +38,14 @@ impl Default for Map {
 }
 
 impl Map {
+    /// With these extents GetPath reports device 28.4 coordinates in logical units.
+    pub fn path_sixteenths(&self) -> bool {
+        let (x, y) = self.ve();
+        self.mode == 8 && self.gmode == 1 && self.world == IDENTITY
+            && self.worg == (0, 0) && self.vorg == (0, 0) && x > 0 && y > 0
+            && (x.checked_mul(16), y.checked_mul(16)) == (Some(self.wext.0), Some(self.wext.1))
+    }
+
     pub fn identity(&self) -> bool {
         self.wext == self.ve() && self.worg == self.vorg && self.world == IDENTITY
     }

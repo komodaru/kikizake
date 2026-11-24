@@ -228,6 +228,10 @@ impl Slot {
     /// a line between 28.4 points with the pen (GDI.LINE.GIQ)
     pub fn line_fix(&mut self, a: Fix28, b: Fix28) -> Res<()> {
         if let Some(v) = self.pen_value()? {
+            if a.0.max(b.0) < -16 || a.1.max(b.1) < -16
+                || a.0.min(b.0) > i64::from(self.s.w).saturating_mul(16) || a.1.min(b.1) > i64::from(self.s.h).saturating_mul(16) {
+                return Ok(());
+            }
             let Some(px) = giq_pixels(a, b) else { return Err(Fail::Bad) };
             for (x, y) in px {
                 self.plot(x, y, v);
@@ -237,13 +241,13 @@ impl Slot {
     }
     /// the brush over [l, r) x [t, b) with PATCOPY through the clip region
     pub fn fill_rect(&mut self, l: i32, t: i32, r: i32, b: i32) -> Res<()> {
-        self.fill_with(l, t, r, b, 13)
+        self.fill_with(l, t, r, b, 13, false)
     }
     /// the brush over [l, r) x [t, b) through the DC's ROP2 (a shape's interior)
     pub fn fill_shape(&mut self, l: i32, t: i32, r: i32, b: i32) -> Res<()> {
-        self.fill_with(l, t, r, b, self.ext.rop2)
+        self.fill_with(l, t, r, b, self.ext.rop2, false)
     }
-    fn fill_with(&mut self, l: i32, t: i32, r: i32, b: i32, rop: i64) -> Res<()> {
+    fn fill_with(&mut self, l: i32, t: i32, r: i32, b: i32, rop: i64, polygon: bool) -> Res<()> {
         let v = match &self.brush {
             Brush::Solid(c) => self.s.from_rgb(*c),
             Brush::Null => return Ok(()),
@@ -254,12 +258,28 @@ impl Slot {
             for x in l.max(0)..r.min(self.s.w) {
                 if self.visible(x, y) {
                     let d = self.s.get(x, y);
-                    self.s.set(x, y, rop2(rop, v, d) & m);
+                    let source = if polygon && rop == 4 {
+                        hit(clause::GDI_SHAPE_POLYNOTCOPY);
+                        polygon_notcopy_source(self.s.bpp, x, v)
+                    } else { v };
+                    self.s.set(x, y, rop2(rop, source, d) & m);
                 }
             }
         }
         Ok(())
     }
+}
+
+/// Polygon's R2_NOTCOPYPEN spans use the brush value in the low bits of a DWORD.
+pub fn polygon_notcopy_source(bpp: u32, x: i32, brush: u32) -> u32 {
+    let selected = match bpp {
+        1 => x.rem_euclid(32) == 7,
+        4 => x.rem_euclid(8) == 1,
+        8 => x.rem_euclid(4) == 0,
+        16 => x.rem_euclid(2) == 0,
+        _ => true,
+    };
+    if selected { brush } else { 0 }
 }
 
 pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
@@ -271,6 +291,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     super::gdi::get(&g.slots, k)?;
     let sl = filled_mut(&mut g.slots, k as usize)?;
     if sl.ext.mapped() && !matches!(t0, "pen" | "extpen" | "rop2" | "polyfill" | "arcdir" | "moveto" | "getpos") {
+        if t0 == "ellipse" && sl.ext.map.path_sixteenths() && matches!(sl.ext.path, super::gdipath::Path::Open(_)) {
+            super::gdipath::record(sl, op, out)?;
+            return Ok(true);
+        }
         if !matches!(sl.ext.path, super::gdipath::Path::None) {
             return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
         }
@@ -502,7 +526,7 @@ fn op_device(g: &mut Gdi, k: i64, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             hit(clause::GDI_SHAPE_POLYFILL);
             let r = super::rgn::polygon_pixels(&[p.clone()], sl.ext.polyfill == 2);
             for (l, t, rr, b) in r.rects() {
-                sl.fill_shape(l, t, rr, b)?;
+                sl.fill_with(l, t, rr, b, sl.ext.rop2, true)?;
             }
             for i in 0..p.len() {
                 sl.line(p[i], p[(i + 1) % p.len()])?;

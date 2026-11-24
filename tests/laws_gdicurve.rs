@@ -286,3 +286,70 @@ fn ellipse_and_round_rect_read_back_rounded() {
         }
     }
 }
+
+proptest::proptest! {
+    #[test]
+    fn empty_box_preserves_open_figure(x in proptest::prelude::any::<i16>(),
+        y in proptest::prelude::any::<i16>(), end in proptest::prelude::any::<i16>(),
+        vertical in proptest::prelude::any::<bool>(), clockwise in 1u8..=2) {
+        let (r, b) = if vertical { (x, end) } else { (end, y) };
+        for (shape, args) in [("rectangle", ""), ("ellipse", ""), ("roundrect", " 0 5"),
+            ("roundrect", " -2 4"), ("arc", " 1 2 3 4"), ("arcto", " 1 2 3 4"),
+            ("pie", " 1 2 3 4"), ("chord", " 1 2 3 4")] {
+            let text = format!("case empty\ndib 0 8 8 8\narcdir 0 {clockwise}\nbeginpath 0\n\
+                moveto 0 0 1\nlineto 0 3 4\n{shape} 0 {x} {y} {r} {b}{args}\ngetpos 0\n\
+                endpath 0\ngetpath 0\nend");
+            let cases = kikizake::case::parse_cases(&text);
+            let output = kikizake::model::run_case(&cases[0]).unwrap();
+            proptest::prop_assert_eq!(output, ["arcdir 1", "beginpath 1", "pos 0 0", "ret 1", "ret 1",
+                "pos 3 4", "endpath 1", "path 2", "pt 0 1 6", "pt 3 4 2"]);
+        }
+    }
+}
+
+#[test]
+fn empty_closed_path_result_depends_on_consumer() {
+    for (op, result) in [("fillpath 0", "fillpath 1"), ("strokefill 0", "strokefill 1"),
+        ("strokepath 0", "strokepath 1"), ("pathrgn 0 1", "pathrgn 0"), ("selclippath 0 5", "selclippath 0")] {
+        let text = format!("case empty\ndib 0 8 8 8\nbeginpath 0\nendpath 0\ngetpath 0\n{op}\ngetpath 0\nend");
+        let cases = kikizake::case::parse_cases(&text);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(output, ["beginpath 1", "endpath 1", "path 0", result, "path -1"]);
+    }
+}
+
+proptest::proptest! {
+    #[test]
+    fn mapped_ellipse_returns_logical_control_points(box_ in proptest::prelude::any::<[i32; 4]>(),
+        clockwise in proptest::prelude::any::<bool>()) {
+        let [l, t, r, b] = box_;
+        let direction = if clockwise { 2 } else { 1 };
+        let text = format!("case mapped\ndib 0 8 8 8\nmapmode 0 8\nwinext 0 16 16\nvpext 0 1 1\n\
+            arcdir 0 {direction}\nbeginpath 0\nellipse 0 {l} {t} {r} {b}\nendpath 0\ngetpath 0\nend");
+        let cases = kikizake::case::parse_cases(&text);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        let pixel = |v: i32| (((v as f32) as i64) + 8).div_euclid(16);
+        let figure = ellipse(pixel(l.min(r)), pixel(t.min(b)), pixel(l.max(r)), pixel(t.max(b)), clockwise)
+            .unwrap_or_default();
+        let mut expected = vec![format!("path {}", figure.len())];
+        for (i, &(x, y)) in figure.iter().enumerate() {
+            let kind = if i == 0 { 6 } else if i + 1 == figure.len() { 5 } else { 4 };
+            let logical = |v: i64| w32((v as f32) as i64);
+            expected.push(format!("pt {} {} {kind}", logical(x), logical(y)));
+        }
+        proptest::prop_assert_eq!(&output[7..], expected.as_slice());
+    }
+}
+
+#[test]
+fn large_flattened_ellipse_matches_windows_point_stream() {
+    let text = "case narrow\ndib 0 8 8 8\nbeginpath 0\nellipse 0 2 1 134217735 6\nendpath 0\nflatten 0\ngetpath 0\nend";
+    let cases = kikizake::case::parse_cases(text);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    let points = output.iter().filter(|s| s.starts_with("pt ")).collect::<Vec<_>>();
+    assert_eq!(points.len(), 29805);
+    // FNV-1a of the newline-terminated GetPath point records from Windows x86 and x64.
+    let digest = points.iter().flat_map(|s| s.bytes().chain([b'\n'])).fold(
+        0xcbf29ce484222325u64, |hash, byte| (hash ^ u64::from(byte)).wrapping_mul(1099511628211));
+    assert_eq!(digest, 0x5e2316cb2ef5798);
+}

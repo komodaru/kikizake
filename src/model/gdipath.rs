@@ -189,10 +189,13 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             }
             out.push("ret 1".into());
         }
-        "roundrect" if pts.len() == 3 && (pts[2].0 == 0 || pts[2].1 == 0) && (pts[0].0 == pts[1].0 || pts[0].1 == pts[1].1) => {
-            // (an empty box with a corner 0 wide or high: a figure FillPath takes, filling
-            // nothing, curve-33; its points not measured)
-            return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
+        "rectangle" | "ellipse" | "roundrect" | "arc" | "arcto" | "pie" | "chord"
+            if matches!(pts.as_slice(), [a, b, ..] if a.0 == b.0 || a.1 == b.1) => {
+            let expected = match t0 { "rectangle" | "ellipse" => 2, "roundrect" => 3, _ => 4 };
+            if pts.len() != expected { return Err(Fail::Bad); }
+            // Both arc directions and reversed endpoints leave even an open figure intact.
+            hit(clause::GDI_PATH_EMPTYBOX);
+            out.push("ret 1".into());
         }
         "rectangle" | "roundrect" if t0 == "rectangle" || (pts.len() == 3 && (pts[2].0 == 0 || pts[2].1 == 0)) => {
             // (RoundRect with a corner 0 wide or high is Rectangle: MEASURED, arcpath-25/48/90)
@@ -208,20 +211,15 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             close(p);
             out.push("ret 1".into());
         }
-        "roundrect" if pts.len() == 3 && (pts[0].0 == pts[1].0 || pts[0].1 == pts[1].1) => {
-            // MEASURED (curve-158, arcpath-85): an empty box records nothing, the call succeeds
-            hit(clause::GDI_PATH_ROUNDFLAT);
-            out.push("ret 1".into());
-        }
         "ellipse" => {
-            let [a, b] = pts[..] else { return Err(Fail::Bad) };
+            let [mut a, mut b] = pts[..] else { return Err(Fail::Bad) };
+            if sl.ext.map.path_sixteenths() {
+                hit(clause::GDI_PATH_ELLIPSEMAP);
+                a = (sixteenths_to_pixel(a.0), sixteenths_to_pixel(a.1));
+                b = (sixteenths_to_pixel(b.0), sixteenths_to_pixel(b.1));
+            }
             let (l, r) = (a.0.min(b.0), a.0.max(b.0));
             let (t, bt) = (a.1.min(b.1), a.1.max(b.1));
-            if r == l || bt == t {
-                // (an empty box: FillPath and StrokeAndFillPath succeed over it drawing nothing,
-                // curve-57 curve-63; its figure not measured)
-                return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
-            }
             // MEASURED: four Béziers in 28.4 around (l, t) - (r - 1, b - 1), from the right
             // end of the middle row, counterclockwise (upwards) or, with AD_CLOCKWISE,
             // clockwise; each control point the radius times 1 - 4/3 (sqrt 2 - 1) in from the
@@ -261,7 +259,7 @@ pub fn record(sl: &mut Slot, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             hit(clause::GDI_PATH_ARC);
             let Some(arc) = super::gdiarc::arc((l, t, r, bt), rs, re, sl.ext.arcdir == 2) else {
                 if t0 != "arc" {
-                    // (ArcTo, Pie and Chord of an empty box: not measured)
+                    // Degenerate transformed axes of a nonempty logical box.
                     return Err(Fail::Unmodeled(open::GDI_PATH_CURVE));
                 }
                 // MEASURED (curve-24, curve-30): an empty box records nothing, the call succeeds
@@ -331,16 +329,11 @@ fn stroke(sl: &mut Slot, p: &[Pt]) -> Res<()> {
 pub fn ellipse_shape(sl: &mut Slot, a: (i32, i32), b: (i32, i32), filled: bool) -> Res<()> {
     let (l, r) = (a.0.min(b.0), a.0.max(b.0));
     let (t, bt) = (a.1.min(b.1), a.1.max(b.1));
-    if r == l || bt == t || ((a.0 > b.0 || a.1 > b.1) && (r - l < 2 || bt - t < 2)) {
-        // (empty boxes, and inverted boxes one pixel thin (random-34): not measured outside a path)
-        return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE));
-    }
-    // (a box past the 28.4 range: not measured outside a path)
-    let c = match ellipse_points(l, t, r, bt, false) {
-        Some(c) if (-(1 << 26)..1 << 26).contains(&l) && (-(1 << 26)..1 << 26).contains(&r) && (-(1 << 26)..1 << 26).contains(&t) && (-(1 << 26)..1 << 26).contains(&bt) => c,
-        Some(_) | None => return Err(Fail::Unmodeled(open::GDI_SHAPE_CURVE)),
-    };
     hit(clause::GDI_SHAPE_ELLIPSEPEN);
+    let Some(c) = ellipse_points(l, t, r, bt, false) else {
+        // A zero device extent or exactly half the 28.4 period produces no figure.
+        return Ok(());
+    };
     let mut p = vec![Pt::fix(c[0], Kind::Move)];
     for q in &c[1..] {
         p.push(Pt::fix(*q, Kind::Bezier));
@@ -374,7 +367,7 @@ fn draw_shape(sl: &mut Slot, p: &[Pt], filled: bool) -> Res<()> {
         return stroke(sl, p);
     }
     let figs = figures(p)?;
-    for q in super::rgn::fix_polygon_pixels(&figs, sl.ext.polyfill == 2).rects() {
+    for q in super::rgn::fix_polygon_rows(&figs, sl.ext.polyfill == 2, 0..sl.s.h).rects() {
         sl.fill_shape(q.0, q.1, q.2, q.3)?;
     }
     for f in &figs {
@@ -411,6 +404,29 @@ pub fn inset_ceil(v: i32, q: i32) -> i32 {
 fn signed_inset(v: i32, up: bool) -> i32 {
     let floor = if v >= 0 { inset_floor(v, 6) } else { inset_floor(v.saturating_neg(), 6).saturating_add(1).saturating_neg() };
     floor.saturating_add(i32::from(up && v != 0))
+}
+
+/// Round an integer to binary32 precision. The largest positive result is 2^31.
+fn single_precision_integer(v: i32) -> i64 {
+    let shift = v.unsigned_abs().checked_ilog2().unwrap_or(0).saturating_sub(23);
+    let step = 1_i64 << shift;
+    let magnitude = i64::from(v.unsigned_abs());
+    let q = magnitude / step;
+    let remainder = magnitude % step;
+    let up = remainder.saturating_mul(2) > step || (remainder.saturating_mul(2) == step && q % 2 == 1);
+    let rounded = q.saturating_add(i64::from(up)).saturating_mul(step);
+    if v < 0 { rounded.saturating_neg() } else { rounded }
+}
+
+/// GM_COMPATIBLE first rounds both corners to whole device pixels, halves up.
+pub fn sixteenths_to_pixel(v: i32) -> i32 {
+    i32::try_from(single_precision_integer(v).saturating_add(8).div_euclid(16))
+        .unwrap_or(i32::MAX)
+}
+
+/// GetPath converts a device 28.4 component back to the logical LONG.
+pub fn sixteenths_to_logical(v: i32) -> i32 {
+    i32::try_from(single_precision_integer(v)).unwrap_or(i32::MIN)
 }
 
 /// one axis of Ellipse's box in 28.4 (MEASURED, GDI.PATH.ELLIPSE, path ellipsewrap-*
@@ -549,7 +565,8 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
     };
     let k = n(op, 1)?;
     let sl = g.slots.get_mut(k as usize).and_then(|s| s.as_mut()).ok_or(Fail::Bad)?;
-    if sl.ext.mapped() {
+    let sixteenths = sl.ext.map.path_sixteenths();
+    if sl.ext.mapped() && !(sixteenths && matches!(cmd, PathOp::Beginpath | PathOp::Endpath | PathOp::Getpath | PathOp::Abortpath)) {
         return Err(Fail::Unmodeled(open::GDI_MAP_DRAW));
     }
     let path = &mut sl.ext.path;
@@ -621,7 +638,13 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
                 Path::Closed(p) => {
                     out.push(format!("path {}", p.len()));
                     for q in p.iter() {
-                        out.push(format!("pt {} {} {}", q.x.round(), q.y.round(), q.ty()));
+                        let logical = |v: Fix| {
+                            if sixteenths {
+                                // A rounded positive 2^31 has LONG's 0x80000000 bit pattern.
+                                sixteenths_to_logical(v.0)
+                            } else { v.round() }
+                        };
+                        out.push(format!("pt {} {} {}", logical(q.x), logical(q.y), q.ty()));
                     }
                 }
                 _ => out.push("path -1".into()),
@@ -657,9 +680,10 @@ pub fn op(g: &mut Gdi, op: &Op, out: &mut Vec<String>) -> Res<bool> {
             let Path::Closed(p) = std::mem::take(path) else { unreachable!() };
             let figs = figures(&p)?;
             if figs.is_empty() {
-                // MEASURED: an empty path fails too, and is discarded
+                // The drawing calls consume an empty closed path successfully. Region conversion fails.
                 hit(clause::GDI_PATH_EMPTYFILL);
-                out.push(format!("{t0} 0"));
+                let drawn = matches!(cmd, PathOp::Fillpath | PathOp::Strokefill);
+                out.push(format!("{t0} {}", u8::from(drawn)));
                 return Ok(true);
             }
             // MEASURED: the interior is CreatePolygonRgn's region of the figures (each closed) in

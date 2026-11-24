@@ -1420,3 +1420,70 @@ proptest! {
         prop_assert_eq!(actual, expected);
     }
 }
+
+#[test]
+fn clip_plane_equations_match_windows() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_clip_state.txt"));
+    assert_eq!(cases.len(), 18);
+    for case in cases {
+        let result = kikizake::model::run_case(&case).unwrap();
+        let equation = if case.name.ends_with("-scaled") {
+            "q 0.5 2 -2 3 -12345"
+        } else {
+            "q 1 8 -16 3 -12345"
+        };
+        assert_eq!(&result[1..], ["q 0 0 0 0 -12345", equation, "glerr 0"], "{}", case.name);
+    }
+}
+
+proptest! {
+    #[test]
+    fn filled_rectangle_obeys_enabled_clip_planes(slot in 0u32..6, xcut in 0i32..=8, ycut in 0i32..=8, mask in 0u8..4) {
+        let xplane = 0x3000 + slot;
+        let yplane = 0x3000 + (slot + 1) % 6;
+        let enable_x = if mask & 1 != 0 { format!("gl glEnable {xplane}\n") } else { String::new() };
+        let enable_y = if mask & 2 != 0 { format!("gl glEnable {yplane}\n") } else { String::new() };
+        let text = format!("case clip\nglctx 32 choose 0x38 0 32 0 0 32 8\n\
+            gl glMatrixMode 0x1701\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700\n\
+            glp glClipPlane i {xplane} d 1 0 0 {}\nglp glClipPlane i {yplane} d 0 1 0 {}\n\
+            {enable_x}{enable_y}gl glClear 0x4000\ngl glRectf 0 0 8 8\n\
+            glread 0 0 8 8 0x1908 0x1401 256\nglerr\nend\n", -xcut, -ycut);
+        let cases = kikizake::case::parse_cases(&text);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        let mut read = String::from("read ");
+        for y in 0..8 {
+            for x in 0..8 {
+                let inside = (mask & 1 == 0 || x >= xcut) && (mask & 2 == 0 || y >= ycut);
+                read.push_str(if inside { "ffffffff" } else { "000000ff" });
+            }
+        }
+        prop_assert_eq!(&output[1..], [read.as_str(), "glerr 0"]);
+    }
+}
+
+#[test]
+fn point_and_raster_position_include_the_clip_boundary() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_clip_point.txt"));
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["get b08 = 0", "get b08 = 1", "get b08 = 1", "read 000000ffffffffffffffffff", "glerr 0"]);
+}
+
+#[test]
+fn crossing_lines_match_windows_in_both_directions() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_clip_line.txt"));
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    let pixels = concat!("read ", "000000ff000000ffbf003fff9f005fff7f007fff5f009fff000000ff000000ff000000ff",
+        "000000ff000000ff000000ff9f005fff7f007fff5f009fff3f00bfff000000ff000000ff",
+        "000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff");
+    assert_eq!(&output[1..], [pixels, "glerr 0"]);
+}
+
+#[test]
+fn clipped_polygon_draws_new_corners_and_edge() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_clip_outline.txt"));
+    let reads = ["read ffffffff000000ff000000ff000000ffffffffff000000ff", "read ffffffffffffffffffffffffffffffffffffffff000000ff"];
+    for (case, read) in zip_eq(&cases, reads) {
+        let output = kikizake::model::run_case(case).unwrap();
+        assert_eq!(&output[1..], [read, "glerr 0"], "{}", case.name);
+    }
+}

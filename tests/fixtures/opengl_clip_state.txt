@@ -1,0 +1,174 @@
+case clip-0-identity
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12288 d 5
+glp glClipPlane i 12288 d 1 2 3 4
+glp glClipPlane i 12288 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12288 d 5
+glerr
+end
+case clip-0-scaled
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12288 d 5
+glp glClipPlane i 12288 d 1 2 3 4
+gl glScalef 2 4 8
+glp glClipPlane i 12288 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12288 d 5
+glerr
+end
+case clip-0-singular
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12288 d 5
+glp glClipPlane i 12288 d 1 2 3 4
+gl glScalef 1 0 1
+glp glClipPlane i 12288 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12288 d 5
+glerr
+end
+case clip-1-identity
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12289 d 5
+glp glClipPlane i 12289 d 1 2 3 4
+glp glClipPlane i 12289 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12289 d 5
+glerr
+end
+case clip-1-scaled
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12289 d 5
+glp glClipPlane i 12289 d 1 2 3 4
+gl glScalef 2 4 8
+glp glClipPlane i 12289 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12289 d 5
+glerr
+end
+case clip-1-singular
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12289 d 5
+glp glClipPlane i 12289 d 1 2 3 4
+gl glScalef 1 0 1
+glp glClipPlane i 12289 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12289 d 5
+glerr
+end
+case clip-2-identity
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12290 d 5
+glp glClipPlane i 12290 d 1 2 3 4
+glp glClipPlane i 12290 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12290 d 5
+glerr
+end
+case clip-2-scaled
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12290 d 5
+glp glClipPlane i 12290 d 1 2 3 4
+gl glScalef 2 4 8
+glp glClipPlane i 12290 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12290 d 5
+glerr
+end
+case clip-2-singular
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12290 d 5
+glp glClipPlane i 12290 d 1 2 3 4
+gl glScalef 1 0 1
+glp glClipPlane i 12290 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12290 d 5
+glerr
+end
+case clip-3-identity
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12291 d 5
+glp glClipPlane i 12291 d 1 2 3 4
+glp glClipPlane i 12291 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12291 d 5
+glerr
+end
+case clip-3-scaled
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12291 d 5
+glp glClipPlane i 12291 d 1 2 3 4
+gl glScalef 2 4 8
+glp glClipPlane i 12291 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12291 d 5
+glerr
+end
+case clip-3-singular
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12291 d 5
+glp glClipPlane i 12291 d 1 2 3 4
+gl glScalef 1 0 1
+glp glClipPlane i 12291 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12291 d 5
+glerr
+end
+case clip-4-identity
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12292 d 5
+glp glClipPlane i 12292 d 1 2 3 4
+glp glClipPlane i 12292 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12292 d 5
+glerr
+end
+case clip-4-scaled
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12292 d 5
+glp glClipPlane i 12292 d 1 2 3 4
+gl glScalef 2 4 8
+glp glClipPlane i 12292 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12292 d 5
+glerr
+end
+case clip-4-singular
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12292 d 5
+glp glClipPlane i 12292 d 1 2 3 4
+gl glScalef 1 0 1
+glp glClipPlane i 12292 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12292 d 5
+glerr
+end
+case clip-5-identity
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12293 d 5
+glp glClipPlane i 12293 d 1 2 3 4
+glp glClipPlane i 12293 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12293 d 5
+glerr
+end
+case clip-5-scaled
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12293 d 5
+glp glClipPlane i 12293 d 1 2 3 4
+gl glScalef 2 4 8
+glp glClipPlane i 12293 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12293 d 5
+glerr
+end
+case clip-5-singular
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetClipPlane i 12293 d 5
+glp glClipPlane i 12293 d 1 2 3 4
+gl glScalef 1 0 1
+glp glClipPlane i 12293 d 1.00000001 8 -16 3
+gl glLoadIdentity
+glq glGetClipPlane i 12293 d 5
+glerr
+end

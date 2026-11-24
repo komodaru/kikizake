@@ -489,6 +489,7 @@ pub struct Ctx {
     pub raster_get: [f32; 4],
     pub raster_color: [f32; 4],
     /// the raster position's eye z, for fog on images
+    pub clip_planes: [[f32; 4]; 6],
     pub raster_eye: f64,
     /// the raster position's texture coordinates (s, t, r, q)
     pub raster_tex: [f32; 4],
@@ -610,6 +611,7 @@ impl Ctx {
             raster: Some([0.0; 3]),
             raster_color: [1.0; 4],
             raster_get: [0.0, 0.0, 0.0, 1.0],
+            clip_planes: [[0.0; 4]; 6],
             raster_eye: 0.0,
             raster_tex: [0.0, 0.0, 0.0, 1.0],
             frag_tex: None,
@@ -1377,6 +1379,7 @@ impl Gl {
                 ctx.frag_tex = None;
                 result?;
             }
+            CtxOp::Glp | CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glClipPlane" | "glGetClipPlane")) => ctx.clip_plane_call(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPolygonStipple") => ctx.get_polygon_pattern(t, out)?,
             CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf | CtxOp::Wglx => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
@@ -1980,7 +1983,8 @@ impl Ctx {
                 if c[3] != 1.0 {
                     hit(clause::GL_RASTER_PERSPECTIVE);
                 }
-                let inside = c[3] > 0.0 && c[..3].iter().all(|v| (-c[3]..=c[3]).contains(v));
+                let inside = c[3] > 0.0 && c[..3].iter().all(|v| (-c[3]..=c[3]).contains(v))
+                    && self.enabled_clip_planes().all(|i| Self::user_clip_distance(i, e.map(tri::narrow)) >= 0.0);
                 // (MEASURED, golden opengl-32 / 64 gap-forms-0: glGet gives where the rasterizer
                 // has it, tri::Raster, unbiased, y back up the window less 1/256, and the clip w)
                 let clip = c;
@@ -2425,7 +2429,7 @@ impl Ctx {
             let [s, t, r, w] = v.0.tc;
             [p[0], p[1], p[2], p[3], c[0], c[1], c[2], c[3], s, t, r, w]
         }).collect();
-        let cut = tri::clip(&at);
+        let cut = self.clip_polygon(q, &at).0;
         // (the cut corners given as clip coordinates through identity matrices)
         let saved = [*self.top(0), *self.top(1)];
         for m in 0..2 {
@@ -2435,7 +2439,11 @@ impl Ctx {
             let [x, y, z, w, r, g, b, a, s, t, tr, tq] = *p;
             (Obj { xyz: [f64::from(x), f64::from(y), f64::from(z)], w: f64::from(w), tc: [s, t, tr, tq], edge: true }, [r, g, b, a])
         }).collect();
+        // These vertices are already clipped and are now in clip coordinates.
+        let enabled: Vec<_> = (0x3000..=0x3005).filter(|&cap| self.cap(cap)).collect();
+        for &cap in &enabled { self.caps.insert(cap, false); }
         let drawn = self.end(LINE_LOOP);
+        for cap in enabled { self.caps.insert(cap, true); }
         for (m, top) in saved.into_iter().enumerate() {
             *self.stacks.get_mut(m).ok_or(Fail::Bad)?.top_mut() = top;
         }
@@ -2616,6 +2624,65 @@ impl Ctx {
         std::array::from_fn(|row| ((m[12 + row] * w + m[row] * v[0]) + m[4 + row] * v[1]) + m[8 + row] * v[2])
     }
 
+    fn enabled_clip_planes(&self) -> impl Iterator<Item = &[f32; 4]> + '_ {
+        (0x3000..=0x3005).zip(&self.clip_planes).filter_map(|(cap, plane)| self.cap(cap).then_some(plane))
+    }
+
+    fn user_clip_distance(plane: &[f32; 4], eye: [f32; 4]) -> f32 {
+        plane.iter().zip(eye).map(|(a, b)| a * b).sum()
+    }
+
+    /// Carry eye-space distances through every cut alongside the raster attributes.
+    fn clip_polygon<const D: usize>(&self, q: &[(Obj, [f32; 4])], vertices: &[[f32; D]]) -> (Vec<[f32; D]>, usize) {
+        let enabled: Vec<_> = self.enabled_clip_planes().collect();
+        if enabled.is_empty() {
+            return tri::clip_crossing(vertices);
+        }
+        // Four clip coordinates, up to eight color and texture components, then six distances.
+        const { assert!(D <= 12); }
+        let extended: Vec<[f32; 18]> = q.iter().zip(vertices).map(|((obj, _), vertex)| {
+            let [x, y, z] = obj.xyz;
+            let eye = xform(self.top(0), [x, y, z, obj.w]).map(tri::narrow);
+            let mut record = [0.0; 18];
+            for (dst, src) in record.iter_mut().zip(vertex) { *dst = *src; }
+            for (distance, plane) in record[12..].iter_mut().zip(&enabled) {
+                *distance = Self::user_clip_distance(plane, eye);
+            }
+            record
+        }).collect();
+        let (mut cut, crossed) = tri::clip_crossing(&extended);
+        for (slot, _) in (12..18).zip(enabled) {
+            cut = tri::clip_halfspace(&cut, |v| v.get(slot).copied().unwrap_or_default()).0;
+        }
+        (cut.iter().filter_map(|p| p.first_chunk::<D>().copied()).collect(), crossed)
+    }
+
+    fn clip_user_line(&self, mut ends: [(Obj, [f32; 4]); 2]) -> Option<[(Obj, [f32; 4]); 2]> {
+        for i in self.enabled_clip_planes() {
+            let distances = ends.map(|(v, _)| {
+                let [x, y, z] = v.xyz;
+                Self::user_clip_distance(i, xform(self.top(0), [x, y, z, v.w]).map(tri::narrow))
+            });
+            let (outside, t) = match tri::line_plane_cut(distances) {
+                tri::LinePlaneCut::Keep => continue,
+                tri::LinePlaneCut::Reject => return None,
+                tri::LinePlaneCut::Cut { outside, t } => (outside, t),
+            };
+            let ((a, ca), (b, cb)) = if outside == 0 { (ends[1], ends[0]) } else { (ends[0], ends[1]) };
+            let mix = |x: f32, y: f32| x + t * (y - x);
+            let coord = |x: f64, y: f64| x + f64::from(t) * (y - x);
+            let v = Obj {
+                xyz: std::array::from_fn(|k| coord(a.xyz[k], b.xyz[k])),
+                w: coord(a.w, b.w),
+                tc: tri::zip4(a.tc, b.tc, mix),
+                edge: b.edge,
+            };
+            let color = if self.shade == FLAT { cb } else { tri::zip4(ca, cb, mix) };
+            *ends.get_mut(outside)? = (v, color);
+        }
+        Some(ends)
+    }
+
     /// The pixels a filled polygon covers (GL.RASTER.TRIANGLE), each with the color `colors`
     /// (one per vertex) interpolate to there and, given the buffer, its depth: cut to the view
     /// volume (the colors and depths with it, `tri::clip`), then a fan from its first vertex,
@@ -2654,7 +2721,7 @@ impl Ctx {
                 [p[0], p[1], p[2], p[3], c[0] as f32, c[1] as f32, c[2] as f32, c[3] as f32, ts, tt, tq]
             })
             .collect();
-        let (poly, crossed) = tri::clip_crossing(&clip);
+        let (poly, crossed) = self.clip_polygon(q, &clip);
         if poly.len() < 3 {
             return Ok(Vec::new());
         }
@@ -2676,7 +2743,7 @@ impl Ctx {
         let col: Vec<[f64; 4]> = poly.iter().map(|c| [c[4], c[5], c[6], c[7]].map(f64::from)).collect();
         let zs: Vec<f32> = ndc.iter().map(|c| self.window_z(c[2])).collect();
         // (s, t and q times 1 / w, as the colors' planes: texture.md 4.7)
-        let tq: Vec<[f64; 4]> = poly.iter().map(|&[.., w, _, _, _, _, s, t, q]| [s, t, q, 0.0].map(|v| f64::from(v * (1.0 / w)))).collect();
+        let tq: Vec<[f64; 4]> = poly.iter().map(|&[_, _, _, w, _, _, _, _, s, t, q, ..]| [s, t, q, 0.0].map(|v| f64::from(v * (1.0 / w)))).collect();
         let (w, h) = (W as i64, H as i64);
         let mut out = Vec::new();
         for k in 1..v.len() - 1 {
@@ -2978,13 +3045,11 @@ impl Ctx {
                 [c[0], c[1], c[2], c[3], r, g, b, a, fog, ts, tt, tq]
             })
             .collect();
-        let cut = clip.iter().any(|c| c[..3].iter().any(|v| v.abs() > c[3]));
-        let corners = if cut {
-            hit(clause::GL_RASTER_CLIP_XY);
-            tri::clip(&corners)
-        } else {
-            corners
-        };
+        let (clipped, _) = self.clip_polygon(q, &corners);
+        let cut = clipped != corners;
+        if cut { hit(clause::GL_RASTER_CLIP_XY); }
+        if clipped.len() < 3 { return Ok(()); }
+        let corners = clipped;
         let quad = quad && !cut;
         let clip: Vec<[f32; 4]> = corners.iter().map(|c| [c[0], c[1], c[2], c[3]]).collect();
         if behind && self.culled_face(area(&clip)) {
@@ -3108,7 +3173,8 @@ impl Ctx {
                         [p[0], p[1], p[2], p[3], c[0], c[1], c[2], c[3]]
                     })
                     .collect();
-                let cut = tri::clip(&at);
+                let cut = self.clip_polygon(q, &at).0;
+                if cut.is_empty() { return Ok(()); }
                 if cut != at {
                     hit(clause::GL_RASTER_CLIP_XY);
                 }
@@ -3204,7 +3270,7 @@ impl Ctx {
                         // antialiased triangle's)
                         let scale = self.channel_scales();
                         let units: Vec<[f32; 8]> = at.iter().map(|p| [p[0], p[1], p[2], p[3], p[4] * scale[0], p[5] * scale[1], p[6] * scale[2], p[7] * scale[3]]).collect();
-                        let cut = tri::clip(&units);
+                        let cut = self.clip_polygon(q, &units).0;
                         let corner = |p: &[f32; 8]| tri::ClipEnd { clip: [p[0], p[1], p[2], p[3]], c: [p[4], p[5], p[6], p[7]] };
                         for (k, (p, n)) in cut.iter().zip(cut.iter().cycle().skip(1)).enumerate() {
                             self.aa_line_ends(corner(p), corner(n), k == 0)?;
@@ -3217,7 +3283,7 @@ impl Ctx {
                     if cut != at {
                         let scale = self.channel_scales();
                         let units: Vec<[f32; 8]> = at.iter().map(|p| [p[0], p[1], p[2], p[3], p[4] * scale[0], p[5] * scale[1], p[6] * scale[2], p[7] * scale[3]]).collect();
-                        let cut = tri::clip(&units);
+                        let cut = self.clip_polygon(q, &units).0;
                         // (offset: each edge its fan triangle's offset, MEASURED, golden opengl-32 /
                         // 64 raster-more-offset-wide-cut)
                         for (k, (p, n)) in cut.iter().zip(cut.iter().cycle().skip(1)).enumerate() {
@@ -3380,7 +3446,9 @@ impl Ctx {
             POINTS => {
                 hit(clause::GL_POINT);
                 for (v, c) in verts {
-                    if self.culled_z(&[v]) {
+                    let [x, y, z] = v.xyz;
+                    let eye = xform(self.top(0), [x, y, z, v.w]).map(tri::narrow);
+                    if self.culled_z(&[v]) || !self.enabled_clip_planes().all(|i| Self::user_clip_distance(i, eye) >= 0.0) {
                         continue;
                     }
                     // (a point under a projection outside the view volume: not drawn, as one at
@@ -3553,7 +3621,8 @@ impl Ctx {
                     if let Some(o) = self.loop_offsets.get(i) {
                         self.line_z_offset = *o;
                     }
-                    let (a, b) = (&verts[i], &verts[j]);
+                    let Some(ends) = self.clip_user_line([verts[i], verts[j]]) else { continue };
+                    let [a, b] = &ends;
                     if self.culled_z(&[a.0, b.0]) {
                         continue;
                     }
@@ -4516,6 +4585,7 @@ impl Ctx {
             viewport,
             depth_range,
             // TRANSFORM_BIT
+            clip_planes,
             mode,
             // COLOR_BUFFER_BIT (and the draw buffer, buffers[0]; the read buffer, buffers[1],
             // is PIXEL_MODE_BIT's)
@@ -4624,6 +4694,7 @@ impl Ctx {
             self.depth_range = depth_range;
         }
         if on(attrib::TRANSFORM) {
+            self.clip_planes = clip_planes;
             self.mode = mode;
         }
         if on(attrib::COLOR) {
@@ -4996,6 +5067,40 @@ impl Ctx {
                 self.fragment_from(Frag { x, y, c, z, fixed: ToFixed::Trunc, zfixed },
                     if kind == 0x1800 { color_undefined } else { [false; 4] }, kind == 0x1801 && depth_undefined)?;
             }
+        }
+        Ok(())
+    }
+
+    fn clip_plane_call(&mut self, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        hit(clause::GL_CLIPPLANE);
+        let [_, name, sig, slot, ty, rest @ ..] = t else { return Err(Fail::Bad) };
+        if sig != "i" { return Err(Fail::Bad); }
+        let slot = num(slot).ok_or(Fail::Bad)?.checked_sub(0x3000).and_then(|n| usize::try_from(n).ok()).filter(|n| *n < 6);
+        let err = if self.in_begin.is_some() { Some(INVALID_OPERATION) } else if slot.is_none() { Some(INVALID_ENUM) } else { None };
+        if let Some(e) = err { self.error(e); }
+        if name == "glGetClipPlane" {
+            let [count] = rest else { return Err(Fail::Bad) };
+            out.push(query_bytes(ty, count, |dst| {
+                if let Some(plane) = slot.and_then(|n| self.clip_planes.get(n)).filter(|_| err.is_none()) {
+                    for (bytes, v) in dst.chunks_exact_mut(8).zip(plane) { bytes.copy_from_slice(&f64::from(*v).to_le_bytes()); }
+                }
+                Ok(())
+            })?);
+        } else if let Some(plane) = slot.filter(|_| err.is_none()) {
+            let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Bad)?;
+            bytes.resize(32, 0);
+            let mut p = [0.0; 4];
+            for (v, b) in p.iter_mut().zip(bytes.chunks_exact(8)) {
+                *v = tri::narrow(f64::from_le_bytes(b.try_into().ok().ok_or(Fail::Bad)?));
+            }
+            let matrix = self.stacks.first().map_or(IDENTITY, |m| *m.top());
+            if let Some(inv) = tex::invert(&matrix) {
+                let input = p;
+                for (v, col) in p.iter_mut().zip(inv.chunks_exact(4)) {
+                    *v = col.iter().zip(input).fold(0.0, |sum, (a, b)| sum + a * b);
+                }
+            }
+            *self.clip_planes.get_mut(plane).ok_or(Fail::Bad)? = p;
         }
         Ok(())
     }
@@ -6692,27 +6797,50 @@ pub mod tri {
         let mut poly = poly.to_vec();
         let mut most = 0;
         for (axis, sign) in [(0, -1.0f32), (0, 1.0), (1, -1.0), (1, 1.0), (2, -1.0), (2, 1.0)] {
-            let mut out = Vec::new();
-            let mut crossed = 0;
-            for (i, b) in poly.iter().enumerate() {
-                let a = poly[(i + poly.len() - 1) % poly.len()];
-                let (da, db) = (a[3] - sign * a[axis], b[3] - sign * b[axis]);
-                if (da >= 0.0) != (db >= 0.0) {
-                    crossed += 1;
-                    let (inside, outside, di, dout) = if da >= 0.0 { (a, *b, da, db) } else { (*b, a, db, da) };
-                    let t = di / (di - dout);
-                    // (the cut point as interpolated, its cut coordinate not set to the plane's:
-                    // golden opengl-32 persp-4)
-                    out.push(std::array::from_fn(|k| inside[k] + t * (outside[k] - inside[k])));
-                }
-                if db >= 0.0 {
-                    out.push(*b);
-                }
-            }
+            let (out, crossed) = clip_halfspace(&poly, |v| v[3] - sign * v[axis]);
             most = most.max(crossed);
             poly = out;
         }
         (poly, most)
+    }
+
+    #[derive(Debug, PartialEq)]
+    pub(crate) enum LinePlaneCut {
+        Keep,
+        Reject,
+        Cut { outside: usize, t: f32 },
+    }
+
+    /// A cut fraction measured from the inside endpoint toward the outside endpoint.
+    pub(crate) fn line_plane_cut(d: [f32; 2]) -> LinePlaneCut {
+        let outside = match d.map(|v| v >= 0.0) {
+            [true, true] => return LinePlaneCut::Keep,
+            [false, false] => return LinePlaneCut::Reject,
+            [false, true] => 0,
+            [true, false] => 1,
+        };
+        let (a, b) = if outside == 0 { (d[1], d[0]) } else { (d[0], d[1]) };
+        LinePlaneCut::Cut { outside, t: a / (a - b) }
+    }
+
+    pub fn clip_halfspace<const D: usize>(poly: &[[f32; D]], distance: impl Fn(&[f32; D]) -> f32) -> (Vec<[f32; D]>, usize) {
+        let mut out = Vec::new();
+        let mut crossed = 0;
+        for (&a, b) in poly.last().into_iter().chain(poly.iter()).zip(poly) {
+            let (da, db) = (distance(&a), distance(b));
+            if (da >= 0.0) != (db >= 0.0) {
+                crossed += 1;
+                let (inside, outside, di, dout) = if da >= 0.0 { (a, *b, da, db) } else { (*b, a, db, da) };
+                let t = di / (di - dout);
+                // (the cut point as interpolated, its cut coordinate not set to the plane's:
+                // golden opengl-32 persp-4)
+                out.push(std::array::from_fn(|k| inside[k] + t * (outside[k] - inside[k])));
+            }
+            if db >= 0.0 {
+                out.push(*b);
+            }
+        }
+        (out, crossed)
     }
 
     /// A line cut to the view volume as `clip` cuts a polygon's edges (the planes in the same

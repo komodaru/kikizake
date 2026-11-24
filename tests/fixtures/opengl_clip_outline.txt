@@ -1,0 +1,36 @@
+case outline-6912
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+glp glClipPlane i 0x3002 d 1 0 0 -3.5
+gl glEnable 0x3002
+gl glPolygonMode 0x408 6912
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 1.5 1.5
+gl glVertex2f 7.5 1.5
+gl glVertex2f 1.5 7.5
+gl glEnd
+glread 3 1 1 6 0x1908 0x1401 24
+glerr
+end
+case outline-6913
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+glp glClipPlane i 0x3002 d 1 0 0 -3.5
+gl glEnable 0x3002
+gl glPolygonMode 0x408 6913
+gl glClear 0x4000
+gl glBegin 4
+gl glVertex2f 1.5 1.5
+gl glVertex2f 7.5 1.5
+gl glVertex2f 1.5 7.5
+gl glEnd
+glread 3 1 1 6 0x1908 0x1401 24
+glerr
+end
