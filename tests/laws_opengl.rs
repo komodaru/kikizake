@@ -1988,3 +1988,17 @@ proptest! {
         prop_assert_eq!(&output[1], &output[5]);
     }
 }
+
+#[test]
+fn bitmap_font_creation_inside_a_primitive_preserves_existing_lists() {
+    for encoding in ["a", "w"] {
+        for count in [0, 1, 3] {
+            let input = format!("case bmp-begin\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glNewList 100 0x1300\ngl glListBase 12\ngl glEndList\ngl glBegin 0\nwglx fontbmp {encoding} 65 {count} 100\ngl glVertex2i 0 0\ngl glEnd\nglerr\ngl glCallList 100\nglget i 0xb32 1\nglr glIsList b i 101\nglerr\nend\n");
+            let cases = kikizake::case::parse_cases(&input);
+            let (call, error) = if count == 0 { ("wglx fontbmp 0 87", "glerr 0") }
+                else { ("wglx fontbmp 0 0", "glerr 502") };
+            assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(),
+                ["glctx ok 1", call, error, "get b32 = 12", "ret 0", "glerr 0"]);
+        }
+    }
+}

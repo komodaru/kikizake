@@ -1288,6 +1288,12 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             match (name.as_str(), rest) {
                 ("fontbmp", []) if count == 0 => "0 87".into(),
                 ("fontbmp", []) if encoding == "a" && first >= 0 && i64::from(first) + i64::from(count) > 256 => "0 87".into(),
+                ("fontbmp", []) if ctx.in_begin.is_some() && ctx.lists.compiling.is_none()
+                    && wgl_font_last_name(base, count).is_some() && (0..=255).contains(&first)
+                    && first + count <= 256 => {
+                    ctx.error(INVALID_OPERATION);
+                    "0 0".into()
+                }
                 ("fontbmp", []) if wgl_font_last_name(base, count).is_some()
                     && ctx.in_begin.is_none() && ctx.lists.compiling.is_none() => {
                     let mut lines = Vec::new();
