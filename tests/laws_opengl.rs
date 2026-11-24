@@ -2817,3 +2817,32 @@ end
     let output = kikizake::model::run_case(&cases[0]).unwrap();
     assert_eq!(&output[1..], ["glerr 0", "glerr 0", "get d70 = 0", "glerr 0", "glerr 502"]);
 }
+
+#[test]
+fn render_mode_requires_a_buffer_before_leaving_rendering() {
+    let input = "case mode
+glctx 32 choose 0x38 0 32 0 0 32 8
+glr glRenderMode i i 0x1c00
+glerr
+glr glRenderMode i i 99
+glerr
+glr glRenderMode i i 0x1c02
+glget i 0xc40 1
+glerr
+glr glRenderMode i i 0x1c01
+glget i 0xc40 1
+glerr
+glr glRenderMode i i 0x1c00
+glerr
+gl glBegin 0
+glr glRenderMode i i 99
+gl glEnd
+glerr
+end
+";
+    let cases = kikizake::case::parse_cases(input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["ret 0", "glerr 0", "ret 0", "glerr 500", "ret 0",
+        "get c40 = 7168", "glerr 502", "ret 0", "get c40 = 7168", "glerr 502",
+        "ret 0", "glerr 0", "ret 0", "glerr 502"]);
+}

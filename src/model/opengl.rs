@@ -1927,6 +1927,22 @@ impl Gl {
             CtxOp::Glp | CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glClipPlane" | "glGetClipPlane")) => ctx.clip_plane_call(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPolygonStipple") => ctx.get_polygon_pattern(t, out)?,
             CtxOp::Wglx => wgl_dc(ctx, t, out)?,
+            CtxOp::Glr if t.get(1).is_some_and(|name| name == "glRenderMode") => {
+                let [_, _, _, sig, mode] = t else { return Err(Fail::Bad); };
+                if sig != "i" { return Err(Fail::Bad); }
+                let mode = crate::case::windows_long(mode).ok_or(Fail::Bad)?;
+                if ctx.in_begin.is_some() {
+                    ctx.error(INVALID_OPERATION);
+                } else {
+                    match mode {
+                        0x1c00 => {}
+                        // Buffer registration is still unmodeled, so neither buffer is set here.
+                        0x1c01 | 0x1c02 => ctx.error(INVALID_OPERATION),
+                        _ => ctx.error(INVALID_ENUM),
+                    }
+                }
+                out.push("ret 0".into());
+            }
             CtxOp::Glr if t.get(1).is_some_and(|name| name == "glDebugEntry") => {
                 let [_, _, _, sig, a, b] = t else { return Err(Fail::Bad) };
                 if sig != "ii" || [a, b].iter().any(|v| crate::case::windows_long(v).is_none()) {
