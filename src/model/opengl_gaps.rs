@@ -14,7 +14,6 @@ pub fn of(name: &str) -> Option<OpenId> {
         "glClipPlane" | "glGetClipPlane" => open::GL_CLIPPLANE,
         "glBitmap" => open::GL_BITMAP,
         "glCopyPixels" => open::GL_COPYPIXELS,
-        "glPixelMapfv" | "glPixelMapuiv" | "glPixelMapusv" | "glGetPixelMapfv" | "glGetPixelMapuiv" | "glGetPixelMapusv" => open::GL_PIXELMAP,
         _ => return None,
     })
 }

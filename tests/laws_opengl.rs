@@ -1248,3 +1248,58 @@ proptest! {
         prop_assert_eq!(actual.last(), Some(&query));
     }
 }
+proptest! {
+    #[test]
+    fn pixel_map_queries_preserve_entries_and_query_tail(
+        entries in prop::collection::vec(any::<u16>(), 8),
+        slot in 0xc70u32..=0xc79,
+    ) {
+        let input = entries.iter().map(u16::to_string).collect::<Vec<_>>().join(" ");
+        let text = format!("case map\nglctx 32 choose 0x38 0 32 0 0 32 8\n\
+            glp glPixelMapusv ii {slot} 8 us {input}\n\
+            glget i {} 1\nglq glGetPixelMapusv i {slot} us 9\nglerr\nend", slot + 0x40);
+        let actual = kikizake::model::run_case(&kikizake::case::parse_cases(&text)[0]).unwrap();
+        let size = format!("get {:x} = 8", slot + 0x40);
+        let query = format!("q {input} 52428");
+        prop_assert_eq!(&actual[1..], &[size, query, "glerr 0".into()]);
+    }
+}
+
+#[test]
+fn pixel_map_native_integer_scales_and_zero_reset() {
+    let text = "case map
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glPixelMapfv ii 0xc70 4 f -1.5 -0.5 0.5 1.5
+glq glGetPixelMapfv i 0xc70 f 4
+glp glPixelMapuiv ii 0xc76 4 ui 1 2147483647 2147483648 4294967295
+glq glGetPixelMapuiv i 0xc76 ui 5
+glq glGetPixelMapusv i 0xc76 us 5
+glp glPixelMapfv ii 0xc76 0 f 0.75
+glget i 0xcb6 1
+glq glGetPixelMapfv i 0xc76 f 3
+glerr
+end";
+    let output = kikizake::model::run_case(&kikizake::case::parse_cases(text)[0]).unwrap();
+    assert_eq!(&output[1..], ["q -2 -1 1 2", "q 1 2147483520 2147483520 4294967040 2125315823",
+        "q 0 32768 32768 65535 52428", "get cb6 = 1", "q 0 -12345 -12345", "glerr 0"]);
+}
+#[test]
+fn index_and_stencil_pixel_maps_match_windows() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_pixelmap.txt"));
+    // RGBA bytes or stencil indices, with mapping off/on and index shift 0/1.
+    let expected = [
+        ["7f7fffff7f7fffff3fff00ff3fff00ffff0000ffff0000ffbf3f7fffff0000ff",
+         "bf3f7fffbf3f7fff3fff00ff3fff00ffbf3f7fffbf3f7fff3fff00ffbf3f7fff",
+         "808000ff808000ff400000ff400000ffffff00ffffff00ffbfffffffffff00ff",
+         "bfffffffbfffffff400000ff400000ffbfffffffbfffffff400000ffbfffffff"],
+        ["6941b0f08f7f122f", "a404c0c03cfc48bc", "0101000003030203", "0303020203030203"],
+    ];
+    for (case, reads) in zip_eq(&cases, expected) {
+        let output = kikizake::model::run_case(case).unwrap();
+        let mut want = vec!["glctx ok 1".to_string()];
+        for bytes in reads {
+            want.extend([format!("read {bytes}"), "glerr 0".to_string()]);
+        }
+        assert_eq!(output, want, "{}", case.name);
+    }
+}
