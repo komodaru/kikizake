@@ -447,6 +447,7 @@ impl D3dres {
                     // (every format a multisampled target takes, but the integer ones, has its Mean)
                     let mean = Mean::of(f).ok_or(Fail::Bad)?;
                     if matches!(mean, Mean::Bytes | Mean::Packed) { hit(clause::D3DRES_RESOLVE_MEAN_INTEGER); }
+                    if mean == Mean::Words { hit(clause::D3DRES_RESOLVE_MEAN_WORD); }
                     let (n, plane) = (src.d.count as usize, sv.len());
                     for y in 0..srows.min(drows) {
                         for x in 0..w / el {
@@ -1163,6 +1164,14 @@ pub(crate) fn integer_resolve_mean(sum: u64, count: u64) -> Option<u64> {
     sum.checked_add(count / 2)?.checked_div(count)
 }
 
+/// WARP normalizes 16-bit UNORM by division before summing in submission order.
+pub(crate) fn word_resolve_mean(samples: impl ExactSizeIterator<Item = u16>) -> Option<u16> {
+    let count = samples.len();
+    if count == 0 { return None; }
+    let sum = samples.fold(0f32, |a, v| a + f32::from(v) / 65535.0);
+    Some(((sum / count as f32) * 65535.0).round_ties_even() as u16)
+}
+
 impl Mean {
     fn of(f: &Format) -> Option<Mean> {
         let all = |b: u32| f.comps.iter().all(|&c| c == b);
@@ -1224,10 +1233,14 @@ impl Mean {
                 let sum = (0..n).map(|k| u64::from(sample(k)[i])).sum();
                 integer_resolve_mean(sum, count).and_then(|v| u8::try_from(v).ok()).ok_or(Fail::Bad)
             }).collect::<Res<Vec<_>>>()?,
-            Mean::Words => (0..el / 2).flat_map(|i| {
-                let mean = (0..n).fold(0f32, |a, k| a + f32::from(u16::from_le_bytes([sample(k)[2 * i], sample(k)[2 * i + 1]])) / 65535.0) / n as f32;
-                ((mean * 65535.0).round_ties_even() as u16).to_le_bytes()
-            }).collect(),
+            Mean::Words => {
+                let mut out = Vec::with_capacity(el);
+                for i in 0..el / 2 {
+                    let words = (0..n).map(|k| u16::from_le_bytes([sample(k)[2 * i], sample(k)[2 * i + 1]]));
+                    out.extend(word_resolve_mean(words).ok_or(Fail::Bad)?.to_le_bytes());
+                }
+                out
+            }
             Mean::Floats => (0..el / 4).flat_map(|i| {
                 let sum = (0..n).fold(0f32, |a, k| a + f32::from_le_bytes(sample(k)[4 * i..][..4].try_into().unwrap_or([0; 4])));
                 (sum / n as f32).to_le_bytes()

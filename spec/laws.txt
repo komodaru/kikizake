@@ -892,3 +892,5 @@ tests/laws_opengl.rs::every_color_material_selector_protects_exactly_its_compone
 src/proofs.rs::tracked_material_matches_face_and_property_masks kani GL.LIGHT.STATE
 spec/lean/Kikizake/D3d11/Copy.lean::integer_mean_interval lean D3DRES.RESOLVE.MEAN.INTEGER
 spec/lean/Kikizake/D3d11/Copy.lean::integer_mean_tie lean D3DRES.RESOLVE.MEAN.INTEGER
+spec/lean/Kikizake/D3d11/Copy.lean::word_round_tie lean D3DRES.RESOLVE.MEAN.WORD
+spec/lean/Kikizake/D3d11/Copy.lean::word_mean_range lean D3DRES.RESOLVE.MEAN.WORD

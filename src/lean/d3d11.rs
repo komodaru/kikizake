@@ -1073,6 +1073,28 @@ fn plan_code(p: crate::model::d3dres::Plan) -> Option<Vec<i64>> {
 
 pub static COPY_MIRRORS: &[Mirror] = &[
     Mirror {
+        name: "d3d11.wordMean",
+        lean: COPY,
+        domain: Domain::Sampled("word endpoints and adjacent values, ties of both parities, and seeded ordered vectors for 1..32 samples"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x16d3_d011);
+            for n in 1..=32 {
+                for value in [0, 1, 32767, 32768, 65534, 65535] { each(&vec![value; n]); }
+                for _ in 0..64 {
+                    let words: Vec<_> = (0..n).map(|_| rng.range(0, 65535)).collect();
+                    each(&words);
+                }
+            }
+            for v in 0..=65534 { each(&[v, v+1]); }
+            for bad in [&[][..], &[-1], &[65536], &[0; 33]] { each(bad); }
+        },
+        model: |a| {
+            let mean = (1..=32).contains(&a.len()).then(|| a.iter().map(|&v| u16::try_from(v).ok()).collect::<Option<Vec<_>>>())
+                .flatten().and_then(|v| crate::model::d3dres::word_resolve_mean(v.into_iter()));
+            one(mean.map_or(-1, i64::from))
+        },
+    },
+    Mirror {
         name: "d3d11.integerMean",
         lean: COPY,
         domain: Domain::Every("every possible UNORM field sum through 10 bits for 1, 2, 4, 8, 16 and 32 samples"),

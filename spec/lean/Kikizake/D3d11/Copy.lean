@@ -1,4 +1,4 @@
-import Kikizake.Mirror
+import Kikizake.F32
 /-! UpdateSubresource's and CopySubresourceRegion's boxes and what they do (spec/d3dres.txt
 D3DRES.UPDATE*, COPYSUB*, REMOVED), as src/model/d3dres.rs computes them: `boxElems` is
 `box_elems`, `clip` `box_clip`, `updatePlan` `update_plan`, `regionPlan` `region_plan`,
@@ -330,9 +330,33 @@ theorem integer_mean_tie (value half : Nat) (h : 0 < half) :
     omega
   rw [hn, Nat.mul_div_cancel_left _ hd]
 
+def nearestEven (n d : Nat) : Nat :=
+  let q := n / d
+  let r := n % d
+  if 2*r > d ∨ (2*r = d ∧ q % 2 = 1) then q+1 else q
+
+def wordMean (samples : List Nat) : Nat :=
+  let scale := F32.ofNat 65535
+  let sum := samples.foldl (fun acc v => F32.add acc (F32.div (F32.ofNat v) scale)) 0
+  let x := F32.mul (F32.div sum (F32.ofNat samples.length)) scale
+  let (_, n, d) := Float.toRat F32.fmt x
+  min 65535 (nearestEven n d)
+
+/-- At an exact midpoint the low bit of the quotient determines the increment. -/
+theorem word_round_tie (n d : Nat) (h : 2 * (n % d) = d) :
+    nearestEven n d = n / d + (n / d) % 2 := by
+  simp only [nearestEven, h, Nat.lt_irrefl, false_or, true_and]
+  split <;> omega
+
+theorem word_mean_range (samples : List Nat) : wordMean samples ≤ 65535 := by
+  exact Nat.min_le_left _ _
+
 def args6 (a : List Int) : Option (List Nat) := a.mapM nat
 
 def mirrors : List Mirror := [
+  ⟨"d3d11.wordMean", fun a =>
+    if a.isEmpty || a.length > 32 || a.any (fun v => v < 0 || v > 65535) then some [-1]
+    else some [(wordMean (a.map Int.toNat) : Int)]⟩,
   ⟨"d3d11.integerMean", fun a => match a with
     | [s, n] => some [if s < 0 || n ≤ 0 then -1 else (integerMean s.toNat n.toNat : Int)]
     | _ => some [-1]⟩,
