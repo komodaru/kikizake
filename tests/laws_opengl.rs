@@ -1912,3 +1912,30 @@ fn light_defaults_match_native_queries_and_write_widths() {
         assert_eq!(output[21], "glerr 0");
     }
 }
+
+#[test]
+fn invalid_light_queries_preserve_output_and_prioritize_begin_errors() {
+    use std::fmt::Write;
+    for inside in [false, true] {
+        for ty in ["i", "f"] {
+            for (light, pname) in [(0x4008, 0x1200), (0x4000, 0x120a), (0x4008, 0x120a), (0x4000, 0x1200)] {
+                let mut input = String::from("case invalid-light\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+                if inside { input.push_str("gl glBegin 0\n"); }
+                writeln!(input, "glq glGetLight{ty}v ii {light} {pname} {ty} 4").unwrap();
+                if inside { input.push_str("gl glEnd\n"); }
+                input.push_str("glerr\nglerr\nend\n");
+                let error = if inside { "glerr 502" } else if light == 0x4000 && pname == 0x1200 {
+                    "glerr 0"
+                } else { "glerr 500" };
+                let query = match (error == "glerr 0", ty) {
+                    (true, "i") => "q 0 0 0 2147482496",
+                    (true, _) => "q 0 0 0 1",
+                    (false, "i") => "q 2125315823 2125315823 2125315823 2125315823",
+                    (false, _) => "q -12345 -12345 -12345 -12345",
+                };
+                let cases = kikizake::case::parse_cases(&input);
+                assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), ["glctx ok 1", query, error, "glerr 0"]);
+            }
+        }
+    }
+}
