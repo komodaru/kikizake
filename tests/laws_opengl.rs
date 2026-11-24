@@ -1302,3 +1302,63 @@ fn index_and_stencil_pixel_maps_match_windows() {
         assert_eq!(output, want, "{}", case.name);
     }
 }
+
+fn bitmap_row(byte: u8, lsb: bool, skip: u8, width: u8) -> (String, String) {
+    let text = format!("case bitmap\nglctx 32 choose 0x38 0 32 0 0 32 8\n\
+        gl glMatrixMode 0x1701\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700\n\
+        gl glDisable 0xbd0\ngl glClear 0x4000\ngl glColor3ub 255 0 0\n\
+        gl glRasterPos2f 2.25 2.25\ngl glColor3ub 0 0 255\n\
+        gl glPixelStorei 0xcf1 {}\ngl glPixelStorei 0xcf4 {skip}\n\
+        glp glBitmap iiffff {width} 1 0 0 1 2 ub {byte}\n\
+        glread 2 2 8 1 0x1908 0x1401 32\nglerr\nend", u8::from(lsb));
+    let output = kikizake::model::run_case(&kikizake::case::parse_cases(&text)[0]).unwrap();
+    assert_eq!(output.last().unwrap(), "glerr 0");
+    let mut expected = String::from("read ");
+    for x in 0..8 {
+        let bit = x + skip;
+        let set = x < width && bit < 8 && byte & (1 << if lsb { bit } else { 7 - bit }) != 0;
+        expected.push_str(if set { "ff0000ff" } else { "000000ff" });
+    }
+    (output[1].clone(), expected)
+}
+
+#[test]
+fn bitmap_every_byte_in_both_orders() {
+    for byte in u8::MIN..=u8::MAX {
+        for lsb in [false, true] {
+            let (pixels, expected) = bitmap_row(byte, lsb, 0, 8);
+            assert_eq!(pixels, expected, "byte {byte}, lsb {lsb}");
+        }
+    }
+}
+
+proptest! {
+    #[test]
+    fn bitmap_unpack_skip_and_width(byte in any::<u8>(), lsb in any::<bool>(),
+        skip in 0u8..8, width in 0u8..=8) {
+        let (pixels, expected) = bitmap_row(byte, lsb, skip, width);
+        prop_assert_eq!(pixels, expected);
+    }
+}
+
+#[test]
+fn bitmap_fractional_moves_match_windows() {
+    let case = kikizake::case::parse_cases(include_str!("fixtures/opengl_bitmap_moves.txt"));
+    let output = kikizake::model::run_case(&case[0]).unwrap();
+    let mut expected = vec![String::from("glctx ok 1")];
+    for xy in [
+        "40004000 40000000",
+        "40004000 40000000",
+        "40004000 40000000",
+        "40008000 3fff8000",
+        "4000c000 3fff0000",
+        "40008000 3fff8000",
+        "40088000 3fef8000",
+        "42fb2e00 c2f32c00",
+        "40088000 3fef8000",
+    ] {
+        expected.push(format!("get b07 = {xy} 3f000000 3f800000"));
+    }
+    expected.push(String::from("glerr 0"));
+    assert_eq!(output, expected);
+}

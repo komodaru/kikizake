@@ -863,3 +863,5 @@ src/model/opengl.rs::stipple_preserves_every_other_packed_bit exhaustive GL.POLY
 tests/laws_opengl.rs::polygon_stipple_pack_unpack pbt GL.POLYGON.STIPPLE.PATTERN
 src/model/opengl_pixelmap.rs::all_unsigned_short_map_entries_round_trip exhaustive GL.PIXELMAP
 tests/laws_opengl.rs::pixel_map_queries_preserve_entries_and_query_tail pbt GL.PIXELMAP
+tests/laws_opengl.rs::bitmap_every_byte_in_both_orders exhaustive GL.BITMAP
+tests/laws_opengl.rs::bitmap_unpack_skip_and_width pbt GL.BITMAP
