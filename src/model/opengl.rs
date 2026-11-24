@@ -1958,11 +1958,13 @@ pub struct Obj {
     pub edge: bool,
     /// Fog factor carried through clipping before replaying a textured outline.
     pub fog_factor: Option<f32>,
+    /// Back-face lighting evaluated with the state at vertex submission.
+    pub back_color: Option<[f32; 4]>,
 }
 
 impl Obj {
     pub const fn at(xyz: [f64; 3]) -> Obj {
-        Obj { xyz, w: 1.0, tc: [0.0, 0.0, 0.0, 1.0], edge: true, fog_factor: None }
+        Obj { xyz, w: 1.0, tc: [0.0, 0.0, 0.0, 1.0], edge: true, back_color: None, fog_factor: None }
     }
     /// the vertex with texture coordinates `tc`
     pub const fn with(self, tc: [f32; 4]) -> Obj {
@@ -2527,9 +2529,9 @@ impl Ctx {
                 if self.in_begin != Some(POINTS) {
                     // (MEASURED, golden opengl-32 persp-more-3..5: the clip coordinates of
                     // (x, y, z, w), cut and divided as any others)
-                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_on(), fog_factor: None }, self.lit(self.current(), [fl(a, 0), fl(a, 1), fl(a, 2), w])));
+                    self.submit_vertex(Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_on(), back_color: None, fog_factor: None }, [fl(a, 0), fl(a, 1), fl(a, 2), w]);
                 } else if w > 0.0 {
-                    self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]).with(self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w)).edged(self.edge_on()), self.lit(self.current(), [fl(a, 0), fl(a, 1), fl(a, 2), w])));
+                    self.submit_vertex(Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]).with(self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w)).edged(self.edge_on()), [fl(a, 0), fl(a, 1), fl(a, 2), w]);
                 } else {
                     hit(clause::GL_RASTER_CLIP_XY);
                 }
@@ -2537,7 +2539,7 @@ impl Ctx {
             "glVertex2f" | "glVertex3f" | "glVertex4f" | "glVertex2i" | "glVertex3i" => {
                 let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
                 if self.in_begin.is_some() {
-                    self.verts.push((Obj::at(v).with(self.vertex_coords(v, 1.0)).edged(self.edge_on()), self.lit(self.current(), [v[0], v[1], v[2], 1.0])));
+                    self.submit_vertex(Obj::at(v).with(self.vertex_coords(v, 1.0)).edged(self.edge_on()), [v[0], v[1], v[2], 1.0]);
                 } else {
                     // (MEASURED, golden opengl-32 edge-vertex-outside: ignored, no error)
                     hit(clause::GL_VERTEX_OUTSIDE);
@@ -2557,7 +2559,7 @@ impl Ctx {
                 let (x0, y0, x1, y1) = (fl(a, 0), fl(a, 1), fl(a, 2), fl(a, 3));
                 self.verts.clear();
                 for (x, y) in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] {
-                    self.verts.push((Obj::at([x, y, 0.0]).with(self.vertex_coords([x, y, 0.0], 1.0)), self.lit(self.current(), [x, y, 0.0, 1.0])));
+                    self.submit_vertex(Obj::at([x, y, 0.0]).with(self.vertex_coords([x, y, 0.0], 1.0)), [x, y, 0.0, 1.0]);
                 }
                 self.rect_call = true;
                 let r = self.end(QUADS);
@@ -2878,7 +2880,7 @@ impl Ctx {
         }
         self.verts = cut.iter().map(|p| {
             let [x, y, z, w, r, g, b, a, s, t, tr, tq, fog] = *p;
-            (Obj { xyz: [f64::from(x), f64::from(y), f64::from(z)], w: f64::from(w), tc: [s, t, tr, tq], edge: true, fog_factor: self.cap(FOG).then_some(fog) }, [r, g, b, a])
+            (Obj { xyz: [f64::from(x), f64::from(y), f64::from(z)], w: f64::from(w), tc: [s, t, tr, tq], edge: true, back_color: None, fog_factor: self.cap(FOG).then_some(fog) }, [r, g, b, a])
         }).collect();
         // These vertices are already clipped and are now in clip coordinates.
         let enabled: Vec<_> = (0x3000..=0x3005).filter(|&cap| self.cap(cap)).collect();
@@ -2940,17 +2942,27 @@ impl Ctx {
         self.edge_flag || !matches!(self.in_begin, Some(TRIANGLES | QUADS | POLYGON_MODE_POLYGON))
     }
 
+    fn submit_vertex(&mut self, mut obj: Obj, vertex: [f64; 4]) {
+        let color = self.current();
+        if self.two_sided && self.cap(LIGHTING) {
+            obj.back_color = Some(self.lit(color, vertex, true));
+        }
+        let front = self.lit(color, vertex, false);
+        self.verts.push((obj, front));
+    }
+
     /// a vertex's color under GL_LIGHTING with every light off and the initial material
     /// (MEASURED, golden opengl-32 render-caps-0: the scene's ambient times the material's
     /// ambient 0.2, the material's diffuse alpha 1, whatever the current color; lighting-material:
     /// under GL_COLOR_MATERIAL (ambient and diffuse) the scene's ambient times the current color,
     /// its alpha: GL.LIGHTING)
-    fn lit(&self, c: [f32; 4], vertex: [f64; 4]) -> [f32; 4] {
+    fn lit(&self, c: [f32; 4], vertex: [f64; 4], back: bool) -> [f32; 4] {
         if !self.cap(LIGHTING) {
             return c;
         }
         hit(clause::GL_LIGHTING);
-        let normal = self.eye_normal();
+        let side = usize::from(back);
+        let normal = self.eye_normal().map(|n| if back { -n } else { n });
         if self.pf.ty != 0 {
             let d = if self.cap(0x4000) { normal[2].max(0.0) } else { 0.0 };
             // color index lighting (GL 1.1 2.13.5) with the initial material indices (0, 1, 1):
@@ -2961,10 +2973,10 @@ impl Ctx {
         }
         // (the sums clamped to 0..1 at the vertex, before they are interpolated (MEASURED,
         // golden opengl-32 / 64 interp-open-9: corners of 1.2 times the color as if 1))
-        let tracked = |mode| self.cap(COLOR_MATERIAL) && self.color_material.0 != BACK && (self.color_material.1 == mode || self.color_material.1 == 0x1602);
-        let ambient = if tracked(0x1200) { c } else { self.ambient_material[0] };
-        let diffuse = if tracked(0x1201) { c } else { self.diffuse_material[0] };
-        let mut lit = std::array::from_fn(|k| self.emission[0][k] + self.scene_ambient[k] * ambient[k]);
+        let tracked = |mode| self.cap(COLOR_MATERIAL) && (self.color_material.0 == FRONT_AND_BACK || self.color_material.0 == if back { BACK } else { FRONT }) && (self.color_material.1 == mode || self.color_material.1 == 0x1602);
+        let ambient = if tracked(0x1200) { c } else { self.ambient_material[side] };
+        let diffuse = if tracked(0x1201) { c } else { self.diffuse_material[side] };
+        let mut lit = std::array::from_fn(|k| self.emission[side][k] + self.scene_ambient[k] * ambient[k]);
         let eye = xform(self.top(0), vertex).map(|v| v as f32);
         for (i, position) in self.light_positions.iter().enumerate() {
             if !self.cap(0x4000 + i as u32) { continue; }
@@ -2991,7 +3003,7 @@ impl Ctx {
                 (constant + linear * length + quadratic * length * length).recip()
             };
             let [light_ambient, light_diffuse, light_specular] = self.light_colors[i];
-            let highlight = if cosine > 0.0 && self.specular[0][..3].iter().any(|&v| v != 0.0) {
+            let highlight = if cosine > 0.0 && self.specular[side][..3].iter().any(|&v| v != 0.0) {
                 let mut view = [0.0, 0.0, 1.0];
                 if self.local_viewer {
                     let norm = (eye[0] * eye[0] + eye[1] * eye[1] + eye[2] * eye[2]).sqrt();
@@ -3003,11 +3015,11 @@ impl Ctx {
                     (normal[0] * half[0] + normal[1] * half[1] + normal[2] * half[2]) / norm
                 } else { 0.0 };
                 // The reference quantizes intermediate powers at oblique angles.
-                if n_dot_h < 0.0 { 0.0 } else { n_dot_h.powf(self.shininess[0]) }
+                if n_dot_h < 0.0 { 0.0 } else { n_dot_h.powf(self.shininess[side]) }
             } else { 0.0 };
             for k in 0..3 {
                 lit[k] += spot * attenuation * (light_ambient[k] * ambient[k] + cosine * light_diffuse[k] * diffuse[k]
-                    + highlight * light_specular[k] * self.specular[0][k]);
+                    + highlight * light_specular[k] * self.specular[side][k]);
             }
         }
         lit = lit.map(|v| v.clamp(0.0, 1.0));
@@ -3158,6 +3170,7 @@ impl Ctx {
                 w: coord(a.w, b.w),
                 tc: tri::zip4(a.tc, b.tc, mix),
                 edge: b.edge,
+                back_color: None,
                 fog_factor: a.fog_factor.zip(b.fog_factor).map(|(fa, fb)| mix(fa, fb)),
             };
             let color = if self.shade == FLAT { cb } else { tri::zip4(ca, cb, mix) };
@@ -3618,6 +3631,18 @@ impl Ctx {
     }
 
     fn polygon(&mut self, q: &[(Obj, [f32; 4])], provoking: usize) -> Res<()> {
+        let back_vertices;
+        let q = if q.iter().any(|v| v.0.back_color.is_some()) {
+            let clip: Vec<_> = q.iter().map(|v| self.clip_coords(v.0)).collect();
+            let cut = self.clip_polygon(q, &clip).0;
+            if cut.len() < 3 { return Ok(()); }
+            let window: Vec<_> = cut.iter().map(|p| [f64::from(p[0] / p[3]), f64::from(p[1] / p[3])]).collect();
+            if (tri::signed_area(&window) > 0.0) != (self.front_face == CCW) {
+                back_vertices = q.iter().map(|&(obj, color)| (obj, obj.back_color.unwrap_or(color))).collect::<Vec<_>>();
+                &back_vertices[..]
+            } else { q }
+        } else { q };
+
         // (filled polygons only: other polygon modes, stipple, antialiasing and offsets on
         // triangles are not measured)
         if self.poly_mode != [POLY_FILL, POLY_FILL] {
@@ -3961,7 +3986,7 @@ impl Ctx {
                     // (an axis-aligned rectangle of one color and depth inside the near and far
                     // planes at w = 1 as glRect; any other quad a polygon)
                     let w: Option<Vec<[f64; 3]>> = q.iter().map(|v| self.window(v.0).ok()).collect();
-                    let Some(w) = w.filter(|w| !texturing && q.iter().all(|v| v.1 == q[3].1) && w.iter().all(|p| p[2] == w[0][2])) else {
+                    let Some(w) = w.filter(|w| !texturing && q.iter().all(|v| v.0.back_color.is_none()) && q.iter().all(|v| v.1 == q[3].1) && w.iter().all(|p| p[2] == w[0][2])) else {
                         self.polygon(q, 3)?;
                         continue;
                     };

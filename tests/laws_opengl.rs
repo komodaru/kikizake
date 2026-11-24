@@ -2238,3 +2238,34 @@ fn every_color_material_selector_protects_exactly_its_components() {
         }
     }
 }
+
+#[test]
+fn two_sided_lighting_selects_material_and_reverses_back_normals() {
+    let input = "case sides
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glDisable 0xbd0
+gl glEnable 0xb50
+gl glEnable 0x4000
+gl glLightModeli 0xb52 1
+glp glLightModelfv i 0xb53 f 0 0 0 1
+glp glMaterialfv ii 0x404 0x1201 f 1 0 0 1
+glp glMaterialfv ii 0x405 0x1201 f 0 1 0 0.5
+gl glFrontFace 2305
+gl glNormal3f 0 0 1
+gl glRectf -1 -1 1 1
+glread 8 8 1 1 0x1908 0x1401 4
+gl glFrontFace 2304
+gl glNormal3f 0 0 -1
+gl glRectf -1 -1 1 1
+glread 8 8 1 1 0x1908 0x1401 4
+gl glFrontFace 2304
+gl glNormal3f 0 0 1
+gl glRectf -1 -1 1 1
+glread 8 8 1 1 0x1908 0x1401 4
+glerr
+end
+";
+    let cases = kikizake::case::parse_cases(input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["read ff0000ff", "read 00ff007f", "read 0000007f", "glerr 0"]);
+}
