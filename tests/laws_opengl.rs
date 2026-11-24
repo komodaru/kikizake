@@ -2593,3 +2593,32 @@ end
         assert_eq!(&output[1..], [format!("read {row}"), format!("read {interior}"), "glerr 0".to_owned()]);
     }
 }
+
+#[test]
+fn evaluator_cubic_quadratic_surface_matches_windows() {
+    // Raising only control point (1, 1) gives the two samples different heights.
+    let input = "case surface
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glClearColor 0 0 0 0
+gl glClear 0x4000
+gl glDisable 0xbd0
+glp glMap2f iffiiffii 0xdb7 0 1 9 4 0 1 3 3 f -0.75 -0.5 0 -0.75 0 0 -0.75 0.5 0 -0.25 -0.5 0 -0.25 1 0 -0.25 0.5 0 0.25 -0.5 0 0.25 0 0 0.25 0.5 0 0.75 -0.5 0 0.75 0 0 0.75 0.5 0
+gl glEnable 0xdb7
+gl glBegin 0
+gl glEvalCoord2f 0.25 0.5
+gl glEvalCoord2f 0.75 0.5
+gl glEnd
+glread 4 8 2 2 0x1908 0x1401 16
+glread 10 7 2 2 0x1908 0x1401 16
+glerr
+end
+";
+    let double = input.replace("glMap2f iffiiffii", "glMap2d iddiiddii")
+        .replace("3 3 f ", "3 3 d ").replace("glEvalCoord2f", "glEvalCoord2d");
+    for commands in [input, double.as_str()] {
+        let cases = kikizake::case::parse_cases(commands);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], ["read 000000000000000000000000ffffffff",
+            "read 000000000000000000000000ffffffff", "glerr 0"]);
+    }
+}
