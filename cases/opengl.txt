@@ -117748,6 +117748,21 @@ glr glDebugEntry i ii 1 1
 gl glEnd
 glerr
 end
+case wgl-main-plane-palette
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glLoadIdentity
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+gl glDisable 0xbd0
+wglx getlayerpal 0 0 0
+wglx getlayerpal 0 0 4
+wglx setlayerpal 0 0 0
+wglx setlayerpal 0 0 4
+wglx realize 0 0
+wglx realize 0 1
+glerr
+end
 case gap-wgl-1
 glctx 32 choose 0x38 0 32 0 0 32 8
 gl glMatrixMode 0x1701

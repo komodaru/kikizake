@@ -3869,6 +3869,8 @@ fn gaps(s: &mut String) {
     // WGL: the other exports on the DIB's DC (WGL.OTHER)
     head(s, "gap-wgl-0", 32);
     writeln!(s, "wglx getpf\nwglx descpf 1\nwglx descpf 99\nwglx setpf 2\nwglx choose 0x38 0 32 0 0 32 8\nwglx swap\nwglx swaplayer 1\nwglx swapmultiple 1\nwglx proc glAddSwapHintRectWIN\nwglx proc glColorTableEXT\nwglx proc wglSwapIntervalEXT\nwglx proc glBegin\nwglx defproc glBegin\nwglx layer 1 1\nwglx layer 1 0\nwglx getlayerpal 1 0 4\nwglx setlayerpal 1 0 4\nwglx realize 1 1\nwglx layerctx 1\nwglx layerctx 0\nwglx share\nwglx copy 0x40000\nglerr\ngl glEnable -1\nglr glDebugEntry i ii 0 0\nglerr\ngl glBegin 0\nglr glDebugEntry i ii 1 1\ngl glEnd\nglerr\nend");
+    head(s, "wgl-main-plane-palette", 32);
+    writeln!(s, "wglx getlayerpal 0 0 0\nwglx getlayerpal 0 0 4\nwglx setlayerpal 0 0 0\nwglx setlayerpal 0 0 4\nwglx realize 0 0\nwglx realize 0 1\nglerr\nend");
     head(s, "gap-wgl-1", 32);
     writeln!(s, "wglx fontbmp a 65 3 100\nglr glIsList b i 100\nglr glIsList b i 102\nglr glIsList b i 103\ngl glColor4ub 255 255 255 255\ngl glRasterPos2i 1 3\ngl glListBase 35\nglp glCallLists ii 3 0x1401 ub 65 66 67\nglget f 0xb07 4");
     read_all(s);
