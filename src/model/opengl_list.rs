@@ -10,7 +10,7 @@ use crate::case::{num, Op};
 use crate::spec::{clause, hit};
 
 const COMPILE: u32 = 0x1300;
-const COMPILE_AND_EXECUTE: u32 = 0x1301;
+pub(super) const COMPILE_AND_EXECUTE: u32 = 0x1301;
 /// GL_MAX_LIST_NESTING
 const NESTING: u32 = 64;
 

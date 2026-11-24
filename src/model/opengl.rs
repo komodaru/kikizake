@@ -1468,15 +1468,36 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                     ctx.error(INVALID_OPERATION);
                     "0 0".into()
                 }
-                ("fontbmp", []) if wgl_font_last_name(base, count).is_some()
-                    && ctx.in_begin.is_none() && ctx.lists.compiling.is_none() => {
-                    let mut lines = Vec::new();
+                ("fontbmp", []) if wgl_font_last_name(base, count).is_some() && ctx.in_begin.is_none() => {
+                    if let Some(current) = &ctx.lists.compiling {
+                        let boundary = current.lines.iter().rev().filter_map(|line| line.tok.get(1))
+                            .find(|name| matches!(name.as_str(), "glBegin" | "glEnd"));
+                        if boundary.is_some_and(|name| name == "glBegin") {
+                            return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER));
+                        }
+                    }
+                    let mut glyphs = Vec::new();
                     for offset in 0..count {
                         let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
-                        lines.push((base.checked_add(offset.cast_unsigned()).ok_or(Fail::Bad)?, vec![wgl_bitmap_line(code, encoding)?]));
+                        glyphs.push((base.checked_add(offset.cast_unsigned()).ok_or(Fail::Bad)?, wgl_bitmap_line(code, encoding)?));
+                    }
+                    let mut glyphs = glyphs.into_iter();
+                    if let Some(mut current) = ctx.lists.compiling.take() {
+                        // The first glNewList fails; glBitmap and glEndList still affect the caller's list.
+                        ctx.error(INVALID_OPERATION);
+                        let (_, first) = glyphs.next().ok_or(Fail::Bad)?;
+                        if current.mode == list::COMPILE_AND_EXECUTE {
+                            let saved = ctx.unpack;
+                            ctx.unpack = first.unpack.ok_or(Fail::Bad)?;
+                            let result = ctx.bitmap(&first.tok);
+                            ctx.unpack = saved;
+                            result?;
+                        }
+                        current.lines.push(first);
+                        ctx.lists.lists.insert(current.name, current.lines);
                     }
                     hit(clause::WGL_FONT_LIST_RANGE);
-                    ctx.lists.lists.extend(lines);
+                    ctx.lists.lists.extend(glyphs.map(|(id, line)| (id, vec![line])));
                     "1 0".into()
                 }
                 ("fontoutline", [fmt]) if !matches!(integer(fmt)?, 0 | 1) => "0 8".into(),

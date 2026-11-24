@@ -2284,3 +2284,18 @@ fn debug_entry_preserves_each_gl_error_inside_and_outside_primitives() {
         }
     }
 }
+
+#[test]
+fn bitmap_fonts_finish_an_active_list_with_the_first_glyph() {
+    for encoding in ["a", "w"] {
+        for (mode, immediate_x) in [(4864, "41000000"), (4865, "41700000")] {
+            let input = format!("case bitmap\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glRasterPos2i 0 0\ngl glNewList 55 {mode}\ngl glListBase 12\nwglx fontbmp {encoding} 65 2 100\nglerr\nglget i 0xb33 1\nglget f 0xb07 4\ngl glEndList\nglerr\nglr glIsList b i 100\nglr glIsList b i 101\ngl glRasterPos2i 0 0\ngl glListBase 9\ngl glCallList 55\nglget i 0xb32 1\nglget f 0xb07 4\ngl glCallList 101\nglget f 0xb07 4\nglerr\nend\n");
+            let cases = kikizake::case::parse_cases(&input);
+            let output = kikizake::model::run_case(&cases[0]).unwrap();
+            let immediate = format!("get b07 = {immediate_x} 40ffe000 3f000000 3f800000");
+            assert_eq!(&output[1..], ["wglx fontbmp 1 0", "glerr 502", "get b33 = 0", &immediate,
+                "glerr 502", "ret 0", "ret 1", "get b32 = 12", "get b07 = 41700000 40ffe000 3f000000 3f800000",
+                "get b07 = 41b80000 40ffe000 3f000000 3f800000", "glerr 0"]);
+        }
+    }
+}
