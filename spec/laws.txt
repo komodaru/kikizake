@@ -876,3 +876,5 @@ tests/laws_opengl.rs::filled_rectangle_obeys_enabled_clip_planes pbt GL.CLIPPLAN
 src/proofs.rs::clip_plane_triangle_preserves_edge_interpolants kani GL.CLIPPLANE
 src/proofs.rs::clip_line_classifies_both_ends kani GL.CLIPPLANE
 tests/laws_gdiround.rs::region_flattening_threshold_matches_windows exhaustive GDI.RGN.ROUND
+tests/laws_opengl.rs::every_outline_edge_mask_matches_windows exhaustive GL.EDGEFLAG.MORE
+tests/laws_opengl.rs::edge_flags_select_only_their_polygon_points pbt GL.EDGEFLAG.MORE

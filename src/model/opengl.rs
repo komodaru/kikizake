@@ -2421,8 +2421,8 @@ impl Ctx {
     /// tex-open-more-outline-cut: the cut polygon's edges, the one along the cut too, as a
     /// GL_LINE_LOOP, each new corner's texture coordinates and color between its ends' in clip
     /// space); flat-shaded, fogged, generated coordinates, offset or in GL_POINT mode not measured
-    fn cut_textured_outline(&mut self, q: &[(Obj, [f32; 4])], clip: &[[f32; 4]], colors: &[[f32; 4]], face: u32) -> Res<()> {
-        if face == POLY_POINT || self.shade == FLAT || self.cap(FOG) || [0xc60u32, 0xc61, 0xc62, 0xc63].iter().any(|g| self.cap(*g)) || (self.cap(POLYGON_OFFSET_LINE) && self.cap(DEPTH_TEST)) {
+    fn cut_textured_outline(&mut self, q: &[(Obj, [f32; 4])], clip: &[[f32; 4]], colors: &[[f32; 4]], face: u32, edges: &[bool]) -> Res<()> {
+        if self.shade == FLAT || self.cap(FOG) || [0xc60u32, 0xc61, 0xc62, 0xc63].iter().any(|g| self.cap(*g)) || (self.cap(POLYGON_OFFSET_LINE) && self.cap(DEPTH_TEST)) {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         let at: Vec<[f32; 12]> = q.iter().zip(clip).zip(colors).map(|((v, p), c)| {
@@ -2442,7 +2442,7 @@ impl Ctx {
         // These vertices are already clipped and are now in clip coordinates.
         let enabled: Vec<_> = (0x3000..=0x3005).filter(|&cap| self.cap(cap)).collect();
         for &cap in &enabled { self.caps.insert(cap, false); }
-        let drawn = self.end(LINE_LOOP);
+        let drawn = self.end_with_edges(if face == POLY_POINT { POINTS } else { LINE_LOOP }, Some(edges));
         for cap in enabled { self.caps.insert(cap, true); }
         for (m, top) in saved.into_iter().enumerate() {
             *self.stacks.get_mut(m).ok_or(Fail::Bad)?.top_mut() = top;
@@ -2634,9 +2634,13 @@ impl Ctx {
 
     /// Carry eye-space distances through every cut alongside the raster attributes.
     fn clip_polygon<const D: usize>(&self, q: &[(Obj, [f32; 4])], vertices: &[[f32; D]]) -> (Vec<[f32; D]>, usize) {
+        self.clip_polygon_edges(q, vertices, None)
+    }
+
+    fn clip_polygon_edges<const D: usize>(&self, q: &[(Obj, [f32; 4])], vertices: &[[f32; D]], flag: Option<usize>) -> (Vec<[f32; D]>, usize) {
         let enabled: Vec<_> = self.enabled_clip_planes().collect();
         if enabled.is_empty() {
-            return tri::clip_crossing(vertices);
+            return tri::clip_crossing_edges(vertices, flag);
         }
         // Four clip coordinates, up to eight color and texture components, then six distances.
         const { assert!(D <= 12); }
@@ -2650,9 +2654,9 @@ impl Ctx {
             }
             record
         }).collect();
-        let (mut cut, crossed) = tri::clip_crossing(&extended);
+        let (mut cut, crossed) = tri::clip_crossing_edges(&extended, flag);
         for (slot, _) in (12..18).zip(enabled) {
-            cut = tri::clip_halfspace(&cut, |v| v.get(slot).copied().unwrap_or_default()).0;
+            cut = tri::clip_halfspace_edges(&cut, flag, |v| v.get(slot).copied().unwrap_or_default()).0;
         }
         (cut.iter().filter_map(|p| p.first_chunk::<D>().copied()).collect(), crossed)
     }
@@ -3165,30 +3169,28 @@ impl Ctx {
                 // (fogged at the corners, raster-open-28)
                 let fogged: Vec<[f32; 4]> = q.iter().map(|v| self.fogged(v.1, v.0)).collect();
                 let c = fogged.get(provoking).copied().ok_or(Fail::Bad)?;
-                let at: Vec<[f32; 8]> = clip
+                let at: Vec<[f32; 9]> = clip
                     .iter()
                     .zip(&fogged)
-                    .map(|(p, v)| {
+                    .zip(q)
+                    .map(|((p, v), (obj, _))| {
                         let c = if self.shade == FLAT { c } else { *v };
-                        [p[0], p[1], p[2], p[3], c[0], c[1], c[2], c[3]]
+                        [p[0], p[1], p[2], p[3], c[0], c[1], c[2], c[3], f32::from(obj.edge)]
                     })
                     .collect();
-                let cut = self.clip_polygon(q, &at).0;
+                let cut = self.clip_polygon_edges(q, &at, Some(8)).0;
                 if cut.is_empty() { return Ok(()); }
                 if cut != at {
                     hit(clause::GL_RASTER_CLIP_XY);
                 }
                 // (edge flags: an edge from a vertex whose flag is off not drawn, a corner whose
                 // flag is off not drawn in GL_POINT mode (MEASURED, golden opengl-32 / 64
-                // gap-array-1: GL.ARRAY); with the polygon cut, or wide, antialiased or textured
-                // edges, not measured: GL.EDGEFLAG.MORE)
-                let edges: Vec<bool> = q.iter().map(|v| v.0.edge).collect();
+                // gap-array-1: GL.ARRAY). The flags follow the outgoing edges through clipping.
+                let edges: Vec<bool> = cut.iter().map(|p| p[8] != 0.0).collect();
                 let flagged = edges.iter().any(|e| !*e);
                 if flagged {
                     hit(clause::GL_ARRAY);
-                    if cut != at || self.texturing() || self.line_width.to_bits() != 1.0f32.to_bits() || self.cap(LINE_SMOOTH) {
-                        return Err(Fail::Unmodeled(open::GL_EDGEFLAG_MORE));
-                    }
+                    hit(clause::GL_EDGEFLAG_MORE);
                 }
                 let [vx, vy, vw, vh] = self.viewport.map(|v| v as f64);
                 // (MEASURED, golden opengl-32 / 64 raster-open-50: under GL_POLYGON_OFFSET_LINE
@@ -3225,7 +3227,7 @@ impl Ctx {
                         return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
                     }
                     if cut != at {
-                        return self.cut_textured_outline(&q, &clip, &fogged, face);
+                        return self.cut_textured_outline(q, &clip, &fogged, face, &edges);
                     }
                     self.verts = if self.shade == FLAT { q.iter().map(|v| (v.0, q.get(provoking).map_or(v.1, |p| p.1))).collect() } else { q.to_vec() };
                     // (MEASURED, golden opengl-32 / 64 tex-open-more-outline-offset: offset,
@@ -3233,7 +3235,7 @@ impl Ctx {
                     if offset_line {
                         self.loop_offsets = (0..q.len()).map(|k| fan.get(k.saturating_sub(1).min(fan.len().saturating_sub(1))).copied().unwrap_or(0.0)).collect();
                     }
-                    let drawn = self.end(if face == POLY_POINT { POINTS } else { LINE_LOOP });
+                    let drawn = self.end_with_edges(if face == POLY_POINT { POINTS } else { LINE_LOOP }, Some(&edges));
                     (self.line_z_offset, self.loop_offsets) = (0.0, Vec::new());
                     return drawn;
                 }
@@ -3265,7 +3267,7 @@ impl Ctx {
                 // offset polygons of more corners or cut ones not measured)
                 if self.line_width != 1.0 || self.cap(LINE_SMOOTH) {
                     // (cut by the view volume, antialiased: the cut polygon's edges, raster-open-53)
-                    if cut != at && self.cap(LINE_SMOOTH) && !self.aliased_smooth_line() {
+                    if (cut != at || flagged) && self.cap(LINE_SMOOTH) && !self.aliased_smooth_line() {
                         // (the corners' colors in channel units through the cut, as an
                         // antialiased triangle's)
                         let scale = self.channel_scales();
@@ -3273,6 +3275,7 @@ impl Ctx {
                         let cut = self.clip_polygon(q, &units).0;
                         let corner = |p: &[f32; 8]| tri::ClipEnd { clip: [p[0], p[1], p[2], p[3]], c: [p[4], p[5], p[6], p[7]] };
                         for (k, (p, n)) in cut.iter().zip(cut.iter().cycle().skip(1)).enumerate() {
+                            if !edges.get(k).copied().unwrap_or(true) { continue; }
                             self.aa_line_ends(corner(p), corner(n), k == 0)?;
                         }
                         return Ok(());
@@ -3280,13 +3283,14 @@ impl Ctx {
                     // (cut by the view volume, aliased: the cut polygon's edges as lines of clip
                     // coordinates, the corners' colors in channel units through the cut,
                     // raster-open-61)
-                    if cut != at {
+                    if cut != at || flagged {
                         let scale = self.channel_scales();
                         let units: Vec<[f32; 8]> = at.iter().map(|p| [p[0], p[1], p[2], p[3], p[4] * scale[0], p[5] * scale[1], p[6] * scale[2], p[7] * scale[3]]).collect();
                         let cut = self.clip_polygon(q, &units).0;
                         // (offset: each edge its fan triangle's offset, MEASURED, golden opengl-32 /
                         // 64 raster-more-offset-wide-cut)
                         for (k, (p, n)) in cut.iter().zip(cut.iter().cycle().skip(1)).enumerate() {
+                            if !edges.get(k).copied().unwrap_or(true) { continue; }
                             self.line_z_offset = if offset_line { edge_offset(k) } else { 0.0 };
                             let back = |c: [f32; 4]| [c[0] / scale[0], c[1] / scale[1], c[2] / scale[2], c[3] / scale[3]];
                             let (ca, cb) = (back([p[4], p[5], p[6], p[7]]), back([n[4], n[5], n[6], n[7]]));
@@ -3435,6 +3439,11 @@ impl Ctx {
     }
 
     fn end(&mut self, mode: u32) -> Res<()> {
+        self.end_with_edges(mode, None)
+    }
+
+    fn end_with_edges(&mut self, mode: u32, edges: Option<&[bool]>) -> Res<()> {
+        let visible = |i| edges.and_then(|e| e.get(i)).copied().unwrap_or(true);
         let texturing = self.texturing();
         self.line_texture = None;
         let verts = std::mem::take(&mut self.verts);
@@ -3445,7 +3454,8 @@ impl Ctx {
         match mode {
             POINTS => {
                 hit(clause::GL_POINT);
-                for (v, c) in verts {
+                for (i, (v, c)) in verts.into_iter().enumerate() {
+                    if !visible(i) { continue; }
                     let [x, y, z] = v.xyz;
                     let eye = xform(self.top(0), [x, y, z, v.w]).map(tri::narrow);
                     if self.culled_z(&[v]) || !self.enabled_clip_planes().all(|i| Self::user_clip_distance(i, eye) >= 0.0) {
@@ -3614,6 +3624,7 @@ impl Ctx {
                 // and a loop's run on: GL 1.1 3.4.2)
                 self.stipple = (0, None);
                 for (i, j) in pairs {
+                    if !visible(i) { continue; }
                     if mode == LINES {
                         self.stipple = (0, None);
                     }
@@ -6822,10 +6833,14 @@ pub mod tri {
     /// `clip`, and the most times the outline crossed one plane (more than 2 only for a
     /// polygon that is not convex).
     pub fn clip_crossing<const D: usize>(poly: &[[f32; D]]) -> (Vec<[f32; D]>, usize) {
+        clip_crossing_edges(poly, None)
+    }
+
+    pub(super) fn clip_crossing_edges<const D: usize>(poly: &[[f32; D]], flag: Option<usize>) -> (Vec<[f32; D]>, usize) {
         let mut poly = poly.to_vec();
         let mut most = 0;
         for (axis, sign) in [(0, -1.0f32), (0, 1.0), (1, -1.0), (1, 1.0), (2, -1.0), (2, 1.0)] {
-            let (out, crossed) = clip_halfspace(&poly, |v| v[3] - sign * v[axis]);
+            let (out, crossed) = clip_halfspace_edges(&poly, flag, |v| v[3] - sign * v[axis]);
             most = most.max(crossed);
             poly = out;
         }
@@ -6852,6 +6867,10 @@ pub mod tri {
     }
 
     pub fn clip_halfspace<const D: usize>(poly: &[[f32; D]], distance: impl Fn(&[f32; D]) -> f32) -> (Vec<[f32; D]>, usize) {
+        clip_halfspace_edges(poly, None, distance)
+    }
+
+    pub(super) fn clip_halfspace_edges<const D: usize>(poly: &[[f32; D]], flag: Option<usize>, distance: impl Fn(&[f32; D]) -> f32) -> (Vec<[f32; D]>, usize) {
         let mut out = Vec::new();
         let mut crossed = 0;
         for (&a, b) in poly.last().into_iter().chain(poly.iter()).zip(poly) {
@@ -6862,7 +6881,13 @@ pub mod tri {
                 let t = di / (di - dout);
                 // (the cut point as interpolated, its cut coordinate not set to the plane's:
                 // golden opengl-32 persp-4)
-                out.push(std::array::from_fn(|k| inside[k] + t * (outside[k] - inside[k])));
+                let mut vertex = std::array::from_fn(|k| inside[k] + t * (outside[k] - inside[k]));
+                if let Some((dst, original)) = flag.and_then(|k| vertex.get_mut(k).zip(a.get(k))) {
+                    // On leaving, the outgoing edge follows the clip plane. On entering,
+                    // it continues the original edge from a to b.
+                    *dst = if da >= 0.0 { 1.0 } else { *original };
+                }
+                out.push(vertex);
             }
             if db >= 0.0 {
                 out.push(*b);

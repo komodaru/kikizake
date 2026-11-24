@@ -1487,3 +1487,66 @@ fn clipped_polygon_draws_new_corners_and_edge() {
         assert_eq!(&output[1..], [read, "glerr 0"], "{}", case.name);
     }
 }
+
+/// All eight triangle flags, with one corner inside or outside the left plane,
+/// in point, thin line, wide line and antialiased line modes on Windows.
+#[test]
+fn every_outline_edge_mask_matches_windows() {
+    use std::fmt::Write;
+    let mut golden = include_str!("fixtures/opengl_edge_masks.txt").lines();
+    for textured in [false, true] {
+        for first in [-4, 2] {
+            for (mode, extra) in [(0x1b00, ""), (0x1b01, ""), (0x1b01, "gl glLineWidth 3\n"), (0x1b01, "gl glEnable 0xb20\n")] {
+                for mask in 0..8 {
+                    let setup = if textured { "gltex 3553 0 4 4 4 0 0x1908 0x1401 19 64\ngl glTexParameteri 3553 10241 9728\ngl glTexEnvi 8960 8704 8448\ngl glEnable 3553\n" } else { "" };
+                    let head = format!("case edge\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMatrixMode 0x1701\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700\ngl glDisable 0xbd0\n{setup}gl glClear 0x4000\ngl glPolygonMode 0x408 {mode}\n{extra}");
+                    let mut input = format!("{head}gl glBegin 4\n");
+                    for (i, (x, y)) in [(first, 2), (13, 4), (6, 13)].into_iter().enumerate() {
+                        if textured { writeln!(input, "gl glTexCoord2f {}", ["0 0", "1 0", "0.5 1"][i]).unwrap(); }
+                        writeln!(input, "gl glEdgeFlag {}\ngl glVertex2f {x} {y}", (mask >> i) & 1).unwrap();
+                    }
+                    input.push_str("gl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\nend\n");
+                    let cases = kikizake::case::parse_cases(&input);
+                    let output = kikizake::model::run_case(&cases[0]).unwrap();
+                    let mut read = String::from("read ");
+                    for run in golden.next().unwrap().split_whitespace() {
+                        let (count, rgba) = run.split_once('*').unwrap();
+                        read.push_str(&rgba.repeat(count.parse().unwrap()));
+                    }
+                    assert_eq!(&output[1..], [read.as_str(), "glerr 0"], "{first} {mode} {extra} {mask}");
+                    if !textured {
+                        let flags = [mask & 1, (mask >> 1) & 1, (mask >> 2) & 1];
+                        let [a, b, c] = flags;
+                        let array = format!("{head}glp glVertexPointer iii 2 0x1406 0 f {first} 2 13 4 6 13\ngl glEnableClientState 0x8074\nglp glEdgeFlagPointer i 2 ub {a} 99 {b} 99 {c} 99\ngl glEnableClientState 0x8079\ngl glDrawArrays 4 0 3\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\nend\n");
+                        let cases = kikizake::case::parse_cases(&array);
+                        assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), output);
+                    }
+                }
+            }
+        }
+    }
+    assert!(golden.next().is_none());
+}
+
+proptest! {
+    #[test]
+    fn edge_flags_select_only_their_polygon_points(x in 1u8..5, y in 1u8..5, mask in 0u8..8) {
+        use std::fmt::Write;
+        let points = [(x, y), (x + 6, y + 1), (x + 1, y + 6)];
+        let mut input = String::from("case points\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMatrixMode 0x1701\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700\ngl glClear 0x4000\ngl glPolygonMode 0x408 0x1b00\ngl glBegin 4\n");
+        for (i, (px, py)) in points.iter().enumerate() {
+            writeln!(input, "gl glEdgeFlag {}\ngl glVertex2f {px}.5 {py}.5", (mask >> i) & 1).unwrap();
+        }
+        input.push_str("gl glEnd\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        let result = kikizake::model::run_case(&cases[0]).unwrap();
+        let mut read = String::from("read ");
+        for py in 0..16 {
+            for px in 0..16 {
+                let drawn = points.iter().enumerate().any(|(i, p)| *p == (px, py) && mask & (1 << i) != 0);
+                read.push_str(if drawn { "ffffffff" } else { "000000ff" });
+            }
+        }
+        prop_assert_eq!(&result[1..], [read.as_str(), "glerr 0"]);
+    }
+}

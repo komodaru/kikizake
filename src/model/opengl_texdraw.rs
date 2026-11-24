@@ -554,7 +554,7 @@ impl Ctx {
             [s, t, q, self.fog.factor(super::xform(self.top(0), [v.xyz[0], v.xyz[1], v.xyz[2], v.w])[2])]
         };
         let (c0, c1) = (four(a), four(b));
-        let first = first.unwrap_or_else(|| tri::trunc(tri::narrow(from.floor())));
+        let first = first.unwrap_or_else(|| tri::trunc(tri::narrow(if y_major { from.ceil() - 1.0 } else { from.floor() })));
         // (from the snapped first end to the first pixel's center, over the snapped run)
         let (e0, e1) = if y_major { (ay.0, by.0) } else { (ax.0, bx.0) };
         let srun = tri::float(e1.saturating_sub(e0)) / 256.0;
