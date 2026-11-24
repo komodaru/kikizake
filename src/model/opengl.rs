@@ -1190,6 +1190,7 @@ fn wgl_dc(ctx: &Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
         ("swaplayer", [mask]) => { integer(mask)?; "1 0".into() }
         ("swapmultiple", [arg]) => {
             let n = u32::try_from(integer(arg)?).ok().filter(|&v| v <= 16).ok_or(Fail::Bad)?;
+            hit(clause::WGL_SWAP_MULTIPLE);
             format!("{} 0", low_bits(n))
         }
         ("getpf" | "descpf" | "setpf" | "choose" | "swap" | "swaplayer" | "swapmultiple" | "layer" | "realize" | "getlayerpal"

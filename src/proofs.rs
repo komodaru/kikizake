@@ -362,3 +362,13 @@ fn clip_line_classifies_both_ends() {
         }
     }
 }
+
+/// Every bit in the native return word represents exactly one submitted DIB DC.
+#[kani::proof]
+fn wgl_swap_result_identifies_every_entry() {
+    let count: u32 = kani::any();
+    let bit: u32 = kani::any();
+    kani::assume(count <= 16 && bit < u32::BITS);
+    let result = crate::model::opengl::low_bits(count);
+    assert_eq!((result >> bit) & 1 != 0, bit < count);
+}
