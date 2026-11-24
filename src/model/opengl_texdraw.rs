@@ -85,8 +85,7 @@ impl LineTex {
     pub fn along(&self, k: i64) -> ([f32; 4], Stq) {
         let n = tri::float(k);
         let v: [f32; 4] = std::array::from_fn(|i| self.c0.get(i).copied().unwrap_or(0.0) + n * self.step.get(i).copied().unwrap_or(0.0));
-        let [s, t, q, _] = v;
-        (v, Stq::at([s, t, q]))
+        (v, self.sample_coords(v))
     }
 
     /// at pixel (x, y)
@@ -94,8 +93,14 @@ impl LineTex {
         let j = if self.y_major { y } else { x };
         let n = tri::float(j.saturating_sub(self.first).saturating_mul(self.sign));
         let v: [f32; 4] = std::array::from_fn(|k| self.c0.get(k).copied().unwrap_or(0.0) + n * self.step.get(k).copied().unwrap_or(0.0));
-        let [s, t, q, _] = v;
-        Stq::at([s, t, q])
+        self.sample_coords(v)
+    }
+
+    fn sample_coords(&self, [s, t, q, _]: [f32; 4]) -> Stq {
+        let [ds, dt, dq, _] = self.step;
+        let delta = [ds, dt, dq].map(|v| v * tri::float(self.sign));
+        let (dx, dy) = if self.y_major { ([0.0; 3], delta) } else { (delta, [0.0; 3]) };
+        Stq { at: [s, t, q], dx, dy }
     }
 }
 

@@ -1583,3 +1583,14 @@ proptest! {
         check_raster_texel(usize::from(x), usize::from(y), coord(x, ds), coord(y, dt));
     }
 }
+
+#[test]
+fn clipped_outlines_select_the_minification_filter() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_outline_min_filter.txt"));
+    let minified = format!("read {}{}", "88914dff".repeat(6), "313e2cff".repeat(7));
+    let magnified = "read 8a6e44ff857248ff746947ff625f46ff515645ff3f4c43ff474445ff5e3e48ff75374bff8c304effa32a51ff9e2c49ff962f3fff";
+    for (case, expected) in zip_eq(&cases, [minified.as_str(), minified.as_str(), magnified]) {
+        let output = kikizake::model::run_case(case).unwrap();
+        assert_eq!(&output[1..], [expected, "glerr 0"], "{}", case.name);
+    }
+}

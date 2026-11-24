@@ -2422,7 +2422,7 @@ impl Ctx {
     /// GL_LINE_LOOP, each new corner's texture coordinates and color between its ends' in clip
     /// space); under flat shading all corners use the original provoking color
     fn cut_textured_outline(&mut self, q: &[(Obj, [f32; 4])], clip: &[[f32; 4]], colors: &[[f32; 4]], face: u32, edges: &[bool]) -> Res<()> {
-        if self.cap(FOG) || [0xc60u32, 0xc61, 0xc62, 0xc63].iter().any(|g| self.cap(*g)) {
+        if self.cap(FOG) {
             return Err(Fail::Unmodeled(open::GL_RASTER_MODE));
         }
         let at: Vec<[f32; 12]> = q.iter().zip(clip).zip(colors).map(|((v, p), c)| {
