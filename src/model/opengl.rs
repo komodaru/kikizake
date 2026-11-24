@@ -273,6 +273,8 @@ pub mod tex;
 mod pixelmap;
 #[path = "opengl_gaps.rs"]
 mod gaps;
+#[path = "opengl_eval.rs"]
+mod eval;
 #[path = "opengl_list.rs"]
 pub mod list;
 #[path = "opengl_texdraw.rs"]
@@ -495,6 +497,7 @@ pub struct Ctx {
     pub color_mask: [bool; 4],
     /// the GLboolean bytes glColorMask was given (glGet gives them back as they are: GL.COLORMASK)
     pub color_mask_raw: [u32; 4],
+    evaluator_maps: std::collections::BTreeMap<i32, eval::Map>,
     grid1: GridAxis,
     grid2: [GridAxis; 2],
     pub viewport: [i64; 4],
@@ -877,6 +880,7 @@ impl Ctx {
             stencil_undefined: vec![false; W * H],
             color_mask: [true; 4],
             color_mask_raw: [1; 4],
+            evaluator_maps: Default::default(),
             grid1: GridAxis::UNIT,
             grid2: [GridAxis::UNIT; 2],
             viewport: [0, 0, W as i64, H as i64],
@@ -1862,6 +1866,8 @@ impl Gl {
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glLightModelfv" | "glLightModeliv")) => ctx.set_scene_vector(t)?,
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glLightfv" | "glLightiv")) => ctx.set_light_vector(t)?,
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glMaterialfv" | "glMaterialiv")) => ctx.set_material_vector(t)?,
+            CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glMap1f" | "glMap1d" | "glMap2f" | "glMap2d")) => ctx.define_map(t)?,
+            CtxOp::Glq if t.get(1).is_some_and(|n| matches!(n.as_str(), "glGetMapfv" | "glGetMapdv" | "glGetMapiv")) => ctx.query_map(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetMaterialfv" | "glGetMaterialiv")) => ctx.get_material(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetLightfv" | "glGetLightiv")) => ctx.get_light(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPointerv") => {
@@ -5205,7 +5211,7 @@ impl Ctx {
             index_shift,
             depth_transfer,
             zoom,
-            grid1, grid2,
+            evaluator_maps: _, grid1, grid2,
             // LIGHTING_BIT
             shade, scene_ambient, local_viewer, two_sided, materials, color_material, lights,
             // FOG_BIT

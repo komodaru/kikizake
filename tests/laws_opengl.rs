@@ -2425,3 +2425,54 @@ fn grid_segment_counts_keep_integer_precision_in_double_queries() {
     let output = kikizake::model::run_case(&cases[0]).unwrap();
     assert_eq!(&output[1..], ["get dd3 = 2147483647 16777217", "get dd3 = 41dfffffffc00000 4170000010000000", "glerr 0"]);
 }
+
+#[test]
+fn evaluator_control_points_match_windows_order_and_defaults() {
+    let input = "case map
+glctx 32 choose 0x38 0 32 0 0 32 8
+glq glGetMapfv ii 3472 0xa00 f 4
+glq glGetMapfv ii 3473 0xa00 f 4
+glq glGetMapfv ii 3474 0xa00 f 4
+glq glGetMapfv ii 3475 0xa00 f 4
+glq glGetMapfv ii 3476 0xa00 f 4
+glq glGetMapfv ii 3477 0xa00 f 4
+glq glGetMapfv ii 3478 0xa00 f 4
+glq glGetMapfv ii 3479 0xa00 f 4
+glq glGetMapfv ii 3480 0xa00 f 4
+glp glMap2f iffiiffii 0xdb3 -2 2 2 2 1 3 4 2 f -1.5 99 2.5 99 3.5 99 -0.5 99
+glq glGetMapfv ii 0xdb3 0xa00 f 4
+glq glGetMapiv ii 0xdb3 0xa00 i 4
+glq glGetMapdv ii 0xdb3 0xa02 d 4
+glq glGetMapiv ii 0xdb3 0xa01 i 2
+glerr
+end
+";
+    let cases = kikizake::case::parse_cases(input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["q 1 1 1 1", "q 1 -12345 -12345 -12345", "q 0 0 1 -12345", "q 0 -12345 -12345 -12345",
+        "q 0 0 -12345 -12345", "q 0 0 0 -12345", "q 0 0 0 1", "q 0 0 0 -12345", "q 0 0 0 1",
+        "q -1.5 3.5 2.5 -0.5", "q -2 4 3 -1", "q -2 2 1 3", "q 2 2", "glerr 0"]);
+}
+
+#[test]
+fn evaluator_maps_survive_attrib_pop_and_store_single_precision() {
+    let input = "case mapd
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glMap1d iddii 0xd93 0.1000000000001 1 1 2 d 0.2000000000001 0.3000000000001
+glq glGetMapdv ii 0xd93 0xa00 d 2
+glq glGetMapdv ii 0xd93 0xa02 d 2
+glp glMap1f iffii 0xdb3 0 1 1 1 f 2
+glerr
+glp glMap1f iffii 0xd93 0 0 1 1 f 2
+glerr
+gl glPushAttrib 0x10000
+glp glMap1f iffii 0xd93 2 3 1 1 f 8
+gl glPopAttrib
+glq glGetMapfv ii 0xd93 0xa00 f 2
+glerr
+end
+";
+    let cases = kikizake::case::parse_cases(input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["q 0.200000003 0.300000012", "q 0.100000001 1", "glerr 500", "glerr 501", "q 8 -12345", "glerr 0"]);
+}
