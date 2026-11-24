@@ -567,16 +567,23 @@ pub struct Ctx {
 
 pub const IDENTITY: [f32; 16] = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0];
 
+/// Whether a color-material selector owns one face's individual material property.
+pub(crate) fn tracks_material(enabled: bool, selector: (u32, u32), target: u32, property: u32) -> bool {
+    let (face, mode) = selector;
+    enabled && (face == FRONT_AND_BACK || face == target)
+        && (mode == property || (mode == 0x1602 && matches!(property, 0x1200 | 0x1201)))
+}
+
 impl Ctx {
     fn track_current_color(&mut self) {
         if !self.cap(COLOR_MATERIAL) { return; }
-        let (face, mode) = self.color_material;
+        let selector = self.color_material;
         for (i, target) in [FRONT, BACK].into_iter().enumerate() {
-            if face != target && face != FRONT_AND_BACK { continue; }
-            if matches!(mode, 0x1200 | 0x1602) { self.ambient_material[i] = self.color; }
-            if matches!(mode, 0x1201 | 0x1602) { self.diffuse_material[i] = self.color; }
-            if mode == 0x1202 { self.specular[i] = self.color; }
-            if mode == 0x1600 { self.emission[i] = std::array::from_fn(|k| self.scaled_color_component(k, self.color[k])); }
+            let tracks = |property| tracks_material(true, selector, target, property);
+            if tracks(0x1200) { self.ambient_material[i] = self.color; }
+            if tracks(0x1201) { self.diffuse_material[i] = self.color; }
+            if tracks(0x1202) { self.specular[i] = self.color; }
+            if tracks(0x1600) { self.emission[i] = std::array::from_fn(|k| self.scaled_color_component(k, self.color[k])); }
         }
     }
 
@@ -601,9 +608,9 @@ impl Ctx {
             } else {
                 for (i, target) in [0x404, 0x405].into_iter().enumerate() {
                     if face == target || face == 0x408 {
-                        let (tracked_face, mode) = self.color_material;
-                        let tracked = self.cap(COLOR_MATERIAL) && (tracked_face == target as u32 || tracked_face == FRONT_AND_BACK);
-                        let writable = |property| !tracked || (mode != property && !(mode == 0x1602 && matches!(property, 0x1200 | 0x1201)));
+                        let enabled = self.cap(COLOR_MATERIAL);
+                        let selector = self.color_material;
+                        let writable = |property| !tracks_material(enabled, selector, target as u32, property);
                         match pname {
                             0x1200 | 0x1201 | 0x1602 => {
                                 if pname != 0x1201 && writable(0x1200) { self.ambient_material[i] = values; }
@@ -2973,7 +2980,8 @@ impl Ctx {
         }
         // (the sums clamped to 0..1 at the vertex, before they are interpolated (MEASURED,
         // golden opengl-32 / 64 interp-open-9: corners of 1.2 times the color as if 1))
-        let tracked = |mode| self.cap(COLOR_MATERIAL) && (self.color_material.0 == FRONT_AND_BACK || self.color_material.0 == if back { BACK } else { FRONT }) && (self.color_material.1 == mode || self.color_material.1 == 0x1602);
+        let target = if back { BACK } else { FRONT };
+        let tracked = |property| tracks_material(self.cap(COLOR_MATERIAL), self.color_material, target, property);
         let ambient = if tracked(0x1200) { c } else { self.ambient_material[side] };
         let diffuse = if tracked(0x1201) { c } else { self.diffuse_material[side] };
         let mut lit = std::array::from_fn(|k| self.emission[side][k] + self.scene_ambient[k] * ambient[k]);

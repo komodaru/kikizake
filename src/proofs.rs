@@ -392,3 +392,19 @@ fn wgl_font_batch_has_exact_nonzero_names() {
         }
     }
 }
+
+#[kani::proof]
+fn tracked_material_matches_face_and_property_masks() {
+    use crate::model::opengl::e::{BACK, FRONT, FRONT_AND_BACK};
+    let enabled: bool = kani::any();
+    let face: u32 = kani::any();
+    let mode: u32 = kani::any();
+    let back: bool = kani::any();
+    let property: u32 = kani::any();
+    let faces = match face { FRONT => 1u8, BACK => 2, FRONT_AND_BACK => 3, _ => 0 };
+    let mask = |p| match p { 0x1200 => 1u8, 0x1201 => 2, 0x1202 => 4, 0x1600 => 8, 0x1602 => 3, _ => 0 };
+    kani::assume(matches!(property, 0x1200..=0x1202 | 0x1600));
+    let expected = enabled && faces & (1 << u8::from(back)) != 0 && mask(mode) & mask(property) != 0;
+    let target = if back { BACK } else { FRONT };
+    assert_eq!(crate::model::opengl::tracks_material(enabled, (face, mode), target, property), expected);
+}
