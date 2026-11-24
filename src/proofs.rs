@@ -323,3 +323,42 @@ fn polygon_notcopy_uses_packed_brush_word() {
     let shift = if bpp < 8 { (pos / 8) * 8 + (8 - bpp - pos % 8) } else { pos };
     assert_eq!(polygon_notcopy_source(bpp, i32::from(x), brush), (brush >> shift) & mask);
 }
+
+/// A triangle with one vertex outside a user plane acquires two cut vertices.
+/// For opposite unit distances, each cut is the exact midpoint of the edge,
+/// including its varying attribute. All signed byte attributes are represented.
+#[kani::proof]
+#[kani::unwind(6)]
+fn clip_plane_triangle_preserves_edge_interpolants() {
+    use crate::model::opengl::tri::clip_halfspace;
+    let a = f32::from(kani::any::<i8>());
+    let b = f32::from(kani::any::<i8>());
+    let c = f32::from(kani::any::<i8>());
+    let triangle = [[-1.0, a], [1.0, b], [1.0, c]];
+    let (vertices, crossings) = clip_halfspace(&triangle, |v| v[0]);
+    assert_eq!(crossings, 2);
+    assert_eq!(vertices.len(), 4);
+    assert_eq!(vertices[0], [0.0, (a + c) / 2.0]);
+    assert_eq!(vertices[1], [0.0, (a + b) / 2.0]);
+    assert_eq!(vertices[2], triangle[1]);
+    assert_eq!(vertices[3], triangle[2]);
+}
+
+/// For every pair of signed byte distances, keeping and rejecting agree with
+/// half-space membership. A crossing cuts the outside endpoint with a fraction
+/// in [0,1], including an inside endpoint exactly on the plane.
+#[kani::proof]
+fn clip_line_classifies_both_ends() {
+    use crate::model::opengl::tri::{line_plane_cut, LinePlaneCut};
+    let a = kani::any::<i8>();
+    let b = kani::any::<i8>();
+    match line_plane_cut([f32::from(a), f32::from(b)]) {
+        LinePlaneCut::Keep => assert!(a >= 0 && b >= 0),
+        LinePlaneCut::Reject => assert!(a < 0 && b < 0),
+        LinePlaneCut::Cut { outside, t } => {
+            assert!(if outside == 0 { a < 0 && b >= 0 } else { outside == 1 && b < 0 && a >= 0 });
+            assert!(t >= 0.0 && t <= 1.0);
+            assert_eq!(t == 0.0, a == 0 || b == 0);
+        }
+    }
+}

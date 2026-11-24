@@ -2627,14 +2627,12 @@ impl Ctx {
                 let [x, y, z] = v.xyz;
                 self.user_clip_distance(i, xform(self.top(0), [x, y, z, v.w]).map(|n| n as f32))
             });
-            let outside = match distances.map(|d| d >= 0.0) {
-                [true, true] => continue,
-                [false, false] => return None,
-                [false, true] => 0,
-                [true, false] => 1,
+            let (outside, t) = match tri::line_plane_cut(distances) {
+                tri::LinePlaneCut::Keep => continue,
+                tri::LinePlaneCut::Reject => return None,
+                tri::LinePlaneCut::Cut { outside, t } => (outside, t),
             };
             let inside = 1 - outside;
-            let t = distances[inside] / (distances[inside] - distances[outside]);
             let ((a, ca), (b, cb)) = (ends[inside], ends[outside]);
             let mix = |x: f32, y: f32| x + t * (y - x);
             let coord = |x: f64, y: f64| x + f64::from(t) * (y - x);
@@ -6714,6 +6712,25 @@ pub mod tri {
             poly = out;
         }
         (poly, most)
+    }
+
+    #[derive(Debug, PartialEq)]
+    pub(crate) enum LinePlaneCut {
+        Keep,
+        Reject,
+        Cut { outside: usize, t: f32 },
+    }
+
+    /// A cut fraction measured from the inside endpoint toward the outside endpoint.
+    pub(crate) fn line_plane_cut(d: [f32; 2]) -> LinePlaneCut {
+        let outside = match d.map(|v| v >= 0.0) {
+            [true, true] => return LinePlaneCut::Keep,
+            [false, false] => return LinePlaneCut::Reject,
+            [false, true] => 0,
+            [true, false] => 1,
+        };
+        let inside = 1 - outside;
+        LinePlaneCut::Cut { outside, t: d[inside] / (d[inside] - d[outside]) }
     }
 
     pub fn clip_halfspace<const D: usize>(poly: &[[f32; D]], distance: impl Fn(&[f32; D]) -> f32) -> (Vec<[f32; D]>, usize) {
