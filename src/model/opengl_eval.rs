@@ -65,7 +65,7 @@ pub(super) fn check_input(t: &[String]) -> Res<()> {
     } else { (0, 0) };
     let last = control_index(usize::from(u.order.saturating_sub(1)), j, u.stride, stride, point.len().saturating_sub(1)).ok_or(Fail::Bad)?;
     let capacity = if name.ends_with('d') { 512 } else { 1024 };
-    if last < capacity { Ok(()) } else { Err(Fail::Bad) }
+    (last < capacity).ok_or(Fail::Bad)
 }
 
 impl Ctx {

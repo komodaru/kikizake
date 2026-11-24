@@ -63,9 +63,14 @@ fn models_match_windows() {
                 bad.push(format!("{s}-{arch}: expected a successful recording and exact output for every operation"));
             }
             if *s == "opengl" {
-                let expected = case::parse_output(&g).cases.into_iter().find(|(name, _)| name == "gap-light-0").unwrap();
-                let actual = case::parse_output(&want).cases.into_iter().find(|(name, _)| name == "gap-light-0").unwrap();
-                assert_eq!(actual, expected, "lighting state and color-material rendering on {arch}-bit Windows");
+                let recorded = case::parse_output(&g);
+                let modeled = case::parse_output(&want);
+                for name in ["gap-light-0", "gap-eval-0"] {
+                    let expected = recorded.cases.iter().find(|(n, _)| n == name)
+                        .unwrap_or_else(|| panic!("missing {name} Windows recording on {arch}"));
+                    let actual = modeled.cases.iter().find(|(n, _)| n == name);
+                    assert_eq!(actual, Some(expected), "{name} on {arch}-bit Windows");
+                }
             }
             if matches!(*s, "d3d10res" | "d3d11res") {
                 let expected = case::parse_output(&g);
