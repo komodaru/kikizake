@@ -2344,3 +2344,24 @@ fn font_exports_handle_pending_errors_before_replacing_lists() {
         }
     }
 }
+
+#[test]
+fn zero_font_base_executes_the_first_glyph_without_defining_list_zero() {
+    for encoding in ["a", "w"] {
+        for count in [1, 2] {
+            for (api, format, result, error, raster_x, translate) in [
+                ("fontbmp", "", "1 0", "501", "41700000", "00000000"),
+                ("fontoutline", " 0", "0 8", "0", "41000000", "3f18e000"),
+                ("fontoutline", " 1", "0 8", "0", "41000000", "3f18e000"),
+            ] {
+                let input = format!("case zero\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glRasterPos2i 0 0\nwglx {api} {encoding} 65 {count} 0{format}\nglerr\nglget f 0xb07 4\nglget f 0xba6 16\nglr glIsList b i 0\nglr glIsList b i 1\nglerr\nend\n");
+                let cases = kikizake::case::parse_cases(&input);
+                let output = kikizake::model::run_case(&cases[0]).unwrap();
+                assert_eq!(&output[1..], [format!("wglx {api} {result}"), format!("glerr {error}"),
+                    format!("get b07 = {raster_x} 40ffe000 3f000000 3f800000"),
+                    format!("get ba6 = 3f800000 00000000 00000000 00000000 00000000 3f800000 00000000 00000000 00000000 00000000 3f800000 00000000 {translate} 00000000 00000000 3f800000"),
+                    "ret 0".into(), format!("ret {}", u8::from(api == "fontbmp" && count == 2)), "glerr 0".into()]);
+            }
+        }
+    }
+}

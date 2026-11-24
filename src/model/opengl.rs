@@ -1482,6 +1482,8 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                 // The outline call consumes the pending error even for zero glyphs or an invalid format.
                 ctx.err = 0;
             }
+            let supported_names = wgl_font_last_name(base, count).is_some()
+                || (base == 0 && ctx.lists.compiling.is_none());
             match (name.as_str(), rest) {
                 ("fontbmp", []) if count == 0 => "0 87".into(),
                 ("fontbmp", []) if encoding == "a" && first >= 0 && i64::from(first) + i64::from(count) > 256 => "0 87".into(),
@@ -1495,7 +1497,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                     ctx.error(INVALID_OPERATION);
                     "0 0".into()
                 }
-                ("fontbmp", []) if wgl_font_last_name(base, count).is_some() && ctx.in_begin.is_none() && !compiling_primitive => {
+                ("fontbmp", []) if supported_names && ctx.in_begin.is_none() && !compiling_primitive => {
                     let mut glyphs = Vec::new();
                     for offset in 0..count {
                         let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
@@ -1507,14 +1509,14 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                         ctx.error(INVALID_OPERATION);
                         let (_, first) = glyphs.next().ok_or(Fail::Bad)?;
                         if current.mode == list::COMPILE_AND_EXECUTE {
-                            let saved = ctx.unpack;
-                            ctx.unpack = first.unpack.ok_or(Fail::Bad)?;
-                            let result = ctx.bitmap(&first.tok);
-                            ctx.unpack = saved;
-                            result?;
+                            ctx.font_bitmap(&first)?;
                         }
                         current.lines.push(first);
                         ctx.lists.lists.insert(current.name, current.lines);
+                    } else if base == 0 {
+                        ctx.error(INVALID_VALUE);
+                        let (_, first) = glyphs.next().ok_or(Fail::Bad)?;
+                        ctx.font_bitmap(&first)?;
                     }
                     hit(clause::WGL_FONT_LIST_RANGE);
                     ctx.lists.lists.extend(glyphs.map(|(id, line)| (id, vec![line])));
@@ -1522,7 +1524,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                 }
                 ("fontoutline", [fmt]) if !matches!(integer(fmt)?, 0 | 1) => "0 8".into(),
                 ("fontoutline", [_]) if count == 0 => "1 0".into(),
-                ("fontoutline", [fmt]) if wgl_font_last_name(base, count).is_some()
+                ("fontoutline", [fmt]) if supported_names
                     && ctx.in_begin.is_none() && !compiling_primitive => {
                     let mut lists = Vec::new();
                     let mut metrics = Vec::new();
@@ -1545,6 +1547,12 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                             .chain(geometry.lines()).chain([translate.as_str()]).map(|command| list::Line {
                                 tok: command.split_whitespace().map(String::from).collect(), unpack: None, arrays: None,
                             }).collect();
+                        if base == 0 {
+                            for line in &lines { ctx.scalar_command(&line.tok)?; }
+                            ctx.err = 0;
+                            out.push("wglx fontoutline 0 8".into());
+                            return Ok(());
+                        }
                         if let Some(mut current) = ctx.lists.compiling.take() {
                             if current.mode == list::COMPILE_AND_EXECUTE {
                                 for line in &lines { ctx.scalar_command(&line.tok)?; }
@@ -5739,6 +5747,13 @@ impl Ctx {
         if self.texturing() { hit(clause::GL_RASTER_MODE); }
         let [s, t, _, q] = self.raster_tex;
         texdraw::Stq::at([s, t, q])
+    }
+
+    fn font_bitmap(&mut self, line: &list::Line) -> Res<()> {
+        let saved = std::mem::replace(&mut self.unpack, line.unpack.ok_or(Fail::Bad)?);
+        let result = self.bitmap(&line.tok);
+        self.unpack = saved;
+        result
     }
 
     fn bitmap(&mut self, t: &[String]) -> Res<()> {
