@@ -2686,3 +2686,32 @@ fn evaluator_map_orders_round_trip_for_every_target() {
         }
     }
 }
+
+#[test]
+fn evaluator_map_copies_points_while_vertex_array_retains_pointer() {
+    // Slots 1 and 2 hold the vertex pointer and the original control point.
+    // After 14 more allocations, the next two commands overwrite both slots.
+    let input = format!("case slot
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glClearColor 0 0 0 0
+gl glClear 0x4000
+glp glVertexPointer iii 2 0x1406 0 f -0.5 -0.5
+gl glEnableClientState 0x8074
+glp glMap1f iffii 0xd97 0 1 3 1 f 0.5 0.5 0
+{}{post}", "glp glEvalCoord1fv - f 0\n".repeat(14), post = "glp glEvalCoord2fv - f -0.5 0.5
+glp glEvalCoord2fv - f 0 0
+gl glDrawArrays 0 0 1
+gl glEnable 0xd97
+gl glBegin 0
+gl glEvalCoord1f 0
+gl glEnd
+glread 4 3 1 1 0x1908 0x1401 4
+glread 4 11 1 1 0x1908 0x1401 4
+glread 12 11 1 1 0x1908 0x1401 4
+glerr
+end
+");
+    let cases = kikizake::case::parse_cases(&input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["read 00000000", "read ffffffff", "read ffffffff", "glerr 0"]);
+}
