@@ -1380,7 +1380,7 @@ fn copy_pixels_matches_initialized_windows_buffers() {
         };
         let (actual, expected) = (bytes(&output[1]), bytes(read));
         assert_eq!(actual.len(), expected.len());
-        for (i, (got, want)) in actual.iter().zip(&expected).enumerate() {
+        for (i, (got, want)) in zip_eq(&actual, &expected).enumerate() {
             assert_eq!(got, want, "{} at byte {i}", case.name);
         }
     }

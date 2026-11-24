@@ -5034,15 +5034,17 @@ impl Ctx {
         if end <= start { return Ok(()); }
         let mut batches = Vec::new();
         let zy = f64::from(self.zoom.1);
-        if kind == 0x1800 && zy < 0.0 && zy > -1.0 {
+        if zy < 0.0 && zy > -1.0 {
             // In reflected reductions the two source spans advance away from the
             // fixed point. Read both spans of a step before emitting either one.
-            let pivot = tri::trunc(tri::narrow(((ry - sy as f64 - 0.5) / (1.0 - zy)).ceil()));
+            let source_y = f64::from(i32::try_from(sy).ok().ok_or(Fail::Bad)?);
+            let pivot = tri::trunc(tri::narrow(((ry - source_y - 0.5) / (1.0 - zy)).ceil()));
             let mid = sy.saturating_add(pivot).clamp(start, end);
             let mut down = (start..mid).rev();
             let mut up = mid..end;
-            let j = mid.saturating_sub(sy) as f64;
-            if ((mid as f64 - ry + 0.5) / zy).floor() != j - 1.0 {
+            let middle_y = f64::from(i32::try_from(mid).ok().ok_or(Fail::Bad)?);
+            let j = mid.saturating_sub(sy);
+            if tri::trunc(tri::narrow(((middle_y - ry + 0.5) / zy).floor())) != j.saturating_sub(1) {
                 if let Some(y) = down.next() { batches.push(vec![y]); }
             }
             loop {
@@ -5056,10 +5058,10 @@ impl Ctx {
         for rows in batches {
             let mut samples = Vec::new();
             for y in rows {
-                let j = usize::try_from(y.saturating_sub(sy)).map_err(|_| Fail::Bad)?;
+                let j = usize::try_from(y.saturating_sub(sy)).ok().ok_or(Fail::Bad)?;
                 for x in sx.max(0)..sx.saturating_add(width).min(WIDTH) {
-                    let p = usize::try_from(y.saturating_mul(WIDTH).saturating_add(x)).map_err(|_| Fail::Bad)?;
-                    let i = usize::try_from(x.saturating_sub(sx)).map_err(|_| Fail::Bad)?;
+                    let p = usize::try_from(y.saturating_mul(WIDTH).saturating_add(x)).ok().ok_or(Fail::Bad)?;
+                    let i = usize::try_from(x.saturating_sub(sx)).ok().ok_or(Fail::Bad)?;
                     samples.push((i, j, *self.fb.get(p).ok_or(Fail::Bad)?,
                         *self.depth.get(p).ok_or(Fail::Bad)?, *self.stencil.get(p).ok_or(Fail::Bad)?,
                         *self.fb_undefined.get(p).ok_or(Fail::Bad)?, *self.depth_undefined.get(p).ok_or(Fail::Bad)?,
