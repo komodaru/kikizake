@@ -1421,7 +1421,7 @@ fn mat_mul(a: &[f32; 16], b: &[f32; 16]) -> [f32; 16] {
     r
 }
 
-const BEGIN_OK: &[&str] = &["glEvalCoord1f", "glEvalCoord1d", "glEvalPoint1", "glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glMateriali", "glMaterialf", "glIndexi", "glIndexf", "glTexCoord1f", "glTexCoord2f", "glTexCoord3f", "glTexCoord4f", "glEnd"];
+const BEGIN_OK: &[&str] = &["glEvalCoord2f", "glEvalCoord2d", "glEvalCoord1f", "glEvalCoord1d", "glEvalPoint1", "glVertex2f", "glVertex3f", "glVertex4f", "glVertex2i", "glVertex3i", "glColor4ub", "glColor3ub", "glColor3f", "glColor4f", "glNormal3f", "glMateriali", "glMaterialf", "glIndexi", "glIndexf", "glTexCoord1f", "glTexCoord2f", "glTexCoord3f", "glTexCoord4f", "glEnd"];
 
 crate::model::words! {
     /// the commands that run on the current context
@@ -1877,7 +1877,7 @@ impl Gl {
                 } else {
                     f32::from_le_bytes(*bytes.as_chunks::<4>().0.first().ok_or(Fail::Bad)?)
                 };
-                ctx.eval_curve(u)?;
+                ctx.eval_coord(u, None)?;
 
             }
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glMap1f" | "glMap1d" | "glMap2f" | "glMap2d")) => ctx.define_map(t)?,
@@ -2407,7 +2407,8 @@ impl Ctx {
                     self.track_current_color();
                 }
             }
-            "glEvalCoord1f" | "glEvalCoord1d" => self.eval_curve(tri::narrow(fl(a, 0)))?,
+            "glEvalCoord1f" | "glEvalCoord1d" => self.eval_coord(tri::narrow(fl(a, 0)), None)?,
+            "glEvalCoord2f" | "glEvalCoord2d" => self.eval_coord(tri::narrow(fl(a, 0)), Some(tri::narrow(fl(a, 1))))?,
             "glEvalMesh1" => {
                 let primitive = match int(a, 0) {
                     0x1b00 => 0,
@@ -2423,7 +2424,7 @@ impl Ctx {
             "glEvalPoint1" => {
                 let [lo, hi] = self.grid1.domain;
                 let step = (hi - lo) / tri::narrow(f64::from(i32::try_from(self.grid1.segments).ok().ok_or(Fail::Bad)?));
-                self.eval_curve(lo + tri::narrow(fl(a, 0)) * step)?;
+                self.eval_coord(lo + tri::narrow(fl(a, 0)) * step, None)?;
             }
             "glMapGrid1f" | "glMapGrid1d" | "glMapGrid2f" | "glMapGrid2d" => {
                 let axis = |args: &[A]| GridAxis {

@@ -130,27 +130,41 @@ fn curve_value(points: &[f32], width: usize, t: f32) -> Res<[f32; 4]> {
 }
 
 impl Ctx {
-    fn curve_attribute(&self, target: i32, u: f32) -> Res<Option<[f32; 4]>> {
+    fn eval_attribute(&self, target: i32, u: f32, v: Option<f32>) -> Res<Option<[f32; 4]>> {
         if !self.cap(target.cast_unsigned()) { return Ok(None); }
         let (initial, _) = initial(target).ok_or(Fail::Bad)?;
         let value = if let Some(map) = self.evaluator_maps.get(&target) {
-            let [lo, hi] = map.domain.as_slice() else { return Err(Fail::Bad) };
-            curve_value(&map.coefficients, initial.len(), (u - lo) / (hi - lo))?
+            match (map.domain.as_slice(), v) {
+                ([lo, hi], None) => curve_value(&map.coefficients, initial.len(), (u - lo) / (hi - lo))?,
+                ([u0, u1, v0, v1], Some(v)) => {
+                    let order = usize::try_from(float_to_int(*map.order.get(1).ok_or(Fail::Bad)?)).ok().ok_or(Fail::Bad)?;
+                    let stride = order.checked_mul(initial.len()).filter(|&n| n > 0).ok_or(Fail::Bad)?;
+                    let mut rows = Vec::new();
+                    for row in map.coefficients.chunks_exact(stride) {
+                        rows.extend(curve_value(row, initial.len(), (v - v0) / (v1 - v0))?);
+                    }
+                    curve_value(&rows, 4, (u - u0) / (u1 - u0))?
+                }
+                _ => return Err(Fail::Bad),
+            }
         } else { curve_value(initial, initial.len(), 0.0)? };
         Ok(Some(value))
     }
 
-    pub(super) fn eval_curve(&mut self, u: f32) -> Res<()> {
+    pub(super) fn eval_coord(&mut self, u: f32, v: Option<f32>) -> Res<()> {
         if self.in_begin.is_none() { return Ok(()); }
-        let vertex = if let Some(v) = self.curve_attribute(0xd98, u)? { v }
-            else if let Some(v) = self.curve_attribute(0xd97, u)? { v }
+        let base: i32 = if v.is_some() { 0xdb0 } else { 0xd90 };
+        let attribute = |offset| self.eval_attribute(base.saturating_add(offset), u, v);
+        let vertex = if let Some(v) = attribute(8)? { v }
+            else if let Some(v) = attribute(7)? { v }
             else { return Ok(()) };
+        if v.is_some() && self.cap(0xd80) { return Err(Fail::Unmodeled(GL_EVAL)); }
         let (color, normal, index, tex, materials) = (self.color, self.normal, self.index, self.tex.coord, self.materials);
-        let color_map = self.curve_attribute(0xd90, u)?;
-        let normal_map = self.curve_attribute(0xd92, u)?;
-        let index_map = self.curve_attribute(0xd91, u)?;
-        let texture_map = (0xd93i32..=0xd96).rev().find(|t| self.cap(t.cast_unsigned()))
-            .map(|t| self.curve_attribute(t, u)).transpose()?.flatten();
+        let color_map = attribute(0)?;
+        let normal_map = attribute(2)?;
+        let index_map = attribute(1)?;
+        let texture_map = (3..=6).rev().find(|t| self.cap(base.saturating_add(*t).cast_unsigned()))
+            .map(attribute).transpose()?.flatten();
         if let Some(v) = color_map { self.color = v; self.track_current_color(); }
         if let Some([x, y, z, _]) = normal_map { self.normal = [x, y, z]; }
         if let Some(v) = index_map { self.index = v[0]; }
