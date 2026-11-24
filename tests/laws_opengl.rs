@@ -1851,3 +1851,32 @@ proptest! {
         prop_assert_eq!(output, ["glctx ok 1", "ret 0", "glerr 500", "ret 0", "glerr 0"]);
     }
 }
+
+#[test]
+fn wgl_format_exports_cover_every_generic_dib_descriptor() {
+    use std::fmt::Write;
+    for recording in [include_str!("../golden/opengl-32/stdout.txt"), include_str!("../golden/opengl-64/stdout.txt")] {
+        let descriptors: Vec<_> = recording.lines().skip_while(|line| *line != "glpf 32 n 36")
+            .skip(1).take_while(|line| line.starts_with("pf ")).collect();
+        assert_eq!(descriptors.len(), 36);
+        for descriptor in &descriptors {
+            let fields: Vec<_> = descriptor.split_whitespace().collect();
+            let index = fields[1].parse::<usize>().unwrap();
+            let flags = u32::from_str_radix(fields[2], 16).unwrap();
+            if flags & 8 == 0 { continue; } // PFD_DRAW_TO_BITMAP
+            let mut input = format!("case descriptors\nglctx {} {index}\n", fields[4]);
+            let mut expected = vec![format!("glctx ok {index}")];
+            for (i, description) in descriptors.iter().enumerate() {
+                let requested = i + 1;
+                writeln!(input, "wglx descpf {requested}\nwglx setpf {requested}\nwglx getpf").unwrap();
+                expected.extend([String::from("wglx descpf 36"), description.to_string(),
+                    String::from(if requested == index { "wglx setpf 1 0" } else { "wglx setpf 0 2000" }),
+                    format!("wglx getpf {index}")]);
+            }
+            input.push_str("glerr\nend\n");
+            expected.push(String::from("glerr 0"));
+            let cases = kikizake::case::parse_cases(&input);
+            assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), expected);
+        }
+    }
+}
