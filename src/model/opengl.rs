@@ -476,6 +476,7 @@ pub struct Ctx {
     light_colors: [[[f32; 4]; 3]; 8],
     spot_directions: [[f32; 3]; 8],
     material_indices: [[f32; 3]; 2],
+    color_material: (u32, u32),
     ambient_material: [[f32; 4]; 2],
     diffuse_material: [[f32; 4]; 2],
     emission: [[f32; 4]; 2],
@@ -567,6 +568,18 @@ pub struct Ctx {
 pub const IDENTITY: [f32; 16] = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0];
 
 impl Ctx {
+    fn track_current_color(&mut self) {
+        if !self.cap(COLOR_MATERIAL) { return; }
+        let (face, mode) = self.color_material;
+        for (i, target) in [FRONT, BACK].into_iter().enumerate() {
+            if face != target && face != FRONT_AND_BACK { continue; }
+            if matches!(mode, 0x1200 | 0x1602) { self.ambient_material[i] = self.color; }
+            if matches!(mode, 0x1201 | 0x1602) { self.diffuse_material[i] = self.color; }
+            if mode == 0x1202 { self.specular[i] = self.color; }
+            if mode == 0x1600 { self.emission[i] = std::array::from_fn(|k| self.scaled_color_component(k, self.color[k])); }
+        }
+    }
+
     fn set_material_vector(&mut self, t: &[String]) -> Res<()> {
         let [_, name, sig, face, pname, ..] = t else { return Err(Fail::Bad) };
         if sig != "ii" { return Err(Fail::Bad); }
@@ -809,6 +822,7 @@ impl Ctx {
             })),
             spot_directions: [[0.0, 0.0, -1.0]; 8],
             material_indices: [[0.0, 1.0, 1.0]; 2],
+            color_material: (FRONT_AND_BACK, 0x1602),
             ambient_material: [[0.2, 0.2, 0.2, 1.0]; 2],
             diffuse_material: [[0.8, 0.8, 0.8, 1.0]; 2],
             emission: [[0.0, 0.0, 0.0, 1.0]; 2],
@@ -991,8 +1005,8 @@ impl Ctx {
             0xb52 => vec![B(self.two_sided)],
             0xb53 => c4(self.scene_ambient),
             0xb54 => i(self.shade as i64),
-            0xb55 => i(FRONT_AND_BACK as i64),
-            0xb56 => i(0x1602),
+            0xb55 => i(self.color_material.0 as i64),
+            0xb56 => i(self.color_material.1 as i64),
             0xb61 => vec![F(self.fog.index)],
             0xb62 => vec![F(self.fog.density)],
             0xb63 => vec![F(self.fog.start)],
@@ -2018,6 +2032,7 @@ impl Ctx {
                 if self.caps.contains_key(&c) && array::Kind::of_cap(c).is_none() {
                     hit(clause::GL_ENABLE);
                     self.caps.insert(c, name == "glEnable");
+                    if c == COLOR_MATERIAL { self.track_current_color(); }
                 } else {
                     hit(clause::GL_ENABLE_ENUM);
                     self.error(INVALID_ENUM);
@@ -2164,6 +2179,7 @@ impl Ctx {
                 // glEnd, golden opengl-32 errors-begin: `Ctx::batch_ended`)
                 let c = |i: usize| f32::from(u8::try_from(u(a, i) & 255).unwrap_or(0)) / 255.0;
                 self.color = [c(0), c(1), c(2), if a.len() == 4 { c(3) } else { 1.0 }];
+                self.track_current_color();
             }
             "glIndexi" => {
                 hit(clause::GL_COLORINDEX);
@@ -2184,6 +2200,7 @@ impl Ctx {
             "glColor4f" | "glColor3f" => {
                 hit(clause::GL_COLOR_F);
                 self.color = [fl(a, 0) as f32, fl(a, 1) as f32, fl(a, 2) as f32, if a.len() == 4 { fl(a, 3) as f32 } else { 1.0 }];
+                self.track_current_color();
             }
             "glBlendFunc" => {
                 let (s, d) = (u(a, 0), u(a, 1));
@@ -2247,6 +2264,15 @@ impl Ctx {
                 hit(clause::GL_COLORMASK);
                 self.color_mask_raw = [u(a, 0) & 255, u(a, 1) & 255, u(a, 2) & 255, u(a, 3) & 255];
                 self.color_mask = self.color_mask_raw.map(|v| v != 0);
+            }
+            "glColorMaterial" => {
+                let (face, mode) = (u(a, 0), u(a, 1));
+                if !matches!(face, FRONT | BACK | FRONT_AND_BACK) || !matches!(mode, 0x1200..=0x1202 | 0x1600 | 0x1602) {
+                    self.error(INVALID_ENUM);
+                } else {
+                    self.color_material = (face, mode);
+                    self.track_current_color();
+                }
             }
             "glShadeModel" => {
                 let m = u(a, 0);
@@ -2931,9 +2957,9 @@ impl Ctx {
         }
         // (the sums clamped to 0..1 at the vertex, before they are interpolated (MEASURED,
         // golden opengl-32 / 64 interp-open-9: corners of 1.2 times the color as if 1))
-        let tracked = self.cap(COLOR_MATERIAL);
-        let ambient = if tracked { c } else { self.ambient_material[0] };
-        let diffuse = if tracked { c } else { self.diffuse_material[0] };
+        let tracked = |mode| self.cap(COLOR_MATERIAL) && self.color_material.0 != BACK && (self.color_material.1 == mode || self.color_material.1 == 0x1602);
+        let ambient = if tracked(0x1200) { c } else { self.ambient_material[0] };
+        let diffuse = if tracked(0x1201) { c } else { self.diffuse_material[0] };
         let mut lit = std::array::from_fn(|k| self.emission[0][k] + self.scene_ambient[k] * ambient[k]);
         let eye = xform(self.top(0), vertex).map(|v| v as f32);
         for (i, position) in self.light_positions.iter().enumerate() {
@@ -5026,7 +5052,7 @@ impl Ctx {
             depth_transfer,
             zoom,
             // LIGHTING_BIT
-            shade, scene_ambient, local_viewer, two_sided, shininess, material_indices, ambient_material, diffuse_material, emission, specular, light_scalars, light_positions, spot_directions, light_colors,
+            shade, scene_ambient, local_viewer, two_sided, shininess, material_indices, color_material, ambient_material, diffuse_material, emission, specular, light_scalars, light_positions, spot_directions, light_colors,
             // FOG_BIT
             fog,
             // DEPTH_BUFFER_BIT
@@ -5139,6 +5165,7 @@ impl Ctx {
             self.spot_directions = spot_directions;
             self.light_colors = light_colors;
             self.material_indices = material_indices;
+            self.color_material = color_material;
             self.ambient_material = ambient_material;
             self.diffuse_material = diffuse_material;
             self.emission = emission;

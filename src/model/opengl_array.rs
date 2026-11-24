@@ -552,6 +552,7 @@ impl Ctx {
             let v = self.arrays.values(Kind::Color, i)?;
             let c = |k: usize| v.get(k).map_or(1.0, |x| color_component(ty, *x));
             self.color = [c(0), c(1), c(2), c(3)];
+            self.track_current_color();
         }
         if self.client_enabled(Kind::Index) {
             let v = self.arrays.values(Kind::Index, i)?;

@@ -62,6 +62,11 @@ fn models_match_windows() {
             if matches!(*s, "ntstr" | "ntcase" | "glstipple") && (status != 0 || !want.lines().eq(g.lines())) {
                 bad.push(format!("{s}-{arch}: expected a successful recording and exact output for every operation"));
             }
+            if *s == "opengl" {
+                let expected = case::parse_output(&g).cases.into_iter().find(|(name, _)| name == "gap-light-0").unwrap();
+                let actual = case::parse_output(&want).cases.into_iter().find(|(name, _)| name == "gap-light-0").unwrap();
+                assert_eq!(actual, expected, "lighting state and color-material rendering on {arch}-bit Windows");
+            }
             let r = compare::compare_text(&want, &g);
             eprintln!("kikizake_{s}-{arch}: {} cases, {} as Windows, {} unmodeled, {} differ", r.cases, r.same, r.unmodeled, r.differ.len());
             bad.extend(r.differ.iter().map(|d| format!("{s}-{arch} {d}")));
