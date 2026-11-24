@@ -111,3 +111,19 @@ fn round_rect_region_is_the_clause_figure() {
         }
     }
 }
+
+/// Every width 2046..=2054 and height 2..=8, spanning the switch to large
+/// quarter curves, compared rectangle by rectangle with both Windows recordings.
+#[test]
+fn region_flattening_threshold_matches_windows() {
+    use std::fmt::Write;
+    let mut input = String::new();
+    for w in 2046..=2054 {
+        for h in 2..=8 {
+            writeln!(input, "case threshold-{w}-{h}\nrgn 0 ellipse 0 0 {w} {h}\nrgndata 0\nrgn 1 round 0 0 {w} {h} {w} {h}\nrgndata 1\nend").unwrap();
+        }
+    }
+    let cases = kikizake::case::parse_cases(&input);
+    let output = kikizake::model::run("region", &cases);
+    assert!(output.lines().skip(1).eq(include_str!("fixtures/gdi_region_threshold.txt").lines()));
+}

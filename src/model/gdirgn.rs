@@ -61,8 +61,7 @@ fn curve_region(start: (i32, i32), segs: &[Seg]) -> Res<Rgn> {
         let from = *poly.last().ok_or(Fail::Bad)?;
         match *g {
             Seg::Line(p) => poly.push(p),
-            // (a curve too large for the 32 bit flattener: GDI's 64 bit one, open)
-            Seg::Bezier(a, b, c) => poly.extend(super::bezier::flatten([from, a, b, c]).ok_or(Fail::Unmodeled(open::GDI_RGN_ROUND))?),
+            Seg::Bezier(a, b, c) => poly.extend(super::bezier::flatten_reporting_large([from, a, b, c], || hit(clause::GDI_RGN_ROUND))),
         }
     }
     Ok(super::rgn::fix_polygon_pixels(&[poly], false))

@@ -27,7 +27,7 @@ tests/laws_gdidraw.rs::font_measures_grow_with_the_em pbt GDI.TEXT.TM GDI.TEXT.A
 tests/laws_gdidraw.rs::glyph_bitmaps_agree pbt GDI.TEXT.BITMAP GDI.TEXT.GRAY GDI.TEXT.DRAW GDI.TEXT.ABC
 tests/laws_gdidraw.rs::italic_shears_but_keeps_the_advances pbt GDI.TEXT.ITALIC GDI.TEXT.WIDTH GDI.TEXT.ABC
 tests/laws_gdidraw.rs::inverse_table_holds_near_entries pbt GDI.GRAD.INDEXED
-tests/laws_gdidraw.rs::round_rect_region_between_rect_and_ellipse pbt GDI.RGN.ROUNDRECT GDI.RGN.ELLIPSE
+tests/laws_gdidraw.rs::round_rect_region_between_rect_and_ellipse pbt GDI.RGN.ROUNDRECT GDI.RGN.ELLIPSE GDI.RGN.ROUND
 tests/laws_gdidraw.rs::angle_arc_turns_and_mirrors pbt GDI.PATH.ANGLEARC
 tests/laws_gdidraw.rs::angle_arc_turn_ends_off_its_start exhaustive GDI.PATH.ANGLEARC
 tests/laws_gdiscan.rs::polygon_region_is_the_x11_rule_for_every_triangle exhaustive GDI.RGN.POLYSCAN
@@ -875,3 +875,4 @@ src/proofs.rs::polygon_notcopy_uses_packed_brush_word kani GDI.SHAPE.POLYNOTCOPY
 tests/laws_opengl.rs::filled_rectangle_obeys_enabled_clip_planes pbt GL.CLIPPLANE
 src/proofs.rs::clip_plane_triangle_preserves_edge_interpolants kani GL.CLIPPLANE
 src/proofs.rs::clip_line_classifies_both_ends kani GL.CLIPPLANE
+tests/laws_gdiround.rs::region_flattening_threshold_matches_windows exhaustive GDI.RGN.ROUND

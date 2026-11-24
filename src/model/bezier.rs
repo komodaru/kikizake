@@ -76,12 +76,17 @@ impl Basis {
 /// the points (28.4) after the first that flatten the Bézier p (28.4), the last being p[3]'s;
 /// large curves use a coarse subdivision before their final flattening
 pub fn flatten(p: [(i32, i32); 4]) -> Option<Vec<(i32, i32)>> {
+    Some(flatten_reporting_large(p, || {}))
+}
+
+pub(super) fn flatten_reporting_large(p: [(i32, i32); 4], on_large: impl FnOnce()) -> Vec<(i32, i32)> {
     // (relative to the bound box, one pixel loose, as the flattener works)
     let left = i128::from(p.iter().map(|q| q.0).min().unwrap_or(0)) - 16;
     let top = i128::from(p.iter().map(|q| q.1).min().unwrap_or(0)) - 16;
     let (px, py) = (p.map(|q| i128::from(q.0) - left), p.map(|q| i128::from(q.1) - top));
     if px.iter().chain(py.iter()).any(|&v| v >= MAX_SIZE) {
-        return Some(flatten_large(p));
+        on_large();
+        return flatten_large(p);
     }
     let mut x = Basis::new(px);
     let mut y = Basis::new(py);
@@ -103,7 +108,7 @@ pub fn flatten(p: [(i32, i32); 4]) -> Option<Vec<(i32, i32)>> {
         let at = |v: i128, o: i128| i32::try_from(v + o).unwrap_or(i32::MAX);
         out.push((at(x.value(), left), at(y.value(), top)));
         if steps == 0 {
-            return Some(out);
+            return out;
         }
         if x.error().max(y.error()) > TEST {
             x.halve();

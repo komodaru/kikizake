@@ -589,7 +589,7 @@ proptest! {
     /// CreateRoundRectRgn with corners as large as the box (or larger) is CreateEllipticRgn,
     /// and with a corner 0 the box's rectangle a pixel in on the right and bottom
     #[test]
-    fn round_rect_region_between_rect_and_ellipse(l in -40i32..40, t in -40i32..40, w in 2i32..120, h in 2i32..120, more in (0i32..50, 0i32..50), c in 0i32..60) {
+    fn round_rect_region_between_rect_and_ellipse(l in -40i32..40, t in -40i32..40, w in prop_oneof![2i32..120, 2048i32..4200], h in 2i32..120, more in (0i32..50, 0i32..50), c in 0i32..60) {
         use kikizake::model::gdirgn::{elliptic, round_rect};
         use kikizake::model::rgn::Rgn;
         let b = (l, t, l + w, t + h);
@@ -605,8 +605,7 @@ proptest! {
     fn round_rect_region_takes_any_corner(l in -40i32..40, t in -40i32..40, w in 0i32..120, h in 0i32..120, cw in any::<i32>(), ch in prop_oneof![Just(i32::MIN), Just(i32::MAX), any::<i32>()]) {
         use kikizake::model::gdirgn::round_rect;
         for (a, b) in [(cw, ch), (ch, cw), (i32::MIN, ch), (ch, i32::MIN)] {
-            // (corners past the 32 bit flattener: GDI's 64 bit one, open GDI.RGN.ROUND)
-            let Ok(g) = round_rect((l, t, l + w, t + h), a, b) else { continue };
+            let g = round_rect((l, t, l + w, t + h), a, b).unwrap();
             for q in g.rects() {
                 prop_assert!(q.0 >= l - 1 && q.1 >= t - 1 && q.2 <= l + w + 1 && q.3 <= t + h + 1, "{:?}", q);
             }
