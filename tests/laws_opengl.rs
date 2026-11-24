@@ -2656,3 +2656,33 @@ end
         assert_eq!(&output[1..], [pixel, "read 00000000", "get b02 = 00000000 00000000 bf800000", "glerr 0"]);
     }
 }
+
+#[test]
+fn evaluator_map_orders_round_trip_for_every_target() {
+    use std::fmt::Write;
+    for (dimension, base) in [(1, 0xd90), (2, 0xdb0)] {
+        for (offset, width) in [4, 1, 3, 1, 2, 3, 4, 3, 4].into_iter().enumerate() {
+            let target = base + offset;
+            for ty in ["f", "d"] {
+                let signature = format!("i{}", format!("{ty}{ty}ii").repeat(dimension));
+                let mut input = String::from("case orders\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+                let mut expected = Vec::new();
+                for u in 1..=30 {
+                    let last_v = if dimension == 2 { 30 } else { 1 };
+                    for v in 1..=last_v {
+                        // Equal axis strides keep even the largest map inside the runner's input buffer.
+                        let axis = if dimension == 2 { format!(" 0 1 {width} {v}") } else { String::new() };
+                        writeln!(input, "glp glMap{dimension}{ty} {signature} {target} 0 1 {width} {u}{axis} {ty} 1").unwrap();
+                        writeln!(input, "glq glGetMapiv ii {target} 0xa01 i {dimension}\nglerr").unwrap();
+                        expected.push(if dimension == 2 { format!("q {u} {v}") } else { format!("q {u}") });
+                        expected.push("glerr 0".to_owned());
+                    }
+                }
+                input.push_str("end\n");
+                let cases = kikizake::case::parse_cases(&input);
+                let output = kikizake::model::run_case(&cases[0]).unwrap();
+                assert_eq!(&output[1..], expected, "glMap{dimension}{ty} target {target:#x}");
+            }
+        }
+    }
+}

@@ -898,3 +898,4 @@ tests/laws_opengl.rs::debug_entry_preserves_each_gl_error_inside_and_outside_pri
 src/proofs.rs::layer_palette_rejects_every_nonzero_plane kani WGL.LAYER.PALETTE
 tests/laws_opengl.rs::invalid_evaluator_grid_keeps_both_axes pbt GL.EVAL
 spec/lean/Kikizake/OpenGL/Evaluator.lean::gridFits lean GL.EVAL
+tests/laws_opengl.rs::evaluator_map_orders_round_trip_for_every_target exhaustive GL.EVAL
