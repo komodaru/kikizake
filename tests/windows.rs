@@ -65,11 +65,25 @@ fn models_match_windows() {
             if *s == "opengl" {
                 let recorded = case::parse_output(&g);
                 let modeled = case::parse_output(&want);
-                for name in ["gap-light-0", "gap-eval-0"] {
+                for name in [
+                    "gap-light-0", "gap-eval-0",
+                    "feedback-topology-triangles", "feedback-topology-triangle-strip",
+                    "feedback-topology-triangle-fan", "feedback-topology-quads",
+                    "feedback-topology-quad-strip", "feedback-topology-polygon",
+                ] {
                     let expected = recorded.cases.iter().find(|(n, _)| n == name)
                         .unwrap_or_else(|| panic!("missing {name} Windows recording on {arch}"));
                     let actual = modeled.cases.iter().find(|(n, _)| n == name);
-                    assert_eq!(actual, Some(expected), "{name} on {arch}-bit Windows");
+                    if name.starts_with("feedback-topology-") {
+                        let (_, lines) = actual.expect("missing modeled polygon feedback");
+                        let (ctx, feedback) = lines.split_first().expect("missing modeled context");
+                        let (reference_ctx, reference_feedback) = expected.1.split_first().expect("missing reference context");
+                        // Pixel format numbers depend on the installed display driver.
+                        assert!(ctx.starts_with("glctx ok ") && reference_ctx.starts_with("glctx ok "));
+                        assert_eq!(feedback, reference_feedback, "{name} on {arch}-bit Windows");
+                    } else {
+                        assert_eq!(actual, Some(expected), "{name} on {arch}-bit Windows");
+                    }
                 }
             }
             if matches!(*s, "d3d10res" | "d3d11res") {
