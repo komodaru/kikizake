@@ -2777,3 +2777,19 @@ end\n";
         assert_eq!(&output[1..], [error, "q 1 2 3 4", "q 2 2", "q -2 3 5 8"], "{definition}");
     }
 }
+
+#[test]
+fn evaluator_input_must_fit_the_executor_slot() {
+    for (ty, capacity) in [("f", 1024), ("d", 512)] {
+        for (stride, fits) in [(capacity - 1, true), (capacity, false)] {
+            let input = format!("case extent\nglctx 32 choose 0x38 0 32 0 0 32 8\nglp glMap1{ty} i{ty}{ty}ii 0xd93 0 1 {stride} 2 {ty} 1\nglq glGetMapiv ii 0xd93 0xa00 i 2\nend\n");
+            let cases = kikizake::case::parse_cases(&input);
+            let result = kikizake::model::run_case(&cases[0]);
+            if fits {
+                assert_eq!(&result.unwrap()[1..], ["q 1 0"]);
+            } else {
+                assert!(matches!(result, Err(kikizake::model::Fail::Bad)));
+            }
+        }
+    }
+}

@@ -594,6 +594,27 @@ static void call_lead(FARPROC p, const char *s, const long *a, const float *f, c
 #undef SIG
 }
 
+/* Validate the backing storage before forwarding an evaluator pointer to GL.
+ * Invalid GL enums/orders/strides still reach GL for its normal error handling. */
+static int evaluator_input_ok(const char *name, const char *sig, const long *a, const float *f, const void *q) {
+    if (!strcmp(name, "glEvalCoord1fv") || !strcmp(name, "glEvalCoord1dv") ||
+        !strcmp(name, "glEvalCoord2fv") || !strcmp(name, "glEvalCoord2dv"))
+        return q != NULL && !strcmp(sig, "-");
+    int surface = !strcmp(name, "glMap2f") || !strcmp(name, "glMap2d");
+    if (!surface && strcmp(name, "glMap1f") && strcmp(name, "glMap1d")) return 1;
+    int dbl = name[6] == 'd';
+    if (!q || strcmp(sig, surface ? (dbl ? "iddiiddii" : "iffiiffii") : (dbl ? "iddii" : "iffii"))) return 0;
+    long base = surface ? GL_MAP2_COLOR_4 : GL_MAP1_COLOR_4;
+    static const int widths[] = {4, 1, 3, 1, 2, 3, 4, 3, 4};
+    if (a[0] < base || a[0] > base + 8) return 1;
+    int width = widths[a[0] - base];
+    if (a[3] < width || a[4] < 1 || a[4] > 30 || f[1] == f[2]) return 1;
+    if (surface && (a[7] < width || a[8] < 1 || a[8] > 30 || f[5] == f[6])) return 1;
+    unsigned long long count = (unsigned long long)(a[4] - 1) * a[3] + width;
+    if (surface) count += (unsigned long long)(a[8] - 1) * a[7];
+    return count <= sizeof obuf.b / (dbl ? sizeof(double) : sizeof(float));
+}
+
 /* glp <name> <sig> <leading args> <type> <values> | glp <name> <sig> <leading args> obuf | glp
  * <name> <sig> <leading args> null: name(<leading args>, a pointer to the values as an array of
  * type, to obuf (filled with 0xcc first), or NULL); sig "-" for none (glColor3fv, glLightfv,
@@ -650,7 +671,8 @@ static void op_glq(void) {
     long n = num(at + 1);
     int sz = is(at, "p") ? (int)sizeof(void *) : elem_size(t);
     if (bad || !sz || n < 1 || n * sz > 4096) { bad = 1; return; }
-    static union { unsigned char b[4096 + 64]; double d[520]; } v;
+    /* GL_COEFF can write 30 * 30 * 4 doubles even when only a prefix is printed. */
+    static union { unsigned char b[30 * 30 * 4 * sizeof(double)]; double d[30 * 30 * 4]; } v;
     for (int i = 0; i < 4096 / 4; i++) {
         if (!strcmp(t, "i") || !strcmp(t, "ui")) { unsigned w = 0x7eadbeef; memcpy(v.b + 4 * i, &w, 4); }
         else if (!strcmp(t, "f")) { float w = -12345.0f; memcpy(v.b + 4 * i, &w, 4); }

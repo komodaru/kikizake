@@ -1740,6 +1740,7 @@ impl Gl {
         if let (CtxOp::Glp, Some(ctx)) = (cmd, self.ctx.as_mut()) {
             if ctx.lists.depth == 0 {
                 ctx.arrays.last = ctx.arrays.fill(t)?;
+                eval::check_input(t)?;
             }
         }
         if self.list_line(op, out)? {
@@ -1883,7 +1884,7 @@ impl Gl {
                 if t.get(2).map(String::as_str) != Some("-") { return Err(Fail::Bad); }
                 let name = t.get(1).ok_or(Fail::Bad)?;
                 let mut bytes = if t.get(3).is_some_and(|s| s == "obuf") && t.len() == 4 { vec![0xcc; 16] }
-                    else { array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_EVAL))? };
+                    else { array::glp_bytes(t)?.ok_or(Fail::Bad)? };
                 bytes.resize(16, 0);
                 let coord = |index: usize| -> Res<f32> {
                     if name.ends_with("dv") {

@@ -1,7 +1,7 @@
 //! Control points of the GL 1.1 polynomial evaluators.
 use super::{array, e::{INVALID_ENUM, INVALID_OPERATION, INVALID_VALUE}, float_to_int, parse_float, query_bytes, tri, Ctx, Fail, Res};
 use crate::case::windows_long;
-use crate::spec::open::GL_EVAL;
+use crate::spec::clause::GL_EVAL;
 
 #[derive(Clone, Debug)]
 pub(super) struct Map {
@@ -45,9 +45,32 @@ fn axis(args: &[String], width: usize) -> Res<Option<Axis>> {
         .map(|(stride, order)| Axis { domain, stride, order }))
 }
 
+/// The runner checks evaluator pointer storage before submitting or compiling a call.
+pub(super) fn check_input(t: &[String]) -> Res<()> {
+    let [_, name, sig, rest @ ..] = t else { return Err(Fail::Bad); };
+    let signature = match name.as_str() {
+        "glEvalCoord1fv" | "glEvalCoord1dv" | "glEvalCoord2fv" | "glEvalCoord2dv" => "-",
+        "glMap1f" => "iffii", "glMap1d" => "iddii", "glMap2f" => "iffiiffii", "glMap2d" => "iddiiddii",
+        _ => return Ok(()),
+    };
+    if sig != signature || rest.last().is_some_and(|s| s == "null") { return Err(Fail::Bad); }
+    if signature == "-" { return Ok(()); }
+    let [target, args @ ..] = rest else { return Err(Fail::Bad); };
+    let surface = name.starts_with("glMap2");
+    let Some((point, _)) = initial(windows_long(target).ok_or(Fail::Bad)?).filter(|(_, s)| *s == surface) else { return Ok(()); };
+    let Some(u) = axis(args.get(..4).ok_or(Fail::Bad)?, point.len())? else { return Ok(()); };
+    let (j, stride) = if surface {
+        let Some(v) = axis(args.get(4..8).ok_or(Fail::Bad)?, point.len())? else { return Ok(()); };
+        (usize::from(v.order.saturating_sub(1)), v.stride)
+    } else { (0, 0) };
+    let last = control_index(usize::from(u.order.saturating_sub(1)), j, u.stride, stride, point.len().saturating_sub(1)).ok_or(Fail::Bad)?;
+    let capacity = if name.ends_with('d') { 512 } else { 1024 };
+    if last < capacity { Ok(()) } else { Err(Fail::Bad) }
+}
+
 impl Ctx {
     pub(super) fn define_map(&mut self, t: &[String]) -> Res<()> {
-        super::hit(GL_EVAL.into());
+        super::hit(GL_EVAL);
         let [_, name, sig, target, args @ ..] = t else { return Err(Fail::Bad) };
         let signature = match name.as_str() {
             "glMap1f" => "iffii", "glMap1d" => "iddii", "glMap2f" => "iffiiffii", "glMap2d" => "iddiiddii",
@@ -70,7 +93,7 @@ impl Ctx {
         let tail = t.get(3usize.saturating_add(sig.len())).ok_or(Fail::Bad)?;
         let mut bytes = match tail.as_str() {
             "obuf" if t.len() == sig.len().saturating_add(4) => vec![0xcc; 4096],
-            _ => array::glp_bytes(t)?.ok_or(Fail::Unmodeled(GL_EVAL))?,
+            _ => array::glp_bytes(t)?.ok_or(Fail::Bad)?,
         };
         bytes.resize(4096, 0);
         let values: Vec<f32> = if name.ends_with('d') {
@@ -79,11 +102,11 @@ impl Ctx {
         let (v_order, v_stride) = v.map_or((1, 0), |v| (v.order, v.stride));
         let last = control_index(usize::from(u.order.saturating_sub(1)), usize::from(v_order.saturating_sub(1)),
             u.stride, v_stride, width.saturating_sub(1));
-        if last.is_none_or(|index| index >= values.len()) { return Err(Fail::Unmodeled(GL_EVAL)); }
+        if last.is_none_or(|index| index >= values.len()) { return Err(Fail::Bad); }
         for i in 0..usize::from(u.order) {
             for j in 0..usize::from(v_order) {
-                let start = control_index(i, j, u.stride, v_stride, 0).ok_or(Fail::Unmodeled(GL_EVAL))?;
-                let row = values.get(start..).and_then(|v| v.get(..width)).ok_or(Fail::Unmodeled(GL_EVAL))?;
+                let start = control_index(i, j, u.stride, v_stride, 0).ok_or(Fail::Bad)?;
+                let row = values.get(start..).and_then(|v| v.get(..width)).ok_or(Fail::Bad)?;
                 map.coefficients.extend_from_slice(row);
             }
         }
