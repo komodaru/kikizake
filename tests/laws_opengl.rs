@@ -1705,3 +1705,13 @@ fn wgl_empty_font_ranges_and_invalid_outline_formats_preserve_lists() {
         assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), expected);
     }
 }
+
+#[test]
+fn wgl_ansi_bitmap_range_failure_preserves_the_whole_list_range() {
+    for (first, count) in [(255, 2), (256, 1), (257, 2), (12354, 1), (65535, 2)] {
+        let input = format!("case ansi-range\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glNewList 101 0x1300\ngl glEndList\nwglx fontbmp a {first} {count} 100\nglr glIsList b i 100\nglr glIsList b i 101\nglerr\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(),
+            ["glctx ok 1", "wglx fontbmp 0 87", "ret 0", "ret 1", "glerr 0"]);
+    }
+}

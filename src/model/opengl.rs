@@ -1153,12 +1153,13 @@ fn wgl_dc(ctx: &Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
         }
         ("fontbmp" | "fontoutline", [encoding, first, count, base, rest @ ..]) => {
             if !matches!(encoding.as_str(), "a" | "w") { return Err(Fail::Bad); }
-            integer(first)?;
+            let first = integer(first)?;
             let count = integer(count)?;
             integer(base)?;
             if !(0..=64).contains(&count) { return Err(Fail::Bad); }
             match (name.as_str(), rest) {
                 ("fontbmp", []) if count == 0 => "0 87".into(),
+                ("fontbmp", []) if encoding == "a" && first >= 0 && i64::from(first) + i64::from(count) > 256 => "0 87".into(),
                 ("fontoutline", [fmt]) if !matches!(integer(fmt)?, 0 | 1) => "0 8".into(),
                 ("fontoutline", [_]) if count == 0 => "1 0".into(),
                 ("fontbmp", []) | ("fontoutline", [_]) => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
