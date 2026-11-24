@@ -418,6 +418,28 @@ fn channel_max(bits: u32) -> f32 {
     f32::from(u16::MAX.checked_shr(16u32.saturating_sub(bits)).unwrap_or(0))
 }
 
+#[derive(Clone, Copy, Debug)]
+struct Light {
+    scalars: [f32; 5],
+    position: [f32; 4],
+    colors: [[f32; 4]; 3],
+    spot_direction: [f32; 3],
+}
+
+#[derive(Clone, Copy, Debug)]
+struct Material {
+    shininess: f32,
+    indices: [f32; 3],
+    ambient: [f32; 4],
+    diffuse: [f32; 4],
+    emission: [f32; 4],
+    specular: [f32; 4],
+}
+
+fn enum_offset(value: u32, base: u32) -> Option<usize> {
+    usize::try_from(value.checked_sub(base)?).ok()
+}
+
 /// the state of a context (glGet's table of initial values)
 #[derive(Clone, Debug)]
 pub struct Ctx {
@@ -469,18 +491,10 @@ pub struct Ctx {
     scene_ambient: [f32; 4],
     local_viewer: bool,
     two_sided: bool,
-    shininess: [f32; 2],
     // Spot exponent, cutoff, constant/linear/quadratic attenuation for GL_LIGHT0..7.
-    light_scalars: [[f32; 5]; 8],
-    light_positions: [[f32; 4]; 8],
-    light_colors: [[[f32; 4]; 3]; 8],
-    spot_directions: [[f32; 3]; 8],
-    material_indices: [[f32; 3]; 2],
+    lights: [Light; 8],
+    materials: [Material; 2],
     color_material: (u32, u32),
-    ambient_material: [[f32; 4]; 2],
-    diffuse_material: [[f32; 4]; 2],
-    emission: [[f32; 4]; 2],
-    specular: [[f32; 4]; 2],
     pub hints: [u32; 5],
     /// PACK_SWAP_BYTES.. PACK_ALIGNMENT (0xd00..0xd05), UNPACK (0xcf0..0xcf5)
     pub pack: [i64; 6],
@@ -578,12 +592,13 @@ impl Ctx {
     fn track_current_color(&mut self) {
         if !self.cap(COLOR_MATERIAL) { return; }
         let selector = self.color_material;
-        for (i, target) in [FRONT, BACK].into_iter().enumerate() {
+        let scales = self.material_scales();
+        for (target, material) in [FRONT, BACK].into_iter().zip(&mut self.materials) {
             let tracks = |property| tracks_material(true, selector, target, property);
-            if tracks(0x1200) { self.ambient_material[i] = self.color; }
-            if tracks(0x1201) { self.diffuse_material[i] = self.color; }
-            if tracks(0x1202) { self.specular[i] = self.color; }
-            if tracks(0x1600) { self.emission[i] = std::array::from_fn(|k| self.scaled_color_component(k, self.color[k])); }
+            if tracks(0x1200) { material.ambient = self.color; }
+            if tracks(0x1201) { material.diffuse = self.color; }
+            if tracks(0x1202) { material.specular = self.color; }
+            if tracks(0x1600) { material.emission = Self::scaled_color(self.color, scales); }
         }
     }
 
@@ -598,28 +613,28 @@ impl Ctx {
             let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
             bytes.resize(16, 0);
             let mut values = [0.0; 4];
-            for (v, chunk) in values.iter_mut().zip(bytes.chunks_exact(4)) {
-                let word = chunk.try_into().map_err(|_| Fail::Bad)?;
+            for (v, &word) in values.iter_mut().zip(bytes.as_chunks::<4>().0) {
                 *v = if name == "glMaterialfv" { f32::from_le_bytes(word) } else if matches!(pname, 0x1200..=0x1202 | 0x1600 | 0x1602) { array::color_component(INT, f64::from(i32::from_le_bytes(word))) }
-                    else { i32::from_le_bytes(word) as f32 };
+                    else { tri::narrow(f64::from(i32::from_le_bytes(word))) };
             }
             if pname == 0x1601 && !(0.0..=128.0).contains(&values[0]) {
                 self.error(INVALID_VALUE);
             } else {
-                for (i, target) in [0x404, 0x405].into_iter().enumerate() {
-                    if face == target || face == 0x408 {
-                        let enabled = self.cap(COLOR_MATERIAL);
+                let scales = self.material_scales();
+                let enabled = self.cap(COLOR_MATERIAL);
+                for (target, material) in [FRONT, BACK].into_iter().zip(&mut self.materials) {
+                    if face.cast_unsigned() == target || face == 0x408 {
                         let selector = self.color_material;
-                        let writable = |property| !tracks_material(enabled, selector, target as u32, property);
+                        let writable = |property| !tracks_material(enabled, selector, target, property);
                         match pname {
                             0x1200 | 0x1201 | 0x1602 => {
-                                if pname != 0x1201 && writable(0x1200) { self.ambient_material[i] = values; }
-                                if pname != 0x1200 && writable(0x1201) { self.diffuse_material[i] = values; }
+                                if pname != 0x1201 && writable(0x1200) { material.ambient = values; }
+                                if pname != 0x1200 && writable(0x1201) { material.diffuse = values; }
                             }
-                            0x1202 => { if writable(0x1202) { self.specular[i] = values; } }
-                            0x1600 => { if writable(0x1600) { self.emission[i] = std::array::from_fn(|k| self.scaled_color_component(k, values[k])); } }
-                            0x1601 => self.shininess[i] = values[0],
-                            _ => self.material_indices[i] = [values[0], values[1], values[2]],
+                            0x1202 => { if writable(0x1202) { material.specular = values; } }
+                            0x1600 => { if writable(0x1600) { material.emission = Self::scaled_color(values, scales); } }
+                            0x1601 => material.shininess = values[0],
+                            _ => material.indices = [values[0], values[1], values[2]],
                         }
                     }
                 }
@@ -641,13 +656,14 @@ impl Ctx {
             self.error(INVALID_ENUM);
             &[]
         } else {
+            let material = if face == 0x405 { &self.materials[1] } else { &self.materials[0] };
             match pname {
-                0x1601 => std::slice::from_ref(&self.shininess[usize::from(face == 0x405)]),
-                0x1603 => &self.material_indices[usize::from(face == 0x405)],
-                0x1202 => &self.specular[usize::from(face == 0x405)],
-                0x1600 => &self.emission[usize::from(face == 0x405)],
-                0x1200 => &self.ambient_material[usize::from(face == 0x405)],
-                0x1201 => &self.diffuse_material[usize::from(face == 0x405)],
+                0x1601 => std::slice::from_ref(&material.shininess),
+                0x1603 => &material.indices,
+                0x1202 => &material.specular,
+                0x1600 => &material.emission,
+                0x1200 => &material.ambient,
+                0x1201 => &material.diffuse,
                 _ => { self.error(INVALID_ENUM); &[] }
             }
         };
@@ -667,10 +683,13 @@ impl Ctx {
         if !(0x4000..=0x4007).contains(&light) || !(0x1205..=0x1209).contains(&pname) {
             self.error(INVALID_ENUM);
         } else if value < 0.0 || (pname == 0x1205 && value > 128.0)
-            || (pname == 0x1206 && value > 90.0 && value != 180.0) {
+            || (pname == 0x1206 && value > 90.0 && value.to_bits() != 180f32.to_bits()) {
             self.error(INVALID_VALUE);
         } else {
-            self.light_scalars[(light - 0x4000) as usize][(pname - 0x1205) as usize] = value;
+            if let Some(slot) = enum_offset(light, 0x4000).and_then(|i| self.lights.get_mut(i))
+                .and_then(|light| light.scalars.get_mut(enum_offset(pname, 0x1205)?)) {
+                *slot = value;
+            }
         }
     }
 
@@ -682,10 +701,13 @@ impl Ctx {
         }
     }
 
-    fn scaled_color_component(&self, channel: usize, value: f32) -> f32 {
-        let bits = self.pf.rgba[channel].0;
-        let max = low_bits(if channel == 3 && bits == 0 { 8 } else { bits }) as f32;
-        if max > 0.0 { (value * max) * max.recip() } else { value }
+    fn material_scales(&self) -> [f32; 4] {
+        let [r, g, b, a] = self.pf.rgba.map(|channel| channel.0);
+        [r, g, b, if a == 0 { 8 } else { a }].map(|bits| tri::narrow(f64::from(low_bits(bits))))
+    }
+
+    fn scaled_color(values: [f32; 4], scales: [f32; 4]) -> [f32; 4] {
+        tri::zip4(values, scales, |v, max| if max > 0.0 { (v * max) * max.recip() } else { v })
     }
 
     fn set_scene_vector(&mut self, t: &[String]) -> Res<()> {
@@ -696,14 +718,15 @@ impl Ctx {
         if !(0xb51..=0xb53).contains(&pname) { self.error(INVALID_ENUM); return Ok(()); }
         let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
         bytes.resize(16, 0);
-        for (i, chunk) in bytes.chunks_exact(4).enumerate() {
-            let word = chunk.try_into().map_err(|_| Fail::Bad)?;
+        let mut values = [0.0; 4];
+        for (slot, &word) in values.iter_mut().zip(bytes.as_chunks::<4>().0) {
             let value = if name == "glLightModelfv" { f32::from_le_bytes(word) }
                 else if pname == 0xb53 { array::color_component(INT, f64::from(i32::from_le_bytes(word))) }
-                else { i32::from_le_bytes(word) as f32 };
-            if pname != 0xb53 { self.set_scene_flag(pname, value); break; }
-            self.scene_ambient[i] = self.scaled_color_component(i, value);
+                else { tri::narrow(f64::from(i32::from_le_bytes(word))) };
+            if pname != 0xb53 { self.set_scene_flag(pname, value); return Ok(()); }
+            *slot = value;
         }
+        self.scene_ambient = Self::scaled_color(values, self.material_scales());
         Ok(())
     }
 
@@ -720,25 +743,29 @@ impl Ctx {
             let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
             bytes.resize(16, 0);
             let mut values = [0.0; 4];
-            for (value, chunk) in values.iter_mut().zip(bytes.chunks_exact(4)) {
-                let word = chunk.try_into().map_err(|_| Fail::Bad)?;
+            for (value, &word) in values.iter_mut().zip(bytes.as_chunks::<4>().0) {
                 *value = if name == "glLightfv" { f32::from_le_bytes(word) }
                     else if pname <= 0x1202 {
                         // Measured glLightiv color scale, including the half-step at zero.
                         signed_light_component(i32::from_le_bytes(word))
-                    } else { i32::from_le_bytes(word) as f32 };
+                    } else { tri::narrow(f64::from(i32::from_le_bytes(word))) };
             }
+            let index = enum_offset(light, 0x4000).ok_or(Fail::Bad)?;
             if pname <= 0x1202 {
-                self.light_colors[(light - 0x4000) as usize][(pname - 0x1200) as usize] = values;
+                let slot = self.lights.get_mut(index).and_then(|l| l.colors.get_mut(enum_offset(pname, 0x1200)?)).ok_or(Fail::Bad)?;
+                *slot = values;
             } else if pname == 0x1203 {
                 let m = self.top(0);
                 let [x, y, z, w] = values;
-                let eye = std::array::from_fn(|r| ((m[12 + r] * w + m[r] * x) + m[4 + r] * y) + m[8 + r] * z);
-                self.light_positions[(light - 0x4000) as usize] = eye;
+                let [cx, cy, cz, cw] = m.as_chunks::<4>().0 else { return Err(Fail::Bad) };
+                let wx = tri::zip4(*cw, *cx, |a, b| a * w + b * x);
+                let wxy = tri::zip4(wx, *cy, |a, b| a + b * y);
+                let eye = tri::zip4(wxy, *cz, |a, b| a + b * z);
+                self.lights.get_mut(index).ok_or(Fail::Bad)?.position = eye;
             } else if pname == 0x1204 {
                 let [x, y, z, _] = values;
                 let direction = self.transform_normal([x, y, z]).ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
-                self.spot_directions[(light - 0x4000) as usize] = direction;
+                self.lights.get_mut(index).ok_or(Fail::Bad)?.spot_direction = direction;
             } else {
                 self.set_light_scalar(light, pname, values[0]);
             }
@@ -758,11 +785,12 @@ impl Ctx {
             self.error(INVALID_ENUM);
             &[]
         } else {
-            match pname {
-                0x1200..=0x1202 => &self.light_colors[(light - 0x4000) as usize][(pname - 0x1200) as usize],
-                0x1203 => &self.light_positions[(light - 0x4000) as usize],
-                0x1204 => &self.spot_directions[(light - 0x4000) as usize],
-                _ => std::slice::from_ref(&self.light_scalars[(light - 0x4000) as usize][(pname - 0x1205) as usize]),
+            let light = enum_offset(light.cast_unsigned(), 0x4000).and_then(|i| self.lights.get(i)).ok_or(Fail::Bad)?;
+            match pname.cast_unsigned() {
+                p @ 0x1200..=0x1202 => light.colors.get(enum_offset(p, 0x1200).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?,
+                0x1203 => &light.position,
+                0x1204 => &light.spot_direction,
+                p => std::slice::from_ref(light.scalars.get(enum_offset(p, 0x1205).ok_or(Fail::Bad)?).ok_or(Fail::Bad)?),
             }
         };
         out.push(query_bytes(ty, count, |dst| {
@@ -805,9 +833,9 @@ impl Ctx {
             depth_range: [0.0, 1.0],
             alpha: (ALWAYS, 0.0),
             // (MEASURED, golden opengl-32 defaults-*: the value mask starts as the stencil bits)
-            stencil_func: (ALWAYS, 0, ((1u64 << stencil_bits) - 1) as u32),
+            stencil_func: (ALWAYS, 0, low_bits(stencil_bits)),
             stencil_op: [KEEP; 3],
-            stencil_mask: ((1u64 << stencil_bits) - 1) as u32,
+            stencil_mask: low_bits(stencil_bits),
             buffers: [FRONT; 2],
             attrib: Vec::new(),
             clear_accum: [0.0; 4],
@@ -825,19 +853,20 @@ impl Ctx {
             scene_ambient: [ambient, ambient, ambient, 1.0],
             local_viewer: false,
             two_sided: false,
-            shininess: [0.0; 2],
-            light_scalars: [[0.0, 180.0, 1.0, 0.0, 0.0]; 8],
-            light_positions: [[0.0, 0.0, 1.0, 0.0]; 8],
-            light_colors: std::array::from_fn(|light| std::array::from_fn(|color| {
-                if light == 0 && color != 0 { [1.0; 4] } else { [0.0, 0.0, 0.0, 1.0] }
-            })),
-            spot_directions: [[0.0, 0.0, -1.0]; 8],
-            material_indices: [[0.0, 1.0, 1.0]; 2],
+            materials: [Material {
+                shininess: 0.0, indices: [0.0, 1.0, 1.0],
+                ambient: [0.2, 0.2, 0.2, 1.0], diffuse: [0.8, 0.8, 0.8, 1.0],
+                emission: [0.0, 0.0, 0.0, 1.0], specular: [0.0, 0.0, 0.0, 1.0],
+            }; 2],
+            lights: std::array::from_fn(|i| Light {
+                scalars: [0.0, 180.0, 1.0, 0.0, 0.0],
+                position: [0.0, 0.0, 1.0, 0.0],
+                colors: std::array::from_fn(|color| {
+                    if i == 0 && color != 0 { [1.0; 4] } else { [0.0, 0.0, 0.0, 1.0] }
+                }),
+                spot_direction: [0.0, 0.0, -1.0],
+            }),
             color_material: (FRONT_AND_BACK, 0x1602),
-            ambient_material: [[0.2, 0.2, 0.2, 1.0]; 2],
-            diffuse_material: [[0.8, 0.8, 0.8, 1.0]; 2],
-            emission: [[0.0, 0.0, 0.0, 1.0]; 2],
-            specular: [[0.0, 0.0, 0.0, 1.0]; 2],
             shade: SMOOTH,
             hints: [DONT_CARE; 5],
             pack: [0, 0, 0, 0, 0, 4],
@@ -1016,8 +1045,8 @@ impl Ctx {
             0xb52 => vec![B(self.two_sided)],
             0xb53 => c4(self.scene_ambient),
             0xb54 => i(self.shade as i64),
-            0xb55 => i(self.color_material.0 as i64),
-            0xb56 => i(self.color_material.1 as i64),
+            0xb55 => i(i64::from(self.color_material.0)),
+            0xb56 => i(i64::from(self.color_material.1)),
             0xb61 => vec![F(self.fog.index)],
             0xb62 => vec![F(self.fog.density)],
             0xb63 => vec![F(self.fog.start)],
@@ -1363,13 +1392,14 @@ crate::model::words! {
 fn wgl_bitmap_line(code: i32, encoding: &str) -> Res<list::Line> {
     // Unicode byte range, ANSI code-page overrides, then the two measured kana.
     let index = match code {
-        128..=159 if encoding == "a" => code + 128,
-        0..=255 => code,
-        12354..=12355 if encoding == "w" => code - 12354 + 288,
+        128..=159 if encoding == "a" => code.checked_add(128),
+        0..=255 => Some(code),
+        12354 if encoding == "w" => Some(288),
+        12355 if encoding == "w" => Some(289),
         _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
-    };
+    }.and_then(|v| usize::try_from(v).ok()).ok_or(Fail::Bad)?;
     let args = include_str!("opengl_arial_bitmap.txt").lines()
-        .nth(usize::try_from(index).map_err(|_| Fail::Bad)?).ok_or(Fail::Bad)?;
+        .nth(index).ok_or(Fail::Bad)?;
     let tok = ["glp", "glBitmap", "iiffff"].into_iter().chain(args.split_whitespace())
         .map(String::from).collect();
     Ok(list::Line { tok, unpack: Some([0, 0, 0, 0, 0, 1]), arrays: None })
@@ -1437,7 +1467,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                     let mut lines = Vec::new();
                     for offset in 0..count {
                         let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
-                        lines.push((base + offset.cast_unsigned(), vec![wgl_bitmap_line(code, encoding)?]));
+                        lines.push((base.checked_add(offset.cast_unsigned()).ok_or(Fail::Bad)?, vec![wgl_bitmap_line(code, encoding)?]));
                     }
                     hit(clause::WGL_FONT_LIST_RANGE);
                     ctx.lists.lists.extend(lines);
@@ -1454,9 +1484,9 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                         let (glyph, advance, geometry) = match code {
                             32 | 160 => ("0.00048828125 0.00048828125 0 0 0.248535156 0", "0.24853515625", ""),
                             65 | 66 => {
-                                let section = integer(fmt)? * 2 + code - 65;
+                                let section = match (integer(fmt)?, code) { (0, 65) => 0, (0, 66) => 1, (1, 65) => 2, (1, 66) => 3, _ => return Err(Fail::Bad) };
                                 let geometry = include_str!("opengl_arial_outline.txt").split('|')
-                                    .nth(usize::try_from(section).map_err(|_| Fail::Bad)?).ok_or(Fail::Bad)?;
+                                    .nth(section).ok_or(Fail::Bad)?;
                                 let glyph = if code == 65 { "0.599609375 0.640625 -0.0009765625 0.640625 0.597167969 0" }
                                     else { "0.483886719 0.640625 0.0654296875 0.640625 0.597167969 0" };
                                 (glyph, "0.59716796875", geometry)
@@ -1468,7 +1498,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                             .chain(geometry.lines()).chain([translate.as_str()]).map(|command| list::Line {
                                 tok: command.split_whitespace().map(String::from).collect(), unpack: None, arrays: None,
                             }).collect();
-                        lists.push((base + offset.cast_unsigned(), lines));
+                        lists.push((base.checked_add(offset.cast_unsigned()).ok_or(Fail::Bad)?, lines));
                         metrics.push(format!("glyph {glyph}"));
                     }
                     hit(clause::WGL_FONT_LIST_RANGE);
@@ -2434,18 +2464,18 @@ impl Ctx {
                 self.raster_eye = e[2];
                 self.raster_tex = self.tex_coords4(&Obj::at(v).with(self.vertex_coords(v, 1.0)));
             }
-            "glLightModelf" | "glLightModeli" => self.set_scene_flag(u(a, 0), fl(a, 1) as f32),
-            "glLightf" | "glLighti" => self.set_light_scalar(u(a, 0), u(a, 1), fl(a, 2) as f32),
+            "glLightModelf" | "glLightModeli" => self.set_scene_flag(u(a, 0), tri::narrow(fl(a, 1))),
+            "glLightf" | "glLighti" => self.set_light_scalar(u(a, 0), u(a, 1), tri::narrow(fl(a, 2))),
             "glMaterialf" | "glMateriali" => {
                 let face = u(a, 0);
-                let value = fl(a, 2) as f32;
+                let value = tri::narrow(fl(a, 2));
                 if !matches!(face, 0x404 | 0x405 | 0x408) || u(a, 1) != 0x1601 {
                     self.error(INVALID_ENUM);
                 } else if !(0.0..=128.0).contains(&value) {
                     self.error(INVALID_VALUE);
                 } else {
-                    if face != 0x405 { self.shininess[0] = value; }
-                    if face != 0x404 { self.shininess[1] = value; }
+                    if face != 0x405 { self.materials[0].shininess = value; }
+                    if face != 0x404 { self.materials[1].shininess = value; }
                 }
             }
             "glFogf" => self.fog_param(u(a, 0), &[fl(a, 1) as f32], false),
@@ -2763,7 +2793,7 @@ pub fn color_material_lit(ambient: f32, nl: f32, c: [f32; 4]) -> [f32; 4] {
 }
 
 fn signed_light_component(v: i32) -> f32 {
-    (2.0 * f64::from(v) + 1.0) as f32 * f32::from_bits(0x2f80_0005)
+    tri::narrow(2.0 * f64::from(v) + 1.0) * f32::from_bits(0x2f80_0005)
 }
 
 fn xform(m: &[f32; 16], v: [f64; 4]) -> [f64; 4] {
@@ -2968,7 +2998,7 @@ impl Ctx {
             return c;
         }
         hit(clause::GL_LIGHTING);
-        let side = usize::from(back);
+        let material = if back { &self.materials[1] } else { &self.materials[0] };
         let normal = self.eye_normal().map(|n| if back { -n } else { n });
         if self.pf.ty != 0 {
             let d = if self.cap(0x4000) { normal[2].max(0.0) } else { 0.0 };
@@ -2982,13 +3012,14 @@ impl Ctx {
         // golden opengl-32 / 64 interp-open-9: corners of 1.2 times the color as if 1))
         let target = if back { BACK } else { FRONT };
         let tracked = |property| tracks_material(self.cap(COLOR_MATERIAL), self.color_material, target, property);
-        let ambient = if tracked(0x1200) { c } else { self.ambient_material[side] };
-        let diffuse = if tracked(0x1201) { c } else { self.diffuse_material[side] };
-        let mut lit = std::array::from_fn(|k| self.emission[side][k] + self.scene_ambient[k] * ambient[k]);
-        let eye = xform(self.top(0), vertex).map(|v| v as f32);
-        for (i, position) in self.light_positions.iter().enumerate() {
-            if !self.cap(0x4000 + i as u32) { continue; }
-            let [mut x, mut y, mut z, w] = *position;
+        let ambient = if tracked(0x1200) { c } else { material.ambient };
+        let diffuse = if tracked(0x1201) { c } else { material.diffuse };
+        let scene = tri::zip4(self.scene_ambient, ambient, |a, b| a * b);
+        let mut lit = tri::zip4(material.emission, scene, |a, b| a + b);
+        let eye = xform(self.top(0), vertex).map(tri::narrow);
+        for (cap, light) in (0x4000..=0x4007).zip(&self.lights) {
+            if !self.cap(cap) { continue; }
+            let [mut x, mut y, mut z, w] = light.position;
             if w != 0.0 {
                 let vertex_scale = if eye[3] == 0.0 { 1.0 } else { eye[3].recip() };
                 x = x / w - eye[0] * vertex_scale;
@@ -2999,9 +3030,9 @@ impl Ctx {
             let cosine = if length > 0.0 {
                 ((normal[0] * x + normal[1] * y + normal[2] * z) / length).max(0.0)
             } else { 0.0 };
-            let [exponent, cutoff, constant, linear, quadratic] = self.light_scalars[i];
-            let spot = if cutoff == 180.0 { 1.0 } else {
-                let [sx, sy, sz] = self.spot_directions[i];
+            let [exponent, cutoff, constant, linear, quadratic] = light.scalars;
+            let spot = if cutoff.to_bits() == 180f32.to_bits() { 1.0 } else {
+                let [sx, sy, sz] = light.spot_direction;
                 let norm = length * (sx * sx + sy * sy + sz * sz).sqrt();
                 let alignment = if norm > 0.0 { (-(x * sx + y * sy + z * sz) / norm).clamp(-1.0, 1.0) } else { 0.0 };
                 if alignment < cutoff.to_radians().cos().max(0.0) { continue; }
@@ -3010,12 +3041,12 @@ impl Ctx {
             let attenuation = if w == 0.0 { 1.0 } else {
                 (constant + linear * length + quadratic * length * length).recip()
             };
-            let [light_ambient, light_diffuse, light_specular] = self.light_colors[i];
-            let highlight = if cosine > 0.0 && self.specular[side][..3].iter().any(|&v| v != 0.0) {
+            let [light_ambient, light_diffuse, light_specular] = light.colors;
+            let highlight = if cosine > 0.0 && material.specular[..3].iter().any(|&v| v != 0.0) {
                 let mut view = [0.0, 0.0, 1.0];
                 if self.local_viewer {
                     let norm = (eye[0] * eye[0] + eye[1] * eye[1] + eye[2] * eye[2]).sqrt();
-                    if norm > 0.0 { view = std::array::from_fn(|k| -eye[k] / norm); }
+                    if norm > 0.0 { view = [eye[0], eye[1], eye[2]].map(|v| -v / norm); }
                 }
                 let half = [x / length + view[0], y / length + view[1], z / length + view[2]];
                 let norm = half.iter().map(|v| v * v).sum::<f32>().sqrt();
@@ -3023,12 +3054,13 @@ impl Ctx {
                     (normal[0] * half[0] + normal[1] * half[1] + normal[2] * half[2]) / norm
                 } else { 0.0 };
                 // The reference quantizes intermediate powers at oblique angles.
-                if n_dot_h < 0.0 { 0.0 } else { n_dot_h.powf(self.shininess[side]) }
+                if n_dot_h < 0.0 { 0.0 } else { n_dot_h.powf(material.shininess) }
             } else { 0.0 };
-            for k in 0..3 {
-                lit[k] += spot * attenuation * (light_ambient[k] * ambient[k] + cosine * light_diffuse[k] * diffuse[k]
-                    + highlight * light_specular[k] * self.specular[side][k]);
-            }
+            let a = tri::zip4(light_ambient, ambient, |l, m| l * m);
+            let d = tri::zip4(light_diffuse, diffuse, |l, m| cosine * l * m);
+            let s = tri::zip4(light_specular, material.specular, |l, m| highlight * l * m);
+            let sum = tri::zip4(tri::zip4(a, d, |a, d| a + d), s, |ad, s| ad + s);
+            lit = tri::zip4(lit, sum, |old, sum| old + spot * attenuation * sum);
         }
         lit = lit.map(|v| v.clamp(0.0, 1.0));
         lit[3] = diffuse[3].clamp(0.0, 1.0);
@@ -5089,7 +5121,7 @@ impl Ctx {
             depth_transfer,
             zoom,
             // LIGHTING_BIT
-            shade, scene_ambient, local_viewer, two_sided, shininess, material_indices, color_material, ambient_material, diffuse_material, emission, specular, light_scalars, light_positions, spot_directions, light_colors,
+            shade, scene_ambient, local_viewer, two_sided, materials, color_material, lights,
             // FOG_BIT
             fog,
             // DEPTH_BUFFER_BIT
@@ -5196,17 +5228,9 @@ impl Ctx {
             self.scene_ambient = scene_ambient;
             self.local_viewer = local_viewer;
             self.two_sided = two_sided;
-            self.shininess = shininess;
-            self.light_scalars = light_scalars;
-            self.light_positions = light_positions;
-            self.spot_directions = spot_directions;
-            self.light_colors = light_colors;
-            self.material_indices = material_indices;
+            self.lights = lights;
+            self.materials = materials;
             self.color_material = color_material;
-            self.ambient_material = ambient_material;
-            self.diffuse_material = diffuse_material;
-            self.emission = emission;
-            self.specular = specular;
         }
         if on(attrib::FOG) {
             self.fog = fog;

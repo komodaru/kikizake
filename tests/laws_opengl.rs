@@ -2104,7 +2104,7 @@ fn directional_light_colors_match_native_point_pixels() {
 #[test]
 fn positional_light_attenuation_matches_native_point_pixels() {
     for (z, pixels) in [(1, ["cc", "66", "66", "66"]), (2, ["cc", "66", "44", "28"])] {
-        for ([c, l, q], pixel) in [[1,0,0], [2,0,0], [1,1,0], [1,0,1]].into_iter().zip(pixels) {
+        for ([c, l, q], pixel) in zip_eq([[1,0,0], [2,0,0], [1,1,0], [1,0,1]], pixels) {
             let input = format!("case positional\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glDisable 0xbd0\ngl glEnable 0xb50\ngl glEnable 0x4000\nglp glLightModelfv i 0xb53 f 0 0 0 1\nglp glLightfv ii 0x4000 0x1203 f 0 0 {z} 1\ngl glLightf 0x4000 0x1207 {c}\ngl glLightf 0x4000 0x1208 {l}\ngl glLightf 0x4000 0x1209 {q}\ngl glBegin 0\ngl glVertex2i 0 0\ngl glEnd\nglread 8 7 1 1 0x1908 0x1401 4\nglerr\nend\n");
             let cases = kikizake::case::parse_cases(&input);
             let output = kikizake::model::run_case(&cases[0]).unwrap();
@@ -2148,7 +2148,7 @@ fn specular_highlights_follow_light_viewer_and_shininess() {
         (0, "0 0 -1", [0; 3]), (1, "0 0 1", [255, 0, 0]),
         (1, "0.6 0 0.8", [0; 3]), (1, "0 0 -1", [0; 3]),
     ] {
-        for (shine, red) in [0, 4, 16].into_iter().zip(native) {
+        for (shine, red) in zip_eq([0, 4, 16], native) {
             let input = format!("case spec\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glDisable 0xbd0\ngl glEnable 0xb50\ngl glEnable 0x4000\nglp glLightModelfv i 0xb53 f 0 0 0 1\nglp glLightfv ii 0x4000 0x1201 f 0 0 0 1\nglp glLightfv ii 0x4000 0x1203 f {dir} 0\nglp glMaterialfv ii 0x404 0x1202 f 1 0.5 0.25 1\ngl glMateriali 0x404 0x1601 {shine}\ngl glLightModeli 0xb51 {local}\ngl glBegin 0\ngl glVertex3f 0 0 0.5\ngl glEnd\nglread 8 7 1 1 0x1908 0x1401 4\nglerr\nend\n");
             let cases = kikizake::case::parse_cases(&input);
             let output = kikizake::model::run_case(&cases[0]).unwrap();
