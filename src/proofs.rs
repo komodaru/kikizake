@@ -408,3 +408,11 @@ fn tracked_material_matches_face_and_property_masks() {
     let target = if back { BACK } else { FRONT };
     assert_eq!(crate::model::opengl::tracks_material(enabled, (face, mode), target, property), expected);
 }
+
+#[kani::proof]
+fn layer_palette_rejects_every_nonzero_plane() {
+    let plane: i32 = kani::any();
+    let result = crate::model::opengl::wgl_palette_error(plane);
+    assert_eq!(result == 0, plane == 0);
+    assert_eq!(result == 87, plane != 0);
+}

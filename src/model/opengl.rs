@@ -603,6 +603,7 @@ impl Ctx {
     }
 
     fn set_material_vector(&mut self, t: &[String]) -> Res<()> {
+        hit(crate::spec::open::GL_LIGHT_STATE.into());
         let [_, name, sig, face, pname, ..] = t else { return Err(Fail::Bad) };
         if sig != "ii" { return Err(Fail::Bad); }
         let face = crate::case::windows_long(face).ok_or(Fail::Bad)?;
@@ -1420,6 +1421,10 @@ fn choose_pfd(args: &[String]) -> Res<usize> {
         byte(accum)?, byte(depth)?, byte(stencil)?]))
 }
 
+pub(crate) fn wgl_palette_error(plane: i32) -> u32 {
+    if plane == 0 { 0 } else { 87 }
+}
+
 fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
     let [_, name, args @ ..] = tokens else { return Err(Fail::Bad) };
     let integer = |arg: &String| crate::case::windows_long(arg).ok_or(Fail::Bad);
@@ -1448,6 +1453,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
         },
         ("choose", args) => choose_pfd(args)?.to_string(),
         ("fontbmp" | "fontoutline", [encoding, first, count, base, rest @ ..]) => {
+            hit(crate::spec::open::WGL_OTHER.into());
             if !matches!(encoding.as_str(), "a" | "w") { return Err(Fail::Bad); }
             let first = integer(first)?;
             let count = integer(count)?;
@@ -1532,12 +1538,12 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             integer(start)?;
             if !(0..=256).contains(&integer(count)?) { return Err(Fail::Bad); }
             hit(clause::WGL_LAYER_PALETTE);
-            if plane == 0 { "0 0" } else { "0 87" }.into()
+            format!("0 {}", wgl_palette_error(plane))
         }
         ("realize", [plane, on]) => {
             integer(on)?;
             hit(clause::WGL_LAYER_PALETTE);
-            if integer(plane)? == 0 { "0 0" } else { "0 87" }.into()
+            format!("0 {}", wgl_palette_error(integer(plane)?))
         }
         ("layerctx", [plane]) => match integer(plane)?.cmp(&0) {
             std::cmp::Ordering::Less => "0 5".into(),

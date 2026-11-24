@@ -2269,3 +2269,18 @@ end
     let output = kikizake::model::run_case(&cases[0]).unwrap();
     assert_eq!(&output[1..], ["read ff0000ff", "read 00ff007f", "read 0000007f", "glerr 0"]);
 }
+
+#[test]
+fn debug_entry_preserves_each_gl_error_inside_and_outside_primitives() {
+    let overflow = "gl glPushMatrix\n".repeat(64);
+    for (setup, error) in [("", "0"), ("gl glEnable -1\n", "500"), ("gl glLineWidth -1\n", "501"),
+                           ("gl glEnd\n", "502"), (overflow.as_str(), "503"), ("gl glPopMatrix\n", "504")] {
+        for inside in [false, true] {
+            let (begin, end) = if inside { ("gl glBegin 0\n", "gl glEnd\n") } else { ("", "") };
+            let input = format!("case debug\nglctx 32 choose 0x38 0 32 0 0 32 8\n{setup}{begin}glr glDebugEntry i ii -2147483648 2147483647\n{end}glerr\nglerr\nend\n");
+            let cases = kikizake::case::parse_cases(&input);
+            let output = kikizake::model::run_case(&cases[0]).unwrap();
+            assert_eq!(&output[1..], ["ret 0".to_string(), format!("glerr {error}"), "glerr 0".to_string()], "{input}");
+        }
+    }
+}
