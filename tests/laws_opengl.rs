@@ -1791,3 +1791,53 @@ fn wgl_outline_lists_draw_native_lines_and_faces() {
     }
     assert!(masks.next().is_none());
 }
+
+proptest! {
+    #[test]
+    fn wgl_font_batches_replace_only_the_requested_lists(
+        base in 2u32..4096, length in 1u32..=64, selector in any::<u8>(),
+        wide in any::<bool>(), outline in any::<bool>(), filled in any::<bool>(),
+    ) {
+        use std::fmt::Write;
+        let encoding = if wide { "w" } else { "a" };
+        let count = if outline { 1 + length % 2 } else { length };
+        let first = if outline { 65 } else { u32::from(selector) % (257 - count) };
+        let end = base + count;
+        let mut input = String::from("case replace\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+        // A neighboring list changes the list base when called. The overwritten
+        // list had the same observable effect, which its replacement must erase.
+        for name in [base - 1, base, end] {
+            writeln!(input, "gl glNewList {name} 0x1300\ngl glListBase {name}\ngl glEndList").unwrap();
+        }
+        if outline {
+            writeln!(input, "wglx fontoutline {encoding} {first} {count} {base} {}", u8::from(filled)).unwrap();
+        } else {
+            writeln!(input, "wglx fontbmp {encoding} {first} {count} {base}").unwrap();
+        }
+        for name in base..end {
+            writeln!(input, "glr glIsList b i {name}").unwrap();
+        }
+        writeln!(input, "gl glCallList {base}\nglget i 0xb32 1\ngl glDeleteLists {base} {count}").unwrap();
+        for name in base..end {
+            writeln!(input, "glr glIsList b i {name}").unwrap();
+        }
+        for name in [base - 1, end] {
+            writeln!(input, "gl glCallList {name}\nglget i 0xb32 1").unwrap();
+        }
+        input.push_str("glerr\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        let mut actual = output.iter().map(String::as_str).filter(|s| !s.starts_with("glyph "));
+        prop_assert_eq!(actual.next(), Some("glctx ok 1"));
+        prop_assert_eq!(actual.next(), Some(if outline { "wglx fontoutline 1 0" } else { "wglx fontbmp 1 0" }));
+        for _ in base..end { prop_assert_eq!(actual.next(), Some("ret 1")); }
+        prop_assert_eq!(actual.next(), Some("get b32 = 0"));
+        for _ in base..end { prop_assert_eq!(actual.next(), Some("ret 0")); }
+        for name in [base - 1, end] {
+            let expected = format!("get b32 = {name}");
+            prop_assert_eq!(actual.next(), Some(expected.as_str()));
+        }
+        prop_assert_eq!(actual.next(), Some("glerr 0"));
+        prop_assert_eq!(actual.next(), None);
+    }
+}

@@ -883,3 +883,4 @@ tests/laws_opengl.rs::pixel_images_agree_inside_each_nearest_texel pbt GL.RASTER
 src/proofs.rs::wgl_swap_result_identifies_every_entry kani WGL.SWAP.MULTIPLE
 tests/laws_opengl.rs::wgl_dib_swap_counts_and_pixel_format_results exhaustive WGL.SWAP.MULTIPLE
 src/proofs.rs::wgl_font_batch_has_exact_nonzero_names kani WGL.FONT.LIST.RANGE
+tests/laws_opengl.rs::wgl_font_batches_replace_only_the_requested_lists pbt WGL.FONT.LIST.RANGE
