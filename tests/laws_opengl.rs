@@ -2171,3 +2171,30 @@ fn combined_material_update_keeps_face_selection_and_diffuse_alpha() {
     assert_eq!(&output[1..], ["q 0.100000001 0.25 0.75 0.5", "q 0 1 0 1",
         "q 214748256 536870624 1610611840 1073741248", "read 193fbf7f", "glerr 0"]);
 }
+
+#[test]
+fn color_material_protects_only_the_tracked_face_and_property() {
+    let input = "case material-switch
+glctx 32 choose 0x38 0 32 8 0 32 8
+gl glColor4f 0.25 0.5 0.75 1
+gl glColorMaterial 0x404 0x1201
+gl glEnable 0xb57
+glq glGetMaterialfv ii 0x404 0x1201 f 4
+glp glMaterialfv ii 0x408 0x1602 f 1 0 0 1
+glq glGetMaterialfv ii 0x404 0x1201 f 4
+glq glGetMaterialfv ii 0x404 0x1200 f 4
+glq glGetMaterialfv ii 0x405 0x1201 f 4
+gl glColorMaterial 0x405 0x1202
+glq glGetMaterialfv ii 0x405 0x1202 f 4
+gl glColor4f 0 1 0 1
+gl glDisable 0xb57
+gl glColor4f 1 1 1 1
+glq glGetMaterialfv ii 0x405 0x1202 f 4
+glerr
+end
+";
+    let cases = kikizake::case::parse_cases(input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["q 0.25 0.5 0.75 1", "q 0.25 0.5 0.75 1", "q 1 0 0 1",
+        "q 1 0 0 1", "q 0.25 0.5 0.75 1", "q 0 1 0 1", "glerr 0"]);
+}

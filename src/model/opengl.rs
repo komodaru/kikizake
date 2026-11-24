@@ -601,12 +601,16 @@ impl Ctx {
             } else {
                 for (i, target) in [0x404, 0x405].into_iter().enumerate() {
                     if face == target || face == 0x408 {
+                        let (tracked_face, mode) = self.color_material;
+                        let tracked = self.cap(COLOR_MATERIAL) && (tracked_face == target as u32 || tracked_face == FRONT_AND_BACK);
+                        let writable = |property| !tracked || (mode != property && !(mode == 0x1602 && matches!(property, 0x1200 | 0x1201)));
                         match pname {
-                            0x1200 => self.ambient_material[i] = values,
-                            0x1201 => self.diffuse_material[i] = values,
-                            0x1602 => { self.ambient_material[i] = values; self.diffuse_material[i] = values; }
-                            0x1202 => self.specular[i] = values,
-                            0x1600 => self.emission[i] = std::array::from_fn(|k| self.scaled_color_component(k, values[k])),
+                            0x1200 | 0x1201 | 0x1602 => {
+                                if pname != 0x1201 && writable(0x1200) { self.ambient_material[i] = values; }
+                                if pname != 0x1200 && writable(0x1201) { self.diffuse_material[i] = values; }
+                            }
+                            0x1202 => { if writable(0x1202) { self.specular[i] = values; } }
+                            0x1600 => { if writable(0x1600) { self.emission[i] = std::array::from_fn(|k| self.scaled_color_component(k, values[k])); } }
                             0x1601 => self.shininess[i] = values[0],
                             _ => self.material_indices[i] = [values[0], values[1], values[2]],
                         }
