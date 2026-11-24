@@ -1402,3 +1402,10 @@ proptest! {
         prop_assert_eq!(&output[1..], [read.as_str(), "glerr 0"]);
     }
 }
+
+#[test]
+fn point_and_raster_position_include_the_clip_boundary() {
+    let cases = kikizake::case::parse_cases(include_str!("fixtures/opengl_clip_point.txt"));
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["get b08 = 0", "get b08 = 1", "get b08 = 1", "read 000000ffffffffffffffffff", "glerr 0"]);
+}

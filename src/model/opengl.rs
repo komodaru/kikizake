@@ -1983,7 +1983,8 @@ impl Ctx {
                 if c[3] != 1.0 {
                     hit(clause::GL_RASTER_PERSPECTIVE);
                 }
-                let inside = c[3] > 0.0 && c[..3].iter().all(|v| (-c[3]..=c[3]).contains(v));
+                let inside = c[3] > 0.0 && c[..3].iter().all(|v| (-c[3]..=c[3]).contains(v))
+                    && self.enabled_clip_planes().all(|i| self.user_clip_distance(i, e.map(|a| a as f32)) >= 0.0);
                 // (MEASURED, golden opengl-32 / 64 gap-forms-0: glGet gives where the rasterizer
                 // has it, tri::Raster, unbiased, y back up the window less 1/256, and the clip w)
                 let clip = c;
@@ -2612,6 +2613,14 @@ impl Ctx {
         std::array::from_fn(|row| ((m[12 + row] * w + m[row] * v[0]) + m[4 + row] * v[1]) + m[8 + row] * v[2])
     }
 
+    fn enabled_clip_planes(&self) -> impl Iterator<Item = usize> + '_ {
+        (0..self.clip_planes.len()).filter(|&i| self.cap(0x3000 + i as u32))
+    }
+
+    fn user_clip_distance(&self, i: usize, eye: [f32; 4]) -> f32 {
+        self.clip_planes[i].iter().zip(eye).map(|(a, b)| a * b).sum()
+    }
+
     /// The pixels a filled polygon covers (GL.RASTER.TRIANGLE), each with the color `colors`
     /// (one per vertex) interpolate to there and, given the buffer, its depth: cut to the view
     /// volume (the colors and depths with it, `tri::clip`), then a fan from its first vertex,
@@ -2640,7 +2649,7 @@ impl Ctx {
         };
         let [_, _, vw, vh] = self.viewport.map(|v| v as f64);
         let center = self.viewport_center();
-        let enabled: Vec<usize> = (0..6).filter(|&i| self.cap(0x3000 + i as u32)).collect();
+        let enabled: Vec<usize> = self.enabled_clip_planes().collect();
         let clip: Vec<[f32; 17]> = q
             .iter()
             .zip(colors)
@@ -2654,7 +2663,7 @@ impl Ctx {
                     let [x, y, z] = v.0.xyz;
                     let eye = xform(self.top(0), [x, y, z, v.0.w]).map(|a| a as f32);
                     for &i in &enabled {
-                        vertex[11 + i] = self.clip_planes[i].iter().zip(eye).map(|(a, b)| a * b).sum();
+                        vertex[11 + i] = self.user_clip_distance(i, eye);
                     }
                 }
                 vertex
@@ -3389,7 +3398,9 @@ impl Ctx {
             POINTS => {
                 hit(clause::GL_POINT);
                 for (v, c) in verts {
-                    if self.culled_z(&[v]) {
+                    let [x, y, z] = v.xyz;
+                    let eye = xform(self.top(0), [x, y, z, v.w]).map(|a| a as f32);
+                    if self.culled_z(&[v]) || !self.enabled_clip_planes().all(|i| self.user_clip_distance(i, eye) >= 0.0) {
                         continue;
                     }
                     // (a point under a projection outside the view volume: not drawn, as one at

@@ -1,0 +1,22 @@
+case clip-point-raster
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glMatrixMode 0x1701
+gl glOrtho 0 16 0 16 -1 1
+gl glMatrixMode 0x1700
+glp glClipPlane i 0x3004 d 1 0 0 -3.5
+gl glEnable 0x3004
+gl glRasterPos2f 2.5 0.5
+glget i 0xb08 1
+gl glRasterPos2f 3.5 0.5
+glget i 0xb08 1
+gl glRasterPos2f 4.5 0.5
+glget i 0xb08 1
+gl glClear 0x4000
+gl glBegin 0
+gl glVertex2f 2.5 0.5
+gl glVertex2f 3.5 0.5
+gl glVertex2f 4.5 0.5
+gl glEnd
+glread 2 0 3 1 0x1908 0x1401 12
+glerr
+end
