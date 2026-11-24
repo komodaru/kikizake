@@ -1860,7 +1860,8 @@ impl Gl {
             let name = t.get(1).map(String::as_str);
             let supported = matches!(cmd, CtxOp::Glget | CtxOp::Glerr | CtxOp::Glisen | CtxOp::Glstr)
                 || (matches!(cmd, CtxOp::Gl) && matches!(name, Some("glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" | "glFlush" | "glFinish")))
-                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n, "glBegin" | "glShadeModel") || BEGIN_OK.contains(&n)))
+                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n, "glBegin" | "glShadeModel" | "glCopyPixels" | "glRasterPos2f" | "glRasterPos2i" | "glRasterPos4f") || BEGIN_OK.contains(&n)))
+                || (ctx.feedback.is_some() && (matches!(cmd, CtxOp::Gldraw) || (matches!(cmd, CtxOp::Glp) && name == Some("glBitmap"))))
                 || (matches!(cmd, CtxOp::Glr | CtxOp::Glp) && matches!(name, Some("glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer")));
             if !supported { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
         }
@@ -4298,19 +4299,31 @@ impl Ctx {
     }
 
     fn feedback_vertex(&self, record: &mut Vec<f32>, clip: [f32; 4], color: [f32; 4], tex: [f32; 4]) {
-        let ty = self.feedback_buffer.1;
         let inv = 1.0 / clip[3];
         let [vx, vy, vw, vh] = self.viewport.map(tri::float);
         let window = |q: f32, origin, size| f64::from((q * inv + 1.0) * size * 0.5 + origin);
         record.push(tri::float(self.snap_window(window(clip[0], vx, vw), Axis::X)) / 256.0);
         record.push(tri::float(self.snap_window(window(clip[1], vy, vh), Axis::Y)) / 256.0);
-        if ty >= 0x601 { record.push(self.window_z(clip[2] * inv)); }
-        if ty == 0x604 { record.push(clip[3]); }
+        self.feedback_attributes(record, self.window_z(clip[2] * inv), clip[3], color, tex);
+    }
+
+    fn feedback_attributes(&self, record: &mut Vec<f32>, z: f32, w: f32, color: [f32; 4], tex: [f32; 4]) {
+        let ty = self.feedback_buffer.1;
+        if ty >= 0x601 { record.push(z); }
+        if ty == 0x604 { record.push(w); }
         if ty >= 0x602 {
             if self.pf.ty == 0 { record.extend(color.map(|v| (v.clamp(0.0, 1.0) * 255.0) * (1.0 / 255.0))); }
             else { record.push(color[0]); }
         }
         if ty >= 0x603 { record.extend(tex); }
+    }
+
+    fn raster_feedback(&mut self, token: f32) -> Res<()> {
+        let [x, y, z, w] = self.raster_get;
+        let mut record = vec![token, x, y + 1.0 / 256.0];
+        self.feedback_attributes(&mut record, z, w, self.raster_color, self.raster_tex);
+        self.feedback.as_mut().ok_or(Fail::Bad)?.emit(&record, self.feedback_buffer.0);
+        Ok(())
     }
 
     fn end_with_edges(&mut self, mode: u32, edges: Option<&[bool]>) -> Res<()> {
@@ -5947,6 +5960,7 @@ impl Ctx {
             return Ok(());
         }
         let Some([rx, ry, rz]) = self.raster else { return Ok(()) };
+        if self.feedback.is_some() { return self.raster_feedback(1798.0); } // GL_COPY_PIXEL_TOKEN
         let start = sy.max(0);
         let end = sy.saturating_add(height).min(HEIGHT);
         if end <= start { return Ok(()); }
@@ -6081,7 +6095,8 @@ impl Ctx {
             return Ok(());
         }
         let Some([rx, ry, z]) = self.raster else { return Ok(()) };
-        if w > 0 && h > 0 && ty != "null" {
+        if self.feedback.is_some() { self.raster_feedback(1796.0)?; } // GL_BITMAP_TOKEN
+        else if w > 0 && h > 0 && ty != "null" {
             let mut src = array::glp_bytes(t)?.unwrap_or_else(|| vec![0xcc; 4096]);
             src.resize(4096, 0);
             let ox = tri::trunc((self.raster_get[0] - xorig).floor());
@@ -6597,6 +6612,7 @@ impl Ctx {
             hit(clause::GL_RASTER_POS);
             return Ok(());
         };
+        if self.feedback.is_some() { return self.raster_feedback(1797.0); } // GL_DRAW_PIXEL_TOKEN
         // (MEASURED, golden opengl-32 other-calls-0: unzoomed, the image's first pixel at the
         // raster position rounded, halves up: GL.RASTER.POS)
         let (ox, oy) = ((rx + 0.5).floor() as i64, (ry + 0.5).floor() as i64);

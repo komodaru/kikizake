@@ -3064,3 +3064,32 @@ end
         assert_eq!(&output[1..], ["ret 0".into(), format!("ret {count}"), format!("obuf {words}")]);
     }
 }
+
+#[test]
+fn raster_feedback_records_position_before_bitmap_motion() {
+    let input = "case rasterfb
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glColor4f 0.25 0.5 0.75 1
+gl glTexCoord4f 0.125 0.25 0.5 2
+gl glRasterPos4f -0.5 0.5 0.25 2
+glget f 0xb07 4
+glp glFeedbackBuffer ii 64 1536 obuf
+glr glRenderMode i i 0x1c01
+glp glBitmap iiffff 0 0 0 0 1 2 null
+gl glCopyPixels 0 0 0 0 0x1800
+glp glBitmap iiffff 1 1 2 3 -1 -2 ub 255
+gldraw 1 1 0x1908 0x1401 1 4
+glr glRenderMode i i 0x1c00
+globuf f 12
+glerr
+end
+";
+    let cases = kikizake::case::parse_cases(input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[2..], ["ret 0", "ret 12", "obuf 1796 6 10 1798 7 12 1796 7 12 1797 6 10", "glerr 0"]);
+    let full = input.replace("64 1536", "64 1540").replace("globuf f 12", "globuf f 13");
+    let cases = kikizake::case::parse_cases(&full);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(output[3], "ret 52");
+    assert_eq!(output[4], "obuf 1796 6 10 0.5625 2 0.25 0.5 0.75000006 1 0.125 0.25 0.5 2");
+}
