@@ -2113,3 +2113,21 @@ fn positional_light_attenuation_matches_native_point_pixels() {
         }
     }
 }
+
+#[test]
+fn spot_cutoff_and_exponent_match_native_point_pixels() {
+    for w in [0, 1] {
+        for (direction, pixels) in [
+            ("0 0 -1", ["cc"; 6]), ("0.6 0 -0.8", ["00","00","cc","82","cc","cc"]),
+            ("0 0 1", ["00","00","00","00","cc","cc"]),
+        ] {
+            for (i, (angle, exponent)) in [(30,0),(30,2),(60,0),(60,2),(180,0),(180,2)].into_iter().enumerate() {
+                let input = format!("case spot\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glDisable 0xbd0\ngl glEnable 0xb50\ngl glEnable 0x4000\nglp glLightModelfv i 0xb53 f 0 0 0 1\nglp glLightfv ii 0x4000 0x1203 f 0 0 1 {w}\nglp glLightfv ii 0x4000 0x1204 f {direction}\ngl glLightf 0x4000 0x1206 {angle}\ngl glLightf 0x4000 0x1205 {exponent}\ngl glBegin 0\ngl glVertex2i 0 0\ngl glEnd\nglread 8 7 1 1 0x1908 0x1401 4\nglerr\nend\n");
+                let cases = kikizake::case::parse_cases(&input);
+                let output = kikizake::model::run_case(&cases[0]).unwrap();
+                let expected = format!("read {}ff", pixels[i].repeat(3));
+                assert_eq!(&output[1..], [expected.as_str(), "glerr 0"]);
+            }
+        }
+    }
+}

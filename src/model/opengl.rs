@@ -2926,13 +2926,20 @@ impl Ctx {
             let cosine = if length > 0.0 {
                 ((normal[0] * x + normal[1] * y + normal[2] * z) / length).max(0.0)
             } else { 0.0 };
+            let [exponent, cutoff, constant, linear, quadratic] = self.light_scalars[i];
+            let spot = if cutoff == 180.0 { 1.0 } else {
+                let [sx, sy, sz] = self.spot_directions[i];
+                let norm = length * (sx * sx + sy * sy + sz * sz).sqrt();
+                let alignment = if norm > 0.0 { (-(x * sx + y * sy + z * sz) / norm).clamp(-1.0, 1.0) } else { 0.0 };
+                if alignment < cutoff.to_radians().cos().max(0.0) { continue; }
+                alignment.powf(exponent)
+            };
             let attenuation = if w == 0.0 { 1.0 } else {
-                let [_, _, constant, linear, quadratic] = self.light_scalars[i];
                 (constant + linear * length + quadratic * length * length).recip()
             };
             let [light_ambient, light_diffuse, _] = self.light_colors[i];
             for k in 0..3 {
-                lit[k] += attenuation * (light_ambient[k] * ambient[k] + cosine * light_diffuse[k] * diffuse[k]);
+                lit[k] += spot * attenuation * (light_ambient[k] * ambient[k] + cosine * light_diffuse[k] * diffuse[k]);
             }
         }
         lit = lit.map(|v| v.clamp(0.0, 1.0));
