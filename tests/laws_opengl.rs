@@ -2747,3 +2747,33 @@ end
         assert_eq!(&output[1..], [expected, "glerr 0"]);
     }
 }
+
+#[test]
+fn rejected_surface_definition_preserves_the_complete_map() {
+    let setup = "case invalid
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glMap2f iffiiffii 0xdb3 -2 3 2 2 5 8 1 2 f 1 2 3 4
+";
+    let queries = "glerr
+glq glGetMapiv ii 0xdb3 0xa00 i 4
+glq glGetMapiv ii 0xdb3 0xa01 i 2
+glq glGetMapiv ii 0xdb3 0xa02 i 4
+end\n";
+    let invalid = [
+        ("glp glMap2f iffiiffii 0xdb3 2 2 2 2 5 8 1 2 f 9 8 7 6", "glerr 501"),
+        ("glp glMap2f iffiiffii 0xdb3 -2 3 2 2 5 5 1 2 f 9 8 7 6", "glerr 501"),
+        ("glp glMap2f iffiiffii 0xdb3 -2 3 0 2 5 8 1 2 f 9 8 7 6", "glerr 501"),
+        ("glp glMap2f iffiiffii 0xdb3 -2 3 2 2 5 8 0 2 f 9 8 7 6", "glerr 501"),
+        ("glp glMap2f iffiiffii 0xdb3 -2 3 2 0 5 8 1 2 f 9 8 7 6", "glerr 501"),
+        ("glp glMap2f iffiiffii 0xdb3 -2 3 2 2 5 8 1 31 f 9 8 7 6", "glerr 501"),
+        ("glp glMap2f iffiiffii 0xd93 2 2 0 0 5 5 0 0 f 9 8 7 6", "glerr 500"),
+        // Distinct double endpoints can still describe an empty float32 domain.
+        ("glp glMap2d iddiiddii 0xdb3 1 1.0000000001 2 2 5 8 1 2 d 9 8 7 6", "glerr 501"),
+    ];
+    for (definition, error) in invalid {
+        let input = format!("{setup}{definition}\n{queries}");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], [error, "q 1 2 3 4", "q 2 2", "q -2 3 5 8"], "{definition}");
+    }
+}
