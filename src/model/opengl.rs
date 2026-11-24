@@ -2474,9 +2474,9 @@ impl Ctx {
                 if self.in_begin != Some(POINTS) {
                     // (MEASURED, golden opengl-32 persp-more-3..5: the clip coordinates of
                     // (x, y, z, w), cut and divided as any others)
-                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_on(), fog_factor: None }, self.lit(self.current())));
+                    self.verts.push((Obj { xyz: [fl(a, 0), fl(a, 1), fl(a, 2)], w, tc: self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w), edge: self.edge_on(), fog_factor: None }, self.lit(self.current(), [fl(a, 0), fl(a, 1), fl(a, 2), w])));
                 } else if w > 0.0 {
-                    self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]).with(self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w)).edged(self.edge_on()), self.lit(self.current())));
+                    self.verts.push((Obj::at([fl(a, 0) / w, fl(a, 1) / w, fl(a, 2) / w]).with(self.vertex_coords([fl(a, 0), fl(a, 1), fl(a, 2)], w)).edged(self.edge_on()), self.lit(self.current(), [fl(a, 0), fl(a, 1), fl(a, 2), w])));
                 } else {
                     hit(clause::GL_RASTER_CLIP_XY);
                 }
@@ -2484,7 +2484,7 @@ impl Ctx {
             "glVertex2f" | "glVertex3f" | "glVertex4f" | "glVertex2i" | "glVertex3i" => {
                 let v = [fl(a, 0), fl(a, 1), if a.len() > 2 { fl(a, 2) } else { 0.0 }];
                 if self.in_begin.is_some() {
-                    self.verts.push((Obj::at(v).with(self.vertex_coords(v, 1.0)).edged(self.edge_on()), self.lit(self.current())));
+                    self.verts.push((Obj::at(v).with(self.vertex_coords(v, 1.0)).edged(self.edge_on()), self.lit(self.current(), [v[0], v[1], v[2], 1.0])));
                 } else {
                     // (MEASURED, golden opengl-32 edge-vertex-outside: ignored, no error)
                     hit(clause::GL_VERTEX_OUTSIDE);
@@ -2504,7 +2504,7 @@ impl Ctx {
                 let (x0, y0, x1, y1) = (fl(a, 0), fl(a, 1), fl(a, 2), fl(a, 3));
                 self.verts.clear();
                 for (x, y) in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] {
-                    self.verts.push((Obj::at([x, y, 0.0]).with(self.vertex_coords([x, y, 0.0], 1.0)), self.lit(self.current())));
+                    self.verts.push((Obj::at([x, y, 0.0]).with(self.vertex_coords([x, y, 0.0], 1.0)), self.lit(self.current(), [x, y, 0.0, 1.0])));
                 }
                 self.rect_call = true;
                 let r = self.end(QUADS);
@@ -2892,7 +2892,7 @@ impl Ctx {
     /// ambient 0.2, the material's diffuse alpha 1, whatever the current color; lighting-material:
     /// under GL_COLOR_MATERIAL (ambient and diffuse) the scene's ambient times the current color,
     /// its alpha: GL.LIGHTING)
-    fn lit(&self, c: [f32; 4]) -> [f32; 4] {
+    fn lit(&self, c: [f32; 4], vertex: [f64; 4]) -> [f32; 4] {
         if !self.cap(LIGHTING) {
             return c;
         }
@@ -2912,16 +2912,27 @@ impl Ctx {
         let ambient = if tracked { c } else { [0.2; 4] };
         let diffuse = if tracked { c } else { [0.8; 4] };
         let mut lit = std::array::from_fn(|k| self.scene_ambient[k] * ambient[k]);
+        let eye = xform(self.top(0), vertex).map(|v| v as f32);
         for (i, position) in self.light_positions.iter().enumerate() {
             if !self.cap(0x4000 + i as u32) { continue; }
-            let [x, y, z, _] = *position;
+            let [mut x, mut y, mut z, w] = *position;
+            if w != 0.0 {
+                let vertex_scale = if eye[3] == 0.0 { 1.0 } else { eye[3].recip() };
+                x = x / w - eye[0] * vertex_scale;
+                y = y / w - eye[1] * vertex_scale;
+                z = z / w - eye[2] * vertex_scale;
+            }
             let length = (x * x + y * y + z * z).sqrt();
             let cosine = if length > 0.0 {
                 ((normal[0] * x + normal[1] * y + normal[2] * z) / length).max(0.0)
             } else { 0.0 };
+            let attenuation = if w == 0.0 { 1.0 } else {
+                let [_, _, constant, linear, quadratic] = self.light_scalars[i];
+                (constant + linear * length + quadratic * length * length).recip()
+            };
             let [light_ambient, light_diffuse, _] = self.light_colors[i];
             for k in 0..3 {
-                lit[k] += light_ambient[k] * ambient[k] + cosine * light_diffuse[k] * diffuse[k];
+                lit[k] += attenuation * (light_ambient[k] * ambient[k] + cosine * light_diffuse[k] * diffuse[k]);
             }
         }
         lit = lit.map(|v| v.clamp(0.0, 1.0));

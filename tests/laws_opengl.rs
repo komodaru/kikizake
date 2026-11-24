@@ -2100,3 +2100,16 @@ fn directional_light_colors_match_native_point_pixels() {
         assert_eq!(&output[1..], [expected.as_str(), "glerr 0"]);
     }
 }
+
+#[test]
+fn positional_light_attenuation_matches_native_point_pixels() {
+    for (z, pixels) in [(1, ["cc", "66", "66", "66"]), (2, ["cc", "66", "44", "28"])] {
+        for ([c, l, q], pixel) in [[1,0,0], [2,0,0], [1,1,0], [1,0,1]].into_iter().zip(pixels) {
+            let input = format!("case positional\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glDisable 0xbd0\ngl glEnable 0xb50\ngl glEnable 0x4000\nglp glLightModelfv i 0xb53 f 0 0 0 1\nglp glLightfv ii 0x4000 0x1203 f 0 0 {z} 1\ngl glLightf 0x4000 0x1207 {c}\ngl glLightf 0x4000 0x1208 {l}\ngl glLightf 0x4000 0x1209 {q}\ngl glBegin 0\ngl glVertex2i 0 0\ngl glEnd\nglread 8 7 1 1 0x1908 0x1401 4\nglerr\nend\n");
+            let cases = kikizake::case::parse_cases(&input);
+            let output = kikizake::model::run_case(&cases[0]).unwrap();
+            let expected = format!("read {pixel}{pixel}{pixel}ff");
+            assert_eq!(&output[1..], [expected.as_str(), "glerr 0"]);
+        }
+    }
+}
