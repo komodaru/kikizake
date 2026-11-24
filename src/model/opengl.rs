@@ -618,6 +618,38 @@ impl Ctx {
         Ok(())
     }
 
+    fn set_light_scalar(&mut self, light: u32, pname: u32, value: f32) {
+        if !(0x4000..=0x4007).contains(&light) || !(0x1205..=0x1209).contains(&pname) {
+            self.error(INVALID_ENUM);
+        } else if value < 0.0 || (pname == 0x1205 && value > 128.0)
+            || (pname == 0x1206 && value > 90.0 && value != 180.0) {
+            self.error(INVALID_VALUE);
+        } else {
+            self.light_scalars[(light - 0x4000) as usize][(pname - 0x1205) as usize] = value;
+        }
+    }
+
+    fn set_light_vector(&mut self, t: &[String]) -> Res<()> {
+        let [_, name, sig, light, pname, ..] = t else { return Err(Fail::Bad) };
+        if sig != "ii" { return Err(Fail::Bad); }
+        let light = crate::case::windows_long(light).ok_or(Fail::Bad)?.cast_unsigned();
+        let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?.cast_unsigned();
+        if self.in_begin.is_some() {
+            self.error(INVALID_OPERATION);
+        } else if !(0x4000..=0x4007).contains(&light) || !(0x1200..=0x1209).contains(&pname) {
+            self.error(INVALID_ENUM);
+        } else if pname >= 0x1205 {
+            let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
+            bytes.resize(4, 0);
+            let word = bytes.as_slice().try_into().map_err(|_| Fail::Bad)?;
+            let value = if name == "glLightfv" { f32::from_le_bytes(word) } else { i32::from_le_bytes(word) as f32 };
+            self.set_light_scalar(light, pname, value);
+        } else {
+            return Err(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE));
+        }
+        Ok(())
+    }
+
     fn get_light(&mut self, t: &[String], out: &mut Vec<String>) -> Res<()> {
         let [_, name, sig, light, pname, ty, count] = t else { return Err(Fail::Bad) };
         if sig != "ii" { return Err(Fail::Bad); }
@@ -1620,6 +1652,7 @@ impl Gl {
                     ctx.array_glp(t, at)?;
                 }
             }
+            CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glLightfv" | "glLightiv")) => ctx.set_light_vector(t)?,
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glMaterialfv" | "glMaterialiv")) => ctx.set_material_vector(t)?,
             CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetMaterialfv" | "glGetMaterialiv")) => ctx.get_material(t, out)?,
             CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetLightfv" | "glGetLightiv")) => ctx.get_light(t, out)?,
@@ -2279,19 +2312,7 @@ impl Ctx {
                 self.raster_eye = e[2];
                 self.raster_tex = self.tex_coords4(&Obj::at(v).with(self.vertex_coords(v, 1.0)));
             }
-            "glLightf" | "glLighti" => {
-                let light = u(a, 0);
-                let pname = u(a, 1);
-                let value = fl(a, 2) as f32;
-                if !(0x4000..=0x4007).contains(&light) || !(0x1205..=0x1209).contains(&pname) {
-                    self.error(INVALID_ENUM);
-                } else if value < 0.0 || (pname == 0x1205 && value > 128.0)
-                    || (pname == 0x1206 && value > 90.0 && value != 180.0) {
-                    self.error(INVALID_VALUE);
-                } else {
-                    self.light_scalars[(light - 0x4000) as usize][(pname - 0x1205) as usize] = value;
-                }
-            }
+            "glLightf" | "glLighti" => self.set_light_scalar(u(a, 0), u(a, 1), fl(a, 2) as f32),
             "glMaterialf" | "glMateriali" => {
                 let face = u(a, 0);
                 let value = fl(a, 2) as f32;

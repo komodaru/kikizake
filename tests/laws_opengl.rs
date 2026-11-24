@@ -2017,3 +2017,21 @@ fn light_scalar_validation_preserves_the_previous_value() {
     let output = kikizake::model::run_case(&cases[0]).unwrap();
     assert_eq!(output[1..], include_str!("fixtures/opengl_light_scalars.txt").lines().collect::<Vec<_>>());
 }
+
+proptest! {
+    #[test]
+    fn scalar_and_vector_light_calls_share_per_light_state(
+        light in 0x4000u32..=0x4007, pname in 0x1205u32..=0x1209,
+        value in -2i32..=182, use_float in any::<bool>(),
+    ) {
+        let ty = if use_float { "f" } else { "i" };
+        let run = |set: &str| {
+            let input = format!("case light\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glPushAttrib 0x40\n{set}\nglerr\nglq glGetLightfv ii {light} {pname} f 1\ngl glPopAttrib\nglq glGetLightfv ii {light} {pname} f 1\nend\n");
+            let cases = kikizake::case::parse_cases(&input);
+            kikizake::model::run_case(&cases[0]).unwrap()
+        };
+        let scalar = run(&format!("gl glLight{ty} {light} {pname} {value}"));
+        let vector = run(&format!("glp glLight{ty}v ii {light} {pname} {ty} {value} 93"));
+        prop_assert_eq!(scalar, vector);
+    }
+}
