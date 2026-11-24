@@ -1181,6 +1181,29 @@ mod lists_far {
         }
     }
 }
+#[test]
+fn stipple_display_lists_capture_unpack_and_attribute_stack_restores_pattern() {
+    let text = "case state
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glPixelStorei 0xcf1 1
+gl glNewList 17 0x1300
+glp glPolygonStipple - ub 1
+gl glEndList
+gl glPixelStorei 0xcf1 0
+glq glGetPolygonStipple - ub 2
+gl glCallList 17
+glq glGetPolygonStipple - ub 2
+gl glPushAttrib 0x10
+glp glPolygonStipple - ub 127
+glq glGetPolygonStipple - ub 2
+gl glPopAttrib
+glq glGetPolygonStipple - ub 2
+glerr
+end";
+    let output = kikizake::model::run_case(&kikizake::case::parse_cases(text)[0]).unwrap();
+    assert_eq!(&output[1..], ["q 255 255", "q 128 0", "q 127 0", "q 128 0", "glerr 0"]);
+}
+
 /// The C executor supplies 4096 zero-filled bytes. glGetPolygonStipple starts
 /// its byte query with 0xcc, so partial destination bytes test preservation too.
 proptest! {
