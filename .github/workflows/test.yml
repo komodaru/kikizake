@@ -31,6 +31,13 @@ jobs:
             target
           key: test-${{ env.RUST_KEY }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: test-${{ env.RUST_KEY }}-
+      - name: Check formal coverage against the base revision
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000')
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          python3 tests/formal_gaps.py "$BASE_SHA"
       - run: python3 -B tests/golden.py
       - name: Laws, case files, clauses, models against Windows
         run: cargo test --release --no-fail-fast -- --nocapture 2>&1 | tee test.log; exit ${PIPESTATUS[0]}

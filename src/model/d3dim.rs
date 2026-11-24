@@ -96,6 +96,12 @@ pub(crate) fn f32_of(v: i64) -> Option<f32> {
     if v.unsigned_abs() >= 1 << 24 {
         return None;
     }
+    raster_long(v)
+}
+
+/// Both 16-bit halves and their power-of-two shift are exact in f32. Only
+/// the final addition rounds, including for a LONG outside the exact range.
+fn raster_long(v: i64) -> Option<f32> {
     let hi = i16::try_from(v >> 16).ok()?;
     let lo = u16::try_from(v & 0xffff).ok()?;
     Some(f32::from(hi) * 65536.0 + f32::from(lo))
@@ -122,11 +128,11 @@ impl Edge {
     /// the edge through x0 on its first row with this slope
     fn new(x0: f32, slope: f32) -> Option<Edge> {
         let x = iceil(x0)?;
-        let frac = x0 - f32_of(ifloor(x0)?)?;
+        let frac = x0 - raster_long(ifloor(x0)?)?;
         let f = trunc(x87_mul(frac, TWO31))?;
         let err = u32::try_from(f.wrapping_sub(1) & 0x7fff_ffff).ok()?;
         let istep = trunc(slope)?;
-        let fs = trunc(x87_mul(slope - f32_of(istep)?, TWO31))?;
+        let fs = trunc(x87_mul(slope - raster_long(istep)?, TWO31))?;
         // (the fraction's bits as the 32-bit add sees them: negative for a negative slope)
         let fstep = u32::try_from(fs.rem_euclid(1 << 32)).ok()?;
         let cstep = if slope < 0.0 { istep.wrapping_sub(1) } else { istep.wrapping_add(1) };
@@ -251,7 +257,7 @@ pub enum Attrs {
 /// raster() for the given attributes
 pub fn raster_as(v: [Vert; 3], clip: Clip, gouraud: bool, attrs: Attrs) -> Res<Option<Raster>> {
     let bad = || Fail::Unmodeled(crate::spec::open::D3D7_TRI_CLIP);
-    let fl = |v: i64| f32_of(v).ok_or_else(bad);
+    let fl = |v: i64| raster_long(v).ok_or_else(bad);
     let [va, vb, vc] = v;
     let ([t, m, bo], _flip) = sort(va, vb, vc);
     let (px_, py_) = (m.x - t.x, m.y - t.y);

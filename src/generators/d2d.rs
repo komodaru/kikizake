@@ -766,7 +766,12 @@ fn xfbounds(s: &mut String, r: &mut XorShift32) {
     let rot = |r: &mut XorShift32| {
         let a = r.range(0, 6283) as f64 / 1000.0;
         let k = r.range(32, 160) as f64 / 64.0;
-        [a.cos() * k, a.sin() * k, -a.sin() * k, a.cos() * k]
+        // The native matrix stores FLOATs. Drop host libm's low f64 bits before
+        // printing, so Windows and Linux generate the same case file.
+        let coeff = |v| f64::from(crate::model::gppath::to32(crate::model::gdiplus::Round::Nearest, v));
+        let c = coeff(a.cos() * k);
+        let s = coeff(a.sin() * k);
+        [c, s, -s, c]
     };
     let dy = |r: &mut XorShift32, lo: i64, hi: i64| fmt(r.range(lo * 16, hi * 16) as f64 / 16.0);
     for i in 0..24 {
@@ -1004,4 +1009,22 @@ fn probes(s: &mut String, r: &mut XorShift32) {
     writeln!(s, "case pareahuge-4\nd2ell 0 200000000 100000000 300000000 150000000\nd2area 0\nend");
     writeln!(s, "case tesshuge-1\nd2path 0 alt m -1e13 -1e13 1e13 -1e13 0 1e13 z\nd2tess 0\nend");
     writeln!(s, "case strknan-0\nd2target 16 12\nd2path 0 alt m 2 2 12 4 4 10 z\nd2drawg 0 NaN 255 255 255 255\nd2read\nend");
+}
+
+/// Focused native measurements for the remaining render-target contracts.
+pub fn d2dlimits() -> String {
+    let mut s = String::from("# kikizake suite d2dlimits: Direct2D render-target boundary cases.\n");
+    let bitmap = "d2bmp 0 2 2 0000ffff00ff00ffff0000ffffffffff";
+    for (name, op) in [
+        ("bitmap-src-nan", format!("{bitmap}\nd2drawbmp 0 0 0 4 4 1 nearest NaN 0 2 2")),
+        ("bitmap-src-infinity", format!("{bitmap}\nd2drawbmp 0 0 0 4 4 1 linear 0 0 inf 2")),
+        ("gradient-empty", "d2grad 0 0 4 4 lin 22 clamp 0 0 4 4 0".into()),
+        ("gradient-singular", "d2xform 1 1 1 1 0 0\nd2grad 0 0 4 4 lin 22 clamp 0 0 4 4 2 0 255 0 0 255 1 0 0 255 255".into()),
+        ("gradient-coincident", "d2grad 0 0 4 4 lin 22 clamp 2 2 2 2 2 0 255 0 0 255 1 0 0 255 255".into()),
+        ("curve-outside-fixed-range", "d2ell 0 8388608 2 8388608 2\nd2fillg 0 255 255 255 255".into()),
+        ("stroke-nan", "d2ell 0 2 2 1 1\nd2drawg 0 NaN 255 255 255 255".into()),
+    ] {
+        writeln!(s, "case {name}\nd2target 4 4\nd2clear 39 70 111 255\n{op}\nd2read\nend");
+    }
+    s
 }

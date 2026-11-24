@@ -29,7 +29,7 @@ pub fn line_matches(want: Option<&str>, got: Option<&str>) -> bool {
     match (want, got) {
         (Some(w), Some(g)) => match w.as_bytes().strip_prefix(b"oneof ") {
             Some(alternatives) => is_one_of(alternatives, g.as_bytes()),
-            None => w.len() == g.len() && w.bytes().zip(g.bytes()).all(|(a, b)| a == b || (a == b'?' && b.is_ascii_hexdigit())),
+            None => w.len() == g.len() && w.bytes().zip(g.bytes()).all(|(a, b)| if a == b'?' { b.is_ascii_hexdigit() } else { a == b }),
         },
         (None, None) => true,
         (Some(_), None) | (None, Some(_)) => false,
@@ -113,4 +113,46 @@ pub fn compare(want: &Output, got: &Output) -> Report {
 
 pub fn compare_text(want: &str, got: &str) -> Report {
     compare(&parse_output(want), &parse_output(got))
+}
+
+#[cfg(kani)]
+mod proofs {
+    use super::line_matches;
+
+    /// A fixed-size ASCII candidate keeps CBMC's input on the stack (#16).
+    fn ascii() -> u8 {
+        let byte = kani::any();
+        kani::assume(byte <= 0x7f);
+        byte
+    }
+
+    #[kani::proof]
+    #[kani::unwind(12)]
+    fn comparator_question_mark() {
+        let candidate = [ascii(), ascii()];
+        let got = std::str::from_utf8(&candidate).unwrap();
+        let hex = matches!(candidate[1], b'0'..=b'9' | b'a'..=b'f' | b'A'..=b'F');
+        assert_eq!(line_matches(Some("x?"), Some(got)), candidate[0] == b'x' && hex);
+        assert!(!line_matches(Some("?"), Some(got)));
+        assert!(!line_matches(None, Some(got)));
+        assert!(!line_matches(Some(got), None));
+        assert!(line_matches(None, None));
+    }
+
+    #[kani::proof]
+    #[kani::unwind(16)]
+    fn comparator_exact_alternatives() {
+        let candidate = [ascii(), ascii()];
+        let got = std::str::from_utf8(&candidate).unwrap();
+        assert_eq!(line_matches(Some("oneof a? | ?b"), Some(got)),
+                   candidate == *b"a?" || candidate == *b"?b");
+        assert!(!line_matches(Some("oneof a | b"), Some(got)));
+    }
+}
+
+#[test]
+fn wildcard_requires_a_hex_digit_even_when_the_actual_byte_is_question_mark() {
+    assert!(!line_matches(Some("??"), Some("??")));
+    assert!(line_matches(Some("??"), Some("fA")));
+    assert!(line_matches(Some("oneof ?? | AB"), Some("??")));
 }

@@ -71,6 +71,13 @@ Every clause has to show the evidence its status claims; `cargo test` (tests/spe
   The `formal` workflow runs both; `cargo test` cannot.
 * Case names are unique in a suite (answers are matched to cases by name).
 
+The formal coverage check includes every API registered in `src/spec.rs`. For a
+settled clause (`doc` or `measured`), register a law and its input domain in the
+test or proof. Existing gaps are listed in `spec/unproven.txt`. CI compares
+that list to the base revision's clauses and laws, so adding an exemption for a
+new gap fails. Remove the entry when a formal law covers the clause. Run
+`cargo run --release -- ledger --update` after changing a Lean mirror's reach.
+
 ## Tests
 
 `cargo test` (case files current, laws, clauses reached, models against Windows). Add laws

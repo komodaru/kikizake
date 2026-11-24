@@ -7,7 +7,7 @@
 //! clean-room notes (re/README.md) give the rule, assumed until the golden ntstr answers settle it.
 
 use super::{Api, Fail, Res};
-use crate::case::{num, Op};
+use crate::case::{windows_long, Op};
 use crate::spec::{clause, hit};
 
 /// an NTSTATUS the functions return
@@ -77,11 +77,17 @@ fn digit(c: u32) -> Option<u32> {
     }
 }
 
+/// The accumulator after one unit, or None when this unit ends the number.
+pub(crate) fn append_digit(value: u32, radix: Radix, unit: u32) -> Option<u32> {
+    let d = digit(unit)?;
+    (d < radix.value()).then(|| value.wrapping_mul(radix.value()).wrapping_add(d))
+}
+
 /// the characters of a number after its white space: the sign, the base, the digits
 /// (NT.SIGN, NT.DIGITS, the prefixes); `chars` ends at the string's end or at a 0
-fn number(chars: &[u32], base: Option<Radix>) -> u32 {
+fn number<T: Copy + Into<u32>>(chars: &[T], base: Option<Radix>) -> u32 {
     let mut i = 0;
-    let at = |i: usize| chars.get(i).copied().unwrap_or(0);
+    let at = |i: usize| chars.get(i).copied().map(Into::into).unwrap_or(0);
     let sign = at(i);
     if sign == 0x2b || sign == 0x2d {
         i += 1;
@@ -108,11 +114,8 @@ fn number(chars: &[u32], base: Option<Radix>) -> u32 {
     };
     hit(clause::NT_DIGITS);
     let mut v: u32 = 0;
-    while let Some(d) = digit(at(i)) {
-        if d >= radix.value() {
-            break;
-        }
-        v = v.wrapping_mul(radix.value()).wrapping_add(d);
+    while let Some(next) = append_digit(v, radix, at(i)) {
+        v = next;
         i += 1;
     }
     if sign == 0x2d {
@@ -127,7 +130,6 @@ pub fn char_to_integer(s: &[u8], base: u32) -> (Status, Option<u32>) {
     hit(clause::NT_A2I_SYNTAX);
     // (the bytes and the executor's NUL after them: a blank byte, a NUL too, is passed while the
     // byte after it is not NUL, so bytes after a leading NUL can count)
-    let s: Vec<u8> = s.iter().copied().chain([0]).collect();
     let at = |i: usize| s.get(i).copied().unwrap_or(0);
     let mut i = 0;
     while (at(i) as i8) <= 0x20 {
@@ -147,10 +149,8 @@ pub fn char_to_integer(s: &[u8], base: u32) -> (Status, Option<u32>) {
             }
         },
     };
-    // (a blank byte left at the end is no number)
-    let chars: Vec<u32> = s[i.min(s.len())..].iter().map(|&b| u32::from(b)).collect();
-    let chars: Vec<u32> = if chars.first().is_some_and(|&c| (c as u8 as i8) <= 0x20) { Vec::new() } else { chars.into_iter().take_while(|&c| c != 0).collect() };
-    (Status::Success, Some(number(&chars, radix)))
+    // A remaining blank or an embedded NUL ends the digit loop.
+    (Status::Success, Some(number(s.split_at(i).1, radix)))
 }
 
 /// RtlUnicodeStringToInteger of a UNICODE_STRING of `length` bytes over `units`: the status and
@@ -160,11 +160,10 @@ pub fn unicode_to_integer(units: &[u16], length: usize, base: u32) -> (Status, u
         hit(clause::NT_U2I_EMPTY);
         return (Status::InvalidParameter, 0);
     }
-    let s: Vec<u32> = units.iter().take(length / 2).map(|&u| u32::from(u)).collect();
+    let s = units.split_at(units.len().min(length / 2)).0;
     hit(clause::NT_U2I_BLANK);
     // (a 0 unit is white space too while it leads; after the white space it ends the number)
     let start = s.iter().position(|&u| u > 0x20).unwrap_or(s.len());
-    let s: Vec<u32> = s[start..].iter().copied().take_while(|&u| u != 0).collect();
     let radix = match base {
         0 => {
             hit(clause::NT_U2I_PREFIX);
@@ -178,23 +177,23 @@ pub fn unicode_to_integer(units: &[u16], length: usize, base: u32) -> (Status, u
             }
         },
     };
-    (Status::Success, number(&s, radix))
+    (Status::Success, number(s.split_at(start).1, radix))
 }
 
 /// RtlIntegerToChar's digits of `value`
-fn digits(value: u32, radix: Radix) -> Vec<u8> {
+fn digits(value: u32, radix: Radix, buffer: &mut [u8; 32]) -> &[u8] {
     hit(clause::NT_I2A_DIGITS);
     let mut v = value;
-    let mut d = Vec::new();
-    loop {
-        d.push(b"0123456789ABCDEF"[(v % radix.value()) as usize]);
+    let mut start = 0;
+    for (i, slot) in buffer.iter_mut().enumerate().rev() {
+        *slot = b"0123456789ABCDEF"[(v % radix.value()) as usize];
         v /= radix.value();
         if v == 0 {
+            start = i;
             break;
         }
     }
-    d.reverse();
-    d
+    buffer.split_at(start).1
 }
 
 fn radix_or_decimal(base: u32) -> Option<Radix> {
@@ -207,14 +206,18 @@ pub fn integer_to_char(value: u32, base: u32, length: i32, buf: &mut [u8]) -> St
     let Some(radix) = radix_or_decimal(base) else {
         return Status::InvalidParameter;
     };
-    let d = digits(value, radix);
+    write_digits(digits(value, radix, &mut [0; 32]), length, buf)
+}
+
+/// Write the converted digits into the caller's buffer (or leave it intact).
+pub(crate) fn write_digits(d: &[u8], length: i32, buf: &mut [u8]) -> Status {
     let n = d.len() as i64;
     if length >= 0 {
         hit(clause::NT_I2A_LENGTH);
         if n > i64::from(length) {
             return Status::BufferOverflow;
         }
-        buf[..d.len()].copy_from_slice(&d);
+        buf[..d.len()].copy_from_slice(d);
         if n < i64::from(length) {
             buf[d.len()] = 0;
         }
@@ -226,7 +229,7 @@ pub fn integer_to_char(value: u32, base: u32, length: i32, buf: &mut [u8]) -> St
         }
         let pad = (l - n) as usize;
         buf[..pad].fill(b'0');
-        buf[pad..pad + d.len()].copy_from_slice(&d);
+        buf[pad..pad + d.len()].copy_from_slice(d);
     }
     Status::Success
 }
@@ -275,7 +278,7 @@ pub fn integer_to_unicode(value: u32, base: u32, dst: &mut UString) -> Status {
 pub struct Ntstr;
 
 fn n(op: &Op, i: usize) -> Res<i64> {
-    op.tok.get(i).and_then(|t| num(t)).ok_or(Fail::Bad)
+    op.tok.get(i).and_then(|t| windows_long(t)).map(i64::from).ok_or(Fail::Bad)
 }
 /// token i as bytes, as the executor's hexbytes reads it: "-" none, else pairs of lowercase hex
 /// digits, at most MAX bytes (the op's buffer); anything else a bad line (the review of 8480456,

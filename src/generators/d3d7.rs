@@ -1134,3 +1134,23 @@ pub fn d3d7dev() -> String {
     }
     s
 }
+
+/// Extreme LONG coordinates in sixteenths, measured on the x86 software devices.
+pub fn d3d7wide() -> String {
+    let mut s = String::from("# kikizake suite d3d7wide: wide software triangle and line coordinates.\n# x86 only\n");
+    for (version, device) in [(7, "rgb"), (7, "mmx"), (3, "rgb"), (3, "mmx"),
+                              (2, "rgb"), (2, "mmx"), (2, "ramp")] {
+        writeln!(s, "case triangle-{version}-{device}\nd3d {version}\nd3ddev {device} 565 12 12\nd3drs set 22 1\nd3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff 8 8 2147483647 40 40 170\nd3ddump\nend");
+    }
+    for (name, left, right) in [("rising", i32::MIN, i32::MAX), ("falling", i32::MAX, i32::MIN)] {
+        writeln!(s, "case steep-{name}\nd3d 7\nd3ddev rgb 565 12 12\nd3drs set 22 1\nd3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff {left} 0 {right} 1 40 170\nd3ddump\nend");
+    }
+    for device in ["rgb", "mmx"] {
+        writeln!(s, "case line-{device}\nd3d 7\nd3ddev {device} 565 12 12\nd3drs set 22 1");
+        for end in ["2147483647", "-2147483648", "0x80000000", "4294967296", "-2147483649"] {
+            writeln!(s, "d3dclear 0\nd3dline 0xffff0000/0xff0000ff 8 8 {end} 170\nd3ddump");
+        }
+        writeln!(s, "end");
+    }
+    s
+}
