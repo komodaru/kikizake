@@ -170,7 +170,8 @@ impl Gl {
                     return Ok(false);
                 }
                 hit(clause::GL_LIST);
-                let image = matches!(t.first().map(String::as_str), Some("gldraw" | "gltex" | "gltexsub"));
+                let image = matches!(t.first().map(String::as_str), Some("gldraw" | "gltex" | "gltexsub"))
+                    || t.get(1).is_some_and(|s| s == "glPolygonStipple");
                 let drawn = matches!(t.get(1).map(String::as_str), Some("glArrayElement" | "glDrawArrays" | "glDrawElements"));
                 let arrays = drawn.then(|| Box::new(super::array::Snapshot::of(ctx)));
                 let Some(c) = ctx.lists.compiling.as_mut() else { return Err(Fail::Bad) };

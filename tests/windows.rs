@@ -57,10 +57,10 @@ fn models_match_windows() {
             if case::parse_output(&want).done != (status == 0) {
                 bad.push(format!("{s}-{arch}: the model's end (done or not) is not Windows' exit {status}"));
             }
-            // Both NT suites have deterministic, fully modeled output on both architectures.
+            // These suites have deterministic, fully modeled output on both architectures.
             // A wildcard, missing result or newly unmodeled case must fail this comparison.
-            if matches!(*s, "ntstr" | "ntcase") && (status != 0 || !want.lines().eq(g.lines())) {
-                bad.push(format!("{s}-{arch}: expected a successful recording and exact output for every NT operation"));
+            if matches!(*s, "ntstr" | "ntcase" | "glstipple") && (status != 0 || !want.lines().eq(g.lines())) {
+                bad.push(format!("{s}-{arch}: expected a successful recording and exact output for every operation"));
             }
             let r = compare::compare_text(&want, &g);
             eprintln!("kikizake_{s}-{arch}: {} cases, {} as Windows, {} unmodeled, {} differ", r.cases, r.same, r.unmodeled, r.differ.len());

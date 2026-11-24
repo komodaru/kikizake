@@ -1181,3 +1181,47 @@ mod lists_far {
         }
     }
 }
+/// The C executor supplies 4096 zero-filled bytes. glGetPolygonStipple starts
+/// its byte query with 0xcc, so partial destination bytes test preservation too.
+proptest! {
+    #[test]
+    fn polygon_stipple_pack_unpack(words in prop::collection::vec(any::<u32>(), 64),
+        layouts in prop::collection::vec((any::<bool>(), 0u32..4, 0usize..49, 0usize..4, 0usize..12), 2)) {
+        use std::fmt::Write;
+        let mut text = String::from("case law\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+        let mut src = words.iter().flat_map(|w| w.to_le_bytes()).collect::<Vec<_>>();
+        src.resize(4096, 0);
+        for (k, &(lsb, shift, row, skip_y, skip_x)) in layouts.iter().enumerate() {
+            let base = if k == 0 { 0xcf0 } else { 0xd00 };
+            for (i, v) in [usize::from(lsb), row, skip_y, skip_x, 1 << shift].into_iter().enumerate() {
+                writeln!(text, "gl glPixelStorei {} {v}", base + i + 1).unwrap();
+            }
+            if k == 0 {
+                text.push_str("glp glPolygonStipple - ui");
+                for word in &words { write!(text, " {word}").unwrap(); }
+                text.push('\n');
+            }
+        }
+        text.push_str("glq glGetPolygonStipple - ub 400\nend\n");
+        let address = |k: usize, x: usize, y: usize| {
+            let (lsb, shift, row, skip_y, skip_x) = layouts[k];
+            let align = 1usize << shift;
+            let bytes = (if row == 0 { 32 } else { row }).div_ceil(8);
+            let stride = bytes.next_multiple_of(align);
+            let pos = skip_x + x;
+            ((skip_y + y) * stride + pos / 8, 1u8 << if lsb { pos % 8 } else { 7 - pos % 8 })
+        };
+        let mut expected = [0xcc; 400];
+        for y in 0..32 {
+            for x in 0..32 {
+                let (from, source_mask) = address(0, x, y);
+                let (to, mask) = address(1, x, y);
+                if src[from] & source_mask != 0 { expected[to] |= mask; } else { expected[to] &= !mask; }
+            }
+        }
+        let case = kikizake::case::parse_cases(&text);
+        let actual = kikizake::model::run_case(&case[0]).unwrap();
+        let query = format!("q {}", expected.map(|b| b.to_string()).join(" "));
+        prop_assert_eq!(actual.last(), Some(&query));
+    }
+}

@@ -521,6 +521,7 @@ pub struct Ctx {
     pub line_width: f32,
     /// glLineStipple's repeat factor (1..255) and pattern
     pub line_stipple: (i64, u16),
+    polygon_pattern: [u32; 32],
     /// a smooth stippled strip's place in the pattern (position, count), `tri::AaStipple`
     pub aa_stipple: (u8, u8),
     /// the stipple counter: the next step's count, and the major coordinate and count of the
@@ -623,6 +624,7 @@ impl Ctx {
             normal: [0.0, 0.0, 1.0],
             line_width: 1.0,
             line_stipple: (1, 0xffff),
+            polygon_pattern: [u32::MAX; 32],
             aa_stipple: (0, 0),
             stipple: (0, None),
             point_size: 1.0,
@@ -1361,6 +1363,8 @@ impl Gl {
                 out.push(format!("q {shown}"));
             }
             CtxOp::Glp if t.get(1).is_some_and(|n| forms::parse(n).is_some_and(|f| f.vector) || matches!(n.as_str(), "glLoadMatrixd" | "glMultMatrixd" | "glFogiv")) => ctx.form_glp(t)?,
+            CtxOp::Glp if t.get(1).is_some_and(|n| n == "glPolygonStipple") => ctx.set_polygon_pattern(t)?,
+            CtxOp::Glq if t.get(1).is_some_and(|n| n == "glGetPolygonStipple") => ctx.get_polygon_pattern(t, out)?,
             CtxOp::Glp | CtxOp::Glq | CtxOp::Glr | CtxOp::Globuf | CtxOp::Wglx => return Err(Fail::Unmodeled(gaps::op(t)?)),
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
@@ -2181,6 +2185,7 @@ pub mod attrib {
     pub const POINT: u32 = 0x2;
     pub const LINE: u32 = 0x4;
     pub const POLYGON: u32 = 0x8;
+    pub const STIPPLE_PATTERN: u32 = 0x10;
     pub const PIXEL_MODE: u32 = 0x20;
     pub const LIGHTING: u32 = 0x40;
     pub const FOG: u32 = 0x80;
@@ -3035,7 +3040,7 @@ impl Ctx {
                     let along = |j: usize| tri::aa_plane(r, [k(i0, j), k(i1, j), k(i2, j)], p.at);
                     texdraw::Stq::at([along(0), along(1), along(2)])
                 });
-                let drawn = self.fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed });
+                let drawn = self.polygon_fragment(Frag { x: p.x, y: dib_row(p.row), c, z: 0.0, fixed, zfixed });
                 self.frag_tex = None;
                 self.frag_fog = None;
                 drawn?;
@@ -3261,8 +3266,7 @@ impl Ctx {
                 return Ok(());
             }
         }
-        // (stippled by the pattern, all set: glPolygonStipple is not among the calls the
-        // executor makes, so every pixel, golden opengl-32 raster-mode-1)
+        // The initial all-set mask keeps every pixel (golden opengl-32 raster-mode-1).
         if self.cap(POLYGON_STIPPLE) {
             hit(clause::GL_POLYGON_STIPPLE);
         }
@@ -3339,7 +3343,7 @@ impl Ctx {
         }
         self.never = NeverPath::Other;
         for (x, y, c, zfixed) in px {
-            self.fragment(Frag { x, y, c: c.map(|v| v as f32), z: z0, fixed, zfixed: zfixed.or(offset_fixed) })?;
+            self.polygon_fragment(Frag { x, y, c: c.map(|v| v as f32), z: z0, fixed, zfixed: zfixed.or(offset_fixed) })?;
         }
         Ok(())
     }
@@ -3458,7 +3462,7 @@ impl Ctx {
                         for y in 0..H as i64 {
                             for x in 0..W as i64 {
                                 if (x as f64 + 1.0) > x0 && (x as f64) < x1 && (y as f64 + 1.0) > y0 && (y as f64) < y1 {
-                                    self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed })?;
+                                    self.polygon_fragment(Frag { x, y, c, z, fixed: self.span(), zfixed })?;
                                 }
                             }
                         }
@@ -3473,7 +3477,7 @@ impl Ctx {
                     let mut px = self.fill(q, &[c.map(f64::from); 4], None)?;
                     px.sort_by_key(|(x, y, _, _)| (*y, *x));
                     for (x, y, _, _) in px {
-                        let r = self.fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
+                        let r = self.polygon_fragment(Frag { x, y, c, z, fixed: self.span(), zfixed });
                         if r.is_err() {
                             self.never = NeverPath::Other;
                         }
@@ -4445,6 +4449,7 @@ impl Ctx {
             // LINE_BIT
             line_width,
             line_stipple,
+            polygon_pattern,
             // POLYGON_BIT
             cull_mode,
             front_face,
@@ -4545,6 +4550,9 @@ impl Ctx {
             self.front_face = front_face;
             self.poly_mode = poly_mode;
             self.offset = offset;
+        }
+        if on(attrib::STIPPLE_PATTERN) {
+            self.polygon_pattern = polygon_pattern;
         }
         if on(attrib::PIXEL_MODE) {
             self.transfer = transfer;
@@ -4871,6 +4879,117 @@ fn bitmap_bit(store: &[i64; 6], w: i64, i: usize, j: usize) -> (usize, u8) {
     let p = store[4] as usize + i;
     let bit = p % 8;
     (store[3] as usize * k + j * k + p / 8, if store[1] != 0 { 1 << bit } else { 0x80 >> bit })
+}
+
+impl Ctx {
+    fn set_polygon_pattern(&mut self, t: &[String]) -> Res<()> {
+        hit(clause::GL_POLYGON_STIPPLE_PATTERN);
+        if t.get(2).map(String::as_str) != Some("-") {
+            return Err(Fail::Bad);
+        }
+        if self.in_begin.is_some() {
+            self.error(INVALID_OPERATION);
+            return Ok(());
+        }
+        let mut src = match array::glp_bytes(t)? {
+            Some(bytes) => bytes,
+            None if t.get(3).is_some_and(|s| s == "obuf") => vec![0xcc; 4096],
+            None => return Err(Fail::Bad),
+        };
+        src.resize(4096, 0);
+        let mut rows = [0; 32];
+        for (y, row) in rows.iter_mut().enumerate() {
+            for x in 0..32 {
+                let (offset, mask) = bitmap_bit(&self.unpack, 32, x, y);
+                if src.get(offset).ok_or(Fail::Bad)? & mask != 0 {
+                    *row |= 1 << x;
+                }
+            }
+        }
+        self.polygon_pattern = rows;
+        Ok(())
+    }
+
+    fn get_polygon_pattern(&mut self, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        hit(clause::GL_POLYGON_STIPPLE_PATTERN);
+        let [_, _, sig, ty, count] = t else { return Err(Fail::Bad) };
+        if sig != "-" { return Err(Fail::Bad); }
+        let count = num(count).and_then(|n| usize::try_from(n).ok()).ok_or(Fail::Bad)?;
+        let sentinel = match ty.as_str() {
+            "b" | "ub" => vec![0xcc],
+            "s" | "us" => vec![0xcc; 2],
+            "i" | "ui" => 0x7eadbeefu32.to_le_bytes().to_vec(),
+            "f" => (-12345.0f32).to_le_bytes().to_vec(),
+            "d" => (-12345.0f64).to_le_bytes().to_vec(),
+            "p" => vec![0; if super::arch() == 32 { 4 } else { 8 }],
+            _ => return Err(Fail::Bad),
+        };
+        let width = sentinel.len();
+        let capacity = 4096usize.checked_div(width).ok_or(Fail::Bad)?;
+        if count == 0 || count > capacity { return Err(Fail::Bad); }
+        let mut dst = sentinel.repeat(capacity);
+        if self.in_begin.is_some() {
+            self.error(INVALID_OPERATION);
+        } else {
+            for (y, row) in self.polygon_pattern.iter().enumerate() {
+                for x in 0..32 {
+                    let (offset, mask) = bitmap_bit(&self.pack, 32, x, y);
+                    let byte = dst.get_mut(offset).ok_or(Fail::Bad)?;
+                    *byte = stipple_bit(*byte, mask, row & (1 << x) != 0);
+                }
+            }
+        }
+        let mut line = String::from("q");
+        for bytes in dst.chunks_exact(width).take(count) {
+            let bad = |_| Fail::Bad;
+            let value = match ty.as_str() {
+                "ub" => u8::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+                "b" => i8::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+                "us" => u16::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+                "s" => i16::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+                "ui" => u32::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+                "i" => i32::from_le_bytes(bytes.try_into().map_err(bad)?).to_string(),
+                "f" => tex::g9(f64::from(f32::from_le_bytes(bytes.try_into().map_err(bad)?))),
+                "d" => tex::g9(f64::from_le_bytes(bytes.try_into().map_err(bad)?)),
+                "p" => if bytes.iter().all(|b| *b == 0) { "0" } else { "-1" }.into(),
+                _ => return Err(Fail::Bad),
+            };
+            line.push(' ');
+            line.push_str(&value);
+        }
+        out.push(line);
+        Ok(())
+    }
+
+    fn polygon_fragment(&mut self, f: Frag) -> Res<()> {
+        if self.cap(POLYGON_STIPPLE) {
+            let x = f.x.rem_euclid(32);
+            let y = usize::try_from(f.y.rem_euclid(32)).ok().ok_or(Fail::Bad)?;
+            if self.polygon_pattern.get(y).ok_or(Fail::Bad)? & (1 << x) == 0 {
+                return Ok(());
+            }
+        }
+        self.fragment(f)
+    }
+}
+
+fn stipple_bit(byte: u8, mask: u8, on: bool) -> u8 {
+    if on { byte | mask } else { byte & !mask }
+}
+
+#[test]
+fn stipple_preserves_every_other_packed_bit() {
+    for byte in 0..=u8::MAX {
+        for pos in 0..8 {
+            for on in [false, true] {
+                let got = stipple_bit(byte, 1 << pos, on);
+                for bit in 0..8 {
+                    let expected = if bit == pos { on } else { byte & (1 << bit) != 0 };
+                    assert_eq!(got & (1 << bit) != 0, expected);
+                }
+            }
+        }
+    }
 }
 
 /// the element offsets of a w x h image under the pack / unpack parameters (glPixelStore):

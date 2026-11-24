@@ -676,7 +676,7 @@ impl Ctx {
             frags.push(Frag { x, y, c, z: z0, fixed: ToFixed::Scaled, zfixed: zf.or(zfixed) });
         }
         self.textured_frags = true;
-        let r = frags.into_iter().try_for_each(|f| self.fragment(f));
+        let r = frags.into_iter().try_for_each(|f| self.polygon_fragment(f));
         self.textured_frags = false;
         r
     }
