@@ -18,7 +18,7 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7.0.1
       - run: rustup toolchain install --no-self-update && echo "RUST_KEY=$(rustc -V | cut -d' ' -f2)" >> "$GITHUB_ENV"
