@@ -217,6 +217,15 @@ impl Arrays {
 
     /// a glp line's values into the next slot, as the executor does (zeroed, then the values as
     /// their element type, little-endian): what its pointer is; None for obuf, null or none
+    pub(super) fn write_words(&mut self, slot: SlotId, first: usize, words: &[u32]) -> Res<()> {
+        let start = slot.start().saturating_add(first.saturating_mul(4));
+        let end = start.saturating_add(words.len().saturating_mul(4));
+        for (dst, word) in self.mem.get_mut(start..end).ok_or(Fail::Bad)?.chunks_exact_mut(4).zip(words) {
+            dst.copy_from_slice(&word.to_le_bytes());
+        }
+        Ok(())
+    }
+
     pub fn fill(&mut self, t: &[String]) -> Res<Option<Ptr>> {
         let Some(bytes) = glp_bytes(t)? else {
             return Ok(match glp_tail(t)? {

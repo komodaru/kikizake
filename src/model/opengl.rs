@@ -465,6 +465,26 @@ impl GridAxis {
     }
 }
 
+#[derive(Default, Clone, Debug)]
+struct Feedback {
+    written: usize,
+    pending: Vec<u32>,
+    overflow: bool,
+}
+
+pub(crate) fn feedback_prefix(written: usize, pending: usize, requested: usize, capacity: i32) -> usize {
+    let used = written.saturating_add(pending);
+    requested.min(usize::try_from(capacity).unwrap_or(0).saturating_sub(used))
+}
+
+impl Feedback {
+    fn emit(&mut self, words: &[f32], capacity: i32) {
+        let room = feedback_prefix(self.written, self.pending.len(), words.len(), capacity);
+        self.pending.extend(words.iter().take(room).map(|v| v.to_bits()));
+        self.overflow |= words.len() > room;
+    }
+}
+
 #[derive(Clone, Debug)]
 pub(crate) struct NameStack {
     pub(crate) names: [u32; 128],
@@ -545,6 +565,7 @@ pub struct Ctx {
     feedback_buffer: (i32, i32, array::Ptr),
     selection_buffer: (i32, array::Ptr),
     selecting: bool,
+    feedback: Option<Feedback>,
     selection_names: NameStack,
     pub viewport: [i64; 4],
     pub scissor: [i64; 4],
@@ -932,6 +953,7 @@ impl Ctx {
             feedback_buffer: (0, 0, array::Ptr::Null),
             selection_buffer: (0, array::Ptr::Null),
             selecting: false,
+            feedback: None,
             selection_names: NameStack::default(),
             viewport: [0, 0, W as i64, H as i64],
             scissor: [0, 0, W as i64, H as i64],
@@ -1186,7 +1208,7 @@ impl Ctx {
             0xc31 => vec![B(true)],
             0xc32 => vec![B(pf.flags & PFD_DOUBLEBUFFER != 0)],
             0xc33 => vec![B(false)],
-            0xc40 => i(if self.selecting { 0x1c02 } else { 0x1c00 }),
+            0xc40 => i(if self.selecting { 0x1c02 } else if self.feedback.is_some() { 0x1c01 } else { 0x1c00 }),
             0xc50..=0xc54 => i(self.hints[(p - 0xc50) as usize] as i64),
             0xcb0..=0xcb9 => i(self.pixel_maps.size(p.saturating_sub(0x40))),
             0xcf0..=0xcf5 => {
@@ -1815,10 +1837,29 @@ impl Gl {
         };
         // Selection geometry must produce hit records. Only state operations whose
         // behavior is shared with rendering may use the normal dispatcher here.
-        if ctx.selecting {
+        if let Some(feedback) = &mut ctx.feedback {
+            let synchronous = matches!(cmd, CtxOp::Glget | CtxOp::Glerr | CtxOp::Glisen | CtxOp::Glstr | CtxOp::Glr | CtxOp::Glq)
+                || t.get(1).is_some_and(|name| matches!(name.as_str(), "glFlush" | "glFinish"));
+            if synchronous && !feedback.pending.is_empty() {
+                let end = feedback.written.checked_add(feedback.pending.len()).ok_or(Fail::Bad)?;
+                if end > 1024 { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
+                match ctx.feedback_buffer.2 {
+                    array::Ptr::Other => {
+                        let mut output = self.output.borrow_mut();
+                        output.resize(1024, 0);
+                        output.get_mut(feedback.written..end).ok_or(Fail::Bad)?.copy_from_slice(&feedback.pending);
+                    }
+                    array::Ptr::Slot(slot, _) => ctx.arrays.write_words(slot, feedback.written, &feedback.pending)?,
+                    array::Ptr::Null => return Err(Fail::Bad),
+                }
+                feedback.written = end;
+                feedback.pending.clear();
+            }
+        }
+        if ctx.selecting || ctx.feedback.is_some() {
             let name = t.get(1).map(String::as_str);
             let supported = matches!(cmd, CtxOp::Glget | CtxOp::Glerr | CtxOp::Glisen | CtxOp::Glstr)
-                || (matches!(cmd, CtxOp::Gl) && matches!(name, Some("glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough")))
+                || (matches!(cmd, CtxOp::Gl) && matches!(name, Some("glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" | "glFlush" | "glFinish")))
                 || (matches!(cmd, CtxOp::Glr | CtxOp::Glp) && matches!(name, Some("glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer")));
             if !supported { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)); }
         }
@@ -2006,7 +2047,7 @@ impl Gl {
                 let size = crate::case::windows_long(size).ok_or(Fail::Bad)?;
                 let ty = if feedback { rest.first().and_then(|s| crate::case::windows_long(s)).ok_or(Fail::Bad)? } else { 0 };
                 let ptr = ctx.arrays.last.ok_or(Fail::Bad)?;
-                if ctx.in_begin.is_some() || (ctx.selecting && !feedback) { ctx.error(INVALID_OPERATION); }
+                if ctx.in_begin.is_some() || (ctx.selecting && !feedback) || (ctx.feedback.is_some() && feedback) { ctx.error(INVALID_OPERATION); }
                 else if feedback && !(0x600..=0x604).contains(&ty) { ctx.error(INVALID_ENUM); }
                 else if size < 0 { ctx.error(INVALID_VALUE); }
                 else if ptr == array::Ptr::Null { ctx.error(0x505); }
@@ -2017,18 +2058,29 @@ impl Gl {
                 let [_, _, _, sig, mode] = t else { return Err(Fail::Bad); };
                 if sig != "i" { return Err(Fail::Bad); }
                 let mode = crate::case::windows_long(mode).ok_or(Fail::Bad)?;
-                if ctx.in_begin.is_some() {
-                    ctx.error(INVALID_OPERATION);
-                } else {
-                    match mode {
-                        0x1c00 => ctx.selecting = false,
-                        0x1c01 if ctx.feedback_buffer.2 != array::Ptr::Null => return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT)),
-                        0x1c02 if ctx.selection_buffer.1 != array::Ptr::Null => { ctx.selection_names.depth = 0; ctx.selecting = true; }
-                        0x1c01 | 0x1c02 => ctx.error(INVALID_OPERATION),
-                        _ => ctx.error(INVALID_ENUM),
+                let valid = match mode {
+                    0x1c00 => true,
+                    0x1c01 => ctx.feedback_buffer.2 != array::Ptr::Null,
+                    0x1c02 => ctx.selection_buffer.1 != array::Ptr::Null,
+                    _ => false,
+                };
+                let mut count = 0i32;
+                if ctx.in_begin.is_some() { ctx.error(INVALID_OPERATION); }
+                else if !valid { ctx.error(if (0x1c00..=0x1c02).contains(&mode) { INVALID_OPERATION } else { INVALID_ENUM }); }
+                else {
+                    if let Some(previous) = ctx.feedback.take() {
+                        count = if previous.overflow { -1 } else { i32::try_from(previous.written).ok().ok_or(Fail::Bad)? };
                     }
+                    ctx.selecting = mode == 0x1c02;
+                    if ctx.selecting { ctx.selection_names.depth = 0; }
+                    if mode == 0x1c01 { ctx.feedback = Some(Feedback::default()); }
                 }
-                out.push("ret 0".into());
+                let shown = match t.get(2).map(String::as_str) {
+                    Some("i") => i64::from(count),
+                    Some("b") => i64::from(count.to_le_bytes()[0]),
+                    _ => i64::from(count.cast_unsigned()),
+                };
+                out.push(format!("ret {shown}"));
             }
             CtxOp::Glr if t.get(1).is_some_and(|name| name == "glDebugEntry") => {
                 let [_, _, _, sig, a, b] = t else { return Err(Fail::Bad) };
@@ -2529,6 +2581,11 @@ impl Ctx {
             "glEvalCoord1f" | "glEvalCoord1d" => self.eval_coord(tri::narrow(fl(a, 0)), None)?,
             "glEvalCoord2f" | "glEvalCoord2d" => self.eval_coord(tri::narrow(fl(a, 0)), Some(tri::narrow(fl(a, 1))))?,
             "glEvalMesh2" => self.eval_mesh2(int(a, 0), int(a, 1), int(a, 2), int(a, 3), int(a, 4))?,
+            "glPassThrough" if self.feedback.is_some() => {
+                if let Some(buffer) = &mut self.feedback {
+                    buffer.emit(&[1792.0, tri::narrow(fl(a, 0))], self.feedback_buffer.0);
+                }
+            }
             "glInitNames" if self.selecting => self.selection_names.depth = 0,
             "glPushName" if self.selecting => {
                 if let Err(error) = self.selection_names.push(u(a, 0)) { self.error(error); }
@@ -5376,7 +5433,7 @@ impl Ctx {
             index_shift,
             depth_transfer,
             zoom,
-            evaluator_maps: _, grid1, grid2, feedback_buffer: _, selection_buffer: _, selecting: _, selection_names: _,
+            evaluator_maps: _, grid1, grid2, feedback_buffer: _, selection_buffer: _, selecting: _, feedback: _, selection_names: _,
             // LIGHTING_BIT
             shade, scene_ambient, local_viewer, two_sided, materials, color_material, lights,
             // FOG_BIT

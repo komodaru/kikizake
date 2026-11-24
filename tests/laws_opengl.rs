@@ -2961,3 +2961,34 @@ end
         "ret 0", "obuf 3435973836", "ret 0", "glrelease 1 1", "obuf 3435973836"]);
     assert_eq!(rows[1], ["obuf 3435973836"]);
 }
+
+#[test]
+fn feedback_pass_through_writes_the_prefix_that_fits() {
+    let input = "case pass
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glFeedbackBuffer ii SIZE 1536 obuf
+glr glRenderMode i i 0x1c01
+gl glPassThrough 3.5
+globuf f 4
+gl glPassThrough -2
+glr glRenderMode i i 0x1c00
+globuf f 4
+glerr
+end
+";
+    let sync = input.replace("SIZE", "4").replacen("globuf f 4", "glerr\nglobuf f 4", 1);
+    let cases = kikizake::case::parse_cases(&sync);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[2..], ["glerr 0", "obuf 1792 3.5 -107374176 -107374176", "ret 4", "obuf 1792 3.5 1792 -2", "glerr 0"]);
+    for size in 0..=4 {
+        let cases = kikizake::case::parse_cases(&input.replace("SIZE", &size.to_string()));
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        let mut words = ["-107374176"; 4];
+        let tokens = ["1792", "3.5", "1792", "-2"];
+        words[..size].copy_from_slice(&tokens[..size]);
+        assert_eq!(output[2], "obuf -107374176 -107374176 -107374176 -107374176");
+        assert_eq!(output[3], if size == 4 { "ret 4" } else { "ret -1" });
+        assert_eq!(output[4], format!("obuf {}", words.join(" ")));
+        assert_eq!(output[5], "glerr 0");
+    }
+}

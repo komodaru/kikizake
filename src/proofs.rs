@@ -484,3 +484,17 @@ fn selection_stack_preserves_every_unwritten_name() {
     assert_eq!(stack.depth, next);
     assert_eq!(stack.names[index], if changed { name } else { old });
 }
+
+#[kani::proof]
+fn feedback_keeps_the_maximal_prefix_within_capacity() {
+    let (written, pending, requested, capacity): (usize, usize, usize, i32) = kani::any();
+    let count = crate::model::opengl::feedback_prefix(written, pending, requested, capacity);
+    let used = written as u128 + pending as u128;
+    let limit = capacity.max(0) as u128;
+    assert!(count <= requested);
+    if used >= limit { assert_eq!(count, 0); }
+    else {
+        assert!(used + count as u128 <= limit);
+        assert!(count == requested || used + count as u128 == limit);
+    }
+}
