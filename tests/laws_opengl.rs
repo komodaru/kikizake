@@ -2315,3 +2315,32 @@ fn outline_failure_finishes_the_active_list_and_deletes_only_the_first_target() 
         }
     }
 }
+
+#[test]
+fn font_exports_handle_pending_errors_before_replacing_lists() {
+    for (setup, error) in [("gl glEnable -1", "500"), ("gl glPopMatrix", "504")] {
+        for encoding in ["a", "w"] {
+            for (api, count, suffix, result, pending, bases) in [
+                ("fontbmp", 0, "", "0 87", error, [10, 11]),
+                ("fontbmp", 1, "", "0 0", "0", [10, 11]),
+                ("fontbmp", 2, "", "0 0", "0", [10, 11]),
+                ("fontoutline", 0, " 1", "1 0", "0", [10, 11]),
+                ("fontoutline", 1, " 2", "0 8", "0", [10, 11]),
+                ("fontoutline", 1, " 1", "1 0", "0", [0, 11]),
+                ("fontoutline", 2, " 1", "1 0", "0", [0, 0]),
+            ] {
+                let input = format!("case pending\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glNewList 100 4864\ngl glListBase 10\ngl glEndList\ngl glNewList 101 4864\ngl glListBase 11\ngl glEndList\n{setup}\nwglx {api} {encoding} 65 {count} 100{suffix}\nglerr\nglr glIsList b i 100\nglr glIsList b i 101\ngl glCallList 100\nglget i 0xb32 1\ngl glCallList 101\nglget i 0xb32 1\nend\n");
+                let cases = kikizake::case::parse_cases(&input);
+                let output = kikizake::model::run_case(&cases[0]).unwrap();
+                let mut expected = vec![format!("wglx {api} {result}")];
+                if api == "fontoutline" && result == "1 0" {
+                    expected.extend(["glyph 0.599609375 0.640625 -0.0009765625 0.640625 0.597167969 0",
+                        "glyph 0.483886719 0.640625 0.0654296875 0.640625 0.597167969 0"].into_iter().take(count).map(String::from));
+                }
+                expected.extend([format!("glerr {pending}"), "ret 1".into(), "ret 1".into(),
+                    format!("get b32 = {}", bases[0]), format!("get b32 = {}", bases[1])]);
+                assert_eq!(&output[1..], expected, "{input}");
+            }
+        }
+    }
+}

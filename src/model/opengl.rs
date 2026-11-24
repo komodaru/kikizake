@@ -1478,9 +1478,17 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             let compiling_primitive = ctx.lists.compiling.as_ref().is_some_and(|current| current.lines.iter().rev()
                 .filter_map(|line| line.tok.get(1)).find(|n| matches!(n.as_str(), "glBegin" | "glEnd"))
                 .is_some_and(|n| n == "glBegin"));
+            if name == "fontoutline" && rest.len() == 1 && ctx.in_begin.is_none() && !compiling_primitive {
+                // The outline call consumes the pending error even for zero glyphs or an invalid format.
+                ctx.err = 0;
+            }
             match (name.as_str(), rest) {
                 ("fontbmp", []) if count == 0 => "0 87".into(),
                 ("fontbmp", []) if encoding == "a" && first >= 0 && i64::from(first) + i64::from(count) > 256 => "0 87".into(),
+                ("fontbmp", []) if ctx.err != 0 && ctx.in_begin.is_none() && !compiling_primitive => {
+                    ctx.err = 0;
+                    "0 0".into()
+                }
                 ("fontbmp", []) if ctx.in_begin.is_some() && ctx.lists.compiling.is_none()
                     && wgl_font_last_name(base, count).is_some() && (0..=255).contains(&first)
                     && first + count <= 256 => {
