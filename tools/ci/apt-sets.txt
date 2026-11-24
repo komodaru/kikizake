@@ -1,0 +1,5 @@
+# Each set of apt packages CI installs, one per line, exactly as tools/ci/apt.sh is given it: the
+# set's .debs are a zstd tarball on the release ci-bundles (tools/ci/apt-bundle.sh), which
+# .github/workflows/ci-bundles.yml uploads when this file gains a line. kikizake-lint's
+# apt-bundle check keeps the workflows to these lines.
+gcc-mingw-w64-i686 gcc-mingw-w64-x86-64 binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 mingw-w64-common mingw-w64-i686-dev mingw-w64-x86-64-dev

@@ -1,0 +1,62 @@
+# The tools CI installs, fetched once and kept on this repository's release ci-bundles, so that a
+# CI run reads no apt mirror (2026-11-24: apt's mirror failed runs). Each set of
+# tools/ci/apt-sets.txt is a zstd tarball of its .debs (tools/ci/apt-bundle.sh), named by Ubuntu's
+# release and the set; one that is there is never uploaded again, so every
+# commit's workflows keep finding theirs. tools/ci/apt.sh installs them.
+#
+# The release's tag is on a commit of its own, outside main's history, and it is a prerelease:
+# nothing that reads main's tags or the latest release sees it.
+name: ci-bundles
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/ci/apt-sets.txt'
+      - 'tools/ci/apt-bundle.sh'
+      - '.github/workflows/ci-bundles.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ci-bundles
+  cancel-in-progress: false
+
+jobs:
+  apt:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: The release
+        run: |
+          if ! gh release view ci-bundles >/dev/null 2>&1; then
+            if ! git ls-remote --exit-code --tags origin refs/tags/ci-bundles >/dev/null; then
+              c=$(GIT_AUTHOR_NAME=github-actions GIT_AUTHOR_EMAIL=41898282+github-actions[bot]@users.noreply.github.com \
+                  GIT_COMMITTER_NAME=github-actions GIT_COMMITTER_EMAIL=41898282+github-actions[bot]@users.noreply.github.com \
+                  git commit-tree "$(git hash-object -t tree /dev/null)" -m "ci-bundles: the tools CI installs (not a release of kikizake)")
+              git push origin "$c:refs/tags/ci-bundles"
+            fi
+            gh release create ci-bundles --verify-tag --prerelease --latest=false --title "CI bundles" \
+              --notes "The tools CI installs, fetched once (.github/workflows/ci-bundles.yml). Not a release of kikizake."
+          fi
+      - name: Each set not there yet
+        run: |
+          gh release view ci-bundles --json assets -q '.assets[].name' > "$RUNNER_TEMP/have.txt"
+          while IFS= read -r set <&3; do
+            case $set in ''|'#'*) continue ;; esac
+            # shellcheck disable=SC2086 # (one argument per package)
+            n=$(tools/ci/apt-bundle.sh name $set)
+            if grep -qxF "$n" "$RUNNER_TEMP/have.txt" && grep -qxF "$n.sha256" "$RUNNER_TEMP/have.txt"; then
+              echo "$n: there ($set)"
+              continue
+            fi
+            # shellcheck disable=SC2086
+            tools/ci/apt-bundle.sh build "$RUNNER_TEMP/out" $set
+            gh release upload ci-bundles --clobber "$RUNNER_TEMP/out/$n" "$RUNNER_TEMP/out/$n.sha256"
+            echo "$n: uploaded ($set)" >> "$GITHUB_STEP_SUMMARY"
+          done 3< tools/ci/apt-sets.txt
