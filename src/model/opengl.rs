@@ -1151,6 +1151,20 @@ fn wgl_dc(ctx: &Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             let byte = |arg| integer(arg).map(|v| i64::from(v.to_le_bytes()[0]));
             choose(&[i64::from(integer(flags)?), byte(ty)?, byte(color)?, byte(alpha)?, byte(accum)?, byte(depth)?, byte(stencil)?]).to_string()
         }
+        ("fontbmp" | "fontoutline", [encoding, first, count, base, rest @ ..]) => {
+            if !matches!(encoding.as_str(), "a" | "w") { return Err(Fail::Bad); }
+            integer(first)?;
+            let count = integer(count)?;
+            integer(base)?;
+            if !(0..=64).contains(&count) { return Err(Fail::Bad); }
+            match (name.as_str(), rest) {
+                ("fontbmp", []) if count == 0 => "0 87".into(),
+                ("fontoutline", [fmt]) if !matches!(integer(fmt)?, 0 | 1) => "0 8".into(),
+                ("fontoutline", [_]) if count == 0 => "1 0".into(),
+                ("fontbmp", []) | ("fontoutline", [_]) => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
+                _ => return Err(Fail::Bad),
+            }
+        }
         ("proc" | "defproc", [symbol]) => {
             let available = matches!(symbol.as_str(),
                 "glAddSwapHintRectWIN" | "glDrawRangeElementsWIN" | "glColorTableEXT"
@@ -1194,7 +1208,7 @@ fn wgl_dc(ctx: &Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             format!("{} 0", low_bits(n))
         }
         ("getpf" | "descpf" | "setpf" | "choose" | "swap" | "swaplayer" | "swapmultiple" | "layer" | "realize" | "getlayerpal"
-         | "setlayerpal" | "layerctx" | "share" | "copy" | "proc" | "defproc", _) => return Err(Fail::Bad),
+         | "setlayerpal" | "layerctx" | "share" | "copy" | "proc" | "defproc" | "fontbmp" | "fontoutline", _) => return Err(Fail::Bad),
         _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
     };
     out.push(format!("wglx {name} {result}"));

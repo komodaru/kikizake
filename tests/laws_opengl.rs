@@ -1682,3 +1682,26 @@ fn wgl_generic_extension_lookup_matches_windows() {
     let cases = kikizake::case::parse_cases(&input);
     assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), expected);
 }
+
+#[test]
+fn wgl_empty_font_ranges_and_invalid_outline_formats_preserve_lists() {
+    for encoding in ["a", "w"] {
+        let mut input = String::from("case fonts\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glNewList 100 0x1300\ngl glEndList\n");
+        let mut expected = vec![String::from("glctx ok 1")];
+        for base in [100, 101] {
+            for (cmd, suffix, result) in [
+                ("fontbmp", "0", "0 87"), ("fontoutline", "0", "1 0"),
+                ("fontoutline", "1", "1 0"), ("fontoutline", "2", "0 8"),
+            ] {
+                let format = if cmd == "fontbmp" { String::new() } else { format!(" {suffix}") };
+                input.push_str(&format!("wglx {cmd} {encoding} 65 0 {base}{format}\n"));
+                expected.push(format!("wglx {cmd} {result}"));
+            }
+            input.push_str(&format!("wglx fontoutline {encoding} 65 1 {base} 2\nglr glIsList b i {base}\nglerr\n"));
+            expected.extend(["wglx fontoutline 0 8", if base == 100 { "ret 1" } else { "ret 0" }, "glerr 0"].map(String::from));
+        }
+        input.push_str("end\n");
+        let cases = kikizake::case::parse_cases(&input);
+        assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), expected);
+    }
+}
