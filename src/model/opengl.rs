@@ -466,6 +466,9 @@ pub struct Ctx {
     pub viewport: [i64; 4],
     pub scissor: [i64; 4],
     pub shade: u32,
+    scene_ambient: [f32; 4],
+    local_viewer: bool,
+    two_sided: bool,
     shininess: [f32; 2],
     // Spot exponent, cutoff, constant/linear/quadratic attenuation for GL_LIGHT0..7.
     light_scalars: [[f32; 5]; 8],
@@ -632,6 +635,35 @@ impl Ctx {
         }
     }
 
+    fn set_scene_flag(&mut self, pname: u32, value: f32) {
+        match pname {
+            0xb51 => self.local_viewer = value != 0.0,
+            0xb52 => self.two_sided = value != 0.0,
+            _ => self.error(INVALID_ENUM),
+        }
+    }
+
+    fn set_scene_vector(&mut self, t: &[String]) -> Res<()> {
+        let [_, name, sig, pname, ..] = t else { return Err(Fail::Bad) };
+        if sig != "i" { return Err(Fail::Bad); }
+        let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?.cast_unsigned();
+        if self.in_begin.is_some() { self.error(INVALID_OPERATION); return Ok(()); }
+        if !(0xb51..=0xb53).contains(&pname) { self.error(INVALID_ENUM); return Ok(()); }
+        let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
+        bytes.resize(16, 0);
+        for (i, chunk) in bytes.chunks_exact(4).enumerate() {
+            let word = chunk.try_into().map_err(|_| Fail::Bad)?;
+            let value = if name == "glLightModelfv" { f32::from_le_bytes(word) }
+                else if pname == 0xb53 { array::color_component(INT, f64::from(i32::from_le_bytes(word))) }
+                else { i32::from_le_bytes(word) as f32 };
+            if pname != 0xb53 { self.set_scene_flag(pname, value); break; }
+            let bits = self.pf.rgba[i].0;
+            let max = low_bits(if i == 3 && bits == 0 { 8 } else { bits }) as f32;
+            self.scene_ambient[i] = if max > 0.0 { (value * max) * max.recip() } else { value };
+        }
+        Ok(())
+    }
+
     fn set_light_vector(&mut self, t: &[String]) -> Res<()> {
         let [_, name, sig, light, pname, ..] = t else { return Err(Fail::Bad) };
         if sig != "ii" { return Err(Fail::Bad); }
@@ -650,7 +682,7 @@ impl Ctx {
                 *value = if name == "glLightfv" { f32::from_le_bytes(word) }
                     else if pname <= 0x1202 {
                         // Measured glLightiv color scale, including the half-step at zero.
-                        (2.0 * f64::from(i32::from_le_bytes(word)) + 1.0) as f32 * f32::from_bits(0x2f80_0005)
+                        signed_light_component(i32::from_le_bytes(word))
                     } else { i32::from_le_bytes(word) as f32 };
             }
             if pname <= 0x1202 {
@@ -704,6 +736,7 @@ impl Ctx {
 
     pub fn new(pf: Pfd, bpp: u32) -> Ctx {
         hit(clause::GL_INIT);
+        let ambient = f32::from_bits(if pf.rgba[0].0 == 8 { 0x3e4c_cccf } else { 0x3e4c_cccd });
         let stencil_bits = pf.stencil;
         let alpha_init = u32::from(pf.rgba[3].0 != 0);
         let index_mask = if pf.ty != 0 { low_bits(pf.color) } else { 0 };
@@ -746,6 +779,9 @@ impl Ctx {
             color_mask_raw: [1; 4],
             viewport: [0, 0, W as i64, H as i64],
             scissor: [0, 0, W as i64, H as i64],
+            scene_ambient: [ambient, ambient, ambient, 1.0],
+            local_viewer: false,
+            two_sided: false,
             shininess: [0.0; 2],
             light_scalars: [[0.0, 180.0, 1.0, 0.0, 0.0]; 8],
             light_positions: [[0.0, 0.0, 1.0, 0.0]; 8],
@@ -928,13 +964,9 @@ impl Ctx {
             0xb43 => vec![B(self.edge_flag)],
             0xb45 => i(self.cull_mode as i64),
             0xb46 => i(self.front_face as i64),
-            0xb51 | 0xb52 => vec![B(false)],
-            0xb53 => {
-                // (MEASURED, golden opengl-32 defaults-*: the ambient 0.2 is the float 0x3e4ccccf,
-                // two ulps above, with 8-bit channels, 0.2 itself with 5-bit ones)
-                let a = f32::from_bits(if pf.rgba[0].0 == 8 { 0x3e4c_cccf } else { 0x3e4c_cccd });
-                c4([a, a, a, 1.0])
-            }
+            0xb51 => vec![B(self.local_viewer)],
+            0xb52 => vec![B(self.two_sided)],
+            0xb53 => c4(self.scene_ambient),
             0xb54 => i(self.shade as i64),
             0xb55 => i(FRONT_AND_BACK as i64),
             0xb56 => i(0x1602),
@@ -1679,6 +1711,7 @@ impl Gl {
                     ctx.array_glp(t, at)?;
                 }
             }
+            CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glLightModelfv" | "glLightModeliv")) => ctx.set_scene_vector(t)?,
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glLightfv" | "glLightiv")) => ctx.set_light_vector(t)?,
             CtxOp::Glp if t.get(1).is_some_and(|n| matches!(n.as_str(), "glMaterialfv" | "glMaterialiv")) => ctx.set_material_vector(t)?,
             CtxOp::Glq if t.get(1).is_some_and(|name| matches!(name.as_str(), "glGetMaterialfv" | "glGetMaterialiv")) => ctx.get_material(t, out)?,
@@ -2339,6 +2372,7 @@ impl Ctx {
                 self.raster_eye = e[2];
                 self.raster_tex = self.tex_coords4(&Obj::at(v).with(self.vertex_coords(v, 1.0)));
             }
+            "glLightModelf" | "glLightModeli" => self.set_scene_flag(u(a, 0), fl(a, 1) as f32),
             "glLightf" | "glLighti" => self.set_light_scalar(u(a, 0), u(a, 1), fl(a, 2) as f32),
             "glMaterialf" | "glMateriali" => {
                 let face = u(a, 0);
@@ -2666,6 +2700,10 @@ pub fn color_material_lit(ambient: f32, nl: f32, c: [f32; 4]) -> [f32; 4] {
     [lit(c[0]), lit(c[1]), lit(c[2]), c[3]]
 }
 
+fn signed_light_component(v: i32) -> f32 {
+    (2.0 * f64::from(v) + 1.0) as f32 * f32::from_bits(0x2f80_0005)
+}
+
 fn xform(m: &[f32; 16], v: [f64; 4]) -> [f64; 4] {
     let mut r = [0f64; 4];
     for row in 0..4 {
@@ -2859,13 +2897,6 @@ impl Ctx {
             return c;
         }
         hit(clause::GL_LIGHTING);
-        let a = match self.get(0xb53) {
-            Ok(Some(v)) => match v[0] {
-                V::C(x) | V::F(x) => x,
-                _ => 0.2,
-            },
-            _ => 0.2,
-        };
         // n . L for GL_LIGHT0, the only light whose initial diffuse is not 0: its direction
         // (0, 0, 1) in eye coordinates, the normal through the modelview's inverse transpose
         // (MEASURED, golden opengl-32 other-calls-8: 0.04 plus 0.8 for the normal (0, 0, 1))
@@ -2884,11 +2915,15 @@ impl Ctx {
         }
         // (the sums clamped to 0..1 at the vertex, before they are interpolated (MEASURED,
         // golden opengl-32 / 64 interp-open-9: corners of 1.2 times the color as if 1))
-        if self.cap(COLOR_MATERIAL) {
-            return color_material_lit(a, d, c);
+        let tracked = self.cap(COLOR_MATERIAL);
+        let mut lit = [1.0; 4];
+        for k in 0..3 {
+            let ambient = if tracked { c[k] } else { 0.2 };
+            let diffuse = if tracked { c[k] } else { 0.8 };
+            lit[k] = (self.scene_ambient[k] * ambient + d * diffuse).clamp(0.0, 1.0);
         }
-        let l = a * 0.2 + d * 0.8;
-        [l, l, l, 1.0]
+        if tracked { lit[3] = c[3]; }
+        lit
     }
 
     /// the current normal in eye coordinates: times the inverse of the modelview's upper 3 by 3
@@ -4932,7 +4967,7 @@ impl Ctx {
             depth_transfer,
             zoom,
             // LIGHTING_BIT
-            shade, shininess, material_indices, light_scalars, light_positions, spot_directions, light_colors,
+            shade, scene_ambient, local_viewer, two_sided, shininess, material_indices, light_scalars, light_positions, spot_directions, light_colors,
             // FOG_BIT
             fog,
             // DEPTH_BUFFER_BIT
@@ -5036,6 +5071,9 @@ impl Ctx {
         }
         if on(attrib::LIGHTING) {
             self.shade = shade;
+            self.scene_ambient = scene_ambient;
+            self.local_viewer = local_viewer;
+            self.two_sided = two_sided;
             self.shininess = shininess;
             self.light_scalars = light_scalars;
             self.light_positions = light_positions;

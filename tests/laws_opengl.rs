@@ -2061,3 +2061,13 @@ fn light_color_conversions_match_windows_outside_the_unit_interval() {
         "q -1.0000006 -2.32830782e-10 2.32830782e-10 1.0000006",
         "q -2147483648 -1 0 -2147483648", "glerr 0"]);
 }
+
+#[test]
+fn scene_light_model_preserves_per_channel_ambient_and_flags() {
+    let input = "case scene\nglctx 32 choose 0x38 0 32 0 0 32 8\nglp glLightModelfv i 0xb53 f -0.5 0.1 0.3 2\nglget f 0xb53 4\ngl glPushAttrib 0x40\nglp glLightModeliv i 0xb53 i -2147483648 -1 0 2147483647\nglget f 0xb53 4\ngl glLightModelf 0xb51 -0.25\nglget i 0xb51 1\ngl glLightModeli 0xb52 -5\nglget i 0xb52 1\ngl glPopAttrib\nglget f 0xb53 4\nglget i 0xb51 1\nglget i 0xb52 1\nglerr\nend\n";
+    let cases = kikizake::case::parse_cases(input);
+    assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), ["glctx ok 1",
+        "get b53 = bf000000 3dccccce 3e99999a 40000000", "get b53 = bf800005 af800005 2f800005 3f800005",
+        "get b51 = 1", "get b52 = 1", "get b53 = bf000000 3dccccce 3e99999a 40000000",
+        "get b51 = 0", "get b52 = 0", "glerr 0"]);
+}
