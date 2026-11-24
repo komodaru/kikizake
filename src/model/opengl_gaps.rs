@@ -8,7 +8,7 @@ use crate::spec::{open, OpenId};
 /// the open clause of a function the model does not follow, by its name
 pub fn of(name: &str) -> Option<OpenId> {
     Some(match name {
-        "glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer" | "glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" => open::GL_SELECT,
+        "glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer" => open::GL_SELECT,
         "glLightfv" | "glLightiv" | "glLightModelfv" | "glLightModeliv" | "glMaterialfv" | "glMaterialiv" | "glGetLightfv" | "glGetLightiv" | "glGetMaterialfv" | "glGetMaterialiv" => open::GL_LIGHT_STATE,
         _ => return None,
     })

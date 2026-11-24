@@ -2793,3 +2793,27 @@ fn evaluator_input_must_fit_the_executor_slot() {
         }
     }
 }
+
+#[test]
+fn render_mode_ignores_name_stack_and_pass_through_commands() {
+    let input = "case names
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glPopName
+glerr
+gl glLoadName 7
+glerr
+gl glPushName 42
+gl glInitNames
+gl glPassThrough 1.5
+glget i 0xd70 1
+glerr
+gl glBegin 0
+gl glPopName
+gl glEnd
+glerr
+end
+";
+    let cases = kikizake::case::parse_cases(input);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["glerr 0", "glerr 0", "get d70 = 0", "glerr 0", "glerr 502"]);
+}

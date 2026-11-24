@@ -2426,6 +2426,9 @@ impl Ctx {
             "glEvalCoord1f" | "glEvalCoord1d" => self.eval_coord(tri::narrow(fl(a, 0)), None)?,
             "glEvalCoord2f" | "glEvalCoord2d" => self.eval_coord(tri::narrow(fl(a, 0)), Some(tri::narrow(fl(a, 1))))?,
             "glEvalMesh2" => self.eval_mesh2(int(a, 0), int(a, 1), int(a, 2), int(a, 3), int(a, 4))?,
+            // The default GL_RENDER mode ignores name-stack and feedback commands.
+            // Entry into selection or feedback is handled separately by glRenderMode.
+            "glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" => {}
             "glEvalMesh1" => {
                 let primitive = match int(a, 0) {
                     0x1b00 => 0,
