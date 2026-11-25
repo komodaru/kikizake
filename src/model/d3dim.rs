@@ -126,13 +126,17 @@ enum Step {
 
 impl Edge {
     /// the edge through x0 on its first row with this slope
-    fn new(x0: f32, slope: f32) -> Option<Edge> {
+    fn new(x0: f32, slope: f32, advances: bool) -> Option<Edge> {
         let x = iceil(x0)?;
         let frac = x0 - raster_long(ifloor(x0)?)?;
         let f = trunc(x87_mul(frac, TWO31))?;
         let err = u32::try_from(f.wrapping_sub(1) & 0x7fff_ffff).ok()?;
         let istep = trunc(slope)?;
-        let fs = trunc(x87_mul(slope - raster_long(istep)?, TWO31))?;
+        let Some(whole) = raster_long(istep) else {
+            // A short edge used once only contributes its first column.
+            return (!advances).then_some(Edge { x, err, istep: 0, fstep: 0, cstep: 0 });
+        };
+        let fs = trunc(x87_mul(slope - whole, TWO31))?;
         // (the fraction's bits as the 32-bit add sees them: negative for a negative slope)
         let fstep = u32::try_from(fs.rem_euclid(1 << 32)).ok()?;
         let cstep = if slope < 0.0 { istep.wrapping_sub(1) } else { istep.wrapping_add(1) };
@@ -295,16 +299,16 @@ pub fn raster_as(v: [Vert; 3], clip: Clip, gouraud: bool, attrs: Attrs) -> Res<O
     let fdy = fl(ytop)? - t.y;
     let pl = fdy * slope_l;
     let xl0 = pl + t.x;
-    let mut long = Edge::new(xl0, slope_l).ok_or_else(bad)?;
+    let mut long = Edge::new(xl0, slope_l, true).ok_or_else(bad)?;
     let mut e1 = if ymid > ytop {
         let s1 = px_ / py_;
-        Some(Edge::new(s1 * fdy + t.x, s1).ok_or_else(bad)?)
+        Some(Edge::new(s1 * fdy + t.x, s1, ymid.saturating_sub(ytop) > 1).ok_or_else(bad)?)
     } else {
         None
     };
     let mut e2 = if ybot > ymid {
         let s2 = (bo.x - m.x) / (bo.y - m.y);
-        Some(Edge::new((fl(ymid)? - m.y) * s2 + m.x, s2).ok_or_else(bad)?)
+        Some(Edge::new((fl(ymid)? - m.y) * s2 + m.x, s2, ybot.saturating_sub(ymid) > 1).ok_or_else(bad)?)
     } else {
         None
     };

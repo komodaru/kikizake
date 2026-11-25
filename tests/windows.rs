@@ -98,6 +98,16 @@ fn models_match_windows() {
                         "{s}-{arch} {name}");
                 }
             }
+            if *s == "d3d7wide" {
+                let expected = case::parse_output(&g);
+                let actual = case::parse_output(&want);
+                for name in ["steep-rising", "steep-falling"] {
+                    let reference = expected.cases.iter().find(|(n, _)| n == name)
+                        .unwrap_or_else(|| panic!("missing Windows recording for {s}-{arch} {name}"));
+                    let modeled = actual.cases.iter().find(|(n, _)| n == name);
+                    assert_eq!(modeled, Some(reference), "{s}-{arch} {name}");
+                }
+            }
             if matches!(*s, "d3d10draw" | "d3d11draw") {
                 let expected = case::parse_output(&g);
                 let actual = case::parse_output(&want);
