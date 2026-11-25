@@ -17,6 +17,7 @@ const RASTER: &str = "spec/lean/Kikizake/GdiPlus/Raster.lean";
 const LINE: &str = "spec/lean/Kikizake/GdiPlus/Line.lean";
 const CHAIN: &str = "spec/lean/Kikizake/GdiPlus/Chain.lean";
 const DASH: &str = "spec/lean/Kikizake/GdiPlus/Dash.lean";
+const INSET: &str = "spec/lean/Kikizake/GdiPlus/Inset.lean";
 
 /// the formats the mirror converts, by their place in `Pf` (the indexed ones and 16bppGrayScale
 /// convert through tables and refusals the Lean file does not hold)
@@ -1175,6 +1176,48 @@ pub static MIRRORS: &[Mirror] = &[
                 pts.push((f32::from_bits(arg(p, 0)?), f32::from_bits(arg(p, 1)?)));
             }
             one(i64::from(gppath::too_small(rounding(arg(a, 0)?), &m, &pts)))
+        },
+    },
+    Mirror {
+        name: "gp.inset-region",
+        lean: INSET,
+        domain: Domain::Sampled("all 3×3 pixel subsets, empty and overlapping rectangles, and 4,000 aligned or shifted mask pairs up to 7×7"),
+        inputs: |each| {
+            each(&[0, 0, 0, 3, 0, 0, 0, 3, 3, 511]);
+            each(&[0, 0, 3, 2, 63, 1, 0, 3, 2, 63]);
+            each(&[0, 0, 2, 2, 9, 0, 0, 2, 2, 15]);
+            for bits in 0..512 {
+                each(&[0, 0, 3, 3, bits, 0, 0, 3, 3, 511]);
+            }
+            let mut rng = crate::rng::Sample64::new(0x1a5e_7001);
+            for i in 0..4000 {
+                let (ax, ay) = (rng.range(-4, 4), rng.range(-4, 4));
+                let (aw, ah) = (rng.range(1, 7), rng.range(1, 7));
+                let (bx, by, bw, bh) = if i < 1000 {
+                    (ax, ay, aw, ah)
+                } else {
+                    (rng.range(-4, 4), rng.range(-4, 4), rng.range(1, 7), rng.range(1, 7))
+                };
+                let mask = |w: i64, h: i64| {
+                    1_i64.checked_shl(u32::try_from(w * h).unwrap_or(0)).unwrap_or(1).saturating_sub(1)
+                };
+                let a = rng.range(0, mask(aw, ah));
+                let b = rng.range(0, mask(bw, bh));
+                each(&[ax, ay, aw, ah, a, bx, by, bw, bh, b]);
+            }
+        },
+        model: |a| {
+            use crate::model::gpregion::{inset_contours, Pixels};
+            let mask = |x, y, w, h, bits| {
+                Pixels::from_bits((arg(a, x)?, arg(a, y)?), arg(a, w)?, arg(a, h)?, arg(a, bits)?)
+            };
+            let figures = inset_contours(&mask(0, 1, 2, 3, 4)?, &mask(5, 6, 7, 8, 9)?);
+            let mut out = Vec::new();
+            for points in figures {
+                out.push(i64::try_from(points.len()).ok()?);
+                out.extend(points.into_iter().flat_map(|(x, y)| [x, y]));
+            }
+            Some(out)
         },
     },
     Mirror {

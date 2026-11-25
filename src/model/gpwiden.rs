@@ -692,7 +692,7 @@ fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix,
 /// geometry.md 17, MEASURED in GDI+ itself, golden penalign-1)
 fn inset(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Result<Path, Widened>> {
     use super::gdiplus::FillMode;
-    use super::gpregion::{pixels, points, to_path};
+    use super::gpregion::{inset_contours, pixels, points};
     hit(clause::GP_PEN_INSET);
     let fm = if path.fill == 0 { FillMode::Alternate } else { FillMode::Winding };
     let whole = pixels(r, path, m, fm)?;
@@ -710,7 +710,7 @@ fn inset(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Res
             Err(e) => return Ok(Err(e)),
         };
         let own = pixels(r, &w, &id, FillMode::Winding)?;
-        out.extend(points(&to_path(&own.and(&whole))));
+        out.extend(points(&inset_contours(&own, &whole)));
     }
     if !open.is_empty() {
         match widen(r, &Path::of(path.fill, open), &centred(pen.width), m, flatness)? {

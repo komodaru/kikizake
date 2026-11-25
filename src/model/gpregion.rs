@@ -5,6 +5,7 @@
 use super::gdiplus::{FillMode, Matrix, Round};
 use super::gppath::{enumerate, rasterize, Fig, Kind, Path, Point};
 use super::Res;
+use crate::spec::{clause, hit};
 
 /// a set of device pixels: inside[(y - y0) w + x - x0]
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -16,6 +17,16 @@ pub struct Pixels {
     inside: Vec<bool>,
 }
 impl Pixels {
+    /// A bounded mask in row order, used to compare region algorithms with their Lean mirror.
+    pub(crate) fn from_bits((x, y): (i32, i32), w: u8, h: u8, bits: u64) -> Option<Self> {
+        if w > 7 || h > 7 {
+            return None;
+        }
+        let cells = u32::from(w).checked_mul(u32::from(h))?;
+        let inside = (0..cells).map(|i| bits.checked_shr(i).is_some_and(|suffix| suffix & 1 != 0)).collect();
+        Some(Self { x0: i64::from(x), y0: i64::from(y), w: i64::from(w), h: i64::from(h), inside })
+    }
+
     pub fn has(&self, x: i64, y: i64) -> bool {
         let (i, j) = (x - self.x0, y - self.y0);
         (0..self.w).contains(&i) && (0..self.h).contains(&j) && self.inside[(j * self.w + i) as usize]
@@ -52,6 +63,12 @@ pub fn pixels(r: Round, path: &Path, m: &Matrix, fm: FillMode) -> Res<Pixels> {
 }
 
 type V = (i64, i64);
+
+/// An inset figure's clipped contours, retaining the whole path's fill.
+pub(crate) fn inset_contours(own: &Pixels, whole: &Pixels) -> Vec<Vec<V>> {
+    hit(clause::GP_PEN_INSET_REGION);
+    to_path(&own.and(whole))
+}
 
 /// RegionToPath: the figures of a pixel set, closed, in device coordinates
 pub fn to_path(px: &Pixels) -> Vec<Vec<V>> {
