@@ -483,12 +483,19 @@ spec/lean/Kikizake/D3d11/Raster.lean::shared_edge lean D3DRASTER.TOPLEFT
 spec/lean/Kikizake/D3d11/Raster.lean::covers_turn lean D3DRASTER.TOPLEFT D3DRASTER.CULL
 spec/lean/Kikizake/D3d11/Raster.lean::degenerate lean D3DRASTER.DEGENERATE
 spec/lean/Kikizake/D3d11/Raster.lean::cull_modes lean D3DRASTER.CULL
+spec/lean/Kikizake/D3d11/Raster.lean::cull_front_face lean D3DRASTER.CULL
 spec/lean/Kikizake/D3d11/Raster.lean::scissor_rect lean D3DRASTER.SCISSOR
 spec/lean/Kikizake/D3d11/Raster.lean::point_pixel lean D3DRASTER.POINT
 spec/lean/Kikizake/D3d11/Raster.lean::point_square lean D3DRASTER.MS.POINTS
 spec/lean/Kikizake/D3d11/Raster.lean::pattern_samples lean D3DRASTER.MS.SAMPLES
 spec/lean/Kikizake/D3d11/Raster.lean::mask_shared lean D3DRASTER.MS.SAMPLES D3DRASTER.TOPLEFT
 spec/lean/Kikizake/D3d11/Draw.lean::incomplete lean D3DRASTER.INCOMPLETE D3DRASTER.NOVIEWPORT
+spec/lean/Kikizake/D3d11/Draw.lean::draw_ids_offsets lean D3DRASTER.IDS D3DRASTER.PRIM
+spec/lean/Kikizake/D3d11/Draw.lean::noninstanced_ids lean D3DRASTER.IDS
+spec/lean/Kikizake/D3d11/Draw.lean::vertex_id_channels lean D3DRASTER.IDS
+spec/lean/Kikizake/D3d11/Draw.lean::vertex_id_rounding lean D3DRASTER.IDS
+spec/lean/Kikizake/D3d11/Draw.lean::primitive_id_facing lean D3DRASTER.PRIM
+spec/lean/Kikizake/D3d11/Draw.lean::primitive_id_rounding lean D3DRASTER.PRIM
 spec/lean/Kikizake/D3d11/Draw.lean::topology lean D3DRASTER.TOPOLOGY D3DRASTER.PATCH
 spec/lean/Kikizake/D3d11/Draw.lean::strip lean D3DRASTER.STRIP
 spec/lean/Kikizake/D3d11/Draw.lean::adjacency lean D3DRASTER.ADJ

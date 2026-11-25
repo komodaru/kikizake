@@ -39,10 +39,15 @@ pub fn covers(t: [Sub; 3], c: Sub) -> bool {
     })
 }
 
+/// Whether a triangle's screen winding is the configured front face.
+pub(crate) fn front_face(front_ccw: bool, cw: bool) -> bool {
+    cw != front_ccw
+}
+
 /// D3DRASTER.CULL: whether D3D11_CULL_MODE (NONE 1, FRONT 2, BACK 3) culls a triangle, clockwise
 /// on the screen or not, FrontCounterClockwise or not
 pub fn culls(mode: u32, front_ccw: bool, cw: bool) -> bool {
-    let front = cw != front_ccw;
+    let front = front_face(front_ccw, cw);
     mode == 2 && front || mode == 3 && !front
 }
 
@@ -298,6 +303,13 @@ pub(crate) fn depth_action(func: u32, write: bool, test: Option<(f64, f64, f32)>
     } else {
         DepthAction::Keep
     }
+}
+
+/// The generated draw command uses instance count zero for a non-instanced draw.
+pub(crate) fn draw_ids(
+    instances: u32, primitives: u32,
+) -> impl Iterator<Item = (u32, std::ops::Range<u32>)> {
+    (0..instances.max(1)).map(move |i| (i, 0..primitives))
 }
 
 /// a primitive's vertices (their indices in the draw) and its leading vertex

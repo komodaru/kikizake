@@ -50,6 +50,21 @@ pub static MIRRORS: &[Mirror] = &[
         model: |a| one(d3drules::culls(arg(a, 0)?, flag(a, 1)?, flag(a, 2)?)),
     },
     Mirror {
+        name: "d3d11.frontface",
+        lean: RASTER,
+        domain: Domain::Every("all 4 combinations of triangle winding and the front-counterclockwise flag, and malformed arguments"),
+        inputs: |each| {
+            every(&[(0, 1), (0, 1)], each);
+            for bad in [&[][..], &[0], &[2, 1], &[0, -1], &[0, 0, 0]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let &[ccw @ (0 | 1), cw @ (0 | 1)] = a else { return one(-1) };
+            one(u8::from(d3drules::front_face(ccw == 1, cw == 1)))
+        },
+    },
+    Mirror {
         name: "d3d11.scissor",
         lean: RASTER,
         domain: Domain::Sampled("on or off, rectangles and pixels of -6..6 each, and 100,000 of -5000..5000"),
@@ -147,6 +162,81 @@ pub static MIRRORS: &[Mirror] = &[
             }
         },
         model: |a| one(i64::try_from(d3drules::prim_count(Topo::of(arg(a, 0)?)?, arg(a, 1)?, arg(a, 2)?)).ok()?),
+    },
+    Mirror {
+        name: "d3d11.drawids",
+        lean: DRAW,
+        domain: Domain::Sampled("all counts and indices in 0..8 and 20,000 full u32 draw sizes with indices near both ends"),
+        inputs: |each| {
+            every(&[(0, 8); 4], each);
+            let mut rng = crate::rng::Sample64::new(0x3db1_d311);
+            for _ in 0..20_000 {
+                let instances = rng.range(0, U32);
+                let primitives = rng.range(0, U32);
+                let (random_i, random_p) = (rng.range(0, U32), rng.range(0, U32));
+                let i = *rng.pick(&[0, instances.saturating_sub(1), instances, random_i]);
+                let p = *rng.pick(&[0, primitives.saturating_sub(1), primitives, random_p]);
+                each(&[instances, primitives, i, p]);
+            }
+            for bad in [&[][..], &[0, 1, 0], &[-1, 1, 0, 0], &[1, U32 + 1, 0, 0]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let selected = || {
+                let &[instances, primitives, i, p] = a else { return None };
+                let mut draws = d3drules::draw_ids(u32::try_from(instances).ok()?, u32::try_from(primitives).ok()?);
+                let (j, mut ps) = draws.nth(usize::try_from(i).ok()?)?;
+                let q = ps.nth(usize::try_from(p).ok()?)?;
+                Some(vec![i64::from(j), i64::from(q)])
+            };
+            Some(selected().unwrap_or_else(|| vec![-1]))
+        },
+    },
+    Mirror {
+        name: "d3d11.vertexid",
+        lean: DRAW,
+        domain: Domain::Sampled("every pair of IDs in 0..127, pairs at the binary32 rounding and u32 boundaries, and 50,000 full u32 pairs"),
+        inputs: |each| {
+            every(&[(0, 127); 2], each);
+            let edges = [0, 1, (1 << 24) - 1, 1 << 24, (1 << 24) + 1, (1 << 24) + 3, U32 - 1, U32];
+            for v in edges {
+                for i in edges {
+                    each(&[v, i]);
+                }
+            }
+            sampled(&[(0, U32); 2], 50_000, 0x3db2_d311, each);
+            for bad in [&[][..], &[-1, 0], &[0, U32 + 1]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let color = || {
+                let &[v, i] = a else { return None };
+                let color = crate::model::d3draster::vertex_id_color(u32::try_from(v).ok()?, u32::try_from(i).ok()?);
+                Some(color.map(|v| i64::from(v.to_bits())).to_vec())
+            };
+            Some(color().unwrap_or_else(|| vec![-1]))
+        },
+    },
+    Mirror {
+        name: "d3d11.primitiveid",
+        lean: DRAW,
+        domain: Domain::Sampled("both facing states for IDs in 0..4096 and at the binary32 rounding and u32 boundaries, and 50,000 full u32 IDs and facings"),
+        inputs: |each| {
+            every(&[(0, 4096), (0, 1)], each);
+            every(&[((1 << 24) - 3, (1 << 24) + 3), (0, 1)], each);
+            every(&[(U32 - 3, U32), (0, 1)], each);
+            sampled(&[(0, U32), (0, 1)], 50_000, 0x3db3_d311, each);
+            for bad in [&[][..], &[2, -1], &[2, 2], &[U32 + 1, 0]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let &[p, front @ (0 | 1)] = a else { return one(-1) };
+            let Ok(p) = u32::try_from(p) else { return one(-1) };
+            Some(crate::model::d3draster::primitive_id_color(p, front == 1).map(i64::from).to_vec())
+        },
     },
     Mirror {
         name: "d3d11.word",

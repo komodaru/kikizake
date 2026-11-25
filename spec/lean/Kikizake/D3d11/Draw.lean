@@ -1,4 +1,6 @@
 import Kikizake.Mirror
+import Kikizake.F32
+import Kikizake.D3d11.Raster
 /-! What a draw on Direct3D 10 and 11 does before it rasterizes (spec/d3dres.txt D3DRASTER.*), as
 src/model/d3drules.rs computes it: `verdict` is `draw_verdict` (programs, views, viewport,
 D3D11_PRIMITIVE_TOPOLOGY), `primitive` `primitive` (the vertices each topology takes),
@@ -76,6 +78,56 @@ theorem topology (top : Nat) :
       unfold Topo.of
       split <;> first | rfl | omega
     simp [verdict, none, h1, h2]
+
+/-- The case command uses zero instances for Draw, otherwise DrawInstanced starts at instance zero. -/
+def drawIds (instances primitives : Nat) : List (Nat × List Nat) :=
+  (List.range (max 1 instances)).map (fun i => (i, List.range primitives))
+
+/-- The system values at given instance and primitive offsets, without constructing the draw. -/
+def drawIdAt (instances primitives i p : Nat) : Option (Nat × Nat) :=
+  if i < max 1 instances ∧ p < primitives then some (i, p) else none
+
+/-- Every instance restarts the primitive index at zero and has its own zero-based instance index. -/
+theorem draw_ids_offsets (instances primitives i p : Nat) :
+    (drawIds instances primitives)[i]?.bind (fun (j, ps) => ps[p]?.map (fun q => (j, q))) =
+      drawIdAt instances primitives i p := by
+  by_cases hi : i < max 1 instances <;> by_cases hp : p < primitives <;>
+    simp [drawIds, drawIdAt, hi, hp]
+
+/-- A Draw has only instance zero, even if its primitive count is zero. -/
+theorem noninstanced_ids (primitives i p : Nat) :
+    drawIdAt 0 primitives i p = if i = 0 ∧ p < primitives then some (i, p) else none := by
+  simp [drawIdAt, Nat.lt_one_iff]
+
+/-- The generated vertex shader converts SV_VertexID and SV_InstanceID to binary32. -/
+def vertexIdColor (v i : Nat) : List Nat :=
+  [F32.ofNat v, F32.ofNat i, 0, 0x3f800000]
+
+/-- The generated pixel shader converts SV_PrimitiveID and SV_IsFrontFace to binary32. -/
+def primitiveIdColor (p : Nat) (front : Bool) : List Nat :=
+  [F32.ofNat p, if front then 0x3f800000 else 0, 0, 0x3f800000]
+
+/-- Offset zero and one from the vertex shader hold vertex and instance IDs independently. -/
+theorem vertex_id_channels (v i : Nat) :
+    (vertexIdColor v i)[0]? = some (F32.ofNat v) ∧
+    (vertexIdColor v i)[1]? = some (F32.ofNat i) := by
+  simp [vertexIdColor]
+
+/-- The uint shader conversions round ties to even at the binary32 precision boundary. -/
+theorem vertex_id_rounding :
+    vertexIdColor 16777217 16777219 = [0x4b800000, 0x4b800002, 0, 0x3f800000] := by decide
+
+/-- FrontCounterClockwise toggles the facing channel without changing the primitive index. -/
+theorem primitive_id_facing (p : Nat) (cw : Bool) :
+    primitiveIdColor p (Raster.frontFace false cw) =
+      [F32.ofNat p, if cw then 0x3f800000 else 0, 0, 0x3f800000] ∧
+    primitiveIdColor p (Raster.frontFace true cw) =
+      [F32.ofNat p, if cw then 0 else 0x3f800000, 0, 0x3f800000] := by
+  cases cw <;> simp [primitiveIdColor, Raster.frontFace]
+
+/-- As in the vertex shader, a primitive ID beyond the exact binary32 range is rounded. -/
+theorem primitive_id_rounding :
+    primitiveIdColor 16777217 true = [0x4b800000, 0x3f800000, 0, 0x3f800000] := by decide
 
 /-- a primitive's vertices (their indices in the draw), a triangle's leading vertex last -/
 inductive Prim where
@@ -294,6 +346,10 @@ def boundOf (s has w h : Int) : Option Bound := do
   let h ← nat h
   pure ⟨s, if has = 0 then none else some (w, h)⟩
 
+private def uintArg (bits : Int) : Option Nat := do
+  let n ← nat bits
+  if n < 2 ^ 32 then some n else none
+
 def mirrors : List Mirror := [
   ⟨"d3d11.verdict", fun
     | [p, v, vp, top] => do
@@ -312,6 +368,18 @@ def mirrors : List Mirror := [
       let t ← Topo.of (← nat top)
       pure [primCount t (← nat count) (← nat nv)]
     | _ => none⟩,
+  ⟨"d3d11.drawids", fun args => some ((do
+    let [instances, primitives, i, p] ← args.mapM uintArg | none
+    let (j, q) ← drawIdAt instances primitives i p
+    pure [(j : Int), (q : Int)]).getD [-1])⟩,
+  ⟨"d3d11.vertexid", fun args => some ((do
+    let [v, i] ← args.mapM uintArg | none
+    pure ((vertexIdColor v i).map Int.ofNat)).getD [-1])⟩,
+  ⟨"d3d11.primitiveid", fun
+    | [p, front] => some (if front = 0 ∨ front = 1 then
+        ((uintArg p).map (fun n => (primitiveIdColor n (front = 1)).map Int.ofNat)).getD [-1]
+      else [-1])
+    | _ => some [-1]⟩,
   ⟨"d3d11.word", fun
     | [n, v, stride, k] => do
       let vtx := (List.range (← nat n)).map (· + 1)

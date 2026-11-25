@@ -32,10 +32,13 @@ theorem covers_turn (a b c s : Pt) : covers b c a s = covers a b c s ∧ covers 
 theorem degenerate (a b c s : Pt) (h : area a b c = 0) : covers a b c s = false := by
   simp [covers, D3d9.Raster.covers, h]
 
+/-- A triangle faces front when its screen winding agrees with the rasterizer state. -/
+def frontFace (ccw cw : Bool) : Bool := cw != ccw
+
 /-- D3DRASTER.CULL: whether CullMode (NONE 1, FRONT 2, BACK 3) culls a triangle clockwise on the
 screen (cw) or not, FrontCounterClockwise (ccw) or not -/
 def culls (mode : Nat) (ccw cw : Bool) : Bool :=
-  let front := cw != ccw
+  let front := frontFace ccw cw
   (mode == 2 && front) || (mode == 3 && !front)
 
 /-- D3DRASTER.CULL: clockwise triangles face front unless FrontCounterClockwise; NONE culls
@@ -43,6 +46,10 @@ nothing, FRONT the front faces, BACK the others, so FRONT and BACK cull compleme
 theorem cull_modes (ccw cw : Bool) :
     culls 1 ccw cw = false ∧ culls 2 ccw cw = (cw != ccw) ∧ culls 3 ccw cw = !(cw != ccw) ∧
     culls 2 false true = true ∧ culls 3 true true = true ∧ culls 2 ccw cw = !culls 3 ccw cw := by
+  cases ccw <;> cases cw <;> decide
+
+/-- Culling front triangles uses the same facing value exposed to the pixel shader. -/
+theorem cull_front_face (ccw cw : Bool) : culls 2 ccw cw = frontFace ccw cw := by
   cases ccw <;> cases cw <;> decide
 
 /-- D3DRASTER.SCISSOR: pixel (px, py) inside the scissor rectangle l t r b when ScissorEnable -/
@@ -139,6 +146,10 @@ def mirrors : List Mirror := [
   ⟨"d3d11.cull", fun
     | [m, ccw, cw] => do pure [if culls (← nat m) (ccw != 0) (cw != 0) then 1 else 0]
     | _ => none⟩,
+  ⟨"d3d11.frontface", fun
+    | [ccw, cw] => some (if (ccw = 0 ∨ ccw = 1) ∧ (cw = 0 ∨ cw = 1) then
+        [if frontFace (ccw = 1) (cw = 1) then 1 else 0] else [-1])
+    | _ => some [-1]⟩,
   ⟨"d3d11.scissor", fun
     | [on, l, t, r, b, px, py] => pure [if scissorHolds (on != 0) l t r b px py then 1 else 0]
     | _ => none⟩,

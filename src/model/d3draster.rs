@@ -595,7 +595,6 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     // (a depth view of another sample count is never bound, D3DRASTER.MS.DEPTHCOUNT; one whose
     // slot was emptied: guarded above)
     let dsv = d.depth.map(|v| m.views.get(v).cloned()).transpose()?;
-    let instances = inst.max(1);
     // the vertices through the vertex shader
     let fetch = |v: u32, i: u32| -> Res<Vert> {
         // (MEASURED: past the buffer the vertex reads zeros, probe-vb-past)
@@ -610,7 +609,7 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
             "vs" => [w(4)?, w(5)?, w(6)?, w(7)?],
             _ => {
                 hit(clause::D3DRASTER_IDS);
-                [v as f32, i as f32, 0.0, 1.0]
+                vertex_id_color(v, i)
             }
         };
         Ok(Vert { pos, color })
@@ -621,11 +620,11 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     let nprim = rules::prim_count(topo, count, nv);
     let nprim = u32::try_from(nprim).unwrap_or(u32::MAX);
     let tg = Target { dev, vp, size: (rw, rh), view: &view, fmt: rt_fmt, sub: rt_sub, dsv: dsv.as_ref(), samples };
-    for i in 0..instances {
+    for (i, primitives) in rules::draw_ids(inst, nprim) {
         // (the lines of the draw, or the edges of its triangles in wireframe: drawn together,
         // since whether a line's end lights its pixel depends on the lines after it)
         let mut segs: Vec<Seg> = Vec::new();
-        for p in 0..nprim {
+        for p in primitives {
             if matches!(topo, Topo::LinesAdj | Topo::LineStripAdj | Topo::TrisAdj) {
                 // (MEASURED, WARP: probe-topology-10 to -13) with adjacency and no geometry
                 // program, the adjacent vertices are skipped (rules::primitive)
@@ -652,6 +651,16 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         lines(m, &d, &tg, ps, &segs)?;
     }
     Ok(())
+}
+
+/// The generated vertex shader converts the two uint system values to color channels.
+pub(crate) fn vertex_id_color(vertex: u32, instance: u32) -> [f32; 4] {
+    [vertex as f32, instance as f32, 0.0, 1.0]
+}
+
+/// The generated pixel shader writes the primitive number and a one-bit front-face value.
+pub(crate) fn primitive_id_color(primitive: u32, front: bool) -> [u32; 4] {
+    [(primitive as f32).to_bits(), f32::from(u8::from(front)).to_bits(), 0, 1.0f32.to_bits()]
 }
 
 /// what a primitive is drawn into
@@ -936,7 +945,7 @@ fn prim_out(ps: &str, c: [f32; 4], (px, py): (i64, i64), z: f32, w: f32, prim: u
         }
         "psprim" => {
             hit(clause::D3DRASTER_PRIM);
-            Ok([(prim as f32).to_bits(), if front { 1.0f32 } else { 0.0 }.to_bits(), 0, 1.0f32.to_bits()])
+            Ok(primitive_id_color(prim, front))
         }
         // (a pixel program the generators do not make)
         _ => Err(Fail::Bad),
@@ -1566,7 +1575,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             if pieces.is_empty() {
                 return Ok(());
             }
-            let front = pieces.first().is_some_and(|p| p.2 != (d.rast[2] != 0));
+            let front = pieces.first().is_some_and(|p| rules::front_face(d.rast[2] != 0, p.2));
             for (a, b) in poly.iter().zip(poly.iter().cycle().skip(1)) {
                 if a.along {
                     continue;
@@ -1588,7 +1597,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 let Some(pattern) = samples else {
                     if let Some((_, p, cw)) = covering(c) {
                         let z = clamp_range(minz, maxz, p.plane(p.zs, cx, cy));
-                        let out = shade(m, ps, tri, Some(p), lead, prim, *cw != (d.rast[2] != 0), (px, py), Some(z), d)?;
+                        let out = shade(m, ps, tri, Some(p), lead, prim, rules::front_face(d.rast[2] != 0, *cw), (px, py), Some(z), d)?;
                         output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, Some(z), out)?;
                     }
                     continue;
@@ -1604,7 +1613,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                     let each: Vec<f32> = pattern.iter().map(|&offset| {
                         sample_depth_plane(p.xs, p.ys, p.zs, (minz, maxz), (cx, cy), offset)
                     }).collect();
-                    let out = shade(m, ps, tri, Some(p), lead, prim, *cw != (d.rast[2] != 0), (px, py), Some(z), d)?;
+                    let out = shade(m, ps, tri, Some(p), lead, prim, rules::front_face(d.rast[2] != 0, *cw), (px, py), Some(z), d)?;
                     put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, Some(z), Some(&each), out, &mask)?;
                 }
             }
@@ -1645,7 +1654,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     }
     // (y down: a positive area is clockwise on the screen)
     let cw = area > 0;
-    let front = cw != (d.rast[2] != 0);
+    let front = rules::front_face(d.rast[2] != 0, cw);
     hit(clause::D3DRASTER_CULL);
     if rules::culls(d.rast[1], d.rast[2] != 0, cw) {
         return Ok(());
@@ -2479,7 +2488,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
         }
         "psprim" => {
             hit(clause::D3DRASTER_PRIM);
-            [(prim as f32).to_bits(), if front { 1.0f32 } else { 0.0 }.to_bits(), 0, 1.0f32.to_bits()]
+            primitive_id_color(prim, front)
         }
         "psld" | "psldu" => {
             hit(clause::D3DRASTER_LD);

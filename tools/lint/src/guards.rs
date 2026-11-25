@@ -85,6 +85,9 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // line_value, clamp_range and vertex_depth, which d3d11.plane, d3d11.lineplane,
     // d3d11.clamprange and d3d11.vertexdepth hold to spec/lean/Kikizake/D3d11/Interp.lean)
     ("src/model/d3draster.rs", r"\.max\(lo\)\.min\(hi\)|\(1\.0\s*/\s*[\w.]+(\[3\])?\)\s*\*\s*\(maxz\s*-\s*minz\)|\(a\[0\]\s*-\s*gx\s*\*\s*x0\)|1\.0\s*/\s*\(b\s*-\s*a\)", &["plane_value", "line_value", "clamp_range", "vertex_depth"]),
+    // (draw IDs and the generated shaders' ID colors use the functions mirrored in Draw.lean;
+    // triangle facing is shared with the culling rule in Raster.lean)
+    ("src/model/d3draster.rs", r"\binst\.max\(1\)|\b0\.\.nprim\b|\[\w+\s+as\s+f32,\s*\w+\s+as\s+f32,\s*0\.0,\s*1\.0\]|\((?:prim|primitive)\s+as\s+f32\)\.to_bits\(\)|(?:\b(?:cw|p\.2))\s*!=\s*\(d\.rast\[2\]", &["vertex_id_color", "primitive_id_color"]),
     // (the per-sample plane, scheduler, byte range and depth test are sample_depth_plane,
     // sample_depth_jobs, sample_span and depth_action, mirrored in D3d11/Interp.lean)
     ("src/model/d3draster.rs", r"\bplane\([\w.]+\.zs,[^;\n]*sixteenths|\bplane_value\([^;\n]*sixteenths|\beach\.and_then\(\|[a-z]+\|[a-z.\s]+\.get\(k\)|\bsamples\[k\s*\*\s*plane|rules::compare\(d\.depthst\[2\]", &["sample_depth_plane"]),

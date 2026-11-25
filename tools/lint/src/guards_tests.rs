@@ -517,6 +517,24 @@ fn clipping_stays_in_the_mirrored_functions() {
 }
 
 #[test]
+fn draw_ids_stay_in_the_mirrored_functions() {
+    let inlined = r#"
+fn draw() { let instances = inst.max(1); for p in 0..nprim {} [v as f32, i as f32, 0.0, 1.0] }
+fn triangle() { cw != (d.rast[2] != 0) }
+fn shade() { [(prim as f32).to_bits(), 0, 0, 0] }
+"#;
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:")).count(), 5, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", r#"
+fn draw() { rules::draw_ids(inst, nprim); vertex_id_color(v, i); }
+fn vertex_id_color() { [v as f32, i as f32, 0.0, 1.0] }
+fn primitive_id_color() { [(prim as f32).to_bits(), 0, 0, 0] }
+fn triangle() { rules::front_face(d.rast[2] != 0, cw) }
+fn shade() { primitive_id_color(prim, front); }
+"#).is_empty());
+}
+
+#[test]
 fn multisample_depth_stays_in_the_mirrored_functions() {
     let inlined = r#"
 fn triangle() { p.plane(p.zs, cx + sixteenths(ox), cy + sixteenths(oy)); }
