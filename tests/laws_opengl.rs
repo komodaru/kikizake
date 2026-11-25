@@ -2073,6 +2073,53 @@ fn wgl_font_modes_match_native_results() {
     }
 }
 
+#[test]
+fn wgl_bitmap_primitives_match_native_rejection() {
+    let fixtures = include_str!("fixtures/opengl_bitmap_primitives.txt");
+    assert_eq!(fixtures.lines().count(), 216);
+    for fixture in fixtures.lines() {
+        let (input, output) = fixture.split_once(" | ").unwrap();
+        let input: Vec<_> = input.split_whitespace().collect();
+        let output: Vec<_> = output.split_whitespace().collect();
+        let [phase, base, pending, first, count] = input.as_slice() else { panic!("invalid input {fixture}"); };
+        let [result, last_error, gl_error, caller, defined, next] = output.as_slice() else { panic!("invalid output {fixture}"); };
+        let mut input = String::from("case bitmap-primitive\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+        if *pending == "1" { input.push_str("gl glEnable 0xffff\n"); }
+        input.push_str(match *phase {
+            "0" => "",
+            "1" => "gl glNewList 55 0x1300\n",
+            "2" => "gl glNewList 55 0x1301\n",
+            _ => panic!("invalid list mode {fixture}"),
+        });
+        let base: u32 = base.parse().unwrap();
+        input.push_str(&format!("gl glBegin 0\nwglx fontbmp w {first} {count} {base}\ngl glEnd\n"));
+        if *phase != "0" { input.push_str("gl glEndList\n"); }
+        input.push_str(&format!("glerr\nglr glIsList b i 55\nglr glIsList b i {base}\nglr glIsList b i {}\nend\n", base + 1));
+        let cases = kikizake::case::parse_cases(&input);
+        assert_eq!(kikizake::model::run_case(&cases[0]).unwrap(), [
+            "glctx ok 1".into(), format!("wglx fontbmp {result} {last_error}"), format!("glerr {gl_error}"),
+            format!("ret {caller}"), format!("ret {defined}"), format!("ret {next}"),
+        ], "{fixture}");
+    }
+}
+
+#[test]
+fn wgl_outline_calls_within_primitives_fail_as_unmodeled() {
+    for compile in ["", "gl glNewList 55 0x1300\n", "gl glNewList 55 0x1301\n"] {
+        for encoding in ["a", "w"] {
+            for count in [0, 1] {
+                for format in [0, 1, 2] {
+                    let input = format!("case outline-primitive\nglctx 32 choose 0x38 0 32 0 0 32 8\n{compile}gl glBegin 0\nwglx fontoutline {encoding} 65 {count} 100 {format}\ngl glEnd\nend\n");
+                    let cases = kikizake::case::parse_cases(&input);
+                    let result = kikizake::model::run_case(&cases[0]);
+                    assert!(matches!(&result, Err(kikizake::model::Fail::Unmodeled(id)) if id.as_str() == "WGL.OTHER"),
+                            "{result:?}");
+                }
+            }
+        }
+    }
+}
+
 proptest! {
     #[test]
     fn wgl_font_batches_replace_only_the_requested_lists(

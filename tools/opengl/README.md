@@ -67,6 +67,30 @@ rows up to the `done` marker to
 `tests/fixtures/opengl_font_modes.txt`. The recording includes GL and
 Win32 errors, list state, raster position and feedback or selection data.
 
+## Font creation in primitives
+
+Run `capture_wgl_outlines.exe bitmap-primitives` on both architectures.
+The 216 rows cover immediate mode and both display-list compilation modes.
+Compare the two outputs and copy the rows up to `done` to
+`tests/fixtures/opengl_bitmap_primitives.txt`.
+
+The outline calls reached from an active primitive did not return within
+1.5 seconds on either architecture. Run the outline probe as a separate
+process with a timeout. Its arguments are phase, format and count. The
+phase values 0, 1 and 2 select an immediate primitive, compile and
+compile-and-execute. The probe flushes `calling` before entering WGL.
+
+```python
+import subprocess
+try:
+    subprocess.run(
+        ["capture_wgl_outlines.exe", "outline-primitive", "0", "0", "1"],
+        capture_output=True, timeout=1.5, check=True,
+    )
+except subprocess.TimeoutExpired as exc:
+    print(exc.stdout)
+```
+
 ## Windows WGL bitmap captures
 
 The bitmap atlas records all 65,536 input code units of

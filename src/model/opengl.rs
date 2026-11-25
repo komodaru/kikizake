@@ -1778,7 +1778,10 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             let compiling_primitive = ctx.lists.compiling.as_ref().is_some_and(|current| current.lines.iter().rev()
                 .filter_map(|line| line.tok.get(1)).find(|n| matches!(n.as_str(), "glBegin" | "glEnd"))
                 .is_some_and(|n| n == "glBegin"));
-            if name == "fontoutline" && rest.len() == 1 && ctx.in_begin.is_none() && !compiling_primitive {
+            let in_primitive = ctx.in_begin.is_some() || compiling_primitive;
+            if name == "fontoutline" && rest.len() == 1 {
+                // In native probes these calls did not return, even with zero count or invalid format.
+                if in_primitive { return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)); }
                 // The outline call consumes the pending error even for zero glyphs or an invalid format.
                 ctx.err = 0;
             }
@@ -1796,18 +1799,18 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                 }
             } else { None };
             match (name.as_str(), rest) {
-                ("fontbmp", []) if ctx.err != 0 && ctx.in_begin.is_none() && !compiling_primitive => {
-                    ctx.err = 0;
-                    "0 0".into()
-                }
-                ("fontbmp", []) if bitmap_first.is_none() && ctx.in_begin.is_none() && !compiling_primitive => "1 0".into(),
-                ("fontbmp", []) if ctx.in_begin.is_some() && ctx.lists.compiling.is_none()
-                    && wgl_font_last_name(base, count).is_some()
-                    && bitmap_first.is_some_and(|first| u32::from(first).saturating_add(count.cast_unsigned()) <= 256) => {
+                ("fontbmp", []) if in_primitive => {
+                    // The immediate primitive path consumes an older GL error.
+                    if ctx.lists.compiling.is_none() { ctx.err = 0; }
                     ctx.error(INVALID_OPERATION);
                     "0 0".into()
                 }
-                ("fontbmp", []) if supported_names && ctx.in_begin.is_none() && !compiling_primitive => {
+                ("fontbmp", []) if ctx.err != 0 => {
+                    ctx.err = 0;
+                    "0 0".into()
+                }
+                ("fontbmp", []) if bitmap_first.is_none() => "1 0".into(),
+                ("fontbmp", []) if supported_names => {
                     let mut glyphs = Vec::new();
                     let first = bitmap_first.ok_or(Fail::Bad)?;
                     for offset in 0..count {
@@ -1837,8 +1840,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                 }
                 ("fontoutline", [fmt]) if !matches!(integer(fmt)?, 0 | 1) => "0 8".into(),
                 ("fontoutline", [_]) if count == 0 => "1 0".into(),
-                ("fontoutline", [fmt]) if supported_names
-                    && ctx.in_begin.is_none() && !compiling_primitive => {
+                ("fontoutline", [fmt]) if supported_names => {
                     let mut lists = Vec::new();
                     let mut metrics = Vec::new();
                     let format = integer(fmt)?;

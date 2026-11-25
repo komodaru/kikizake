@@ -125,17 +125,74 @@ static int font_modes(HDC dc) {
     return 0;
 }
 
+static void begin_primitive(int phase) {
+    if (phase) glNewList(55, phase == 1 ? GL_COMPILE : GL_COMPILE_AND_EXECUTE);
+    glBegin(GL_POINTS);
+}
+
+static void end_primitive(int phase) {
+    glEnd();
+    if (phase) glEndList();
+}
+
+static int bitmap_primitives(HDC dc) {
+    const DWORD bases[] = {0, 100, 65536};
+    const DWORD starts[] = {0, 65, 19968, 65535};
+    for (int phase = 0; phase <= 2; ++phase) {
+        for (size_t b = 0; b < sizeof bases / sizeof bases[0]; ++b) {
+            for (int pending = 0; pending <= 1; ++pending) {
+                for (size_t f = 0; f < sizeof starts / sizeof starts[0]; ++f) {
+                    for (DWORD count = 0; count <= 2; ++count) {
+                        DWORD base = bases[b], first = starts[f];
+                        glDeleteLists(55, 1);
+                        glDeleteLists(base ? base : 1, base ? 2 : 1);
+                        if (pending) glEnable(0xffff);
+                        begin_primitive(phase);
+                        SetLastError(0);
+                        BOOL ok = wglUseFontBitmapsW(dc, first, count, base);
+                        DWORD error = ok ? 0 : GetLastError();
+                        end_primitive(phase);
+                        GLenum gl_error = glGetError();
+                        printf("%d %lu %d %lu %lu | %d %lu %x %d %d %d\n",
+                               phase, base, pending, first, count, ok, error, gl_error,
+                               glIsList(55), glIsList(base), glIsList(base + 1));
+                    }
+                }
+            }
+        }
+    }
+    puts("done");
+    return 0;
+}
+
+static int outline_primitive(HDC dc, int phase, int format, int count) {
+    if (phase < 0 || phase > 2 || format < 0 || format > 2 || count < 0 || count > 2) return 1;
+    GLYPHMETRICSFLOAT metrics[2] = {{0}};
+    begin_primitive(phase);
+    SetLastError(0);
+    puts("calling");
+    fflush(stdout);
+    BOOL ok = wglUseFontOutlinesW(dc, 65, (DWORD)count, 100, 0, 0, format, metrics);
+    DWORD error = ok ? 0 : GetLastError();
+    end_primitive(phase);
+    printf("returned %d %lu %x\n", ok, error, glGetError());
+    return 0;
+}
+
 int main(int argc, char **argv) {
     const int scan = argc == 2 && !strcmp(argv[1], "wide-scan");
     const int bounded = argc == 2 && !strcmp(argv[1], "wide-readback");
     const int reps = argc == 3 && !strcmp(argv[1], "wide-reps");
     const int states = argc == 2 && !strcmp(argv[1], "font-modes");
-    if (!scan && !bounded && !reps && !states && argc != 4 && argc != 5) return 1;
-    const int first = argc > 3 ? atoi(argv[1]) : 0;
-    const int last = argc > 3 ? atoi(argv[2]) : 0;
-    const int sample = argc > 3 ? atoi(argv[3]) : 1; /* 0: pixels, 1: half-scale feedback, 2: unscaled feedback */
+    const int bitmap_begin = argc == 2 && !strcmp(argv[1], "bitmap-primitives");
+    const int outline_begin = argc == 5 && !strcmp(argv[1], "outline-primitive");
+    const int byte_capture = !(scan || bounded || reps || states || bitmap_begin || outline_begin);
+    if (byte_capture && argc != 4 && argc != 5) return 1;
+    const int first = byte_capture ? atoi(argv[1]) : 0;
+    const int last = byte_capture ? atoi(argv[2]) : 0;
+    const int sample = byte_capture ? atoi(argv[3]) : 1; /* 0: pixels, 1: half-scale feedback, 2: unscaled feedback */
     if (first < 0 || last < first || last > 255 || sample < 0 || sample > 2) return 1;
-    const DWORD offset = argc == 5 ? strtoul(argv[4], NULL, 0) : 0;
+    const DWORD offset = byte_capture && argc == 5 ? strtoul(argv[4], NULL, 0) : 0;
     HDC dc = CreateCompatibleDC(NULL);
     BITMAPINFO info = { 0 };
     info.bmiHeader.biSize = sizeof(info.bmiHeader);
@@ -162,6 +219,8 @@ int main(int argc, char **argv) {
     if (!font || !SelectObject(dc, font)) return 5;
     if (scan || bounded) return scan_wide(dc, bounded);
     if (states) return font_modes(dc);
+    if (bitmap_begin) return bitmap_primitives(dc);
+    if (outline_begin) return outline_primitive(dc, atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
     static int codes[65536];
     int count = 0;
     if (reps) {
