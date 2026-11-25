@@ -573,9 +573,20 @@ pub enum Widened {
     Failed,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum StrokeMode {
+    Centered,
+    InsetFlatDash,
+    CustomCap,
+}
+
 /// GetWidenedPathInternal: path widened by pen through m (the world to device matrix, or
 /// GdipWidenPath's), flattened at flatness; the outline in m's device space
 pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Result<Path, Widened>> {
+    widen_with(r, path, pen, m, flatness, StrokeMode::Centered)
+}
+
+fn widen_with(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32, mode: StrokeMode) -> Res<Result<Path, Widened>> {
     hit(clause::GP_PEN_WIDE);
     let Some(minv) = invert(r, m) else { return Ok(Err(Widened::NoInverse)) };
     let (start, end) = (Cap::line(pen.start_cap), Cap::line(pen.end_cap));
@@ -599,10 +610,10 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
     if caps.is_empty() && pen.dash == 0 {
         hit(clause::GP_PEN_WIDE_CENTERED);
     }
-    if pattern(pen).is_some() && (0..=3).contains(&pen.start_cap) && (0..=3).contains(&pen.end_cap) {
+    if mode == StrokeMode::Centered && pattern(pen).is_some() && (0..=3).contains(&pen.start_cap) && (0..=3).contains(&pen.end_cap) {
         hit(clause::GP_PEN_WIDE_DASHED);
     }
-    let mut out = match body(r, &figs, pen, m, &minv, (start, end), false)? {
+    let mut out = match body(r, &figs, pen, m, &minv, (start, end), mode)? {
         Ok(o) => o,
         Err(e) => return Ok(Err(e)),
     };
@@ -648,11 +659,13 @@ pub(crate) fn band_points(r: Round, pts: &[P], pen: &Pen, (wl, wr): (f32, f32), 
 }
 
 /// the widener proper on flattened world figures (GpPathWidener): the outline in world space,
-/// a thin pen's widened in device space and back; inner keeps the inner join bit (a custom
-/// stroke cap's own widening, geometry.md 21g)
-fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix, (start, end): (Cap, Cap), inner: bool) -> Res<Result<Vec<Point>, Widened>> {
+/// a thin pen's widened in device space and back. A custom stroke cap keeps the inner join
+/// bit (geometry.md 21g).
+fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix, (start, end): (Cap, Cap), stroke: StrokeMode) -> Res<Result<Vec<Point>, Widened>> {
     let join = Join::of(pen.join);
     let (major, minor) = axes(r, m);
+    let inset_dash = stroke == StrokeMode::InsetFlatDash;
+    let width = if inset_dash { r.add(pen.width, pen.width) } else { pen.width };
     let subs: Vec<Sub> = match pattern(pen) {
         Some(pat) => {
             // (CreateDashedPath's own set-up: Flatten(M) and Transform(Minv) again, geometry.md 22f)
@@ -660,13 +673,17 @@ fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix,
                 let d = apply(r, m, x, y);
                 apply(r, minv, d.0, d.1)
             }).collect(), *c)).collect();
-            dashes(r, &again, pen, major, true, pat, (start, end))
+            // The clipped flat dashes use the original width for the dash unit, a two-pixel
+            // dash minimum and the doubled width for the offset.
+            let min_unit = if inset_dash { 2.0 } else { 1.0 };
+            let scale = DashScale::new(r, pen, major, min_unit, width);
+            scaled_dashes(r, &again, pen, scale, true, pat, (start, end))
         }
         None => figs.iter().map(|(pts, closed)| Sub { pts: pts.clone(), closed: *closed, caps: (start, end) }).collect(),
     };
-    let thin_width = f32::from_bits(0x3f80_0008);
-    let thin = thin_width > r.mul(pen.width, minor);
-    let w = if thin { thin_width } else { pen.width };
+    let thin_width = if inset_dash { 4.0 } else { f32::from_bits(0x3f80_0008) };
+    let thin = thin_width > r.mul(width, minor);
+    let w = if thin { thin_width } else { width };
     let wl = r.mul(w, 0.5);
     let lim = sq(r, pen.miter.max(1.0));
     let whole = Widener { r, w, wl, wr: r.sub(wl, w), lim, join, mode: Mode::Plain };
@@ -722,7 +739,7 @@ fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix,
             let n = f.len();
             out.extend(f.into_iter().enumerate().map(|(i, o)| {
                 let (x, y) = if thin { apply(r, minv, o.p.0, o.p.1) } else { o.p };
-                Point { x, y, kind: o.kind, close: i + 1 == n, inner: inner && o.inner }
+                Point { x, y, kind: o.kind, close: i + 1 == n, inner: stroke == StrokeMode::CustomCap && o.inner }
             }));
         }
     }
@@ -747,9 +764,16 @@ fn inset(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Res
     let mut out = Vec::new();
     for f in path.figures() {
         let closed = f.last().is_some_and(|q| q.close);
-        let width = if closed { r.add(pen.width, pen.width) } else { pen.width };
+        let (width, mode) = if closed && pattern(pen).is_some() && Cap::dash(pen.dash_cap) == Cap::Flat {
+            hit(clause::GP_PEN_INSET_DASHED);
+            (pen.width, StrokeMode::InsetFlatDash)
+        } else if closed {
+            (r.add(pen.width, pen.width), StrokeMode::Centered)
+        } else {
+            (pen.width, StrokeMode::Centered)
+        };
         let sub = Path::of(path.fill, f.to_vec());
-        let w = match widen(r, &sub, &centred(width), m, flatness)? {
+        let w = match widen_with(r, &sub, &centred(width), m, flatness, mode)? {
             Ok(w) => w,
             Err(e) => return Ok(Err(e)),
         };
@@ -966,7 +990,7 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &
                     let placed: Vec<P> = line.iter().map(|&q| place(q, d, s1, o)).collect();
                     let cap_pen = Pen { width: s1, start_cap: cap.caps.0, end_cap: cap.caps.1, dash_cap: 0, join: cap.join, align: 0, miter: 10.0, dash: 0, compound: Vec::new(), custom: [None, None], ..pen.clone() };
                     // (an x86 stroke join past 0 ..= 3 at a vertex: that figure left out)
-                    if let Ok(w) = body(r, &[(placed, false)], &cap_pen, m, minv, (Cap::line(cap.caps.0), Cap::line(cap.caps.1)), true)? {
+                    if let Ok(w) = body(r, &[(placed, false)], &cap_pen, m, minv, (Cap::line(cap.caps.0), Cap::line(cap.caps.1)), StrokeMode::CustomCap)? {
                         figs_out.extend(w);
                     }
                 }
@@ -1096,13 +1120,29 @@ pub fn dashed(r: Round, path: &Path, pen: &Pen) -> Res<Option<Path>> {
     Ok(Some(Path::of(path.fill, out)))
 }
 
+struct DashScale {
+    unit: f32,
+    offset: f32,
+}
+
+impl DashScale {
+    fn new(r: Round, pen: &Pen, major: f32, min: f32, offset_width: f32) -> Self {
+        let unit = if min > r.mul(major, pen.width) { r.div(min, major) } else { pen.width };
+        Self { unit, offset: r.mul(offset_width, pen.dash_offset) }
+    }
+}
+
 /// CreateDashedPath: each figure cut into dashes (getDashData), each dash an open subpath with
 /// its ends' caps; the dash cap adjusting the pattern when adjust
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn dashes(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, major: f32, adjust: bool, pat: &[f32], caps: (Cap, Cap)) -> Vec<Sub> {
+    scaled_dashes(r, figs, pen, DashScale::new(r, pen, major, 1.0, pen.width), adjust, pat, caps)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn scaled_dashes(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, scale: DashScale, adjust: bool, pat: &[f32], caps: (Cap, Cap)) -> Vec<Sub> {
     hit(clause::GP_PEN_DASH);
-    let min_w = 1.0f32;
-    let u = if min_w > r.mul(major, pen.width) { r.div(min_w, major) } else { pen.width };
+    let u = scale.unit;
     let dash_cap = Cap::dash(pen.dash_cap);
     let mut d: Vec<f32> = pat.to_vec();
     if d.len() % 2 == 1 {
@@ -1132,7 +1172,7 @@ pub(crate) fn dashes(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, major: f32, a
     let mut out = Vec::new();
     for (p, closed) in figs {
         let c = if *closed && ins > 0.0 { k } else { 0.0 };
-        let off = r.sub(r.mul(pen.width, pen.dash_offset), c);
+        let off = r.sub(scale.offset, c);
         for dash in walk(r, p, *closed, &d, off, pen.width) {
             let pick = |dashed: bool, line: Cap| if dashed { dash_cap } else { line };
             out.push(Sub { pts: dash.pts, closed: false, caps: (pick(dash.dash_ends.0, caps.0), pick(dash.dash_ends.1, caps.1)) });
@@ -1194,7 +1234,9 @@ fn walk(r: Round, p: &[P], closed: bool, d: &[f32], off: f32, width: f32) -> Vec
         }
     };
     while j < n {
-        if rem > seg {
+        // An exact dash cut followed by a zero-length gap must finish the segment before
+        // the next dash transition. Its interpolation would divide zero by zero.
+        if seg == 0.0 || rem > seg {
             rem = r.sub(rem, seg);
             let q = p[j];
             if on {

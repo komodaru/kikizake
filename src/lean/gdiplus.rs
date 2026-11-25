@@ -386,10 +386,10 @@ fn round_flag(r: Round) -> i64 {
     }
 }
 
-fn dashed_widen_point_stream(a: &[i64]) -> Option<Vec<i64>> {
+fn dashed_widen_point_stream(a: &[i64], fill: i64, align: i64) -> Option<Vec<i64>> {
     let [d, style, cap, offset, count, rest @ ..] = a else { return None; };
     let (custom, rest) = rest.split_at_checked(usize::try_from(*count).ok()?)?;
-    widen_point_stream(*d, 0, 0, rest, Some(DashArgs { style: *style, cap: *cap, offset: *offset, custom }))
+    widen_point_stream(*d, fill, align, rest, Some(DashArgs { style: *style, cap: *cap, offset: *offset, custom }))
 }
 
 fn dashed_widen_inputs(each: &mut dyn FnMut(&[i64])) {
@@ -436,6 +436,58 @@ fn dashed_widen_inputs(each: &mut dyn FnMut(&[i64])) {
                 _ => a.extend([bits(right), bits(y.saturating_sub(h)), 1,
                     bits(x.saturating_add(h)), bits(y.saturating_add(w)), line_end]),
             }
+        }
+        each(&a);
+    }
+}
+
+fn inset_dashed_inputs(each: &mut dyn FnMut(&[i64])) {
+    let bits = |v| i64::from((f32::from(i16::try_from(v).unwrap_or(0)) / 4.0).to_bits());
+    let rectangle = |a: &mut Vec<i64>, x: i64, y: i64, w: i64, h: i64| {
+        let (right, bottom) = (x.saturating_add(w), y.saturating_add(h));
+        a.extend([bits(x), bits(y), 0, bits(right), bits(y), 1, bits(right), bits(bottom), 1,
+            bits(x), bits(bottom), 129]);
+    };
+    for d in 0..=1 {
+        let mut a = vec![0, d, 1, 0, 0, 0, bits(4), bits(40), 0, 0, 0, bits(1), bits(4), 0, 0, bits(4), 0, 0, 0];
+        rectangle(&mut a, 0, 0, 24, 24);
+        each(&a);
+
+        let mut zero_gap = vec![1, d, 5, 0, bits(-5), 1, bits(3), bits(13), bits(15), 3, 2, 0,
+            bits(1), bits(2), 0, 0, bits(8), bits(8), bits(1), 0,
+            bits(-20), 0, 0, bits(-8), bits(7), 1];
+        rectangle(&mut zero_gap, 4, 1, 18, 13);
+        each(&zero_gap);
+    }
+
+    let mut rng = crate::rng::Sample64::new(0x1a5e_da54);
+    let matrices = [[4, 0, 0, 4], [0, 4, -4, 0], [8, 0, 0, 2], [2, 0, 0, 8],
+        [4, 2, 1, 4], [-4, 0, 0, 4], [4, 8, 2, 4], [2, 0, 0, 2]];
+    for i in 0..1000 {
+        let style = rng.range(0, 5);
+        let custom = if style == 5 { rng.range(1, 5) } else { 0 };
+        let mut a = vec![i / 2 % 2, i % 2, style, 0, bits(rng.range(-8, 8)), custom];
+        a.extend((0..custom).map(|_| bits(rng.range(2, 16))));
+        a.extend([bits(rng.range(1, 18)), bits(rng.range(6, 40)), rng.range(0, 3), rng.range(0, 3),
+            rng.range(0, 3), bits(1)]);
+        a.extend(rng.pick(&matrices).iter().copied().map(bits));
+        a.extend([bits(rng.range(-8, 8)), bits(rng.range(-8, 8)), 0]);
+
+        if i % 3 != 1 {
+            a.extend([bits(-20), 0, 0, bits(-8), bits(rng.range(-8, 8)), 1]);
+        }
+        let (x, y) = (rng.range(-8, 8), rng.range(-8, 8));
+        match i % 6 {
+            0 => {}
+            1 | 2 => rectangle(&mut a, x, y, rng.range(8, 28), rng.range(8, 28)),
+            3 => {
+                rectangle(&mut a, x, y, 24, 24);
+                rectangle(&mut a, x.saturating_add(4), y.saturating_add(4), 8, 8);
+            }
+            4 => a.extend([bits(x), bits(y), 0, bits(x), bits(y.saturating_add(18)), 3,
+                bits(x.saturating_add(16)), bits(y.saturating_add(18)), 3, bits(x.saturating_add(16)), bits(y), 131]),
+            _ => a.extend([bits(x), bits(y), 0, bits(x.saturating_add(24)), bits(y.saturating_add(4)), 1,
+                bits(x.saturating_add(12)), bits(y.saturating_add(20)), 129]),
         }
         each(&a);
     }
@@ -1332,7 +1384,7 @@ pub static MIRRORS: &[Mirror] = &[
         lean: WIDE_ROUTE,
         domain: Domain::Sampled("2,000 centered paths with preset and custom dashes, solid fallbacks, signed offsets, ordinary and compound caps, open and closed lines and cubics, diverse affine matrices and both rounding modes, plus exact theorem inputs"),
         inputs: dashed_widen_inputs,
-        model: dashed_widen_point_stream,
+        model: |a| dashed_widen_point_stream(a, 0, 0),
     },
     Mirror {
         name: "gp.wide-band",
@@ -1505,6 +1557,16 @@ pub static MIRRORS: &[Mirror] = &[
         },
     },
     Mirror {
+        name: "gp.inset-dashed",
+        lean: INSET_ROUTE,
+        domain: Domain::Sampled("1,000 paths with flat-cap preset or custom dashes or solid fallback, open and closed figures, alternate and winding fills, signed offsets and affine transforms, and the measured square and zero-gap rectangle"),
+        inputs: inset_dashed_inputs,
+        model: |a| {
+            let [fill, rest @ ..] = a else { return None; };
+            dashed_widen_point_stream(rest, *fill, 1)
+        },
+    },
+    Mirror {
         name: "gp.inset-region",
         lean: INSET,
         domain: Domain::Sampled("all 3×3 pixel subsets, empty and overlapping rectangles, and 4,000 aligned or shifted mask pairs up to 7×7"),
@@ -1549,14 +1611,15 @@ pub static MIRRORS: &[Mirror] = &[
     Mirror {
         name: "gp.dashes",
         lean: DASH,
-        domain: Domain::Sampled("two theorem cases and 6,000 sampled open and closed polylines including repeated endpoints, odd and even patterns, signed offsets, thin and wide pens, and adjusted and unadjusted caps under both rounding modes"),
+        domain: Domain::Sampled("three theorem cases and 6,000 sampled open and closed polylines including repeated endpoints, odd and even patterns, signed offsets, thin and wide pens, and adjusted and unadjusted caps under both rounding modes"),
         inputs: |each| {
             let mut rng = crate::rng::Sample64::new(0xda54_0001);
             let bits = |v| i64::from((f32::from(i16::try_from(v).unwrap_or(0)) / 4.0).to_bits());
-            // Both kernel theorems' inputs run through the Rust walker as well.
+            // The kernel theorems' concrete inputs run through the Rust walker as well.
             let one = bits(4);
             each(&[0, 0, 0, one, one, 0, 2, 1, 3, 2, bits(12), one, one, one, bits(36), one]);
             each(&[0, 0, 1, one, one, 0, 2, 1, 3, 2, bits(8), bits(8), one, one, bits(20), one]);
+            each(&[0, 0, 0, one, one, 0, 0, 0, 0, 1, one, 0, 0, bits(8), 0, bits(12), 0]);
             for i in 0..6000 {
                 let closed = rng.chance(2);
                 let round_adjustment = rng.chance(2);

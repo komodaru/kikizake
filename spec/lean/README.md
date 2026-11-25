@@ -58,22 +58,35 @@ The negative-xscale mutation survived the original 104,000 render comparisons. T
 `gp.render` fixture for a mirrored cubic draw with a single grey texel near the source's
 right edge detects the wrong MMX column range.
 
-## Closed dashed inset gap (#19)
+## Closed dashed inset boundaries (#19)
 
-This case widens an alternate-fill rectangle with a unit-width inset pen in
-dash style 1. Run it as a `gdipluspath` case.
+The `gdipluspath` cases `pathinset-dash-*` capture flat dash caps on Windows x86 and
+x64. They include the unit-width 6×6 square, which gives one concave contour with
+eight points, and a zero-gap case in which a one-element pattern ends a span
+exactly at a vertex.
+
+Two remaining cases reproduce differences in the model.
 
 ```text
-case inset-dash-rect
-gppen 0 0xff000000 1 dash 1 align 1
+case inset-round-gap
+gpmatrix 0 0x3f800000 0 0 0x3f800000 0x40000000 0xbf800000
+gppen 0 0xff000000 1 align 1 dash 1 cap 0 0 2
 gppath 0 0
-gpadd 0 rect 0 0 6 6
-gpwiden 0 0 - 0.25
+gpadd 0 rect 1 2 12 10
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case inset-contour-direction
+gpmatrix 0 0x3f000000 0 0 0x3f000000 0x40000000 0xbf800000
+gppen 0 0xff000000 3 align 1 dash 1 dashoff 1.25
+gppath 0 0
+gpadd 0 rect 1 2 12 10
+gpwiden 0 0 0 0.25
 gppathinfo 0
 end
 ```
 
-Windows x86 and x64 return one closed contour with points
-`(0,0) (0,6) (6,6) (6,4) (2,4) (2,2) (6,2) (6,0)`.
-The model clips the doubled-width dashed outline to three contours with 11 points.
-The dashed centered and solid inset mirrors cover their respective paths.
+In `inset-round-gap` Windows x64 returns 20 points and the model returns 17.
+In `inset-contour-direction` the paths have the same 12 vertices. Windows x64 starts
+the second contour at `(5,3)` and walks down, and the model starts it at `(3,3)`
+and walks down.

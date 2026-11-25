@@ -12,8 +12,10 @@ open Kikizake.GdiPlus.Linear
 private abbrev Point := Nat × Nat
 private abbrev F := F32.fmt
 
-def scaledPattern (r : Ops) (width major : Nat) (adjust : Bool) (pat : List Nat) : Array Nat × Nat :=
-  let unit := if flt (r.mul major width) one then r.div one major else width
+def dashUnit (r : Ops) (width major minimum : Nat) : Nat :=
+  if flt (r.mul major width) minimum then r.div minimum major else width
+
+def patternAtUnit (r : Ops) (unit : Nat) (adjust : Bool) (pat : List Nat) : Array Nat × Nat :=
   let padded := if pat.length % 2 = 1 then pat ++ [0] else pat
   let inset := if adjust then r.mul unit 0x3f000000 else 0
   let gap := r.add inset inset
@@ -27,6 +29,9 @@ def scaledPattern (r : Ops) (width major : Nat) (adjust : Bool) (pat : List Nat)
       else r.add length gap
     else length
   (lengths.toArray, gap)
+
+def scaledPattern (r : Ops) (width major : Nat) (adjust : Bool) (pat : List Nat) : Array Nat × Nat :=
+  patternAtUnit r (dashUnit r width major one) adjust pat
 
 def truncate (v : Nat) : Nat :=
   let (negative, a, b) := toRat F v
@@ -94,7 +99,7 @@ def pushSegment (s : WalkState) (q : Point) : Array (Array Point) :=
 
 def advance (r : Ops) (p : Array Point) (lengths segLengths : Array Nat) (s : WalkState) : WalkState :=
   let endPt := p.getD s.vertex (0, 0)
-  if flt s.seg s.cursor.rem then
+  if isZero s.seg || flt s.seg s.cursor.rem then
     let visible := s.cursor.on && !closePoints s.prev endPt
     let next := s.vertex + 1
     { cursor := { s.cursor with rem := r.sub s.cursor.rem s.seg }
@@ -165,7 +170,7 @@ def dashes (fuel : Nat) (d closed adjust : Bool) (width major offset dashCap sta
 /-- Normalization leaves a whole number of dash-gap pairs, including for odd custom patterns. -/
 theorem normalized_pattern_is_even (r : Ops) (width major : Nat) (adjust : Bool) (pat : List Nat) :
     (scaledPattern r width major adjust pat).1.size % 2 = 0 := by
-  simp only [scaledPattern, List.size_toArray, List.length_map, List.length_zipIdx]
+  simp only [scaledPattern, patternAtUnit, List.size_toArray, List.length_map, List.length_zipIdx]
   split
   · simp only [List.length_append, List.length_cons, List.length_nil]
     omega
@@ -188,6 +193,13 @@ theorem horizontal_caps :
 theorem adjusted_round_cap :
     dashes 16 false false true one one 0 2 1 3 [0x40000000, 0x40000000] #[(one, one), (0x40a00000, one)] =
       some [1, 2, 2, one, one, 0x40000000, one] := by
+  decide +kernel
+
+/-- A one-element pattern can reach a vertex with no segment or gap left. -/
+theorem zero_gap_at_vertex :
+    dashes 16 false false false one one 0 0 0 0 [one]
+      #[(0, 0), (0x40000000, 0), (0x40400000, 0)] =
+      some [0, 0, 2, 0, 0, 0x40000000, 0, 0, 0, 2, 0x40000000, 0, 0x40400000, 0] := by
   decide +kernel
 
 def pointPairs : List Nat → Option (List Point)

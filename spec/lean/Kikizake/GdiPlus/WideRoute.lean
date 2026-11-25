@@ -96,11 +96,11 @@ def flattenedWorld (d : Bool) (m minv : List Nat) (flatness : Nat) (path : List 
   let flat ← flatten r (some m) flatness path
   pure (flat.map (toPt r minv))
 
-private def outlineSubpaths (d : Bool) (pen : Pen) (m minv : List Nat) (subs : List Subpath) : List Pt :=
+private def outlineSubpaths (d : Bool) (pen : Pen) (m minv : List Nat) (minor minimum : Nat)
+    (subs : List Subpath) : List Pt :=
   let r := ops d
-  let (_, minor) := Stroke.axes d m
-  let thin := flt (r.mul pen.width minor) 0x3f800008
-  let width := if thin then 0x3f800008 else pen.width
+  let thin := flt (r.mul pen.width minor) minimum
+  let width := if thin then minimum else pen.width
   let outlines := subs.flatMap (figureBands d pen m thin width)
   outlines.flatMap fun fig => (closeFigure fig).map (resultPoint r m minv thin)
 
@@ -109,7 +109,7 @@ private def worldSubpaths (pen : Pen) (world : List Pt) : List Subpath :=
     ⟨f.map (fun p => (p.x, p.y)), (f.getLast?.map (·.close)).getD false, pen.startCap, pen.endCap⟩
 
 def centeredFromWorld (d : Bool) (pen : Pen) (m minv : List Nat) (world : List Pt) : List Pt :=
-  outlineSubpaths d pen m minv (worldSubpaths pen world)
+  outlineSubpaths d pen m minv (Stroke.axes d m).2 0x3f800008 (worldSubpaths pen world)
 
 def dashPattern (dash : DashStyle) : Option (List Nat) :=
   match dash.style with
@@ -120,18 +120,35 @@ def dashPattern (dash : DashStyle) : Option (List Nat) :=
   | 5 => if dash.custom.isEmpty then none else some dash.custom
   | _ => none
 
-def dashedFromWorld (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m minv : List Nat)
-    (world : List Pt) : Option (List Pt) := do
+def flatDashCap (dash : DashStyle) : Bool :=
+  dash.cap != 2 && dash.cap != 3
+
+private def dashedWith (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m minv : List Nat)
+    (world : List Pt) (flatInset : Bool) : Option (List Pt) := do
   let some pattern := dashPattern dash | pure (centeredFromWorld d pen m minv world)
   let r := ops d
-  let (major, _) := Stroke.axes d m
-  let cap := if dash.cap == 2 || dash.cap == 3 then dash.cap.toNat else 0
+  let (major, minor) := Stroke.axes d m
+  let cap := if flatDashCap dash then 0 else dash.cap.toNat
+  let width := if flatInset then r.add pen.width pen.width else pen.width
+  let unit := Dash.dashUnit r pen.width major (if flatInset then 0x40000000 else one)
+  let (lengths, gap) := Dash.patternAtUnit r unit (cap != 0) pattern
   let spans ← (worldSubpaths pen world).mapM fun sub => do
     let points := sub.points.map (pointThrough r minv ∘ pointThrough r m)
-    Dash.dashSpans fuel d sub.closed true pen.width major dash.offset cap sub.startCap sub.endCap
-      pattern points.toArray
+    let off := r.sub (r.mul width dash.offset) (if sub.closed then gap else 0)
+    Dash.walk fuel d sub.closed points.toArray lengths off pen.width cap sub.startCap sub.endCap
   let subs := spans.flatten.map fun s => ⟨s.points.toList, false, s.startCap, s.endCap⟩
-  pure (outlineSubpaths d pen m minv subs)
+  let minimum := if flatInset then 0x40800000 else 0x3f800008
+  pure (outlineSubpaths d { pen with width } m minv minor minimum subs)
+
+def dashedFromWorld (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m minv : List Nat)
+    (world : List Pt) : Option (List Pt) :=
+  dashedWith fuel d pen dash m minv world false
+
+/-- The closed, flat-dash inset run has a two-pixel dash unit minimum and a four-pixel outline
+minimum. The outline and offset use the doubled pen width. -/
+def flatInsetFromWorld (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m minv : List Nat)
+    (world : List Pt) : Option (List Pt) :=
+  dashedWith fuel d pen dash m minv world true
 
 def centeredPath (d : Bool) (pen : Pen) (m minv : List Nat) (flatness : Nat) (path : List Pt) : Option (List Pt) := do
   pure (centeredFromWorld d pen m minv (← flattenedWorld d m minv flatness path))
@@ -187,7 +204,8 @@ theorem compound_caps_follow_bands :
 theorem no_pattern_matches_solid (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m : List Nat)
     (flatness : Nat) (path : List Pt) (h : dashPattern dash = none) :
     dashedOutline fuel d pen dash m flatness path = centeredOutline d pen m flatness path := by
-  simp [dashedOutline, dashedFromWorld, centeredOutline, centeredPath, h, Option.pure_def, Option.bind_assoc]
+  simp [dashedOutline, dashedFromWorld, dashedWith, centeredOutline, centeredPath, h, Option.pure_def,
+    Option.bind_assoc]
 
 private def dashedLine : List Pt := [⟨0, 0, 0, false⟩, ⟨0x40c00000, 0, 1, false⟩]
 

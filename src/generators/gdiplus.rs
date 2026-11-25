@@ -989,5 +989,18 @@ pub fn gdipluspath() -> String {
             writeln!(s, "case pathwidensing-{i}-{j}\ngpmatrix 0 {m}\ngppen 0 0xff000000 {}\ngppath 0 0\ngpadd 0 {add}\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend", 1 + j * 2);
         }
     }
+    // Closed inset dashes have their own unit, offset and outline width.
+    for (name, width, setup, figures, matrix, slot) in [
+        ("minimum", 1, "dash 1", "gpadd 0 rect 0 0 6 6", "", "-"),
+        ("mixed", 1, "dash 1", "gpadd 0 line -4 2 -1 2\ngpadd 0 rect 0 0 6 6", "", "-"),
+        ("anisotropic", 1, "dash 1 dashoff 1.25", "gpadd 0 rect 1 2 12 10",
+            "gpmatrix 0 0x40000000 0 0 0x3f000000 0x40000000 0xbf800000\n", "0"),
+        ("thick", 3, "dash 2", "gpadd 0 rect 1 2 12 10",
+            "gpmatrix 0 0x40000000 0 0 0x40000000 0x40000000 0xbf800000\n", "0"),
+        ("odd", 1, "dasharray 3 2 0.75 1.25", "gpadd 0 rect 1 2 12 10", "", "-"),
+    ] {
+        writeln!(s, "case pathinset-dash-{name}\n{matrix}gppen 0 0xff000000 {width} align 1 {setup}\ngppath 0 0\n{figures}\ngpwiden 0 0 {slot} 0.25\ngppathinfo 0\nend");
+    }
+    writeln!(s, "case pathinset-dash-zero-gap\ngpmatrix 0 0x3f000000 0 0 0x40000000 0x40000000 0x3e800000\ngppen 0 0xff000000 3.25 align 1 dasharray 1 0.75 dashoff -1.25 cap 2 0 0 join 3 miter 3.75\ngppath 0 1\ngpadd 0 line -5 0 -2 1.75\ngpadd 0 rect 1 0.25 4.5 3.25\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
     s
 }

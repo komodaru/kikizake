@@ -2517,3 +2517,50 @@ gpadd 0 bezier 1 1 8 20 16 -4 24 10
 gpwiden 0 0 0 0.25
 gppathinfo 0
 end
+case pathinset-dash-minimum
+gppen 0 0xff000000 1 align 1 dash 1
+gppath 0 0
+gpadd 0 rect 0 0 6 6
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathinset-dash-mixed
+gppen 0 0xff000000 1 align 1 dash 1
+gppath 0 0
+gpadd 0 line -4 2 -1 2
+gpadd 0 rect 0 0 6 6
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathinset-dash-anisotropic
+gpmatrix 0 0x40000000 0 0 0x3f000000 0x40000000 0xbf800000
+gppen 0 0xff000000 1 align 1 dash 1 dashoff 1.25
+gppath 0 0
+gpadd 0 rect 1 2 12 10
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathinset-dash-thick
+gpmatrix 0 0x40000000 0 0 0x40000000 0x40000000 0xbf800000
+gppen 0 0xff000000 3 align 1 dash 2
+gppath 0 0
+gpadd 0 rect 1 2 12 10
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end
+case pathinset-dash-odd
+gppen 0 0xff000000 1 align 1 dasharray 3 2 0.75 1.25
+gppath 0 0
+gpadd 0 rect 1 2 12 10
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathinset-dash-zero-gap
+gpmatrix 0 0x3f000000 0 0 0x40000000 0x40000000 0x3e800000
+gppen 0 0xff000000 3.25 align 1 dasharray 1 0.75 dashoff -1.25 cap 2 0 0 join 3 miter 3.75
+gppath 0 1
+gpadd 0 line -5 0 -2 1.75
+gpadd 0 rect 1 0.25 4.5 3.25
+gpwiden 0 0 0 0.25
+gppathinfo 0
+end

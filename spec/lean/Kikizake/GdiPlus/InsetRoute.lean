@@ -2,8 +2,8 @@ import Kikizake.GdiPlus.Inset
 import Kikizake.GdiPlus.Raster
 import Kikizake.GdiPlus.WideRoute
 
-/-! The inset route: double-width centered outlines clipped to aliased device masks
-for closed figures, ordinary centered outlines for open figures, in source figure order. -/
+/-! Inset widening clips the solid or flat-dash outline of each closed figure to the whole
+path mask. Open figures use ordinary centered widening. -/
 namespace Kikizake.GdiPlus.InsetRoute
 
 open Kikizake.GdiPlus.Flatten
@@ -38,33 +38,58 @@ private def regionPoints (contours : List (List Cell)) : List Pt :=
   contours.flatMap fun f => f.zipIdx.map fun ((x, y), i) =>
     ⟨ofInt x, ofInt y, if i == 0 then 0 else 1, i + 1 == f.length⟩
 
-def insetOutline (d : Bool) (pen : Pen) (m : List Nat) (flatness : Nat) (winding : Bool)
-    (path : List Pt) : Option (List Int) := do
+private def insetWith (fuel : Nat) (d : Bool) (pen : Pen) (dash : Option DashStyle) (m : List Nat)
+    (flatness : Nat) (winding : Bool) (path : List Pt) : Option (List Int) := do
   let r := ops d
   match inverse r m with
   | none => pure [-1]
   | some minv =>
+    let outline p world :=
+      match dash with
+      | none => pure (centeredFromWorld d p m minv world)
+      | some ds => dashedFromWorld fuel d p ds m minv world
     let world ← flattenedWorld d m minv flatness path
     if !hasClosedFigure world then
-      pure (0 :: encodePoints (centeredFromWorld d pen m minv world))
+      pure (0 :: encodePoints (← outline pen world))
     else
-      let widen p input := centeredPath d p m minv flatness input
       let whole ← deviceMask r m winding path
       let double := { pen with width := r.add pen.width pen.width }
-      let outlines ← (figures path).mapM fun f =>
+      let outlines ← (figures path).mapM fun f => do
+        let world ← flattenedWorld d m minv flatness f
         if figClosed f then do
-          let border ← widen double f
+          let border ← match dash with
+            | some ds =>
+              if flatDashCap ds && (dashPattern ds).isSome then
+                flatInsetFromWorld fuel d pen ds m minv world
+              else outline double world
+            | none => outline double world
           let own ← deviceMask r identity true border
           pure (regionPoints (← insetRegion own whole))
-        else widen pen f
+        else outline pen world
       pure (0 :: encodePoints outlines.flatten)
+
+def insetOutline (d : Bool) (pen : Pen) (m : List Nat) (flatness : Nat) (winding : Bool)
+    (path : List Pt) : Option (List Int) :=
+  insetWith 0 d pen none m flatness winding path
+
+def dashedInsetOutline (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m : List Nat)
+    (flatness : Nat) (winding : Bool) (path : List Pt) : Option (List Int) :=
+  insetWith fuel d pen (some dash) m flatness winding path
 
 theorem open_figures_keep_the_centered_route (d : Bool) (pen : Pen) (m minv : List Nat)
     (flatness : Nat) (winding : Bool) (path world : List Pt)
     (hinv : inverse (ops d) m = some minv) (hworld : flattenedWorld d m minv flatness path = some world)
     (hopen : hasClosedFigure world = false) :
     insetOutline d pen m flatness winding path = centeredOutline d pen m flatness path := by
-  simp [insetOutline, centeredOutline, centeredPath, hinv, hworld, hopen]
+  simp [insetOutline, insetWith, centeredOutline, centeredPath, hinv, hworld, hopen, Option.pure_def]
+
+theorem open_dashed_figures_keep_the_centered_route (fuel : Nat) (d : Bool) (pen : Pen)
+    (dash : DashStyle) (m minv : List Nat) (flatness : Nat) (winding : Bool) (path world : List Pt)
+    (hinv : inverse (ops d) m = some minv) (hworld : flattenedWorld d m minv flatness path = some world)
+    (hopen : hasClosedFigure world = false) :
+    dashedInsetOutline fuel d pen dash m flatness winding path =
+      dashedOutline fuel d pen dash m flatness path := by
+  simp [dashedInsetOutline, insetWith, dashedOutline, hinv, hworld, hopen]
 
 private def examplePen : Pen := ⟨one, 0x40800000, 0, 0, 0, []⟩
 private def square : List Pt :=
@@ -100,11 +125,25 @@ theorem nested_fill_mode_changes_contours :
     (insetOutline false examplePen identity 0x3e800000 true (square ++ nestedSquare)).map List.length = some 37 := by
   decide +kernel
 
+/-- The measured unit-width dashed square has one concave contour under flat dash caps. -/
+theorem flat_dashed_square :
+    dashedInsetOutline 64 false examplePen ⟨1, 0, 0, []⟩ identity 0x3e800000 false square =
+    some [0, 0, 0, 0, 1, 0, 0x40c00000, 1, 0x40c00000, 0x40c00000,
+      1, 0x40c00000, 0x40800000, 1, 0x40000000, 0x40800000, 1, 0x40000000, 0x40000000,
+      1, 0x40c00000, 0x40000000, 0x81, 0x40c00000, 0] := by
+  decide +kernel
+
 def mirrors : List Mirror := [
   ⟨"gp.inset-path", fun
     | d :: fill :: rest => do
       let (pen, m, flatness, path) ← routeArgs rest
       insetOutline (d != 0) pen m flatness (fill != 0) path
+    | _ => none⟩,
+  ⟨"gp.inset-dashed", fun
+    | fill :: d :: rest => do
+      let (dash, rest) ← dashArgs rest
+      let (pen, m, flatness, path) ← routeArgs rest
+      dashedInsetOutline 8192 (d != 0) pen dash m flatness (fill != 0) path
     | _ => none⟩
 ]
 
