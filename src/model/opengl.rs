@@ -1580,6 +1580,23 @@ fn wgl_bitmap_line(code: i32, encoding: &str) -> Res<list::Line> {
     Ok(list::Line { tok, unpack: Some([0, 0, 0, 0, 0, 1]), arrays: None })
 }
 
+fn wgl_outline(code: i32, format: i32) -> Res<(&'static str, &'static str, &'static str)> {
+    if matches!(code, 32 | 160) {
+        return Ok(("0.00048828125 0.00048828125 0 0 0.248535156 0", "0.24853515625", ""));
+    }
+    let key = format!("{code} {format}");
+    for section in include_str!("opengl_arial_outline.txt").split('|') {
+        let mut fields = section.trim().splitn(4, '\n').map(str::trim_end);
+        if fields.next() == Some(key.as_str()) {
+            let advance = fields.next().ok_or(Fail::Bad)?;
+            let metrics = fields.next().ok_or(Fail::Bad)?;
+            let geometry = fields.next().ok_or(Fail::Bad)?;
+            return Ok((metrics, advance, geometry));
+        }
+    }
+    Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER))
+}
+
 /// Last list name in a nonempty font batch supported by the runner.
 pub(crate) fn wgl_font_last_name(base: u32, count: i32) -> Option<u32> {
     if base == 0 || !(1..=64).contains(&count) { return None; }
@@ -1686,20 +1703,10 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                     && ctx.in_begin.is_none() && !compiling_primitive => {
                     let mut lists = Vec::new();
                     let mut metrics = Vec::new();
+                    let format = integer(fmt)?;
                     for offset in 0..count {
                         let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
-                        let (glyph, advance, geometry) = match code {
-                            32 | 160 => ("0.00048828125 0.00048828125 0 0 0.248535156 0", "0.24853515625", ""),
-                            65 | 66 => {
-                                let section = match (integer(fmt)?, code) { (0, 65) => 0, (0, 66) => 1, (1, 65) => 2, (1, 66) => 3, _ => return Err(Fail::Bad) };
-                                let geometry = include_str!("opengl_arial_outline.txt").split('|')
-                                    .nth(section).ok_or(Fail::Bad)?;
-                                let glyph = if code == 65 { "0.599609375 0.640625 -0.0009765625 0.640625 0.597167969 0" }
-                                    else { "0.483886719 0.640625 0.0654296875 0.640625 0.597167969 0" };
-                                (glyph, "0.59716796875", geometry)
-                            }
-                            _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
-                        };
+                        let (glyph, advance, geometry) = wgl_outline(code, format)?;
                         let translate = format!("gl glTranslatef {advance} 0 0");
                         let lines: Vec<list::Line> = ["gl glFrontFace 0x901", "gl glNormal3f 0 0 1"].into_iter()
                             .chain(geometry.lines()).chain([translate.as_str()]).map(|command| list::Line {

@@ -1781,16 +1781,18 @@ fn wgl_outline_spaces_apply_state_only_when_called() {
 fn wgl_outline_lists_draw_native_lines_and_faces() {
     let mut masks = include_str!("fixtures/opengl_outline_glyph_pixels.txt").lines();
     for format in [0, 1] {
-        for code in [65, 66] {
-            let input = format!("case outline\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glTranslatef -0.75 -0.75 0\ngl glScalef 2 2 1\nwglx fontoutline a {code} 1 100 {format}\ngl glCallList 100\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\nend\n");
-            let cases = kikizake::case::parse_cases(&input);
-            let output = kikizake::model::run_case(&cases[0]).unwrap();
+        for code in [65, 66, 69, 70] {
             let mut expected = String::from("read ");
             for pixel in masks.next().unwrap().bytes() {
                 expected.push_str(if pixel == b'#' { "ffffffff" } else { "000000ff" });
             }
-            assert_eq!(output[3], expected, "format {format} code {code}");
-            assert_eq!(output[4], "glerr 0");
+            for encoding in ["a", "w"] {
+                let input = format!("case outline\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glTranslatef -0.75 -0.75 0\ngl glScalef 2 2 1\nwglx fontoutline {encoding} {code} 1 100 {format}\ngl glCallList 100\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\nend\n");
+                let cases = kikizake::case::parse_cases(&input);
+                let output = kikizake::model::run_case(&cases[0]).unwrap();
+                assert_eq!(output[3], expected, "{encoding} format {format} code {code}");
+                assert_eq!(output[4], "glerr 0");
+            }
         }
     }
     assert!(masks.next().is_none());
