@@ -3,6 +3,9 @@ use super::{arg, every, one, sampled, Domain, Mirror};
 use crate::model::d3d12::{self, Present1};
 
 const ARGS: &str = "spec/lean/Kikizake/Dxgi/Args.lean";
+const SMALL_FLOAT: &str = "spec/lean/Kikizake/Dxgi/SmallFloat.lean";
+const SMALL_FORMATS: [(u32, bool); 3] = [(10, true), (6, false), (5, false)];
+const SRGB: &str = "spec/lean/Kikizake/Dxgi/Srgb.lean";
 
 /// the description words of a chain CreateSwapChainForHwnd makes (0 by 0, R8G8B8A8_UNORM, one
 /// sample, render target output, 2 buffers, FLIP_DISCARD)
@@ -158,5 +161,94 @@ pub static MIRRORS: &[Mirror] = &[
             (d[0], d[1], d[9], d[11]) = (arg(a, 5)?, arg(a, 6)?, arg(a, 3)?, arg(a, 4)?);
             one(d3d12::present1_refused(&p, &d, bit(a, 2)?))
         },
+    },
+    Mirror {
+        name: "dxgi.smallDecode",
+        lean: SMALL_FLOAT,
+        domain: Domain::Every("every signed binary16 and unsigned 11/10-bit floating-point code"),
+        inputs: |each| {
+            for (kind, &(mantissa, signed)) in SMALL_FORMATS.iter().enumerate() {
+                let codes = 1u32 << (5 + mantissa + u32::from(signed));
+                for bits in 0..codes {
+                    each(&[kind as i64, i64::from(bits)]);
+                }
+            }
+        },
+        model: |a| {
+            let &(mantissa, signed) = SMALL_FORMATS.get(arg::<usize>(a, 0)?)?;
+            one(crate::model::dxgiconv::from_small_float(arg(a, 1)?, 5, mantissa, signed).to_bits())
+        },
+    },
+    Mirror {
+        name: "dxgi.smallEncode",
+        lean: SMALL_FLOAT,
+        domain: Domain::Sampled("binary32 at and on either side of every positive small-float code, both signs, all exponent boundaries, and 20,000 full bit patterns per format"),
+        inputs: |each| {
+            use crate::model::dxgiconv::from_small_float;
+            for (kind, &(mantissa, signed)) in SMALL_FORMATS.iter().enumerate() {
+                let kind = kind as i64;
+                for code in 0..1u32 << (5 + mantissa) {
+                    let pivot = from_small_float(code, 5, mantissa, signed).to_bits();
+                    for bits in [pivot.saturating_sub(1), pivot, pivot + 1] {
+                        each(&[kind, i64::from(bits)]);
+                        each(&[kind, i64::from(bits | 0x8000_0000)]);
+                    }
+                }
+                for exponent in 0u32..256 {
+                    for fraction in [0, 1, 0x0000_0fff, 0x0040_0000, 0x007f_ffff] {
+                        let bits = (exponent << 23) | fraction;
+                        each(&[kind, i64::from(bits)]);
+                        each(&[kind, i64::from(bits | 0x8000_0000)]);
+                    }
+                }
+                sampled(&[(0, 0xffff_ffff)], 20_000, 0x5f10_a732, &mut |a| each(&[kind, a[0]]));
+            }
+        },
+        model: |a| {
+            let &(mantissa, signed) = SMALL_FORMATS.get(arg::<usize>(a, 0)?)?;
+            let value = f32::from_bits(arg(a, 1)?);
+            one(crate::model::dxgiconv::to_small_float(value, 5, mantissa, signed))
+        },
+    },
+    Mirror {
+        name: "dxgi.srgbDecode",
+        lean: SRGB,
+        domain: Domain::Every("every 8-bit sRGB code"),
+        inputs: |each| every(&[(0, 255)], each),
+        model: |a| one(crate::model::dxgiconv::srgb_read(arg(a, 0)?).to_bits()),
+    },
+    Mirror {
+        name: "dxgi.srgbCurve",
+        lean: SRGB,
+        domain: Domain::Every("every UNORM12 input to the sRGB write curve"),
+        inputs: |each| every(&[(0, 4095)], each),
+        model: |a| {
+            use crate::model::dxgiconv::{srgb8, Unorm12};
+            let code: u16 = arg(a, 0)?;
+            let value = f32::from(code) / f32::from(Unorm12::MAX);
+            (Unorm12::of(value).get() == code).then(|| vec![i64::from(srgb8(value))])
+        },
+    },
+    Mirror {
+        name: "dxgi.srgbEncode",
+        lean: SRGB,
+        domain: Domain::Sampled("both sides of each UNORM12 midpoint, every binary32 exponent boundary, and 20,000 sampled binary32 words"),
+        inputs: |each| {
+            for q in 0..4095u16 {
+                let bits = ((f32::from(q) + 0.5) / 4095.0).to_bits();
+                for b in [bits - 1, bits, bits + 1] {
+                    each(&[i64::from(b)]);
+                }
+            }
+            for exponent in 0..256u32 {
+                for fraction in [0, 1, 0x7f_ffff] {
+                    let bits = (exponent << 23) | fraction;
+                    each(&[i64::from(bits)]);
+                    each(&[i64::from(bits | 0x8000_0000)]);
+                }
+            }
+            sampled(&[(0, 0xffff_ffff)], 20_000, 0x05e2_6b12, each);
+        },
+        model: |a| one(crate::model::dxgiconv::srgb8(f32::from_bits(arg(a, 0)?))),
     },
 ];

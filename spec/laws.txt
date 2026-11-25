@@ -944,3 +944,15 @@ src/proofs.rs::d3d_copy_resource_copies_every_subresource_and_sample_plane kani 
 spec/lean/Kikizake/D3d11/Copy.lean::whole_copy_buffer lean D3DRES.COPY
 spec/lean/Kikizake/D3d11/Copy.lean::whole_copy_same_group lean D3DRES.COPY
 spec/lean/Kikizake/D3d11/Copy.lean::whole_copy_block_grid lean D3DRES.COPY
+spec/lean/Kikizake/Dxgi/SmallFloat.lean::encode_negative_unsigned lean CONV.SMALLFLOAT CONV.F11
+spec/lean/Kikizake/Dxgi/SmallFloat.lean::encode_signed_nan lean CONV.SMALLFLOAT CONV.F16
+spec/lean/Kikizake/Dxgi/SmallFloat.lean::encode_unsigned_nan lean CONV.SMALLFLOAT CONV.F11
+spec/lean/Kikizake/Dxgi/SmallFloat.lean::encode_normal lean CONV.SMALLFLOAT CONV.F16 CONV.F11
+spec/lean/Kikizake/Dxgi/SmallFloat.lean::encode_subnormal lean CONV.SMALLFLOAT CONV.F16 CONV.F11
+spec/lean/Kikizake/Dxgi/SmallFloat.lean::encode_overflow lean CONV.SMALLFLOAT CONV.F16 CONV.F11
+spec/lean/Kikizake/Dxgi/SmallFloat.lean::decode_special lean CONV.NANREAD CONV.F16 CONV.F11
+spec/lean/Kikizake/Dxgi/Srgb.lean::decode_endpoints lean CONV.SRGBREAD
+spec/lean/Kikizake/Dxgi/Srgb.lean::decode_increases lean CONV.SRGBREAD
+spec/lean/Kikizake/Dxgi/Srgb.lean::curve_correct lean CONV.SRGB
+spec/lean/Kikizake/Dxgi/Srgb.lean::curve_endpoints lean CONV.SRGB
+spec/lean/Kikizake/Dxgi/Srgb.lean::encode_nan lean CONV.SRGB
