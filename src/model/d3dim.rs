@@ -560,3 +560,29 @@ pub fn walk_line(v: [(i64, i64); 2], lastpixel: bool) -> Res<LineWalk> {
     }
     Ok(LineWalk { px: out, off, inv })
 }
+
+#[cfg(kani)]
+mod proofs {
+    use super::{iceil, raster_long, trunc, x87_div};
+
+    #[kani::proof]
+    fn advancing_scan_edges_have_a_positive_height() {
+        let top = f32::from_bits(kani::any());
+        let bottom = f32::from_bits(kani::any());
+        kani::assume(top.abs() <= 134217728.0 && bottom.abs() <= 134217728.0 && top <= bottom);
+        let first = iceil(top).unwrap();
+        let last = iceil(bottom).unwrap();
+        if last.saturating_sub(first) > 1 {
+            assert!(bottom - top >= 0.25);
+        }
+    }
+
+    #[kani::proof]
+    fn advancing_scan_edge_steps_fit_long() {
+        let dx = f32::from_bits(kani::any());
+        let dy = f32::from_bits(kani::any());
+        kani::assume(dx.abs() <= 268435456.0 && (0.25..=268435456.0).contains(&dy));
+        assert!(trunc(dx / dy).and_then(raster_long).is_some());
+        assert!(trunc(x87_div(dx, dy)).and_then(raster_long).is_some());
+    }
+}

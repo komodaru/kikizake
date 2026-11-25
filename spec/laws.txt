@@ -1001,3 +1001,5 @@ spec/lean/Kikizake/D3d11/ResolveMean.lean::resolve_binary32_order lean D3DRES.RE
 spec/lean/Kikizake/D3d11/ResolveMean.lean::resolve_packed_midpoint lean D3DRES.RESOLVE.MEAN D3DRES.RESOLVE.MEAN.INTEGER
 src/proofs.rs::d2d_bitmap_source_axis_clips_or_draws_nothing kani D2D.BITMAP.SRC
 src/proofs.rs::d2d_workspace_coordinate_cast_is_exact kani D2D.SIMP.SCALE
+src/model/d3dim.rs::advancing_scan_edges_have_a_positive_height kani D3D7.TRI.CLIP
+src/model/d3dim.rs::advancing_scan_edge_steps_fit_long kani D3D7.TRI.CLIP
