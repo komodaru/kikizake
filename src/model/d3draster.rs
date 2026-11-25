@@ -13,7 +13,7 @@
 
 use crate::spec::{clause, open};
 use super::d3d11::{normalize, Kind};
-use super::d3drules::{self as rules, covers as tri_covers, sample_pattern, sample_sub, Pick, TargetPlan, Topo, Verdict};
+use super::d3drules::{self as rules, covers as tri_covers, sample_pattern, sample_sub, DepthAction, Pick, TargetPlan, Topo, Verdict};
 use super::d3dres::{slot, texel, D3dres, Dev, Resource, View, E_INVALIDARG};
 use super::objects::{Id, Objects};
 use super::dxgiconv::{decode_f, encode, encode_bits, to_unorm};
@@ -1601,7 +1601,9 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                         continue;
                     }
                     let z = clamp_range(minz, maxz, p.plane(p.zs, cx, cy));
-                    let each: Vec<f32> = pattern.iter().map(|&(ox, oy)| clamp_range(minz, maxz, p.plane(p.zs, cx + sixteenths(ox), cy + sixteenths(oy)))).collect();
+                    let each: Vec<f32> = pattern.iter().map(|&offset| {
+                        sample_depth_plane(p.xs, p.ys, p.zs, (minz, maxz), (cx, cy), offset)
+                    }).collect();
                     let out = shade(m, ps, tri, Some(p), lead, prim, *cw != (d.rast[2] != 0), (px, py), Some(z), d)?;
                     put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, Some(z), Some(&each), out, &mask)?;
                 }
@@ -1760,7 +1762,9 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             let each: Option<Vec<f32>> = match (z, q) {
                 (None, Some(q)) => {
                     hit(clause::D3DRASTER_MS_ZPLANE);
-                    Some(pattern.iter().map(|&(ox, oy)| clamp_range(minz, maxz, q.plane(q.zs, cx + sixteenths(ox), cy + sixteenths(oy)))).collect())
+                    Some(pattern.iter().map(|&offset| {
+                        sample_depth_plane(q.xs, q.ys, q.zs, (minz, maxz), (cx, cy), offset)
+                    }).collect())
                 }
                 (Some(_), _) | (None, None) => None,
             };
@@ -1815,12 +1819,11 @@ fn put_samples(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, r
     }
     // (each covered sample through the pixel's own output: its values put in the
     // subresources' places for the blend and the depth test, then taken back)
-    for (k, _) in mask.iter().enumerate().filter(|(_, c)| **c) {
+    for (k, depth) in rules::sample_depth_jobs(mask, z, each) {
         for s in &slots {
             s.swap(m, n, k, true)?;
         }
-        let z = each.and_then(|e| e.get(k).copied()).or(z);
-        output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
+        output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, depth, out)?;
         for s in &slots {
             s.swap(m, n, k, false)?;
         }
@@ -1873,11 +1876,15 @@ impl Slot {
     /// sample k into the subresource's place (in) or back from it
     fn swap(&self, m: &mut D3dres, n: usize, k: usize, into: bool) -> Res<()> {
         let r = m.res.get_mut(self.res)?;
-        let (Some(sub), Some(Some(samples))) = (r.subs[self.sub as usize].as_mut(), r.samples.get_mut(self.sub as usize)) else {
+        let slot = index(self.sub);
+        let sub = r.subs.get_mut(slot).ok_or(Fail::Bad)?;
+        let (Some(sub), Some(Some(samples))) = (sub, r.samples.get_mut(slot)) else {
             return Ok(());
         };
-        let plane = samples.len() / n;
-        let (place, sample) = (&mut sub[self.off..self.off + self.el], &mut samples[k * plane + self.off..][..self.el]);
+        let (start, end) = rules::sample_span(samples.len(), n, k, self.off, self.el).ok_or(Fail::Bad)?;
+        let place_end = self.off.checked_add(self.el).ok_or(Fail::Bad)?;
+        let place = sub.get_mut(self.off..place_end).ok_or(Fail::Bad)?;
+        let sample = samples.get_mut(start..end).ok_or(Fail::Bad)?;
         if into {
             place.copy_from_slice(sample);
         } else {
@@ -1938,6 +1945,15 @@ pub fn plane_value(xs: [f32; 3], ys: [f32; 3], a: [f32; 3], cx: f32, cy: f32) ->
     let gy = (d2 * (x1 - x0) - d1 * (x2 - x0)) * r;
     let c = (a[0] - gx * x0) - gy * y0;
     (c + gy * cy) + gx * cx
+}
+
+/// D3DRASTER.MS.ZPLANE: evaluate the depth at the sample, then clamp it to the viewport.
+pub(crate) fn sample_depth_plane(
+    xs: [f32; 3], ys: [f32; 3], zs: [f32; 3], (minz, maxz): (f32, f32),
+    (cx, cy): (f32, f32), (ox, oy): (i64, i64),
+) -> f32 {
+    let depth = plane_value(xs, ys, zs, cx + sixteenths(ox), cy + sixteenths(oy));
+    clamp_range(minz, maxz, depth)
 }
 
 /// D3DRASTER.LINE.COLOR, LINE.DEPTH: a value along a line's major axis (its ends a, b in 1/256
@@ -2722,17 +2738,17 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
             return Ok(());
         }
         let e = b.get_mut(y * rb + x * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Bad)?;
-        if d.depthst[0] != 0 {
+        let test = if d.depthst[0] != 0 {
             // (only a triangle with a vertex at w <= 0 comes without depth, and with no depth view)
             let z = z.ok_or(Fail::Bad)?;
-            let (a, s) = (quantized_depth(df, z), stored_depth(df, e));
-            let pass = rules::compare(d.depthst[2], a, s);
-            if !pass {
-                return Ok(());
-            }
-            if d.depthst[1] != 0 {
-                write_depth(df, e, true, z, false, 0)?;
-            }
+            Some((quantized_depth(df, z), stored_depth(df, e), z))
+        } else {
+            None
+        };
+        match rules::depth_action(d.depthst[2], d.depthst[1] != 0, test) {
+            DepthAction::Reject => return Ok(()),
+            DepthAction::Keep => {}
+            DepthAction::Write(z) => write_depth(df, e, true, z, false, 0)?,
         }
     }
     // (a depth view alone: no color to write, D3DRASTER.DEPTH.ALONE)

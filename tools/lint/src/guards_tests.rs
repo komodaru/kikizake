@@ -517,6 +517,25 @@ fn clipping_stays_in_the_mirrored_functions() {
 }
 
 #[test]
+fn multisample_depth_stays_in_the_mirrored_functions() {
+    let inlined = r#"
+fn triangle() { p.plane(p.zs, cx + sixteenths(ox), cy + sixteenths(oy)); }
+fn put_samples() { each.and_then(|e| e.get(k).copied()).or(z); }
+fn swap() { &mut samples[k * plane + off..][..elem]; }
+fn output() { rules::compare(d.depthst[2], new, stored); }
+"#;
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:")).count(), 4, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", r#"
+fn sample_depth_plane() { plane_value(xs, ys, zs, cx + sixteenths(ox), cy + sixteenths(oy)); }
+fn triangle() { sample_depth_plane(xs, ys, zs, range, center, offset); }
+fn put_samples() { rules::sample_depth_jobs(mask, z, each); }
+fn swap() { rules::sample_span(bytes, n, k, off, elem); }
+fn output() { rules::depth_action(d.depthst[2], write, test); }
+"#).is_empty());
+}
+
+#[test]
 fn interpolation_stays_in_the_mirrored_functions() {
     let inlined = "fn triangle() {\n    let z = p.plane(p.zs, cx, cy).max(lo).min(hi);\n    let d = minz + q[2] * (1.0 / q[3]) * (maxz - minz);\n}\n";
     let r = rust("src/model/d3draster.rs", inlined);

@@ -255,6 +255,51 @@ pub(crate) fn sample_reach(
     Some(SampleReach { base, mips, first_subresource })
 }
 
+/// Iterate only covered samples, passing each one's own depth when present.
+pub(crate) fn sample_depth_jobs<'a>(
+    coverage: &'a [bool], center: Option<f32>, depths: Option<&'a [f32]>,
+) -> impl Iterator<Item = (usize, Option<f32>)> + 'a {
+    coverage.iter().enumerate().filter_map(move |(k, &covered)| {
+        covered.then(|| (k, depths.and_then(|values| values.get(k).copied()).or(center)))
+    })
+}
+
+/// Byte range of an element within one sample's plane.
+pub(crate) fn sample_span(
+    bytes: usize, count: usize, sample: usize, offset: usize, element: usize,
+) -> Option<(usize, usize)> {
+    let plane = bytes.checked_div(count)?;
+    if sample >= count || !bytes.is_multiple_of(count) {
+        return None;
+    }
+    let end = offset.checked_add(element)?;
+    if end > plane {
+        return None;
+    }
+    let start = sample.checked_mul(plane)?;
+    Some((start.checked_add(offset)?, start.checked_add(end)?))
+}
+
+/// Whether the depth test accepts color and whether it writes the unquantized depth.
+pub(crate) enum DepthAction {
+    Reject,
+    Keep,
+    Write(f32),
+}
+
+pub(crate) fn depth_action(func: u32, write: bool, test: Option<(f64, f64, f32)>) -> DepthAction {
+    let Some((new, stored, value)) = test else {
+        return DepthAction::Keep;
+    };
+    if !compare(func, new, stored) {
+        DepthAction::Reject
+    } else if write {
+        DepthAction::Write(value)
+    } else {
+        DepthAction::Keep
+    }
+}
+
 /// a primitive's vertices (their indices in the draw) and its leading vertex
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Prim {

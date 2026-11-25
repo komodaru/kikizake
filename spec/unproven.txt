@@ -3,8 +3,6 @@
 # its line out; a new clause comes proven (tests/spec.rs unproven_only_shrinks).
 GP.PEN.WIDE
 GP.PEN.INSET
-D3DRASTER.MS.DEPTH
-D3DRASTER.MS.ZPLANE
 D3DRASTER.IDS
 D3DRASTER.CLIPW.WIRE
 D3DRASTER.CLIPW.AREA

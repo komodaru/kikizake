@@ -113,22 +113,29 @@ def level (lod last : Nat) (point : Bool) : Int × Option Int :=
 
 /-! ## D3DRASTER.SAMPLE.CMP -/
 
-/-- binary32 `<` and `==` (false with a NaN; -0 = +0) -/
-def ltF (x y : Nat) : Bool := !isNaN F32.fmt x && !isNaN F32.fmt y && F32.lt x y
-def eqF (x y : Nat) : Bool := !isNaN F32.fmt x && !isNaN F32.fmt y && !F32.lt x y && !F32.lt y x
+/-- Floating-point `<` and `==` (false with a NaN; -0 = +0). -/
+def ltWith (fmt : Float.Fmt) (x y : Nat) : Bool :=
+  !isNaN fmt x && !isNaN fmt y && Float.lt fmt x y
+def eqWith (fmt : Float.Fmt) (x y : Nat) : Bool :=
+  !isNaN fmt x && !isNaN fmt y && !Float.lt fmt x y && !Float.lt fmt y x
 
-/-- D3D11_COMPARISON_FUNC on binary32: NEVER 1, LESS, EQUAL, LESS_EQUAL, GREATER, NOT_EQUAL,
-GREATER_EQUAL, ALWAYS 8 (and any other) -/
-def cmp (func a s : Nat) : Bool :=
+abbrev ltF := ltWith F32.fmt
+abbrev eqF := eqWith F32.fmt
+
+/-- D3D11_COMPARISON_FUNC: NEVER 1, LESS, EQUAL, LESS_EQUAL, GREATER, NOT_EQUAL,
+GREATER_EQUAL, ALWAYS 8 (and any other). -/
+def cmpWith (fmt : Float.Fmt) (func a s : Nat) : Bool :=
   match func with
   | 1 => false
-  | 2 => ltF a s
-  | 3 => eqF a s
-  | 4 => ltF a s || eqF a s
-  | 5 => ltF s a
-  | 6 => !eqF a s
-  | 7 => ltF s a || eqF a s
+  | 2 => ltWith fmt a s
+  | 3 => eqWith fmt a s
+  | 4 => ltWith fmt a s || eqWith fmt a s
+  | 5 => ltWith fmt s a
+  | 6 => !eqWith fmt a s
+  | 7 => ltWith fmt s a || eqWith fmt a s
   | _ => true
+
+abbrev cmp := cmpWith F32.fmt
 
 /-- sample_c's texel: its red against the reference, 1 or 0 -/
 def sampleCmp (func ref red : Nat) : Nat := if cmp func ref red then one else 0
@@ -161,10 +168,10 @@ theorem lerp_nan_first (a b t : Nat) (ha : isNaN F32.fmt a = true) : lerpSse a b
 NOT_EQUAL and ALWAYS fails -/
 theorem cmp_nan (func a s : Nat) (h : isNaN F32.fmt a = true ∨ isNaN F32.fmt s = true) :
     cmp func a s = !(func = 1 ∨ func = 2 ∨ func = 3 ∨ func = 4 ∨ func = 5 ∨ func = 7) := by
-  rcases h with h | h <;> unfold cmp <;> split <;> simp_all [ltF, eqF]
+  rcases h with h | h <;> unfold cmp cmpWith <;> split <;> simp_all [ltWith, eqWith]
 
-private theorem lt_asymm (x y : Nat) (h : F32.lt x y = true) : F32.lt y x = false := by
-  simp only [F32.lt, Float.lt] at *
+private theorem lt_asymm (x y : Nat) (h : Float.lt F32.fmt x y = true) : Float.lt F32.fmt y x = false := by
+  simp only [Float.lt] at *
   cases hx : isInf F32.fmt x <;> cases hy : isInf F32.fmt y <;> cases sx : sign F32.fmt x <;>
     cases sy : sign F32.fmt y <;> simp_all <;> omega
 
@@ -172,9 +179,9 @@ private theorem lt_asymm (x y : Nat) (h : F32.lt x y = true) : F32.lt y x = fals
 each other's opposites away from NaNs -/
 theorem cmp_opposites (a s : Nat) (ha : isNaN F32.fmt a = false) (hs : isNaN F32.fmt s = false) :
     cmp 7 a s = !cmp 2 a s ∧ cmp 4 a s = !cmp 5 a s ∧ cmp 6 a s = !cmp 3 a s := by
-  simp only [cmp, ltF, eqF, ha, hs]
-  cases h1 : F32.lt a s
-  · cases F32.lt s a <;> decide
+  simp only [cmp, cmpWith, ltWith, eqWith, ha, hs]
+  cases h1 : Float.lt F32.fmt a s
+  · cases Float.lt F32.fmt s a <;> decide
   · rw [lt_asymm a s h1]; decide
 
 /-- D3DRASTER.DEPTH.SMALL: inside the depth view, the depth is tested as usual -/

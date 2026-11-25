@@ -768,6 +768,14 @@ spec/lean/Kikizake/D3d9/Clip.lean::outside_sides lean D3D9.RASTER.CLIP8
 spec/lean/Kikizake/D3d11/Interp.lean::viewport_nan lean D3DRASTER.VIEWPORT
 spec/lean/Kikizake/D3d11/Interp.lean::vp10_toward_zero lean D3DRASTER.VP10
 spec/lean/Kikizake/D3d11/Interp.lean::plane_example lean D3DRASTER.INTERP.PLANE
+spec/lean/Kikizake/D3d11/Interp.lean::sample_depth_plane_example lean D3DRASTER.MS.ZPLANE
+spec/lean/Kikizake/D3d11/Interp.lean::sample_depth_plane_clamp lean D3DRASTER.MS.ZPLANE
+spec/lean/Kikizake/D3d11/Interp.lean::sample_jobs_covered lean D3DRASTER.MS.DEPTH
+spec/lean/Kikizake/D3d11/Interp.lean::sample_span_in_plane lean D3DRASTER.MS.DEPTH
+spec/lean/Kikizake/D3d11/Interp.lean::sample_spans_disjoint lean D3DRASTER.MS.DEPTH
+spec/lean/Kikizake/D3d11/Interp.lean::depth_disabled lean D3DRASTER.MS.DEPTH
+spec/lean/Kikizake/D3d11/Interp.lean::depth_test lean D3DRASTER.MS.DEPTH
+spec/lean/Kikizake/D3d11/Interp.lean::sample_plane_depth_test lean D3DRASTER.MS.DEPTH D3DRASTER.MS.ZPLANE
 spec/lean/Kikizake/D3d11/Interp.lean::posw_example lean D3DRASTER.POSW.PLANE
 spec/lean/Kikizake/D3d11/Interp.lean::clamp_nan_range lean D3DRASTER.INTERP.DEPTH D3DRASTER.LINE.DEPTH
 spec/lean/Kikizake/D3d11/Interp.lean::vertex_depth_example lean D3DRASTER.INTERP.DEPTH

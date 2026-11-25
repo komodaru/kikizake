@@ -119,6 +119,8 @@ fn models_match_windows() {
                     "probe-filter-view-mips", "probe-filter-view-mips-mag", "probe-filter-1d-mips",
                     "probe-filter-1darray-mips", "probe-filter-array-mips", "probe-filter-array1-mips",
                     "probe-filter-cube-mips", "probe-filter-cubearray-mips", "probe-filter-3d-mips",
+                    "probe-rt-ms4-depth", "probe-rt-ms4-zplane", "probe-rt-ms4-depth1",
+                    "probe-rt-ms4-depth1-prev", "probe-linesms-z",
                 ] {
                     let reference = expected.cases.iter().find(|(n, _)| n == name)
                         .unwrap_or_else(|| panic!("missing Windows recording for {s}-{arch} {name}"));

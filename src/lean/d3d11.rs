@@ -940,6 +940,161 @@ pub static INTERP_MIRRORS: &[Mirror] = &[
         },
     },
     Mirror {
+        name: "d3d11.sampledepthplane",
+        lean: INTERP,
+        domain: Domain::Sampled("all offsets in -8..7 per axis on a fixed depth plane with and without viewport clipping, 20,000 triangles and sample positions of the floats of d3d11.plane"),
+        inputs: |each| {
+            for hi in [0x4000_0000, 0x3fc0_0000] {
+                for x in -8..=7 {
+                    for y in -8..=7 {
+                        each(&[0, 0x4080_0000, 0, 0, 0, 0x4080_0000, 0, 0x3f80_0000, 0x4000_0000,
+                            0, hi, 0x4000_0000, 0x4000_0000, x, y]);
+                    }
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0x5a71_d311);
+            float_args(13, 20_000, 0x5a72_d311, &mut |v| {
+                let mut args = v.to_vec();
+                args.extend([rng.range(-8, 7), rng.range(-8, 7)]);
+                each(&args);
+            });
+        },
+        model: |a| {
+            let f = |i: usize| arg::<u32>(a, i).map(f32::from_bits);
+            one(canon32(crate::model::d3draster::sample_depth_plane(
+                [f(0)?, f(1)?, f(2)?], [f(3)?, f(4)?, f(5)?], [f(6)?, f(7)?, f(8)?],
+                (f(9)?, f(10)?), (f(11)?, f(12)?), (arg(a, 13)?, arg(a, 14)?),
+            )))
+        },
+    },
+    Mirror {
+        name: "d3d11.sampledepthjobs",
+        lean: INTERP,
+        domain: Domain::Sampled("every coverage mask up to 8 samples with absent, short and complete depths, and 20,000 masks and depth lists up to 16 samples"),
+        inputs: |each| {
+            for width in 0..=8 {
+                for mask in 0..(1i64 << width) {
+                    each(&[mask, width, -1]);
+                    each(&[mask, width, 0x8000_0000, 0]);
+                    let mut args = vec![mask, width, 0x3f00_0000];
+                    args.extend(0..width);
+                    each(&args);
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0x5a73_d311);
+            for _ in 0..20_000 {
+                let width = rng.range(0, 16);
+                let mask = rng.range(0, (1i64 << width).saturating_sub(1));
+                let center = if rng.chance(3) { -1 } else { rng.range(0, i64::from(u32::MAX)) };
+                let mut args = vec![mask, width, center];
+                for _ in 0..rng.range(0, 16) {
+                    args.push(rng.range(0, i64::from(u32::MAX)));
+                }
+                each(&args);
+            }
+        },
+        model: |a| {
+            let mask: u16 = arg(a, 0)?;
+            let width: u32 = arg(a, 1)?;
+            if width > u16::BITS {
+                return None;
+            }
+            let center = arg::<u32>(a, 2).map(f32::from_bits);
+            let coverage: Vec<_> = (0..width).map(|k| mask & (1 << k) != 0).collect();
+            let depths = a.get(3..)?.iter().map(|&bits| u32::try_from(bits).ok().map(f32::from_bits))
+                .collect::<Option<Vec<_>>>()?;
+            let depths = (!depths.is_empty()).then_some(depths.as_slice());
+            let mut out = Vec::new();
+            for (k, depth) in crate::model::d3drules::sample_depth_jobs(&coverage, center, depths) {
+                out.extend([i64::try_from(k).ok()?, depth.map_or(-1, |z| i64::from(z.to_bits()))]);
+            }
+            Some(out)
+        },
+    },
+    Mirror {
+        name: "d3d11.samplespan",
+        lean: INTERP,
+        domain: Domain::Sampled("20,000 packed sample buffers and legal element offsets with one boundary violation each, plus zero and u32-limit sizes"),
+        inputs: |each| {
+            for bytes in [0, 1, 16, i64::from(u32::MAX)] {
+                for count in [0, 1, 2, 16, i64::from(u32::MAX)] {
+                    for off in [0, 1, bytes] {
+                        each(&[bytes, count, 0, off, 1]);
+                    }
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0x5a74_d311);
+            for _ in 0..20_000 {
+                let count = rng.range(2, 16);
+                let plane = rng.range(0, 1 << 22);
+                let bytes = count.saturating_mul(plane);
+                let k = rng.range(0, count.saturating_sub(1));
+                let off = rng.range(0, plane);
+                let elem = rng.range(0, plane.saturating_sub(off));
+                each(&[bytes, count, k, off, elem]);
+                match rng.range(0, 3) {
+                    0 => each(&[bytes, 0, k, off, elem]),
+                    1 => each(&[bytes, count, count, off, elem]),
+                    2 => each(&[bytes, count, k, off, plane.saturating_sub(off).saturating_add(1)]),
+                    _ => each(&[bytes.saturating_add(1), count, k, off, elem]),
+                }
+            }
+        },
+        model: |a| match crate::model::d3drules::sample_span(arg(a, 0)?, arg(a, 1)?, arg(a, 2)?, arg(a, 3)?, arg(a, 4)?) {
+            None => one(-1),
+            Some((start, end)) => Some(vec![i64::try_from(start).ok()?, i64::try_from(end).ok()?]),
+        },
+    },
+    Mirror {
+        name: "d3d11.depthaction",
+        lean: INTERP,
+        domain: Domain::Sampled("every pair of signed boundary floats widened to binary64 for each comparison and flag, plus 20,000 sampled decisions with D16, D24 and binary64 operands"),
+        inputs: |each| {
+            let mut fs = Vec::new();
+            floats(0, &mut crate::rng::Sample64::new(1), &mut |c| fs.push(f64::from(f32::from_bits(c))));
+            fs.extend([65_535.0, 16_777_215.0]);
+            let put = |func, write, enabled, q, stored, z, each: &mut dyn FnMut(&[i64])| {
+                let mut args = vec![func, write, enabled];
+                args.extend(super::f64_halves(q));
+                args.extend(super::f64_halves(stored));
+                args.push(z);
+                each(&args);
+            };
+            for func in 0..=9 {
+                for write in 0..=1 {
+                    for enabled in 0..=1 {
+                        for &q in &fs {
+                            for &stored in &fs {
+                                put(func, write, enabled, q, stored, 0x3f80_0000, each);
+                            }
+                        }
+                    }
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0x5a75_d311);
+            for _ in 0..20_000 {
+                let (q, stored) = match rng.range(0, 2) {
+                    0 => (f64::from(u16::try_from(rng.range(0, i64::from(u16::MAX))).unwrap_or(0)),
+                          f64::from(u16::try_from(rng.range(0, i64::from(u16::MAX))).unwrap_or(0))),
+                    1 => (f64::from(u32::try_from(rng.range(0, 0xff_ffff)).unwrap_or(0)),
+                          f64::from(u32::try_from(rng.range(0, 0xff_ffff)).unwrap_or(0))),
+                    _ => (f64::from_bits(rng.next()), f64::from_bits(rng.next())),
+                };
+                put(rng.range(0, 9), rng.range(0, 1), rng.range(0, 1), q, stored,
+                    rng.range(0, i64::from(u32::MAX)), each);
+            }
+        },
+        model: |a| {
+            use crate::model::d3drules::{depth_action, DepthAction};
+            let values = (super::arg_f64(a, 3)?, super::arg_f64(a, 5)?, f32::from_bits(arg(a, 7)?));
+            match depth_action(arg(a, 0)?, flag(a, 1)?, flag(a, 2)?.then_some(values)) {
+                DepthAction::Reject => one(0),
+                DepthAction::Keep => one(1),
+                DepthAction::Write(depth) => Some(vec![2, i64::from(depth.to_bits())]),
+            }
+        },
+    },
+    Mirror {
         name: "d3d11.lineplane",
         lean: INTERP,
         domain: Domain::Sampled("200,000 lines: ends in 1/256 pixels of -2^20..2^20 (equal ones too), the coordinate and the ends' values from the floats of d3d11.plane"),

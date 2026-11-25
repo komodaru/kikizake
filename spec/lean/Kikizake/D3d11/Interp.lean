@@ -1,6 +1,7 @@
 import Kikizake.Mirror
 import Kikizake.F32
 import Kikizake.D3d11.Filter
+import Kikizake.D3d11.Raster
 /-! The float arithmetic of Direct3D 10 and 11's viewport and interpolation (spec/d3dres.txt
 D3DRASTER.VIEWPORT, VP10, INTERP.PLANE, POSW.PLANE, INTERP.DEPTH, INTERP.CLIP, LINE.COLOR,
 LINE.DEPTH) in binary32 and binary64 (Kikizake.F32) as src/model/d3draster.rs computes it:
@@ -8,7 +9,8 @@ LINE.DEPTH) in binary32 and binary64 (Kikizake.F32) as src/model/d3draster.rs co
 `madeScreen` are its `plane_value`, `line_value`, `clamp_range`, `vertex_depth`, `viewport_xy`,
 `vp10`, `clip_lerp`, `made_screen` (mirrors `d3d11.plane`, `d3d11.lineplane`, `d3d11.clamprange`,
 `d3d11.vertexdepth`, `d3d11.viewport`, `d3d11.vp10`, `d3d11.cliplerp`, `d3d11.madescreen`; a
-NaN result compared as the one quiet NaN). -/
+NaN result compared as the one quiet NaN). The multisample checks also model per-sample depth
+interpolation, coverage, storage and write behavior in src/model/d3draster.rs and d3drules.rs. -/
 namespace Kikizake.D3d11.Interp
 
 open Kikizake.Float (isNaN)
@@ -80,6 +82,41 @@ def clampRange (minz maxz z : Nat) : Nat :=
 
 /-- a vertex's depth: minz + z (1/w) (maxz - minz) -/
 def vertexDepth (minz maxz z w : Nat) : Nat := add minz (mul (mul z (div one w)) (sub maxz minz))
+
+/-! ## D3DRASTER.MS.DEPTH, MS.ZPLANE -/
+
+/-- Depth at the sample's offset in sixteenths of a pixel, clamped to the viewport. -/
+def sampleDepthPlane (x0 x1 x2 y0 y1 y2 z0 z1 z2 lo hi cx cy : Nat) (ox oy : Int) : Nat :=
+  let shift := fun p o => add p (div (ofInt o) 0x41800000)
+  clampRange lo hi (planeValue x0 x1 x2 y0 y1 y2 z0 z1 z2 (shift cx ox) (shift cy oy))
+
+/-- The covered sample indices, each with its own depth or the pixel depth as fallback. -/
+def sampleDepthJobs (coverage : List Bool) (center : Option Nat) (depths : List Nat) :
+    List (Nat × Option Nat) :=
+  (List.range coverage.length).filterMap fun k =>
+    if coverage[k]?.getD false then some (k, depths[k]?.orElse (fun _ => center)) else none
+
+/-- The byte range of a pixel element in its sample's plane. -/
+def sampleSpan (bytes count k off elem : Nat) : Option (Nat × Nat) :=
+  let plane := bytes / count
+  if 0 < count ∧ bytes % count = 0 ∧ k < count ∧ off + elem ≤ plane
+    then some (k * plane + off, k * plane + (off + elem))
+    else none
+
+inductive DepthAction where
+  | reject
+  | keep
+  | write (depth : Nat)
+  deriving DecidableEq
+
+/-- Compare the quantized and stored depths. A passing write uses the original depth. -/
+def depthAction (func : Nat) (write : Bool) (test : Option (Nat × Nat × Nat)) : DepthAction :=
+  match test with
+  | none => .keep
+  | some (q, stored, original) =>
+    if Filter.cmpWith F64.fmt func q stored then
+      if write then .write original else .keep
+    else .reject
 
 /-! ## D3DRASTER.VIEWPORT, VP10 -/
 
@@ -155,6 +192,78 @@ theorem made_least (vx vy vw vh minz maxz x y z w : Nat) (zclip : Bool) (h : ltF
 /-- D3DRASTER.LINE.COLOR: from 0 at x = 0 to 1 at x = 4 (in 1/256: 1024), 1/2 at x = 2 -/
 theorem line_example : lineValue 0 1024 0x40000000 0 one = half := by decide
 
+set_option exponentiation.threshold 2048 in
+set_option maxRecDepth 20000 in
+/-- The standard 4× pattern yields separate triangle depths at all four positions of this plane. -/
+theorem sample_depth_plane_example :
+    (Raster.pattern 4).map (fun (x, y) =>
+      sampleDepthPlane 0 0x40800000 0 0 0 0x40800000 0 one 0x40000000
+        0 0x40000000 0x40000000 0x40000000 x y) =
+      [0x3fa40000, 0x3fc40000, 0x3fbc0000, 0x3fdc0000] := by decide
+
+set_option exponentiation.threshold 2048 in
+set_option maxRecDepth 20000 in
+/-- The viewport clamps each evaluated depth, including samples on the high side of the plane. -/
+theorem sample_depth_plane_clamp :
+    (Raster.pattern 4).map (fun (x, y) =>
+      sampleDepthPlane 0 0x40800000 0 0 0 0x40800000 0 one 0x40000000
+        0 0x3fc00000 0x40000000 0x40000000 x y) =
+      [0x3fa40000, 0x3fc00000, 0x3fbc0000, 0x3fc00000] := by decide
+
+/-- Exactly the covered sample indices participate, with their own depth first. -/
+theorem sample_jobs_covered (coverage : List Bool) (center : Option Nat) (depths : List Nat)
+    (k : Nat) (z : Option Nat) :
+    (k, z) ∈ sampleDepthJobs coverage center depths ↔
+      k < coverage.length ∧ coverage[k]?.getD false = true ∧ z = depths[k]?.orElse (fun _ => center) := by
+  simp only [sampleDepthJobs, List.mem_filterMap, List.mem_range]
+  constructor
+  · rintro ⟨i, hi, h⟩
+    split at h
+    · cases h
+      exact ⟨hi, by assumption, rfl⟩
+    · contradiction
+  · rintro ⟨hk, hc, rfl⟩
+    exact ⟨k, hk, by simp [hc]⟩
+
+/-- An in-bounds element in a packed buffer is addressed by its sample plane. -/
+theorem sample_span_in_plane (count plane k off elem : Nat)
+    (pos : 0 < count) (within : k < count) (inside : off + elem ≤ plane) :
+    sampleSpan (plane * count) count k off elem = some (k * plane + off, k * plane + (off + elem)) := by
+  simp [sampleSpan, pos, within, inside, Nat.mul_div_cancel _ pos]
+
+/-- Consecutive or distant samples' byte ranges never alias. -/
+theorem sample_spans_disjoint (count plane k j off elem : Nat)
+    (ordered : k < j) (within : j < count) (inside : off + elem ≤ plane) :
+    ∃ a b c d, sampleSpan (plane * count) count k off elem = some (a, b) ∧
+      sampleSpan (plane * count) count j off elem = some (c, d) ∧ b ≤ c := by
+  have pos : 0 < count := by omega
+  refine ⟨_, _, _, _, sample_span_in_plane count plane k off elem pos (by omega) inside,
+    sample_span_in_plane count plane j off elem pos within inside, ?_⟩
+  have next := Nat.mul_le_mul_right plane (Nat.succ_le_of_lt ordered)
+  rw [Nat.succ_mul] at next
+  omega
+
+/-- A depth-disabled sample still reaches color independently of the write flag and function. -/
+theorem depth_disabled (func : Nat) (write : Bool) :
+    depthAction func write none = .keep := rfl
+
+/-- Failing the comparison suppresses color and depth. A pass honors the depth write flag. -/
+theorem depth_test (func q stored z : Nat) (write : Bool) :
+    (depthAction func write (some (q, stored, z)) = .reject ↔ Filter.cmpWith F64.fmt func q stored = false) ∧
+    (depthAction func write (some (q, stored, z)) = .write z ↔
+      Filter.cmpWith F64.fmt func q stored = true ∧ write = true) := by
+  cases h : Filter.cmpWith F64.fmt func q stored <;> cases write <;> simp [depthAction, h]
+
+set_option exponentiation.threshold 2048 in
+set_option maxRecDepth 20000 in
+/-- Four covered samples use separate triangle depths for the same LESS comparison. -/
+theorem sample_plane_depth_test :
+    (sampleDepthJobs [true, true, true, true] none ((Raster.pattern 4).map (fun (x, y) =>
+      sampleDepthPlane 0 0x40800000 0 0 0 0x40800000 0 one 0x40000000
+        0 0x40000000 0x40000000 0x40000000 x y))).map (fun (_, depth) =>
+      depthAction 2 true (depth.map (fun z => (F64.ofF32 z, 0x3ff8000000000000, z)))) =
+      [.write 0x3fa40000, .reject, .write 0x3fbc0000, .reject] := by decide
+
 /-- the mirrors (an f32 NaN answer as the one quiet NaN) -/
 def canon (x : Nat) : Int := (F32.canon x : Nat)
 
@@ -162,6 +271,35 @@ def mirrors : List Mirror := [
   ⟨"d3d11.plane", fun
     | [x0, x1, x2, y0, y1, y2, a0, a1, a2, cx, cy] => do
       pure [canon (planeValue (← nat x0) (← nat x1) (← nat x2) (← nat y0) (← nat y1) (← nat y2) (← nat a0) (← nat a1) (← nat a2) (← nat cx) (← nat cy))]
+    | _ => none⟩,
+  ⟨"d3d11.sampledepthplane", fun
+    | [x0, x1, x2, y0, y1, y2, z0, z1, z2, lo, hi, cx, cy, ox, oy] => do
+      pure [canon (sampleDepthPlane (← nat x0) (← nat x1) (← nat x2) (← nat y0) (← nat y1)
+        (← nat y2) (← nat z0) (← nat z1) (← nat z2) (← nat lo) (← nat hi) (← nat cx) (← nat cy) ox oy)]
+    | _ => none⟩,
+  ⟨"d3d11.sampledepthjobs", fun
+    | mask :: width :: center :: depths => do
+      let mask ← nat mask
+      let width ← nat width
+      if width > 16 || mask ≥ 2 ^ 16 then none else
+        let coverage := (List.range width).map fun k => mask / (2 ^ k) % 2 == 1
+        let depths ← depths.mapM nat
+        pure ((sampleDepthJobs coverage (nat center) depths).flatMap fun (k, z) =>
+          [(k : Int), (z.map (fun n => (n : Int))).getD (-1)])
+    | _ => none⟩,
+  ⟨"d3d11.samplespan", fun
+    | [bytes, count, k, off, elem] => do
+      match sampleSpan (← nat bytes) (← nat count) (← nat k) (← nat off) (← nat elem) with
+      | none => pure [-1]
+      | some (start, stop) => pure [(start : Int), (stop : Int)]
+    | _ => none⟩,
+  ⟨"d3d11.depthaction", fun
+    | [func, write, enabled, qHi, qLo, storedHi, storedLo, z] => do
+      let values := (← nat64 qHi qLo, ← nat64 storedHi storedLo, ← nat z)
+      match depthAction (← nat func) (write != 0) (if enabled != 0 then some values else none) with
+      | .reject => pure [0]
+      | .keep => pure [1]
+      | .write depth => pure [2, (depth : Int)]
     | _ => none⟩,
   ⟨"d3d11.lineplane", fun
     | [a, b, c, va, vb] => do pure [canon (lineValue a b (← nat c) (← nat va) (← nat vb))]
