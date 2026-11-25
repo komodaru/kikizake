@@ -472,6 +472,27 @@ fn shade() {
 }
 
 #[test]
+fn texture_view_levels_stay_in_the_mirrored_functions() {
+    let inlined = r#"
+fn shade() {
+    let first = reach.first * r.d.mips;
+    let (w, h, _) = r.size(base + level);
+    texel(r, first + base + level, format, x, y)?
+}
+"#;
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:")).count(), 3, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", r#"
+fn shade() {
+    let reach = rules::sample_reach(dev, view, r).ok_or(Fail::Bad)?;
+    let (mip, sub) = reach.at(level).ok_or(Fail::Bad)?;
+    let (w, h, _) = r.size(mip);
+    texel(r, sub, format, x, y)?
+}
+"#).is_empty());
+}
+
+#[test]
 fn lod_stays_in_the_mirrored_functions() {
     let inlined = "fn shade() {\n    let s = (du * w).powi(2);\n    if rho <= 1.0 {}\n    let d = [0x15, 3, 3, 3, 1];\n}\n";
     let r = rust("src/model/d3draster.rs", inlined);

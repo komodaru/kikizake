@@ -6,7 +6,8 @@ D3DRASTER.*), as src/model/d3drules.rs computes them: `address` is `address`
 (D3D11_COMPARISON_FUNC, Direct3D 9's), `bilinear8` `bilinear8`, `mip8` `mip8`, `reduce` `reduce`
 (the minimum and maximum filters) (mirrors `d3d11.address`, `d3d11.cmp`, `d3d11.bilinear8`,
 `d3d11.mip8`, `d3d11.reduce`). `ldReach` holds Load's coordinates and view identity to
-`ld_reach`. `srvOrZero` holds the unbound-resource result in Load and Sample to `srv_or_zero`. -/
+`ld_reach`. `srvOrZero` holds the unbound-resource result in Load and Sample to `srv_or_zero`.
+`sampleReach` and `sampleAddress` mirror the SRV's mip window and subresource selection in Sample. -/
 namespace Kikizake.D3d11.Texture
 
 /-- D3DRASTER.ADDRESS, BORDER: a texel coordinate through the address mode (WRAP 1, MIRROR 2,
@@ -209,7 +210,81 @@ theorem ld_outside_zero (x y : Int) (w h format subresource : Nat) :
   unfold ldReach
   split <;> simp_all <;> omega
 
-private def loadWord (x : Int) : Option Nat :=
+structure SampleReach where
+  base : Nat
+  levels : Nat
+  first : Nat
+  deriving DecidableEq
+
+private def mipView (view : Nat) : Bool := [2, 3, 4, 5, 8, 9, 10].contains view
+
+private def arrayView (view : Nat) : Bool := [3, 5, 10].contains view
+
+/-- Given the resource's dimensions and the SRV union words, locate the mip window
+and its first subresource. A cube array spells its first slice as its first face. -/
+def sampleReach (resource view total layers mostDetailed requested firstSlice : Nat) :
+    Option SampleReach :=
+  if total = 0 ∨ (total ≠ 1 ∧ mipView view = false) then none else
+  let (base, levels) := if total = 1 ∨ resource = 4 then (0, 1)
+    else (mostDetailed, max 1 (min requested (total - mostDetailed)))
+  let slice := if resource ≠ 4 ∧ arrayView view = true then firstSlice else 0
+  let first := slice * total + base
+  if total - base < levels ∨ max 1 layers ≤ slice ∨ 0xffff_ffff < first + (levels - 1) then
+    none
+  else
+    some ⟨base, levels, first⟩
+
+def sampleAddress (reach : SampleReach) (level : Nat) : Option (Nat × Nat) :=
+  if level < reach.levels ∧ reach.base + level ≤ 0xffff_ffff ∧ reach.first + level ≤ 0xffff_ffff then
+    some (reach.base + level, reach.first + level)
+  else none
+
+/-- For a 2D view, the most detailed resource mip is view level zero, and the
+levels end at the smaller of the requested extent and the resource's end. -/
+theorem sample_2d_view (total layers base requested slice : Nat)
+    (many : 1 < total) (inside : base < total) (nonempty : 0 < requested)
+    (word : total ≤ 0xffff_ffff) :
+    sampleReach 2 4 total layers base requested slice =
+      some ⟨base, min requested (total - base), base⟩ := by
+  have nz : total ≠ 0 := by omega
+  have nm : total ≠ 1 := by omega
+  have one : 1 ≤ min requested (total - base) := by omega
+  have rest : min requested (total - base) ≤ total - base := Nat.min_le_right _ _
+  have face : 0 < max 1 layers := by omega
+  have last : base + (min requested (total - base) - 1) ≤ 0xffff_ffff := by omega
+  simp [sampleReach, nz, nm, mipView, arrayView, Nat.max_eq_right one,
+    Nat.not_lt.mpr rest, Nat.not_le.mpr face, Nat.not_lt.mpr last]
+
+/-- Array views begin at the selected slice or face, measured in whole resource
+mip chains. The other mip-capable views start at slice zero. -/
+theorem sample_array_view (resource view total layers base requested slice : Nat)
+    (texture : resource ≠ 4) (supportsMips : mipView view = true)
+    (many : 1 < total) (inside : base < total) (nonempty : 0 < requested)
+    (face : (if arrayView view = true then slice else 0) < max 1 layers)
+    (word : (if arrayView view = true then slice else 0) * total + base +
+      (min requested (total - base) - 1) ≤ 0xffff_ffff) :
+    sampleReach resource view total layers base requested slice =
+      some ⟨base, min requested (total - base), (if arrayView view = true then slice else 0) * total + base⟩ := by
+  have nz : total ≠ 0 := by omega
+  have nm : total ≠ 1 := by omega
+  have one : 1 ≤ min requested (total - base) := by omega
+  have rest : min requested (total - base) ≤ total - base := Nat.min_le_right _ _
+  simp [sampleReach, texture, supportsMips, nz, nm, Nat.max_eq_right one,
+    Nat.not_lt.mpr rest, Nat.not_le.mpr face, Nat.not_lt.mpr word]
+
+/-- Each admissible offset is relative to the window. Any offset at or beyond
+the window's end is refused before a texel read. -/
+theorem sample_relative_level (reach : SampleReach) (level : Nat)
+    (rank : reach.base + level ≤ 0xffff_ffff) (sub : reach.first + level ≤ 0xffff_ffff) :
+    (level < reach.levels → sampleAddress reach level = some (reach.base + level, reach.first + level)) ∧
+    (reach.levels ≤ level → sampleAddress reach level = none) := by
+  constructor
+  · intro h
+    simp [sampleAddress, h, rank, sub]
+  · intro h
+    simp [sampleAddress, Nat.not_lt.mpr h]
+
+private def u32Word (x : Int) : Option Nat :=
   if x ≤ 0xffff_ffff then nat x else none
 
 def mirrors : List Mirror := [
@@ -219,10 +294,17 @@ def mirrors : List Mirror := [
     | _ => some [-1]⟩,
   ⟨"d3d11.ldReach", fun a => some ((do
     let [x, y, w, h, f, s] := a | none
-    let result := ldReach x y (← loadWord w) (← loadWord h) (← loadWord f) (← loadWord s)
+    let result := ldReach x y (← u32Word w) (← u32Word h) (← u32Word f) (← u32Word s)
     pure (match result with
       | .ok (x, y, format, subresource) => [1, x, y, format, subresource]
       | .error bits => 0 :: bits)).getD [-1])⟩,
+  ⟨"d3d11.sampleReach", fun a => some ((do
+    let [resource, view, total, layers, base, count, slice, level] ← a.mapM u32Word | none
+    let reach ← sampleReach resource view total layers base count slice
+    pure ([Int.ofNat reach.base, reach.levels] ++
+      match sampleAddress reach level with
+      | some (mip, sub) => [Int.ofNat mip, sub]
+      | none => [-1, -1])).getD [-1])⟩,
   ⟨"d3d11.address", fun
     | [m, i, n] => do pure ((address (← nat m) i n).toList)
     | _ => none⟩,

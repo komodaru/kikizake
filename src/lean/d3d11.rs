@@ -306,6 +306,46 @@ pub static MIRRORS: &[Mirror] = &[
         },
     },
     Mirror {
+        name: "d3d11.sampleReach",
+        lean: TEXTURE,
+        domain: Domain::Sampled("supported SRV dimensions and all small windows, mip and subresource overflow boundaries, and 10,000 full 32-bit fact inputs"),
+        inputs: |each| {
+            for (resource, view) in [(1, 2), (1, 3), (2, 4), (2, 5), (2, 6), (2, 7), (3, 8), (2, 9), (2, 10), (4, 1), (4, 4), (2, 11)] {
+                every(&[(resource, resource), (view, view), (0, 3), (0, 3), (0, 3), (0, 3), (0, 3), (0, 3)], each);
+            }
+            sampled(&[(1, 4), (1, 11), (0, U32), (0, U32), (0, U32), (0, U32), (0, U32), (0, U32)], 10_000, 0x5a6d_d011, each);
+            for a in [
+                &[2, 4, U32, 1, 0xffff_fffd, 2, 0, 1][..],
+                &[2, 5, 0x10000, 0x10000, 0xffff, 1, 0xffff, 0],
+                &[2, 5, 0x10001, 0x10001, 0, 1, 0x10000, 0],
+                &[2, 5, U32, 3, 0, 2, 1, 0],
+                &[2, 5, 4, 5, 1, U32, 3, 2],
+                &[2, 5, 4, 5, 1, U32, 3, 3],
+                &[2, 5, 4, 5, 1, 1, 3, -1],
+                &[],
+            ] {
+                each(a);
+            }
+        },
+        model: |a| {
+            let answer = || {
+                use crate::model::{d3dres::{Desc, Dev, Resource, View}, objects::{Objects, Slot}};
+                let [_, _, _, _, _, _, _, _] = a else { return None };
+                let d = Desc { dim: arg(a, 0)?, mips: arg(a, 2)?, da: arg(a, 3)?, w: 8, h: 8,
+                    fmt: 28, usage: 0, bind: 8, cpu: 0, misc: 0, count: 1, q: 0 };
+                let words = vec![28, arg(a, 1)?, arg(a, 4)?, arg(a, 5)?, arg(a, 6)?, 1];
+                let level: u32 = arg(a, 7)?;
+                let mut resources = Objects::default();
+                let res = resources.put(Slot::new(0).ok()?, Resource { d, subs: Vec::new(), samples: Vec::new() });
+                let view = View { res, kind: 0, words };
+                let reach = d3drules::sample_reach(Dev::D11(0xb000), &view, resources.get(res).ok()?)?;
+                let [mip, sub] = reach.at(level).map_or([-1, -1], |(mip, sub)| [i64::from(mip), i64::from(sub)]);
+                Some(vec![i64::from(reach.base), i64::from(reach.mips), mip, sub])
+            };
+            Some(answer().unwrap_or_else(|| vec![-1]))
+        },
+    },
+    Mirror {
         name: "d3d11.address",
         lean: TEXTURE,
         domain: Domain::Every("modes 0..7, texel indices -60..60, textures 1..16 texels"),

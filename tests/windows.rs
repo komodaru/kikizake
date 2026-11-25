@@ -116,6 +116,9 @@ fn models_match_windows() {
                     "probe-rt-3d-slice1", "probe-rt-buffer", "probe-rt-buffer-off",
                     "shader-bad", "probe-layout-refused", "probe-layout-otherkind",
                     "ld-89", "ld-26", "ld-table-29", "probe-ld-out", "hazard-load-mip1",
+                    "probe-filter-view-mips", "probe-filter-view-mips-mag", "probe-filter-1d-mips",
+                    "probe-filter-1darray-mips", "probe-filter-array-mips", "probe-filter-array1-mips",
+                    "probe-filter-cube-mips", "probe-filter-cubearray-mips", "probe-filter-3d-mips",
                 ] {
                     let reference = expected.cases.iter().find(|(n, _)| n == name)
                         .unwrap_or_else(|| panic!("missing Windows recording for {s}-{arch} {name}"));

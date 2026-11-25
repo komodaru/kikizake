@@ -216,6 +216,45 @@ pub(crate) fn ld_reach((px, py): (i64, i64), (width, height): (u32, u32), format
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct SampleReach {
+    /// Resource mip at the view's level 0, used for the filter footprint.
+    pub base: u32,
+    pub mips: u32,
+    first_subresource: u32,
+}
+
+impl SampleReach {
+    /// Resource mip and subresource of one view-relative level.
+    pub(crate) fn at(self, relative: u32) -> Option<(u32, u32)> {
+        if relative >= self.mips {
+            return None;
+        }
+        Some((self.base.checked_add(relative)?, self.first_subresource.checked_add(relative)?))
+    }
+}
+
+/// Sample counts levels from the SRV's most detailed mip and reads its first
+/// array slice (first face for a cube array).
+pub(crate) fn sample_reach(
+    dev: super::d3dres::Dev, view: &super::d3dres::View, res: &super::d3dres::Resource,
+) -> Option<SampleReach> {
+    let dim = view.dim();
+    let total_mips = res.d.mips;
+    if total_mips == 0 || (total_mips != 1 && !matches!(dim, 2 | 3 | 4 | 5 | 8 | 9 | 10)) {
+        return None;
+    }
+    let reach = super::d3dres::view_reach(dev, view, res);
+    let (base, mips) = if total_mips == 1 { (0, 1) } else { (reach.mip, reach.mips.max(1)) };
+    let slice = if matches!(dim, 3 | 5 | 10) { reach.first } else { 0 };
+    if mips > total_mips.saturating_sub(base) || slice >= res.d.da.max(1) {
+        return None;
+    }
+    let first_subresource = slice.checked_mul(total_mips)?.checked_add(base)?;
+    first_subresource.checked_add(mips.saturating_sub(1))?;
+    Some(SampleReach { base, mips, first_subresource })
+}
+
 /// a primitive's vertices (their indices in the draw) and its leading vertex
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Prim {

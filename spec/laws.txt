@@ -509,6 +509,9 @@ spec/lean/Kikizake/D3d11/Texture.lean::reduce_picks lean D3DRASTER.FILTER.MINMAX
 spec/lean/Kikizake/D3d11/Texture.lean::ld_inside_view lean D3DRASTER.LD
 spec/lean/Kikizake/D3d11/Texture.lean::ld_outside_zero lean D3DRASTER.LD.OUT
 spec/lean/Kikizake/D3d11/Texture.lean::srv_or_zero lean D3DRASTER.NOSRV
+spec/lean/Kikizake/D3d11/Texture.lean::sample_2d_view lean D3DRASTER.FILTER.VIEW
+spec/lean/Kikizake/D3d11/Texture.lean::sample_array_view lean D3DRASTER.FILTER.ARRAY
+spec/lean/Kikizake/D3d11/Texture.lean::sample_relative_level lean D3DRASTER.FILTER.VIEW D3DRASTER.FILTER.ARRAY
 spec/lean/Kikizake/GdiPlus/Blend.lean::lanes_carry lean GP.FILL.GAMMA.X86
 spec/lean/Kikizake/GdiPlus/Blend.lean::alpha_254_adds_nothing lean GP.FILL.GAMMA.X86
 spec/lean/Kikizake/GdiPlus/Blend.lean::gamma234_floor lean GP.PAINT.GAMMA.BETWEEN

@@ -107,6 +107,8 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     ("src/model/d3draster.rs", r"\.target\.(?:or\(\s*\w+\.depth\s*\)|is_none\(\))|view\.dim\(\)\s*==\s*(?:1|8)\b|matches!\(\s*view\.dim\(\)\s*,\s*2\s*\|\s*3\s*\)", &[]),
     // (Load and Sample use srv_or_zero, and Load's coordinates use ld_reach in Texture.lean.)
     ("src/model/d3draster.rs", r"let\s+Some\(\s*\w+\s*\)\s*=\s*d\.srv\s+else|texel\(\s*r,\s*sub,\s*v\.format\(\),\s*px\s+as\s+u32", &[]),
+    // (shader-relative mips and array slice offsets use sample_reach and SampleReach::at.)
+    ("src/model/d3draster.rs", r"reach\.first\s*\*\s*r\.d\.mips|\bfirst\s*\+\s*base\s*\+\s*level|r\.size\(\s*base\s*\+\s*level\s*\)", &[]),
     // (a quad's span, the filter and level it takes and the default sampler are quad_span,
     // filter_pick and sampler_or_default, which d3d11.quadspan, d3d11.filterpick and
     // d3d11.sampler hold to spec/lean/Kikizake/D3d11/Lod.lean)

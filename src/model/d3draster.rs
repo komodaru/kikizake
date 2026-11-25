@@ -2511,38 +2511,19 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             let s = sampler_or_default(d.sampler);
             let v = m.views.get(sv)?;
             let r = m.res.get(v.res)?;
-            // (MEASURED, WARP: probe-filter-view-mips, -view-mips-mag) a view of its own range of
-            // levels: its most detailed level is level 0 for the span and the levels; the levels
-            // and first slice are the view's reach (view_reach), as Load's
-            let reach = super::d3dres::view_reach(m.dev.ok_or(Fail::Bad)?, v, r);
-            let dim = v.dim();
-            match dim {
-                _ if r.d.mips == 1 => {}
-                4 => {}
-                // (MEASURED, WARP: probe-filter-1d-mips) a 1D texture's view through a Texture2D:
-                // its levels as one row; (probe-filter-1darray-mips) a 1D array's view
-                // (TEXTURE1DARRAY): its first slice's levels as one row; (probe-filter-array-mips)
-                // a 2D array's view from slice 0: slice 0's levels, (probe-filter-array1-mips)
-                // from a later slice: that slice's; (probe-filter-cube-mips) a cube's view: face
-                // 0's levels, as a 2D array's; (probe-filter-3d-mips) a 3D texture's view: its
-                // first depth slice's levels; (probe-filter-cubearray-mips) a cube array's view:
-                // its first face's levels
-                2 | 3 | 5 | 8 | 9 | 10 => hit(clause::D3DRASTER_FILTER_ARRAY),
-                // (other kinds of views of textures with mips: not measured)
-                _ => return Err(Fail::Bad),
-            }
-            // (a view's levels and slices lie in its texture's: CreateShaderResourceView checks them)
-            let arrayed = matches!(dim, 3 | 5 | 10);
-            if r.d.mips > 1 && (reach.mip >= r.d.mips || (arrayed && reach.first >= r.d.da.max(1))) {
-                return Err(Fail::Bad);
-            }
-            let (base, mips) = if r.d.mips == 1 { (0, 1) } else { (reach.mip, reach.mips.max(1)) };
-            if base != 0 || mips != r.d.mips {
+            // (MEASURED, WARP: probe-filter-view-mips, -view-mips-mag) level 0 for
+            // the footprint and level selection is the view's most detailed mip.
+            let reach = rules::sample_reach(m.dev.ok_or(Fail::Bad)?, v, r).ok_or(Fail::Bad)?;
+            let mips = reach.mips;
+            if reach.base != 0 || mips != r.d.mips {
                 hit(clause::D3DRASTER_FILTER_VIEW);
             }
-            // (the subresources of the view's first array slice)
-            let first = if arrayed { reach.first * r.d.mips } else { 0 };
-            let (w, h, _) = r.size(base);
+            // Other supported multi-mip dimensions include arrays, cubes, 3D
+            // (first depth slice) and 1D (one row).
+            if r.d.mips > 1 && v.dim() != 4 {
+                hit(clause::D3DRASTER_FILTER_ARRAY);
+            }
+            let (w, h, _) = r.size(reach.base);
             let uv_at = |x: i64, y: i64| -> Res<[f32; 2]> {
                 match planes {
                     Some(p) => {
@@ -2611,11 +2592,12 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 }
             };
             let one = |level: u32| -> Res<Filtered> {
-                let (w, h, _) = r.size(base + level);
+                let (mip, sub) = reach.at(level).ok_or(Fail::Bad)?;
+                let (w, h, _) = r.size(mip);
                 let at = |i: i64, j: i64| -> Res<[u32; 4]> {
                     match (address(s[1], i, w as i64), address(s[2], j, h as i64)) {
                         (Some(x), Some(y)) => {
-                            let t = texel(r, first + base + level, v.format(), x as u32, y as u32)?;
+                            let t = texel(r, sub, v.format(), x as u32, y as u32)?;
                             Ok(match cmp {
                                 None => t,
                                 Some((reference, func)) => {
