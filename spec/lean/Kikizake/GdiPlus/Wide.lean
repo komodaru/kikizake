@@ -225,11 +225,202 @@ theorem round_right_angle :
      3, 0x40400000, 0, 2, 1, 0x40000000, one, 1, one, 0] := by
   decide +kernel
 
+structure Band where
+  width : Nat
+  left : Nat
+  right : Nat
+  miter : Nat
+  style : Int
+  compound : Bool
+
+private def firstPoint (out : List Out) : List Out :=
+  match out with
+  | [] => []
+  | p :: rest => { p with type := p.type / 64 * 64 } :: rest
+
+/-- Reverse an outline side while keeping the type of each backward curve edge. -/
+def reverseSide (out : List Out) : List Out :=
+  let kinds := (out.drop 1).map (fun p => p.type % 64) ++ [1]
+  (out.zip kinds).reverse.map fun (p, k) =>
+    { p with type := p.type / 64 * 64 + if k == 3 then 3 else 1 }
+
+private def bandJoin (d : Bool) (b : Band) (a p c : Pair) :=
+  join d b.compound b.style a p c b.left b.right b.miter
+
+private def capTip (r : Ops) (b : Band) (p g : Pair) (start : Bool) : Pair :=
+  let dir := if start then negPoint g else g
+  let n := (g.2, neg F g.1)
+  let (a, c) := (off r b.right n p, off r b.left n p)
+  let width := fabs (r.sub b.left b.right)
+  scale r 0x3f000000 (add r (add r a c) (scale r width dir))
+
+/-- One line point and six cubic points make a round end cap. -/
+def roundCap (r : Ops) (b : Band) (p g : Pair) (start : Bool) : List Out :=
+  let (dx, dy) := if start then negPoint g else g
+  let radius := r.mul (r.sub b.left b.right) 0x3f000000
+  let side := r.add b.left b.right
+  let c := (r.add (r.mul (r.mul side g.2) 0x3f000000) p.1,
+    r.sub p.2 (r.mul (r.mul side g.1) 0x3f000000))
+  let (x, y) := (r.mul radius dy, r.mul (neg F radius) dx)
+  let k := 0x3f0d6289
+  let units := [(one, 0), (one, k), (k, one), (0, one), (neg F k, one),
+    (neg F one, k), (neg F one, 0)]
+  units.zipIdx.map fun ((u, v), i) =>
+    ⟨(r.add (r.sub (r.mul u x) (r.mul v y)) c.1, r.add (r.add (r.mul v x) (r.mul u y)) c.2),
+      if i == 0 then 1 else 3⟩
+
+private def setFirstPoint (out : List Out) (p : Pair) : List Out :=
+  match out with
+  | [] => []
+  | h :: t => { h with point := p } :: t
+
+private def dot (r : Ops) (a b : Pair) : Nat :=
+  r.add (r.mul a.1 b.1) (r.mul a.2 b.2)
+
+/-- If an interior join extends behind an endpoint, move the endpoint to the join. -/
+private def repairSide (r : Ops) (first last : Segment) (side : List Out) : List Out :=
+  let a := side.toArray
+  let n := a.size
+  if n ≤ 2 then side else
+  let p0 := a.getD 0 (line (0, 0))
+  let p1 := a.getD 1 p0
+  let a := if flt (dot r (sub r p1.point p0.point) first.g) 0 then
+      a.modify 0 (fun p => { p with point := p1.point })
+    else a
+  let pn := a.getD (n - 1) p0
+  let prev := a.getD (n - 2) pn
+  let a := if flt (dot r (sub r pn.point prev.point) last.g) 0 then
+      a.modify (n - 1) (fun p => { p with point := prev.point })
+    else a
+  a.toList
+
+private def getPoint (p : Array Pair) (i : Nat) : Pair := p.getD i (0, 0)
+
+def openBand (d : Bool) (b : Band) (p : Array Pair) (startCap endCap : Nat) : List Out :=
+  let r := ops d
+  let n := p.size
+  if n < 2 then [] else
+  let first := segment d r (getPoint p 0) (getPoint p 1)
+  let last := segment d r (getPoint p (n - 2)) (getPoint p (n - 1))
+  let start := getPoint p 0
+  let end_ := getPoint p (n - 1)
+  let wrap := segment d r end_ start
+  let startNormal :=
+    if n ≥ 3 && (tiny wrap.g || tiny first.g || closeGradients r wrap.g first.g) &&
+      !(isZero wrap.n.1 && isZero wrap.n.2) then wrap.n else first.n
+  let wrapped := !(feq startNormal.1 first.n.1 && feq startNormal.2 first.n.2)
+  let capShift := r.mul b.width 0xbf000000
+  let atStart w :=
+    let q := off r w startNormal start
+    if startCap == 1 then add r q (scale r capShift first.g) else q
+  let atEnd w :=
+    let q := off r w last.n end_
+    if endCap == 1 then sub r q (scale r capShift last.g) else q
+  let (innerLeft, innerRight) := (List.range (n - 2)).foldl (fun (l, rt) i =>
+    let (a, c) := bandJoin d b (getPoint p i) (getPoint p (i + 1)) (getPoint p (i + 2))
+    (l ++ a, rt ++ c)) ([], [])
+  let side w inner := repairSide r first last (line (atStart w) :: inner ++ [line (atEnd w)])
+  let (left, right) := (side b.left innerLeft, side b.right innerRight)
+  let firstLeft := (left.head?.getD (line (atStart b.left))).point
+  let firstRight := (right.head?.getD (line (atStart b.right))).point
+  let lastLeft := (left.getLast?.getD (line (atEnd b.left))).point
+  let front := firstPoint left
+  let back := reverseSide right
+  let (front, back) :=
+    if endCap == 3 then (front ++ [line (capTip r b end_ last.g false)], back)
+    else if endCap == 2 then
+      (front.dropLast ++ setFirstPoint (roundCap r b end_ last.g false) lastLeft, back.drop 1)
+    else (front, back)
+  let back := if startCap == 2 && !wrapped then back.dropLast else back
+  let out := front ++ back
+  let closeTo (a c : Pair) :=
+    flt (r.add (fabs (r.sub a.2 c.2)) (fabs (r.sub a.1 c.1))) 0x3a1c4000
+  if startCap == 3 then
+    let tip := line (capTip r b start first.g true)
+    if wrapped then
+      let rightStart := off r b.right first.n start
+      let optional := if closeTo firstRight rightStart then [] else [line rightStart]
+      out ++ optional ++ [tip, line (off r b.left first.n start)]
+    else out ++ [tip, line firstLeft]
+  else if startCap == 2 then
+    let cap := roundCap r b start first.g true
+    if wrapped then
+      let firstCap := (cap.head?.getD (line firstRight)).point
+      out ++ (if closeTo firstRight firstCap then cap.drop 1 else cap)
+    else out ++ setFirstPoint cap firstRight
+  else out
+
+def closedBand (d : Bool) (b : Band) (p : Array Pair) : List (List Out) :=
+  let n := p.size
+  if n < 2 then [] else
+  let (left, right) := (List.range n).foldl (fun (l, rt) i =>
+    let (a, c) := bandJoin d b (getPoint p ((i + n - 1) % n)) (getPoint p i) (getPoint p ((i + 1) % n))
+    (l ++ a, rt ++ c)) ([], [])
+  [firstPoint left, firstPoint (reverseSide right)]
+
+private def closeFigure (points : List Out) : List Out :=
+  match points.reverse with
+  | [] => []
+  | p :: rest => ({ p with type := p.type + 128 } :: rest).reverse
+
+def mirrorBand (d closed : Bool) (b : Band) (p : Array Pair) (startCap endCap : Nat) : List Nat :=
+  let outlines := if closed then closedBand d b p
+    else if p.size < 2 then [] else [openBand d b p startCap endCap]
+  outlines.length :: outlines.flatMap (encoded ∘ closeFigure)
+
+private def pointPairs : List Int → Option (List Pair)
+  | [] => some []
+  | x :: y :: rest => do pure ((← nat x, ← nat y) :: (← pointPairs rest))
+  | [_] => none
+
+theorem reversed_side_keeps_point_count (side : List Out) :
+    (reverseSide side).length = side.length := by
+  cases side <;> simp [reverseSide, List.length_zip, Nat.add_comm]
+
+theorem closed_band_has_two_contours (d : Bool) (b : Band) (p : Array Pair) (h : 2 ≤ p.size) :
+    (closedBand d b p).length = 2 := by
+  simp [closedBand, Nat.not_lt.mpr h]
+
+private def horizontalBand : Band := ⟨0x40000000, one, 0xbf800000, 0x40800000, 0, false⟩
+private def horizontalPoints : Array Pair := #[(0, 0), (0x40800000, 0)]
+
+theorem horizontal_flat_caps :
+    mirrorBand false false horizontalBand horizontalPoints 0 0 =
+    [1, 4, 0, 0, 0xbf800000, 1, 0x40800000, 0xbf800000, 1, 0x40800000, one, 0x81, 0, one] := by
+  decide +kernel
+
+theorem horizontal_square_caps :
+    mirrorBand false false horizontalBand horizontalPoints 1 1 =
+    [1, 4, 0, 0xbf800000, 0xbf800000, 1, 0x40a00000, 0xbf800000,
+     1, 0x40a00000, one, 0x81, 0xbf800000, one] := by
+  decide +kernel
+
+theorem horizontal_triangle_caps :
+    mirrorBand false false horizontalBand horizontalPoints 3 3 =
+    [1, 7, 0, 0, 0xbf800000, 1, 0x40800000, 0xbf800000, 1, 0x40a00000, 0, 1, 0x40800000, one,
+     1, 0, one, 1, 0xbf800000, 0, 0x81, 0, 0xbf800000] := by
+  decide +kernel
+
+theorem horizontal_round_caps :
+    mirrorBand false false horizontalBand horizontalPoints 2 2 =
+    [1, 15, 0, 0, 0xbf800000, 1, 0x40800000, 0xbf800000, 3, 0x4091ac51, 0xbf800000,
+     3, 0x40a00000, 0xbf0d6289, 3, 0x40a00000, 0, 3, 0x40a00000, 0x3f0d6289,
+     3, 0x4091ac51, one, 3, 0x40800000, one, 1, 0, one, 3, 0xbf0d6289, one,
+     3, 0xbf800000, 0x3f0d6289, 3, 0xbf800000, 0, 3, 0xbf800000, 0xbf0d6289,
+     3, 0xbf0d6289, 0xbf800000, 0x83, 0, 0xbf800000] := by
+  decide +kernel
+
 def mirrors : List Mirror := [
   ⟨"gp.wide-join", fun
     | [d, compound, style, wl, wr, miter, ax, ay, px, py, bx, by_] => do
       let out := mirrorJoin (d != 0) (compound != 0) style (← nat ax, ← nat ay)
         (← nat px, ← nat py) (← nat bx, ← nat by_) (← nat wl) (← nat wr) (← nat miter)
+      pure (out.map Int.ofNat)
+    | _ => none⟩,
+  ⟨"gp.wide-band", fun
+    | d :: closed :: compound :: style :: width :: wl :: wr :: miter :: start :: end_ :: rest => do
+      let b : Band := ⟨← nat width, ← nat wl, ← nat wr, ← nat miter, style, compound != 0⟩
+      let out := mirrorBand (d != 0) (closed != 0) b (← pointPairs rest).toArray (← nat start) (← nat end_)
       pure (out.map Int.ofNat)
     | _ => none⟩
 ]

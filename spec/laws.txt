@@ -544,6 +544,12 @@ spec/lean/Kikizake/GdiPlus/Wide.lean::right_angle_miter lean GP.PEN.WIDE.JOIN
 spec/lean/Kikizake/GdiPlus/Wide.lean::right_angle_compound lean GP.PEN.WIDE.JOIN
 spec/lean/Kikizake/GdiPlus/Wide.lean::limited_miter_bevels lean GP.PEN.WIDE.JOIN
 spec/lean/Kikizake/GdiPlus/Wide.lean::round_right_angle lean GP.PEN.WIDE.JOIN
+spec/lean/Kikizake/GdiPlus/Wide.lean::reversed_side_keeps_point_count lean GP.PEN.WIDE.BAND
+spec/lean/Kikizake/GdiPlus/Wide.lean::closed_band_has_two_contours lean GP.PEN.WIDE.BAND
+spec/lean/Kikizake/GdiPlus/Wide.lean::horizontal_flat_caps lean GP.PEN.WIDE.BAND
+spec/lean/Kikizake/GdiPlus/Wide.lean::horizontal_square_caps lean GP.PEN.WIDE.BAND
+spec/lean/Kikizake/GdiPlus/Wide.lean::horizontal_triangle_caps lean GP.PEN.WIDE.BAND
+spec/lean/Kikizake/GdiPlus/Wide.lean::horizontal_round_caps lean GP.PEN.WIDE.BAND
 spec/lean/Kikizake/GdiPlus/Chain.lean::copies lean GP.DRAW.NEAREST
 spec/lean/Kikizake/GdiPlus/Chain.lean::ramp lean GP.DRAW.BILINEAR
 spec/lean/Kikizake/GdiPlus/Chain.lean::tables lean GP.DRAW.HQ_BILINEAR GP.DRAW.HQ_BICUBIC

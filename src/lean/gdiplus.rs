@@ -1180,6 +1180,65 @@ pub static MIRRORS: &[Mirror] = &[
         },
     },
     Mirror {
+        name: "gp.wide-band",
+        lean: WIDE,
+        domain: Domain::Sampled("6,000 compound or plain open and closed subpaths, all ordinary cap and join styles, short and wrapping paths and both rounding modes, plus exact theorem inputs"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x71de_ba01);
+            let bits = |v| i64::from((f32::from(i16::try_from(v).unwrap_or(0)) / 4.0).to_bits());
+            for cap in 0..4 {
+                each(&[0, 0, 0, 0, bits(8), bits(4), bits(-4), bits(16), cap, cap, 0, 0, bits(16), 0]);
+            }
+            for style in 0..4 {
+                each(&[0, 1, 0, style, bits(8), bits(4), bits(-4), bits(16), 0, 0,
+                    0, 0, bits(16), 0, bits(16), bits(16), 0, bits(16)]);
+            }
+            // The nearly parallel wrap-around segment changes the start normal.
+            for rounding in 0..=1 {
+                for cap in [2, 3] {
+                    each(&[rounding, 0, 0, 0, bits(8), bits(4), bits(-4), bits(16), cap, 0,
+                        0, 0, bits(16), 0, bits(-16), 0x3a80_0000]);
+                }
+            }
+            for i in 0..6000 {
+                let closed = i / 2 % 2;
+                let mut input = vec![i % 2, closed, rng.range(0, 1), rng.range(0, 3),
+                    bits(rng.range(4, 24)), bits(rng.range(-12, 12)), bits(rng.range(-12, 12)),
+                    bits(rng.range(2, 24)), rng.range(0, 3), rng.range(0, 3)];
+                let n = rng.range(2, 6);
+                let mut x = rng.range(-40, 40);
+                let mut y = rng.range(-40, 40);
+                for _ in 0..n {
+                    input.extend([bits(x), bits(y)]);
+                    x = x.saturating_add(rng.range(1, 12) * if rng.chance(2) { 1 } else { -1 });
+                    y = y.saturating_add(rng.range(-12, 12));
+                }
+                each(&input);
+            }
+        },
+        model: |a| {
+            use crate::model::gppath::Pen;
+            use crate::model::gpwiden::band_points;
+            let [d, closed, compound, style, width, wl, wr, miter, start, end, coords @ ..] = a else { return None; };
+            let f32_arg = |v| u32::try_from(v).ok().map(f32::from_bits);
+            let (pairs, odd) = coords.as_chunks::<2>();
+            if !odd.is_empty() { return None; }
+            let points: Vec<_> = pairs.iter().map(|&[x, y]| Some((f32_arg(x)?, f32_arg(y)?))).collect::<Option<_>>()?;
+            let mut pen = Pen::new(0, f32_arg(*width)?);
+            pen.join = *style;
+            pen.miter = f32_arg(*miter)?;
+            pen.start_cap = *start;
+            pen.end_cap = *end;
+            let result = band_points(rounding(*d), &points, &pen, (f32_arg(*wl)?, f32_arg(*wr)?), *compound != 0, *closed != 0).ok()?;
+            let mut out = vec![i64::try_from(result.len()).ok()?];
+            for figure in result {
+                out.push(i64::try_from(figure.len()).ok()?);
+                out.extend(figure.into_iter().flat_map(|p| [i64::from(p.type_byte()), canon(p.x), canon(p.y)]));
+            }
+            Some(out)
+        },
+    },
+    Mirror {
         name: "gp.wide-join",
         lean: WIDE,
         domain: Domain::Sampled("8,000 joins on quarter-pixel points and band offsets, all join styles, compound and plain bands, degenerate segments, U-turns and both rounding modes, plus exact theorem inputs"),

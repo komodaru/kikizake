@@ -389,6 +389,7 @@ impl Widener {
     }
     /// an open subpath's outline (WidenSubpath, CombineSubpathOutlines): one closed figure
     fn open(&self, p: &[P], caps: (Cap, Cap)) -> Res<Vec<Out>> {
+        hit(clause::GP_PEN_WIDE_BAND);
         let r = self.r;
         let k = p.len();
         let segs: Vec<Seg> = p.windows(2).map(|q| self.seg(q[0], q[1])).collect();
@@ -513,6 +514,7 @@ impl Widener {
     }
     /// a closed subpath's two figures: the left lists, then the right ones reversed
     fn closed(&self, p: &[P]) -> [Vec<Out>; 2] {
+        hit(clause::GP_PEN_WIDE_BAND);
         let k = p.len();
         let segs: Vec<Seg> = (0..k).map(|i| self.seg(p[i], p[(i + 1) % k])).collect();
         let (mut left, mut right) = (Vec::new(), Vec::new());
@@ -615,6 +617,28 @@ pub(crate) fn join_points(r: Round, [prev, p, next]: [P; 3], (wl, wr): (f32, f32
     [left, right].map(|side| {
         side.into_iter().map(|o| Point { x: o.p.0, y: o.p.1, kind: o.kind, close: false, inner: o.inner }).collect()
     })
+}
+
+/// Widen one prepared band and retain the point types for its Lean assembly mirror.
+pub(crate) fn band_points(r: Round, pts: &[P], pen: &Pen, (wl, wr): (f32, f32), compound: bool, closed: bool) -> Res<Vec<Vec<Point>>> {
+    if pts.len() < 2 {
+        return Ok(Vec::new());
+    }
+    let wd = Widener {
+        r, w: pen.width, wl, wr, lim: sq(r, pen.miter.max(1.0)), join: Join::of(pen.join),
+        mode: if compound { Mode::Compound } else { Mode::Plain },
+    };
+    let outlines = if closed {
+        Vec::from(wd.closed(pts))
+    } else {
+        vec![wd.open(pts, (Cap::line(pen.start_cap), Cap::line(pen.end_cap)))?]
+    };
+    Ok(outlines.into_iter().map(|fig| {
+        let len = fig.len();
+        fig.into_iter().enumerate().map(|(i, o)| {
+            Point { x: o.p.0, y: o.p.1, kind: o.kind, close: i.saturating_add(1) == len, inner: o.inner }
+        }).collect()
+    }).collect())
 }
 
 /// the widener proper on flattened world figures (GpPathWidener): the outline in world space,
