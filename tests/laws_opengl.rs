@@ -2168,6 +2168,119 @@ fn wgl_font_compiler_names_match_native_state() {
     }
 }
 
+#[test]
+fn wgl_large_list_names_match_native_state_before_release() {
+    use kikizake::model::{Api, Fail, opengl::Gl};
+    let fixtures = include_str!("fixtures/opengl_large_list_state.txt");
+    assert_eq!(fixtures.lines().count(), 17);
+    for row in fixtures.lines() {
+        let sections: Vec<Vec<_>> = row.split(" | ").map(|part| part.split_whitespace().collect()).collect();
+        let [args, returned, state] = sections.as_slice() else { panic!("invalid recording {row}"); };
+        let [kind, base, action, exit] = args.as_slice() else { panic!("invalid arguments {row}"); };
+        let ["returned", ok, error] = returned.as_slice() else { panic!("invalid WGL result {row}"); };
+        let ["state", gl_error, defined, next, call_error, raster, translation] = state.as_slice() else {
+            panic!("invalid list state {row}");
+        };
+        let base = if let Some(hex) = base.strip_prefix("0x") {
+            u32::from_str_radix(hex, 16).unwrap()
+        } else {
+            base.parse().unwrap()
+        };
+        let following = base.wrapping_add(1);
+        let (create, prefix) = match *kind {
+            "0" => (format!("wglx fontbmp a 32 1 {base}"), 2),
+            "1" => (format!("wglx fontoutline w 32 1 {base} 0"), 3),
+            "2" => (format!("gl glNewList {base} 0x1300\ngl glEndList"), 1),
+            _ => panic!("invalid operation {row}"),
+        };
+        let input = format!("case upper-list\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glRasterPos2f -0.5 -0.5\n{create}\nglerr\nglr glIsList b i {base}\nglr glIsList b i {following}\ngl glCallList {base}\nglget f 0xb07 4\nglget f 0xba6 16\nglerr\nend\n");
+        let mut model = Gl::default();
+        let mut output = Vec::new();
+        for op in &kikizake::case::parse_cases(&input)[0].ops {
+            assert!(model.op(op, &mut output).unwrap(), "{row}");
+        }
+        assert_eq!(output[0], "glctx ok 1");
+        match *kind {
+            "0" => assert_eq!(output[1], format!("wglx fontbmp {ok} {error}"), "{row}"),
+            "1" => {
+                assert_eq!(output[1], format!("wglx fontoutline {ok} {error}"), "{row}");
+                assert!(output[2].starts_with("glyph "), "{row}");
+            }
+            _ => {}
+        }
+        let rest = &output[prefix..];
+        assert_eq!(rest.len(), 6, "{row}");
+        assert_eq!(&rest[..3], [format!("glerr {gl_error}"), format!("ret {defined}"), format!("ret {next}")], "{row}");
+        assert_eq!(rest[3].strip_prefix("get b07 = ").unwrap().split_whitespace().next(), Some(*raster), "{row}");
+        assert_eq!(rest[4].strip_prefix("get ba6 = ").unwrap().split_whitespace().nth(12), Some(*translation), "{row}");
+        assert_eq!(rest[5], format!("glerr {call_error}"), "{row}");
+        let observed_exit = match *exit {
+            "0" => Ok(()),
+            "-1073741819" => Err(Fail::Crash),
+            _ => panic!("invalid process status {row}"),
+        };
+        let deletion = match *action {
+            "release" => None,
+            "delete" => Some("gl glDeleteLists 0xffffffff 1"),
+            "adjacent-1" => Some("gl glDeleteLists 0xfffffffe 1"),
+            "adjacent-2" => Some("gl glDeleteLists 0xfffffffe 2"),
+            _ => panic!("invalid terminal operation {row}"),
+        };
+        if let Some(deletion) = deletion {
+            let input = format!("case delete\n{deletion}\nend\n");
+            let cases = kikizake::case::parse_cases(&input);
+            let step = model.op(&cases[0].ops[0], &mut output);
+            if *action == "adjacent-1" {
+                assert_eq!(step, Ok(true), "{row}");
+            } else {
+                assert_eq!(step.map(|_| ()), observed_exit, "{row}");
+                continue;
+            }
+        }
+        assert_eq!(model.end(), observed_exit, "{row}");
+    }
+}
+
+#[test]
+fn wgl_maximum_list_name_lifetime_matches_windows() {
+    use kikizake::model::Ended;
+    let mut lines = include_str!("fixtures/opengl_max_list_lifetime.txt").lines().peekable();
+    for _ in 0..7 {
+        let header: Vec<_> = lines.next().unwrap().split_whitespace().collect();
+        let ["===", name, exit] = header.as_slice() else { panic!("invalid recording header {header:?}"); };
+        let (mut input, mut recorded) = (String::new(), String::new());
+        while let Some(line) = lines.next_if(|line| !line.starts_with("=== ")) {
+            if let Some(line) = line.strip_prefix('>') {
+                input.push_str(line);
+                input.push('\n');
+            } else {
+                let line = line.strip_prefix('<').unwrap();
+                // The generic DIB format occupies a different slot on this Windows host.
+                recorded.push_str(if line == "glctx ok 185" { "glctx ok 1" } else { line });
+                recorded.push('\n');
+            }
+        }
+        let cases = kikizake::case::parse_cases(&input);
+        assert_eq!(kikizake::model::run("glstipple", &cases), recorded, "{name}");
+        let (_, _, ended) = kikizake::model::evaluate_cases(&cases).last().unwrap();
+        let expected_end = match *exit {
+            "0" => Ended::Next,
+            "-1073741819" => Ended::Crash,
+            _ => panic!("invalid process status {exit}"),
+        };
+        assert_eq!(ended, expected_end, "{name}");
+    }
+    assert!(lines.next().is_none());
+}
+
+#[test]
+fn wgl_batches_ending_in_the_maximum_list_name_have_no_modeled_return() {
+    let input = "case max-batch\nglctx 32 choose 0x38 0 32 0 0 32 8\nwglx fontbmp a 65 2 0xfffffffe\nend\n";
+    let cases = kikizake::case::parse_cases(input);
+    assert!(matches!(kikizake::model::run_case(&cases[0]),
+        Err(kikizake::model::Fail::Unmodeled(id)) if id.as_str() == "WGL.OTHER"));
+}
+
 proptest! {
     #[test]
     fn wgl_font_batches_replace_only_the_requested_lists(

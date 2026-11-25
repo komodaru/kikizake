@@ -1,0 +1,17 @@
+0 65535 release 0 | returned 1 0 | state 0 1 0 0 40e00000 00000000
+1 65535 release 0 | returned 1 0 | state 0 1 0 0 40800000 3e7e8000
+0 65536 release 0 | returned 1 0 | state 0 1 0 0 40e00000 00000000
+1 65536 release 0 | returned 1 0 | state 0 1 0 0 40800000 3e7e8000
+0 0x7fffffff release 0 | returned 1 0 | state 0 1 0 0 40e00000 00000000
+1 0x7fffffff release 0 | returned 1 0 | state 0 1 0 0 40800000 3e7e8000
+0 0x80000000 release 0 | returned 1 0 | state 0 1 0 0 40e00000 00000000
+1 0x80000000 release 0 | returned 1 0 | state 0 1 0 0 40800000 3e7e8000
+0 0xfffffff0 release 0 | returned 1 0 | state 0 1 0 0 40e00000 00000000
+1 0xfffffff0 release 0 | returned 1 0 | state 0 1 0 0 40800000 3e7e8000
+1 0xfffffffe release 0 | returned 1 0 | state 0 1 0 0 40800000 3e7e8000
+0 0xffffffff release -1073741819 | returned 1 0 | state 0 1 0 0 40e00000 00000000
+1 0xffffffff release -1073741819 | returned 1 0 | state 0 1 0 0 40800000 3e7e8000
+2 0xffffffff release -1073741819 | returned 1 0 | state 0 1 0 0 40800000 00000000
+1 0xffffffff delete -1073741819 | returned 1 0 | state 0 1 0 0 40800000 3e7e8000
+1 0xffffffff adjacent-1 -1073741819 | returned 1 0 | state 0 1 0 0 40800000 3e7e8000
+1 0xffffffff adjacent-2 -1073741819 | returned 1 0 | state 0 1 0 0 40800000 3e7e8000

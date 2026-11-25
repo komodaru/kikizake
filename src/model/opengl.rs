@@ -1727,6 +1727,13 @@ pub(crate) fn wgl_font_last_name(base: u32, count: i32) -> Option<u32> {
     base.checked_add((count - 1).cast_unsigned())
 }
 
+pub(crate) fn wgl_font_generation_supported(base: u32, count: i32) -> bool {
+    if base == 0 { return (1..=64).contains(&count); }
+    // A single maximum name is usable. The two-glyph bitmap case ending
+    // there has no complete native recording.
+    wgl_font_last_name(base, count).is_some_and(|last| last != u32::MAX || count == 1)
+}
+
 /// All three runner entry points populate the same PIXELFORMATDESCRIPTOR.
 fn choose_pfd(args: &[String]) -> Res<usize> {
     let [flags, ty, color, alpha, accum, depth, stencil] = args else { return Err(Fail::Bad) };
@@ -1785,7 +1792,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                 // The outline call consumes the pending error even for zero glyphs or an invalid format.
                 ctx.err = 0;
             }
-            let supported_names = base == 0 || wgl_font_last_name(base, count).is_some();
+            let supported_names = wgl_font_generation_supported(base, count);
             let wide = encoding == "w";
             let bitmap_first = if name == "fontbmp" && rest.is_empty() {
                 hit(clause::WGL_FONT_BITMAP_RANGE);
@@ -1852,7 +1859,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                             }
                             current.lines.extend(lines);
                             ctx.lists.lists.insert(current.name, current.lines);
-                            ctx.lists.lists.remove(&base);
+                            ctx.lists.delete(base, 1)?;
                             // WGL consumes the GL error while checking the first outline.
                             ctx.err = 0;
                             out.push("wglx fontoutline 0 8".into());
@@ -1930,8 +1937,18 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
 }
 
 impl Gl {
-    fn create_context(&mut self, t: &[String], out: &mut Vec<String>) -> Res<()> {
+    pub(super) fn release(&mut self) -> Res<()> {
+        // Both native generic contexts unbind, then fault in wglDeleteContext
+        // when the maximum display-list name is still defined.
+        if self.ctx.as_ref().is_some_and(|ctx| ctx.lists.lists.contains_key(&u32::MAX)) {
+            return Err(Fail::Crash);
+        }
         self.ctx = None;
+        Ok(())
+    }
+
+    fn create_context(&mut self, t: &[String], out: &mut Vec<String>) -> Res<()> {
+        self.release()?;
         let bpp = t.get(1).and_then(|v| num(v)).ok_or(Fail::Bad)? as u32;
         let pf = if t.get(2).is_some_and(|v| v == "choose") {
             choose_pfd(&t[3..])?
@@ -2317,7 +2334,7 @@ impl Gl {
             CtxOp::Glp | CtxOp::Glq | CtxOp::Glr => return Err(Fail::Bad),
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
-                self.ctx = None;
+                self.release()?;
                 out.push("glrelease 1 1".into());
             }
             CtxOp::Glread => {

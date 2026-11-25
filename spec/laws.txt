@@ -933,6 +933,7 @@ tests/laws_opengl.rs::pixel_images_agree_inside_each_nearest_texel pbt GL.RASTER
 src/proofs.rs::wgl_swap_result_identifies_every_entry kani WGL.SWAP.MULTIPLE
 tests/laws_opengl.rs::wgl_dib_swap_counts_and_pixel_format_results exhaustive WGL.SWAP.MULTIPLE
 src/proofs.rs::wgl_font_batch_has_exact_nonzero_names kani WGL.FONT.LIST.RANGE
+src/proofs.rs::wgl_font_generation_guard_matches_upper_boundary kani WGL.FONT.LIST.RANGE
 tests/laws_opengl.rs::wgl_font_batches_replace_only_the_requested_lists pbt WGL.FONT.LIST.RANGE
 tests/laws_opengl.rs::wgl_byte_range_outlines_match_native_drawing_and_feedback exhaustive WGL.FONT.OUTLINE.BYTE
 src/proofs.rs::wgl_outline_code_matches_modular_addition kani WGL.FONT.OUTLINE.BYTE WGL.FONT.OUTLINE.WIDE
@@ -943,6 +944,8 @@ tests/laws_opengl.rs::wgl_wide_outline_code_units_match_native_feedback exhausti
 tests/laws_opengl.rs::wgl_font_modes_match_native_results exhaustive WGL.FONT.RENDER.MODE
 tests/laws_opengl.rs::wgl_bitmap_primitives_match_native_rejection exhaustive WGL.FONT.BITMAP.RANGE
 tests/laws_opengl.rs::wgl_font_compiler_names_match_native_state exhaustive WGL.FONT.LIST.RANGE
+tests/laws_opengl.rs::wgl_large_list_names_match_native_state_before_release exhaustive WGL.FONT.LIST.RANGE
+tests/laws_opengl.rs::wgl_maximum_list_name_lifetime_matches_windows exhaustive WGL.FONT.LIST.RANGE
 tests/laws_opengl.rs::debug_entry_preserves_pending_gl_errors pbt WGL.DEBUG.ENTRY
 tests/laws_opengl.rs::wgl_format_exports_cover_every_generic_dib_descriptor exhaustive WGL.FORMATS WGL.DC.EXPORTS
 tests/laws_opengl.rs::wgl_layer_palette_results_depend_on_plane pbt WGL.LAYER.PALETTE

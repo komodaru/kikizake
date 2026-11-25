@@ -412,6 +412,18 @@ fn wgl_font_batch_has_exact_nonzero_names() {
     }
 }
 
+/// Check the generation guard over all GLuint bases and signed counts.
+#[kani::proof]
+fn wgl_font_generation_guard_matches_upper_boundary() {
+    let base: u32 = kani::any();
+    let count: i32 = kani::any();
+    let inclusive_end = i64::from(base) + i64::from(count) - 1;
+    let maximum = i64::from(u32::MAX);
+    let expected = (1..=64).contains(&count)
+        && (inclusive_end < maximum || (inclusive_end == maximum && count == 1));
+    assert_eq!(crate::model::opengl::wgl_font_generation_supported(base, count), expected);
+}
+
 /// For every pair of DWORDs the glyph selector is their sum modulo
 /// the ANSI byte or the Unicode word, including DWORD wraparound.
 #[kani::proof]

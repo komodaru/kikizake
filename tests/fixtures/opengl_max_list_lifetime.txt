@@ -1,0 +1,143 @@
+=== implicit -1073741819
+>case first
+>glcur
+>end
+>case implicit
+>glctx 32 choose 0x38 0 32 0 0 32 8
+>wglx fontbmp a 32 1 0xffffffff
+>glr glIsList b i 0xffffffff
+>end
+>case after
+>glcur
+>end
+<kikizake glstipple
+<case first
+<glcur 0 0
+<case implicit
+=== explicit -1073741819
+>case first
+>glcur
+>end
+>case explicit
+>glctx 32 choose 0x38 0 32 0 0 32 8
+>wglx fontoutline w 32 1 0xffffffff 0
+>glrelease
+>end
+>case after
+>glcur
+>end
+<kikizake glstipple
+<case first
+<glcur 0 0
+<case explicit
+=== replacement -1073741819
+>case first
+>glcur
+>end
+>case replacement
+>glctx 32 choose 0x38 0 32 0 0 32 8
+>gl glNewList 0xffffffff 0x1300
+>gl glEndList
+>glctx 32 choose 0x38 0 32 0 0 32 8
+>end
+>case after
+>glcur
+>end
+<kikizake glstipple
+<case first
+<glcur 0 0
+<case replacement
+=== delete -1073741819
+>case first
+>glcur
+>end
+>case delete
+>glctx 32 choose 0x38 0 32 0 0 32 8
+>wglx fontoutline w 32 1 0xffffffff 0
+>gl glDeleteLists 0xffffffff 1
+>end
+>case after
+>glcur
+>end
+<kikizake glstipple
+<case first
+<glcur 0 0
+<case delete
+=== empty_delete 0
+>case first
+>glcur
+>end
+>case empty_delete
+>glctx 32 choose 0x38 0 32 0 0 32 8
+>gl glDeleteLists 0xffffffff 1
+>glerr
+>glrelease
+>end
+>case after
+>glcur
+>end
+<kikizake glstipple
+<case first
+<glcur 0 0
+<case empty_delete
+<glctx ok 185
+<glerr 0
+<glrelease 1 1
+<case after
+<glcur 0 0
+<done
+=== lower_delete 0
+>case first
+>glcur
+>end
+>case lower_delete
+>glctx 32 choose 0x38 0 32 0 0 32 8
+>gl glNewList 0xfffffffe 0x1300
+>gl glEndList
+>gl glDeleteLists 0xfffffffe 2
+>glerr
+>glr glIsList b i 0xfffffffe
+>glrelease
+>end
+>case after
+>glcur
+>end
+<kikizake glstipple
+<case first
+<glcur 0 0
+<case lower_delete
+<glctx ok 185
+<glerr 0
+<ret 0
+<glrelease 1 1
+<case after
+<glcur 0 0
+<done
+=== lower_batch 0
+>case first
+>glcur
+>end
+>case lower_batch
+>glctx 32 choose 0x38 0 32 0 0 32 8
+>wglx fontbmp a 32 2 0xfffffffd
+>glr glIsList b i 0xfffffffd
+>glr glIsList b i 0xfffffffe
+>glerr
+>glrelease
+>end
+>case after
+>glcur
+>end
+<kikizake glstipple
+<case first
+<glcur 0 0
+<case lower_batch
+<glctx ok 185
+<wglx fontbmp 1 0
+<ret 1
+<ret 1
+<glerr 0
+<glrelease 1 1
+<case after
+<glcur 0 0
+<done

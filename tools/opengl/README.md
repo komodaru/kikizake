@@ -96,6 +96,22 @@ except subprocess.TimeoutExpired as exc:
     print(exc.stdout)
 ```
 
+## Upper display-list names
+
+The x86 and x64 recordings agreed on creation and replay for the sampled
+large list names. The single maximum name `0xffffffff` remained usable
+after creation. Unbinding succeeded, and deleting the context with that
+list live produced `0xc0000005`. A deletion range containing the maximum
+live name also produced that status.
+
+`tests/fixtures/opengl_large_list_state.txt` keeps the paired observations
+from the probe that flushed output around unbinding and deletion.
+`tests/fixtures/opengl_max_list_lifetime.txt` keeps ad hoc runner
+programs and their recorded output. A record header gives the case name
+and signed process status. Lines starting with `>` are input and lines
+starting with `<` are output. The Rust regression uses these saved
+observations, including the output flushed before an interrupted case.
+
 ## Windows WGL bitmap captures
 
 The bitmap atlas records all 65,536 input code units of

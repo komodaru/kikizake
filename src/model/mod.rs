@@ -296,6 +296,9 @@ impl Api for opengl::Gl {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {
         opengl::Gl::op(self, op, out)
     }
+    fn end(&mut self) -> Res<()> {
+        self.release()
+    }
 }
 impl Api for ddraw::Ddraw {
     fn op(&mut self, op: &crate::case::Op, out: &mut Vec<String>) -> Res<bool> {

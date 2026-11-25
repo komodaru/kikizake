@@ -51,6 +51,17 @@ impl Lists {
         let Lists { lists: _, compiling: _, base, depth: _ } = saved;
         self.base = *base;
     }
+
+    pub(super) fn delete(&mut self, first: u32, range: u64) -> Res<()> {
+        let includes = |name: u32| u64::from(name.wrapping_sub(first)) < range;
+        // Native x86 and x64 fault when deletion reaches a live UINT_MAX list.
+        if includes(u32::MAX) && self.lists.contains_key(&u32::MAX) {
+            return Err(Fail::Crash);
+        }
+        self.lists.retain(|&name, _| !includes(name));
+        Ok(())
+    }
+
     /// glGenLists: n names in one run, the lowest free run from 1, each an empty list
     pub fn gen_names(&mut self, n: u32) -> u32 {
         let mut first = 1u32;
@@ -260,7 +271,7 @@ impl Gl {
                     // there are, not counted out: the review of 84b05c8, 5, a list 1048577 left
                     // by glDeleteLists(1, 1048577))
                     let range = u64::try_from(range).unwrap_or(0);
-                    ctx.lists.lists.retain(|&k, _| u64::from(k.wrapping_sub(first)) >= range);
+                    ctx.lists.delete(first, range)?;
                 }
                 Ok(true)
             }
