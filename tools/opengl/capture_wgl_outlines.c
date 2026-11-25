@@ -125,6 +125,63 @@ static int font_modes(HDC dc) {
     return 0;
 }
 
+static int font_compiles(HDC dc) {
+    const GLuint bases[] = {0, 54, 55, 100};
+    for (int mode = 0; mode < 2; ++mode) {
+        for (int api = 0; api <= 2; ++api) {
+            for (int wide = 0; wide <= 1; ++wide) {
+                for (size_t b = 0; b < sizeof bases / sizeof bases[0]; ++b) {
+                    for (int pending = 0; pending <= 1; ++pending) {
+                        for (DWORD count = 1; count <= 2; ++count) {
+                            GLuint base = bases[b];
+                            glDeleteLists(1, 1);
+                            glDeleteLists(54, 3);
+                            glDeleteLists(100, 2);
+                            glMatrixMode(GL_MODELVIEW);
+                            glLoadIdentity();
+                            glRasterPos2f(-0.5f, -0.5f);
+                            glListBase(3);
+                            if (pending) glEnable(0xffff);
+                            glNewList(55, mode ? GL_COMPILE_AND_EXECUTE : GL_COMPILE);
+                            glListBase(222);
+                            GLYPHMETRICSFLOAT glyphs[2] = {{0}};
+                            SetLastError(0);
+                            BOOL ok = !api
+                                ? (wide ? wglUseFontBitmapsW(dc, 65, count, base)
+                                        : wglUseFontBitmapsA(dc, 65, count, base))
+                                : (wide ? wglUseFontOutlinesW(dc, 65, count, base, 0, 0, api - 1, glyphs)
+                                        : wglUseFontOutlinesA(dc, 65, count, base, 0, 0, api - 1, glyphs));
+                            DWORD error = ok ? 0 : GetLastError();
+                            GLenum gl_error = glGetError();
+                            GLint list_index, list_base;
+                            GLfloat raster[4], matrix[16];
+                            glGetIntegerv(GL_LIST_INDEX, &list_index);
+                            glGetIntegerv(GL_LIST_BASE, &list_base);
+                            glGetFloatv(GL_CURRENT_RASTER_POSITION, raster);
+                            glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
+                            printf("%d %d %d %u %d %lu | %d %lu %x %d %d %08lx %08lx",
+                                   mode, api, wide, base, pending, count, ok, error, gl_error, list_index,
+                                   list_base, fbits(raster[0]), fbits(matrix[12]));
+                            if (list_index) glEndList();
+                            printf(" %d%d%d %x", glIsList(55), glIsList(base), glIsList(base + 1), glGetError());
+                            glLoadIdentity();
+                            glRasterPos2f(-0.5f, -0.5f);
+                            glListBase(3);
+                            glCallList(55);
+                            glGetIntegerv(GL_LIST_BASE, &list_base);
+                            glGetFloatv(GL_CURRENT_RASTER_POSITION, raster);
+                            glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
+                            printf(" %d %08lx %08lx %x\n", list_base, fbits(raster[0]), fbits(matrix[12]), glGetError());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    puts("done");
+    return 0;
+}
+
 static void begin_primitive(int phase) {
     if (phase) glNewList(55, phase == 1 ? GL_COMPILE : GL_COMPILE_AND_EXECUTE);
     glBegin(GL_POINTS);
@@ -184,9 +241,10 @@ int main(int argc, char **argv) {
     const int bounded = argc == 2 && !strcmp(argv[1], "wide-readback");
     const int reps = argc == 3 && !strcmp(argv[1], "wide-reps");
     const int states = argc == 2 && !strcmp(argv[1], "font-modes");
+    const int compiles = argc == 2 && !strcmp(argv[1], "font-compiles");
     const int bitmap_begin = argc == 2 && !strcmp(argv[1], "bitmap-primitives");
     const int outline_begin = argc == 5 && !strcmp(argv[1], "outline-primitive");
-    const int byte_capture = !(scan || bounded || reps || states || bitmap_begin || outline_begin);
+    const int byte_capture = !(scan || bounded || reps || states || compiles || bitmap_begin || outline_begin);
     if (byte_capture && argc != 4 && argc != 5) return 1;
     const int first = byte_capture ? atoi(argv[1]) : 0;
     const int last = byte_capture ? atoi(argv[2]) : 0;
@@ -219,6 +277,7 @@ int main(int argc, char **argv) {
     if (!font || !SelectObject(dc, font)) return 5;
     if (scan || bounded) return scan_wide(dc, bounded);
     if (states) return font_modes(dc);
+    if (compiles) return font_compiles(dc);
     if (bitmap_begin) return bitmap_primitives(dc);
     if (outline_begin) return outline_primitive(dc, atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
     static int codes[65536];

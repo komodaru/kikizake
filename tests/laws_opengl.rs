@@ -2120,6 +2120,54 @@ fn wgl_outline_calls_within_primitives_fail_as_unmodeled() {
     }
 }
 
+#[test]
+fn wgl_font_compiler_names_match_native_state() {
+    let fixtures = include_str!("fixtures/opengl_font_compiles.txt");
+    assert_eq!(fixtures.lines().count(), 192);
+    for row in fixtures.lines() {
+        let (inputs, expected) = row.split_once(" | ").unwrap();
+        let inputs: Vec<_> = inputs.split_whitespace().collect();
+        let expected: Vec<_> = expected.split_whitespace().collect();
+        let [mode, api, wide, base, pending, count] = inputs.as_slice() else { panic!("invalid input {row}"); };
+        let [ok, last_error, gl_error, index, list_base, raster, matrix, names, close_error, replay_base,
+             replay_raster, replay_matrix, replay_error] = expected.as_slice() else { panic!("invalid output {row}"); };
+        let (name, format) = match *api {
+            "0" => ("fontbmp", ""),
+            "1" => ("fontoutline", " 0"),
+            "2" => ("fontoutline", " 1"),
+            _ => panic!("invalid font API {row}"),
+        };
+        let base: u32 = base.parse().unwrap();
+        let encoding = if *wide == "1" { "w" } else { "a" };
+        let mode = if *mode == "0" { "0x1300" } else { "0x1301" };
+        let mut input = String::from("case font-compiling\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glRasterPos2f -0.5 -0.5\ngl glListBase 3\n");
+        if *pending == "1" { input.push_str("gl glEnable 0xffff\n"); }
+        input.push_str(&format!("gl glNewList 55 {mode}\ngl glListBase 222\nwglx {name} {encoding} 65 {count} {base}{format}\nglerr\nglget i 0xb33 1\nglget i 0xb32 1\nglget f 0xb07 4\nglget f 0xba6 16\n"));
+        if *index != "0" { input.push_str("gl glEndList\n"); }
+        input.push_str(&format!("glr glIsList b i 55\nglr glIsList b i {base}\nglr glIsList b i {}\nglerr\n", base + 1));
+        input.push_str("gl glLoadIdentity\ngl glRasterPos2f -0.5 -0.5\ngl glListBase 3\ngl glCallList 55\nglget i 0xb32 1\nglget f 0xb07 4\nglget f 0xba6 16\nglerr\nend\n");
+        let output = kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap();
+        assert_eq!(&output[..5], [
+            "glctx ok 1".into(), format!("wglx {name} {ok} {last_error}"), format!("glerr {gl_error}"),
+            format!("get b33 = {index}"), format!("get b32 = {list_base}"),
+        ], "{row}");
+        let lane = |line: &str, prefix: &str, lane: usize| {
+            line.strip_prefix(prefix).unwrap().split_whitespace().nth(lane).unwrap().to_string()
+        };
+        assert_eq!(lane(&output[5], "get b07 = ", 0), *raster, "{row}");
+        assert_eq!(lane(&output[6], "get ba6 = ", 12), *matrix, "{row}");
+        assert_eq!(names.len(), 3);
+        for (line, defined) in zip_eq(&output[7..10], names.chars()) {
+            assert_eq!(line, &format!("ret {defined}"), "{row}");
+        }
+        assert_eq!(output[10], format!("glerr {close_error}"), "{row}");
+        assert_eq!(output[11], format!("get b32 = {replay_base}"), "{row}");
+        assert_eq!(lane(&output[12], "get b07 = ", 0), *replay_raster, "{row}");
+        assert_eq!(lane(&output[13], "get ba6 = ", 12), *replay_matrix, "{row}");
+        assert_eq!(&output[14..], [format!("glerr {replay_error}")], "{row}");
+    }
+}
+
 proptest! {
     #[test]
     fn wgl_font_batches_replace_only_the_requested_lists(

@@ -67,6 +67,11 @@ rows up to the `done` marker to
 `tests/fixtures/opengl_font_modes.txt`. The recording includes GL and
 Win32 errors, list state, raster position and feedback or selection data.
 
+Run `capture_wgl_outlines.exe font-compiles` on both architectures for the
+192 observations in `tests/fixtures/opengl_font_compiles.txt`. These
+exercise base zero, an overlapping list name and a distinct destination
+under both list compilation modes.
+
 ## Font creation in primitives
 
 Run `capture_wgl_outlines.exe bitmap-primitives` on both architectures.

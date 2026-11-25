@@ -934,6 +934,7 @@ tests/laws_opengl.rs::wgl_byte_range_bitmaps_match_native_pixels_and_positions e
 tests/laws_opengl.rs::wgl_wide_outline_code_units_match_native_feedback exhaustive WGL.FONT.OUTLINE.WIDE
 tests/laws_opengl.rs::wgl_font_modes_match_native_results exhaustive WGL.FONT.RENDER.MODE
 tests/laws_opengl.rs::wgl_bitmap_primitives_match_native_rejection exhaustive WGL.FONT.BITMAP.RANGE
+tests/laws_opengl.rs::wgl_font_compiler_names_match_native_state exhaustive WGL.FONT.LIST.RANGE
 tests/laws_opengl.rs::debug_entry_preserves_pending_gl_errors pbt WGL.DEBUG.ENTRY
 tests/laws_opengl.rs::wgl_format_exports_cover_every_generic_dib_descriptor exhaustive WGL.FORMATS WGL.DC.EXPORTS
 tests/laws_opengl.rs::wgl_layer_palette_results_depend_on_plane pbt WGL.LAYER.PALETTE

@@ -1785,8 +1785,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                 // The outline call consumes the pending error even for zero glyphs or an invalid format.
                 ctx.err = 0;
             }
-            let supported_names = wgl_font_last_name(base, count).is_some()
-                || (base == 0 && ctx.lists.compiling.is_none());
+            let supported_names = base == 0 || wgl_font_last_name(base, count).is_some();
             let wide = encoding == "w";
             let bitmap_first = if name == "fontbmp" && rest.is_empty() {
                 hit(clause::WGL_FONT_BITMAP_RANGE);
@@ -1847,12 +1846,6 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                     for offset in 0..count {
                         let code = wgl_outline_code(first, offset.cast_unsigned(), wide);
                         let (glyph, lines) = wgl_outline(code, wide, format)?;
-                        if base == 0 {
-                            for line in &lines { ctx.scalar_command(&line.tok)?; }
-                            ctx.err = 0;
-                            out.push("wglx fontoutline 0 8".into());
-                            return Ok(());
-                        }
                         if let Some(mut current) = ctx.lists.compiling.take() {
                             if current.mode == list::COMPILE_AND_EXECUTE {
                                 for line in &lines { ctx.scalar_command(&line.tok)?; }
@@ -1861,6 +1854,12 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                             ctx.lists.lists.insert(current.name, current.lines);
                             ctx.lists.lists.remove(&base);
                             // WGL consumes the GL error while checking the first outline.
+                            ctx.err = 0;
+                            out.push("wglx fontoutline 0 8".into());
+                            return Ok(());
+                        }
+                        if base == 0 {
+                            for line in &lines { ctx.scalar_command(&line.tok)?; }
                             ctx.err = 0;
                             out.push("wglx fontoutline 0 8".into());
                             return Ok(());
