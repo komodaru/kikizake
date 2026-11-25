@@ -596,6 +596,9 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
         Ok(c) => c,
         Err(e) => return Ok(Err(e)),
     };
+    if caps.is_empty() && pen.dash == 0 {
+        hit(clause::GP_PEN_WIDE_CENTERED);
+    }
     let mut out = match body(r, &figs, pen, m, &minv, (start, end), false)? {
         Ok(o) => o,
         Err(e) => return Ok(Err(e)),

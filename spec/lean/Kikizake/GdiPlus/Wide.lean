@@ -358,7 +358,21 @@ def closedBand (d : Bool) (b : Band) (p : Array Pair) : List (List Out) :=
     (l ++ a, rt ++ c)) ([], [])
   [firstPoint left, firstPoint (reverseSide right)]
 
-private def closeFigure (points : List Out) : List Out :=
+/-- A compound pen's whole-width round or triangle cap is a separate figure. -/
+def wholeCap (d : Bool) (b : Band) (p : Array Pair) (cap : Nat) (start : Bool) : Option (List Out) :=
+  let r := ops d
+  let n := p.size
+  if n < 2 then none else
+  let (at_, s) := if start then (p.getD 0 (0, 0), segment d r (p.getD 0 (0, 0)) (p.getD 1 (0, 0)))
+    else (p.getD (n - 1) (0, 0), segment d r (p.getD (n - 2) (0, 0)) (p.getD (n - 1) (0, 0)))
+  let (a, c) := (off r b.right s.n at_, off r b.left s.n at_)
+  let (first, last) := if start then (a, c) else (c, a)
+  if cap == 3 then some (firstPoint [line first, line (capTip r b at_ s.g start), line last])
+  else if cap == 2 then
+    some (firstPoint (setFirstPoint (roundCap r b at_ s.g start) first))
+  else none
+
+def closeFigure (points : List Out) : List Out :=
   match points.reverse with
   | [] => []
   | p :: rest => ({ p with type := p.type + 128 } :: rest).reverse

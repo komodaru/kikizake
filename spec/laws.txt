@@ -550,6 +550,10 @@ spec/lean/Kikizake/GdiPlus/Wide.lean::horizontal_flat_caps lean GP.PEN.WIDE.BAND
 spec/lean/Kikizake/GdiPlus/Wide.lean::horizontal_square_caps lean GP.PEN.WIDE.BAND
 spec/lean/Kikizake/GdiPlus/Wide.lean::horizontal_triangle_caps lean GP.PEN.WIDE.BAND
 spec/lean/Kikizake/GdiPlus/Wide.lean::horizontal_round_caps lean GP.PEN.WIDE.BAND
+spec/lean/Kikizake/GdiPlus/WideRoute.lean::singular_matrix_leaves_no_outline lean GP.PEN.WIDE.CENTERED
+spec/lean/Kikizake/GdiPlus/WideRoute.lean::translated_solid_line lean GP.PEN.WIDE.CENTERED
+spec/lean/Kikizake/GdiPlus/WideRoute.lean::thin_device_space_line lean GP.PEN.WIDE.CENTERED
+spec/lean/Kikizake/GdiPlus/WideRoute.lean::compound_caps_follow_bands lean GP.PEN.WIDE.CENTERED
 spec/lean/Kikizake/GdiPlus/Chain.lean::copies lean GP.DRAW.NEAREST
 spec/lean/Kikizake/GdiPlus/Chain.lean::ramp lean GP.DRAW.BILINEAR
 spec/lean/Kikizake/GdiPlus/Chain.lean::tables lean GP.DRAW.HQ_BILINEAR GP.DRAW.HQ_BICUBIC

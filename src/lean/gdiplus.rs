@@ -19,6 +19,7 @@ const CHAIN: &str = "spec/lean/Kikizake/GdiPlus/Chain.lean";
 const DASH: &str = "spec/lean/Kikizake/GdiPlus/Dash.lean";
 const INSET: &str = "spec/lean/Kikizake/GdiPlus/Inset.lean";
 const WIDE: &str = "spec/lean/Kikizake/GdiPlus/Wide.lean";
+const WIDE_ROUTE: &str = "spec/lean/Kikizake/GdiPlus/WideRoute.lean";
 
 /// the formats the mirror converts, by their place in `Pf` (the indexed ones and 16bppGrayScale
 /// convert through tables and refusals the Lean file does not hold)
@@ -1177,6 +1178,79 @@ pub static MIRRORS: &[Mirror] = &[
                 pts.push((f32::from_bits(arg(p, 0)?), f32::from_bits(arg(p, 1)?)));
             }
             one(i64::from(gppath::too_small(rounding(arg(a, 0)?), &m, &pts)))
+        },
+    },
+    Mirror {
+        name: "gp.wide-centered",
+        lean: WIDE_ROUTE,
+        domain: Domain::Sampled("3,000 solid centered paths with open and closed figures, lines and cubics, ordinary and compound caps, thin and thick widths and diverse affine matrices, plus exact theorem inputs"),
+        inputs: |each| {
+            let bits = |v| i64::from((f32::from(i16::try_from(v).unwrap_or(0)) / 4.0).to_bits());
+            let line = [0, 0, 0, bits(16), 0, 1];
+            for (width, scale, cap, compound) in [
+                (8, 4, 0, &[][..]), (1, 4, 0, &[]), (8, 0, 0, &[]), (8, 4, 3, &[0, 2, 3, 4]),
+            ] {
+                let mut a = vec![0, bits(width), bits(16), 0, cap, cap, bits(1),
+                    bits(scale), 0, 0, bits(4), bits(12), bits(-8), i64::try_from(compound.len()).unwrap_or(0)];
+                a.extend(compound.iter().copied().map(bits));
+                a.extend(line);
+                each(&a);
+            }
+            let mut rng = crate::rng::Sample64::new(0x71de_c301);
+            let matrices = [[4, 0, 0, 4], [0, 4, -4, 0], [2, 0, 0, 8], [4, 2, 1, 4],
+                [-4, 0, 0, 2], [4, 8, 2, 4], [1, 0, 0, 4], [4, -2, 2, 4]];
+            let compounds = [&[][..], &[0, 4], &[0, 2, 3, 4], &[0, 0, 1, 3], &[0, 2, 2, 4]];
+            for i in 0..3000 {
+                let matrix = rng.pick(&matrices);
+                let compound = *rng.pick(&compounds);
+                let mut a = vec![i % 2, bits(rng.range(1, 32)), bits(rng.range(2, 24)), rng.range(0, 3),
+                    rng.range(0, 3), rng.range(0, 3), bits(rng.range(1, 2))];
+                a.extend(matrix.iter().copied().map(bits));
+                a.extend([bits(rng.range(-16, 16)), bits(rng.range(-16, 16)), i64::try_from(compound.len()).unwrap_or(0)]);
+                a.extend(compound.iter().copied().map(bits));
+                for _ in 0..rng.range(1, 3) {
+                    let curve = rng.chance(4);
+                    let closed = rng.chance(2);
+                    let n = if curve { 4 } else { rng.range(1, 6) };
+                    for j in 0..n {
+                        let kind = if j == 0 { 0 } else if curve { 3 } else { 1 };
+                        let close = if closed && j + 1 == n { 128 } else { 0 };
+                        a.extend([bits(rng.range(-32, 32)), bits(rng.range(-32, 32)), kind + close]);
+                    }
+                }
+                each(&a);
+            }
+        },
+        model: |a| {
+            use crate::model::gppath::{Kind, Path, Pen, Point};
+            use crate::model::gpwiden::{widen, Widened};
+            let [d, width, miter, join, sc, ec, flatness, a0, a1, a2, a3, tx, ty, count, rest @ ..] = a else { return None; };
+            let f32_arg = |v| u32::try_from(v).ok().map(f32::from_bits);
+            let (compound, rest) = rest.split_at_checked(usize::try_from(*count).ok()?)?;
+            if compound.len() % 2 != 0 { return None; }
+            let (triples, odd) = rest.as_chunks::<3>();
+            if !odd.is_empty() { return None; }
+            let points = triples.iter().map(|&[x, y, t]| {
+                let kind = match t % 128 {
+                    0 => Kind::Start,
+                    1 => Kind::Line,
+                    3 => Kind::Bezier,
+                    _ => return None,
+                };
+                Some(Point { x: f32_arg(x)?, y: f32_arg(y)?, kind, close: t >= 128, inner: false })
+            }).collect::<Option<Vec<_>>>()?;
+            let mut pen = Pen::new(0, f32_arg(*width)?);
+            pen.miter = f32_arg(*miter)?;
+            pen.join = *join;
+            pen.start_cap = *sc;
+            pen.end_cap = *ec;
+            pen.compound = compound.iter().copied().map(f32_arg).collect::<Option<_>>()?;
+            let matrix = [f32_arg(*a0)?, f32_arg(*a1)?, f32_arg(*a2)?, f32_arg(*a3)?, f32_arg(*tx)?, f32_arg(*ty)?];
+            Some(match widen(rounding(*d), &Path::of(0, points), &pen, &matrix, f32_arg(*flatness)?).ok()? {
+                Ok(path) => std::iter::once(0).chain(path.pts.into_iter().flat_map(|p| [i64::from(p.type_byte()), canon(p.x), canon(p.y)])).collect(),
+                Err(Widened::NoInverse) => vec![-1],
+                Err(Widened::Failed) => vec![-2],
+            })
         },
     },
     Mirror {

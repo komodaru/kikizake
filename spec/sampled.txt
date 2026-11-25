@@ -208,6 +208,7 @@ GP.PEN.NOMINAL sampled
 GP.PEN.ONEPIXEL sampled
 GP.PEN.OUTLINE sampled
 GP.PEN.WIDE.BAND sampled
+GP.PEN.WIDE.CENTERED sampled
 GP.PEN.WIDE.JOIN sampled
 GP.PEN.WORLD sampled
 GP.RASTER.FILL spec-only
