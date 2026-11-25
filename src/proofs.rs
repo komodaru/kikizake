@@ -529,3 +529,14 @@ fn selection_depths_preserve_extrema_and_first_hit() {
         assert_eq!(encoded, [first; 2]);
     }
 }
+
+#[kani::proof]
+fn signed_light_colors_preserve_sign_and_half_step_symmetry() {
+    use crate::model::opengl::signed_light_component;
+
+    let word: i32 = kani::any();
+    let color = signed_light_component(word);
+    assert_eq!(color.is_sign_negative(), word < 0);
+    assert!(color.is_finite() && color != 0.0);
+    assert_eq!(color.to_bits() ^ 0x8000_0000, signed_light_component(!word).to_bits());
+}

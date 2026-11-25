@@ -3239,3 +3239,172 @@ end
         prop_assert_eq!(&output[1..], [position, "glerr 0".into()]);
     }
 }
+
+#[test]
+fn light_powers_use_the_measured_table_entries() {
+    let head = "case power
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glEnable 0xb50
+gl glEnable 0x4000
+glp glLightModelfv i 0xb53 f 0 0 0 1
+";
+    let start = "glp glFeedbackBuffer ii 64 0x602 obuf
+glr glRenderMode i i 0x1c01
+gl glBegin 0
+";
+    let end = "gl glEnd
+glr glRenderMode i i 0x1c00
+";
+    for (exponent, inputs, expected) in [
+        (1, [0.00049, 0.0005, 0.002459804], ["0", "0.000500000082", "0.00441960851"]),
+        (3, [0.125, 0.25, 0.5], ["0.0020148959", "0.0154484417", "0.12633729"]),
+        (16, [0.5, 0.9238795, 1.02], ["0", "0.284140676", "1"]),
+    ] {
+        let mut input = format!("{head}glp glMaterialfv ii 0x408 0x1201 f 0 0 0 1\n\
+glp glMaterialfv ii 0x408 0x1202 f 1 1 1 1\ngl glMaterialf 0x408 0x1601 {exponent}\n{start}");
+        use std::fmt::Write;
+        for normal in inputs {
+            writeln!(&mut input, "gl glNormal3f 0 0 {normal}\ngl glVertex3f 0 0 0").unwrap();
+        }
+        write!(&mut input, "{end}globuf f 24\nend\n").unwrap();
+        let mut words = String::from("obuf");
+        for color in expected {
+            write!(&mut words, " 1793 8 8 0.5 {color} {color} {color} 1").unwrap();
+        }
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], ["ret 0".into(), "ret 24".into(), words]);
+    }
+    let spotlight = format!("{head}glp glMaterialfv ii 0x408 0x1201 f 1 1 1 1\n\
+glp glLightfv ii 0x4000 0x1203 f 0 0 1 1\nglp glLightfv ii 0x4000 0x1204 f 1 0 -1\n\
+gl glLightf 0x4000 0x1206 80\ngl glLightf 0x4000 0x1205 8\n\
+gl glNormal3f 0 0 1\n{start}gl glVertex3f 0 0 0\n{end}globuf f 8\nend\n");
+    let cases = kikizake::case::parse_cases(&spotlight);
+    let output = kikizake::model::run_case(&cases[0]).unwrap();
+    assert_eq!(&output[1..], ["ret 0", "ret 8", "obuf 1793 8 8 0.5 0.0621262342 0.0621262342 0.0621262342 1"]);
+}
+
+#[test]
+fn color_index_lighting_uses_material_indices() {
+    let cases = kikizake::case::parse_cases("case light-index
+glctx 8 choose 0x38 1 8 0 0 0 0
+glget i 0xc30 1
+gl glEnable 0xb50
+glp glMaterialfv ii 0x408 0x1603 f 12 100 200
+glp glLightfv ii 0x4000 0x1201 f 0.5 0 0 1
+glp glLightfv ii 0x4000 0x1202 f 0 0 0.5 1
+gl glMaterialf 0x408 0x1601 1
+glp glFeedbackBuffer ii 64 0x602 obuf
+glr glRenderMode i i 0x1c01
+gl glBegin 0
+gl glNormal3f 0 0 1
+gl glVertex3f 0 0 0
+gl glEnd
+glr glRenderMode i i 0x1c00
+globuf f 5
+gl glEnable 0x4000
+glr glRenderMode i i 0x1c01
+gl glBegin 0
+gl glNormal3f 0 0 1
+gl glVertex3f 0 0 0
+gl glNormal3f 0 0 0.5
+gl glVertex3f 0 0 0
+gl glNormal3f 0 0 -1
+gl glVertex3f 0 0 0
+gl glEnd
+glr glRenderMode i i 0x1c00
+globuf f 15
+glerr
+end
+");
+    let expected: &[&[&str]] = &[
+        &["get c30 = 1", "ret 0", "ret 5", "obuf 1793 8 8 0.5 12", "ret 0", "ret 15", "obuf 1793 8 8 0.5 34.814003 1793 8 8 0.5 23.5714417 1793 8 8 0.5 12", "glerr 0"],
+    ];
+    for (case, &expected) in zip_eq(&cases, expected) {
+        let output = kikizake::model::run_case(case).unwrap();
+        assert_eq!(&output[1..], expected, "{}", case.name);
+    }
+}
+
+#[test]
+fn integer_lighting_vectors_and_rejected_scalar_updates_match_windows() {
+    let cases = kikizake::case::parse_cases("case light-integer-vectors
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glLightiv ii 0x4005 0x1201 i -2147483648 -1 0 2147483647
+glq glGetLightfv ii 0x4005 0x1201 f 4
+glq glGetLightiv ii 0x4005 0x1201 i 4
+glp glLightiv ii 0x4005 0x1204 i 2 -3 1
+glq glGetLightfv ii 0x4005 0x1204 f 3
+glp glLightModeliv i 0xb53 i -2147483648 -1 0 2147483647
+glget f 0xb53 4
+glget i 0xb53 4
+glp glLightModeliv i 0xb51 i -2
+glget i 0xb51 1
+glp glLightModeliv i 0xb52 i 0
+glget i 0xb52 1
+glp glMaterialiv ii 0x408 0x1602 i -2147483648 -1 0 2147483647
+glq glGetMaterialfv ii 0x405 0x1200 f 4
+glq glGetMaterialfv ii 0x404 0x1201 f 4
+glq glGetMaterialiv ii 0x405 0x1201 i 4
+glerr
+end
+case light-vector-bounds
+glctx 32 choose 0x38 0 32 0 0 32 8
+glp glLightfv ii 0x4000 0x1203 obuf
+glq glGetLightfv ii 0x4000 0x1203 f 4
+glp glLightfv ii 0x4001 0x1205 f 64
+glp glLightfv ii 0x4001 0x1205 f 129
+glerr
+glq glGetLightfv ii 0x4001 0x1205 f 1
+glp glLightfv ii 0x4001 0x1209 f 0.5
+glp glLightfv ii 0x4001 0x1209 f -1
+glerr
+glq glGetLightfv ii 0x4001 0x1209 f 1
+glp glLightfv ii 0x4001 0x1206 f 90
+glp glLightfv ii 0x4001 0x1206 f 179
+glerr
+glq glGetLightfv ii 0x4001 0x1206 f 1
+glerr
+end
+");
+    let expected: &[&[&str]] = &[
+        &["q -1.0000006 -2.32830782e-10 2.32830782e-10 1.0000006", "q -2147483648 -1 0 -2147483648", "q 2 -3 1", "get b53 = bf800005 af800005 2f800005 3f800005", "get b53 = -2147483648 -1 0 -2147483648", "get b51 = 1", "get b52 = 0", "q -1.00000048 -2.32830755e-10 2.32830755e-10 1.00000048", "q -1.00000048 -2.32830755e-10 2.32830755e-10 1.00000048", "q -2147483520 -1 0 2147483520", "glerr 0"],
+        &["q -107374176 -107374176 -107374176 -107374176", "glerr 501", "q 64", "glerr 501", "q 0.5", "glerr 501", "q 90", "glerr 0"],
+    ];
+    for (case, &expected) in zip_eq(&cases, expected) {
+        let output = kikizake::model::run_case(case).unwrap();
+        assert_eq!(&output[1..], expected, "{}", case.name);
+    }
+}
+
+#[test]
+fn lighting_normalizes_after_transform_and_retains_normals_for_singular_matrices() {
+    for (scale_y, normalize, color) in [
+        (0, "glDisable", "0.75000006"),
+        (0, "glEnable", "1"),
+        (1, "glDisable", "0.37500003"),
+        (1, "glEnable", "1"),
+    ] {
+        let input = format!("case normal
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glEnable 0xb50
+gl glEnable 0x4000
+glp glLightModelfv i 0xb53 f 0 0 0 1
+glp glMaterialfv ii 0x408 0x1201 f 1 1 1 1
+gl glScalef 1 {scale_y} 2
+gl {normalize} 0xba1
+gl glNormal3f 0 0 0.75
+glp glFeedbackBuffer ii 64 0x602 obuf
+glr glRenderMode i i 0x1c01
+gl glBegin 0
+gl glVertex3f 0 0 0
+gl glEnd
+glr glRenderMode i i 0x1c00
+globuf f 8
+end
+");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], ["ret 0".into(), "ret 8".into(), format!("obuf 1793 8 8 0.5 {color} {color} {color} 1")]);
+    }
+}

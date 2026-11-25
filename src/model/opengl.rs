@@ -271,8 +271,6 @@ use super::{Fail, Res};
 pub mod tex;
 #[path = "opengl_pixelmap.rs"]
 mod pixelmap;
-#[path = "opengl_gaps.rs"]
-mod gaps;
 #[path = "opengl_eval.rs"]
 pub(crate) mod eval;
 #[path = "opengl_list.rs"]
@@ -752,7 +750,7 @@ impl Ctx {
     }
 
     fn set_material_vector(&mut self, t: &[String]) -> Res<()> {
-        hit(crate::spec::open::GL_LIGHT_STATE.into());
+        hit(clause::GL_LIGHT_STATE);
         let [_, name, sig, face, pname, ..] = t else { return Err(Fail::Bad) };
         if sig != "ii" { return Err(Fail::Bad); }
         let face = crate::case::windows_long(face).ok_or(Fail::Bad)?;
@@ -760,8 +758,7 @@ impl Ctx {
         if !matches!(face, 0x404 | 0x405 | 0x408) {
             self.error(INVALID_ENUM);
         } else if matches!(pname, 0x1200..=0x1202 | 0x1600..=0x1603) {
-            let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
-            bytes.resize(16, 0);
+            let bytes = light_parameter_bytes(t)?;
             let mut values = [0.0; 4];
             for (v, &word) in values.iter_mut().zip(bytes.as_chunks::<4>().0) {
                 *v = if name == "glMaterialfv" { f32::from_le_bytes(word) } else if matches!(pname, 0x1200..=0x1202 | 0x1600 | 0x1602) { array::color_component(INT, f64::from(i32::from_le_bytes(word))) }
@@ -866,8 +863,7 @@ impl Ctx {
         let pname = crate::case::windows_long(pname).ok_or(Fail::Bad)?.cast_unsigned();
         if self.in_begin.is_some() { self.error(INVALID_OPERATION); return Ok(()); }
         if !(0xb51..=0xb53).contains(&pname) { self.error(INVALID_ENUM); return Ok(()); }
-        let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
-        bytes.resize(16, 0);
+        let bytes = light_parameter_bytes(t)?;
         let mut values = [0.0; 4];
         for (slot, &word) in values.iter_mut().zip(bytes.as_chunks::<4>().0) {
             let value = if name == "glLightModelfv" { f32::from_le_bytes(word) }
@@ -890,8 +886,7 @@ impl Ctx {
         } else if !(0x4000..=0x4007).contains(&light) || !(0x1200..=0x1209).contains(&pname) {
             self.error(INVALID_ENUM);
         } else {
-            let mut bytes = array::glp_bytes(t)?.ok_or(Fail::Unmodeled(crate::spec::open::GL_LIGHT_STATE))?;
-            bytes.resize(16, 0);
+            let bytes = light_parameter_bytes(t)?;
             let mut values = [0.0; 4];
             for (value, &word) in values.iter_mut().zip(bytes.as_chunks::<4>().0) {
                 *value = if name == "glLightfv" { f32::from_le_bytes(word) }
@@ -1269,8 +1264,8 @@ impl Ctx {
             0xc21 => i(self.index_mask as i64),
             0xc22 => c4(self.clear_color),
             0xc23 => self.color_mask_raw.iter().map(|b| I(*b as i64)).collect(),
-            0xc30 => vec![B(false)],
-            0xc31 => vec![B(true)],
+            0xc30 => vec![B(self.pf.ty != 0)],
+            0xc31 => vec![B(self.pf.ty == 0)],
             0xc32 => vec![B(pf.flags & PFD_DOUBLEBUFFER != 0)],
             0xc33 => vec![B(false)],
             0xc40 => i(if self.selecting { 0x1c02 } else if self.feedback.is_some() { 0x1c01 } else { 0x1c00 }),
@@ -1415,7 +1410,6 @@ pub const CALLS: &[(&str, &str)] = &[
     ("glTexCoord1f", "f"), ("glTexCoord2f", "ff"), ("glTexCoord3f", "fff"), ("glTexCoord4f", "ffff"),
     ("glCopyTexImage1D", "iiiiiii"), ("glCopyTexImage2D", "iiiiiiii"), ("glCopyTexSubImage1D", "iiiiii"),
     ("glCopyTexSubImage2D", "iiiiiiii"),
-    // (display lists .. other forms: gaps::)
     ("glNewList", "ii"),
     ("glEndList", ""),
     ("glCallList", "i"),
@@ -2051,7 +2045,6 @@ impl Gl {
             }
             // (texture images, objects and queries, GL 1.1 3.8: tex::)
             CtxOp::Gltex | CtxOp::Gltexsub | CtxOp::Glteximg | CtxOp::Gltexq | CtxOp::Gltexv | CtxOp::Glgentex | CtxOp::Gldeltex | CtxOp::Glistex | CtxOp::Glprio | CtxOp::Glresident => ctx.tex_op(t, out)?,
-            // (the calls of arrays and results: gaps::)
             CtxOp::Glp if t.get(1).is_some_and(|n| array::is_glp(n)) => {
                 if ctx.in_begin.is_some() && t.get(1).is_some_and(|n| n != "glEdgeFlagv") {
                     hit(clause::GL_BEGIN_ONLY);
@@ -2179,7 +2172,7 @@ impl Gl {
                 hit(clause::WGL_DEBUG_ENTRY);
                 out.push("ret 0".into());
             }
-            CtxOp::Glp | CtxOp::Glq | CtxOp::Glr => return Err(Fail::Unmodeled(gaps::op(t)?)),
+            CtxOp::Glp | CtxOp::Glq | CtxOp::Glr => return Err(Fail::Bad),
             CtxOp::Glrelease => {
                 hit(clause::WGL_RELEASE);
                 self.ctx = None;
@@ -2407,9 +2400,6 @@ impl Ctx {
         if let Some((n, args)) = forms::other(name, a) {
             hit(clause::GL_VARIANTS);
             return self.call(n, &args);
-        }
-        if let Some(gap) = gaps::call(name) {
-            return Err(Fail::Unmodeled(gap));
         }
         if self.in_begin.is_some() && !BEGIN_OK.contains(&name) {
             hit(clause::GL_BEGIN_ONLY);
@@ -3202,7 +3192,34 @@ pub fn color_material_lit(ambient: f32, nl: f32, c: [f32; 4]) -> [f32; 4] {
     [lit(c[0]), lit(c[1]), lit(c[2]), c[3]]
 }
 
-fn signed_light_component(v: i32) -> f32 {
+fn light_parameter_bytes(t: &[String]) -> Res<[u8; 16]> {
+    if let Some(mut bytes) = array::glp_bytes(t)? {
+        bytes.resize(16, 0);
+        bytes.try_into().ok().ok_or(Fail::Bad)
+    } else if t.last().is_some_and(|arg| arg == "obuf") {
+        // The runner initializes obuf before passing it to the input function.
+        Ok([0xcc; 16])
+    } else {
+        Err(Fail::Bad)
+    }
+}
+
+/// Sample the Windows light power table at the nearest of its 256 entries.
+fn lighting_power(cosine: f32, exponent: f32) -> f32 {
+    let lower = if exponent == 0.0 {
+        0.0
+    } else {
+        tri::narrow(0.0005_f64.powf(f64::from(exponent.recip())))
+    };
+    if !(lower..).contains(&cosine) { return 0.0; }
+    let span = 1.0 - f64::from(lower);
+    let phase = f64::from(cosine.min(1.0)) - f64::from(lower);
+    let index = (phase * (255.0 / span)).round_ties_even();
+    let sample = f64::from(lower) + index * (span / 255.0);
+    tri::narrow(sample.powf(f64::from(exponent)))
+}
+
+pub(crate) fn signed_light_component(v: i32) -> f32 {
     tri::narrow(2.0 * f64::from(v) + 1.0) * f32::from_bits(0x2f80_0005)
 }
 
@@ -3412,14 +3429,10 @@ impl Ctx {
         hit(clause::GL_LIGHTING);
         let material = if back { &self.materials[1] } else { &self.materials[0] };
         let normal = self.eye_normal().map(|n| if back { -n } else { n });
-        if self.pf.ty != 0 {
-            let d = if self.cap(0x4000) { normal[2].max(0.0) } else { 0.0 };
-            // color index lighting (GL 1.1 2.13.5) with the initial material indices (0, 1, 1):
-            // the ambient index 0 alone with no light on (MEASURED, golden opengl-32
-            // other-calls-9); with GL_LIGHT0 the specular index 1 where n . L > 0, the
-            // shininess being 0
-            return [if d > 0.0 { 1.0 } else { 0.0 }, 0.0, 0.0, 0.0];
-        }
+        let color_index = self.pf.ty != 0;
+        let luma = |[red, green, blue, _]: [f32; 4]| 0.30 * red + 0.59 * green + 0.11 * blue;
+        let mut index_diffuse = 0.0;
+        let mut index_specular = 0.0;
         // (the sums clamped to 0..1 at the vertex, before they are interpolated (MEASURED,
         // golden opengl-32 / 64 interp-open-9: corners of 1.2 times the color as if 1))
         let target = if back { BACK } else { FRONT };
@@ -3448,13 +3461,13 @@ impl Ctx {
                 let norm = length * (sx * sx + sy * sy + sz * sz).sqrt();
                 let alignment = if norm > 0.0 { (-(x * sx + y * sy + z * sz) / norm).clamp(-1.0, 1.0) } else { 0.0 };
                 if alignment < cutoff.to_radians().cos().max(0.0) { continue; }
-                alignment.powf(exponent)
+                lighting_power(alignment, exponent)
             };
             let attenuation = if w == 0.0 { 1.0 } else {
                 (constant + linear * length + quadratic * length * length).recip()
             };
             let [light_ambient, light_diffuse, light_specular] = light.colors;
-            let highlight = if cosine > 0.0 && material.specular[..3].iter().any(|&v| v != 0.0) {
+            let highlight = if cosine > 0.0 && (color_index || material.specular[..3].iter().any(|&v| v != 0.0)) {
                 let mut view = [0.0, 0.0, 1.0];
                 if self.local_viewer {
                     let norm = (eye[0] * eye[0] + eye[1] * eye[1] + eye[2] * eye[2]).sqrt();
@@ -3465,14 +3478,31 @@ impl Ctx {
                 let n_dot_h = if norm > 0.0 {
                     (normal[0] * half[0] + normal[1] * half[1] + normal[2] * half[2]) / norm
                 } else { 0.0 };
-                // The reference quantizes intermediate powers at oblique angles.
-                if n_dot_h < 0.0 { 0.0 } else { n_dot_h.powf(material.shininess) }
+                lighting_power(n_dot_h, material.shininess)
             } else { 0.0 };
+            let factor = spot * attenuation;
+            if color_index {
+                index_diffuse += factor * (cosine * luma(light_diffuse));
+                index_specular += factor * (highlight * luma(light_specular));
+                continue;
+            }
             let a = tri::zip4(light_ambient, ambient, |l, m| l * m);
             let d = tri::zip4(light_diffuse, diffuse, |l, m| cosine * l * m);
             let s = tri::zip4(light_specular, material.specular, |l, m| highlight * l * m);
             let sum = tri::zip4(tri::zip4(a, d, |a, d| a + d), s, |ad, s| ad + s);
-            lit = tri::zip4(lit, sum, |old, sum| old + spot * attenuation * sum);
+            let weighted = if factor.to_bits() == 1.0f32.to_bits() { sum } else {
+                // Windows applies spot and distance factors in framebuffer channel units.
+                let scales = self.material_scales().map(|value| value.max(1.0));
+                tri::zip4(sum, scales, |value, scale| (value * scale * factor) / scale)
+            };
+            lit = tri::zip4(lit, weighted, |old, value| old + value);
+        }
+        if color_index {
+            let [ambient, diffuse, specular] = material.indices;
+            let specular_light = index_specular.min(1.0);
+            let value = ambient + index_diffuse * (1.0 - specular_light) * (diffuse - ambient)
+                + specular_light * (specular - ambient);
+            return [value.min(specular), 0.0, 0.0, 0.0];
         }
         lit = lit.map(|v| v.clamp(0.0, 1.0));
         lit[3] = diffuse[3].clamp(0.0, 1.0);
@@ -3481,7 +3511,12 @@ impl Ctx {
 
     /// the current normal in eye coordinates: times the inverse of the modelview's upper 3 by 3
     fn eye_normal(&self) -> [f32; 3] {
-        self.transform_normal(self.normal).unwrap_or([0.0; 3])
+        let normal = self.transform_normal(self.normal).unwrap_or(self.normal);
+        if self.cap(0xba1) {
+            let length = normal.iter().map(|v| v * v).sum::<f32>().sqrt();
+            if length > 0.0 { return normal.map(|v| v / length); }
+        }
+        normal
     }
 
     fn transform_normal(&self, normal: [f32; 3]) -> Option<[f32; 3]> {
