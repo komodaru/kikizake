@@ -13,13 +13,14 @@
 
 use crate::spec::{clause, open};
 use super::d3d11::{normalize, Kind};
-use super::d3drules::{self as rules, covers as tri_covers, sample_pattern, sample_sub, Pick, Topo, Verdict};
+use super::d3drules::{self as rules, covers as tri_covers, sample_pattern, sample_sub, Pick, TargetPlan, Topo, Verdict};
 use super::d3dres::{slot, texel, D3dres, Dev, Resource, View, E_INVALIDARG};
 use super::objects::{Id, Objects};
 use super::dxgiconv::{decode_f, encode, encode_bits, to_unorm};
 use super::dxgifmt::{format, Format, Num};
 use super::{Fail, Res};
 use crate::case::{num, Op};
+use crate::shaders::{Prog, Programs};
 use crate::spec::hit;
 
 crate::model::words! {
@@ -78,12 +79,24 @@ fn hexbytes(s: &str) -> Vec<u8> {
     (0..s.len() / 2).map(|i| u8::from_str_radix(&s[2 * i..2 * i + 2], 16).unwrap_or(0)).collect()
 }
 
-/// the generator's programs: name, bytes, a vertex shader
-fn known(b: &[u8]) -> Option<(&'static str, bool)> {
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum ShaderPlan {
+    Accept(Prog),
+    Refuse(Option<Prog>),
+    Unknown,
+}
+
+/// Recognize a generated program by its bytes and accept it for its own shader stage.
+pub(crate) fn shader_plan(vertex: bool, bytes: &[u8]) -> ShaderPlan {
     thread_local! {
-        static S: crate::shaders::Programs = crate::shaders::shaders();
+        static S: Programs = crate::shaders::shaders();
     }
-    S.with(|s| s.find(b).map(|p| (p.name(), p.vertex())))
+    match S.with(|s| s.find(bytes)) {
+        Some(program) if program.vertex() == vertex => ShaderPlan::Accept(program),
+        Some(program) => ShaderPlan::Refuse(Some(program)),
+        None if crate::dxbc::intact(bytes) => ShaderPlan::Unknown,
+        None => ShaderPlan::Refuse(None),
+    }
 }
 
 /// whether reading through view `read` and writing through `write` meet in a subresource and
@@ -126,8 +139,9 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
                 return Err(Fail::Bad);
             }
             let b = hexbytes(bytes);
-            match known(&b) {
-                Some((name, is_vs)) if is_vs == vs => {
+            match shader_plan(vs, &b) {
+                ShaderPlan::Accept(program) => {
+                    let name = program.name();
                     d.shaders[sl] = Some((name, vs));
                     if vs {
                         d.vs = Some(name);
@@ -135,16 +149,16 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
                         d.ps = Some(name);
                     }
                 }
-                None if crate::dxbc::intact(&b) => {
+                ShaderPlan::Unknown => {
                     return Err(Fail::Unmodeled(crate::spec::open::D3DRASTER_SHADER_BAD));
                 }
-                _ => {
+                ShaderPlan::Refuse(program) => {
                     // (checksum, size or kind wrong: assumed refused like any other bad bytecode)
                     hit(clause::D3DRASTER_SHADER_BAD);
                     out.push(format!("shader hr {E_INVALIDARG:08x}"));
                     // (the blob is kept for an input layout: a program of the other kind by its
                     // name, bytes that are no program as "bad")
-                    d.shaders[sl] = Some((known(&b).map_or("bad", |k| k.0), vs));
+                    d.shaders[sl] = Some((program.map_or("bad", Prog::name), vs));
                 }
             }
         }
@@ -476,6 +490,12 @@ fn address(mode: u32, i: i64, size: i64) -> Option<i64> {
     rules::address(mode, i, size)
 }
 
+fn render_rows(dev: Dev, r: &Resource, view: &View, sub: u32) -> Res<rules::TargetRows> {
+    let d3d11 = matches!(dev, Dev::D11(_));
+    let size = r.size(r.mip_of(sub));
+    rules::target_rows(r.d.dim, view.dim(), size, (view.u(0, d3d11), view.u(1, d3d11))).ok_or(Fail::Bad)
+}
+
 #[allow(clippy::too_many_arguments)]
 fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, vtx: &[u32]) -> Res<()> {
     hit(clause::D3DRASTER_DRAW);
@@ -493,7 +513,8 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
     // a topology D3D11_PRIMITIVE_TOPOLOGY leaves undefined: 6 draws nothing; 0, 7, 8, 9 and
     // past 64 remove the device (the next read fails with DXGI_ERROR_DEVICE_REMOVED)
     let programs = d.vs.is_some() && d.ps.is_some() && d.layout.is_some();
-    let topo = match rules::draw_verdict(programs, d.target.or(d.depth).is_some(), d.viewport.is_some(), top) {
+    let plan = rules::target_plan(d.target, d.depth);
+    let topo = match rules::draw_verdict(programs, plan != TargetPlan::None, d.viewport.is_some(), top) {
         Verdict::Incomplete => {
             hit(clause::D3DRASTER_INCOMPLETE);
             return Ok(());
@@ -517,42 +538,33 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
         }
         Verdict::Draw(t) => t,
     };
-    let (Some(vs), Some(ps), Some(tv), Some(vp)) = (d.vs, d.ps, d.target.or(d.depth), d.viewport) else {
+    let (Some(vs), Some(ps), Some(vp)) = (d.vs, d.ps, d.viewport) else {
         return Err(Fail::Bad);
     };
-    // (MEASURED, WARP: probe-depth-alone) a depth view alone: the depth test and writes as
-    // with a target, the depth view in the target's place for the pixels drawn
-    if d.target.is_none() {
-        hit(clause::D3DRASTER_DEPTH_ALONE);
-    }
+    let tv = match plan {
+        TargetPlan::Color(view) => view,
+        // (MEASURED, WARP: probe-depth-alone) the depth view supplies the drawable extent.
+        TargetPlan::DepthOnly(view) => {
+            hit(clause::D3DRASTER_DEPTH_ALONE);
+            view
+        }
+        TargetPlan::None => return Err(Fail::Bad),
+    };
     // (the views bound, whatever their slots hold since: the device holds them, and each view
     // its resource)
     let view = m.views.get(tv)?.clone();
     let rt_fmt = format(view.format()).ok_or(Fail::Unmodeled(open::D3DRASTER_RTFMT))?;
     let rt_sub = super::d3dres::view_subs(dev, &view, m.res.get(view.res)?)[0];
-    let (rw, rh, _) = {
+    let (rw, rh) = {
         let r = m.res.get(view.res)?;
-        // (MEASURED, WARP: probe-rt-3d, -3d-slice1) a 3D texture's view: the draw lands on its
-        // first depth slice only (no SV_RenderTargetArrayIndex), as a 2D array's first slice
-        // (probe-rt-array)
-        let in_depth = view.dim() == 8 && view.u(1, matches!(dev, Dev::D11(_))) < r.size(r.mip_of(rt_sub)).2;
-        match r.d.dim {
-            2 => {}
-            3 if in_depth => hit(clause::D3DRASTER_RT_3D),
-            // (MEASURED, WARP: probe-rt-1d) a 1D texture's view (D3D11_RTV_DIMENSION_TEXTURE1D):
-            // a target one pixel high, the viewport's other rows dropped
-            // (MEASURED, WARP: probe-rt-1darray) a 1D array's view (TEXTURE1DARRAY): its first
-            // slice, as a 2D array's (probe-rt-array)
-            1 if matches!(view.dim(), 2 | 3) => hit(clause::D3DRASTER_RT_1D),
-            // (MEASURED, WARP: probe-rt-buffer) a buffer's view from its first element: one
-            // row, as a 1D texture's
-            // (MEASURED, WARP: probe-rt-buffer-off) one from a later element: pixel x on
-            // element first + x
-            4 if view.dim() == 1 => hit(clause::D3DRASTER_RT_1D),
-            // (no other view of a resource is a target: OMSetRenderTargets takes only these)
-            _ => return Err(Fail::Bad),
+        let rows = render_rows(dev, r, &view, rt_sub)?;
+        // (MEASURED, WARP: probe-rt-3d, -3d-slice1, -1d, -1darray, -buffer, -buffer-off)
+        if r.d.dim == 3 {
+            hit(clause::D3DRASTER_RT_3D);
+        } else if matches!(r.d.dim, 1 | 4) {
+            hit(clause::D3DRASTER_RT_1D);
         }
-        r.size(r.mip_of(rt_sub))
+        (rows.width, rows.height)
     };
     // (a multisampled target: D3DRASTER.MS.SAMPLES, quality 0; the viewport anywhere,
     // probe-rt-ms4-vphalf)
@@ -2735,15 +2747,13 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
         }
     }
     // (a depth view alone: no color to write, D3DRASTER.DEPTH.ALONE)
-    if d.target.is_none() {
+    if !matches!(rules::target_plan(d.target, d.depth), TargetPlan::Color(_)) {
         return Ok(());
     }
     let res = m.res.get_mut(view.res)?;
     let (rb, rows, _) = res.layout(sub)?;
-    // (a 3D view's first depth slice, D3DRASTER.RT.3D)
-    let slice = if res.d.dim == 3 && view.dim() == 8 { view.u(1, matches!(dev, Dev::D11(_))) as usize } else { 0 };
-    // (a buffer's view from its first element on, D3DRASTER.RT.1D)
-    let first = if res.d.dim == 4 && view.dim() == 1 { index(view.u(0, matches!(dev, Dev::D11(_)))) } else { 0 };
+    let target = render_rows(dev, res, view, sub)?;
+    let (slice, first) = (index(target.slice), index(target.first));
     let el = (f.bits / 8) as usize;
     let b = res.subs[sub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
     // (a view whose elements are wider than its resource's, as mutations make: not measured)

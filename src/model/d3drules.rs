@@ -158,6 +158,42 @@ pub fn draw_verdict(programs: bool, view: bool, viewport: bool, top: u32) -> Ver
     }
 }
 
+/// The view used for the draw's extent, with a color write only when a color target is bound.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum TargetPlan<V> {
+    None,
+    Color(V),
+    DepthOnly(V),
+}
+
+pub fn target_plan<V>(target: Option<V>, depth: Option<V>) -> TargetPlan<V> {
+    match (target, depth) {
+        (Some(view), _) => TargetPlan::Color(view),
+        (None, Some(view)) => TargetPlan::DepthOnly(view),
+        (None, None) => TargetPlan::None,
+    }
+}
+
+/// The drawable rows and the starting element and slice of the view.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct TargetRows {
+    pub width: u32,
+    pub height: u32,
+    pub first: u32,
+    pub slice: u32,
+}
+
+pub fn target_rows(dim: u32, view: u32, (width, height, depth): (u32, u32, u32), (first, slice): (u32, u32)) -> Option<TargetRows> {
+    let (height, first, slice) = match (dim, view) {
+        (1, 2 | 3) => (1, 0, 0),
+        (2, _) => (height, 0, 0),
+        (3, 8) if slice < depth => (height, 0, slice),
+        (4, 1) => (1, first, 0),
+        _ => return None,
+    };
+    Some(TargetRows { width, height, first, slice })
+}
+
 /// a primitive's vertices (their indices in the draw) and its leading vertex
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Prim {

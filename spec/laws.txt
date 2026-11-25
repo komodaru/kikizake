@@ -496,6 +496,10 @@ spec/lean/Kikizake/D3d11/Draw.lean::prims_inside lean D3DRASTER.ADJ D3DRASTER.ST
 spec/lean/Kikizake/D3d11/Draw.lean::vb_past lean D3DRASTER.VBPAST
 spec/lean/Kikizake/D3d11/Draw.lean::depth_count lean D3DRASTER.MS.DEPTHCOUNT
 spec/lean/Kikizake/D3d11/Draw.lean::depth_small lean D3DRASTER.DEPTH.SMALL
+spec/lean/Kikizake/D3d11/Draw.lean::shader_generated lean D3DRASTER.SHADER
+spec/lean/Kikizake/D3d11/Draw.lean::depth_alone lean D3DRASTER.DEPTH.ALONE
+spec/lean/Kikizake/D3d11/Draw.lean::target_1d lean D3DRASTER.RT.1D
+spec/lean/Kikizake/D3d11/Draw.lean::target_3d lean D3DRASTER.RT.3D
 spec/lean/Kikizake/D3d11/Texture.lean::address_inside lean D3DRASTER.ADDRESS D3DRASTER.BORDER
 spec/lean/Kikizake/D3d11/Texture.lean::address_modes lean D3DRASTER.ADDRESS
 spec/lean/Kikizake/D3d11/Texture.lean::cmp_pairs lean D3DRASTER.DEPTH D3DRASTER.SAMPLE.CMP

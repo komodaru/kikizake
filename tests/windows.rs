@@ -98,6 +98,20 @@ fn models_match_windows() {
                         "{s}-{arch} {name}");
                 }
             }
+            if matches!(*s, "d3d10draw" | "d3d11draw") {
+                let expected = case::parse_output(&g);
+                let actual = case::parse_output(&want);
+                for name in [
+                    "probe-depth-alone", "probe-rt-1d", "probe-rt-1darray", "probe-rt-3d",
+                    "probe-rt-3d-slice1", "probe-rt-buffer", "probe-rt-buffer-off",
+                    "shader-bad", "probe-layout-refused", "probe-layout-otherkind",
+                ] {
+                    let reference = expected.cases.iter().find(|(n, _)| n == name)
+                        .unwrap_or_else(|| panic!("missing Windows recording for {s}-{arch} {name}"));
+                    let modeled = actual.cases.iter().find(|(n, _)| n == name);
+                    assert_eq!(modeled, Some(reference), "{s}-{arch} {name}");
+                }
+            }
             if matches!(*s, "d3d10res" | "d3d11res") {
                 let expected = case::parse_output(&g);
                 let actual = case::parse_output(&want);

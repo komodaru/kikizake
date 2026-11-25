@@ -435,6 +435,22 @@ fn layout_stays_in_the_mirrored_function() {
 }
 
 #[test]
+fn draw_pipeline_stays_in_the_mirrored_functions() {
+    let inlined = r#"
+fn op() { if p.vertex() == vs {} }
+fn draw() { let target = d.target.or(d.depth); if view.dim() == 8 {} }
+fn output() { if d.target.is_none() {} if matches!(view.dim(), 2 | 3) {} }
+"#;
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:")).count(), 5, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", r#"
+fn shader_plan() { if p.vertex() == vs {} }
+fn draw() { let plan = rules::target_plan(d.target, d.depth); }
+fn render_rows() { rules::target_rows(r.d.dim, view.dim(), size, starts); }
+"#).is_empty());
+}
+
+#[test]
 fn lod_stays_in_the_mirrored_functions() {
     let inlined = "fn shade() {\n    let s = (du * w).powi(2);\n    if rho <= 1.0 {}\n    let d = [0x15, 3, 3, 3, 1];\n}\n";
     let r = rust("src/model/d3draster.rs", inlined);

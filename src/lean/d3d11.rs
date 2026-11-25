@@ -1,6 +1,7 @@
 //! Direct3D 10 and 11's mirrors (spec/lean/Kikizake/D3d11/).
 use super::{arg, every, one, sampled, Domain, Mirror};
-use crate::model::d3drules::{self, Api, Bind, Bound, Pick, Prim, Topo, Verdict};
+use crate::model::d3draster::{shader_plan, ShaderPlan};
+use crate::model::d3drules::{self, Api, Bind, Bound, Pick, Prim, TargetPlan, Topo, Verdict};
 
 const RASTER: &str = "spec/lean/Kikizake/D3d11/Raster.lean";
 const DRAW: &str = "spec/lean/Kikizake/D3d11/Draw.lean";
@@ -159,6 +160,74 @@ pub static MIRRORS: &[Mirror] = &[
             let n: u32 = arg(a, 0)?;
             let vtx: Vec<u32> = (1..=n).collect();
             one(d3drules::vertex_word(&vtx, arg(a, 1)?, arg(a, 2)?, arg(a, 3)?))
+        },
+    },
+    Mirror {
+        name: "d3d11.shaderStage",
+        lean: DRAW,
+        domain: Domain::Every("both stages against every generated shader blob, with malformed mirror arguments"),
+        inputs: |each| {
+            for (index, _) in crate::shaders::Prog::ALL.iter().enumerate() {
+                if let Ok(index) = i64::try_from(index) {
+                    each(&[0, index]);
+                    each(&[1, index]);
+                }
+            }
+            for bad in [&[][..], &[2, 0], &[1, -1], &[1, 99]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let answer = || {
+                use crate::shaders::{shaders, Prog, Programs};
+                thread_local! {
+                    static PROGRAMS: Programs = shaders();
+                }
+                let &[stage @ (0 | 1), p] = a else { return None };
+                let prog = *Prog::ALL.get(usize::try_from(p).ok()?)?;
+                let (accepted, found) = match PROGRAMS.with(|s| shader_plan(stage == 1, s.get(prog))) {
+                    ShaderPlan::Accept(found) => (1, found),
+                    ShaderPlan::Refuse(Some(found)) => (0, found),
+                    ShaderPlan::Refuse(None) | ShaderPlan::Unknown => return None,
+                };
+                let id = Prog::ALL.iter().position(|&p| p == found)?;
+                Some(vec![accepted, i64::try_from(id).ok()?])
+            };
+            Some(answer().unwrap_or_else(|| vec![-1]))
+        },
+    },
+    Mirror {
+        name: "d3d11.targetPlan",
+        lean: DRAW,
+        domain: Domain::Every("bound/unbound color and depth views, each with a distinct identity"),
+        inputs: |each| every(&[(0, 1), (0, 1)], each),
+        model: |a| Some(match a {
+            &[rt, ds] => match d3drules::target_plan((rt == 1).then_some(10), (ds == 1).then_some(20)) {
+                TargetPlan::Color(v) => vec![0, v],
+                TargetPlan::DepthOnly(v) => vec![1, v],
+                TargetPlan::None => vec![-1],
+            },
+            _ => vec![-1],
+        }),
+    },
+    Mirror {
+        name: "d3d11.targetRows",
+        lean: DRAW,
+        domain: Domain::Sampled("resource dimensions and view classes, every small pair of depth and slice including the limit, and 20,000 full u32 extent and offset combinations"),
+        inputs: |each| {
+            every(&[(0, 5), (0, 9), (4, 4), (5, 5), (0, 4), (0, 3), (0, 4)], each);
+            sampled(&[(0, 5), (0, 9), (0, U32), (0, U32), (0, U32), (0, U32), (0, U32)], 20_000, 0x28f1_d011, each);
+            for bad in [&[][..], &[1, 3, 4, -1, 0, 0, 0]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let answer = || {
+                let [_, _, _, _, _, _, _] = a else { return None };
+                let rows = d3drules::target_rows(arg(a, 0)?, arg(a, 1)?, (arg(a, 2)?, arg(a, 3)?, arg(a, 4)?), (arg(a, 5)?, arg(a, 6)?))?;
+                Some([rows.width, rows.height, rows.first, rows.slice].into_iter().map(i64::from).collect())
+            };
+            Some(answer().unwrap_or_else(|| vec![-1]))
         },
     },
     Mirror {

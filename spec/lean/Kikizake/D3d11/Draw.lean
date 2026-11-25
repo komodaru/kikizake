@@ -3,8 +3,9 @@ import Kikizake.Mirror
 src/model/d3drules.rs computes it: `verdict` is `draw_verdict` (programs, views, viewport,
 D3D11_PRIMITIVE_TOPOLOGY), `primitive` `primitive` (the vertices each topology takes),
 `primCount` `prim_count`, `vertexWord` `vertex_word` (the vertex buffer's words), `bind`
-`bind_targets` (OMSetRenderTargets) (mirrors `d3d11.verdict`, `d3d11.prim`, `d3d11.prims`,
-`d3d11.word`, `d3d11.bind`). -/
+`bind_targets` (OMSetRenderTargets). The generated programs' shader stage, the selection of a
+depth-only target and drawable rows are held to `shader_plan`, `target_plan` and `target_rows`
+by `d3d11.shaderStage`, `d3d11.targetPlan` and `d3d11.targetRows`. -/
 namespace Kikizake.D3d11.Draw
 
 /-- the topologies drawn: D3D11_PRIMITIVE_TOPOLOGY 1 to 5, 10 to 13 -/
@@ -226,6 +227,67 @@ theorem depth_small (a b : Bound) (dw dh w h : Nat) (hs : a.samples = b.samples)
   · have : smaller b a = false := by simp [smaller, hd, ht]; omega
     cases api <;> simp [bind, hs, this]
 
+/-- D3DRASTER.SHADER: program numbers follow Prog.ALL (two vertex programs, then eight
+pixel programs). A known blob may bind only to its own stage. -/
+def shaderPlan (vertex : Bool) (program : Nat) : Option (Bool × Nat) :=
+  if program < 10 then some ((decide (program < 2)) == vertex, program) else none
+
+theorem shader_generated (p : Nat) (known : p < 10) :
+    shaderPlan (decide (p < 2)) p = some (true, p) ∧
+    shaderPlan (!(decide (p < 2))) p = some (false, p) := by
+  cases stage : decide (p < 2) <;> simp [shaderPlan, known, stage]
+
+/-- D3DRASTER.DEPTH.ALONE: the depth view supplies the drawable extent when alone,
+and cannot act as a color target. -/
+inductive TargetPlan (α : Type) where
+  | none
+  | color (view : α)
+  | depthOnly (view : α)
+  deriving DecidableEq
+
+def targetPlan {α : Type} (color depth : Option α) : TargetPlan α :=
+  match color, depth with
+  | some view, _ => .color view
+  | none, some view => .depthOnly view
+  | none, none => .none
+
+theorem depth_alone {α : Type} (d c : α) :
+    targetPlan none (some d) = .depthOnly d ∧
+    targetPlan (some c) (some d) = .color c ∧
+    targetPlan (none : Option α) none = .none := by
+  exact ⟨rfl, rfl, rfl⟩
+
+structure TargetRows where
+  width : Nat
+  height : Nat
+  first : Nat
+  slice : Nat
+  deriving DecidableEq
+
+/-- The extent and first element/slice of the view. Subresource selection precedes this
+rule. In a 1D array the extent is one row of the selected subresource. -/
+def targetRows (dim view w h d first slice : Nat) : Option TargetRows :=
+  if dim = 2 then some ⟨w, h, 0, 0⟩
+  else if dim = 1 ∧ (view = 2 ∨ view = 3) then some ⟨w, 1, 0, 0⟩
+  else if dim = 4 ∧ view = 1 then some ⟨w, 1, first, 0⟩
+  else if dim = 3 ∧ view = 8 ∧ slice < d then some ⟨w, h, 0, slice⟩
+  else none
+
+theorem target_1d (w h d first slice : Nat) :
+    targetRows 1 2 w h d first slice = some ⟨w, 1, 0, 0⟩ ∧
+    targetRows 1 3 w h d first slice = some ⟨w, 1, 0, 0⟩ ∧
+    targetRows 4 1 w h d first slice = some ⟨w, 1, first, 0⟩ := by
+  simp [targetRows]
+
+theorem target_3d (w h d first slice : Nat) :
+    (slice < d → targetRows 3 8 w h d first slice = some ⟨w, h, 0, slice⟩) ∧
+    (d ≤ slice → targetRows 3 8 w h d first slice = none) := by
+  constructor
+  · intro valid
+    simp [targetRows, valid]
+  · intro outside
+    simp [targetRows, Nat.not_lt.mpr outside]
+
 def boundOf (s has w h : Int) : Option Bound := do
   let s ← nat s
   let w ← nat w
@@ -255,6 +317,24 @@ def mirrors : List Mirror := [
       let vtx := (List.range (← nat n)).map (· + 1)
       pure [vertexWord vtx (← nat v) (← nat stride) (← nat k)]
     | _ => none⟩,
+  ⟨"d3d11.shaderStage", fun
+    | [s, p] => some (if s = 0 ∨ s = 1 then
+        match (nat p).bind (shaderPlan (s = 1)) with
+        | some (ok, program) => [if ok then 1 else 0, program]
+        | none => [-1]
+      else [-1])
+    | _ => some [-1]⟩,
+  ⟨"d3d11.targetPlan", fun
+    | [rt, ds] =>
+      let color := if rt = 1 then some (10 : Nat) else none
+      let depth := if ds = 1 then some (20 : Nat) else none
+      some (match targetPlan color depth with
+        | .color v => [0, v] | .depthOnly v => [1, v] | .none => [-1])
+    | _ => some [-1]⟩,
+  ⟨"d3d11.targetRows", fun a => some ((do
+    let [dim, view, w, h, d, first, slice] ← a.mapM nat | none
+    let rows ← targetRows dim view w h d first slice
+    pure [Int.ofNat rows.width, rows.height, rows.first, rows.slice]).getD [-1])⟩,
   ⟨"d3d11.bind", fun
     | [api, hr, rs, rh, rw, rhh, hd, ds, dh, dw, dhh] => do
       let a ← match api with | 0 => some Api.d10 | 1 => some .d101 | 2 => some .d11 | _ => none

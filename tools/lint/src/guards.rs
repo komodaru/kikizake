@@ -101,6 +101,10 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     // (string literals are blanked before matching, so the verdicts are what it confines: a
     // program named, how many inputs it needs, and the check that every one is fed)
     ("src/model/d3draster.rs", r"=>\s*return\s+Some\(LayoutVerdict::|usable\.len\(\)\s*>=\s*needs", &["layout_verdict"]),
+    // (CreateShader's stage and blob recognition are shader_plan in Draw.lean.)
+    ("src/model/d3draster.rs", r"\.vertex\(\)\s*==|is_vs\s*==\s*vs|\bdxbc::intact\(", &["shader_plan"]),
+    // (depth-only routing and the target dimensions stay on d3d11.targetPlan / targetRows.)
+    ("src/model/d3draster.rs", r"\.target\.(?:or\(\s*\w+\.depth\s*\)|is_none\(\))|view\.dim\(\)\s*==\s*(?:1|8)\b|matches!\(\s*view\.dim\(\)\s*,\s*2\s*\|\s*3\s*\)", &[]),
     // (a quad's span, the filter and level it takes and the default sampler are quad_span,
     // filter_pick and sampler_or_default, which d3d11.quadspan, d3d11.filterpick and
     // d3d11.sampler hold to spec/lean/Kikizake/D3d11/Lod.lean)
