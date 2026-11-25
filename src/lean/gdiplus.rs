@@ -18,6 +18,7 @@ const LINE: &str = "spec/lean/Kikizake/GdiPlus/Line.lean";
 const CHAIN: &str = "spec/lean/Kikizake/GdiPlus/Chain.lean";
 const DASH: &str = "spec/lean/Kikizake/GdiPlus/Dash.lean";
 const INSET: &str = "spec/lean/Kikizake/GdiPlus/Inset.lean";
+const WIDE: &str = "spec/lean/Kikizake/GdiPlus/Wide.lean";
 
 /// the formats the mirror converts, by their place in `Pf` (the indexed ones and 16bppGrayScale
 /// convert through tables and refusals the Lean file does not hold)
@@ -1176,6 +1177,54 @@ pub static MIRRORS: &[Mirror] = &[
                 pts.push((f32::from_bits(arg(p, 0)?), f32::from_bits(arg(p, 1)?)));
             }
             one(i64::from(gppath::too_small(rounding(arg(a, 0)?), &m, &pts)))
+        },
+    },
+    Mirror {
+        name: "gp.wide-join",
+        lean: WIDE,
+        domain: Domain::Sampled("8,000 joins on quarter-pixel points and band offsets, all join styles, compound and plain bands, degenerate segments, U-turns and both rounding modes, plus exact theorem inputs"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0x71de_1001);
+            let bits = |v| i64::from((f32::from(i16::try_from(v).unwrap_or(0)) / 4.0).to_bits());
+            // The four join styles on an exact right angle, for plain and compound pens.
+            for compound in 0..=1 {
+                for style in 0..4 {
+                    each(&[0, compound, style, bits(4), bits(-4), bits(16), 0, 0, bits(8), 0, bits(8), bits(8)]);
+                }
+            }
+            for style in [1, 3] {
+                each(&[0, 0, style, bits(4), bits(-4), bits(5), 0, 0, bits(8), 0, bits(8), bits(8)]);
+            }
+            for i in 0..8000 {
+                let mut point = || [bits(rng.range(-64, 64)), bits(rng.range(-64, 64))];
+                let ([ax, ay], [px, py], [bx, by]) = (point(), point(), point());
+                let (bx, by) = match i % 21 {
+                    0 => (ax, ay),
+                    1 => (px, py),
+                    2 => (bx, py),
+                    _ => (bx, by),
+                };
+                let wl = bits(rng.range(-16, 16));
+                let wr = bits(rng.range(-16, 16));
+                let limit = bits(rng.range(2, 24));
+                each(&[i % 2, i / 2 % 2, rng.range(-1, 4), wl, wr, limit, ax, ay, px, py, bx, by]);
+            }
+        },
+        model: |a| {
+            use crate::model::gpwiden::join_points;
+            let rounding = rounding(arg(a, 0)?);
+            let compound = arg::<i64>(a, 1)? != 0;
+            let style = arg(a, 2)?;
+            let read = |i| arg::<u32>(a, i).map(f32::from_bits);
+            let offsets = (read(3)?, read(4)?);
+            let vertices = [(read(6)?, read(7)?), (read(8)?, read(9)?), (read(10)?, read(11)?)];
+            let sides = join_points(rounding, vertices, offsets, read(5)?, style, compound);
+            let mut result = Vec::new();
+            for side in sides {
+                result.push(i64::try_from(side.len()).ok()?);
+                result.extend(side.into_iter().flat_map(|p| [i64::from(p.type_byte()), canon(p.x), canon(p.y)]));
+            }
+            Some(result)
         },
     },
     Mirror {

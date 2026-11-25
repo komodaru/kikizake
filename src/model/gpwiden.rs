@@ -247,6 +247,7 @@ impl Widener {
     }
     /// the join at an interior vertex (WidenLinePoints): the left and the right side's points
     fn join(&self, p: P, s0: Seg, s1: Seg) -> (Vec<Out>, Vec<Out>) {
+        hit(clause::GP_PEN_WIDE_JOIN);
         let marked = |(v, inner): (Vec<P>, bool)| -> Vec<Out> { v.into_iter().map(|p| Out { inner, ..line(p) }).collect() };
         let lines = |(l, rt): ((Vec<P>, bool), (Vec<P>, bool))| -> (Vec<Out>, Vec<Out>) { (marked(l), marked(rt)) };
         match self.join {
@@ -602,6 +603,18 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
         (q.x, q.y) = apply(r, m, q.x, q.y);
     }
     Ok(Ok(Path::of(path.fill, out)))
+}
+
+/// A vertex's actual join points and types for the Lean widening mirror.
+pub(crate) fn join_points(r: Round, [prev, p, next]: [P; 3], (wl, wr): (f32, f32), miter: f32, style: i64, compound: bool) -> [Vec<Point>; 2] {
+    let wd = Widener {
+        r, w: r.sub(wl, wr), wl, wr, lim: sq(r, miter.max(1.0)), join: Join::of(style),
+        mode: if compound { Mode::Compound } else { Mode::Plain },
+    };
+    let (left, right) = wd.join(p, wd.seg(prev, p), wd.seg(p, next));
+    [left, right].map(|side| {
+        side.into_iter().map(|o| Point { x: o.p.0, y: o.p.1, kind: o.kind, close: false, inner: o.inner }).collect()
+    })
 }
 
 /// the widener proper on flattened world figures (GpPathWidener): the outline in world space,

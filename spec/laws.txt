@@ -539,6 +539,11 @@ spec/lean/Kikizake/GdiPlus/Inset.lean::empty_region lean GP.PEN.INSET.REGION
 spec/lean/Kikizake/GdiPlus/Inset.lean::rectangle_intersection lean GP.PEN.INSET.REGION
 spec/lean/Kikizake/GdiPlus/Inset.lean::four_connected lean GP.PEN.INSET.REGION
 spec/lean/Kikizake/GdiPlus/Inset.lean::hole_reverses_winding lean GP.PEN.INSET.REGION
+spec/lean/Kikizake/GdiPlus/Wide.lean::bevel_side_bound lean GP.PEN.WIDE.JOIN
+spec/lean/Kikizake/GdiPlus/Wide.lean::right_angle_miter lean GP.PEN.WIDE.JOIN
+spec/lean/Kikizake/GdiPlus/Wide.lean::right_angle_compound lean GP.PEN.WIDE.JOIN
+spec/lean/Kikizake/GdiPlus/Wide.lean::limited_miter_bevels lean GP.PEN.WIDE.JOIN
+spec/lean/Kikizake/GdiPlus/Wide.lean::round_right_angle lean GP.PEN.WIDE.JOIN
 spec/lean/Kikizake/GdiPlus/Chain.lean::copies lean GP.DRAW.NEAREST
 spec/lean/Kikizake/GdiPlus/Chain.lean::ramp lean GP.DRAW.BILINEAR
 spec/lean/Kikizake/GdiPlus/Chain.lean::tables lean GP.DRAW.HQ_BILINEAR GP.DRAW.HQ_BICUBIC
