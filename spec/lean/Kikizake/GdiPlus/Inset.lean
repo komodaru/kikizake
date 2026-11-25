@@ -120,13 +120,40 @@ def diagonalize : Nat → Nat → Array Cell → Array Cell
       diagonalize fuel (i - 1) (points.eraseIdxIfInBounds (i - 1))
     else diagonalize fuel i points
 
-def outline (corners : List Cell) : List Cell :=
+private def firstTouch (corners : List Cell) : Option (Nat × Nat) :=
+  corners.zipIdx.findSome? fun (p, end_) =>
+    let begin := (corners.take end_).idxOf p
+    if begin < end_ then some (begin, end_) else none
+
+private def splitTouchingHoles : Nat → List Cell → List (List Cell)
+  | 0, corners => [corners]
+  | n + 1, corners =>
+    if signedArea corners ≤ 0 then [corners] else
+    match firstTouch corners with
+    | none => [corners]
+    | some (begin, end_) =>
+      splitTouchingHoles n (corners.take begin ++ corners.drop end_) ++
+      splitTouchingHoles n ((corners.drop begin).take (end_ - begin))
+
+private def contourBounds (corners : List Cell) : Cell × Cell :=
+  let first := corners.head?.getD (0, 0)
+  corners.foldl (fun (lo, hi) (x, y) =>
+    ((min lo.1 x, min lo.2 y), (max hi.1 x, max hi.2 y))) (first, first)
+
+private def oddDepth (own : Cell × Cell) (bounds : List (Cell × Cell)) : Bool :=
+  let ((left, top), (right, bottom)) := own
+  let count := (bounds.filter fun other =>
+    let ((x0, y0), (x1, y1)) := other
+    own != other && x0 ≤ left && y0 ≤ top && right ≤ x1 && bottom ≤ y1).length
+  count % 2 == 1
+
+def outline (corners : List Cell) (reverseOuter : Bool) : List Cell :=
   let hole := signedArea corners > 0
   let corners := if hole then corners.reverse else corners
   let begin := corners.idxOf (topLeft corners)
   let ordered := corners.drop begin ++ corners.take begin
   let path := (diagonalize (2 * ordered.length) 1 ordered.toArray).toList
-  if hole then path.reverse else path
+  if hole || reverseOuter then path.reverse else path
 
 def rowKey (path : List Cell) : Cell :=
   let (x, y) := topLeft path
@@ -148,7 +175,10 @@ def toPath (cells : List Cell) : Option (List (List Cell)) :=
       return [[(x0, y0), (x1 + 1, y0), (x1 + 1, y1 + 1), (x0, y1 + 1)]]
     let edges := boundary cells
     let paths ← loops edges.length edges
-    pure ((paths.foldl (fun acc path => insertByTopLeft path acc) []).map outline)
+    let paths := paths.flatMap fun p => splitTouchingHoles p.length p
+    let paths := paths.foldl (fun acc path => insertByTopLeft path acc) []
+    let bounds := paths.map contourBounds
+    pure ((paths.zip bounds).map fun (p, own) => outline p (oddDepth own bounds))
 
 def insetRegion (own whole : Mask) : Option (List (List Cell)) :=
   toPath (intersection own whole)
@@ -176,6 +206,25 @@ theorem hole_reverses_winding :
       some [[(0, 0), (0, 3), (3, 3), (3, 0)], [(2, 1), (2, 2), (1, 1)]] ∧
       signedArea [(0, 0), (0, 3), (3, 3), (3, 0)] < 0 ∧
       signedArea [(2, 1), (2, 2), (1, 1)] > 0 := by
+  decide +kernel
+
+/-- A disjoint island inside another contour's bounds is emitted in reverse order. -/
+theorem disjoint_island_inside_bounds :
+    insetRegion ⟨(0, 0), 3, 3, 245⟩ ⟨(0, 0), 3, 3, 511⟩ =
+      some [[(1, 0), (1, 1), (0, 0)], [(2, 0), (1, 1), (0, 2), (2, 3), (2, 2), (3, 0)]] := by
+  decide +kernel
+
+/-- A second enclosing box restores the island's original orientation. -/
+theorem double_enclosure_keeps_orientation :
+    insetRegion ⟨(0, 0), 5, 5, 33084991⟩ ⟨(0, 0), 5, 5, 33554431⟩ =
+      some [[(0, 0), (0, 5), (5, 5), (5, 0)], [(4, 1), (4, 4), (1, 4), (1, 1)],
+        [(2, 2), (3, 3), (3, 2)]] := by
+  decide +kernel
+
+theorem corner_touching_holes_are_separate :
+    insetRegion ⟨(0, 0), 5, 5, 20441820⟩ ⟨(0, 0), 5, 5, 33554431⟩ =
+      some [[(2, 0), (1, 1), (0, 3), (0, 5), (4, 3), (5, 0)],
+        [(4, 1), (4, 2), (3, 1)], [(3, 2), (3, 3), (2, 2)], [(5, 4), (5, 5), (4, 4)]] := by
   decide +kernel
 
 def mirrors : List Mirror := [

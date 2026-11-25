@@ -153,6 +153,7 @@ struct Widener {
     lim: f32,
     join: Join,
     mode: Mode,
+    double_round: bool,
 }
 
 /// an outline point
@@ -372,10 +373,23 @@ impl Widener {
     }
     /// SetRoundCap's seven points: a line point, two quarter circles
     fn round(&self, p: P, g: P, start: bool) -> Vec<Out> {
+        if !self.double_round {
+            return self.round_band(p, g, start, (self.wl, self.wr));
+        }
+        // DoubleRoundCap has a separate semicircle on each side of the band midpoint.
+        let mid = self.r.mul(self.r.add(self.wl, self.wr), 0.5);
+        let (left, right) = ((self.wl, mid), (mid, self.wr));
+        let (first, second) = if start { (right, left) } else { (left, right) };
+        let mut out = self.round_band(p, g, start, first);
+        out.extend(self.round_band(p, g, start, second).into_iter().skip(1));
+        out
+    }
+
+    fn round_band(&self, p: P, g: P, start: bool, (wl, wr): (f32, f32)) -> Vec<Out> {
         let r = self.r;
         let d = if start { (-g.0, -g.1) } else { g };
-        let rr = r.mul(r.sub(self.wl, self.wr), 0.5);
-        let s = r.add(self.wl, self.wr);
+        let rr = r.mul(r.sub(wl, wr), 0.5);
+        let s = r.add(wl, wr);
         let c = (r.add(r.mul(r.mul(s, g.1), 0.5), p.0), r.sub(p.1, r.mul(r.mul(s, g.0), 0.5)));
         let (a, b) = (r.mul(rr, d.1), r.mul(-rr, d.0));
         const K: f32 = 0.552_284_8;
@@ -576,7 +590,7 @@ pub enum Widened {
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum StrokeMode {
     Centered,
-    InsetFlatDash,
+    InsetDash,
     CustomCap,
 }
 
@@ -629,6 +643,7 @@ pub(crate) fn join_points(r: Round, [prev, p, next]: [P; 3], (wl, wr): (f32, f32
     let wd = Widener {
         r, w: r.sub(wl, wr), wl, wr, lim: sq(r, miter.max(1.0)), join: Join::of(style),
         mode: if compound { Mode::Compound } else { Mode::Plain },
+        double_round: false,
     };
     let (left, right) = wd.join(p, wd.seg(prev, p), wd.seg(p, next));
     [left, right].map(|side| {
@@ -644,6 +659,7 @@ pub(crate) fn band_points(r: Round, pts: &[P], pen: &Pen, (wl, wr): (f32, f32), 
     let wd = Widener {
         r, w: pen.width, wl, wr, lim: sq(r, pen.miter.max(1.0)), join: Join::of(pen.join),
         mode: if compound { Mode::Compound } else { Mode::Plain },
+        double_round: false,
     };
     let outlines = if closed {
         Vec::from(wd.closed(pts))
@@ -664,7 +680,7 @@ pub(crate) fn band_points(r: Round, pts: &[P], pen: &Pen, (wl, wr): (f32, f32), 
 fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix, (start, end): (Cap, Cap), stroke: StrokeMode) -> Res<Result<Vec<Point>, Widened>> {
     let join = Join::of(pen.join);
     let (major, minor) = axes(r, m);
-    let inset_dash = stroke == StrokeMode::InsetFlatDash;
+    let inset_dash = stroke == StrokeMode::InsetDash;
     let width = if inset_dash { r.add(pen.width, pen.width) } else { pen.width };
     let subs: Vec<Sub> = match pattern(pen) {
         Some(pat) => {
@@ -673,11 +689,18 @@ fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix,
                 let d = apply(r, m, x, y);
                 apply(r, minv, d.0, d.1)
             }).collect(), *c)).collect();
-            // The clipped flat dashes use the original width for the dash unit, a two-pixel
+            // Clipped dashes use the original width for the dash unit, a two-pixel
             // dash minimum and the doubled width for the offset.
             let min_unit = if inset_dash { 2.0 } else { 1.0 };
             let scale = DashScale::new(r, pen, major, min_unit, width);
-            scaled_dashes(r, &again, pen, scale, true, pat, (start, end))
+            let mut spans = scaled_dashes(r, &again, pen, scale, true, pat, (start, end));
+            // Triangle still adjusts dash lengths and offsets. Its clipped outline has flat ends.
+            if inset_dash && Cap::dash(pen.dash_cap) == Cap::Triangle {
+                for s in &mut spans {
+                    s.caps = (Cap::Flat, Cap::Flat);
+                }
+            }
+            spans
         }
         None => figs.iter().map(|(pts, closed)| Sub { pts: pts.clone(), closed: *closed, caps: (start, end) }).collect(),
     };
@@ -686,7 +709,7 @@ fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix,
     let w = if thin { thin_width } else { width };
     let wl = r.mul(w, 0.5);
     let lim = sq(r, pen.miter.max(1.0));
-    let whole = Widener { r, w, wl, wr: r.sub(wl, w), lim, join, mode: Mode::Plain };
+    let whole = Widener { r, w, wl, wr: r.sub(wl, w), lim, join, mode: Mode::Plain, double_round: inset_dash };
     // (a compound array: one band a pair, h - c w each side, an empty pair none; four entries
     // or more the compound switch, clean-room notes geometry.md 14, 18)
     let (bands, mode): (Vec<(f32, f32)>, Mode) = match pen.compound.as_slice() {
@@ -764,9 +787,9 @@ fn inset(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Res
     let mut out = Vec::new();
     for f in path.figures() {
         let closed = f.last().is_some_and(|q| q.close);
-        let (width, mode) = if closed && pattern(pen).is_some() && Cap::dash(pen.dash_cap) == Cap::Flat {
+        let (width, mode) = if closed && pattern(pen).is_some() {
             hit(clause::GP_PEN_INSET_DASHED);
-            (pen.width, StrokeMode::InsetFlatDash)
+            (pen.width, StrokeMode::InsetDash)
         } else if closed {
             (r.add(pen.width, pen.width), StrokeMode::Centered)
         } else {

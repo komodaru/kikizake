@@ -1002,5 +1002,12 @@ pub fn gdipluspath() -> String {
         writeln!(s, "case pathinset-dash-{name}\n{matrix}gppen 0 0xff000000 {width} align 1 {setup}\ngppath 0 0\n{figures}\ngpwiden 0 0 {slot} 0.25\ngppathinfo 0\nend");
     }
     writeln!(s, "case pathinset-dash-zero-gap\ngpmatrix 0 0x3f000000 0 0 0x40000000 0x40000000 0x3e800000\ngppen 0 0xff000000 3.25 align 1 dasharray 1 0.75 dashoff -1.25 cap 2 0 0 join 3 miter 3.75\ngppath 0 1\ngpadd 0 line -5 0 -2 1.75\ngpadd 0 rect 1 0.25 4.5 3.25\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathinset-region-direction\ngpmatrix 0 0x3f000000 0 0 0x3f000000 0x40000000 0xbf800000\ngppen 0 0xff000000 3 align 1 dash 1 dashoff 1.25\ngppath 0 0\ngpadd 0 rect 1 2 12 10\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathinset-region-island\ngppen 0 0xff000000 2 align 1\ngppath 0 0\ngpadd 0 rect 10 10 3 3\ngpadd 0 start\ngpadd 0 lines 4 11 10 12 10 12 11 11 11\ngpadd 0 start\ngpadd 0 lines 4 10 11 11 11 11 12 10 12\ngpadd 0 start\ngpadd 0 lines 4 12 12 13 12 13 13 12 13\ngpwiden 0 0 - 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathinset-dash-round\ngpmatrix 0 0x3f800000 0 0 0x3f800000 0 0\ngppen 0 0xff000000 1 align 1 dash 1 cap 0 0 2\ngppath 0 0\ngpadd 0 rect 0 0 6 6\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathinset-dash-triangle\ngpmatrix 0 0x3f800000 0 0 0x3f800000 0 0\ngppen 0 0xff000000 1 align 1 dash 1 cap 0 0 3\ngppath 0 0\ngpadd 0 rect 0 0 6 6\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathinset-dash-round-reflected\ngpmatrix 0 0xbf800000 0 0 0x3f800000 0x40000000 0xbf800000\ngppen 0 0xff000000 3 align 1 dash 1 dashoff -0.5 cap 0 0 2\ngppath 0 0\ngpadd 0 lines 3 1 2 8 13 14 3\ngpadd 0 close\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathinset-dash-triangle-cubic\ngpmatrix 0 0x40000000 0 0x3e800000 0x3f000000 0x40000000 0xbf800000\ngppen 0 0xff000000 3 align 1 dasharray 3 2 0.75 1.25 dashoff 1.25 cap 0 0 3\ngppath 0 0\ngpadd 0 bezier 1 2 1 12 13 14 14 3\ngpadd 0 close\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathinset-dash-round-rectangle\ngpmatrix 0 0x3f800000 0 0 0x3f800000 0x40000000 0xbf800000\ngppen 0 0xff000000 1 align 1 dash 1 cap 0 0 2\ngppath 0 0\ngpadd 0 rect 1 2 12 10\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
     s
 }

@@ -2,7 +2,7 @@ import Kikizake.GdiPlus.Inset
 import Kikizake.GdiPlus.Raster
 import Kikizake.GdiPlus.WideRoute
 
-/-! Inset widening clips the solid or flat-dash outline of each closed figure to the whole
+/-! Inset widening clips the solid or dashed outline of each closed figure to the whole
 path mask. Open figures use ordinary centered widening. -/
 namespace Kikizake.GdiPlus.InsetRoute
 
@@ -59,8 +59,8 @@ private def insetWith (fuel : Nat) (d : Bool) (pen : Pen) (dash : Option DashSty
         if figClosed f then do
           let border ← match dash with
             | some ds =>
-              if flatDashCap ds && (dashPattern ds).isSome then
-                flatInsetFromWorld fuel d pen ds m minv world
+              if (dashPattern ds).isSome then
+                insetDashFromWorld fuel d pen ds m minv world
               else outline double world
             | none => outline double world
           let own ← deviceMask r identity true border
@@ -131,6 +131,22 @@ theorem flat_dashed_square :
     some [0, 0, 0, 0, 1, 0, 0x40c00000, 1, 0x40c00000, 0x40c00000,
       1, 0x40c00000, 0x40800000, 1, 0x40000000, 0x40800000, 1, 0x40000000, 0x40000000,
       1, 0x40c00000, 0x40000000, 0x81, 0x40c00000, 0] := by
+  decide +kernel
+
+theorem round_dashed_square :
+    dashedInsetOutline 64 false examplePen ⟨1, 2, 0, []⟩ identity 0x3e800000 false square =
+    some [0, 0, 0, 0, 1, 0, 0x40a00000, 1, 0x3f800000, 0x40a00000,
+      1, 0x40c00000, 0x40c00000, 1, 0x40c00000, 0x40800000, 1, 0x40000000, 0x40800000,
+      0x81, 0x40000000, 0, 0, 0x40c00000, 0, 1, 0x40c00000, 0x40400000,
+      1, 0x40800000, 0x40000000, 1, 0x40400000, 0x3f800000, 129, 0x40800000, 0] := by
+  decide +kernel
+
+theorem triangular_dashed_square :
+    dashedInsetOutline 64 false examplePen ⟨1, 3, 0, []⟩ identity 0x3e800000 false square =
+    some [0, 0, 0, 0, 1, 0, 0x40800000, 1, 0x40000000, 0x40800000,
+      0x81, 0x40000000, 0, 0, 0x40800000, 0, 1, 0x40800000, 0x40000000,
+      1, 0x40c00000, 0x40000000, 129, 0x40c00000, 0, 0, 0x40000000, 0x40800000,
+      1, 0x40000000, 0x40c00000, 1, 0x40c00000, 0x40c00000, 129, 0x40c00000, 0x40800000] := by
   decide +kernel
 
 def mirrors : List Mirror := [

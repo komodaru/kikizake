@@ -2,6 +2,7 @@
 //! aliased pixels (DpRegion::Set, the aliased fill rule of GP.RASTER.FILL), and a pixel set back
 //! to a path (RegionToPath: the pixel-edge boundaries, DiagonalizePath), from the clean-room
 //! notes (geometry.md 17), MEASURED on GDI+ itself, both arches alike.
+use std::collections::BTreeMap;
 use super::gdiplus::{FillMode, Matrix, Round};
 use super::gppath::{enumerate, rasterize, Fig, Kind, Path, Point};
 use super::Res;
@@ -80,7 +81,7 @@ pub fn to_path(px: &Pixels) -> Vec<Vec<V>> {
         return vec![vec![(x0, y0), (x1 + 1, y0), (x1 + 1, y1 + 1), (x0, y1 + 1)]];
     }
     // (unit edges, the inside on the east going south)
-    let mut out: std::collections::BTreeMap<V, Vec<V>> = Default::default();
+    let mut out: BTreeMap<V, Vec<V>> = Default::default();
     let mut edge = |a: V, d: V| out.entry(a).or_default().push(d);
     for &(x, y) in &cells {
         if !px.has(x - 1, y) {
@@ -119,32 +120,71 @@ pub fn to_path(px: &Pixels) -> Vec<Vec<V>> {
             }
             (at, d) = (next, nd);
         }
-        loops.push(corners);
+        split_touching_holes(corners, &mut loops);
     }
     let top_left = |l: &[V]| l.iter().copied().min_by_key(|&(x, y)| (y, x)).unwrap_or((0, 0));
     loops.sort_by_key(|l| {
         let (x, y) = top_left(l);
         (y, x)
     });
+    let bounds: Vec<_> = loops.iter().map(|l| contour_bounds(l)).collect();
     loops
         .into_iter()
-        .map(|l| {
-            let area: i64 = (0..l.len()).map(|i| {
-                let (a, b) = (l[i], l[(i + 1) % l.len()]);
-                a.0 * b.1 - b.0 * a.1
-            }).sum();
-            let hole = area > 0;
-            let mut l = if hole { l.into_iter().rev().collect() } else { l };
+        .zip(bounds.iter().copied())
+        .map(|(mut l, own)| {
+            let hole = area_twice(&l) > 0;
+            let ((left, top), (right, bottom)) = own;
+            let depth = bounds.iter().filter(|&&other| {
+                let ((x0, y0), (x1, y1)) = other;
+                own != other && x0 <= left && y0 <= top && right <= x1 && bottom <= y1
+            }).count();
+            if hole {
+                l.reverse();
+            }
             let tl = top_left(&l);
             let at = l.iter().position(|&p| p == tl).unwrap_or(0);
             l.rotate_left(at);
             let mut f = diagonalize(l);
-            if hole {
+            // RegionToPath uses bounding-box parity for disconnected outer contours.
+            if hole || depth % 2 == 1 {
                 f.reverse();
             }
             f
         })
         .collect()
+}
+
+fn contour_bounds(l: &[V]) -> (V, V) {
+    let first = l.first().copied().unwrap_or((0, 0));
+    l.iter().fold((first, first), |(lo, hi), &(x, y)| {
+        ((lo.0.min(x), lo.1.min(y)), (hi.0.max(x), hi.1.max(y)))
+    })
+}
+
+fn area_twice(l: &[V]) -> i64 {
+    l.iter().zip(l.iter().cycle().skip(1)).map(|(a, b)| a.0 * b.1 - b.0 * a.1).sum()
+}
+
+/// A connected outline can trace two corner-touching holes as one loop. Split at the
+/// repeated vertex before choosing each hole's starting point and diagonalizing.
+fn split_touching_holes(corners: Vec<V>, out: &mut Vec<Vec<V>>) {
+    let mut pending = vec![corners];
+    while let Some(mut l) = pending.pop() {
+        let mut seen = BTreeMap::new();
+        let split = if area_twice(&l) > 0 {
+            l.iter().enumerate().find_map(|(i, &p)| seen.insert(p, i).map(|first| (first, i)))
+        } else {
+            None
+        };
+        if let Some((start, end)) = split {
+            let suffix = l.split_off(end);
+            let inner = l.split_off(start);
+            l.extend(suffix);
+            pending.extend([l, inner]);
+        } else {
+            out.push(l);
+        }
+    }
 }
 
 /// DiagonalizePath: a corner at the lower end of a vertical edge meeting a horizontal one

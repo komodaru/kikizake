@@ -70,7 +70,7 @@ private def closedPoints (closed : Bool) (pts : List Pair) : List Pair :=
   then pts.dropLast else pts
 
 private def figureBands (d : Bool) (pen : Pen) (m : List Nat) (thin : Bool) (width : Nat)
-    (sub : Subpath) : List (List Out) :=
+    (doubleRound : Bool) (sub : Subpath) : List (List Out) :=
   let r := ops d
   let points := if thin then sub.points.map (pointThrough r m) else sub.points
   let points := (closedPoints sub.closed (dedup points)).toArray
@@ -84,10 +84,10 @@ private def figureBands (d : Bool) (pen : Pen) (m : List Nat) (thin : Bool) (wid
   let outlines := bands.flatMap fun (wl, wr) =>
     let b := { whole with left := wl, right := wr, compound := compound }
     if sub.closed then closedBand d b points
-    else [openBand d b points (bandCap sub.startCap) (bandCap sub.endCap)]
+    else [openBand d b points (bandCap sub.startCap) (bandCap sub.endCap) doubleRound]
   if sub.closed then outlines else
   let extra := [(sub.startCap, true), (sub.endCap, false)].filterMap fun (cap, start) =>
-    if apart cap then wholeCap d whole points cap start else none
+    if apart cap then wholeCap d whole points cap start doubleRound else none
   outlines ++ extra
 
 /-- Flatten in device space and return the figure points to world space. -/
@@ -97,11 +97,11 @@ def flattenedWorld (d : Bool) (m minv : List Nat) (flatness : Nat) (path : List 
   pure (flat.map (toPt r minv))
 
 private def outlineSubpaths (d : Bool) (pen : Pen) (m minv : List Nat) (minor minimum : Nat)
-    (subs : List Subpath) : List Pt :=
+    (doubleRound : Bool) (subs : List Subpath) : List Pt :=
   let r := ops d
   let thin := flt (r.mul pen.width minor) minimum
   let width := if thin then minimum else pen.width
-  let outlines := subs.flatMap (figureBands d pen m thin width)
+  let outlines := subs.flatMap (figureBands d pen m thin width doubleRound)
   outlines.flatMap fun fig => (closeFigure fig).map (resultPoint r m minv thin)
 
 private def worldSubpaths (pen : Pen) (world : List Pt) : List Subpath :=
@@ -109,7 +109,7 @@ private def worldSubpaths (pen : Pen) (world : List Pt) : List Subpath :=
     ⟨f.map (fun p => (p.x, p.y)), (f.getLast?.map (·.close)).getD false, pen.startCap, pen.endCap⟩
 
 def centeredFromWorld (d : Bool) (pen : Pen) (m minv : List Nat) (world : List Pt) : List Pt :=
-  outlineSubpaths d pen m minv (Stroke.axes d m).2 0x3f800008 (worldSubpaths pen world)
+  outlineSubpaths d pen m minv (Stroke.axes d m).2 0x3f800008 false (worldSubpaths pen world)
 
 def dashPattern (dash : DashStyle) : Option (List Nat) :=
   match dash.style with
@@ -120,33 +120,34 @@ def dashPattern (dash : DashStyle) : Option (List Nat) :=
   | 5 => if dash.custom.isEmpty then none else some dash.custom
   | _ => none
 
-def flatDashCap (dash : DashStyle) : Bool :=
+private def flatDashCap (dash : DashStyle) : Bool :=
   dash.cap != 2 && dash.cap != 3
 
 private def dashedWith (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m minv : List Nat)
-    (world : List Pt) (flatInset : Bool) : Option (List Pt) := do
+    (world : List Pt) (inset : Bool) : Option (List Pt) := do
   let some pattern := dashPattern dash | pure (centeredFromWorld d pen m minv world)
   let r := ops d
   let (major, minor) := Stroke.axes d m
   let cap := if flatDashCap dash then 0 else dash.cap.toNat
-  let width := if flatInset then r.add pen.width pen.width else pen.width
-  let unit := Dash.dashUnit r pen.width major (if flatInset then 0x40000000 else one)
+  let width := if inset then r.add pen.width pen.width else pen.width
+  let unit := Dash.dashUnit r pen.width major (if inset then 0x40000000 else one)
   let (lengths, gap) := Dash.patternAtUnit r unit (cap != 0) pattern
   let spans ← (worldSubpaths pen world).mapM fun sub => do
     let points := sub.points.map (pointThrough r minv ∘ pointThrough r m)
     let off := r.sub (r.mul width dash.offset) (if sub.closed then gap else 0)
     Dash.walk fuel d sub.closed points.toArray lengths off pen.width cap sub.startCap sub.endCap
-  let subs := spans.flatten.map fun s => ⟨s.points.toList, false, s.startCap, s.endCap⟩
-  let minimum := if flatInset then 0x40800000 else 0x3f800008
-  pure (outlineSubpaths d { pen with width } m minv minor minimum subs)
+  let capStyle style := if inset && cap == 3 then 0 else style
+  let subs := spans.flatten.map fun s => ⟨s.points.toList, false, capStyle s.startCap, capStyle s.endCap⟩
+  let minimum := if inset then 0x40800000 else 0x3f800008
+  pure (outlineSubpaths d { pen with width } m minv minor minimum inset subs)
 
 def dashedFromWorld (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m minv : List Nat)
     (world : List Pt) : Option (List Pt) :=
   dashedWith fuel d pen dash m minv world false
 
-/-- The closed, flat-dash inset run has a two-pixel dash unit minimum and a four-pixel outline
-minimum. The outline and offset use the doubled pen width. -/
-def flatInsetFromWorld (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m minv : List Nat)
+/-- Closed inset dashes use a two-pixel dash unit minimum and a four-pixel outline minimum.
+The outline and offset use the doubled pen width, and round caps split into two half-width arcs. -/
+def insetDashFromWorld (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m minv : List Nat)
     (world : List Pt) : Option (List Pt) :=
   dashedWith fuel d pen dash m minv world true
 

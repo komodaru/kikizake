@@ -550,12 +550,17 @@ spec/lean/Kikizake/GdiPlus/Inset.lean::empty_region lean GP.PEN.INSET.REGION
 spec/lean/Kikizake/GdiPlus/Inset.lean::rectangle_intersection lean GP.PEN.INSET.REGION
 spec/lean/Kikizake/GdiPlus/Inset.lean::four_connected lean GP.PEN.INSET.REGION
 spec/lean/Kikizake/GdiPlus/Inset.lean::hole_reverses_winding lean GP.PEN.INSET.REGION
+spec/lean/Kikizake/GdiPlus/Inset.lean::disjoint_island_inside_bounds lean GP.PEN.INSET.REGION
+spec/lean/Kikizake/GdiPlus/Inset.lean::double_enclosure_keeps_orientation lean GP.PEN.INSET.REGION
+spec/lean/Kikizake/GdiPlus/Inset.lean::corner_touching_holes_are_separate lean GP.PEN.INSET.REGION
 spec/lean/Kikizake/GdiPlus/InsetRoute.lean::open_figures_keep_the_centered_route lean GP.PEN.INSET.PATH
 spec/lean/Kikizake/GdiPlus/InsetRoute.lean::square_inset_forms_a_ring lean GP.PEN.INSET.PATH
 spec/lean/Kikizake/GdiPlus/InsetRoute.lean::mixed_path_keeps_figure_order lean GP.PEN.INSET.PATH
 spec/lean/Kikizake/GdiPlus/InsetRoute.lean::nested_fill_mode_changes_contours lean GP.PEN.INSET.PATH
 spec/lean/Kikizake/GdiPlus/InsetRoute.lean::open_dashed_figures_keep_the_centered_route lean GP.PEN.INSET.DASHED
 spec/lean/Kikizake/GdiPlus/InsetRoute.lean::flat_dashed_square lean GP.PEN.INSET.DASHED
+spec/lean/Kikizake/GdiPlus/InsetRoute.lean::round_dashed_square lean GP.PEN.INSET.DASHED
+spec/lean/Kikizake/GdiPlus/InsetRoute.lean::triangular_dashed_square lean GP.PEN.INSET.DASHED
 spec/lean/Kikizake/GdiPlus/Wide.lean::bevel_side_bound lean GP.PEN.WIDE.JOIN
 spec/lean/Kikizake/GdiPlus/Wide.lean::right_angle_miter lean GP.PEN.WIDE.JOIN
 spec/lean/Kikizake/GdiPlus/Wide.lean::right_angle_compound lean GP.PEN.WIDE.JOIN

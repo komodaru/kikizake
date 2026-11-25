@@ -269,6 +269,14 @@ def roundCap (r : Ops) (b : Band) (p g : Pair) (start : Bool) : List Out :=
     ⟨(r.add (r.sub (r.mul u x) (r.mul v y)) c.1, r.add (r.add (r.mul v x) (r.mul u y)) c.2),
       if i == 0 then 1 else 3⟩
 
+private def capArc (r : Ops) (b : Band) (p g : Pair) (start doubleRound : Bool) : List Out :=
+  if !doubleRound then roundCap r b p g start else
+  let mid := r.mul (r.add b.left b.right) 0x3f000000
+  let left := { b with right := mid }
+  let right := { b with left := mid }
+  let (first, second) := if start then (right, left) else (left, right)
+  roundCap r first p g start ++ (roundCap r second p g start).drop 1
+
 private def setFirstPoint (out : List Out) (p : Pair) : List Out :=
   match out with
   | [] => []
@@ -296,7 +304,8 @@ private def repairSide (r : Ops) (first last : Segment) (side : List Out) : List
 
 private def getPoint (p : Array Pair) (i : Nat) : Pair := p.getD i (0, 0)
 
-def openBand (d : Bool) (b : Band) (p : Array Pair) (startCap endCap : Nat) : List Out :=
+def openBand (d : Bool) (b : Band) (p : Array Pair) (startCap endCap : Nat)
+    (doubleRound : Bool := false) : List Out :=
   let r := ops d
   let n := p.size
   if n < 2 then [] else
@@ -329,7 +338,7 @@ def openBand (d : Bool) (b : Band) (p : Array Pair) (startCap endCap : Nat) : Li
   let (front, back) :=
     if endCap == 3 then (front ++ [line (capTip r b end_ last.g false)], back)
     else if endCap == 2 then
-      (front.dropLast ++ setFirstPoint (roundCap r b end_ last.g false) lastLeft, back.drop 1)
+      (front.dropLast ++ setFirstPoint (capArc r b end_ last.g false doubleRound) lastLeft, back.drop 1)
     else (front, back)
   let back := if startCap == 2 && !wrapped then back.dropLast else back
   let out := front ++ back
@@ -343,7 +352,7 @@ def openBand (d : Bool) (b : Band) (p : Array Pair) (startCap endCap : Nat) : Li
       out ++ optional ++ [tip, line (off r b.left first.n start)]
     else out ++ [tip, line firstLeft]
   else if startCap == 2 then
-    let cap := roundCap r b start first.g true
+    let cap := capArc r b start first.g true doubleRound
     if wrapped then
       let firstCap := (cap.head?.getD (line firstRight)).point
       out ++ (if closeTo firstRight firstCap then cap.drop 1 else cap)
@@ -359,7 +368,8 @@ def closedBand (d : Bool) (b : Band) (p : Array Pair) : List (List Out) :=
   [firstPoint left, firstPoint (reverseSide right)]
 
 /-- A compound pen's whole-width round or triangle cap is a separate figure. -/
-def wholeCap (d : Bool) (b : Band) (p : Array Pair) (cap : Nat) (start : Bool) : Option (List Out) :=
+def wholeCap (d : Bool) (b : Band) (p : Array Pair) (cap : Nat) (start : Bool)
+    (doubleRound : Bool := false) : Option (List Out) :=
   let r := ops d
   let n := p.size
   if n < 2 then none else
@@ -369,7 +379,7 @@ def wholeCap (d : Bool) (b : Band) (p : Array Pair) (cap : Nat) (start : Bool) :
   let (first, last) := if start then (a, c) else (c, a)
   if cap == 3 then some (firstPoint [line first, line (capTip r b at_ s.g start), line last])
   else if cap == 2 then
-    some (firstPoint (setFirstPoint (roundCap r b at_ s.g start) first))
+    some (firstPoint (setFirstPoint (capArc r b at_ s.g start doubleRound) first))
   else none
 
 def closeFigure (points : List Out) : List Out :=

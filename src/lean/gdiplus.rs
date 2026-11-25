@@ -449,9 +449,11 @@ fn inset_dashed_inputs(each: &mut dyn FnMut(&[i64])) {
             bits(x), bits(bottom), 129]);
     };
     for d in 0..=1 {
-        let mut a = vec![0, d, 1, 0, 0, 0, bits(4), bits(40), 0, 0, 0, bits(1), bits(4), 0, 0, bits(4), 0, 0, 0];
-        rectangle(&mut a, 0, 0, 24, 24);
-        each(&a);
+        for cap in [0, 2, 3] {
+            let mut a = vec![0, d, 1, cap, 0, 0, bits(4), bits(40), 0, 0, 0, bits(1), bits(4), 0, 0, bits(4), 0, 0, 0];
+            rectangle(&mut a, 0, 0, 24, 24);
+            each(&a);
+        }
 
         let mut zero_gap = vec![1, d, 5, 0, bits(-5), 1, bits(3), bits(13), bits(15), 3, 2, 0,
             bits(1), bits(2), 0, 0, bits(8), bits(8), bits(1), 0,
@@ -466,7 +468,8 @@ fn inset_dashed_inputs(each: &mut dyn FnMut(&[i64])) {
     for i in 0..1000 {
         let style = rng.range(0, 5);
         let custom = if style == 5 { rng.range(1, 5) } else { 0 };
-        let mut a = vec![i / 2 % 2, i % 2, style, 0, bits(rng.range(-8, 8)), custom];
+        let cap = *rng.pick(&[0, 2, 3]);
+        let mut a = vec![i / 2 % 2, i % 2, style, cap, bits(rng.range(-8, 8)), custom];
         a.extend((0..custom).map(|_| bits(rng.range(2, 16))));
         a.extend([bits(rng.range(1, 18)), bits(rng.range(6, 40)), rng.range(0, 3), rng.range(0, 3),
             rng.range(0, 3), bits(1)]);
@@ -1559,7 +1562,7 @@ pub static MIRRORS: &[Mirror] = &[
     Mirror {
         name: "gp.inset-dashed",
         lean: INSET_ROUTE,
-        domain: Domain::Sampled("1,000 paths with flat-cap preset or custom dashes or solid fallback, open and closed figures, alternate and winding fills, signed offsets and affine transforms, and the measured square and zero-gap rectangle"),
+        domain: Domain::Sampled("1,000 paths with flat, round or triangle caps, preset or custom dashes and solid fallback, open and closed figures, alternate and winding fills, signed offsets and affine transforms, plus measured squares and a zero-gap rectangle"),
         inputs: inset_dashed_inputs,
         model: |a| {
             let [fill, rest @ ..] = a else { return None; };
@@ -1569,9 +1572,11 @@ pub static MIRRORS: &[Mirror] = &[
     Mirror {
         name: "gp.inset-region",
         lean: INSET,
-        domain: Domain::Sampled("all 3×3 pixel subsets, empty and overlapping rectangles, and 4,000 aligned or shifted mask pairs up to 7×7"),
+        domain: Domain::Sampled("all 3×3 pixel subsets, empty and overlapping rectangles, nested islands and corner-touching holes, and 4,000 aligned or shifted mask pairs up to 7×7"),
         inputs: |each| {
             each(&[0, 0, 0, 3, 0, 0, 0, 3, 3, 511]);
+            each(&[0, 0, 5, 5, 33_084_991, 0, 0, 5, 5, 33_554_431]);
+            each(&[0, 0, 5, 5, 20_441_820, 0, 0, 5, 5, 33_554_431]);
             each(&[0, 0, 3, 2, 63, 1, 0, 3, 2, 63]);
             each(&[0, 0, 2, 2, 9, 0, 0, 2, 2, 15]);
             for bits in 0..512 {

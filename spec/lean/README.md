@@ -60,33 +60,15 @@ right edge detects the wrong MMX column range.
 
 ## Closed dashed inset boundaries (#19)
 
-The `gdipluspath` cases `pathinset-dash-*` capture flat dash caps on Windows x86 and
-x64. They include the unit-width 6×6 square, which gives one concave contour with
-eight points, and a zero-gap case in which a one-element pattern ends a span
-exactly at a vertex.
+The `gdipluspath` cases `pathinset-dash-*` capture flat, round and triangle dash
+caps on Windows x86 and x64. The square examples exercise the different closed
+dash cap outlines. The reflected and cubic examples exercise transformed paths
+and a custom pattern. In `pathinset-dash-zero-gap` a one-element pattern ends a
+span exactly at a vertex.
 
-Two remaining cases reproduce differences in the model.
-
-```text
-case inset-round-gap
-gpmatrix 0 0x3f800000 0 0 0x3f800000 0x40000000 0xbf800000
-gppen 0 0xff000000 1 align 1 dash 1 cap 0 0 2
-gppath 0 0
-gpadd 0 rect 1 2 12 10
-gpwiden 0 0 0 0.25
-gppathinfo 0
-end
-case inset-contour-direction
-gpmatrix 0 0x3f000000 0 0 0x3f000000 0x40000000 0xbf800000
-gppen 0 0xff000000 3 align 1 dash 1 dashoff 1.25
-gppath 0 0
-gpadd 0 rect 1 2 12 10
-gpwiden 0 0 0 0.25
-gppathinfo 0
-end
-```
-
-In `inset-round-gap` Windows x64 returns 20 points and the model returns 17.
-In `inset-contour-direction` the paths have the same 12 vertices. Windows x64 starts
-the second contour at `(5,3)` and walks down, and the model starts it at `(3,3)`
-and walks down.
+The `pathinset-region-*` cases exercise contour winding and starting points.
+The secondary contour in `pathinset-region-direction` starts at `(5,3)`.
+The contours reversed by bounding-box parity and the separate corner-touching
+holes also have Lean regression theorems. In the unshifted island probe, two x64
+open-outline coordinates are negative zero on Windows and positive zero in the
+model. The recorded island probe uses coordinates translated by `(10,10)`.
