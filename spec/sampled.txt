@@ -203,6 +203,7 @@ GP.PATH.FLATTEN.BIG sampled
 GP.PEN.ALIASED sampled
 GP.PEN.DASH sampled
 GP.PEN.EMPTY sampled
+GP.PEN.INSET.PATH sampled
 GP.PEN.INSET.REGION sampled
 GP.PEN.NOMINAL sampled
 GP.PEN.ONEPIXEL sampled

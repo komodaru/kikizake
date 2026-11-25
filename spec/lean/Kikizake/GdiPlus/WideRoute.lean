@@ -41,10 +41,13 @@ private def toPt (r : Ops) (minv : List Nat) (p : Nat × Nat × Nat) : Pt :=
   let (x, y) := apply r minv p.1 p.2.1
   ⟨x, y, p.2.2 % 128, p.2.2 ≥ 128⟩
 
-private def resultPoint (r : Ops) (m minv : List Nat) (thin : Bool) (o : Out) : List Int :=
+private def resultPoint (r : Ops) (m minv : List Nat) (thin : Bool) (o : Out) : Pt :=
   let p := if thin then pointThrough r minv o.point else o.point
   let (x, y) := pointThrough r m p
-  [o.type % 64 + o.type / 128 * 128, F32.canon x, F32.canon y]
+  ⟨x, y, o.type % 64, o.type ≥ 128⟩
+
+def encodePoints (pts : List Pt) : List Int :=
+  pts.flatMap fun p => [p.t + (if p.close then 128 else 0), F32.canon p.x, F32.canon p.y]
 
 private def closedPoints (closed : Bool) (pts : List Pair) : List Pair :=
   if closed && pts.length > 2 &&
@@ -75,22 +78,31 @@ def figureBands (d : Bool) (pen : Pen) (m : List Nat) (thin : Bool) (width : Nat
     if apart cap then wholeCap d whole points cap start else none
   outlines ++ extra
 
+/-- Flatten in device space and return the figure points to world space. -/
+def flattenedWorld (d : Bool) (m minv : List Nat) (flatness : Nat) (path : List Pt) : Option (List Pt) := do
+  let r := ops d
+  let flat ← flatten r (some m) flatness path
+  pure (flat.map (toPt r minv))
+
+def centeredFromWorld (d : Bool) (pen : Pen) (m minv : List Nat) (world : List Pt) : List Pt :=
+  let r := ops d
+  let (_, minor) := Stroke.axes d m
+  let thin := flt (r.mul pen.width minor) 0x3f800008
+  let width := if thin then 0x3f800008 else pen.width
+  let outlines := (figures world).flatMap fun f =>
+    let closed := (f.getLast?.map (·.close)).getD false
+    figureBands d pen m thin width closed f
+  outlines.flatMap fun fig => (closeFigure fig).map (resultPoint r m minv thin)
+
+def centeredPath (d : Bool) (pen : Pen) (m minv : List Nat) (flatness : Nat) (path : List Pt) : Option (List Pt) := do
+  pure (centeredFromWorld d pen m minv (← flattenedWorld d m minv flatness path))
+
 /-- The returned point stream starts with 0, or -1 when the transform has no inverse. -/
 def centeredOutline (d : Bool) (pen : Pen) (m : List Nat) (flatness : Nat) (path : List Pt) :
     Option (List Int) := do
-  let r := ops d
-  match inverse r m with
+  match inverse (ops d) m with
   | none => pure [-1]
-  | some minv =>
-    let flat ← flatten r (some m) flatness path
-    let (_, minor) := Stroke.axes d m
-    let thin := flt (r.mul pen.width minor) 0x3f800008
-    let width := if thin then 0x3f800008 else pen.width
-    let all := figures (flat.map (toPt r minv))
-    let outlines := all.flatMap fun f =>
-      let closed := (f.getLast?.map (·.close)).getD false
-      figureBands d pen m thin width closed f
-    pure (0 :: outlines.flatMap (fun fig => (closeFigure fig).flatMap (resultPoint r m minv thin)))
+  | some minv => pure (0 :: encodePoints (← centeredPath d pen m minv flatness path))
 
 theorem singular_matrix_leaves_no_outline (d : Bool) (pen : Pen) (m : List Nat)
     (flatness : Nat) (path : List Pt) (h : inverse (ops d) m = none) :
@@ -124,7 +136,7 @@ theorem compound_caps_follow_bands :
       0, 0x40e00000, 0xc0400000, 1, 0x41000000, 0xc0000000, 0x81, 0x40e00000, 0xbf800000] := by
   decide +kernel
 
-private def points : List Int → Option (List Pt)
+def points : List Int → Option (List Pt)
   | [] => some []
   | x :: y :: t :: rest => do
     let t ← nat t

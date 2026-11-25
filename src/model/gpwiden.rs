@@ -734,6 +734,9 @@ fn inset(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Res
     use super::gdiplus::FillMode;
     use super::gpregion::{inset_contours, pixels, points};
     hit(clause::GP_PEN_INSET);
+    if pen.dash == 0 && (0..=3).contains(&pen.start_cap) && (0..=3).contains(&pen.end_cap) {
+        hit(clause::GP_PEN_INSET_PATH);
+    }
     let fm = if path.fill == 0 { FillMode::Alternate } else { FillMode::Winding };
     let whole = pixels(r, path, m, fm)?;
     let id = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0];
