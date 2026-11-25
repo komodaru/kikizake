@@ -194,6 +194,28 @@ pub fn target_rows(dim: u32, view: u32, (width, height, depth): (u32, u32, u32),
     Some(TargetRows { width, height, first, slice })
 }
 
+/// A missing shader resource yields zero in every component, for Load and Sample alike.
+pub(crate) fn srv_or_zero<V>(bound: Option<V>) -> Result<V, [u32; 4]> {
+    bound.ok_or([0; 4])
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct TexelAddress {
+    pub x: u32,
+    pub y: u32,
+    pub format: u32,
+    pub subresource: u32,
+}
+
+/// Load uses the selected view format and subresource. Coordinates outside the
+/// selected mip read as zeros.
+pub(crate) fn ld_reach((px, py): (i64, i64), (width, height): (u32, u32), format: u32, subresource: u32) -> Result<TexelAddress, [u32; 4]> {
+    match (u32::try_from(px), u32::try_from(py)) {
+        (Ok(x), Ok(y)) if x < width && y < height => Ok(TexelAddress { x, y, format, subresource }),
+        _ => Err([0; 4]),
+    }
+}
+
 /// a primitive's vertices (their indices in the draw) and its leading vertex
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Prim {

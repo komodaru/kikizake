@@ -105,6 +105,7 @@ fn models_match_windows() {
                     "probe-depth-alone", "probe-rt-1d", "probe-rt-1darray", "probe-rt-3d",
                     "probe-rt-3d-slice1", "probe-rt-buffer", "probe-rt-buffer-off",
                     "shader-bad", "probe-layout-refused", "probe-layout-otherkind",
+                    "ld-89", "ld-26", "ld-table-29", "probe-ld-out", "hazard-load-mip1",
                 ] {
                     let reference = expected.cases.iter().find(|(n, _)| n == name)
                         .unwrap_or_else(|| panic!("missing Windows recording for {s}-{arch} {name}"));

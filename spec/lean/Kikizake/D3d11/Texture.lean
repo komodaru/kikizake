@@ -5,7 +5,8 @@ D3DRASTER.*), as src/model/d3drules.rs computes them: `address` is `address`
 (D3D11_TEXTURE_ADDRESS_MODE, the same rule as Direct3D 9's), `cmp` `compare`
 (D3D11_COMPARISON_FUNC, Direct3D 9's), `bilinear8` `bilinear8`, `mip8` `mip8`, `reduce` `reduce`
 (the minimum and maximum filters) (mirrors `d3d11.address`, `d3d11.cmp`, `d3d11.bilinear8`,
-`d3d11.mip8`, `d3d11.reduce`). -/
+`d3d11.mip8`, `d3d11.reduce`). `ldReach` holds Load's coordinates and view identity to
+`ld_reach`. `srvOrZero` holds the unbound-resource result in Load and Sample to `srv_or_zero`. -/
 namespace Kikizake.D3d11.Texture
 
 /-- D3DRASTER.ADDRESS, BORDER: a texel coordinate through the address mode (WRAP 1, MIRROR 2,
@@ -178,7 +179,50 @@ theorem reduce_picks (a b c e wu wv : Int) :
     obtain ⟨u, hu, rfl⟩ := hall t ht
     exact x1 u hu
 
+/-- A bound resource is passed through. An absent one yields four zero components. -/
+def srvOrZero {α : Type} (bound : Option α) : Except (List Int) α :=
+  match bound with
+  | some value => .ok value
+  | none => .error [0, 0, 0, 0]
+
+theorem srv_or_zero {α : Type} (view : α) :
+    srvOrZero (none : Option α) = .error [0, 0, 0, 0] ∧
+    srvOrZero (some view) = .ok view := by
+  exact ⟨rfl, rfl⟩
+
+/-- Coordinate, format and subresource of the requested texel in the chosen view. -/
+def ldReach (x y : Int) (w h format subresource : Nat) :
+    Except (List Int) (Int × Int × Nat × Nat) :=
+  if 0 ≤ x ∧ x < (w : Int) ∧ 0 ≤ y ∧ y < (h : Int) then
+    .ok (x, y, format, subresource)
+  else
+    .error [0, 0, 0, 0]
+
+theorem ld_inside_view (x y : Int) (w h format subresource : Nat)
+    (inside : 0 ≤ x ∧ x < (w : Int) ∧ 0 ≤ y ∧ y < (h : Int)) :
+    ldReach x y w h format subresource = .ok (x, y, format, subresource) := by
+  simp [ldReach, inside]
+
+theorem ld_outside_zero (x y : Int) (w h format subresource : Nat) :
+    ldReach x y w h format subresource = .error [0, 0, 0, 0] ↔
+      x < 0 ∨ (w : Int) ≤ x ∨ y < 0 ∨ (h : Int) ≤ y := by
+  unfold ldReach
+  split <;> simp_all <;> omega
+
+private def loadWord (x : Int) : Option Nat :=
+  if x ≤ 0xffff_ffff then nat x else none
+
 def mirrors : List Mirror := [
+  ⟨"d3d11.srvOrZero", fun
+    | [0] => some (match srvOrZero (none : Option Int) with | .ok view => [view] | .error bits => bits)
+    | [1] => some (match srvOrZero (some (13 : Int)) with | .ok view => [view] | .error bits => bits)
+    | _ => some [-1]⟩,
+  ⟨"d3d11.ldReach", fun a => some ((do
+    let [x, y, w, h, f, s] := a | none
+    let result := ldReach x y (← loadWord w) (← loadWord h) (← loadWord f) (← loadWord s)
+    pure (match result with
+      | .ok (x, y, format, subresource) => [1, x, y, format, subresource]
+      | .error bits => 0 :: bits)).getD [-1])⟩,
   ⟨"d3d11.address", fun
     | [m, i, n] => do pure ((address (← nat m) i n).toList)
     | _ => none⟩,

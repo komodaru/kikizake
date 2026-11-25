@@ -451,6 +451,27 @@ fn render_rows() { rules::target_rows(r.d.dim, view.dim(), size, starts); }
 }
 
 #[test]
+fn texture_load_stays_in_the_mirrored_functions() {
+    let inlined = r#"
+fn shade() {
+    let Some(sv) = d.srv else { return Ok([0; 4]); };
+    texel(r, sub, v.format(), px as u32, py as u32)?
+}
+"#;
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:")).count(), 2, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", r#"
+fn shade() {
+    let res = rules::srv_or_zero(d.srv);
+    match rules::ld_reach((px, py), (w, h), v.format(), sub) {
+        Ok(at) => texel(r, at.subresource, at.format, at.x, at.y)?,
+        Err(zero) => zero,
+    }
+}
+"#).is_empty());
+}
+
+#[test]
 fn lod_stays_in_the_mirrored_functions() {
     let inlined = "fn shade() {\n    let s = (du * w).powi(2);\n    if rho <= 1.0 {}\n    let d = [0x15, 3, 3, 3, 1];\n}\n";
     let r = rust("src/model/d3draster.rs", inlined);

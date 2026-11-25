@@ -2468,9 +2468,12 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
         "psld" | "psldu" => {
             hit(clause::D3DRASTER_LD);
             // (an unbound shader resource reads as zeros, ld-89)
-            let Some(sv) = d.srv else {
-                hit(clause::D3DRASTER_NOSRV);
-                return Ok([0; 4]);
+            let sv = match rules::srv_or_zero(d.srv) {
+                Ok(view) => view,
+                Err(zero) => {
+                    hit(clause::D3DRASTER_NOSRV);
+                    return Ok(zero);
+                }
             };
             let v = m.views.get(sv)?;
             let r = m.res.get(v.res)?;
@@ -2482,19 +2485,23 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             }
             let sub = reach.subs(r).first().copied().ok_or(Fail::Bad)?;
             let (w, h, _) = r.size(reach.mip);
-            if px >= w as i64 || py >= h as i64 {
-                hit(clause::D3DRASTER_LD_OUT);
-                [0; 4]
-            } else {
-                texel(r, sub, v.format(), px as u32, py as u32)?
+            match rules::ld_reach((px, py), (w, h), v.format(), sub) {
+                Ok(at) => texel(r, at.subresource, at.format, at.x, at.y)?,
+                Err(zero) => {
+                    hit(clause::D3DRASTER_LD_OUT);
+                    zero
+                }
             }
         }
         "pssample" | "pssamplec" => {
             hit(clause::D3DRASTER_SAMPLE);
             // (an unbound shader resource reads as zeros, ld-89)
-            let Some(sv) = d.srv else {
-                hit(clause::D3DRASTER_NOSRV);
-                return Ok([0; 4]);
+            let sv = match rules::srv_or_zero(d.srv) {
+                Ok(view) => view,
+                Err(zero) => {
+                    hit(clause::D3DRASTER_NOSRV);
+                    return Ok(zero);
+                }
             };
             // (MEASURED, WARP: probe-sample-nosampler) no sampler bound: the default one,
             // linear filtering, clamped addresses

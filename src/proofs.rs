@@ -158,6 +158,25 @@ fn d3d_region_respects_both_subresources() {
 }
 
 #[kani::proof]
+fn d3d_load_uses_view_and_clips_address() {
+    use crate::model::d3drules::ld_reach;
+    let (x, y): (i64, i64) = kani::any();
+    let (width, height, format, subresource): (u32, u32, u32, u32) = kani::any();
+    let inside = 0 <= x && x < i64::from(width) && 0 <= y && y < i64::from(height);
+    match ld_reach((x, y), (width, height), format, subresource) {
+        Ok(at) => {
+            assert!(inside);
+            assert_eq!((i64::from(at.x), i64::from(at.y)), (x, y));
+            assert_eq!((at.format, at.subresource), (format, subresource));
+        }
+        Err(zero) => {
+            assert!(!inside);
+            assert_eq!(zero, [0; 4]);
+        }
+    }
+}
+
+#[kani::proof]
 fn nt_digit_step_matches_modular_arithmetic() {
     use crate::model::ntstr::{Radix, append_digit};
     let value: u32 = kani::any();

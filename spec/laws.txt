@@ -506,6 +506,9 @@ spec/lean/Kikizake/D3d11/Texture.lean::cmp_pairs lean D3DRASTER.DEPTH D3DRASTER.
 spec/lean/Kikizake/D3d11/Texture.lean::bilinear8_range lean D3DRASTER.FILTER.LINEAR
 spec/lean/Kikizake/D3d11/Texture.lean::mip8_range lean D3DRASTER.FILTER.MIPLINEAR
 spec/lean/Kikizake/D3d11/Texture.lean::reduce_picks lean D3DRASTER.FILTER.MINMAX
+spec/lean/Kikizake/D3d11/Texture.lean::ld_inside_view lean D3DRASTER.LD
+spec/lean/Kikizake/D3d11/Texture.lean::ld_outside_zero lean D3DRASTER.LD.OUT
+spec/lean/Kikizake/D3d11/Texture.lean::srv_or_zero lean D3DRASTER.NOSRV
 spec/lean/Kikizake/GdiPlus/Blend.lean::lanes_carry lean GP.FILL.GAMMA.X86
 spec/lean/Kikizake/GdiPlus/Blend.lean::alpha_254_adds_nothing lean GP.FILL.GAMMA.X86
 spec/lean/Kikizake/GdiPlus/Blend.lean::gamma234_floor lean GP.PAINT.GAMMA.BETWEEN
@@ -890,6 +893,7 @@ src/proofs.rs::nt_counted_ascii_output kani NT.A2U.ASCII NT.A2U.SIZE
 tests/laws_nt.rs::signed_prefixed_numbers_wrap pbt NT.A2I.SYNTAX NT.U2I.PREFIX NT.SIGN NT.DIGITS
 src/proofs.rs::d3d_update_respects_box_and_subresource kani D3DRES.UPDATE.EMPTY D3DRES.UPDATE.IGNORED D3DRES.UPDATE.BAD D3DRES.REMOVED
 src/proofs.rs::d3d_region_respects_both_subresources kani D3DRES.COPYSUB.BAD D3DRES.COPYSUB.IGNORED D3DRES.COPY.IGNORED D3DRES.REMOVED
+src/proofs.rs::d3d_load_uses_view_and_clips_address kani D3DRASTER.LD D3DRASTER.LD.OUT
 src/proofs.rs::nt_digit_step_matches_modular_arithmetic kani NT.DIGITS
 src/proofs.rs::nt_invalid_base_preserves_ansi_output_and_zeroes_unicode kani NT.A2I.BASE
 src/proofs.rs::nt_integer_output_writes_only_its_digits_pad_and_terminator kani NT.I2A.LENGTH NT.I2A.PAD

@@ -261,6 +261,51 @@ pub static MIRRORS: &[Mirror] = &[
         },
     },
     Mirror {
+        name: "d3d11.srvOrZero",
+        lean: TEXTURE,
+        domain: Domain::Every("the two binding states plus a malformed argument"),
+        inputs: |each| {
+            each(&[0]);
+            each(&[1]);
+            each(&[-1]);
+        },
+        model: |a| {
+            let bound = match *a {
+                [0] => None,
+                [1] => Some(13),
+                _ => return Some(vec![-1]),
+            };
+            Some(match d3drules::srv_or_zero(bound) {
+                Ok(view) => vec![view],
+                Err(zero) => zero.into_iter().map(i64::from).collect(),
+            })
+        },
+    },
+    Mirror {
+        name: "d3d11.ldReach",
+        lean: TEXTURE,
+        domain: Domain::Sampled("all small signed coordinates and dimensions, 30,000 full u32 and 20,000 full i64 coordinate inputs with full u32 view fields"),
+        inputs: |each| {
+            every(&[(-1, 4), (-1, 4), (0, 4), (0, 4), (29, 29), (3, 3)], each);
+            sampled(&[(0, U32); 6], 30_000, 0x1da0_d011, each);
+            sampled(&[(i64::MIN, i64::MAX), (i64::MIN, i64::MAX), (0, U32), (0, U32), (0, U32), (0, U32)], 20_000, 0x1dae_d011, each);
+            for bad in [&[][..], &[0, 0, -1, 1, 0, 0], &[0, 0, 1, 0x1_0000_0000, 0, 0]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let answer = || {
+                let &[x, y, _, _, _, _] = a else { return None };
+                let result = d3drules::ld_reach((x, y), (arg(a, 2)?, arg(a, 3)?), arg(a, 4)?, arg(a, 5)?);
+                Some(match result {
+                    Ok(at) => vec![1, i64::from(at.x), i64::from(at.y), i64::from(at.format), i64::from(at.subresource)],
+                    Err(zero) => std::iter::once(0).chain(zero.into_iter().map(i64::from)).collect(),
+                })
+            };
+            Some(answer().unwrap_or_else(|| vec![-1]))
+        },
+    },
+    Mirror {
         name: "d3d11.address",
         lean: TEXTURE,
         domain: Domain::Every("modes 0..7, texel indices -60..60, textures 1..16 texels"),
