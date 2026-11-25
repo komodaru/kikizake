@@ -1145,6 +1145,21 @@ pub fn d3d7wide() -> String {
     for (name, left, right) in [("rising", i32::MIN, i32::MAX), ("falling", i32::MAX, i32::MIN)] {
         writeln!(s, "case steep-{name}\nd3d 7\nd3ddev rgb 565 12 12\nd3drs set 22 1\nd3dclear 0\nd3dtri 0xffff0000/0xff00ff00/0xff0000ff {left} 0 {right} 1 40 170\nd3ddump\nend");
     }
+    let (lo, hi) = (i32::MIN, i32::MAX);
+    for (name, points) in [
+        ("top-base", [lo, 0, hi, 0, hi, 1]),
+        ("bottom-base", [lo, 0, lo, 1, hi, 1]),
+        ("inside", [lo, 0, 0, 1, hi, 2]),
+        ("reversed", [hi, 0, 0, 1, lo, 1]),
+        ("multirow-control", [lo, 0, 0, 31, hi, 32]),
+    ] {
+        let [x0, y0, x1, y1, x2, y2] = points;
+        for (version, device) in [(2, "rgb"), (3, "rgb"), (7, "rgb"), (7, "mmx")] {
+            for (shade, mode) in [("gouraud", 2), ("flat", 1)] {
+                writeln!(s, "case long-{name}-{version}-{device}-{shade}\nd3d {version}\nd3ddev {device} 565 8 4\nd3drs set 22 1\nd3drs set 9 {mode}\nd3dclear 0\nd3dtri 0xff0000ff/0xff00ff00/0xffff0000 {x0} {y0} {x1} {y1} {x2} {y2}\nd3ddump\nend");
+            }
+        }
+    }
     for device in ["rgb", "mmx"] {
         writeln!(s, "case line-{device}\nd3d 7\nd3ddev {device} 565 12 12\nd3drs set 22 1");
         for end in ["2147483647", "-2147483648", "0x80000000", "4294967296", "-2147483649"] {

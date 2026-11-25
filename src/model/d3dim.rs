@@ -133,7 +133,7 @@ impl Edge {
         let err = u32::try_from(f.wrapping_sub(1) & 0x7fff_ffff).ok()?;
         let istep = trunc(slope)?;
         let Some(whole) = raster_long(istep) else {
-            // A short edge used once only contributes its first column.
+            // An edge used for one scan row only contributes its first column.
             if advances {
                 return None;
             }
@@ -303,7 +303,7 @@ pub fn raster_as(v: [Vert; 3], clip: Clip, gouraud: bool, attrs: Attrs) -> Res<O
     let fdy = fl(ytop)? - t.y;
     let pl = fdy * slope_l;
     let xl0 = pl + t.x;
-    let mut long = Edge::new(xl0, slope_l, true).ok_or_else(bad)?;
+    let mut long = Edge::new(xl0, slope_l, ybot.saturating_sub(ytop) > 1).ok_or_else(bad)?;
     let mut e1 = if ymid > ytop {
         let s1 = px_ / py_;
         Some(Edge::new(s1 * fdy + t.x, s1, ymid.saturating_sub(ytop) > 1).ok_or_else(bad)?)

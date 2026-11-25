@@ -101,9 +101,10 @@ fn models_match_windows() {
             if *s == "d3d7wide" {
                 let expected = case::parse_output(&g);
                 let actual = case::parse_output(&want);
-                for name in ["steep-rising", "steep-falling"] {
-                    let reference = expected.cases.iter().find(|(n, _)| n == name)
-                        .unwrap_or_else(|| panic!("missing Windows recording for {s}-{arch} {name}"));
+                let edge_cases = expected.cases.iter().filter(|(name, _)| name.starts_with("long-") || name.starts_with("steep-"));
+                assert_eq!(edge_cases.clone().count(), 42, "{s}-{arch} edge recordings");
+                for reference in edge_cases {
+                    let name = &reference.0;
                     let modeled = actual.cases.iter().find(|(n, _)| n == name);
                     assert_eq!(modeled, Some(reference), "{s}-{arch} {name}");
                 }

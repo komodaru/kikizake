@@ -72,6 +72,366 @@ d3dclear 0
 d3dtri 0xffff0000/0xff00ff00/0xff0000ff 2147483647 0 -2147483648 1 40 170
 d3ddump
 end
+case long-top-base-2-rgb-gouraud
+d3d 2
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 2147483647 0 2147483647 1
+d3ddump
+end
+case long-top-base-2-rgb-flat
+d3d 2
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 2147483647 0 2147483647 1
+d3ddump
+end
+case long-top-base-3-rgb-gouraud
+d3d 3
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 2147483647 0 2147483647 1
+d3ddump
+end
+case long-top-base-3-rgb-flat
+d3d 3
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 2147483647 0 2147483647 1
+d3ddump
+end
+case long-top-base-7-rgb-gouraud
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 2147483647 0 2147483647 1
+d3ddump
+end
+case long-top-base-7-rgb-flat
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 2147483647 0 2147483647 1
+d3ddump
+end
+case long-top-base-7-mmx-gouraud
+d3d 7
+d3ddev mmx 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 2147483647 0 2147483647 1
+d3ddump
+end
+case long-top-base-7-mmx-flat
+d3d 7
+d3ddev mmx 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 2147483647 0 2147483647 1
+d3ddump
+end
+case long-bottom-base-2-rgb-gouraud
+d3d 2
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 -2147483648 1 2147483647 1
+d3ddump
+end
+case long-bottom-base-2-rgb-flat
+d3d 2
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 -2147483648 1 2147483647 1
+d3ddump
+end
+case long-bottom-base-3-rgb-gouraud
+d3d 3
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 -2147483648 1 2147483647 1
+d3ddump
+end
+case long-bottom-base-3-rgb-flat
+d3d 3
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 -2147483648 1 2147483647 1
+d3ddump
+end
+case long-bottom-base-7-rgb-gouraud
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 -2147483648 1 2147483647 1
+d3ddump
+end
+case long-bottom-base-7-rgb-flat
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 -2147483648 1 2147483647 1
+d3ddump
+end
+case long-bottom-base-7-mmx-gouraud
+d3d 7
+d3ddev mmx 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 -2147483648 1 2147483647 1
+d3ddump
+end
+case long-bottom-base-7-mmx-flat
+d3d 7
+d3ddev mmx 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 -2147483648 1 2147483647 1
+d3ddump
+end
+case long-inside-2-rgb-gouraud
+d3d 2
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 1 2147483647 2
+d3ddump
+end
+case long-inside-2-rgb-flat
+d3d 2
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 1 2147483647 2
+d3ddump
+end
+case long-inside-3-rgb-gouraud
+d3d 3
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 1 2147483647 2
+d3ddump
+end
+case long-inside-3-rgb-flat
+d3d 3
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 1 2147483647 2
+d3ddump
+end
+case long-inside-7-rgb-gouraud
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 1 2147483647 2
+d3ddump
+end
+case long-inside-7-rgb-flat
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 1 2147483647 2
+d3ddump
+end
+case long-inside-7-mmx-gouraud
+d3d 7
+d3ddev mmx 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 1 2147483647 2
+d3ddump
+end
+case long-inside-7-mmx-flat
+d3d 7
+d3ddev mmx 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 1 2147483647 2
+d3ddump
+end
+case long-reversed-2-rgb-gouraud
+d3d 2
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 2147483647 0 0 1 -2147483648 1
+d3ddump
+end
+case long-reversed-2-rgb-flat
+d3d 2
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 2147483647 0 0 1 -2147483648 1
+d3ddump
+end
+case long-reversed-3-rgb-gouraud
+d3d 3
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 2147483647 0 0 1 -2147483648 1
+d3ddump
+end
+case long-reversed-3-rgb-flat
+d3d 3
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 2147483647 0 0 1 -2147483648 1
+d3ddump
+end
+case long-reversed-7-rgb-gouraud
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 2147483647 0 0 1 -2147483648 1
+d3ddump
+end
+case long-reversed-7-rgb-flat
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 2147483647 0 0 1 -2147483648 1
+d3ddump
+end
+case long-reversed-7-mmx-gouraud
+d3d 7
+d3ddev mmx 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 2147483647 0 0 1 -2147483648 1
+d3ddump
+end
+case long-reversed-7-mmx-flat
+d3d 7
+d3ddev mmx 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 2147483647 0 0 1 -2147483648 1
+d3ddump
+end
+case long-multirow-control-2-rgb-gouraud
+d3d 2
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 31 2147483647 32
+d3ddump
+end
+case long-multirow-control-2-rgb-flat
+d3d 2
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 31 2147483647 32
+d3ddump
+end
+case long-multirow-control-3-rgb-gouraud
+d3d 3
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 31 2147483647 32
+d3ddump
+end
+case long-multirow-control-3-rgb-flat
+d3d 3
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 31 2147483647 32
+d3ddump
+end
+case long-multirow-control-7-rgb-gouraud
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 31 2147483647 32
+d3ddump
+end
+case long-multirow-control-7-rgb-flat
+d3d 7
+d3ddev rgb 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 31 2147483647 32
+d3ddump
+end
+case long-multirow-control-7-mmx-gouraud
+d3d 7
+d3ddev mmx 565 8 4
+d3drs set 22 1
+d3drs set 9 2
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 31 2147483647 32
+d3ddump
+end
+case long-multirow-control-7-mmx-flat
+d3d 7
+d3ddev mmx 565 8 4
+d3drs set 22 1
+d3drs set 9 1
+d3dclear 0
+d3dtri 0xff0000ff/0xff00ff00/0xffff0000 -2147483648 0 0 31 2147483647 32
+d3ddump
+end
 case line-rgb
 d3d 7
 d3ddev rgb 565 12 12
