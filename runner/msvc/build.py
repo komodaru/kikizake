@@ -19,6 +19,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mingw-headers", type=Path, required=True, help="directory containing the MinGW-w64 C declarations")
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--warp", action="store_true", help="use WARP for Direct3D 10, 10.1 and 11")
     parser.add_argument("suites", nargs="+", choices=sorted(p.stem for p in CASES.glob("*.txt")))
     args = parser.parse_args()
     target = os.environ.get("VSCMD_ARG_TGT_ARCH")
@@ -42,6 +43,15 @@ def main():
         overlay.mkdir()
         for header in BINDINGS:
             shutil.copyfile(args.mingw_headers / header, overlay / header)
+        warp = work / "warp.h"
+        if args.warp:
+            # Load the SDK enums before redirecting the runner's first driver choice.
+            warp.write_text(
+                "#define COBJMACROS\n#include <d3d10_1.h>\n#include <d3d11.h>\n"
+                "#define D3D10_DRIVER_TYPE_HARDWARE D3D10_DRIVER_TYPE_WARP\n"
+                "#define D3D_DRIVER_TYPE_HARDWARE D3D_DRIVER_TYPE_WARP\n",
+                encoding="ascii",
+            )
         flags = ["cl", "/nologo", "/std:c11", "/O2", "/c", f"/I{HERE}", f"/I{sdk}"]
         objects = []
         for source in sorted(RUNNER.glob("*.c")):
@@ -49,6 +59,8 @@ def main():
                 continue
             extra = ([f"/I{overlay}", f"/FI{HERE / 'bindings.h'}"]
                      if source.stem in {"d2d", "dwrite", "d3d8draw"} else [])
+            if args.warp and source.stem in {"d3d11", "d3dres"}:
+                extra.append(f"/FI{warp}")
             obj = work / (source.stem + ".obj")
             subprocess.run([*flags, *extra, str(source), f"/Fo{obj}"], cwd=work, check=True)
             objects.append(str(obj))

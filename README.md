@@ -27,6 +27,10 @@ Windows SDK and MSVC runtime for the remaining headers and libraries. An existin
 directory containing the same MinGW-w64 headers can also be passed directly.
 The canonical recordings in `golden/` use `runner/build.sh` for their source hashes.
 
+Pass `--warp` to the MSVC build when comparing Direct3D 10, 10.1 or 11 with
+the WARP recordings on a PC with a hardware GPU. The resulting executors use
+WARP for those device creation calls.
+
 ## How it works
 
 ```
