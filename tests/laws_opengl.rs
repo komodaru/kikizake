@@ -1758,6 +1758,69 @@ fn wgl_byte_range_bitmaps_match_native_pixels_and_positions() {
 }
 
 #[test]
+fn wgl_wide_bitmap_code_units_match_native_readback() {
+    let fnv = |hash: u64, byte: u8| (hash ^ u64::from(byte)).wrapping_mul(1099511628211);
+    let mut blocks = include_str!("fixtures/opengl_wide_bitmap_readback.txt").lines();
+    let mut hash = 0;
+    for code in 0..=65535 {
+        if code % 256 == 0 { hash = 14695981039346656037u64; }
+        let input = format!("case bitmap\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glMatrixMode 0x1701\ngl glOrtho 0 16 0 16 -1 1\ngl glMatrixMode 0x1700\ngl glColor4ub 255 255 255 255\ngl glDisable 0xbd0\nwglx fontbmp w {code} 1 100\nglr glIsList b i 100\ngl glClear 0x4000\ngl glRasterPos2i 2 4\ngl glCallList 100\nglget f 0xb07 4\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\ngl glClear 0x4000\ngl glRasterPos2i 8 5\ngl glCallList 100\nglget f 0xb07 4\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\nend\n");
+        let output = kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap();
+        let [ctx, result, defined, poses @ ..] = output.as_slice() else { panic!("missing bitmap result"); };
+        assert_eq!(ctx, "glctx ok 1");
+        assert_eq!(result, "wglx fontbmp 1 0");
+        assert_eq!(defined, if code == 65535 { "ret 0" } else { "ret 1" });
+        hash = [1, 0, 0, 0, 0, u8::from(code != 65535)].into_iter().fold(hash, fnv);
+        assert_eq!(poses.len(), 6);
+        for [position, pixels, error] in poses.as_chunks::<3>().0 {
+            let position: Vec<_> = position.strip_prefix("get b07 = ").unwrap().split_whitespace()
+                .map(|word| u32::from_str_radix(word, 16).unwrap()).collect();
+            assert_eq!(position.len(), 4);
+            hash = position.into_iter().flat_map(u32::to_le_bytes).fold(hash, fnv);
+            let pixels = pixels.strip_prefix("read ").unwrap();
+            assert_eq!(pixels.len(), 2048);
+            hash = pixels.as_bytes().chunks_exact(2)
+                .map(|byte| u8::from_str_radix(std::str::from_utf8(byte).unwrap(), 16).unwrap())
+                .fold(hash, fnv);
+            assert_eq!(error, "glerr 0");
+            hash = [0; 4].into_iter().fold(hash, fnv);
+        }
+        if code % 256 == 255 {
+            let measured = u64::from_str_radix(blocks.next().unwrap(), 16).unwrap();
+            assert_eq!(hash, measured, "native bitmap block up to U+{code:04X}");
+        }
+    }
+    assert!(blocks.next().is_none());
+}
+
+#[test]
+fn wgl_bitmap_range_results_match_native_error_and_list_state() {
+    use std::fmt::Write;
+    let fixtures = include_str!("fixtures/opengl_bitmap_ranges.txt");
+    assert_eq!(fixtures.lines().count(), 408);
+    for fixture in fixtures.lines() {
+        let fields: Vec<_> = fixture.split_whitespace().collect();
+        let [wide, first, count, pending, ok, error, list_count, gl_error] = fields.as_slice() else {
+            panic!("invalid bitmap range fixture {fixture}");
+        };
+        let list_count: usize = list_count.parse().unwrap();
+        let encoding = if *wide == "1" { "w" } else { "a" };
+        let mut input = String::from("case range\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
+        if *pending == "1" { input.push_str("gl glEnable 0xffff\n"); }
+        writeln!(input, "wglx fontbmp {encoding} 0x{first} {count} 100").unwrap();
+        for name in 100..164 { writeln!(input, "glr glIsList b i {name}").unwrap(); }
+        input.push_str("glerr\nend\n");
+        let output = kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap();
+        assert_eq!(output[1], format!("wglx fontbmp {ok} {error}"), "{fixture}");
+        assert_eq!(output.len(), 67);
+        for (index, line) in output[2..66].iter().enumerate() {
+            assert_eq!(line, if index < list_count { "ret 1" } else { "ret 0" }, "{fixture}, list {index}");
+        }
+        assert_eq!(output[66], format!("glerr {gl_error}"), "{fixture}");
+    }
+}
+
+#[test]
 fn wgl_outline_spaces_apply_state_only_when_called() {
     for encoding in ["a", "w"] {
         for code in [32, 160] {
@@ -1914,13 +1977,14 @@ fn wgl_ansi_outline_wrapped_batches_fill_consecutive_lists() {
 proptest! {
     #[test]
     fn wgl_font_batches_replace_only_the_requested_lists(
-        base in 2u32..4096, length in 1u32..=64, selector in any::<u8>(),
+        base in 2u32..4096, length in 1u32..=64, selector in any::<u16>(),
         wide in any::<bool>(), outline in any::<bool>(), filled in any::<bool>(),
     ) {
         use std::fmt::Write;
         let encoding = if wide { "w" } else { "a" };
         let count = length;
-        let first = u32::from(selector) % (257 - count);
+        let code_units = if wide && !outline { 65535 } else { 256 };
+        let first = u32::from(selector) % (code_units + 1 - count);
         let end = base + count;
         let mut input = String::from("case replace\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
         // A neighboring list changes the list base when called. The overwritten

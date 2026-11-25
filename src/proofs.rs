@@ -404,6 +404,27 @@ fn wgl_outline_code_matches_modular_addition() {
     assert_eq!(u64::from(crate::model::opengl::wgl_outline_code(first, offset, wide)), expected);
 }
 
+/// Check every first DWORD and each count admitted by the runner.
+#[kani::proof]
+fn wgl_bitmap_ranges_match_native_widths() {
+    let first: u32 = kani::any();
+    let count: u32 = kani::any();
+    let wide: bool = kani::any();
+    kani::assume(count <= 64);
+    let end = u64::from(first) + u64::from(count);
+    let low = u64::from(first) % 65536;
+    let range = crate::model::opengl::wgl_bitmap_range(first, count, wide);
+    if end == 0 || end == 1 << 32 {
+        assert_eq!(range, Err(0));
+    } else if count == 0 || end > 1 << 32 || (!wide && end > 256) {
+        assert_eq!(range, Err(87));
+    } else if low + u64::from(count) < 65536 {
+        assert_eq!(range.map(|start| start.map(u64::from)), Ok(Some(low)));
+    } else {
+        assert_eq!(range, Ok(None));
+    }
+}
+
 #[kani::proof]
 fn tracked_material_matches_face_and_property_masks() {
     use crate::model::opengl::e::{BACK, FRONT, FRONT_AND_BACK};

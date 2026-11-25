@@ -1564,20 +1564,47 @@ crate::model::words! {
 
 /// WGL operations on the executor's current bitmap DC.
 /// Monochrome glyphs measured with the runner's -12 pixel Arial and generic DIB.
-fn wgl_bitmap_line(code: i32, encoding: &str) -> Res<list::Line> {
-    // Unicode byte range, ANSI code-page overrides, then the two measured kana.
-    let index = match code {
-        128..=159 if encoding == "a" => code.checked_add(128),
-        0..=255 => Some(code),
-        12354 if encoding == "w" => Some(288),
-        12355 if encoding == "w" => Some(289),
-        _ => return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)),
-    }.and_then(|v| usize::try_from(v).ok()).ok_or(Fail::Bad)?;
-    let args = include_str!("opengl_arial_bitmap.txt").lines()
-        .nth(index).ok_or(Fail::Bad)?;
-    let tok = ["glp", "glBitmap", "iiffff"].into_iter().chain(args.split_whitespace())
-        .map(String::from).collect();
+fn wgl_bitmap_line(code: u16, wide: bool) -> Res<list::Line> {
+    let mut tok = ["glp", "glBitmap", "iiffff"].map(String::from).to_vec();
+    if !wide && (128..=159).contains(&code) {
+        let index = usize::from(code.saturating_sub(128));
+        let args = include_str!("opengl_arial_bitmap_ansi.txt").lines().nth(index).ok_or(Fail::Bad)?;
+        tok.extend(args.split_whitespace().map(String::from));
+    } else {
+        // Each UTF-16 value below FFFF has a three-byte little-endian atlas offset.
+        // A glyph starts with its dimensions, signed origin and advance, then packed rows.
+        const LOOKUP_LEN: usize = 65535 * 3;
+        let data = include_bytes!("opengl_arial_bitmap_wide.bin");
+        let (lookup, atlas) = data.split_at_checked(LOOKUP_LEN).ok_or(Fail::Bad)?;
+        let index = usize::from(code).saturating_mul(3);
+        let &[lo, middle, hi] = lookup.get(index..).and_then(<[u8]>::first_chunk).ok_or(Fail::Bad)?;
+        let offset = usize::try_from(u32::from_le_bytes([lo, middle, hi, 0])).ok().ok_or(Fail::Bad)?;
+        let row = atlas.get(offset..).ok_or(Fail::Bad)?;
+        let &[width, height, x, y, dx, dy] = row.first_chunk().ok_or(Fail::Bad)?;
+        let signed = |b: u8| i8::from_le_bytes([b]).to_string();
+        tok.extend([width.to_string(), height.to_string(), signed(x), signed(y), signed(dx), signed(dy)]);
+        let bytes = usize::from(width).div_ceil(8).saturating_mul(usize::from(height));
+        tok.push(String::from(if bytes == 0 { "null" } else { "ub" }));
+        let bitmap = row.get(6..).and_then(|bits| bits.get(..bytes)).ok_or(Fail::Bad)?;
+        tok.extend(bitmap.iter().map(u8::to_string));
+    }
     Ok(list::Line { tok, unpack: Some([0, 0, 0, 0, 0, 1]), arrays: None })
+}
+
+/// Check the DWORD range before touching GL state. The wide call passes
+/// a half-open interval of WORDs to the font code, where wrap gives no lists.
+pub(crate) fn wgl_bitmap_range(first: u32, count: u32, wide: bool) -> Result<Option<u16>, u32> {
+    let Some(end) = first.checked_add(count) else {
+        return Err(if first.wrapping_add(count) == 0 { 0 } else { 87 });
+    };
+    if end == 0 { return Err(0); }
+    if count == 0 || (!wide && end > 256) { return Err(87); }
+    let low_word = |n: u32| {
+        let [lo, hi, ..] = n.to_le_bytes();
+        u16::from_le_bytes([lo, hi])
+    };
+    let (first, end) = (low_word(first), low_word(end));
+    Ok((first < end).then_some(first))
 }
 
 /// Arial outline lists measured on the generic DIB context. The first row maps
@@ -1681,7 +1708,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
         ("fontbmp" | "fontoutline", [encoding, first, count, base, rest @ ..]) => {
             hit(crate::spec::open::WGL_OTHER.into());
             if !matches!(encoding.as_str(), "a" | "w") { return Err(Fail::Bad); }
-            let first = integer(first)?;
+            let first = integer(first)?.cast_unsigned();
             let count = integer(count)?;
             let base = integer(base)?.cast_unsigned();
             if !(0..=64).contains(&count) { return Err(Fail::Bad); }
@@ -1694,25 +1721,38 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
             }
             let supported_names = wgl_font_last_name(base, count).is_some()
                 || (base == 0 && ctx.lists.compiling.is_none());
+            let wide = encoding == "w";
+            let bitmap_first = if name == "fontbmp" && rest.is_empty() {
+                hit(clause::WGL_FONT_BITMAP_RANGE);
+                match wgl_bitmap_range(first, count.cast_unsigned(), wide) {
+                    Ok(first) => first,
+                    Err(error) => {
+                        out.push(format!("wglx fontbmp 0 {error}"));
+                        return Ok(());
+                    }
+                }
+            } else { None };
             match (name.as_str(), rest) {
-                ("fontbmp", []) if count == 0 => "0 87".into(),
-                ("fontbmp", []) if encoding == "a" && first >= 0 && i64::from(first) + i64::from(count) > 256 => "0 87".into(),
                 ("fontbmp", []) if ctx.err != 0 && ctx.in_begin.is_none() && !compiling_primitive => {
                     ctx.err = 0;
                     "0 0".into()
                 }
+                ("fontbmp", []) if bitmap_first.is_none() && ctx.in_begin.is_none() && !compiling_primitive => "1 0".into(),
                 ("fontbmp", []) if ctx.in_begin.is_some() && ctx.lists.compiling.is_none()
-                    && wgl_font_last_name(base, count).is_some() && (0..=255).contains(&first)
-                    && first + count <= 256 => {
+                    && wgl_font_last_name(base, count).is_some()
+                    && bitmap_first.is_some_and(|first| u32::from(first).saturating_add(count.cast_unsigned()) <= 256) => {
                     ctx.error(INVALID_OPERATION);
                     "0 0".into()
                 }
                 ("fontbmp", []) if supported_names && ctx.in_begin.is_none() && !compiling_primitive => {
                     let mut glyphs = Vec::new();
+                    let first = bitmap_first.ok_or(Fail::Bad)?;
                     for offset in 0..count {
-                        let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
-                        glyphs.push((base.checked_add(offset.cast_unsigned()).ok_or(Fail::Bad)?, wgl_bitmap_line(code, encoding)?));
+                        let offset = offset.cast_unsigned();
+                        let code = first.checked_add(u16::try_from(offset).ok().ok_or(Fail::Bad)?).ok_or(Fail::Bad)?;
+                        glyphs.push((base.checked_add(offset).ok_or(Fail::Bad)?, wgl_bitmap_line(code, wide)?));
                     }
+                    hit(clause::WGL_FONT_BITMAP_GLYPH);
                     let mut glyphs = glyphs.into_iter();
                     if let Some(mut current) = ctx.lists.compiling.take() {
                         // The first glNewList fails; glBitmap and glEndList still affect the caller's list.
@@ -1739,9 +1779,8 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                     let mut lists = Vec::new();
                     let mut metrics = Vec::new();
                     let format = integer(fmt)?;
-                    let wide = encoding == "w";
                     for offset in 0..count {
-                        let code = wgl_outline_code(first.cast_unsigned(), offset.cast_unsigned(), wide);
+                        let code = wgl_outline_code(first, offset.cast_unsigned(), wide);
                         let (glyph, lines) = wgl_outline(code, wide, format)?;
                         if base == 0 {
                             for line in &lines { ctx.scalar_command(&line.tok)?; }

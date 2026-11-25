@@ -30,3 +30,30 @@ indices with the measured low byte or word.
 
 Verify the table and fixtures with
 `cargo test --release --test laws_opengl wgl_`.
+
+## Windows WGL bitmap captures
+
+The bitmap atlas records all 65,536 input code units of
+`wglUseFontBitmapsW` on the same Windows build. The host used system ANSI
+code page 932 and its installed system fonts for fallback. The Arial font
+file SHA-256 was
+`edfbd22a3d088fc2f5d7c79b8c9c732df6dc878a60f0a80be0f92a3c7a634404`.
+The model replays this font and fallback configuration.
+
+Run these commands in both Visual Studio Developer Command Prompts from the
+repository root. Use the `x86` file suffix in the x86 prompt.
+
+```bat
+cl /nologo /W4 /O2 /MT tools\opengl\capture_wgl_bitmaps.c gdi32.lib opengl32.lib
+capture_wgl_bitmaps.exe atlas > bitmap-atlas-x64.txt
+capture_wgl_bitmaps.exe readback > bitmap-readback-x64.txt
+capture_wgl_bitmaps.exe ranges > bitmap-ranges-x64.txt
+```
+
+Run `python tools/opengl/encode_wgl_bitmaps.py DIRECTORY` when both sets
+are in one directory. The encoder checks each architecture pair and packs
+shared monochrome glyphs from the 32 by 32 DIB. The readback witnesses come
+from separate draws at two raster positions in a 16 by 16 DIB. They cover
+each display list's creation result, position, RGBA bytes and GL error.
+The range captures use boundary batches and exercise both clear and
+pending GL error state.
