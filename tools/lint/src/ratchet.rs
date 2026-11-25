@@ -157,10 +157,10 @@ static TRACKED: LazyLock<Option<Regex>> = LazyLock::new(|| {
 static ALLOW: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"#!?\[\s*(?:allow|expect)\s*\(([^\]]*)\)\s*\]"));
 static BACKTICK: LazyLock<Option<Regex>> = LazyLock::new(|| rx(r"`([^`]+)`"));
 
-/// '/'-separated `p` with `.` and `..` resolved (a #[path] include's `src/../../kura/x.rs`)
+/// Normalize `p` with `.` and `..` resolved (a #[path] include's `src/../../kura/x.rs`)
 fn normalize(p: &str) -> String {
     let mut out: Vec<&str> = vec![];
-    for s in p.split('/') {
+    for s in p.split(['/', '\\']) {
         match s {
             "" | "." => {}
             ".." => {
@@ -172,7 +172,7 @@ fn normalize(p: &str) -> String {
         }
     }
     let joined = out.join("/");
-    if p.starts_with('/') { format!("/{joined}") } else { joined }
+    if p.starts_with(['/', '\\']) { format!("/{joined}") } else { joined }
 }
 
 /// The repository (or a fixture) whose lints are counted.

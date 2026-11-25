@@ -66,6 +66,7 @@ fn a_site_traded_for_another_is_new() {
 fn paths_of_path_includes_are_one_file() {
     assert_eq!(normalize("crates/masu/src/../../kura/src/vnv.rs"), "crates/kura/src/vnv.rs");
     assert_eq!(normalize("./a/b.rs"), "a/b.rs");
+    assert_eq!(normalize(r".\src\sub/..\lib.rs"), "src/lib.rs");
     assert_eq!(normalize("/r/x/../y.rs"), "/r/y.rs");
 }
 
