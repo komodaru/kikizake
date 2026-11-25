@@ -6,3 +6,6 @@ cases/*.txt text eol=lf
 runner/*.c text eol=lf
 runner/*.h text eol=lf
 runner/build.sh text eol=lf
+
+# The GDI Blend trial runs in Bash from Windows worktrees.
+tools/aeneas/check-blend.sh text eol=lf
