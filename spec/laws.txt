@@ -964,3 +964,4 @@ spec/lean/Kikizake/D3d11/ResolveMean.lean::norm_mean_fits lean D3DRES.RESOLVE.ME
 spec/lean/Kikizake/D3d11/ResolveMean.lean::resolve_pixel lean D3DRES.RESOLVE.MEAN
 spec/lean/Kikizake/D3d11/ResolveMean.lean::resolve_binary32_order lean D3DRES.RESOLVE.MEAN
 spec/lean/Kikizake/D3d11/ResolveMean.lean::resolve_packed_midpoint lean D3DRES.RESOLVE.MEAN D3DRES.RESOLVE.MEAN.INTEGER
+src/proofs.rs::d2d_bitmap_source_axis_clips_or_draws_nothing kani D2D.BITMAP.SRC

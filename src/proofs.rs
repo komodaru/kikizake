@@ -605,3 +605,24 @@ fn d3d_copy_resource_copies_every_subresource_and_sample_plane() {
     assert_eq!(dst.subs, storage(expected));
     assert_eq!(dst.samples, planes(expected_samples));
 }
+
+#[kani::proof]
+fn d2d_bitmap_source_axis_clips_or_draws_nothing() {
+    use crate::model::d2d::bitmap_source_axis;
+    let [a, b, extent] = kani::any::<[u32; 3]>().map(f32::from_bits);
+    kani::assume(extent.is_finite() && extent > 0.0);
+    let source = bitmap_source_axis(a, b, extent);
+    if a.is_nan() || b.is_nan() || (a.is_infinite() && a == b) {
+        assert!(source.is_none());
+        return;
+    }
+    let low = if a <= b { a } else { b };
+    let high = if a <= b { b } else { a };
+    let expected_left = if low < 0.0 { 0.0 } else { low };
+    let expected_right = if high > extent { extent } else { high };
+    if expected_left == expected_right {
+        assert!(source.is_none());
+    } else {
+        assert_eq!(source, Some([expected_left, expected_right]));
+    }
+}

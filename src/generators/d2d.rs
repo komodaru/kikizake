@@ -1026,5 +1026,17 @@ pub fn d2dlimits() -> String {
     ] {
         writeln!(s, "case {name}\nd2target 4 4\nd2clear 39 70 111 255\n{op}\nd2read\nend");
     }
+    for (end, limit) in [("positive", "inf"), ("negative", "-inf")] {
+        for mode in ["nearest", "linear"] {
+            for (axis, src) in [
+                ("x", format!("{limit} 0 {limit} 2")),
+                ("y", format!("0 {limit} 2 {limit}")),
+                ("turned", format!("{limit} 0 {limit} 2")),
+            ] {
+                let xf = if axis == "turned" { "d2xform 0 1 -1 0 4 0\n" } else { "" };
+                writeln!(s, "case bitmap-src-infinity-{end}-{mode}-{axis}\nd2target 4 4\nd2aa aliased\nd2clear 39 70 111 255\n{bitmap}\n{xf}d2drawbmp 0 0 0 4 4 1 {mode} {src}\nd2read\nend");
+            }
+        }
+    }
     s
 }

@@ -1195,6 +1195,14 @@ impl Interp {
     }
 }
 
+/// One axis of DrawBitmap's source rectangle after moving the outside sides onto the bitmap.
+pub(crate) fn bitmap_source_axis(a: f32, b: f32, extent: f32) -> Option<[f32; 2]> {
+    if a.is_nan() || b.is_nan() { return None; }
+    let start = lo(a, b).max(0.0);
+    let end = hi(a, b).min(extent);
+    (start.is_finite() && end.is_finite() && start != end).then_some([start, end])
+}
+
 /// where a pixel center falls in a bitmap: DrawBitmap's destination rectangle onto its source
 /// rectangle, or through the inverse of a bitmap brush's transform (to pixels)
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -2883,16 +2891,13 @@ impl D2d {
                     // other turns the rectangle round onto the texels beyond that edge, which the
                     // clamp repeats, either interpolation; one of no width or height draws nothing)
                     hit(clause::D2D_BITMAP_SRC);
-                    if extra.as_ref().is_some_and(|e| e.iter().any(|v| v.is_nan())) {
-                        return Ok(());
-                    }
-                    let src = extra.as_deref().map_or(full, |e| [lo(e[0], e[2]).max(0.0), lo(e[1], e[3]).max(0.0), hi(e[0], e[2]).min(full[2]), hi(e[1], e[3]).min(full[3])]);
-                    if src[0] == src[2] || src[1] == src[3] {
-                        return Ok(());
-                    }
-                    if !(src.iter().all(|v| v.is_finite())) {
-                        return Err(Fail::Unmodeled(open::D2D_RT));
-                    }
+                    let src = if let Some([l, t, r, b]) = extra.as_deref() {
+                        let Some([l, r]) = bitmap_source_axis(*l, *r, full[2]) else { return Ok(()) };
+                        let Some([t, b]) = bitmap_source_axis(*t, *b, full[3]) else { return Ok(()) };
+                        [l, t, r, b]
+                    } else {
+                        full
+                    };
                     // (MEASURED, D2D.BITMAP.OPACITY: the texel scaled by the opacity byte)
                     let opacity = (o * 255.0).round_ties_even().clamp(0.0, 255.0) as u32;
                     if tg.st.m == IDENTITY {

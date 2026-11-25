@@ -90,6 +90,14 @@ fn models_match_windows() {
                     }
                 }
             }
+            if *s == "d2dlimits" {
+                let expected = case::parse_output(&g);
+                let actual = case::parse_output(&want);
+                for (name, lines) in expected.cases.iter().filter(|(name, _)| name.starts_with("bitmap-src-")) {
+                    assert_eq!(actual.cases.iter().find(|(n, _)| n == name).map(|(_, out)| out), Some(lines),
+                        "{s}-{arch} {name}");
+                }
+            }
             if matches!(*s, "d3d10res" | "d3d11res") {
                 let expected = case::parse_output(&g);
                 let actual = case::parse_output(&want);
