@@ -112,6 +112,12 @@ and signed process status. Lines starting with `>` are input and lines
 starting with `<` are output. The Rust regression uses these saved
 observations, including the output flushed before an interrupted case.
 
+`tests/fixtures/opengl_upper_font_validation.txt` records 24 completed
+requests at the two largest names, paired across architectures. Each
+row gives the pending GL error flag, the font command, and the readback
+lines after context creation. The test checks validation, error state,
+survival of the neighboring list, and normal context release.
+
 ## Windows WGL bitmap captures
 
 The bitmap atlas records all 65,536 input code units of

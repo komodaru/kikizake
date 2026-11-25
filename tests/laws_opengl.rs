@@ -2281,6 +2281,26 @@ fn wgl_batches_ending_in_the_maximum_list_name_have_no_modeled_return() {
         Err(kikizake::model::Fail::Unmodeled(id)) if id.as_str() == "WGL.OTHER"));
 }
 
+#[test]
+fn wgl_font_validation_preserves_lists_near_the_maximum() {
+    let fixtures = include_str!("fixtures/opengl_upper_font_validation.txt");
+    assert_eq!(fixtures.lines().count(), 24);
+    for row in fixtures.lines() {
+        let fields: Vec<_> = row.split(" | ").collect();
+        let [pending, command, readback @ ..] = fields.as_slice() else { panic!("invalid fixture {row}"); };
+        assert_eq!(readback.len(), 6, "{row}");
+        let enable = match *pending {
+            "0" => "",
+            "1" => "gl glEnable 0xffff\n",
+            _ => panic!("invalid error state {row}"),
+        };
+        let input = format!("case validation\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glNewList 0xfffffffe 0x1300\ngl glListBase 73\ngl glEndList\n{enable}{command}\nglerr\nglr glIsList b i 0xfffffffe\nglr glIsList b i 0xffffffff\ngl glCallList 0xfffffffe\nglget i 0xb32 1\nglrelease\nend\n");
+        let output = kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap();
+        assert_eq!(output[0], "glctx ok 1");
+        assert_eq!(&output[1..], readback, "{row}");
+    }
+}
+
 proptest! {
     #[test]
     fn wgl_font_batches_replace_only_the_requested_lists(
