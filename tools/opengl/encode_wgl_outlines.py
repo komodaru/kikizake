@@ -74,10 +74,8 @@ def viewport_coordinate(size, divisor, vertex, y_axis):
     return f32(center + delta) - RASTER_BIAS
 
 
-@cache
-def recover_coordinate(observations, y_axis):
-    # Each viewport reports a rounded coordinate. Use their shared interval
-    # and verify the chosen dyadic coordinate against every observation.
+def coordinate_interval(observations, y_axis):
+    # Each viewport reports a rounded coordinate.
     intervals = []
     for size, divisor, value in observations:
         half = size / 2
@@ -87,8 +85,12 @@ def recover_coordinate(observations, y_axis):
         estimate = (value - half) / scale
         margin = ulp / (2 * scale)
         intervals.append((estimate - margin, estimate + margin))
-    lower = max(lo for lo, _ in intervals)
-    upper = min(hi for _, hi in intervals)
+    return max(lo for lo, _ in intervals), min(hi for _, hi in intervals)
+
+
+@cache
+def recover_coordinate(observations, y_axis):
+    lower, upper = coordinate_interval(observations, y_axis)
     midpoint = round((lower + upper) * COORD_UNIT / 2)
     # Prefer an exact 1/2048 font unit when it fits the measured rounding.
     candidates = sorted(

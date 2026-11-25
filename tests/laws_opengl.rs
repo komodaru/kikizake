@@ -1974,6 +1974,52 @@ fn wgl_ansi_outline_wrapped_batches_fill_consecutive_lists() {
     }
 }
 
+#[test]
+fn wgl_wide_outline_code_units_match_native_feedback() {
+    fn fnv(hash: u64, byte: u8) -> u64 { (hash ^ u64::from(byte)).wrapping_mul(1099511628211) }
+    const OFFSET: u64 = 14695981039346656037;
+    let mut fixture = include_str!("fixtures/opengl_wide_outline_feedback.txt").lines();
+    let default: Vec<i32> = fixture.next().unwrap().split_whitespace().map(|v| v.parse().unwrap()).collect();
+    let mut counts = vec![<[i32; 2]>::try_from(default).unwrap(); 65536];
+    for row in fixture.by_ref().take_while(|row| !row.is_empty()) {
+        let values: Vec<_> = row.split_whitespace().collect();
+        let [code, lines, faces] = values.as_slice() else { panic!("invalid wide outline fixture {row}"); };
+        counts[usize::from_str_radix(code, 16).unwrap()] = [lines.parse().unwrap(), faces.parse().unwrap()];
+    }
+
+    let mut block = 0;
+    for (code, formats) in counts.into_iter().enumerate() {
+        if code % 256 == 0 { block = OFFSET; }
+        for (format, expected) in formats.into_iter().enumerate() {
+            let words = usize::try_from(expected).unwrap_or(1024);
+            let prefix = words.max(1);
+            let input = format!("case outline\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glViewport 0 0 4096 4096\ngl glScalef 0.5 0.5 1\nwglx fontoutline w {code} 1 100 {format}\nglp glFeedbackBuffer ii 1024 0x600 obuf\nglr glRenderMode i i 0x1c01\ngl glCallList 100\nglr glRenderMode i i 0x1c00\nglobuf u {prefix}\nglerr\nend\n");
+            let output = kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap();
+            let [ctx, result, metrics, start, written, contents, error] = output.as_slice() else {
+                panic!("missing wide outline output for U+{code:04X}, format {format}");
+            };
+            assert_eq!(ctx, "glctx ok 1");
+            assert_eq!(result, "wglx fontoutline 1 0");
+            assert_eq!(start, "ret 0");
+            assert_eq!(written, &format!("ret {expected}"), "U+{code:04X} format {format}");
+            assert_eq!(error, "glerr 0");
+            let metrics: Vec<_> = metrics.strip_prefix("glyph ").unwrap().split_whitespace().collect();
+            assert_eq!(metrics.len(), 6);
+            let contents: Vec<_> = contents.strip_prefix("obuf ").unwrap().split_whitespace().collect();
+            assert_eq!(contents.len(), prefix);
+            let glyph = metrics.into_iter().flat_map(|value| value.parse::<f32>().unwrap().to_bits().to_le_bytes());
+            let feedback = contents.into_iter().take(words).flat_map(|word| word.parse::<u32>().unwrap().to_le_bytes());
+            let observed = glyph.chain(feedback).fold(OFFSET, fnv);
+            block = expected.to_le_bytes().into_iter().chain(observed.to_le_bytes()).fold(block, fnv);
+        }
+        if code % 256 == 255 {
+            let expected = u64::from_str_radix(fixture.next().unwrap(), 16).unwrap();
+            assert_eq!(block, expected, "native outline block up to U+{code:04X}");
+        }
+    }
+    assert!(fixture.next().is_none());
+}
+
 proptest! {
     #[test]
     fn wgl_font_batches_replace_only_the_requested_lists(
@@ -1983,7 +2029,11 @@ proptest! {
         use std::fmt::Write;
         let encoding = if wide { "w" } else { "a" };
         let count = length;
-        let code_units = if wide && !outline { 65535 } else { 256 };
+        let code_units = match (wide, outline) {
+            (true, true) => 65536,
+            (true, false) => 65535,
+            (false, _) => 256,
+        };
         let first = u32::from(selector) % (code_units + 1 - count);
         let end = base + count;
         let mut input = String::from("case replace\nglctx 32 choose 0x38 0 32 0 0 32 8\n");

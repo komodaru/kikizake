@@ -2,6 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <GL/gl.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,11 +13,59 @@ static unsigned long fbits(GLfloat value) {
     return bits;
 }
 
+static uint64_t hash_word(uint64_t hash, uint32_t word) {
+    for (int i = 0; i < 4; ++i) {
+        hash = (hash ^ (uint8_t)word) * UINT64_C(1099511628211);
+        word >>= 8;
+    }
+    return hash;
+}
+
+/* Full-size feedback groups identical glyphs. A second run uses the runner's
+ * 1024-word cap to observe the output independently, including overflow. */
+static int scan_wide(HDC dc, int bounded) {
+    static GLfloat feedback[65536];
+    GLsizei capacity = bounded ? 1024 : (GLsizei)(sizeof feedback / sizeof *feedback);
+    glViewport(0, 0, 4096, 4096);
+    glMatrixMode(GL_MODELVIEW);
+    for (DWORD code = 0; code <= 65535; ++code) {
+        printf("%04lx", code);
+        for (int mode = 0; mode <= 1; ++mode) {
+            glLoadIdentity();
+            glScalef(0.5f, 0.5f, 1);
+            glDeleteLists(100, 1);
+            GLYPHMETRICSFLOAT metrics = {0};
+            if (!wglUseFontOutlinesW(dc, code, 1, 100, 0, 0, mode, &metrics)) return 7;
+            glFeedbackBuffer(capacity, GL_2D, feedback);
+            if (glRenderMode(GL_FEEDBACK) != 0) return 8;
+            glCallList(100);
+            GLint n = glRenderMode(GL_RENDER);
+            if (n < (bounded ? -1 : 0) || n > capacity || glGetError()) return 8;
+            const GLfloat values[] = {metrics.gmfBlackBoxX, metrics.gmfBlackBoxY,
+                                      metrics.gmfptGlyphOrigin.x, metrics.gmfptGlyphOrigin.y,
+                                      metrics.gmfCellIncX, metrics.gmfCellIncY};
+            uint64_t hash = UINT64_C(14695981039346656037);
+            for (size_t i = 0; i < sizeof values / sizeof values[0]; ++i) {
+                hash = hash_word(hash, fbits(values[i]));
+            }
+            int written = n < 0 ? capacity : n;
+            for (int i = 0; i < written; ++i) hash = hash_word(hash, fbits(feedback[i]));
+            printf(" %d:%016llx", (int)n, (unsigned long long)hash);
+        }
+        putchar('\n');
+    }
+    puts("done");
+    return 0;
+}
+
 int main(int argc, char **argv) {
-    if (argc != 4 && argc != 5) return 1;
-    const int first = atoi(argv[1]);
-    const int last = atoi(argv[2]);
-    const int sample = atoi(argv[3]); /* 0: pixels, 1: half-scale feedback, 2: unscaled feedback */
+    const int scan = argc == 2 && !strcmp(argv[1], "wide-scan");
+    const int bounded = argc == 2 && !strcmp(argv[1], "wide-readback");
+    const int reps = argc == 3 && !strcmp(argv[1], "wide-reps");
+    if (!scan && !bounded && !reps && argc != 4 && argc != 5) return 1;
+    const int first = argc > 3 ? atoi(argv[1]) : 0;
+    const int last = argc > 3 ? atoi(argv[2]) : 0;
+    const int sample = argc > 3 ? atoi(argv[3]) : 1; /* 0: pixels, 1: half-scale feedback, 2: unscaled feedback */
     if (first < 0 || last < first || last > 255 || sample < 0 || sample > 2) return 1;
     const DWORD offset = argc == 5 ? strtoul(argv[4], NULL, 0) : 0;
     HDC dc = CreateCompatibleDC(NULL);
@@ -43,15 +92,31 @@ int main(int argc, char **argv) {
     if (!rc || !wglMakeCurrent(dc, rc)) return 4;
     HFONT font = CreateFontA(-12, 0, 0, 0, 400, 0, 0, 0, ANSI_CHARSET, 0, 0, NONANTIALIASED_QUALITY, 0, "Arial");
     if (!font || !SelectObject(dc, font)) return 5;
+    if (scan || bounded) return scan_wide(dc, bounded);
+    static int codes[65536];
+    int count = 0;
+    if (reps) {
+        FILE *source = NULL;
+        if (fopen_s(&source, argv[2], "r") || !source) return 1;
+        int code;
+        while (fscanf_s(source, "%d", &code) == 1) {
+            if (count >= 65536 || code < 0 || code > 65535) return 1;
+            codes[count++] = code;
+        }
+        if (!feof(source) || fclose(source) || count == 0) return 1;
+    } else {
+        for (int code = first; code <= last; ++code) codes[count++] = code;
+    }
     static GLfloat feedback[65536];
     for (int size = sample == 2 ? 2048 : (sample == 1 ? 4096 : 16); size <= (sample ? 16384 : 16); size *= 2) {
         glViewport(0, 0, size, size);
         GLint viewport[4];
         glGetIntegerv(GL_VIEWPORT, viewport);
         if (viewport[2] != size || viewport[3] != size) return 6;
-        for (int code = first; code <= last; ++code) {
+        for (int index = 0; index < count; ++index) {
+            int code = codes[index];
             for (int mode = 0; mode <= 1; ++mode) {
-                for (int wide = 0; wide <= 1; ++wide) {
+                for (int wide = reps; wide <= 1; ++wide) {
                     glMatrixMode(GL_MODELVIEW);
                     glLoadIdentity();
                     if (sample == 1) glScalef(0.5f, 0.5f, 1);

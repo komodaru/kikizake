@@ -31,6 +31,33 @@ indices with the measured low byte or word.
 Verify the table and fixtures with
 `cargo test --release --test laws_opengl wgl_`.
 
+## Wide outline captures
+
+The wide outline capture covers all 65,536 input code units in both modes
+with the same Arial face. A full feedback scan identifies glyphs whose
+metrics and geometry match, including the default glyph for missing
+characters. The representative captures measure the remaining unique
+shapes at three viewports. A separate run measures every code unit with
+the runner's 1024-word feedback cap.
+
+Use the same `capture_wgl_outlines.exe` build and recording directory as
+above. Capture the scan on both architectures, using the appropriate
+suffix, then produce the representative code list.
+
+```bat
+capture_wgl_outlines.exe wide-scan > outline-wide-x64.txt
+python -B tools\opengl\encode_wgl_wide_outlines.py . codes > outline-wide-codes.txt
+capture_wgl_outlines.exe wide-reps outline-wide-codes.txt > outline-reps-x64.txt
+capture_wgl_outlines.exe wide-readback > outline-readback-x64.txt
+```
+
+The `codes` command needs both scan files. Once both architectures have
+also produced the representative and readback files, run
+`python -B tools/opengl/encode_wgl_wide_outlines.py . pack`. The binary
+table stores shared geometry, while the independent feedback fixture
+checks metrics, returned word counts and the contents of each observed
+buffer.
+
 ## Windows WGL bitmap captures
 
 The bitmap atlas records all 65,536 input code units of

@@ -920,10 +920,11 @@ tests/laws_opengl.rs::wgl_dib_swap_counts_and_pixel_format_results exhaustive WG
 src/proofs.rs::wgl_font_batch_has_exact_nonzero_names kani WGL.FONT.LIST.RANGE
 tests/laws_opengl.rs::wgl_font_batches_replace_only_the_requested_lists pbt WGL.FONT.LIST.RANGE
 tests/laws_opengl.rs::wgl_byte_range_outlines_match_native_drawing_and_feedback exhaustive WGL.FONT.OUTLINE.BYTE
-src/proofs.rs::wgl_outline_code_matches_modular_addition kani WGL.FONT.OUTLINE.BYTE
+src/proofs.rs::wgl_outline_code_matches_modular_addition kani WGL.FONT.OUTLINE.BYTE WGL.FONT.OUTLINE.WIDE
 src/proofs.rs::wgl_bitmap_ranges_match_native_widths kani WGL.FONT.BITMAP.RANGE
 tests/laws_opengl.rs::wgl_wide_bitmap_code_units_match_native_readback exhaustive WGL.FONT.BITMAP.GLYPH
 tests/laws_opengl.rs::wgl_byte_range_bitmaps_match_native_pixels_and_positions exhaustive WGL.FONT.BITMAP.GLYPH
+tests/laws_opengl.rs::wgl_wide_outline_code_units_match_native_feedback exhaustive WGL.FONT.OUTLINE.WIDE
 tests/laws_opengl.rs::debug_entry_preserves_pending_gl_errors pbt WGL.DEBUG.ENTRY
 tests/laws_opengl.rs::wgl_format_exports_cover_every_generic_dib_descriptor exhaustive WGL.FORMATS WGL.DC.EXPORTS
 tests/laws_opengl.rs::wgl_layer_palette_results_depend_on_plane pbt WGL.LAYER.PALETTE

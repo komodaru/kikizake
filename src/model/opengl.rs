@@ -1607,12 +1607,26 @@ pub(crate) fn wgl_bitmap_range(first: u32, count: u32, wide: bool) -> Result<Opt
     Ok((first < end).then_some(first))
 }
 
-/// Arial outline lists measured on the generic DIB context. The first row maps
-/// the A and W byte ranges to shared geometries. Each geometry has a metrics
-/// row, XY coordinates in units of 2^-23, and ordered vertex indices for its
-/// line loops and triangles.
-fn wgl_outline(code: u16, wide: bool, format: i32) -> Res<(&'static str, Vec<list::Line>)> {
-    let code = u8::try_from(code).ok().ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
+fn outline_commands(advance: &str, vertices: &[String], groups: Vec<Vec<usize>>, format: i32) -> Res<Vec<list::Line>> {
+    let line = |command: &str| list::Line {
+        tok: command.split_whitespace().map(String::from).collect(), unpack: None, arrays: None,
+    };
+    let mut lines = vec![line("gl glFrontFace 0x901"), line("gl glNormal3f 0 0 1")];
+    let mode = if format == 0 { "gl glBegin 2" } else { "gl glBegin 4" };
+    for group in groups {
+        lines.push(line(mode));
+        for index in group {
+            lines.push(line(vertices.get(index).ok_or(Fail::Bad)?));
+        }
+        lines.push(line("gl glEnd"));
+    }
+    lines.push(line(&format!("gl glTranslatef {advance} 0 0")));
+    Ok(lines)
+}
+
+/// The byte table maps A and W codes to shared glyphs. Each glyph has metrics,
+/// XY coordinates in units of 2^-23 and ordered vertex indices.
+fn wgl_outline_byte(code: u8, wide: bool, format: i32) -> Res<(String, Vec<list::Line>)> {
     hit(clause::WGL_FONT_OUTLINE_BYTE);
     static ROWS: std::sync::OnceLock<Vec<&str>> = std::sync::OnceLock::new();
     let rows = ROWS.get_or_init(|| include_str!("opengl_arial_outline_bytes.txt").lines().collect());
@@ -1636,21 +1650,69 @@ fn wgl_outline(code: u16, wide: bool, format: i32) -> Res<(&'static str, Vec<lis
         let y = coords.next().ok_or(Fail::Bad)?;
         vertices.push(format!("gl glVertex2f {} {}", scalar(x)?, scalar(y)?));
     }
-    let line = |command: &str| list::Line {
-        tok: command.split_whitespace().map(String::from).collect(), unpack: None, arrays: None,
-    };
-    let mut lines = vec![line("gl glFrontFace 0x901"), line("gl glNormal3f 0 0 1")];
-    let (mode, groups) = if format == 0 { ("gl glBegin 2", loops) } else { ("gl glBegin 4", triangles) };
-    for group in groups.split('/').filter(|group| !group.is_empty()) {
-        lines.push(line(mode));
-        for index in group.split_whitespace() {
-            let index = usize::from_str_radix(index, 16).ok().ok_or(Fail::Bad)?;
-            lines.push(line(vertices.get(index).ok_or(Fail::Bad)?));
-        }
-        lines.push(line("gl glEnd"));
+    let groups = if format == 0 { loops } else { triangles };
+    let groups = groups.split('/').filter(|group| !group.is_empty()).map(|group| {
+        group.split_whitespace().map(|word| usize::from_str_radix(word, 16).ok().ok_or(Fail::Bad)).collect()
+    }).collect::<Res<Vec<_>>>()?;
+    let lines = outline_commands(advance, &vertices, groups, format)?;
+    Ok((metrics.to_string(), lines))
+}
+
+fn outline_field<const N: usize>(data: &mut &[u8]) -> Res<[u8; N]> {
+    let (field, tail) = data.split_first_chunk().ok_or(Fail::Bad)?;
+    *data = tail;
+    Ok(*field)
+}
+
+fn wgl_outline(code: u16, wide: bool, format: i32) -> Res<(String, Vec<list::Line>)> {
+    if wide { hit(clause::WGL_FONT_OUTLINE_WIDE); }
+    if let Ok(byte) = u8::try_from(code) {
+        return wgl_outline_byte(byte, wide, format);
     }
-    lines.push(line(&format!("gl glTranslatef {advance} 0 0")));
-    Ok((metrics, lines))
+    // The lookup contains little-endian u32 offsets. The high bit selects
+    // a measured W byte glyph shared by this code unit.
+    const LOOKUP_LEN: usize = 65536 * 4;
+    let data = include_bytes!("opengl_arial_outline_wide.bin");
+    let (lookup, geometry) = data.split_at_checked(LOOKUP_LEN).ok_or(Fail::Bad)?;
+    let index = usize::from(code).saturating_mul(4);
+    let mut slot = lookup.get(index..).ok_or(Fail::Bad)?;
+    let offset = u32::from_le_bytes(outline_field(&mut slot)?);
+    if offset & 0x8000_0000 != 0 {
+        let [byte, ..] = offset.to_le_bytes();
+        return wgl_outline_byte(byte, true, format);
+    }
+    let offset = usize::try_from(offset).ok().ok_or(Fail::Bad)?;
+    let mut glyph = geometry.get(offset..).ok_or(Fail::Bad)?;
+    let mut metrics = [0.0; 6];
+    for value in &mut metrics {
+        *value = f32::from_le_bytes(outline_field(&mut glyph)?);
+    }
+    let metrics = metrics.map(|v| tex::g9(f64::from(v)));
+    let count = |data: &mut &[u8]| -> Res<usize> { Ok(usize::from(u16::from_le_bytes(outline_field(data)?))) };
+    let vertex_count: usize = count(&mut glyph)?;
+    let loop_count: usize = count(&mut glyph)?;
+    let face_indices: usize = count(&mut glyph)?;
+    let mut vertices = Vec::with_capacity(vertex_count);
+    for _ in 0..vertex_count {
+        let x = f32::from_le_bytes(outline_field(&mut glyph)?);
+        let y = f32::from_le_bytes(outline_field(&mut glyph)?);
+        vertices.push(format!("gl glVertex2f {x} {y}"));
+    }
+    let indices = |bytes: &[u8]| bytes.as_chunks::<2>().0.iter().map(|word| usize::from(u16::from_le_bytes(*word))).collect();
+    let mut groups = Vec::new();
+    for _ in 0..loop_count {
+        let vertices: usize = count(&mut glyph)?;
+        let (words, tail) = glyph.split_at_checked(vertices.saturating_mul(2)).ok_or(Fail::Bad)?;
+        glyph = tail;
+        if format == 0 { groups.push(indices(words)); }
+    }
+    if format == 1 && face_indices != 0 {
+        let words = glyph.get(..face_indices.saturating_mul(2)).ok_or(Fail::Bad)?;
+        groups.push(indices(words));
+    }
+    let [_, _, _, _, advance, _] = &metrics;
+    let lines = outline_commands(advance, &vertices, groups, format)?;
+    Ok((metrics.join(" "), lines))
 }
 
 /// WGL increments the DWORD and uses the low byte (A) or word (W) for each glyph.
