@@ -18,6 +18,7 @@ import Kikizake.GdiPlus.Arc
 import Kikizake.GdiPlus.Raster
 import Kikizake.GdiPlus.Line
 import Kikizake.GdiPlus.Chain
+import Kikizake.GdiPlus.Dash
 import Kikizake.D3d12.Footprint
 import Kikizake.D3d12.Alloc
 import Kikizake.D3d12.Create

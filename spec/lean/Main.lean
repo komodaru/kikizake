@@ -23,6 +23,7 @@ def mirrors : List Mirror :=
   GdiPlus.Raster.mirrors ++
   GdiPlus.Line.mirrors ++
   GdiPlus.Chain.mirrors ++
+  GdiPlus.Dash.mirrors ++
   D3d11.Raster.mirrors ++ D3d11.Draw.mirrors ++ D3d11.Texture.mirrors ++
   D3d11.Desc.mirrors ++
   D3d11.View.mirrors ++

@@ -201,6 +201,7 @@ GP.PATH.ARC spec-only
 GP.PATH.FLATTEN sampled
 GP.PATH.FLATTEN.BIG sampled
 GP.PEN.ALIASED sampled
+GP.PEN.DASH sampled
 GP.PEN.EMPTY sampled
 GP.PEN.NOMINAL sampled
 GP.PEN.ONEPIXEL sampled

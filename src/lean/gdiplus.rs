@@ -16,6 +16,7 @@ const ARC: &str = "spec/lean/Kikizake/GdiPlus/Arc.lean";
 const RASTER: &str = "spec/lean/Kikizake/GdiPlus/Raster.lean";
 const LINE: &str = "spec/lean/Kikizake/GdiPlus/Line.lean";
 const CHAIN: &str = "spec/lean/Kikizake/GdiPlus/Chain.lean";
+const DASH: &str = "spec/lean/Kikizake/GdiPlus/Dash.lean";
 
 /// the formats the mirror converts, by their place in `Pf` (the indexed ones and 16bppGrayScale
 /// convert through tables and refusals the Lean file does not hold)
@@ -1174,6 +1175,71 @@ pub static MIRRORS: &[Mirror] = &[
                 pts.push((f32::from_bits(arg(p, 0)?), f32::from_bits(arg(p, 1)?)));
             }
             one(i64::from(gppath::too_small(rounding(arg(a, 0)?), &m, &pts)))
+        },
+    },
+    Mirror {
+        name: "gp.dashes",
+        lean: DASH,
+        domain: Domain::Sampled("two theorem cases and 6,000 sampled open and closed polylines including repeated endpoints, odd and even patterns, signed offsets, thin and wide pens, and adjusted and unadjusted caps under both rounding modes"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xda54_0001);
+            let bits = |v| i64::from((f32::from(i16::try_from(v).unwrap_or(0)) / 4.0).to_bits());
+            // Both kernel theorems' inputs run through the Rust walker as well.
+            let one = bits(4);
+            each(&[0, 0, 0, one, one, 0, 2, 1, 3, 2, bits(12), one, one, one, bits(36), one]);
+            each(&[0, 0, 1, one, one, 0, 2, 1, 3, 2, bits(8), bits(8), one, one, bits(20), one]);
+            for i in 0..6000 {
+                let closed = rng.chance(2);
+                let round_adjustment = rng.chance(2);
+                let cap = match rng.range(0, 2) { 0 => 0, 1 => 2, _ => 3 };
+                let start = rng.range(0, 3);
+                let end = rng.range(0, 3);
+                let count = rng.range(1, 6);
+                let mut input = vec![
+                    i % 2, i64::from(closed), i64::from(round_adjustment), bits(rng.range(1, 16)),
+                    bits(rng.range(1, 16)), bits(rng.range(-48, 48)), cap, start, end, count,
+                ];
+                input.extend((0..count).map(|_| bits(rng.range(1, 12))));
+                let first = [bits(rng.range(1, 40)), bits(rng.range(1, 40))];
+                input.extend(first);
+                for _ in 1..rng.range(1, 5) {
+                    input.extend([bits(rng.range(1, 40)), bits(rng.range(1, 40))]);
+                }
+                if closed && rng.chance(2) { input.extend(first); }
+                each(&input);
+            }
+        },
+        model: |a| {
+            use crate::model::gppath::Pen;
+            use crate::model::gpwiden::{dashes, Anchor, Cap};
+            let [d, closed, adjust, width, major, offset, dash_cap, start, end, count, rest @ ..] = a else { return None; };
+            let f32_arg = |v| u32::try_from(v).ok().map(f32::from_bits);
+            let (pattern, points) = rest.split_at_checked(usize::try_from(*count).ok()?)?;
+            if pattern.is_empty() { return None; }
+            let pattern: Vec<_> = pattern.iter().copied().map(f32_arg).collect::<Option<_>>()?;
+            let (points, odd) = points.as_chunks::<2>();
+            if !odd.is_empty() { return None; }
+            let points: Vec<_> = points.iter().map(|&[x, y]| Some((f32_arg(x)?, f32_arg(y)?))).collect::<Option<_>>()?;
+            let mut pen = Pen::new(0, f32_arg(*width)?);
+            pen.dash_cap = *dash_cap;
+            pen.dash_offset = f32_arg(*offset)?;
+            let spans = dashes(rounding(*d), &[(points, *closed != 0)], &pen, f32_arg(*major)?, *adjust != 0, &pattern, (Cap::line(*start), Cap::line(*end)));
+            let cap_code = |cap| match cap {
+                Cap::Flat => 0,
+                Cap::Square => 1,
+                Cap::Round => 2,
+                Cap::Triangle => 3,
+                Cap::Anchor(Anchor::Square) => 0x11,
+                Cap::Anchor(Anchor::Round) => 0x12,
+                Cap::Anchor(Anchor::Diamond) => 0x13,
+                Cap::Anchor(Anchor::Arrow) => 0x14,
+            };
+            let mut out = Vec::new();
+            for span in spans {
+                out.extend([cap_code(span.caps.0), cap_code(span.caps.1), i64::try_from(span.pts.len()).ok()?]);
+                out.extend(span.pts.into_iter().flat_map(|(x, y)| [canon(x), canon(y)]));
+            }
+            Some(out)
         },
     },
     Mirror {

@@ -530,6 +530,10 @@ spec/lean/Kikizake/GdiPlus/Stroke.lean::choices lean GP.PEN.ONEPIXEL
 spec/lean/Kikizake/GdiPlus/Arc.lean::ellipse_unit lean GP.PATH.ARC
 spec/lean/Kikizake/GdiPlus/Raster.lean::squares lean GP.RASTER.FILL
 spec/lean/Kikizake/GdiPlus/Line.lean::lines lean GP.PEN.ALIASED GP.PEN.NOMINAL GP.PEN.OUTLINE GP.PEN.EMPTY
+spec/lean/Kikizake/GdiPlus/Dash.lean::normalized_pattern_is_even lean GP.PEN.DASH
+spec/lean/Kikizake/GdiPlus/Dash.lean::short_path_has_no_dashes lean GP.PEN.DASH
+spec/lean/Kikizake/GdiPlus/Dash.lean::horizontal_caps lean GP.PEN.DASH
+spec/lean/Kikizake/GdiPlus/Dash.lean::adjusted_round_cap lean GP.PEN.DASH
 spec/lean/Kikizake/GdiPlus/Chain.lean::copies lean GP.DRAW.NEAREST
 spec/lean/Kikizake/GdiPlus/Chain.lean::ramp lean GP.DRAW.BILINEAR
 spec/lean/Kikizake/GdiPlus/Chain.lean::tables lean GP.DRAW.HQ_BILINEAR GP.DRAW.HQ_BICUBIC

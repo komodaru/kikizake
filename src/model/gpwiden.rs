@@ -553,10 +553,10 @@ fn dedup(p: &[P]) -> Vec<P> {
 }
 
 /// a subpath to widen: its points, closed, and for an open one which cap each end takes
-struct Sub {
-    pts: Vec<P>,
+pub(crate) struct Sub {
+    pub(crate) pts: Vec<P>,
     closed: bool,
-    caps: (Cap, Cap),
+    pub(crate) caps: (Cap, Cap),
 }
 
 /// why GetWidenedPathInternal gives nothing back
@@ -1057,7 +1057,7 @@ pub fn dashed(r: Round, path: &Path, pen: &Pen) -> Res<Option<Path>> {
 /// CreateDashedPath: each figure cut into dashes (getDashData), each dash an open subpath with
 /// its ends' caps; the dash cap adjusting the pattern when adjust
 #[allow(clippy::too_many_arguments)]
-fn dashes(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, major: f32, adjust: bool, pat: &[f32], caps: (Cap, Cap)) -> Vec<Sub> {
+pub(crate) fn dashes(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, major: f32, adjust: bool, pat: &[f32], caps: (Cap, Cap)) -> Vec<Sub> {
     hit(clause::GP_PEN_DASH);
     let min_w = 1.0f32;
     let u = if min_w > r.mul(major, pen.width) { r.div(min_w, major) } else { pen.width };

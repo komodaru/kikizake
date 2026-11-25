@@ -2,7 +2,6 @@
 # (spec/laws.txt kinds exhaustive, kani, tla, lean). It only shrinks: prove a clause and take
 # its line out; a new clause comes proven (tests/spec.rs unproven_only_shrinks).
 GP.PEN.WIDE
-GP.PEN.DASH
 GP.PEN.INSET
 D3DRES.RESOLVE.MEAN
 D3DRASTER.SHADER
