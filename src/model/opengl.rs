@@ -1729,8 +1729,8 @@ pub(crate) fn wgl_font_last_name(base: u32, count: i32) -> Option<u32> {
 
 pub(crate) fn wgl_font_generation_supported(base: u32, count: i32) -> bool {
     if base == 0 { return (1..=64).contains(&count); }
-    // A single maximum name is usable. The two-glyph bitmap case ending
-    // there has no complete native recording.
+    // A single maximum name is usable. The two-glyph bitmap recording ending
+    // there contains only the case header, with no result or exit status.
     wgl_font_last_name(base, count).is_some_and(|last| last != u32::MAX || count == 1)
 }
 
@@ -1787,7 +1787,8 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                 .is_some_and(|n| n == "glBegin"));
             let in_primitive = ctx.in_begin.is_some() || compiling_primitive;
             if name == "fontoutline" && rest.len() == 1 {
-                // In native probes these calls did not return, even with zero count or invalid format.
+                // The wide outline probe stopped at the watchdog with only its
+                // pre-call marker recorded, including with zero count or invalid format.
                 if in_primitive { return Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER)); }
                 // The outline call consumes the pending error even for zero glyphs or an invalid format.
                 ctx.err = 0;

@@ -231,8 +231,10 @@ static int outline_primitive(HDC dc, int phase, int format, int count) {
     fflush(stdout);
     BOOL ok = wglUseFontOutlinesW(dc, 65, (DWORD)count, 100, 0, 0, format, metrics);
     DWORD error = ok ? 0 : GetLastError();
+    printf("returned %d %lu\n", ok, error);
+    fflush(stdout);
     end_primitive(phase);
-    printf("returned %d %lu %x\n", ok, error, glGetError());
+    printf("after %x\n", glGetError());
     return 0;
 }
 

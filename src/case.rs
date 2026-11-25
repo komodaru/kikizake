@@ -77,8 +77,9 @@ pub fn checked_cases(text: &str) -> Result<Vec<Case>, String> {
     Ok(cases)
 }
 
-/// Executor output split by case: header lines (before the first case), then each case's name
-/// and lines, the final "done" (absent when the program died) as `done`.
+/// Executor output split by case, with header lines before the first case.
+/// The final "done" marker records completion in the output. A missing marker
+/// leaves the process outcome unknown without separate exit information.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Output {
     pub head: Vec<String>,

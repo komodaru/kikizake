@@ -79,30 +79,26 @@ The 216 rows cover immediate mode and both display-list compilation modes.
 Compare the two outputs and copy the rows up to `done` to
 `tests/fixtures/opengl_bitmap_primitives.txt`.
 
-The outline calls reached from an active primitive did not return within
-1.5 seconds on either architecture. Run the outline probe as a separate
-process with a timeout. Its arguments are phase, format and count. The
-phase values 0, 1 and 2 select an immediate primitive, compile and
-compile-and-execute. The probe flushes `calling` before entering WGL.
-
-```python
-import subprocess
-try:
-    subprocess.run(
-        ["capture_wgl_outlines.exe", "outline-primitive", "0", "0", "1"],
-        capture_output=True, timeout=1.5, check=True,
-    )
-except subprocess.TimeoutExpired as exc:
-    print(exc.stdout)
-```
+`tests/fixtures/opengl_outline_watchdog.txt` records the six wide outline
+inputs and shared x86/x64 stdout from a separate worker probe. Its columns
+give the phase, encoding, first code unit, count, base, format and watchdog
+duration in milliseconds. Phase 0 selects an immediate primitive and
+phases 1 and 2 select the two display-list compilation modes. In each run
+the worker flushed `calling` just before the WGL call and was stopped after
+a 1.5-second watchdog wait. The worker flushes `returned` before ending the
+primitive, and no run recorded that marker. The terminal behavior remains
+unknown. The archived inputs exercise the model's `WGL.OTHER` guard before
+outline format and count handling. The model regression separately checks
+that guard for both encodings.
 
 ## Upper display-list names
 
 The x86 and x64 recordings agreed on creation and replay for the sampled
 large list names. The single maximum name `0xffffffff` remained usable
 after creation. Unbinding succeeded, and deleting the context with that
-list live produced `0xc0000005`. A deletion range containing the maximum
-live name also produced that status.
+list live produced `0xc0000005`. Deleting that name directly and deleting
+the two-name range starting at `0xfffffffe` with the maximum live also
+produced that status on both architectures.
 
 `tests/fixtures/opengl_large_list_state.txt` keeps the paired observations
 from the probe that flushed output around unbinding and deletion.
@@ -112,11 +108,38 @@ and signed process status. Lines starting with `>` are input and lines
 starting with `<` are output. The Rust regression uses these saved
 observations, including the output flushed before an interrupted case.
 
+`tests/fixtures/opengl_upper_batch_prefix.txt` preserves the separate
+two-glyph ANSI bitmap case that starts at `0xfffffffe` and its shared
+x86/x64 stdout. Both native outputs stop at the case header with no saved
+exit status. The runner flushes the header before dispatch, then resets
+the context before flushing the case body. The saved prefix cannot locate
+the interruption among setup, font generation, readback and cleanup. The
+model reports `WGL.OTHER` when a multi-glyph request reaches generation
+and ends at or crosses `0xffffffff`.
+
 `tests/fixtures/opengl_upper_font_validation.txt` records 24 completed
 requests at the two largest names, paired across architectures. Each
 row gives the pending GL error flag, the font command, and the readback
 lines after context creation. The test checks validation, error state,
-survival of the neighboring list, and normal context release.
+survival of the neighboring list, and normal context release. The model
+checks bitmap character range, primitive and GL error state, and empty
+wide intervals before the list-name guard can reject generation. Outline
+format and zero-count handling also precede that guard outside primitives.
+
+## WGL regression coverage
+
+| Conditions | Evidence |
+| --- | --- |
+| DIB pixel-format tables, selection, context state and format errors | The descriptor export regression covers all 36 formats of the reference 32-bit DIB. Other supported DIB depths use `pf-*`, `choose-*`, `ctx-pf-*` and `edge-pf-range` golden cases. |
+| Extension lookup, layer contexts, sharing and copying | `gap-wgl-0` golden samples the export names and plane flags. Share and copy each use a temporary context, and the copy case uses mask `0x40000`. |
+| Swaps on the single-buffer DIB | `gap-wgl-0` golden, the pixel and GL error preservation property test, and all counts 0 through 16 for multiple-buffer swaps with a Kani check of the result mask. |
+| Palette and debug entry | Palette and debug entry laws, including Kani coverage of unsupported palette planes. `spec/opengl.txt` records the main-plane last-error difference between the reference and local hosts. |
+| Bitmap and outline generation and replay | ANSI bytes and wide code-unit captures, GL error and input-range probes, both outline formats, render/feedback/select, and both display-list compilation modes |
+| Display-list name arithmetic | Generated replacement-law cases and Kani checks of the last name and generation guard for arbitrary unsigned bases and signed counts |
+
+The archive-based Rust tests for the two incomplete recordings exercise
+model guards. Native terminal behavior for those inputs remains open in
+`WGL.OTHER`.
 
 ## Windows WGL bitmap captures
 

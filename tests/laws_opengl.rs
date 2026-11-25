@@ -2105,6 +2105,8 @@ fn wgl_bitmap_primitives_match_native_rejection() {
 
 #[test]
 fn wgl_outline_calls_within_primitives_fail_as_unmodeled() {
+    // This matrix checks the model policy for both encodings. The recorded
+    // watchdog inputs cover six calls to the wide API.
     for compile in ["", "gl glNewList 55 0x1300\n", "gl glNewList 55 0x1301\n"] {
         for encoding in ["a", "w"] {
             for count in [0, 1] {
@@ -2117,6 +2119,32 @@ fn wgl_outline_calls_within_primitives_fail_as_unmodeled() {
                 }
             }
         }
+    }
+}
+
+#[test]
+fn wgl_incomplete_outline_recordings_remain_unmodeled() {
+    let recordings = include_str!("fixtures/opengl_outline_watchdog.txt");
+    assert_eq!(recordings.lines().count(), 6);
+    for row in recordings.lines() {
+        let (arguments, output) = row.split_once(" | ").unwrap();
+        let arguments: Vec<_> = arguments.split_whitespace().collect();
+        let [phase, encoding, first, count, base, format, watchdog_ms] = arguments.as_slice()
+            else { panic!("invalid outline recording {row}"); };
+        assert_eq!(*encoding, "w", "{row}");
+        assert_eq!(*watchdog_ms, "1500", "{row}");
+        assert_eq!(output, "calling", "{row}");
+        let compile = match *phase {
+            "0" => "",
+            "1" => "gl glNewList 55 0x1300\n",
+            "2" => "gl glNewList 55 0x1301\n",
+            _ => panic!("invalid primitive phase {phase}"),
+        };
+        let input = format!("case outline-watchdog\nglctx 32 choose 0x38 0 32 0 0 32 8\n{compile}gl glBegin 0\nwglx fontoutline {encoding} {first} {count} {base} {format}\nend\n");
+        let cases = kikizake::case::parse_cases(&input);
+        let result = kikizake::model::run_case(&cases[0]);
+        assert!(matches!(&result, Err(kikizake::model::Fail::Unmodeled(id)) if id.as_str() == "WGL.OTHER"),
+                "{row}: {result:?}");
     }
 }
 
@@ -2274,11 +2302,18 @@ fn wgl_maximum_list_name_lifetime_matches_windows() {
 }
 
 #[test]
-fn wgl_batches_ending_in_the_maximum_list_name_have_no_modeled_return() {
-    let input = "case max-batch\nglctx 32 choose 0x38 0 32 0 0 32 8\nwglx fontbmp a 65 2 0xfffffffe\nend\n";
+fn wgl_incomplete_upper_batch_recording_remains_unmodeled() {
+    let recording = include_str!("fixtures/opengl_upper_batch_prefix.txt");
+    let (input, stdout) = recording.split_once("--- stdout ---").unwrap();
     let cases = kikizake::case::parse_cases(input);
-    assert!(matches!(kikizake::model::run_case(&cases[0]),
-        Err(kikizake::model::Fail::Unmodeled(id)) if id.as_str() == "WGL.OTHER"));
+    assert_eq!(cases.len(), 1);
+    let output = kikizake::case::parse_output(stdout.trim_start_matches(['\r', '\n']));
+    assert_eq!(output.head, ["kikizake wgl_names"]);
+    assert_eq!(output.cases, [(cases[0].name.clone(), Vec::<String>::new())]);
+    assert!(!output.done);
+    let result = kikizake::model::run_case(&cases[0]);
+    assert!(matches!(&result, Err(kikizake::model::Fail::Unmodeled(id)) if id.as_str() == "WGL.OTHER"),
+            "{result:?}");
 }
 
 #[test]

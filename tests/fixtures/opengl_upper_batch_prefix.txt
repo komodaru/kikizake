@@ -1,0 +1,13 @@
+case fontbmp--2
+glctx 32 choose 0x38 0 32 0 0 32 8
+wglx fontbmp a 65 2 -2
+glr glIsList b i -2
+glr glIsList b i -1
+glr glIsList b i 0
+glr glIsList b i 1
+glr glIsList b i 2
+glerr
+end
+--- stdout ---
+kikizake wgl_names
+case fontbmp--2

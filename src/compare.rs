@@ -115,7 +115,11 @@ pub fn compare(want: &Output, got: &Output) -> Report {
         Difference::InvalidModel(name) => format!("{name}: invalid model input"),
         Difference::Line { name, index, lines, actual } => describe_line(name, index, lines, actual),
         Difference::Unexpected(name) => format!("{name}: unexpected case"),
-        Difference::End => format!("program end: want {} got {}", if want.done { "done" } else { "a crash" }, if got.done { "done" } else { "a crash" }),
+        Difference::End => if want.done {
+            "program end: missing done marker".into()
+        } else {
+            "program end: unexpected done marker".into()
+        },
     }));
     Report { cases: counts.cases, same: counts.same, unmodeled: counts.unmodeled, differ }
 }

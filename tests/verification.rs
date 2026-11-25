@@ -8,12 +8,15 @@ fn comparison_requires_the_expected_sequence_and_end() {
     let want = "kikizake a\ncase x\nunmodeled example\ncase x\n42\ndone\n";
     assert!(compare::compare_text(want, want).differ.is_empty());
     for got in [want.replace("kikizake a", "kikizake b"), format!("extra header\n{want}"), want.replace("done", "case y\ndone"),
-        want.replace("case x\n42\n", ""), want.replace("done", ""), want.replace("done", "done\ndone")] {
+        want.replace("case x\n42\n", ""), want.replace("done", "done\ndone")] {
         assert!(!compare::compare_text(want, &got).differ.is_empty());
     }
-    let crash = "case x\n42\n";
-    assert!(compare::compare_text(crash, crash).differ.is_empty());
-    assert!(!compare::compare_text(crash, "case x\n42\ncase y\n").differ.is_empty());
+    let prefix = "case x\n42\n";
+    let complete = "case x\n42\ndone\n";
+    assert!(compare::compare_text(prefix, prefix).differ.is_empty());
+    assert!(!compare::compare_text(prefix, "case x\n42\ncase y\n").differ.is_empty());
+    assert_eq!(compare::compare_text(complete, prefix).differ, ["program end: missing done marker"]);
+    assert_eq!(compare::compare_text(prefix, complete).differ, ["program end: unexpected done marker"]);
     assert!(!compare::compare_text("done", "done").differ.is_empty());
 }
 
