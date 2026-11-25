@@ -1,8 +1,9 @@
+import Kikizake.GdiPlus.Dash
 import Kikizake.GdiPlus.Wide
 
-/-! Compose the widening stages for a solid centered pen with ordinary caps. The
-device matrix and its inverse, binary32 flattening, axes, joins and band outlines
-are the same definitions their own mirrors use. -/
+/-! Compose the widening stages for a centered pen with ordinary caps. The device
+matrix and its inverse, binary32 flattening, axes, dash walker, joins and band
+outlines are the same definitions their own mirrors use. -/
 namespace Kikizake.GdiPlus.WideRoute
 
 open Kikizake.Float
@@ -17,6 +18,18 @@ structure Pen where
   startCap : Nat
   endCap : Nat
   compound : List Nat
+
+structure DashStyle where
+  style : Int
+  cap : Int
+  offset : Nat
+  custom : List Nat
+
+private structure Subpath where
+  points : List Pair
+  closed : Bool
+  startCap : Nat
+  endCap : Nat
 
 private def pointEq (a b : Pair) : Bool :=
   let same x y := x == y || (isZero x && isZero y)
@@ -56,12 +69,11 @@ private def closedPoints (closed : Bool) (pts : List Pair) : List Pair :=
      | _, _ => false)
   then pts.dropLast else pts
 
-def figureBands (d : Bool) (pen : Pen) (m : List Nat) (thin : Bool) (width : Nat)
-    (closed : Bool) (fig : List Pt) : List (List Out) :=
+private def figureBands (d : Bool) (pen : Pen) (m : List Nat) (thin : Bool) (width : Nat)
+    (sub : Subpath) : List (List Out) :=
   let r := ops d
-  let points := fig.map (fun p => (p.x, p.y))
-  let points := if thin then points.map (pointThrough r m) else points
-  let points := (closedPoints closed (dedup points)).toArray
+  let points := if thin then sub.points.map (pointThrough r m) else sub.points
+  let points := (closedPoints sub.closed (dedup points)).toArray
   if points.size < 2 then [] else
   let halfWidth := r.mul width half
   let whole : Band := ⟨width, halfWidth, r.sub halfWidth width, pen.miter, pen.join, false⟩
@@ -71,10 +83,10 @@ def figureBands (d : Bool) (pen : Pen) (m : List Nat) (thin : Bool) (width : Nat
   let bandCap cap := if apart cap then 0 else cap
   let outlines := bands.flatMap fun (wl, wr) =>
     let b := { whole with left := wl, right := wr, compound := compound }
-    if closed then closedBand d b points
-    else [openBand d b points (bandCap pen.startCap) (bandCap pen.endCap)]
-  if closed then outlines else
-  let extra := [(pen.startCap, true), (pen.endCap, false)].filterMap fun (cap, start) =>
+    if sub.closed then closedBand d b points
+    else [openBand d b points (bandCap sub.startCap) (bandCap sub.endCap)]
+  if sub.closed then outlines else
+  let extra := [(sub.startCap, true), (sub.endCap, false)].filterMap fun (cap, start) =>
     if apart cap then wholeCap d whole points cap start else none
   outlines ++ extra
 
@@ -84,15 +96,42 @@ def flattenedWorld (d : Bool) (m minv : List Nat) (flatness : Nat) (path : List 
   let flat ← flatten r (some m) flatness path
   pure (flat.map (toPt r minv))
 
-def centeredFromWorld (d : Bool) (pen : Pen) (m minv : List Nat) (world : List Pt) : List Pt :=
+private def outlineSubpaths (d : Bool) (pen : Pen) (m minv : List Nat) (subs : List Subpath) : List Pt :=
   let r := ops d
   let (_, minor) := Stroke.axes d m
   let thin := flt (r.mul pen.width minor) 0x3f800008
   let width := if thin then 0x3f800008 else pen.width
-  let outlines := (figures world).flatMap fun f =>
-    let closed := (f.getLast?.map (·.close)).getD false
-    figureBands d pen m thin width closed f
+  let outlines := subs.flatMap (figureBands d pen m thin width)
   outlines.flatMap fun fig => (closeFigure fig).map (resultPoint r m minv thin)
+
+private def worldSubpaths (pen : Pen) (world : List Pt) : List Subpath :=
+  (figures world).map fun f =>
+    ⟨f.map (fun p => (p.x, p.y)), (f.getLast?.map (·.close)).getD false, pen.startCap, pen.endCap⟩
+
+def centeredFromWorld (d : Bool) (pen : Pen) (m minv : List Nat) (world : List Pt) : List Pt :=
+  outlineSubpaths d pen m minv (worldSubpaths pen world)
+
+def dashPattern (dash : DashStyle) : Option (List Nat) :=
+  match dash.style with
+  | 1 => some [0x40400000, one]
+  | 2 => some [one, one]
+  | 3 => some [0x40400000, one, one, one]
+  | 4 => some [0x40400000, one, one, one, one, one]
+  | 5 => if dash.custom.isEmpty then none else some dash.custom
+  | _ => none
+
+def dashedFromWorld (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m minv : List Nat)
+    (world : List Pt) : Option (List Pt) := do
+  let some pattern := dashPattern dash | pure (centeredFromWorld d pen m minv world)
+  let r := ops d
+  let (major, _) := Stroke.axes d m
+  let cap := if dash.cap == 2 || dash.cap == 3 then dash.cap.toNat else 0
+  let spans ← (worldSubpaths pen world).mapM fun sub => do
+    let points := sub.points.map (pointThrough r minv ∘ pointThrough r m)
+    Dash.dashSpans fuel d sub.closed true pen.width major dash.offset cap sub.startCap sub.endCap
+      pattern points.toArray
+  let subs := spans.flatten.map fun s => ⟨s.points.toList, false, s.startCap, s.endCap⟩
+  pure (outlineSubpaths d pen m minv subs)
 
 def centeredPath (d : Bool) (pen : Pen) (m minv : List Nat) (flatness : Nat) (path : List Pt) : Option (List Pt) := do
   pure (centeredFromWorld d pen m minv (← flattenedWorld d m minv flatness path))
@@ -103,6 +142,15 @@ def centeredOutline (d : Bool) (pen : Pen) (m : List Nat) (flatness : Nat) (path
   match inverse (ops d) m with
   | none => pure [-1]
   | some minv => pure (0 :: encodePoints (← centeredPath d pen m minv flatness path))
+
+def dashedOutline (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m : List Nat)
+    (flatness : Nat) (path : List Pt) : Option (List Int) := do
+  match inverse (ops d) m with
+  | none => pure [-1]
+  | some minv =>
+    let world ← flattenedWorld d m minv flatness path
+    let out ← dashedFromWorld fuel d pen dash m minv world
+    pure (0 :: encodePoints out)
 
 theorem singular_matrix_leaves_no_outline (d : Bool) (pen : Pen) (m : List Nat)
     (flatness : Nat) (path : List Pt) (h : inverse (ops d) m = none) :
@@ -136,6 +184,31 @@ theorem compound_caps_follow_bands :
       0, 0x40e00000, 0xc0400000, 1, 0x41000000, 0xc0000000, 0x81, 0x40e00000, 0xbf800000] := by
   decide +kernel
 
+theorem no_pattern_matches_solid (fuel : Nat) (d : Bool) (pen : Pen) (dash : DashStyle) (m : List Nat)
+    (flatness : Nat) (path : List Pt) (h : dashPattern dash = none) :
+    dashedOutline fuel d pen dash m flatness path = centeredOutline d pen m flatness path := by
+  simp [dashedOutline, dashedFromWorld, centeredOutline, centeredPath, h, Option.pure_def, Option.bind_assoc]
+
+private def dashedLine : List Pt := [⟨0, 0, 0, false⟩, ⟨0x40c00000, 0, 1, false⟩]
+
+theorem dashed_line_widens_each_span :
+    dashedOutline 16 false ⟨0x40000000, 0x40800000, 0, 0, 0, []⟩ ⟨2, 0, 0, []⟩
+      translation 0x3e800000 dashedLine =
+    some [0, 0, 0x40400000, 0xc0400000, 1, 0x40a00000, 0xc0400000,
+      1, 0x40a00000, 0xbf800000, 0x81, 0x40400000, 0xbf800000,
+      0, 0x40e00000, 0xc0400000, 1, 0x41100000, 0xc0400000,
+      1, 0x41100000, 0xbf800000, 0x81, 0x40e00000, 0xbf800000] := by
+  decide +kernel
+
+theorem dashed_line_rounds_down :
+    dashedOutline 16 true ⟨0x40000000, 0x40800000, 0, 0, 0, []⟩ ⟨2, 0, 0, []⟩
+      translation 0x3e800000 dashedLine =
+    some [0, 0, 0x40400000, 0xc0400000, 1, 0x409fffff, 0xc0400000,
+      1, 0x409fffff, 0xbf800000, 0x81, 0x40400000, 0xbf800000,
+      0, 0x40dfffff, 0xc0400001, 1, 0x41100000, 0xc0400001,
+      1, 0x41100000, 0xbf7ffffe, 0x81, 0x40dfffff, 0xbf7ffffe] := by
+  decide +kernel
+
 def points : List Int → Option (List Pt)
   | [] => some []
   | x :: y :: t :: rest => do
@@ -143,15 +216,33 @@ def points : List Int → Option (List Pt)
     pure (⟨← nat x, ← nat y, t % 128, t ≥ 128⟩ :: (← points rest))
   | _ => none
 
+def routeArgs : List Int → Option (Pen × List Nat × Nat × List Pt)
+  | width :: miter :: join :: sc :: ec :: flatness :: a :: b :: c :: e :: x :: y :: count :: rest => do
+    let n ← nat count
+    let _ ← if n % 2 == 0 && n ≤ rest.length then some () else none
+    let compound ← (rest.take n).mapM nat
+    let pen : Pen := ⟨← nat width, ← nat miter, join, ← nat sc, ← nat ec, compound⟩
+    pure (pen, ← [a, b, c, e, x, y].mapM nat, ← nat flatness, ← points (rest.drop n))
+  | _ => none
+
+def dashArgs : List Int → Option (DashStyle × List Int)
+  | style :: cap :: offset :: count :: rest => do
+    let n ← nat count
+    let _ ← if n ≤ rest.length then some () else none
+    pure (⟨style, cap, ← nat offset, ← (rest.take n).mapM nat⟩, rest.drop n)
+  | _ => none
+
 def mirrors : List Mirror := [
   ⟨"gp.wide-centered", fun
-    | d :: width :: miter :: join :: sc :: ec :: flatness :: a :: b :: c :: e :: x :: y :: count :: rest => do
-      let n ← nat count
-      let _ ← if n % 2 == 0 && n ≤ rest.length then some () else none
-      let compound ← (rest.take n).mapM nat
-      let pen : Pen := ⟨← nat width, ← nat miter, join, ← nat sc, ← nat ec, compound⟩
-      centeredOutline (d != 0) pen (← [a, b, c, e, x, y].mapM nat) (← nat flatness)
-        (← points (rest.drop n))
+    | d :: rest => do
+      let (pen, m, flatness, path) ← routeArgs rest
+      centeredOutline (d != 0) pen m flatness path
+    | _ => none⟩,
+  ⟨"gp.wide-dashed", fun
+    | d :: rest => do
+      let (dash, rest) ← dashArgs rest
+      let (pen, m, flatness, path) ← routeArgs rest
+      dashedOutline 8192 (d != 0) pen dash m flatness path
     | _ => none⟩
 ]
 

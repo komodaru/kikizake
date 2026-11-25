@@ -57,3 +57,23 @@ a model mismatch and exit status 1.
 The negative-xscale mutation survived the original 104,000 render comparisons. The
 `gp.render` fixture for a mirrored cubic draw with a single grey texel near the source's
 right edge detects the wrong MMX column range.
+
+## Closed dashed inset gap (#19)
+
+This case widens an alternate-fill rectangle with a unit-width inset pen in
+dash style 1. Run it as a `gdipluspath` case.
+
+```text
+case inset-dash-rect
+gppen 0 0xff000000 1 dash 1 align 1
+gppath 0 0
+gpadd 0 rect 0 0 6 6
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+```
+
+Windows x86 and x64 return one closed contour with points
+`(0,0) (0,6) (6,6) (6,4) (2,4) (2,2) (6,2) (6,0)`.
+The model clips the doubled-width dashed outline to three contours with 11 points.
+The dashed centered and solid inset mirrors cover their respective paths.

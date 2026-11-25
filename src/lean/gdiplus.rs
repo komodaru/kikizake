@@ -386,7 +386,69 @@ fn round_flag(r: Round) -> i64 {
     }
 }
 
-fn widen_point_stream(d: i64, fill: i64, align: i64, a: &[i64]) -> Option<Vec<i64>> {
+fn dashed_widen_point_stream(a: &[i64]) -> Option<Vec<i64>> {
+    let [d, style, cap, offset, count, rest @ ..] = a else { return None; };
+    let (custom, rest) = rest.split_at_checked(usize::try_from(*count).ok()?)?;
+    widen_point_stream(*d, 0, 0, rest, Some(DashArgs { style: *style, cap: *cap, offset: *offset, custom }))
+}
+
+fn dashed_widen_inputs(each: &mut dyn FnMut(&[i64])) {
+    let bits = |v| i64::from((f32::from(i16::try_from(v).unwrap_or(0)) / 4.0).to_bits());
+    for d in 0..=1 {
+        for style in [-1, 0, 2, 5, 6] {
+            each(&[d, style, 0, 0, 0, bits(8), bits(16), 0, 0, 0, bits(1), bits(4), 0, 0, bits(4),
+                bits(12), bits(-8), 0, 0, 0, 0, bits(24), 0, 1]);
+        }
+    }
+
+    let mut rng = crate::rng::Sample64::new(0xda54_71de);
+    let matrices = [[4, 0, 0, 4], [0, 4, -4, 0], [2, 0, 0, 8], [4, 2, 1, 4],
+        [-4, 0, 0, 2], [4, 8, 2, 4], [1, 0, 0, 4], [4, -2, 2, 4]];
+    let compounds = [&[][..], &[0, 4], &[0, 2, 3, 4], &[0, 0, 1, 3], &[0, 2, 2, 4]];
+    for i in 0i64..2000 {
+        let dash_styles = [1, 2, 3, 4, 5, 5, 5, 0, -1, 6];
+        let style = *rng.pick(&dash_styles);
+        let count = if style == 5 { rng.range(0, 5) } else { 0 };
+        let cap = *rng.pick(&[-1, 0, 1, 2, 3, 4]);
+        let mut a = vec![i % 2, style, cap, bits(rng.range(-16, 16)), count];
+        a.extend((0..count).map(|_| bits(rng.range(2, 20))));
+        let compound = *rng.pick(&compounds);
+        a.extend([bits(rng.range(1, 16)), bits(rng.range(2, 24)), rng.range(0, 3),
+            rng.range(0, 3), rng.range(0, 3), bits(rng.range(1, 2))]);
+        a.extend(rng.pick(&matrices).iter().copied().map(bits));
+        a.extend([bits(rng.range(-8, 8)), bits(rng.range(-8, 8)), i64::try_from(compound.len()).unwrap_or(0)]);
+        a.extend(compound.iter().copied().map(bits));
+        for j in 0..rng.range(1, 3) {
+            let x = rng.range(-14, 14);
+            let y = rng.range(-14, 14);
+            let w = rng.range(4, 24);
+            let h = rng.range(4, 24);
+            let layout = i.saturating_add(j);
+            let (line_end, cubic_end) = if layout % 3 == 0 { (1, 3) } else { (129, 131) };
+            let right = x.saturating_add(w);
+            let bottom = y.saturating_add(h);
+            a.extend([bits(x), bits(y), 0]);
+            match layout % 5 {
+                0 => a.extend([bits(right), bits(bottom), line_end]),
+                1 => a.extend([bits(right), bits(y), 1, bits(right), bits(bottom), 1, bits(x), bits(bottom), line_end]),
+                2 => a.extend([bits(right), bits(y), 1, bits(right), bits(bottom), 1, bits(x), bits(y), line_end]),
+                3 => a.extend([bits(x), bits(bottom), 3, bits(right), bits(bottom), 3, bits(right), bits(y), cubic_end]),
+                _ => a.extend([bits(right), bits(y.saturating_sub(h)), 1,
+                    bits(x.saturating_add(h)), bits(y.saturating_add(w)), line_end]),
+            }
+        }
+        each(&a);
+    }
+}
+
+struct DashArgs<'a> {
+    style: i64,
+    cap: i64,
+    offset: i64,
+    custom: &'a [i64],
+}
+
+fn widen_point_stream(d: i64, fill: i64, align: i64, a: &[i64], dash: Option<DashArgs<'_>>) -> Option<Vec<i64>> {
     use crate::model::gppath::{Kind, Path, Pen, Point};
     use crate::model::gpwiden::{widen, Widened};
     let [width, miter, join, sc, ec, flatness, a0, a1, a2, a3, tx, ty, count, rest @ ..] = a else { return None; };
@@ -411,6 +473,12 @@ fn widen_point_stream(d: i64, fill: i64, align: i64, a: &[i64]) -> Option<Vec<i6
     pen.start_cap = *sc;
     pen.end_cap = *ec;
     pen.compound = compound.iter().copied().map(f32_arg).collect::<Option<_>>()?;
+    if let Some(dash) = dash {
+        pen.dash = dash.style;
+        pen.dash_cap = dash.cap;
+        pen.dash_offset = f32_arg(dash.offset)?;
+        pen.dash_array = dash.custom.iter().copied().map(f32_arg).collect::<Option<_>>()?;
+    }
     let matrix = [f32_arg(*a0)?, f32_arg(*a1)?, f32_arg(*a2)?, f32_arg(*a3)?, f32_arg(*tx)?, f32_arg(*ty)?];
     Some(match widen(rounding(d), &Path::of(fill, points), &pen, &matrix, f32_arg(*flatness)?).ok()? {
         Ok(path) => std::iter::once(0).chain(path.pts.into_iter().flat_map(|p| [i64::from(p.type_byte()), canon(p.x), canon(p.y)])).collect(),
@@ -1256,8 +1324,15 @@ pub static MIRRORS: &[Mirror] = &[
             }
         },        model: |a| {
             let [d, rest @ ..] = a else { return None; };
-            widen_point_stream(*d, 0, 0, rest)
+            widen_point_stream(*d, 0, 0, rest, None)
         },
+    },
+    Mirror {
+        name: "gp.wide-dashed",
+        lean: WIDE_ROUTE,
+        domain: Domain::Sampled("2,000 centered paths with preset and custom dashes, solid fallbacks, signed offsets, ordinary and compound caps, open and closed lines and cubics, diverse affine matrices and both rounding modes, plus exact theorem inputs"),
+        inputs: dashed_widen_inputs,
+        model: dashed_widen_point_stream,
     },
     Mirror {
         name: "gp.wide-band",
@@ -1426,7 +1501,7 @@ pub static MIRRORS: &[Mirror] = &[
         },
         model: |a| {
             let [d, fill, rest @ ..] = a else { return None; };
-            widen_point_stream(*d, *fill, 1, rest)
+            widen_point_stream(*d, *fill, 1, rest, None)
         },
     },
     Mirror {

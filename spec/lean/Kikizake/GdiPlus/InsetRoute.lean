@@ -2,8 +2,8 @@ import Kikizake.GdiPlus.Inset
 import Kikizake.GdiPlus.Raster
 import Kikizake.GdiPlus.WideRoute
 
-/-! The solid inset route: per-figure double-width centered outlines, aliased
-device masks, RegionToPath, then centered open figures with the original pen. -/
+/-! The inset route: double-width centered outlines clipped to aliased device masks
+for closed figures, ordinary centered outlines for open figures, in source figure order. -/
 namespace Kikizake.GdiPlus.InsetRoute
 
 open Kikizake.GdiPlus.Flatten
@@ -48,16 +48,16 @@ def insetOutline (d : Bool) (pen : Pen) (m : List Nat) (flatness : Nat) (winding
     if !hasClosedFigure world then
       pure (0 :: encodePoints (centeredFromWorld d pen m minv world))
     else
+      let widen p input := centeredPath d p m minv flatness input
       let whole ← deviceMask r m winding path
-      let figs := figures path
       let double := { pen with width := r.add pen.width pen.width }
-      let closed ← (figs.filter figClosed).mapM fun f => do
-        let border ← centeredPath d double m minv flatness f
-        let own ← deviceMask r identity true border
-        pure (regionPoints (← insetRegion own whole))
-      let open_ := (figs.filter (!figClosed ·)).flatten
-      let center ← centeredPath d pen m minv flatness open_
-      pure (0 :: encodePoints (closed.flatten ++ center))
+      let outlines ← (figures path).mapM fun f =>
+        if figClosed f then do
+          let border ← widen double f
+          let own ← deviceMask r identity true border
+          pure (regionPoints (← insetRegion own whole))
+        else widen pen f
+      pure (0 :: encodePoints outlines.flatten)
 
 theorem open_figures_keep_the_centered_route (d : Bool) (pen : Pen) (m minv : List Nat)
     (flatness : Nat) (winding : Bool) (path world : List Pt)
@@ -75,20 +75,23 @@ private def nestedSquare : List Pt :=
    ⟨0x40800000, 0x40800000, 1, false⟩, ⟨0x40000000, 0x40800000, 1, true⟩]
 private def openLine : List Pt := [⟨0xc0800000, 0x40000000, 0, false⟩, ⟨0xbf800000, 0x40000000, 1, false⟩]
 
+private def squareRing : List Int :=
+  [0, 0, 0, 1, 0, 0x40c00000, 1, 0x40c00000, 0x40c00000, 0x81, 0x40c00000, 0,
+    0, 0x40a00000, 0x3f800000, 1, 0x40a00000, 0x40a00000,
+    1, 0x3f800000, 0x40a00000, 0x81, 0x3f800000, 0x3f800000]
+
 theorem square_inset_forms_a_ring :
-    insetOutline false examplePen identity 0x3e800000 false square =
-      some [0, 0, 0, 0, 1, 0, 0x40c00000, 1, 0x40c00000, 0x40c00000, 0x81, 0x40c00000, 0,
-        0, 0x40a00000, 0x3f800000, 1, 0x40a00000, 0x40a00000,
-        1, 0x3f800000, 0x40a00000, 0x81, 0x3f800000, 0x3f800000] := by
+    insetOutline false examplePen identity 0x3e800000 false square = some (0 :: squareRing) := by
   decide +kernel
 
-/-- A separate open segment is centered and appended after the clipped square. -/
-theorem mixed_path_appends_open_outline :
+/-- The centered and clipped contours follow the two source figures in either order. -/
+theorem mixed_path_keeps_figure_order :
+    let centered : List Int := [0, 0xc0800000, 0x3fbffffc, 1, 0xbf800000, 0x3fbffffc,
+      1, 0xbf800000, 0x40200002, 0x81, 0xc0800000, 0x40200002]
     insetOutline false examplePen identity 0x3e800000 false (openLine ++ square) =
-      (do
-        let clipped ← insetOutline false examplePen identity 0x3e800000 false square
-        let centered ← centeredOutline false examplePen identity 0x3e800000 openLine
-        pure (clipped ++ centered.drop 1)) := by
+      some (0 :: (centered ++ squareRing)) ∧
+    insetOutline false examplePen identity 0x3e800000 false (square ++ openLine) =
+      some (0 :: (squareRing ++ centered)) := by
   decide +kernel
 
 /-- Two nested closed figures with the same winding can change the inset contours. -/
@@ -99,14 +102,9 @@ theorem nested_fill_mode_changes_contours :
 
 def mirrors : List Mirror := [
   ⟨"gp.inset-path", fun
-    | d :: fill :: width :: miter :: join :: sc :: ec :: flatness :: a :: b :: c :: e :: x :: y ::
-          count :: rest => do
-      let n ← nat count
-      let _ ← if n % 2 == 0 && n ≤ rest.length then some () else none
-      let compound ← (rest.take n).mapM nat
-      let pen : Pen := ⟨← nat width, ← nat miter, join, ← nat sc, ← nat ec, compound⟩
-      insetOutline (d != 0) pen (← [a, b, c, e, x, y].mapM nat) (← nat flatness) (fill != 0)
-        (← WideRoute.points (rest.drop n))
+    | d :: fill :: rest => do
+      let (pen, m, flatness, path) ← routeArgs rest
+      insetOutline (d != 0) pen m flatness (fill != 0) path
     | _ => none⟩
 ]
 

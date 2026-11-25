@@ -121,9 +121,13 @@ def capDistance (r : Ops) (a b : Point) : Nat :=
   let (dx, dy) := (r.sub a.1 b.1, r.sub a.2 b.2)
   r.add (r.mul dx dx) (r.mul dy dy)
 
-/-- Encode each open dash with its selected start and end cap, followed by its points. -/
+structure Span where
+  points : Array Point
+  startCap : Nat
+  endCap : Nat
+
 def walk (fuel : Nat) (d closed : Bool) (p : Array Point) (lengths : Array Nat)
-    (off width dashCap startCap endCap : Nat) : Option (List Nat) := do
+    (off width dashCap startCap endCap : Nat) : Option (List Span) := do
   if p.size < 2 then return []
   let r := ops d
   let first := p.getD 0 (0, 0)
@@ -139,17 +143,24 @@ def walk (fuel : Nat) (d closed : Bool) (p : Array Point) (lengths : Array Nat)
   let state := ⟨startCursor r lengths off, prev, seg, vertex, false, #[]⟩
   let spans ← walkSteps r p lengths segLengths.toArray fuel state
   let threshold := r.mul (r.mul width width) 0x3e800000
-  return spans.toList.zipIdx.flatMap fun (pts, i) =>
+  return spans.toList.zipIdx.map fun (pts, i) =>
     let start := if !closed && i == 0 && flt (capDistance r first (pts.getD 0 first)) threshold then startCap else dashCap
     let end_ := if !closed && i + 1 == spans.size && flt (capDistance r last (pts.getD (pts.size-1) last)) threshold then endCap else dashCap
-    [start, end_, pts.size] ++ pts.toList.flatMap (fun (x, y) => [F32.canon x, F32.canon y])
+    ⟨pts, start, end_⟩
 
-def dashes (fuel : Nat) (d closed adjust : Bool) (width major offset dashCap startCap endCap : Nat)
-    (pat : List Nat) (p : Array Point) : Option (List Nat) :=
+def dashSpans (fuel : Nat) (d closed adjust : Bool) (width major offset dashCap startCap endCap : Nat)
+    (pat : List Nat) (p : Array Point) : Option (List Span) :=
   let r := ops d
   let (lengths, gap) := scaledPattern r width major (adjust && (dashCap == 2 || dashCap == 3)) pat
   let off := r.sub (r.mul width offset) (if closed then gap else 0)
   walk fuel d closed p lengths off width dashCap startCap endCap
+
+/-- Encode each open dash with its selected caps and points for the dash mirror. -/
+def dashes (fuel : Nat) (d closed adjust : Bool) (width major offset dashCap startCap endCap : Nat)
+    (pat : List Nat) (p : Array Point) : Option (List Nat) :=
+  (dashSpans fuel d closed adjust width major offset dashCap startCap endCap pat p).map
+    (·.flatMap fun s => [s.startCap, s.endCap, s.points.size] ++
+      s.points.toList.flatMap fun (x, y) => [F32.canon x, F32.canon y])
 
 /-- Normalization leaves a whole number of dash-gap pairs, including for odd custom patterns. -/
 theorem normalized_pattern_is_even (r : Ops) (width major : Nat) (adjust : Bool) (pat : List Nat) :
@@ -165,7 +176,7 @@ theorem short_path_has_no_dashes (fuel : Nat) (d closed adjust : Bool)
     (width major offset dashCap startCap endCap : Nat) (pat : List Nat) (p : Array Point)
     (h : p.size < 2) :
     dashes fuel d closed adjust width major offset dashCap startCap endCap pat p = some [] := by
-  simp [dashes, walk, h]
+  simp [dashes, dashSpans, walk, h]
 
 /-- An open two-point path uses the line cap at the first endpoint and the dash cap at each cut. -/
 theorem horizontal_caps :

@@ -599,6 +599,9 @@ pub fn widen(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res
     if caps.is_empty() && pen.dash == 0 {
         hit(clause::GP_PEN_WIDE_CENTERED);
     }
+    if pattern(pen).is_some() && (0..=3).contains(&pen.start_cap) && (0..=3).contains(&pen.end_cap) {
+        hit(clause::GP_PEN_WIDE_DASHED);
+    }
     let mut out = match body(r, &figs, pen, m, &minv, (start, end), false)? {
         Ok(o) => o,
         Err(e) => return Ok(Err(e)),
@@ -728,7 +731,7 @@ fn body(r: Round, figs: &[(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &Matrix,
 
 /// GetWidenedPath of an Inset pen: each closed subpath's own 2w centred outline and the whole
 /// path's fill (its fill mode) as aliased device pixels (the pixel offset in m), ANDed, back to
-/// figures by RegionToPath; then the open subpaths widened centred w (clean-room notes
+/// figures by RegionToPath; open subpaths widen centred w, in source figure order (clean-room notes
 /// geometry.md 17, MEASURED in GDI+ itself, golden penalign-1)
 fn inset(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Result<Path, Widened>> {
     use super::gdiplus::FillMode;
@@ -741,24 +744,20 @@ fn inset(r: Round, path: &Path, pen: &Pen, m: &Matrix, flatness: f32) -> Res<Res
     let whole = pixels(r, path, m, fm)?;
     let id = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0];
     let centred = |w: f32| Pen { width: w, align: 0, ..pen.clone() };
-    let (mut out, mut open) = (Vec::new(), Vec::new());
+    let mut out = Vec::new();
     for f in path.figures() {
-        if !f.last().is_some_and(|q| q.close) {
-            open.extend_from_slice(f);
-            continue;
-        }
+        let closed = f.last().is_some_and(|q| q.close);
+        let width = if closed { r.add(pen.width, pen.width) } else { pen.width };
         let sub = Path::of(path.fill, f.to_vec());
-        let w = match widen(r, &sub, &centred(r.add(pen.width, pen.width)), m, flatness)? {
+        let w = match widen(r, &sub, &centred(width), m, flatness)? {
             Ok(w) => w,
             Err(e) => return Ok(Err(e)),
         };
-        let own = pixels(r, &w, &id, FillMode::Winding)?;
-        out.extend(points(&inset_contours(&own, &whole)));
-    }
-    if !open.is_empty() {
-        match widen(r, &Path::of(path.fill, open), &centred(pen.width), m, flatness)? {
-            Ok(w) => out.extend(w.pts),
-            Err(e) => return Ok(Err(e)),
+        if closed {
+            let own = pixels(r, &w, &id, FillMode::Winding)?;
+            out.extend(points(&inset_contours(&own, &whole)));
+        } else {
+            out.extend(w.pts);
         }
     }
     Ok(Ok(Path::of(path.fill, out)))
