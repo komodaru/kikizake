@@ -3,7 +3,7 @@ import Kikizake.F32
 D3DRES.UPDATE*, COPYSUB*, REMOVED), as src/model/d3dres.rs computes them: `boxElems` is
 `box_elems`, `clip` `box_clip`, `updatePlan` `update_plan`, `regionPlan` `region_plan`,
 `resolvePlan` `resolve_plan`, `compatible` `copy_compatible` (mirrors `d3d11.box`,
-`d3d11.boxclip`, `d3d11.update`, `d3d11.region`, `d3d11.resolve`, `d3d11.copyfmt`). -/
+`d3d11.boxclip`, `d3d11.update`, `d3d11.region`, `d3d11.resolve`, `d3d11.copyfmt`, `d3d11.wholeCopy`). -/
 namespace Kikizake.D3d11.Copy
 
 /-- a box in elements: left, top, front inclusive, right, bottom, back exclusive -/
@@ -312,6 +312,61 @@ theorem copy_unknown (d10 : Bool) (a b ga gb : Nat) (fb : Option Fmt) (h : ga �
     compatible d10 a b ga gb none fb = false := by
   simp [compatible, h]
 
+structure WholeCopySide where
+  dim : Nat
+  width : Nat
+  height : Nat
+  depthOrArray : Nat
+  mips : Nat
+  format : Nat
+  usage : Nat
+  samples : Nat
+  group : Nat
+  blockWidth : Nat
+  blockHeight : Nat
+  facts : Option Fmt
+
+def copyShapeReady (d10 : Bool) (dst src : WholeCopySide) : Bool :=
+  dst.dim == src.dim && dst.depthOrArray == src.depthOrArray && dst.mips == src.mips &&
+    dst.samples == src.samples && dst.usage != 1 && (!d10 || dst.samples ≤ 1)
+
+def copyGrid (side : WholeCopySide) : Nat × Nat :=
+  ((side.width + side.blockWidth - 1) / side.blockWidth,
+    (side.height + side.blockHeight - 1) / side.blockHeight)
+
+def wholeCopy (d10 : Bool) (dst src : WholeCopySide) : Bool :=
+  copyShapeReady d10 dst src &&
+    if dst.dim = 4 then dst.width == src.width
+    else compatible d10 dst.format src.format dst.group src.group dst.facts src.facts &&
+      (if dst.group = src.group then dst.width == src.width && dst.height == src.height
+        else copyGrid dst == copyGrid src)
+
+theorem whole_copy_buffer (d10 : Bool) (dst src : WholeCopySide) (h : dst.dim = 4) :
+    wholeCopy d10 dst src = true ↔ copyShapeReady d10 dst src = true ∧ dst.width = src.width := by
+  simp [wholeCopy, h]
+
+theorem whole_copy_same_group (d10 : Bool) (dst src : WholeCopySide)
+    (h : dst.dim ≠ 4) (hg : dst.group = src.group) :
+    wholeCopy d10 dst src = true ↔ copyShapeReady d10 dst src = true ∧
+      dst.width = src.width ∧ dst.height = src.height := by
+  simp [wholeCopy, h, hg, compatible]
+
+theorem whole_copy_block_grid (d10 : Bool) (dst src : WholeCopySide)
+    (h : dst.dim ≠ 4) (hg : dst.group ≠ src.group) :
+    wholeCopy d10 dst src = true ↔ copyShapeReady d10 dst src = true ∧
+      compatible d10 dst.format src.format dst.group src.group dst.facts src.facts = true ∧
+      copyGrid dst = copyGrid src := by
+  simp [wholeCopy, h, hg]
+
+private def wholeCopySide (v : List Nat) : Option WholeCopySide :=
+  match v with
+  | [dim, w, h, da, mips, fmt, usage, samples, group, bw, bh, k, b, s, n, c, u] =>
+    if bw = 0 || bh = 0 then none
+    else
+      let facts := if k = 0 then none else some (Fmt.mk (b != 0) s n c (u != 0))
+      some ⟨dim, w, h, da, mips, fmt, usage, samples, group, bw, bh, facts⟩
+  | _ => none
+
 def integerMean (sum count : Nat) : Nat := (sum + count / 2) / count
 
 /-- The exact interval of sums that round to the given value. -/
@@ -395,6 +450,12 @@ def mirrors : List Mirror := [
     | [sn, dn, du, groups, int, subs, sw, sh, dw, dh] =>
       pure [(resolvePlan sn dn du (groups != 0) (int != 0) (subs != 0) sw sh dw dh).code]
     | _ => none⟩,
+  ⟨"d3d11.wholeCopy", fun a => do
+    let dev :: sides ← args6 a | none
+    if dev > 2 then none else
+      let dst ← wholeCopySide (sides.take 17)
+      let src ← wholeCopySide (sides.drop 17)
+      pure [if wholeCopy (dev == 0) dst src then 1 else 0]⟩,
   ⟨"d3d11.copyfmt", fun a => do
     let v ← args6 a
     match v with

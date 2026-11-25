@@ -1002,17 +1002,30 @@ fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: O
     Ok(false)
 }
 
+pub(crate) fn copy_resource_allowed(dev: Dev, dst: &Desc, src: &Desc) -> bool {
+    if dst.dim != src.dim || dst.mips != src.mips || dst.da != src.da || dst.count != src.count
+        || dst.usage == 1 || (dev == Dev::D10 && dst.count > 1) {
+        return false;
+    }
+    if dst.dim == 4 {
+        return dst.w == src.w;
+    }
+    if !copy_compatible(dst.fmt, src.fmt, dev) {
+        return false;
+    }
+    if group(dst.fmt) == group(src.fmt) {
+        return (dst.w, dst.h) == (src.w, src.h);
+    }
+    let blocks = |d: &Desc| {
+        let f = format(d.fmt);
+        (f.map_or(d.w, |f| d.w.div_ceil(f.bw)), f.map_or(d.h, |f| d.h.div_ceil(f.bh)))
+    };
+    blocks(dst) == blocks(src)
+}
+
 pub(crate) fn copy_resource(dev: Dev, dst: &mut Resource, src: &Resource) -> Res<()> {
     hit(clause::D3DRES_COPY);
-    let (a, b) = (&dst.d, &src.d);
-    let same_shape = a.dim == b.dim && a.mips == b.mips && a.da == b.da && a.count == b.count;
-    let blocks = |r: &Resource| {
-        let f = r.fmt();
-        (f.map_or(r.d.w, |f| r.d.w.div_ceil(f.bw)), f.map_or(r.d.h, |f| r.d.h.div_ceil(f.bh)))
-    };
-    // (MEASURED, WARP: probe-rt-ms4-copy) Direct3D 10 copies no multisampled resource
-    let ok = same_shape && dst.d.usage != 1 && !(dev == Dev::D10 && a.count > 1) && (a.dim == 4 && a.w == b.w || a.dim != 4 && copy_compatible(a.fmt, b.fmt, dev) && (if group(a.fmt) == group(b.fmt) { (a.w, a.h) == (b.w, b.h) } else { blocks(dst) == blocks(src) }));
-    if !ok {
+    if !copy_resource_allowed(dev, &dst.d, &src.d) {
         hit(clause::D3DRES_COPY_IGNORED);
         return Ok(());
     }

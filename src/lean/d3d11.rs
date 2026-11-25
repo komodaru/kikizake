@@ -1062,6 +1062,22 @@ fn fmt_facts(id: u32) -> [i64; 6] {
     [1, i64::from(f.block()), i64::from(f.bits), num, i64::try_from(f.comps.len()).unwrap_or(0), i64::from(uniform)]
 }
 
+fn whole_copy_facts(d: crate::model::d3dres::Desc) -> Vec<i64> {
+    let [bw, bh] = crate::model::dxgifmt::format(d.fmt).map_or([1, 1], |f| [f.bw, f.bh]);
+    [d.dim, d.w, d.h, d.da, d.mips, d.fmt, d.usage, d.count, crate::model::d3dres::group(d.fmt), bw, bh]
+        .map(i64::from).into_iter().chain(fmt_facts(d.fmt)).collect()
+}
+
+fn whole_copy_side(words: &[i64]) -> Option<crate::model::d3dres::Desc> {
+    use crate::model::d3dres::Desc;
+    let v = |i| arg::<u32>(words, i);
+    let d = Desc {
+        dim: v(0)?, w: v(1)?, h: v(2)?, da: v(3)?, mips: v(4)?, fmt: v(5)?, usage: v(6)?, count: v(7)?,
+        bind: 0, cpu: 0, misc: 0, q: 0,
+    };
+    (words == whole_copy_facts(d).as_slice()).then_some(d)
+}
+
 fn plan_code(p: crate::model::d3dres::Plan) -> Option<Vec<i64>> {
     use crate::model::d3dres::Plan;
     one(match p {
@@ -1187,6 +1203,66 @@ pub static COPY_MIRRORS: &[Mirror] = &[
             let g = |i: usize| arg::<u64>(a, i);
             let plan = crate::model::d3dres::resolve_plan(arg(a, 0)?, (arg(a, 1)?, arg(a, 2)?), flag(a, 3)?, flag(a, 4)?, flag(a, 5)?, [g(6)?, g(7)?], [g(8)?, g(9)?]);
             plan_code(plan)
+        },
+    },
+    Mirror {
+        name: "d3d11.wholeCopy",
+        lean: COPY,
+        domain: Domain::Sampled("every format pair 0..200 on three devices, with equal texel sizes and equal storage grids, plus 10,000 descriptor pairs"),
+        inputs: |each| {
+            use crate::model::d3dres::Desc;
+            let desc = Desc { dim: 2, w: 2, h: 2, da: 1, mips: 1, fmt: 0, usage: 0, count: 1, bind: 0, cpu: 0, misc: 0, q: 0 };
+            let mut emit = |device, dst, src| {
+                let mut input = vec![device];
+                input.extend(whole_copy_facts(dst));
+                input.extend(whole_copy_facts(src));
+                each(&input);
+            };
+            let grid = |fmt| {
+                let [bw, bh] = crate::model::dxgifmt::format(fmt).map_or([1, 1], |f| [f.bw, f.bh]);
+                Desc { fmt, w: bw.saturating_mul(2), h: bh.saturating_mul(2), ..desc }
+            };
+            for dev in 0..3 {
+                for a in 0..=200 {
+                    for b in 0..=200 {
+                        emit(dev, Desc { fmt: a, ..desc }, Desc { fmt: b, ..desc });
+                        emit(dev, grid(a), grid(b));
+                    }
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0x76ee_11ca);
+            let word = |value| u32::try_from(value).unwrap_or_default();
+            for _ in 0..10_000 {
+                let a = Desc {
+                    dim: word(rng.range(1, 4)), w: word(rng.range(1, U32)), h: word(rng.range(1, U32)),
+                    da: word(rng.range(1, 8)), mips: word(rng.range(1, 8)), count: word(rng.range(1, 4)),
+                    usage: word(rng.range(0, 3)), fmt: word(rng.range(0, 200)), ..desc
+                };
+                let mut b = a;
+                match rng.range(0, 7) {
+                    0 => b.dim = word(rng.range(1, 4)),
+                    1 => b.da = a.da.saturating_add(1),
+                    2 => b.mips = a.mips.saturating_add(1),
+                    3 => b.count = a.count.saturating_add(1),
+                    4 => b.w = a.w.saturating_sub(1),
+                    5 => b.h = a.h.saturating_sub(1),
+                    6 => b.fmt = word(rng.range(0, 200)),
+                    _ => {}
+                }
+                emit(rng.range(0, 2), a, b);
+            }
+        },
+        model: |a| {
+            use crate::model::d3dres::{Dev, copy_resource_allowed};
+            let (&device, sides) = a.split_first()?;
+            let (dst, src) = sides.split_at_checked(17)?;
+            let dev = match device {
+                0 => Dev::D10,
+                1 => Dev::D101(0xa100),
+                2 => Dev::D11(0xb000),
+                _ => return None,
+            };
+            one(i64::from(copy_resource_allowed(dev, &whole_copy_side(dst)?, &whole_copy_side(src)?)))
         },
     },
     Mirror {
