@@ -1580,21 +1580,50 @@ fn wgl_bitmap_line(code: i32, encoding: &str) -> Res<list::Line> {
     Ok(list::Line { tok, unpack: Some([0, 0, 0, 0, 0, 1]), arrays: None })
 }
 
-fn wgl_outline(code: i32, format: i32) -> Res<(&'static str, &'static str, &'static str)> {
-    if matches!(code, 32 | 160) {
-        return Ok(("0.00048828125 0.00048828125 0 0 0.248535156 0", "0.24853515625", ""));
+/// Arial outline lists measured on the generic DIB context. The first row maps
+/// the A and W byte ranges to shared geometries. Each geometry has a metrics
+/// row, XY coordinates in units of 2^-23, and ordered vertex indices for its
+/// line loops and triangles.
+fn wgl_outline(code: i32, encoding: &str, format: i32) -> Res<(&'static str, Vec<list::Line>)> {
+    let code = u8::try_from(code).map_err(|_| Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
+    hit(clause::WGL_FONT_OUTLINE_BYTE);
+    static ROWS: std::sync::OnceLock<Vec<&str>> = std::sync::OnceLock::new();
+    let rows = ROWS.get_or_init(|| include_str!("opengl_arial_outline_bytes.txt").lines().collect());
+    let (lookup, rows) = rows.split_first().ok_or(Fail::Bad)?;
+    let index = usize::from(u16::from(code) | if encoding == "w" { 256 } else { 0 });
+    let row = lookup.split_whitespace().nth(index).ok_or(Fail::Bad)?;
+    let row = usize::from_str_radix(row, 16).map_err(|_| Fail::Bad)?;
+    let mut fields = rows.get(row).ok_or(Fail::Bad)?.split('|').map(str::trim);
+    let metrics = fields.next().ok_or(Fail::Bad)?;
+    let coords = fields.next().ok_or(Fail::Bad)?;
+    let loops = fields.next().ok_or(Fail::Bad)?;
+    let triangles = fields.next().ok_or(Fail::Bad)?;
+    let advance = metrics.split_whitespace().nth(4).ok_or(Fail::Bad)?;
+
+    const COORD_UNIT: f64 = 1.0 / 8_388_608.0;
+    let scalar = |word| i32::from_str_radix(word, 16)
+        .map(|value| tri::narrow(f64::from(value) * COORD_UNIT)).map_err(|_| Fail::Bad);
+    let mut coords = coords.split_whitespace();
+    let mut vertices = Vec::new();
+    while let Some(x) = coords.next() {
+        let y = coords.next().ok_or(Fail::Bad)?;
+        vertices.push(format!("gl glVertex2f {} {}", scalar(x)?, scalar(y)?));
     }
-    let key = format!("{code} {format}");
-    for section in include_str!("opengl_arial_outline.txt").split('|') {
-        let mut fields = section.trim().splitn(4, '\n').map(str::trim_end);
-        if fields.next() == Some(key.as_str()) {
-            let advance = fields.next().ok_or(Fail::Bad)?;
-            let metrics = fields.next().ok_or(Fail::Bad)?;
-            let geometry = fields.next().ok_or(Fail::Bad)?;
-            return Ok((metrics, advance, geometry));
+    let line = |command: &str| list::Line {
+        tok: command.split_whitespace().map(String::from).collect(), unpack: None, arrays: None,
+    };
+    let mut lines = vec![line("gl glFrontFace 0x901"), line("gl glNormal3f 0 0 1")];
+    let (mode, groups) = if format == 0 { ("gl glBegin 2", loops) } else { ("gl glBegin 4", triangles) };
+    for group in groups.split('/').filter(|group| !group.is_empty()) {
+        lines.push(line(mode));
+        for index in group.split_whitespace() {
+            let index = usize::from_str_radix(index, 16).map_err(|_| Fail::Bad)?;
+            lines.push(line(vertices.get(index).ok_or(Fail::Bad)?));
         }
+        lines.push(line("gl glEnd"));
     }
-    Err(Fail::Unmodeled(crate::spec::open::WGL_OTHER))
+    lines.push(line(&format!("gl glTranslatef {advance} 0 0")));
+    Ok((metrics, lines))
 }
 
 /// Last list name in a nonempty font batch supported by the runner.
@@ -1706,12 +1735,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                     let format = integer(fmt)?;
                     for offset in 0..count {
                         let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
-                        let (glyph, advance, geometry) = wgl_outline(code, format)?;
-                        let translate = format!("gl glTranslatef {advance} 0 0");
-                        let lines: Vec<list::Line> = ["gl glFrontFace 0x901", "gl glNormal3f 0 0 1"].into_iter()
-                            .chain(geometry.lines()).chain([translate.as_str()]).map(|command| list::Line {
-                                tok: command.split_whitespace().map(String::from).collect(), unpack: None, arrays: None,
-                            }).collect();
+                        let (glyph, lines) = wgl_outline(code, encoding, format)?;
                         if base == 0 {
                             for line in &lines { ctx.scalar_command(&line.tok)?; }
                             ctx.err = 0;

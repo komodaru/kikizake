@@ -1828,6 +1828,60 @@ end
     }
 }
 
+#[test]
+fn wgl_byte_range_outlines_match_native_drawing_and_feedback() {
+    // Each row comes from identical native x86 and x64 captures. The feedback digest
+    // covers the first 1024 words, including when the runner's buffer overflows.
+    fn checksum(bytes: impl IntoIterator<Item = u8>) -> u32 {
+        bytes.into_iter().fold(2166136261u32, |hash, byte| {
+            (hash ^ u32::from(byte)).wrapping_mul(16777619)
+        })
+    }
+
+    let mut failures = Vec::new();
+    let fixtures: Vec<_> = include_str!("fixtures/opengl_outline_byte_range.txt").lines().collect();
+    assert_eq!(fixtures.len(), 2 * 256 * 2);
+    for (index, fixture) in fixtures.into_iter().enumerate() {
+        let (values, expected_metrics) = fixture.split_once(" | ").unwrap();
+        let mut values = values.split_whitespace();
+        let encoding = values.next().unwrap();
+        let code = values.next().unwrap();
+        let format = values.next().unwrap();
+        assert_eq!(encoding, if index < 512 { "a" } else { "w" });
+        assert_eq!(code.parse::<usize>().unwrap(), index / 2 % 256);
+        assert_eq!(format.parse::<usize>().unwrap(), index % 2);
+        let pixels = u32::from_str_radix(values.next().unwrap(), 16).unwrap();
+        let start = format!("case outline\nglctx 32 choose 0x38 0 32 0 0 32 8\nwglx fontoutline {encoding} {code} 1 100 {format}\n");
+        let input = format!("{start}gl glTranslatef -0.75 -0.75 0\ngl glScalef 2 2 1\ngl glCallList 100\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\nend\n");
+        let rendered = kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap();
+        assert_eq!(&rendered[..3], ["glctx ok 1", "wglx fontoutline 1 0", expected_metrics]);
+        assert_eq!(rendered[4], "glerr 0");
+        let view = rendered[3].strip_prefix("read ").unwrap();
+        assert_eq!(view.len(), 2048);
+        let readback = view.as_bytes().chunks_exact(2)
+            .map(|byte| u8::from_str_radix(std::str::from_utf8(byte).unwrap(), 16).unwrap());
+        if checksum(readback) != pixels {
+            failures.push(format!("{encoding} {code} {format} pixels"));
+        }
+
+        for (size, value) in zip_eq([4096, 8192, 16384], values) {
+            let (length, digest) = value.split_once(':').unwrap();
+            let length: usize = length.parse().unwrap();
+            let digest = u32::from_str_radix(digest, 16).unwrap();
+            let prefix = length.clamp(1, 1024);
+            let input = format!("{start}gl glViewport 0 0 {size} {size}\ngl glScalef 0.5 0.5 1\nglp glFeedbackBuffer ii 1024 0x600 obuf\nglr glRenderMode i i 0x1c01\ngl glCallList 100\nglr glRenderMode i i 0x1c00\nglobuf u {prefix}\nglerr\nend\n");
+            let output = kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap();
+            let expected_return = if length > 1024 { "ret -1".into() } else { format!("ret {length}") };
+            let words = output[5].split_whitespace().skip(1).take(length)
+                .flat_map(|value| value.parse::<u32>().unwrap().to_le_bytes());
+            if output[4] != expected_return || checksum(words) != digest || output[6] != "glerr 0" {
+                failures.push(format!("{encoding} {code} {format} feedback {size}"));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{} differences: {:?}", failures.len(), &failures[..failures.len().min(70)]);
+}
+
 proptest! {
     #[test]
     fn wgl_font_batches_replace_only_the_requested_lists(
@@ -1836,8 +1890,8 @@ proptest! {
     ) {
         use std::fmt::Write;
         let encoding = if wide { "w" } else { "a" };
-        let count = if outline { 1 + length % 6 } else { length };
-        let first = if outline { 65 + u32::from(selector) % (7 - count) } else { u32::from(selector) % (257 - count) };
+        let count = length;
+        let first = u32::from(selector) % (257 - count);
         let end = base + count;
         let mut input = String::from("case replace\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
         // A neighboring list changes the list base when called. The overwritten
