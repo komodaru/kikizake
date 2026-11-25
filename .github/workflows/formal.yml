@@ -47,7 +47,7 @@ jobs:
           {
             awk '$2 == "kani" { split($1, a, "::"); print a[2] }' spec/laws.txt
             # The comparator checks the test framework itself and has no Windows API clause.
-            printf '%s\n' comparator_question_mark comparator_exact_alternatives
+            printf '%s\n' comparator_question_mark comparator_exact_alternatives comparator_report_structure comparator_report_lines
           } | sort -u > expected.txt
           sed -nE 's/^Checking harness .*::([[:alnum:]_]+)\.\.\.$/\1/p' kani.log | sort -u > checked.txt
           comm -23 expected.txt checked.txt > missing.txt

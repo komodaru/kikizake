@@ -51,64 +51,127 @@ fn is_one_of(mut list: &[u8], g: &[u8]) -> bool {
     }
 }
 
+struct OutputView<'a, Line, Lines> {
+    head: &'a [Line],
+    cases: &'a [(Line, Lines)],
+    done: bool,
+    after_done: bool,
+}
+
+impl<'a> From<&'a Output> for OutputView<'a, String, Vec<String>> {
+    fn from(output: &'a Output) -> Self {
+        Self { head: &output.head, cases: &output.cases, done: output.done, after_done: output.after_done }
+    }
+}
+
+#[derive(Default)]
+struct Counts {
+    cases: usize,
+    same: usize,
+    unmodeled: usize,
+}
+
+enum Difference<'a, Line> {
+    AfterDone,
+    NoExpectedCases,
+    Header,
+    Missing(&'a str),
+    CaseName { position: usize, expected: &'a str, actual: &'a str },
+    InvalidModel(&'a str),
+    Line { name: &'a str, index: usize, lines: &'a [Line], actual: Option<&'a str> },
+    Unexpected(&'a str),
+    End,
+}
+
+fn describe_line(name: &str, index: usize, lines: &[String], actual: Option<&str>) -> String {
+    let expected = lines.get(index).map(String::as_str);
+    let number = index.saturating_add(1);
+    let mut message = format!("{name}: line {number}: want {:?} got {:?}",
+        expected.unwrap_or("(none)"), actual.unwrap_or("(none)"));
+    if let (Some(a), Some(b)) = (expected, actual)
+        && a.len() == b.len() && a.bytes().all(|c| c.is_ascii_hexdigit()) {
+        let bpp = lines.iter().take(number).rev()
+            .find_map(|line| line.strip_prefix("px "))
+            .and_then(|px| px.split(' ').nth(3))
+            .and_then(|depth| depth.parse::<u32>().ok()).unwrap_or(0);
+        if bpp > 0 {
+            let row = lines.iter().take(index).rev().take_while(|line| !line.starts_with("px ")).count();
+            if let Some(x) = first_pixel(a, b, bpp) {
+                message += &format!(" (row {row}, first pixel {x})");
+            }
+        }
+    }
+    message
+}
+
 pub fn compare(want: &Output, got: &Output) -> Report {
-    let mut r = Report::default();
-    if want.after_done || got.after_done { r.differ.push("output after done".into()); }
-    if want.cases.is_empty() {
-        r.differ.push("no expected cases".into());
-    }
-    if want.head != got.head {
-        r.differ.push(format!("output header: want {:?}, got {:?}", want.head, got.head));
-    }
+    let mut differ = Vec::new();
+    let counts = compare_views(want.into(), got.into(), line_matches, |difference| differ.push(match difference {
+        Difference::AfterDone => "output after done".into(),
+        Difference::NoExpectedCases => "no expected cases".into(),
+        Difference::Header => format!("output header: want {:?}, got {:?}", want.head, got.head),
+        Difference::Missing(name) => format!("{name}: missing (the program stopped or skipped it)"),
+        Difference::CaseName { position, expected, actual } => format!("case {position}: want {expected}, got {actual}"),
+        Difference::InvalidModel(name) => format!("{name}: invalid model input"),
+        Difference::Line { name, index, lines, actual } => describe_line(name, index, lines, actual),
+        Difference::Unexpected(name) => format!("{name}: unexpected case"),
+        Difference::End => format!("program end: want {} got {}", if want.done { "done" } else { "a crash" }, if got.done { "done" } else { "a crash" }),
+    }));
+    Report { cases: counts.cases, same: counts.same, unmodeled: counts.unmodeled, differ }
+}
+
+/// Walk borrowed output with a diagnostic sink. The verifier uses fixed arrays
+/// and counts differences through the same traversal as the report.
+fn compare_views<'a, Line, Lines>(
+    want: OutputView<'a, Line, Lines>,
+    got: OutputView<'a, Line, Lines>,
+    mut matches: impl FnMut(Option<&str>, Option<&str>) -> bool,
+    mut report: impl FnMut(Difference<'a, Line>),
+) -> Counts
+where
+    Line: AsRef<str> + PartialEq + 'a,
+    Lines: AsRef<[Line]> + 'a,
+{
+    let mut counts = Counts::default();
+    if want.after_done || got.after_done { report(Difference::AfterDone); }
+    if want.cases.is_empty() { report(Difference::NoExpectedCases); }
+    if want.head != got.head { report(Difference::Header); }
     for (i, (name, wl)) in want.cases.iter().enumerate() {
-        r.cases += 1;
+        counts.cases += 1;
         let Some((actual, gl)) = got.cases.get(i) else {
-            r.differ.push(format!("{name}: missing (the program stopped or skipped it)"));
+            report(Difference::Missing(name.as_ref()));
             continue;
         };
+        let (name, actual) = (name.as_ref(), actual.as_ref());
         if actual != name {
-            r.differ.push(format!("case {}: want {name}, got {actual}", i + 1));
+            report(Difference::CaseName { position: i + 1, expected: name, actual });
             continue;
         }
-        if wl.first().is_some_and(|l| l == "invalid case" || l == "unmodeled bad line") {
-            r.differ.push(format!("{name}: invalid model input"));
+        let (wl, gl) = (wl.as_ref(), gl.as_ref());
+        if wl.first().map(AsRef::as_ref).is_some_and(|l| l == "invalid case" || l == "unmodeled bad line") {
+            report(Difference::InvalidModel(name));
             continue;
         }
-        if wl.first().is_some_and(|l| l.starts_with("unmodeled ")) {
-            r.unmodeled += 1;
+        if wl.first().map(AsRef::as_ref).is_some_and(|l| l.starts_with("unmodeled ")) {
+            counts.unmodeled += 1;
             continue;
         }
-        let mut bpp = 0;
-        let mut diff = None;
-        for i in 0..wl.len().max(gl.len()) {
-            let (a, b) = (wl.get(i).map(String::as_str), gl.get(i).map(String::as_str));
-            if let Some(px) = a.and_then(|a| a.strip_prefix("px ")) {
-                bpp = px.split(' ').nth(3).and_then(|v| v.parse().ok()).unwrap_or(0);
-            }
-            if !line_matches(a, b) {
-                let mut d = format!("{name}: line {}: want {:?} got {:?}", i + 1, a.unwrap_or("(none)"), b.unwrap_or("(none)"));
-                if let (Some(a), Some(b), true) = (a, b, bpp > 0) && a.len() == b.len() && a.bytes().all(|c| c.is_ascii_hexdigit()) {
-                    let row = (0..i).rev().take_while(|&j| !wl[j].starts_with("px ")).count();
-                    if let Some(x) = first_pixel(a, b, bpp) {
-                        d += &format!(" (row {row}, first pixel {x})");
-                    }
-                }
-                diff = Some(d);
-                break;
-            }
-        }
-        match diff {
-            Some(d) => r.differ.push(d),
-            None => r.same += 1,
+        let first_difference = (0..wl.len().max(gl.len())).find(|&index| {
+            !matches(wl.get(index).map(AsRef::as_ref), gl.get(index).map(AsRef::as_ref))
+        });
+        if let Some(index) = first_difference {
+            report(Difference::Line {
+                name, index, lines: wl, actual: gl.get(index).map(AsRef::as_ref),
+            });
+        } else {
+            counts.same += 1;
         }
     }
     for (name, _) in got.cases.iter().skip(want.cases.len()) {
-        r.differ.push(format!("{name}: unexpected case"));
+        report(Difference::Unexpected(name.as_ref()));
     }
-    if want.done != got.done {
-        r.differ.push(format!("program end: want {} got {}", if want.done { "done" } else { "a crash" }, if got.done { "done" } else { "a crash" }));
-    }
-    r
+    if want.done != got.done { report(Difference::End); }
+    counts
 }
 
 pub fn compare_text(want: &str, got: &str) -> Report {
@@ -124,6 +187,80 @@ mod proofs {
         let byte = kani::any();
         kani::assume(byte <= 0x7f);
         byte
+    }
+
+    #[kani::proof]
+    #[kani::unwind(12)]
+    fn comparator_report_structure() {
+        let want_header: bool = kani::any();
+        let got_header: bool = kani::any();
+        let want_count: u8 = kani::any();
+        let got_count: u8 = kani::any();
+        kani::assume(want_count <= 2 && got_count <= 2);
+        let names_match: [bool; 2] = kani::any();
+        let want_done: bool = kani::any();
+        let got_done: bool = kani::any();
+        let want_extra: bool = kani::any();
+        let got_extra: bool = kani::any();
+        let [first_ok, second_ok] = names_match;
+        let header = ["h"];
+        let empty: &[&str] = &[];
+        let expected = [("a", empty), ("b", empty)];
+        let actual = [(if first_ok { "a" } else { "b" }, empty),
+            (if second_ok { "b" } else { "a" }, empty)];
+        let want = super::OutputView {
+            head: if want_header { &header } else { empty },
+            cases: &expected[..usize::from(want_count)], done: want_done, after_done: want_extra,
+        };
+        let got = super::OutputView {
+            head: if got_header { &header } else { empty },
+            cases: &actual[..usize::from(got_count)], done: got_done, after_done: got_extra,
+        };
+        let mut differences = 0;
+        let report = super::compare_views(want, got, |_, _| unreachable!(), |_| differences += 1);
+        let common = want_count.min(got_count);
+        let same = usize::from(common >= 1 && first_ok) + usize::from(common >= 2 && second_ok);
+        let case_errors = usize::from(want_count.max(got_count)) - same;
+        let structure_errors = usize::from(want_header != got_header) + usize::from(want_count == 0)
+            + usize::from(want_done != got_done) + usize::from(want_extra || got_extra);
+        assert_eq!(differences, structure_errors + case_errors);
+        assert_eq!(report.same, same);
+        assert_eq!(report.cases, usize::from(want_count));
+        assert_eq!(report.unmodeled, 0);
+    }
+
+    #[kani::proof]
+    #[kani::unwind(20)]
+    fn comparator_report_lines() {
+        let kind: u8 = kani::any();
+        let wanted = match kind {
+            0 => "a", 1 => "unmodeled RULE", 2 => "invalid case", _ => "unmodeled bad line",
+        };
+        let present: bool = kani::any();
+        let want_tail: bool = kani::any();
+        let got_tail: bool = kani::any();
+        let first_matches: bool = kani::any();
+        let tail_matches: bool = kani::any();
+        let expected_lines = [wanted, "c"];
+        let actual_lines = [if present { "b" } else { "d" }, "d"];
+        let expected = [("a", &expected_lines[..1 + usize::from(want_tail)])];
+        let actual = [("a", &actual_lines[..usize::from(present) + usize::from(got_tail)])];
+        let want = super::OutputView { head: &[], cases: &expected, done: true, after_done: false };
+        let got = super::OutputView { head: &[], cases: &actual, done: true, after_done: false };
+        // Give either row an arbitrary match result. The separate line proofs check
+        // the production matcher's handling of wildcards and enumerated choices.
+        let matches = |a: Option<&str>, b: Option<&str>| match (a, b) {
+            (Some("a"), Some("b")) => first_matches,
+            (Some("c"), Some("d")) => tail_matches,
+            _ => false,
+        };
+        let mut differences = 0;
+        let report = super::compare_views(want, got, matches, |_| differences += 1);
+        let matches_body = kind == 0 && present && first_matches && want_tail == got_tail
+            && (!want_tail || tail_matches);
+        assert_eq!(differences, usize::from(!(matches_body || kind == 1)));
+        assert_eq!(report.same, usize::from(matches_body));
+        assert_eq!(report.unmodeled, usize::from(kind == 1));
     }
 
     #[kani::proof]
@@ -155,4 +292,13 @@ fn wildcard_requires_a_hex_digit_even_when_the_actual_byte_is_question_mark() {
     assert!(!line_matches(Some("??"), Some("??")));
     assert!(line_matches(Some("??"), Some("fA")));
     assert!(line_matches(Some("oneof ?? | AB"), Some("??")));
+}
+
+#[test]
+fn first_differing_pixel_is_relative_to_the_last_image_header() {
+    let want = "case image\npx 0 8 1 1\n00\npx 0 2 2 32\n0000000000000000\n0000000000000000\ndone\n";
+    let got = want.replace("0000000000000000\ndone", "0000000000110000\ndone");
+    assert_eq!(compare_text(want, &got).differ, [
+        "image: line 5: want \"0000000000000000\" got \"0000000000110000\" (row 1, first pixel 1)",
+    ]);
 }
