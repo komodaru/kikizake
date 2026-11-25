@@ -1585,14 +1585,14 @@ fn wgl_bitmap_line(code: i32, encoding: &str) -> Res<list::Line> {
 /// row, XY coordinates in units of 2^-23, and ordered vertex indices for its
 /// line loops and triangles.
 fn wgl_outline(code: i32, encoding: &str, format: i32) -> Res<(&'static str, Vec<list::Line>)> {
-    let code = u8::try_from(code).map_err(|_| Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
+    let code = u8::try_from(code).ok().ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
     hit(clause::WGL_FONT_OUTLINE_BYTE);
     static ROWS: std::sync::OnceLock<Vec<&str>> = std::sync::OnceLock::new();
     let rows = ROWS.get_or_init(|| include_str!("opengl_arial_outline_bytes.txt").lines().collect());
     let (lookup, rows) = rows.split_first().ok_or(Fail::Bad)?;
     let index = usize::from(u16::from(code) | if encoding == "w" { 256 } else { 0 });
     let row = lookup.split_whitespace().nth(index).ok_or(Fail::Bad)?;
-    let row = usize::from_str_radix(row, 16).map_err(|_| Fail::Bad)?;
+    let row = usize::from_str_radix(row, 16).ok().ok_or(Fail::Bad)?;
     let mut fields = rows.get(row).ok_or(Fail::Bad)?.split('|').map(str::trim);
     let metrics = fields.next().ok_or(Fail::Bad)?;
     let coords = fields.next().ok_or(Fail::Bad)?;
@@ -1601,8 +1601,8 @@ fn wgl_outline(code: i32, encoding: &str, format: i32) -> Res<(&'static str, Vec
     let advance = metrics.split_whitespace().nth(4).ok_or(Fail::Bad)?;
 
     const COORD_UNIT: f64 = 1.0 / 8_388_608.0;
-    let scalar = |word| i32::from_str_radix(word, 16)
-        .map(|value| tri::narrow(f64::from(value) * COORD_UNIT)).map_err(|_| Fail::Bad);
+    let scalar = |word| i32::from_str_radix(word, 16).ok()
+        .map(|value| tri::narrow(f64::from(value) * COORD_UNIT)).ok_or(Fail::Bad);
     let mut coords = coords.split_whitespace();
     let mut vertices = Vec::new();
     while let Some(x) = coords.next() {
@@ -1617,7 +1617,7 @@ fn wgl_outline(code: i32, encoding: &str, format: i32) -> Res<(&'static str, Vec
     for group in groups.split('/').filter(|group| !group.is_empty()) {
         lines.push(line(mode));
         for index in group.split_whitespace() {
-            let index = usize::from_str_radix(index, 16).map_err(|_| Fail::Bad)?;
+            let index = usize::from_str_radix(index, 16).ok().ok_or(Fail::Bad)?;
             lines.push(line(vertices.get(index).ok_or(Fail::Bad)?));
         }
         lines.push(line("gl glEnd"));
