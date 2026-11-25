@@ -265,9 +265,11 @@ def roundCap (r : Ops) (b : Band) (p g : Pair) (start : Bool) : List Out :=
   let k := 0x3f0d6289
   let units := [(one, 0), (one, k), (k, one), (0, one), (neg F k, one),
     (neg F one, k), (neg F one, 0)]
+  let signedZero := r.sub 0 0
   units.zipIdx.map fun ((u, v), i) =>
-    ⟨(r.add (r.sub (r.mul u x) (r.mul v y)) c.1, r.add (r.add (r.mul v x) (r.mul u y)) c.2),
-      if i == 0 then 1 else 3⟩
+    let px := r.add (r.sub (r.mul u x) (r.mul v y)) c.1
+    let py := r.add (r.add (r.mul v x) (r.mul u y)) c.2
+    if i == 0 then line (px, py) else bezier (r.add px signedZero, r.add py signedZero)
 
 private def capArc (r : Ops) (b : Band) (p g : Pair) (start doubleRound : Bool) : List Out :=
   if !doubleRound then roundCap r b p g start else
@@ -321,18 +323,20 @@ def openBand (d : Bool) (b : Band) (p : Array Pair) (startCap endCap : Nat)
   let capShift := r.mul b.width 0xbf000000
   let atStart w :=
     let q := off r w startNormal start
-    if startCap == 1 then add r q (scale r capShift first.g) else q
-  let atEnd w :=
+    let shift := if startCap == 1 then capShift else 0x80000000
+    add r q (scale r shift first.g)
+  let atEnd w right :=
     let q := off r w last.n end_
-    if endCap == 1 then sub r q (scale r capShift last.g) else q
+    let shift := if endCap == 1 then capShift else 0x80000000
+    if endCap == 3 && right then q else sub r q (scale r shift last.g)
   let (innerLeft, innerRight) := (List.range (n - 2)).foldl (fun (l, rt) i =>
     let (a, c) := bandJoin d b (getPoint p i) (getPoint p (i + 1)) (getPoint p (i + 2))
     (l ++ a, rt ++ c)) ([], [])
-  let side w inner := repairSide r first last (line (atStart w) :: inner ++ [line (atEnd w)])
-  let (left, right) := (side b.left innerLeft, side b.right innerRight)
+  let side w inner right := repairSide r first last (line (atStart w) :: inner ++ [line (atEnd w right)])
+  let (left, right) := (side b.left innerLeft false, side b.right innerRight true)
   let firstLeft := (left.head?.getD (line (atStart b.left))).point
   let firstRight := (right.head?.getD (line (atStart b.right))).point
-  let lastLeft := (left.getLast?.getD (line (atEnd b.left))).point
+  let lastLeft := (left.getLast?.getD (line (atEnd b.left false))).point
   let front := firstPoint left
   let back := reverseSide right
   let (front, back) :=
@@ -350,7 +354,10 @@ def openBand (d : Bool) (b : Band) (p : Array Pair) (startCap endCap : Nat)
       let rightStart := off r b.right first.n start
       let optional := if closeTo firstRight rightStart then [] else [line rightStart]
       out ++ optional ++ [tip, line (off r b.left first.n start)]
-    else out ++ [tip, line firstLeft]
+    else
+      let base := off r b.left startNormal start
+      let zeroFrom x y := if isZero x && isZero y then y else x
+      out ++ [tip, line (zeroFrom firstLeft.1 base.1, zeroFrom firstLeft.2 base.2)]
   else if startCap == 2 then
     let cap := capArc r b start first.g true doubleRound
     if wrapped then
@@ -432,6 +439,28 @@ theorem horizontal_round_caps :
      3, 0x4091ac51, one, 3, 0x40800000, one, 1, 0, one, 3, 0xbf0d6289, one,
      3, 0xbf800000, 0x3f0d6289, 3, 0xbf800000, 0, 3, 0xbf800000, 0xbf0d6289,
      3, 0xbf0d6289, 0xbf800000, 0x83, 0, 0xbf800000] := by
+  decide +kernel
+
+theorem flat_endpoint_signed_zero :
+    mirrorBand true false horizontalBand #[(0, one), (0x40400000, one)] 0 0 =
+    [1, 4, 0, 0x80000000, 0x80000000, 1, 0x40400000, 0x80000000,
+      1, 0x40400000, 0x40000000, 0x81, 0x80000000, 0x40000000] := by
+  decide +kernel
+
+theorem round_cap_signed_zero :
+    mirrorBand true false horizontalBand #[(0xc0400000, one), (0, one)] 2 2 =
+    [1, 15, 0, 0xc0400000, 0x80000000, 1, 0x80000000, 0x80000000, 3, 0x3f0d6289, 0x80000000,
+      3, one, 0x3ee53aee, 3, one, one, 3, one, 0x3fc6b144, 3, 0x3f0d6289, 0x40000000,
+      3, 0x80000000, 0x40000000, 1, 0xc0400000, 0x40000000, 3, 0xc06358a3, 0x40000000,
+      3, 0xc0800000, 0x3fc6b144, 3, 0xc0800000, one, 3, 0xc0800000, 0x3ee53aee,
+      3, 0xc06358a3, 0x80000000, 0x83, 0xc0400000, 0x80000000] := by
+  decide +kernel
+
+theorem triangle_cap_start_keeps_unshifted_zero :
+    mirrorBand true false horizontalBand #[(one, 0), (one, 0x40400000)] 3 3 =
+    [1, 7, 0, 0x40000000, 0x80000000, 1, 0x40000000, 0x40400000, 1, one, 0x40800000,
+      1, 0x80000000, 0x40400000, 1, 0x80000000, 0x80000000, 1, one, 0xbf800000,
+      0x81, 0x40000000, 0] := by
   decide +kernel
 
 def mirrors : List Mirror := [

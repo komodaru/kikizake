@@ -69,6 +69,9 @@ span exactly at a vertex.
 The `pathinset-region-*` cases exercise contour winding and starting points.
 The secondary contour in `pathinset-region-direction` starts at `(5,3)`.
 The contours reversed by bounding-box parity and the separate corner-touching
-holes also have Lean regression theorems. In the unshifted island probe, two x64
-open-outline coordinates are negative zero on Windows and positive zero in the
-model. The recorded island probe uses coordinates translated by `(10,10)`.
+holes also have Lean regression theorems.
+
+The `pathwiden-zero-*` cases record exact signed zeros in open flat, round and
+triangle caps on x86 and x64. The `pathinset-region-island-origin` case exercises
+the same endpoint arithmetic when an inset outline mixes a closed figure and
+open cutouts.

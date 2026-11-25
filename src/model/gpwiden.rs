@@ -395,10 +395,20 @@ impl Widener {
         const K: f32 = 0.552_284_8;
         const _: () = assert!(K.to_bits() == 0x3f0d_6289);
         let units = [(1.0, 0.0), (1.0, K), (K, 1.0), (0.0, 1.0), (-K, 1.0), (-1.0, K), (-1.0, 0.0)];
+        let zero = r.sub(0.0, 0.0);
         units
             .iter()
             .enumerate()
-            .map(|(i, &(u, v))| Out { p: (r.add(r.sub(r.mul(u, a), r.mul(v, b)), c.0), r.add(r.add(r.mul(v, a), r.mul(u, b)), c.1)), kind: if i == 0 { Kind::Line } else { Kind::Bezier }, inner: false })
+            .map(|(i, &(u, v))| {
+                let x = r.add(r.sub(r.mul(u, a), r.mul(v, b)), c.0);
+                let y = r.add(r.add(r.mul(v, a), r.mul(u, b)), c.1);
+                // GDI+ stores exact zero in cubic cap coordinates with the rounding mode's sign.
+                if i == 0 {
+                    line((x, y))
+                } else {
+                    Out { p: (r.add(x, zero), r.add(y, zero)), kind: Kind::Bezier, inner: false }
+                }
+            })
             .collect()
     }
     /// an open subpath's outline (WidenSubpath, CombineSubpathOutlines): one closed figure
@@ -424,23 +434,28 @@ impl Widener {
             }
             false => first.n,
         };
-        let end_point = |w: f32, start: bool| {
+        let end_point = |w: f32, start: bool, right: bool| {
             let (at, s, cap) = if start { (p[0], first, caps.0) } else { (p[k - 1], last, caps.1) };
             let o = self.off(w, if start { start_n } else { s.n }, at);
-            match (cap, start) {
-                (Cap::Square, true) => (r.add(o.0, r.mul(e, s.g.0)), r.add(o.1, r.mul(e, s.g.1))),
-                (Cap::Square, false) => (r.sub(o.0, r.mul(e, s.g.0)), r.sub(o.1, r.mul(e, s.g.1))),
-                (Cap::Flat | Cap::Round | Cap::Triangle | Cap::Anchor(_), _) => o,
+            // The non-square tangent displacement is negative zero. Triangle's right end
+            // is emitted from the unshifted side of the cap.
+            let shift = if cap == Cap::Square { e } else { -0.0 };
+            if start {
+                (r.add(o.0, r.mul(shift, s.g.0)), r.add(o.1, r.mul(shift, s.g.1)))
+            } else if cap == Cap::Triangle && right {
+                o
+            } else {
+                (r.sub(o.0, r.mul(shift, s.g.0)), r.sub(o.1, r.mul(shift, s.g.1)))
             }
         };
-        let (mut left, mut right) = (vec![line(end_point(self.wl, true))], vec![line(end_point(self.wr, true))]);
+        let (mut left, mut right) = (vec![line(end_point(self.wl, true, false))], vec![line(end_point(self.wr, true, true))]);
         for i in 1..k - 1 {
             let (l, rt) = self.join(p[i], segs[i - 1], segs[i]);
             left.extend(l);
             right.extend(rt);
         }
-        left.push(line(end_point(self.wl, false)));
-        right.push(line(end_point(self.wr, false)));
+        left.push(line(end_point(self.wl, false, false)));
+        right.push(line(end_point(self.wr, false, true)));
         // (an end point an inner miter falls behind takes that point's place, both kept:
         // clean-room notes geometry.md 18b)
         for side in [&mut left, &mut right] {
@@ -482,8 +497,13 @@ impl Widener {
         let close_to = |a: P, b: P| r.add(r.sub(a.1, b.1).abs(), r.sub(a.0, b.0).abs()) < NEAR;
         match (caps.0, wrapped) {
             (Cap::Triangle, false) => {
-                out.push(line(self.tip(p[0], first.g, true)));
-                out.push(line(first_left));
+                let start = p[0];
+                out.push(line(self.tip(start, first.g, true)));
+                // This duplicate comes from the unshifted triangle cap at zero. Keep any
+                // position the side repair moved to the preceding join.
+                let base = self.off(self.wl, start_n, start);
+                let zero_from = |v: f32, raw: f32| if v == 0.0 && raw == 0.0 { raw } else { v };
+                out.push(line((zero_from(first_left.0, base.0), zero_from(first_left.1, base.1))));
             }
             (Cap::Triangle, true) => {
                 let rc = self.off(self.wr, first.n, p[0]);

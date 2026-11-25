@@ -1403,6 +1403,9 @@ pub static MIRRORS: &[Mirror] = &[
                 each(&[0, 1, 0, style, bits(8), bits(4), bits(-4), bits(16), 0, 0,
                     0, 0, bits(16), 0, bits(16), bits(16), 0, bits(16)]);
             }
+            each(&[1, 0, 0, 0, bits(8), bits(4), bits(-4), bits(16), 0, 0, 0, bits(4), bits(12), bits(4)]);
+            each(&[1, 0, 0, 0, bits(8), bits(4), bits(-4), bits(16), 2, 2, bits(-12), bits(4), 0, bits(4)]);
+            each(&[1, 0, 0, 0, bits(8), bits(4), bits(-4), bits(16), 3, 3, bits(4), 0, bits(4), bits(12)]);
             // The nearly parallel wrap-around segment changes the start normal.
             for rounding in 0..=1 {
                 for cap in [2, 3] {

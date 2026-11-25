@@ -2627,3 +2627,44 @@ gpadd 0 rect 1 2 12 10
 gpwiden 0 0 0 0.25
 gppathinfo 0
 end
+case pathwiden-zero-flat
+gppen 0 0xff000000 2 cap 0 0 0
+gppath 0 0
+gpadd 0 lines 2 0 1 3 1
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwiden-zero-round
+gppen 0 0xff000000 2 cap 2 2 0
+gppath 0 0
+gpadd 0 lines 3 -2 0 0 0 0 3
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwiden-zero-round-input
+gppen 0 0xff000000 2 cap 2 2 0
+gppath 0 0
+gpadd 0 lines 2 1 -0 1 3
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathwiden-zero-triangle
+gppen 0 0xff000000 2 cap 3 3 0
+gppath 0 0
+gpadd 0 lines 2 1 0 1 3
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end
+case pathinset-region-island-origin
+gppen 0 0xff000000 2 align 1
+gppath 0 0
+gpadd 0 rect 0 0 3 3
+gpadd 0 start
+gpadd 0 lines 4 1 0 2 0 2 1 1 1
+gpadd 0 start
+gpadd 0 lines 4 0 1 1 1 1 2 0 2
+gpadd 0 start
+gpadd 0 lines 4 2 2 3 2 3 3 2 3
+gpwiden 0 0 - 0.25
+gppathinfo 0
+end

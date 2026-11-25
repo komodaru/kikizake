@@ -1009,5 +1009,10 @@ pub fn gdipluspath() -> String {
     writeln!(s, "case pathinset-dash-round-reflected\ngpmatrix 0 0xbf800000 0 0 0x3f800000 0x40000000 0xbf800000\ngppen 0 0xff000000 3 align 1 dash 1 dashoff -0.5 cap 0 0 2\ngppath 0 0\ngpadd 0 lines 3 1 2 8 13 14 3\ngpadd 0 close\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
     writeln!(s, "case pathinset-dash-triangle-cubic\ngpmatrix 0 0x40000000 0 0x3e800000 0x3f000000 0x40000000 0xbf800000\ngppen 0 0xff000000 3 align 1 dasharray 3 2 0.75 1.25 dashoff 1.25 cap 0 0 3\ngppath 0 0\ngpadd 0 bezier 1 2 1 12 13 14 14 3\ngpadd 0 close\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
     writeln!(s, "case pathinset-dash-round-rectangle\ngpmatrix 0 0x3f800000 0 0 0x3f800000 0x40000000 0xbf800000\ngppen 0 0xff000000 1 align 1 dash 1 cap 0 0 2\ngppath 0 0\ngpadd 0 rect 1 2 12 10\ngpwiden 0 0 0 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathwiden-zero-flat\ngppen 0 0xff000000 2 cap 0 0 0\ngppath 0 0\ngpadd 0 lines 2 0 1 3 1\ngpwiden 0 0 - 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathwiden-zero-round\ngppen 0 0xff000000 2 cap 2 2 0\ngppath 0 0\ngpadd 0 lines 3 -2 0 0 0 0 3\ngpwiden 0 0 - 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathwiden-zero-round-input\ngppen 0 0xff000000 2 cap 2 2 0\ngppath 0 0\ngpadd 0 lines 2 1 -0 1 3\ngpwiden 0 0 - 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathwiden-zero-triangle\ngppen 0 0xff000000 2 cap 3 3 0\ngppath 0 0\ngpadd 0 lines 2 1 0 1 3\ngpwiden 0 0 - 0.25\ngppathinfo 0\nend");
+    writeln!(s, "case pathinset-region-island-origin\ngppen 0 0xff000000 2 align 1\ngppath 0 0\ngpadd 0 rect 0 0 3 3\ngpadd 0 start\ngpadd 0 lines 4 1 0 2 0 2 1 1 1\ngpadd 0 start\ngpadd 0 lines 4 0 1 1 1 1 2 0 2\ngpadd 0 start\ngpadd 0 lines 4 2 2 3 2 3 3 2 3\ngpwiden 0 0 - 0.25\ngppathinfo 0\nend");
     s
 }
