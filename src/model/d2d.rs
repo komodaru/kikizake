@@ -1473,9 +1473,24 @@ fn fill_span(st: &[Stop], m: usize, gamma: Gamma) -> Vec<[u8; 4]> {
 }
 
 impl Ramp {
+    /// A degenerate one-texel gradient. Linear clamp mixes its endpoint colors, radial clamp
+    /// uses the last stop, and wrap or mirror integrates the entire stop interval.
+    fn one_texel(stops: &[Stop], gamma: Gamma, ext: Extend, radial: bool) -> Ramp {
+        let (stops, first, last) = ramp_stops(stops, gamma);
+        let tex = match ext {
+            Extend::Clamp if radial => vec![post(last, gamma)],
+            Extend::Clamp => vec![post(mix(first, last, 0.5), gamma)],
+            Extend::Wrap | Extend::Mirror => fill_span(&stops, 1, gamma),
+        };
+        Ramp { tex, u: Along::Linear([0.0; 3]), ext }
+    }
+
     /// a linear gradient from s to e (brush space) under the world transform w; None where
-    /// its direction has no length (not modelled)
+    /// the transformed direction vanishes for distinct endpoints
     pub fn linear(w: &M, s: P, e: P, stops: &[Stop], gamma: Gamma, ext: Extend) -> Option<Ramp> {
+        if s.0 - e.0 == 0.0 && s.1 - e.1 == 0.0 {
+            return Some(Self::one_texel(stops, gamma, ext, false));
+        }
         let p0 = apply(w, s.0, s.1);
         let mut p1 = apply(w, e.0, e.1);
         let q = (s.0 - (e.1 - s.1), (e.0 - s.0) + s.1);
@@ -1532,6 +1547,9 @@ impl Ramp {
     /// origin offset by o, under the world transform w; None where the mapping has no inverse
     #[allow(clippy::too_many_arguments)]
     pub fn radial(w: &M, c: P, o: P, rx: f32, ry: f32, stops: &[Stop], gamma: Gamma, ext: Extend) -> Option<Ramp> {
+        if (rx == 0.0 || ry == 0.0) && rx >= 0.0 && ry >= 0.0 && [c.0, c.1, o.0, o.1, rx, ry].into_iter().all(f32::is_finite) {
+            return Some(Self::one_texel(stops, gamma, ext, true));
+        }
         let map = |x: f32, y: f32| ((y * w[2] + x * w[0]) + w[4], (y * w[3] + x * w[1]) + w[5]);
         let c0 = map(c.0, c.1);
         let px = map(c.0 + rx, c.1);
@@ -2720,15 +2738,24 @@ impl D2d {
                     out.push("grad 80070057".into());
                     return Ok(());
                 }
-                let ramp = if lin {
-                    let (s0, e0) = ((f(op, 8)?, f(op, 9)?), (f(op, 10)?, f(op, 11)?));
-                    Ramp::linear(&tg.st.m, s0, e0, &stops, gamma, ext)
-                } else {
-                    hit(clause::D2D_GRAD_RADIAL);
-                    let (c, o) = ((f(op, 8)?, f(op, 9)?), (f(op, 10)?, f(op, 11)?));
-                    Ramp::radial(&tg.st.m, c, o, f(op, 12)?, f(op, 13)?, &stops, gamma, ext)
+                let args = (8..at).map(|k| f(op, k)).collect::<Res<Vec<_>>>()?;
+                let [a, b, c, d, x, y] = tg.st.m.map(f64::from);
+                if a * d - b * c == 0.0 && x.is_finite() && y.is_finite()
+                    && args.iter().all(|v| v.is_finite())
+                    && args.get(4..).is_none_or(|radii| radii.iter().all(|&r| r >= 0.0)) {
+                    // A rank-deficient world transform leaves no area to fill.
+                    hit(clause::D2D_GRAD);
+                    if !lin { hit(clause::D2D_GRAD_RADIAL); }
+                    return Ok(());
                 }
-                .ok_or(Fail::Unmodeled(open::D2D_RT))?;
+                let ramp = match args.as_slice() {
+                    &[sx, sy, ex, ey] => Ramp::linear(&tg.st.m, (sx, sy), (ex, ey), &stops, gamma, ext),
+                    &[cx, cy, ox, oy, rx, ry] => {
+                        hit(clause::D2D_GRAD_RADIAL);
+                        Ramp::radial(&tg.st.m, (cx, cy), (ox, oy), rx, ry, &stops, gamma, ext)
+                    }
+                    _ => return Err(Fail::Bad),
+                }.ok_or(Fail::Unmodeled(open::D2D_RT))?;
                 if tg.fault.is_some() {
                     return Ok(());
                 }

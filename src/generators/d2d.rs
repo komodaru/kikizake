@@ -1038,5 +1038,18 @@ pub fn d2dlimits() -> String {
             }
         }
     }
+    let colors = "3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255";
+    for ext in ["clamp", "wrap", "mirror"] {
+        for (name, transform, kind, args) in [
+            ("point-linear", "1 0 0 1 0 0", "lin", "2 2 2 2"),
+            ("flat-radial-x", "1 0 0 1 0 0", "rad", "2 2 0 0 0 2"),
+            ("flat-radial-y", "1 0 0 1 0 0", "rad", "2 2 0 0 2 0"),
+            ("flat-radial-skew", "1 1 0 1 0 0", "rad", "2 2 0 0 0 0"),
+            ("zero-linear", "0 0 0 0 2 2", "lin", "0 0 4 4"),
+            ("line-radial", "1 0 0 0 0 2", "rad", "2 2 0 0 2 2"),
+        ] {
+            writeln!(s, "case gradient-{name}-{ext}\nd2target 4 4\nd2clear 39 70 111 255\nd2xform {transform}\nd2grad 0 0 4 4 {kind} 22 {ext} {args} {colors}\nd2read\nend");
+        }
+    }
     s
 }

@@ -146,3 +146,129 @@ d2xform 0 1 -1 0 4 0
 d2drawbmp 0 0 0 4 4 1 linear -inf 0 -inf 2
 d2read
 end
+case gradient-point-linear-clamp
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 0 0
+d2grad 0 0 4 4 lin 22 clamp 2 2 2 2 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-flat-radial-x-clamp
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 0 0
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 0 2 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-flat-radial-y-clamp
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 0 0
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 2 0 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-flat-radial-skew-clamp
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 1 0 1 0 0
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 0 0 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-zero-linear-clamp
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 0 0 0 0 2 2
+d2grad 0 0 4 4 lin 22 clamp 0 0 4 4 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-line-radial-clamp
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 0 0 2
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 2 2 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-point-linear-wrap
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 0 0
+d2grad 0 0 4 4 lin 22 wrap 2 2 2 2 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-flat-radial-x-wrap
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 0 0
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 0 2 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-flat-radial-y-wrap
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 0 0
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 2 0 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-flat-radial-skew-wrap
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 1 0 1 0 0
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 0 0 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-zero-linear-wrap
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 0 0 0 0 2 2
+d2grad 0 0 4 4 lin 22 wrap 0 0 4 4 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-line-radial-wrap
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 0 0 2
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 2 2 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-point-linear-mirror
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 0 0
+d2grad 0 0 4 4 lin 22 mirror 2 2 2 2 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-flat-radial-x-mirror
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 0 0
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 0 2 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-flat-radial-y-mirror
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 0 0
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 2 0 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-flat-radial-skew-mirror
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 1 0 1 0 0
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 0 0 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-zero-linear-mirror
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 0 0 0 0 2 2
+d2grad 0 0 4 4 lin 22 mirror 0 0 4 4 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradient-line-radial-mirror
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 0 0 2
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 2 2 3 0 255 0 0 255 0.5 0 255 0 255 1 0 0 255 255
+d2read
+end
