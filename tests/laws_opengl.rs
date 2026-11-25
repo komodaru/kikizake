@@ -2020,6 +2020,59 @@ fn wgl_wide_outline_code_units_match_native_feedback() {
     assert!(fixture.next().is_none());
 }
 
+#[test]
+fn wgl_font_modes_match_native_results() {
+    let fixtures = include_str!("fixtures/opengl_font_modes.txt");
+    assert_eq!(fixtures.lines().count(), 72);
+    for row in fixtures.lines() {
+        let (inputs, expected) = row.split_once(" | ").unwrap();
+        let inputs: Vec<_> = inputs.split_whitespace().collect();
+        let [mode, api, wide, base, pending] = inputs.as_slice() else { panic!("invalid inputs {row}"); };
+        let expected: Vec<_> = expected.split_whitespace().collect();
+        let [ok, last_error, gl_error, written, defined, next, ink, x, y, z, w, buffer @ ..] = expected.as_slice() else {
+            panic!("invalid output {row}");
+        };
+        let encoding = if *wide == "1" { "w" } else { "a" };
+        let mut input = String::from("case font-mode\nglctx 32 choose 0x38 0 32 0 0 32 8\ngl glRasterPos2f -0.5 -0.5\n");
+        if *pending == "1" { input.push_str("gl glEnable 0xffff\n"); }
+        input.push_str(match *mode {
+            "0" => "glr glRenderMode i i 0x1c00\n",
+            "1" => "glp glFeedbackBuffer ii 64 0x600 obuf\nglr glRenderMode i i 0x1c01\n",
+            "2" => "glp glSelectBuffer i 64 obuf\nglr glRenderMode i i 0x1c02\ngl glInitNames\ngl glPushName 42\n",
+            _ => panic!("invalid mode {mode}"),
+        });
+        let (name, format) = match *api {
+            "0" => ("fontbmp", ""),
+            "1" => ("fontoutline", " 0"),
+            "2" => ("fontoutline", " 1"),
+            _ => panic!("invalid font API {api}"),
+        };
+        let base: u32 = base.parse().unwrap();
+        input.push_str(&format!("wglx {name} {encoding} 65 2 {base}{format}\nglerr\nglget f 0xb07 4\nglr glRenderMode i i 0x1c00\nglr glIsList b i {base}\nglr glIsList b i {}\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\n", base + 1));
+        if !buffer.is_empty() { input.push_str(&format!("globuf u {}\n", buffer.len())); }
+        input.push_str("end\n");
+        let output = kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap();
+        let glyphs = output.iter().filter(|s| s.starts_with("glyph ")).count();
+        assert_eq!(glyphs, if name == "fontoutline" && *ok == "1" { 2 } else { 0 }, "{row}");
+        let output: Vec<_> = output.iter().filter(|s| !s.starts_with("glyph ")).map(String::as_str).collect();
+        assert_eq!(&output[..8], [
+            "glctx ok 1".to_string(), "ret 0".into(), format!("wglx {name} {ok} {last_error}"),
+            format!("glerr {gl_error}"), format!("get b07 = {x} {y} {z} {w}"),
+            format!("ret {written}"), format!("ret {defined}"), format!("ret {next}"),
+        ], "{row}");
+        let pixels = output[8].strip_prefix("read ").unwrap();
+        assert_eq!(pixels.len(), 2048);
+        let colored = pixels.as_bytes().chunks_exact(8).filter(|pixel| pixel[..2] != *b"00").count();
+        assert_eq!(colored, ink.parse::<usize>().unwrap(), "{row}");
+        assert_eq!(output[9], "glerr 0", "{row}");
+        if buffer.is_empty() {
+            assert_eq!(output.len(), 10, "{row}");
+        } else {
+            assert_eq!(&output[10..], [format!("obuf {}", buffer.join(" "))], "{row}");
+        }
+    }
+}
+
 proptest! {
     #[test]
     fn wgl_font_batches_replace_only_the_requested_lists(

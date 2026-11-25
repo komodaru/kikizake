@@ -1769,6 +1769,7 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
         ("choose", args) => choose_pfd(args)?.to_string(),
         ("fontbmp" | "fontoutline", [encoding, first, count, base, rest @ ..]) => {
             hit(crate::spec::open::WGL_OTHER.into());
+            hit(clause::WGL_FONT_RENDER_MODE);
             if !matches!(encoding.as_str(), "a" | "w") { return Err(Fail::Bad); }
             let first = integer(first)?.cast_unsigned();
             let count = integer(count)?;
@@ -2057,6 +2058,7 @@ impl Gl {
         if ctx.selecting || ctx.feedback.is_some() {
             let name = t.get(1).map(String::as_str);
             let supported = matches!(cmd, CtxOp::Glget | CtxOp::Glerr | CtxOp::Glisen | CtxOp::Glstr)
+                || (matches!(cmd, CtxOp::Wglx) && matches!(name, Some("fontbmp" | "fontoutline")))
                 || (matches!(cmd, CtxOp::Gl) && matches!(name, Some("glInitNames" | "glLoadName" | "glPushName" | "glPopName" | "glPassThrough" | "glFlush" | "glFinish")))
                 || (ctx.selecting && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n,
                     "glBegin" | "glRectf" | "glRecti" | "glEdgeFlag" | "glCullFace" | "glFrontFace" | "glEnable" | "glDisable"
@@ -6459,7 +6461,7 @@ impl Ctx {
         }
         let Some([rx, ry, z]) = self.raster else { return Ok(()) };
         if self.feedback.is_some() { self.raster_feedback(1796.0)?; } // GL_BITMAP_TOKEN
-        else if w > 0 && h > 0 && ty != "null" {
+        else if !self.selecting && w > 0 && h > 0 && ty != "null" {
             let mut src = array::glp_bytes(t)?.unwrap_or_else(|| vec![0xcc; 4096]);
             src.resize(4096, 0);
             let ox = tri::trunc((self.raster_get[0] - xorig).floor());

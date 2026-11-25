@@ -58,6 +58,15 @@ table stores shared geometry, while the independent feedback fixture
 checks metrics, returned word counts and the contents of each observed
 buffer.
 
+## Font creation and render modes
+
+Run `capture_wgl_outlines.exe font-modes` on both architectures. The
+72 rows exercise creation in render, feedback and selection modes with
+clear and pending GL error state. Compare the two files and copy their
+rows up to the `done` marker to
+`tests/fixtures/opengl_font_modes.txt`. The recording includes GL and
+Win32 errors, list state, raster position and feedback or selection data.
+
 ## Windows WGL bitmap captures
 
 The bitmap atlas records all 65,536 input code units of

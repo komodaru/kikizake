@@ -58,11 +58,79 @@ static int scan_wide(HDC dc, int bounded) {
     return 0;
 }
 
+static int font_modes(HDC dc) {
+    const GLenum modes[] = {GL_RENDER, GL_FEEDBACK, GL_SELECT};
+    glMatrixMode(GL_MODELVIEW);
+    glColor4ub(255, 255, 255, 255);
+    for (int render = 0; render < 3; ++render) {
+        for (int api = 0; api <= 2; ++api) {
+            for (int wide = 0; wide <= 1; ++wide) {
+                for (int named = 0; named <= 1; ++named) {
+                    for (int pending = 0; pending <= 1; ++pending) {
+                        GLuint base = named ? 100 : 0;
+                        GLuint selection[64];
+                        GLfloat feedback[64];
+                        glDeleteLists(1, 1);
+                        glDeleteLists(100, 2);
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        glLoadIdentity();
+                        glRasterPos2f(-0.5f, -0.5f);
+                        glSelectBuffer(64, selection);
+                        glFeedbackBuffer(64, GL_2D, feedback);
+                        if (pending) glEnable(0xffff);
+                        glRenderMode(modes[render]);
+                        if (render == 2) {
+                            glInitNames();
+                            glPushName(42);
+                        }
+                        GLYPHMETRICSFLOAT metrics[2] = {{0}};
+                        SetLastError(0);
+                        BOOL ok = !api
+                            ? (wide ? wglUseFontBitmapsW(dc, 65, 2, base)
+                                    : wglUseFontBitmapsA(dc, 65, 2, base))
+                            : (wide ? wglUseFontOutlinesW(dc, 65, 2, base, 0, 0, api - 1, metrics)
+                                    : wglUseFontOutlinesA(dc, 65, 2, base, 0, 0, api - 1, metrics));
+                        DWORD error = ok ? 0 : GetLastError();
+                        GLenum gl_error = glGetError();
+                        GLfloat raster[4];
+                        glGetFloatv(GL_CURRENT_RASTER_POSITION, raster);
+                        GLint written = glRenderMode(GL_RENDER);
+                        int defined = glIsList(base);
+                        int next = glIsList(base + 1);
+                        GLubyte pixels[16 * 16 * 4];
+                        glReadPixels(0, 0, 16, 16, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+                        int ink = 0;
+                        for (size_t i = 0; i < sizeof pixels; i += 4) ink += pixels[i] != 0;
+                        if (glGetError()) return 9;
+                        printf("%d %d %d %u %d | %d %lu %x %d %d %d %d",
+                               render, api, wide, base, pending, ok, error, gl_error, (int)written,
+                               defined, next, ink);
+                        for (size_t i = 0; i < sizeof raster / sizeof raster[0]; ++i) {
+                            printf(" %08lx", fbits(raster[i]));
+                        }
+                        if (render == 1) {
+                            int items = written < 0 ? 64 : (int)written;
+                            for (int i = 0; i < items; ++i) printf(" %lu", fbits(feedback[i]));
+                        }
+                        if (render == 2 && written == 1) {
+                            for (int i = 0; i < 4; ++i) printf(" %u", selection[i]);
+                        }
+                        putchar('\n');
+                    }
+                }
+            }
+        }
+    }
+    puts("done");
+    return 0;
+}
+
 int main(int argc, char **argv) {
     const int scan = argc == 2 && !strcmp(argv[1], "wide-scan");
     const int bounded = argc == 2 && !strcmp(argv[1], "wide-readback");
     const int reps = argc == 3 && !strcmp(argv[1], "wide-reps");
-    if (!scan && !bounded && !reps && argc != 4 && argc != 5) return 1;
+    const int states = argc == 2 && !strcmp(argv[1], "font-modes");
+    if (!scan && !bounded && !reps && !states && argc != 4 && argc != 5) return 1;
     const int first = argc > 3 ? atoi(argv[1]) : 0;
     const int last = argc > 3 ? atoi(argv[2]) : 0;
     const int sample = argc > 3 ? atoi(argv[3]) : 1; /* 0: pixels, 1: half-scale feedback, 2: unscaled feedback */
@@ -93,6 +161,7 @@ int main(int argc, char **argv) {
     HFONT font = CreateFontA(-12, 0, 0, 0, 400, 0, 0, 0, ANSI_CHARSET, 0, 0, NONANTIALIASED_QUALITY, 0, "Arial");
     if (!font || !SelectObject(dc, font)) return 5;
     if (scan || bounded) return scan_wide(dc, bounded);
+    if (states) return font_modes(dc);
     static int codes[65536];
     int count = 0;
     if (reps) {
