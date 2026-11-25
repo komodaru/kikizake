@@ -155,6 +155,11 @@ def main(directory):
     feedback = read_recordings(directory, "feedback")
     unscaled = read_recordings(directory, "unscaled")
     pixels = read_recordings(directory, "pixels")
+    for offset in ("0x100", "0x10000", "0x80000000", "0xffffff00"):
+        aliases = read_recordings(directory, f"aliases-{offset}")
+        for key, value in pixels.items():
+            if key[3] == 0 or int(offset, 16) % 65536 == 0:
+                assert aliases[key] == value, (key, offset)
     keys = [(code, wide) for wide in (0, 1) for code in range(256)]
     rows = {}
     lookup = []

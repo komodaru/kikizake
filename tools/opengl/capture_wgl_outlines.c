@@ -13,11 +13,12 @@ static unsigned long fbits(GLfloat value) {
 }
 
 int main(int argc, char **argv) {
-    if (argc != 4) return 1;
+    if (argc != 4 && argc != 5) return 1;
     const int first = atoi(argv[1]);
     const int last = atoi(argv[2]);
     const int sample = atoi(argv[3]); /* 0: pixels, 1: half-scale feedback, 2: unscaled feedback */
     if (first < 0 || last < first || last > 255 || sample < 0 || sample > 2) return 1;
+    const DWORD offset = argc == 5 ? strtoul(argv[4], NULL, 0) : 0;
     HDC dc = CreateCompatibleDC(NULL);
     BITMAPINFO info = { 0 };
     info.bmiHeader.biSize = sizeof(info.bmiHeader);
@@ -62,8 +63,9 @@ int main(int argc, char **argv) {
                     glDeleteLists(100, 1);
                     GLYPHMETRICSFLOAT metrics = { 0 };
                     SetLastError(0);
-                    BOOL ok = wide ? wglUseFontOutlinesW(dc, (DWORD)code, 1, 100, 0, 0, mode, &metrics) :
-                                     wglUseFontOutlinesA(dc, (DWORD)code, 1, 100, 0, 0, mode, &metrics);
+                    const DWORD character = (DWORD)code + offset;
+                    BOOL ok = wide ? wglUseFontOutlinesW(dc, character, 1, 100, 0, 0, mode, &metrics) :
+                                     wglUseFontOutlinesA(dc, character, 1, 100, 0, 0, mode, &metrics);
                     DWORD err = ok ? 0 : GetLastError();
                     printf("glyph %d %d %d %d %d %lu %.9g %.9g %.9g %.9g %.9g %.9g\n", size, code, mode, wide, ok,
                            err, metrics.gmfBlackBoxX, metrics.gmfBlackBoxY, metrics.gmfptGlyphOrigin.x,

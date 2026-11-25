@@ -393,6 +393,17 @@ fn wgl_font_batch_has_exact_nonzero_names() {
     }
 }
 
+/// For every pair of DWORDs the glyph selector is their sum modulo
+/// the ANSI byte or the Unicode word, including DWORD wraparound.
+#[kani::proof]
+fn wgl_outline_code_matches_modular_addition() {
+    let first: u32 = kani::any();
+    let offset: u32 = kani::any();
+    let wide: bool = kani::any();
+    let expected = (u64::from(first) + u64::from(offset)) % if wide { 65536 } else { 256 };
+    assert_eq!(u64::from(crate::model::opengl::wgl_outline_code(first, offset, wide)), expected);
+}
+
 #[kani::proof]
 fn tracked_material_matches_face_and_property_masks() {
     use crate::model::opengl::e::{BACK, FRONT, FRONT_AND_BACK};

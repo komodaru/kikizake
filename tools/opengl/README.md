@@ -15,6 +15,7 @@ cl /nologo /W4 /O2 /MT tools\opengl\capture_wgl_outlines.c gdi32.lib opengl32.li
 capture_wgl_outlines.exe 0 255 0 > pixels-x64.txt
 capture_wgl_outlines.exe 0 255 1 > feedback-x64.txt
 capture_wgl_outlines.exe 67 70 2 > unscaled-x64.txt
+for %o in (0x100 0x10000 0x80000000 0xffffff00) do capture_wgl_outlines.exe 0 255 0 %o > aliases-%o-x64.txt
 ```
 
 Run `python tools/opengl/encode_wgl_outlines.py DIRECTORY` with that
@@ -24,6 +25,8 @@ Feedback rounds window coordinates. The table uses object coordinates
 that reproduce the captured rounding. Unscaled feedback for C through F
 also constrains the points used by the earlier unscaled regression cases.
 The independent pixel fixture covers every RGBA byte at a 16 by 16 viewport.
+The alias captures verify the same pixels and metrics for DWORD character
+indices with the measured low byte or word.
 
 Verify the table and fixtures with
 `cargo test --release --test laws_opengl wgl_`.

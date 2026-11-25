@@ -1845,25 +1845,36 @@ fn wgl_byte_range_outlines_match_native_drawing_and_feedback() {
         let (values, expected_metrics) = fixture.split_once(" | ").unwrap();
         let mut values = values.split_whitespace();
         let encoding = values.next().unwrap();
-        let code = values.next().unwrap();
+        let code: u32 = values.next().unwrap().parse().unwrap();
         let format = values.next().unwrap();
         assert_eq!(encoding, if index < 512 { "a" } else { "w" });
-        assert_eq!(code.parse::<usize>().unwrap(), index / 2 % 256);
+        assert_eq!(usize::try_from(code).unwrap(), index / 2 % 256);
         assert_eq!(format.parse::<usize>().unwrap(), index % 2);
         let pixels = u32::from_str_radix(values.next().unwrap(), 16).unwrap();
-        let start = format!("case outline\nglctx 32 choose 0x38 0 32 0 0 32 8\nwglx fontoutline {encoding} {code} 1 100 {format}\n");
-        let input = format!("{start}gl glTranslatef -0.75 -0.75 0\ngl glScalef 2 2 1\ngl glCallList 100\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\nend\n");
-        let rendered = kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap();
-        assert_eq!(&rendered[..3], ["glctx ok 1", "wglx fontoutline 1 0", expected_metrics]);
-        assert_eq!(rendered[4], "glerr 0");
-        let view = rendered[3].strip_prefix("read ").unwrap();
-        assert_eq!(view.len(), 2048);
-        let readback = view.as_bytes().chunks_exact(2)
-            .map(|byte| u8::from_str_radix(std::str::from_utf8(byte).unwrap(), 16).unwrap());
-        if checksum(readback) != pixels {
-            failures.push(format!("{encoding} {code} {format} pixels"));
+        let start = |code: u32| {
+            format!("case outline\nglctx 32 choose 0x38 0 32 0 0 32 8\nwglx fontoutline {encoding} {code:#x} 1 100 {format}\n")
+        };
+        let offsets: &[u32] = if encoding == "a" {
+            &[0, 0x100, 0x10000, 0x80000000, 0xffffff00]
+        } else {
+            &[0, 0x10000, 0x80000000]
+        };
+        for offset in offsets {
+            let alias = code | offset;
+            let input = format!("{}gl glTranslatef -0.75 -0.75 0\ngl glScalef 2 2 1\ngl glCallList 100\nglread 0 0 16 16 0x1908 0x1401 1024\nglerr\nend\n", start(alias));
+            let rendered = kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap();
+            assert_eq!(&rendered[..3], ["glctx ok 1", "wglx fontoutline 1 0", expected_metrics]);
+            assert_eq!(rendered[4], "glerr 0");
+            let view = rendered[3].strip_prefix("read ").unwrap();
+            assert_eq!(view.len(), 2048);
+            let readback = view.as_bytes().chunks_exact(2)
+                .map(|byte| u8::from_str_radix(std::str::from_utf8(byte).unwrap(), 16).unwrap());
+            if checksum(readback) != pixels {
+                failures.push(format!("{encoding} {alias:#x} {format} pixels"));
+            }
         }
 
+        let start = start(code);
         for (size, value) in zip_eq([4096, 8192, 16384], values) {
             let (length, digest) = value.split_once(':').unwrap();
             let length: usize = length.parse().unwrap();
@@ -1880,6 +1891,24 @@ fn wgl_byte_range_outlines_match_native_drawing_and_feedback() {
         }
     }
     assert!(failures.is_empty(), "{} differences: {:?}", failures.len(), &failures[..failures.len().min(70)]);
+}
+
+#[test]
+fn wgl_ansi_outline_wrapped_batches_fill_consecutive_lists() {
+    let run = |calls: &str| {
+        let input = format!("case wrap\nglctx 32 choose 0x38 0 32 0 0 32 8\n{calls}\nglr glIsList b i 99\nglr glIsList b i 100\nglr glIsList b i 101\nglr glIsList b i 102\nglr glIsList b i 103\nglerr\nend\n");
+        kikizake::model::run_case(&kikizake::case::parse_cases(&input)[0]).unwrap()
+    };
+    for format in [0, 1] {
+        let singles = run(&format!("wglx fontoutline a 254 1 100 {format}\nwglx fontoutline a 255 1 101 {format}\nwglx fontoutline a 0 1 102 {format}"));
+        for first in ["254", "0xfffffffe"] {
+            let batch = run(&format!("wglx fontoutline a {first} 3 100 {format}"));
+            let glyphs = |v: &[String]| v.iter().filter(|line| line.starts_with("glyph ")).cloned().collect::<Vec<_>>();
+            assert_eq!(batch[1], "wglx fontoutline 1 0");
+            assert_eq!(glyphs(&batch), glyphs(&singles));
+            assert_eq!(&batch[5..], ["ret 0", "ret 1", "ret 1", "ret 1", "ret 0", "glerr 0"]);
+        }
+    }
 }
 
 proptest! {

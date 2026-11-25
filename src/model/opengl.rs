@@ -1584,13 +1584,13 @@ fn wgl_bitmap_line(code: i32, encoding: &str) -> Res<list::Line> {
 /// the A and W byte ranges to shared geometries. Each geometry has a metrics
 /// row, XY coordinates in units of 2^-23, and ordered vertex indices for its
 /// line loops and triangles.
-fn wgl_outline(code: i32, encoding: &str, format: i32) -> Res<(&'static str, Vec<list::Line>)> {
+fn wgl_outline(code: u16, wide: bool, format: i32) -> Res<(&'static str, Vec<list::Line>)> {
     let code = u8::try_from(code).ok().ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
     hit(clause::WGL_FONT_OUTLINE_BYTE);
     static ROWS: std::sync::OnceLock<Vec<&str>> = std::sync::OnceLock::new();
     let rows = ROWS.get_or_init(|| include_str!("opengl_arial_outline_bytes.txt").lines().collect());
     let (lookup, rows) = rows.split_first().ok_or(Fail::Bad)?;
-    let index = usize::from(u16::from(code) | if encoding == "w" { 256 } else { 0 });
+    let index = usize::from(u16::from(code) | if wide { 256 } else { 0 });
     let row = lookup.split_whitespace().nth(index).ok_or(Fail::Bad)?;
     let row = usize::from_str_radix(row, 16).ok().ok_or(Fail::Bad)?;
     let mut fields = rows.get(row).ok_or(Fail::Bad)?.split('|').map(str::trim);
@@ -1624,6 +1624,12 @@ fn wgl_outline(code: i32, encoding: &str, format: i32) -> Res<(&'static str, Vec
     }
     lines.push(line(&format!("gl glTranslatef {advance} 0 0")));
     Ok((metrics, lines))
+}
+
+/// WGL increments the DWORD and uses the low byte (A) or word (W) for each glyph.
+pub(crate) fn wgl_outline_code(first: u32, offset: u32, wide: bool) -> u16 {
+    let [lo, hi, ..] = first.wrapping_add(offset).to_le_bytes();
+    u16::from_le_bytes([lo, if wide { hi } else { 0 }])
 }
 
 /// Last list name in a nonempty font batch supported by the runner.
@@ -1733,9 +1739,10 @@ fn wgl_dc(ctx: &mut Ctx, tokens: &[String], out: &mut Vec<String>) -> Res<()> {
                     let mut lists = Vec::new();
                     let mut metrics = Vec::new();
                     let format = integer(fmt)?;
+                    let wide = encoding == "w";
                     for offset in 0..count {
-                        let code = first.checked_add(offset).ok_or(Fail::Unmodeled(crate::spec::open::WGL_OTHER))?;
-                        let (glyph, lines) = wgl_outline(code, encoding, format)?;
+                        let code = wgl_outline_code(first.cast_unsigned(), offset.cast_unsigned(), wide);
+                        let (glyph, lines) = wgl_outline(code, wide, format)?;
                         if base == 0 {
                             for line in &lines { ctx.scalar_command(&line.tok)?; }
                             ctx.err = 0;
