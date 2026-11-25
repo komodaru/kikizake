@@ -320,6 +320,15 @@ pub enum Prim {
     Tri([u32; 3], u32),
 }
 
+impl Prim {
+    /// The provoking vertex for flat shading, independent of the rasterizer's vertex order.
+    pub(crate) fn leading(self) -> u32 {
+        match self {
+            Self::Point(v) | Self::Line(v, _) | Self::Tri(_, v) => v,
+        }
+    }
+}
+
 /// D3DRASTER.STRIP, ADJ: primitive p's vertices: every other triangle of a strip with its first
 /// two swapped; with adjacency (and no geometry program) the adjacent vertices skipped (None
 /// past u32)

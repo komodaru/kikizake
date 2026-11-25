@@ -32,6 +32,24 @@ def minF (x y : Nat) : Nat :=
 /-- an integer as the nearest binary32 (Rust `as f32`) -/
 def ofInt (v : Int) : Nat := Float.round F32.fmt (decide (v < 0)) v.natAbs 1
 
+/-- A pixel's center along one axis, rounded in binary32. -/
+def centerOf (p : Int) : Nat := add (ofInt p) half
+
+/-- The SV_Position components the generated pixel shader copies to its output. -/
+def positionColor (x y : Int) (depth w : Nat) : List Nat :=
+  [centerOf x, centerOf y, depth, w]
+
+/-- The constant input takes the leading vertex's values bit for bit. -/
+def flatColor (r g b a : Nat) : List Nat := [r, g, b, a]
+
+/-- Identical clip w values take the first vertex's representation. A NaN never compares equal. -/
+def constantClipW : List Nat → Option Nat
+  | [] => none
+  | w :: ws => if (w :: ws).all (Filter.eqF w) then some w else none
+
+/-- The reciprocal of the plane of 1/w is SV_Position.w for varying clip w. -/
+def positionWFromReciprocal (inverse : Nat) : Nat := div one inverse
+
 /-- cvtss2si: to nearest, ties to even; a NaN or a value past i32 the integer indefinite -/
 def cvt (v : Nat) : Int :=
   let indefinite : Int := -(2 ^ 31)
@@ -173,7 +191,33 @@ set_option exponentiation.threshold 2048 in
 set_option maxRecDepth 20000 in
 /-- D3DRASTER.POSW.PLANE: where every vertex has 1/w = 1/2, SV_Position.w is 2 at the center -/
 theorem posw_example :
-    div one (planeValue 0 0x40800000 0 0 0 0x40800000 half half half 0x40000000 0x40000000) = 0x40000000 := by decide
+    positionWFromReciprocal (planeValue 0 0x40800000 0 0 0 0x40800000 half half half
+      0x40000000 0x40000000) = 0x40000000 := by decide
+
+/-- The position shader passes through the selected depth and clip w as binary32 bits. -/
+theorem position_depth_w (x y : Int) (depth w : Nat) :
+    (positionColor x y depth w)[2]? = some depth ∧ (positionColor x y depth w)[3]? = some w := by
+  simp [positionColor]
+
+/-- Position x and y are shifted to the pixel center, including for negative coordinates. -/
+theorem position_centers :
+    positionColor (-3) 7 0x3e800000 0x3f000000 = [0xc0200000, 0x40f00000, 0x3e800000, 0x3f000000] := by
+  decide
+
+/-- The constant-w path is selected exactly when every vertex's w compares equal to the first. -/
+theorem constant_w_selection (w : Nat) (ws : List Nat) :
+    constantClipW (w :: ws) = some w ↔ (w :: ws).all (Filter.eqF w) = true := by
+  cases h : (w :: ws).all (Filter.eqF w) <;> simp [constantClipW, h]
+
+/-- Equal signed zeros keep the first representation. Differing finite w goes to interpolation. -/
+theorem constant_w_examples :
+    constantClipW [0x80000000, 0, 0] = some 0x80000000 ∧
+    constantClipW [half, one] = none ∧
+    constantClipW [0x7fc00000, 0x7fc00000] = none := by
+  decide
+
+/-- A constant shader input performs no arithmetic that could change a component's bits. -/
+theorem flat_color_bits (r g b a : Nat) : flatColor r g b a = [r, g, b, a] := rfl
 
 /-- D3DRASTER.INTERP.DEPTH, LINE.DEPTH: a range of NaN leaves the depth -/
 theorem clamp_nan_range (minz maxz z : Nat) (h1 : isNaN F32.fmt minz = true) (h2 : isNaN F32.fmt maxz = true)
@@ -267,7 +311,30 @@ theorem sample_plane_depth_test :
 /-- the mirrors (an f32 NaN answer as the one quiet NaN) -/
 def canon (x : Nat) : Int := (F32.canon x : Nat)
 
+private def u32Argument (value : Int) : Option Nat := do
+  let n ← nat value
+  if n < 2 ^ 32 then some n else none
+
+private def i64Argument (value : Int) : Option Int :=
+  if -(2 ^ 63) ≤ value ∧ value < 2 ^ 63 then some value else none
+
 def mirrors : List Mirror := [
+  ⟨"d3d11.positioncolor", fun
+    | [x, y, depth, w] => some ((do
+        let px ← i64Argument x
+        let py ← i64Argument y
+        pure ((positionColor px py (← u32Argument depth) (← u32Argument w)).map Int.ofNat)).getD [-1])
+    | _ => some [-1]⟩,
+  ⟨"d3d11.flatcolor", fun args => some ((do
+    let [r, g, b, a] ← args.mapM u32Argument | none
+    pure ((flatColor r g b a).map Int.ofNat)).getD [-1])⟩,
+  ⟨"d3d11.constantclipw", fun args => some ((do
+    let ws ← args.mapM u32Argument
+    let w ← constantClipW ws
+    pure [(w : Int)]).getD [-1])⟩,
+  ⟨"d3d11.positionreciprocalw", fun
+    | [r] => some ((u32Argument r).map (fun n => [canon (positionWFromReciprocal n)]) |>.getD [-1])
+    | _ => some [-1]⟩,
   ⟨"d3d11.plane", fun
     | [x0, x1, x2, y0, y1, y2, a0, a1, a2, cx, cy] => do
       pure [canon (planeValue (← nat x0) (← nat x1) (← nat x2) (← nat y0) (← nat y1) (← nat y2) (← nat a0) (← nat a1) (← nat a2) (← nat cx) (← nat cy))]

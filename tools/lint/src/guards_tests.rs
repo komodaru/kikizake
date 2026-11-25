@@ -535,6 +535,27 @@ fn shade() { primitive_id_color(prim, front); }
 }
 
 #[test]
+fn shader_varyings_stay_in_the_mirrored_functions() {
+    let inlined = r#"
+fn draw() { fetch(lead, i); }
+fn shade() { lead.color.map(f32::to_bits); same(&|v| [v.pos[3]; 4]); 1.0 / p.plane(p.iw, cx, cy); }
+fn lines() { (a.pos[3] == b.pos[3]).then_some(a.pos[3]); }
+fn prim_out() { [center_of(px), center_of(py), z, w].map(f32::to_bits); }
+fn pos_w() { 1.0 / self.plane(px, self.iwa, self.iwb); }
+"#;
+    let r = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(r.iter().filter(|b| b.contains("confined:")).count(), 6, "{r:?}");
+    assert_eq!(r.iter().filter(|b| b.contains("forbidden in pos_w")).count(), 1, "{r:?}");
+    assert!(rust("src/model/d3draster.rs", r#"
+fn draw() { fetch(primitive.leading(), i); }
+fn shade() { flat_color(lead.color); constant_clip_w(&ws); position_w_from_reciprocal(inverse); }
+fn lines() { constant_clip_w(&[a.pos[3], b.pos[3]]); }
+fn position_color() { [center_of(px), center_of(py), depth, w].map(f32::to_bits); }
+fn pos_w() { position_w_from_reciprocal(self.plane(px, self.iwa, self.iwb)); }
+"#).is_empty());
+}
+
+#[test]
 fn multisample_depth_stays_in_the_mirrored_functions() {
     let inlined = r#"
 fn triangle() { p.plane(p.zs, cx + sixteenths(ox), cy + sixteenths(oy)); }

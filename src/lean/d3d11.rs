@@ -152,6 +152,34 @@ pub static MIRRORS: &[Mirror] = &[
         },
     },
     Mirror {
+        name: "d3d11.leadingvertex",
+        lean: DRAW,
+        domain: Domain::Sampled("all topology codes through 14 and primitives through 4096, around each u32 index boundary, and 50,000 topology and u32 indices"),
+        inputs: |each| {
+            every(&[(0, 14), (0, 4096)], each);
+            for top in [1, 2, 3, 4, 5, 10, 11, 12, 13] {
+                for divisor in [1, 2, 3, 4, 6] {
+                    let limit = U32.checked_div(divisor).unwrap_or(0);
+                    for delta in -4..=4 {
+                        each(&[top, limit.saturating_add(delta)]);
+                    }
+                }
+            }
+            sampled(&[(0, 14), (0, U32)], 50_000, 0x1ead_d311, each);
+            for bad in [&[][..], &[-1, 0], &[4, U32 + 1]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let leading = || {
+                let &[t, p] = a else { return None };
+                let topo = Topo::of(u32::try_from(t).ok()?)?;
+                Some(d3drules::primitive(topo, u32::try_from(p).ok()?)?.leading())
+            };
+            one(leading().map_or(-1, i64::from))
+        },
+    },
+    Mirror {
         name: "d3d11.prims",
         lean: DRAW,
         domain: Domain::Sampled("the topologies drawn, counts and buffers of 0..80 vertices, and 20,000 of 32-bit counts"),
@@ -1019,6 +1047,111 @@ fn float_args(args: usize, n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
 }
 
 pub static INTERP_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.positioncolor",
+        lean: INTERP,
+        domain: Domain::Sampled("all pixel pairs in -32..32, i64 and f32 rounding boundaries, and 40,000 i64 pixel pairs with independent binary32 depth and w"),
+        inputs: |each| {
+            every(&[(-32, 32), (-32, 32), (0, 0), (0x3f80_0000, 0x3f80_0000)], each);
+            let edge = [i64::MIN, i64::MAX, -(1 << 24) - 1, -(1 << 24), (1 << 24) - 1, (1 << 24) + 1];
+            for x in edge {
+                for y in edge {
+                    each(&[x, y, 0x8000_0000, 0x7f80_0001]);
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0x9051_d311);
+            float_args(2, 40_000, 0x9052_d311, &mut |v| {
+                let a = i64::from_ne_bytes(rng.next().to_ne_bytes());
+                let b = i64::from_ne_bytes(rng.next().to_ne_bytes());
+                let [z, w] = *v else { return };
+                each(&[a, b, z, w]);
+            });
+            for bad in [&[][..], &[0, 0, -1, 0], &[0, 0, U32 + 1, 0]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let color = || {
+                let &[x, y, z, w] = a else { return None };
+                let (z, w) = (f32::from_bits(u32::try_from(z).ok()?), f32::from_bits(u32::try_from(w).ok()?));
+                Some(crate::model::d3draster::position_color((x, y), z, w).map(i64::from).to_vec())
+            };
+            Some(color().unwrap_or_else(|| vec![-1]))
+        },
+    },
+    Mirror {
+        name: "d3d11.flatcolor",
+        lean: INTERP,
+        domain: Domain::Sampled("signed zero and NaN payload examples, 40,000 independent binary32 quadruples and malformed components"),
+        inputs: |each| {
+            each(&[0, 0x8000_0000, 0x7f80_0001, 0xff80_1234]);
+            float_args(4, 40_000, 0xf1a7_d311, each);
+            for bad in [&[][..], &[0, 0, 0], &[0, 0, 0, -1], &[U32 + 1, 0, 0, 0]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let color = || {
+                let &[r, g, b, a] = a else { return None };
+                let f = |v| u32::try_from(v).ok().map(f32::from_bits);
+                Some(crate::model::d3draster::flat_color([f(r)?, f(g)?, f(b)?, f(a)?]).map(i64::from).to_vec())
+            };
+            Some(color().unwrap_or_else(|| vec![-1]))
+        },
+    },
+    Mirror {
+        name: "d3d11.constantclipw",
+        lean: INTERP,
+        domain: Domain::Sampled("every pair and triple of signed boundary floats, 40,000 pairs and triples with equal and different w, and missing and malformed values"),
+        inputs: |each| {
+            let mut fs = Vec::new();
+            floats(0, &mut crate::rng::Sample64::new(1), &mut |v| fs.push(i64::from(v)));
+            for &a in &fs {
+                for &b in &fs {
+                    each(&[a, b]);
+                    for &c in &fs {
+                        each(&[a, b, c]);
+                    }
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0xc11f_d311);
+            float_args(3, 40_000, 0xc120_d311, &mut |a| {
+                let [first, second, third] = *a else { return };
+                let b = if rng.chance(2) { first } else { second };
+                let c = if rng.chance(2) { first } else { third };
+                if rng.chance(2) {
+                    each(&[first, b, c]);
+                } else {
+                    each(&[first, b]);
+                }
+            });
+            for extra in [&[][..], &[-1], &[U32 + 1, 0], &[0x3f00_0000], &[0x3f00_0000; 4]] {
+                each(extra);
+            }
+        },
+        model: |a| {
+            let ws = a.iter().map(|&v| u32::try_from(v).ok().map(f32::from_bits)).collect::<Option<Vec<_>>>();
+            let w = ws.as_deref().and_then(crate::model::d3draster::constant_clip_w);
+            one(w.map_or(-1, |f| i64::from(f.to_bits())))
+        },
+    },
+    Mirror {
+        name: "d3d11.positionreciprocalw",
+        lean: INTERP,
+        domain: Domain::Sampled("signed boundary floats and 40,000 binary32 reciprocals, using one canonical NaN answer"),
+        inputs: |each| {
+            float_args(1, 40_000, 0x5a1a_d311, each);
+            floats(0, &mut crate::rng::Sample64::new(1), &mut |v| each(&[i64::from(v)]));
+            for bad in [&[][..], &[-1], &[U32 + 1], &[1, 1]] {
+                each(bad);
+            }
+        },
+        model: |a| {
+            let &[w] = a else { return one(-1) };
+            let Ok(w) = u32::try_from(w) else { return one(-1) };
+            one(canon32(crate::model::d3draster::position_w_from_reciprocal(f32::from_bits(w))))
+        },
+    },
     Mirror {
         name: "d3d11.plane",
         lean: INTERP,

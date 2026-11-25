@@ -136,6 +136,10 @@ inductive Prim where
   | tri (a b c lead : Nat)
   deriving DecidableEq, Repr
 
+/-- The provoking vertex, independent of the rasterizer's vertex order. -/
+def Prim.leading : Prim → Nat
+  | .point v | .line v _ | .tri _ _ _ v => v
+
 /-- the vertex indices doubled (an adjacency topology's vertices without the adjacent ones) -/
 def Prim.double : Prim → Prim
   | .point v => .point (2 * v)
@@ -201,6 +205,28 @@ def Prim.verts : Prim → List Nat
   | .point v => [v]
   | .line a b => [a, b]
   | .tri a b c l => [a, b, c, l]
+
+/-- Flat shading uses this vertex of the assembled primitive;
+assembly rejects a topology's indices that do not fit uint. -/
+def leadingVertex (t : Topo) (p : Nat) : Option Nat :=
+  let prim := primitive t p
+  if p < 2 ^ 32 ∧ prim.verts.all (fun k => decide (k < 2 ^ 32)) then some prim.leading else none
+
+/-- The odd strip's vertex swap changes winding without changing the leading vertex. -/
+theorem flat_strip_leading (p : Nat) (fits : p + 2 < 2 ^ 32) :
+    leadingVertex .triStrip p = some p := by
+  have h0 : p < 2 ^ 32 := by omega
+  have h1 : p + 1 < 2 ^ 32 := by omega
+  by_cases odd : p % 2 = 1 <;> simp [leadingVertex, primitive, Prim.verts, Prim.leading, odd, h0, h1, fits]
+
+/-- The selected vertex is one of the primitive's input vertices for every supported topology. -/
+theorem flat_leading_member (t : Topo) (p v : Nat) (h : leadingVertex t p = some v) :
+    v ∈ (primitive t p).verts := by
+  have hlead : (primitive t p).leading = v := by
+    simp only [leadingVertex] at h
+    split at h <;> simp_all
+  rw [← hlead]
+  cases t <;> (by_cases odd : p % 2 = 1) <;> simp_all [primitive, Prim.leading, Prim.verts]
 
 /-- D3DRASTER.ADJ, STRIP: every primitive the draw makes (the buffer holding them all) reads
 only the draw's vertices -/
@@ -363,6 +389,11 @@ def mirrors : List Mirror := [
       pure (match primitive t (← nat p) with
         | .point v => [v] | .line a b => [a, b] | .tri a b c l => [a, b, c, l])
     | _ => none⟩,
+  ⟨"d3d11.leadingvertex", fun args => some ((do
+    let [top, p] ← args.mapM uintArg | none
+    let t ← Topo.of top
+    let v ← leadingVertex t p
+    pure [(v : Int)]).getD [-1])⟩,
   ⟨"d3d11.prims", fun
     | [top, count, nv] => do
       let t ← Topo.of (← nat top)

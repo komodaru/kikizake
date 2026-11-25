@@ -14,13 +14,10 @@ namespace Kikizake.D3d11.Line
 open Kikizake.Float (isNaN)
 open Kikizake.F32 (add sub mul div sqrt)
 open Kikizake.D3d11.Filter (ltF eqF floorF half one)
-open Kikizake.D3d11.Interp (neg ofInt snap f256)
+open Kikizake.D3d11.Interp (centerOf neg ofInt snap f256)
 
 /-- an integer position in 1/256 pixels as pixels: `v as f32 / 256.0` -/
 def pixelsI (v : Int) : Nat := div (ofInt v) f256
-
-/-- a pixel's center: `p as f32 + 0.5` -/
-def centerOf (p : Int) : Nat := add (ofInt p) half
 
 /-- f32's x <= y (false with a NaN) -/
 def leF (x y : Nat) : Bool := ltF x y || eqF x y

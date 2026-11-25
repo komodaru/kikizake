@@ -630,20 +630,21 @@ fn draw(m: &mut D3dres, dev: Dev, top: u32, count: u32, stride: u32, inst: u32, 
                 // program, the adjacent vertices are skipped (rules::primitive)
                 hit(clause::D3DRASTER_ADJ);
             }
-            match rules::primitive(topo, p).ok_or(Fail::Bad)? {
-                rules::Prim::Point(k) => point(m, &d, &tg, ps, fetch(k, i)?, p)?,
-                rules::Prim::Line(k, k1) => {
-                    let a = fetch(k, i)?;
+            let primitive = rules::primitive(topo, p).ok_or(Fail::Bad)?;
+            match primitive {
+                rules::Prim::Point(_) => point(m, &d, &tg, ps, fetch(primitive.leading(), i)?, p)?,
+                rules::Prim::Line(_, k1) => {
+                    let a = fetch(primitive.leading(), i)?;
                     segs.push(Seg { a, b: fetch(k1, i)?, lead: a, prim: p, front: true, clip: SegClip::Line });
                 }
-                rules::Prim::Tri(idx, lead) => {
+                rules::Prim::Tri(idx, _) => {
                     // (strips: every other triangle's first two vertices swapped; the leading
                     // vertex first)
                     if topo == Topo::TriStrip && p % 2 == 1 {
                         hit(clause::D3DRASTER_STRIP);
                     }
                     let tri = [fetch(idx[0], i)?, fetch(idx[1], i)?, fetch(idx[2], i)?];
-                    let leadv = fetch(lead, i)?;
+                    let leadv = fetch(primitive.leading(), i)?;
                     triangle(m, dev, &d, vp, ps, &tri, leadv, p, (rw, rh), samples, &view, rt_fmt, rt_sub, dsv.as_ref(), &mut segs)?;
                 }
             }
@@ -661,6 +662,27 @@ pub(crate) fn vertex_id_color(vertex: u32, instance: u32) -> [f32; 4] {
 /// The generated pixel shader writes the primitive number and a one-bit front-face value.
 pub(crate) fn primitive_id_color(primitive: u32, front: bool) -> [u32; 4] {
     [(primitive as f32).to_bits(), f32::from(u8::from(front)).to_bits(), 0, 1.0f32.to_bits()]
+}
+
+/// SV_Position supplies the pixel center and the selected depth and clip w.
+pub(crate) fn position_color((px, py): (i64, i64), depth: f32, w: f32) -> [u32; 4] {
+    [center_of(px), center_of(py), depth, w].map(f32::to_bits)
+}
+
+/// A constant pixel input preserves the leading vertex's four float channels.
+pub(crate) fn flat_color(lead: [f32; 4]) -> [u32; 4] {
+    lead.map(f32::to_bits)
+}
+
+/// Equal clip w values use the first vertex's w directly.
+pub(crate) fn constant_clip_w(vertices: &[f32]) -> Option<f32> {
+    let &first = vertices.first()?;
+    vertices.iter().all(|&w| w == first).then_some(first)
+}
+
+/// A varying clip w is reconstructed from the interpolated reciprocal.
+pub(crate) fn position_w_from_reciprocal(inverse: f32) -> f32 {
+    1.0 / inverse
 }
 
 /// what a primitive is drawn into
@@ -929,19 +951,19 @@ fn point(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, v: Vert, prim: u32) ->
 /// color, the pixel's position, or the primitive's index
 /// (MEASURED, WARP: probe-top1-*, probe-top2-*) as for triangles: SV_Position is the pixel
 /// center, the depth and the clip w; points and lines face front
-fn prim_out(ps: &str, c: [f32; 4], (px, py): (i64, i64), z: f32, w: f32, prim: u32, front: bool) -> Res<[u32; 4]> {
+fn prim_out(ps: &str, c: [f32; 4], pixel: (i64, i64), z: f32, w: f32, prim: u32, front: bool) -> Res<[u32; 4]> {
     match ps {
         "ps" => Ok(c.map(f32::to_bits)),
         "psflat" => {
             hit(clause::D3DRASTER_FLAT);
-            Ok(c.map(f32::to_bits))
+            Ok(flat_color(c))
         }
         "pspos" => {
             hit(clause::D3DRASTER_POS);
             if w.to_bits() != 1.0f32.to_bits() {
                 hit(clause::D3DRASTER_POSW);
             }
-            Ok([center_of(px), center_of(py), z, w].map(f32::to_bits))
+            Ok(position_color(pixel, z, w))
         }
         "psprim" => {
             hit(clause::D3DRASTER_PRIM);
@@ -1295,7 +1317,7 @@ impl Line {
             Some(w) => w,
             None => {
                 hit(clause::D3DRASTER_POSW_PLANE);
-                1.0 / self.plane(px, self.iwa, self.iwb)
+                position_w_from_reciprocal(self.plane(px, self.iwa, self.iwb))
             }
         }
     }
@@ -1437,7 +1459,7 @@ fn lines(m: &mut D3dres, d: &Draw, tg: &Target, ps: &str, segs: &[Seg]) -> Res<(
         }
         let major = major_of(pa, pb);
         let cover = Cover::of(pa, pb, major);
-        ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, iwa: 1.0 / a.pos[3], iwb: 1.0 / b.pos[3], lead: s.lead.color, prim: s.prim, front: s.front, w: (a.pos[3] == b.pos[3]).then_some(a.pos[3]), major, cover, z: [zs(&a), zs(&b)] });
+        ls.push(Line { a: pa, b: pb, ca: a.color, cb: b.color, iwa: 1.0 / a.pos[3], iwb: 1.0 / b.pos[3], lead: s.lead.color, prim: s.prim, front: s.front, w: constant_clip_w(&[a.pos[3], b.pos[3]]), major, cover, z: [zs(&a), zs(&b)] });
     }
     for l in &ls {
         let (x0, x1) = (l.a.x.min(l.b.x).div_euclid(256) - 3, l.a.x.max(l.b.x).div_euclid(256) + 3);
@@ -1540,7 +1562,12 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
             hit(clause::D3DRASTER_CLIPW_AREA);
             let q: Vec<Sub> = poly.iter().map(|q| snapped(vp, q)).collect();
             let q: Vec<(i64, i64)> = q.iter().map(|s| (s.x, s.y)).collect();
-            let out = tri[0].color.map(f32::to_bits);
+            let out = if ps == "psflat" {
+                hit(clause::D3DRASTER_FLAT);
+                flat_color(lead.color)
+            } else {
+                tri[0].color.map(f32::to_bits)
+            };
             let [vx, vy, vw, vh, _, _] = vp;
             for py in 0..i64::from(rh) {
                 for px in 0..i64::from(rw) {
@@ -2465,26 +2492,26 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
         },
         "psflat" => {
             hit(clause::D3DRASTER_FLAT);
-            lead.color.map(f32::to_bits)
+            flat_color(lead.color)
         }
         "pspos" => {
             hit(clause::D3DRASTER_POS);
             // (MEASURED: w reads as the vertices' clip w, pos-3, pos-4)
-            let w = match (same(&|v| [v.pos[3]; 4]), planes) {
-                (Ok(w), _) => w[0],
+            let w = match (constant_clip_w(&tri.map(|v| v.pos[3])), planes) {
+                (Some(w), _) => w,
                 // (MEASURED, WARP: probe-zplane-1, -3) w that varies: 1 / the plane of 1/w
-                (Err(_), Some(p)) => {
+                (None, Some(p)) => {
                     hit(clause::D3DRASTER_POSW_PLANE);
-                    1.0 / p.plane(p.iw, center_of(px), center_of(py))
+                    position_w_from_reciprocal(p.plane(p.iw, center_of(px), center_of(py)))
                 }
-                (Err(e), None) => return Err(e),
+                (None, None) => return Err(Fail::Bad),
             };
             if w.to_bits() != 1.0f32.to_bits() {
                 hit(clause::D3DRASTER_POSW);
             }
             // (a drawn triangle's depth is its value or its plane's, D3DRASTER.INTERP.DEPTH)
             let z = z.ok_or(Fail::Bad)?;
-            [center_of(px), center_of(py), z, w].map(f32::to_bits)
+            position_color((px, py), z, w)
         }
         "psprim" => {
             hit(clause::D3DRASTER_PRIM);

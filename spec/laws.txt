@@ -498,6 +498,8 @@ spec/lean/Kikizake/D3d11/Draw.lean::primitive_id_facing lean D3DRASTER.PRIM
 spec/lean/Kikizake/D3d11/Draw.lean::primitive_id_rounding lean D3DRASTER.PRIM
 spec/lean/Kikizake/D3d11/Draw.lean::topology lean D3DRASTER.TOPOLOGY D3DRASTER.PATCH
 spec/lean/Kikizake/D3d11/Draw.lean::strip lean D3DRASTER.STRIP
+spec/lean/Kikizake/D3d11/Draw.lean::flat_strip_leading lean D3DRASTER.FLAT
+spec/lean/Kikizake/D3d11/Draw.lean::flat_leading_member lean D3DRASTER.FLAT
 spec/lean/Kikizake/D3d11/Draw.lean::adjacency lean D3DRASTER.ADJ
 spec/lean/Kikizake/D3d11/Draw.lean::prims_inside lean D3DRASTER.ADJ D3DRASTER.STRIP
 spec/lean/Kikizake/D3d11/Draw.lean::vb_past lean D3DRASTER.VBPAST
@@ -787,6 +789,11 @@ spec/lean/Kikizake/D3d11/Interp.lean::depth_disabled lean D3DRASTER.MS.DEPTH
 spec/lean/Kikizake/D3d11/Interp.lean::depth_test lean D3DRASTER.MS.DEPTH
 spec/lean/Kikizake/D3d11/Interp.lean::sample_plane_depth_test lean D3DRASTER.MS.DEPTH D3DRASTER.MS.ZPLANE
 spec/lean/Kikizake/D3d11/Interp.lean::posw_example lean D3DRASTER.POSW.PLANE
+spec/lean/Kikizake/D3d11/Interp.lean::position_depth_w lean D3DRASTER.POS D3DRASTER.POSW
+spec/lean/Kikizake/D3d11/Interp.lean::position_centers lean D3DRASTER.POS
+spec/lean/Kikizake/D3d11/Interp.lean::constant_w_selection lean D3DRASTER.POSW
+spec/lean/Kikizake/D3d11/Interp.lean::constant_w_examples lean D3DRASTER.POSW
+spec/lean/Kikizake/D3d11/Interp.lean::flat_color_bits lean D3DRASTER.FLAT
 spec/lean/Kikizake/D3d11/Interp.lean::clamp_nan_range lean D3DRASTER.INTERP.DEPTH D3DRASTER.LINE.DEPTH
 spec/lean/Kikizake/D3d11/Interp.lean::vertex_depth_example lean D3DRASTER.INTERP.DEPTH
 spec/lean/Kikizake/D3d11/Interp.lean::made_least lean D3DRASTER.INTERP.CLIP

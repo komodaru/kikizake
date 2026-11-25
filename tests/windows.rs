@@ -124,6 +124,9 @@ fn models_match_windows() {
                     "probe-rt-ms4-depth1-prev", "probe-linesms-z",
                     "ids-4-6-0", "ids-5-6-0", "ids-4-3-3", "ids-5-4-2",
                     "probe-top1-psprim", "probe-top2-psprim",
+                    "pos-3", "pos-4", "probe-zplane-1", "probe-zplane-3", "probe-zplane-5",
+                    "probe-line-w-pos", "probe-top1-pspos", "probe-top2-pspos",
+                    "probe-top1-psflat", "probe-top2-psflat",
                 ] {
                     let reference = expected.cases.iter().find(|(n, _)| n == name)
                         .unwrap_or_else(|| panic!("missing Windows recording for {s}-{arch} {name}"));
@@ -152,6 +155,42 @@ fn models_match_windows() {
 }
 
 /// the D3D9 defaults table (from the documentation) against an independent Windows run, masu's
+/// Windows WARP writes -0 on all 48 shaded pixels of the odd strip triangle.
+#[test]
+fn clipped_flat_strip_preserves_the_leading_signed_zero() {
+    use kikizake::dxbc::hex;
+    use kikizake::shaders::{shaders, Prog};
+
+    let programs = shaders();
+    let vs = hex(programs.get(Prog::Vs));
+    let ps = hex(programs.get(Prog::Psflat));
+    let positions = [
+        ("0xbf000000 0x3f000000 0x3f000000 0x3f800000", "0"),
+        ("0x3f000000 0x3e800000 0x3f000000 0x3f800000", "0x80000000"),
+        ("0xbf000000 0x3f000000 0x3f000000 0x3f800000", "0"),
+        ("0xbe000000 0x3ec00000 0xbe800000 0xbf000000", "0"),
+    ];
+    for device in ["device10", "device11"] {
+        let mut input = format!("case flat-clip-strip-signed-zero\n{device}\n\
+            tex 0 2 16 16 1 1 2 0 0x20 0 0 1 0\nrtv 0 0 nodesc\nclear 0 0 0 0 0\ntarget 0\n\
+            shader 0 vs {vs}\nshader 1 ps {ps}\nlayout 0 2 2\n\
+            viewport 0 0 0x41800000 0x41800000 0 0x3f800000\nrast 3 1 0 0 0 0 1 0 0 0\n");
+        for (position, red) in positions {
+            use std::fmt::Write;
+            writeln!(&mut input, "vtx {position} {red} 0x3e800000 0x3f000000 0x3f800000").unwrap();
+        }
+        input.push_str("draw 5 4 32\nread 0 0 256 16 1\nend\n");
+        let cases = case::parse_cases(&input);
+        let lines = model::run_case(cases.first().unwrap()).unwrap();
+        let rows: Vec<_> = lines.iter().filter(|s| s.len() == 512).collect();
+        assert_eq!(rows.len(), 16, "{device}");
+        let painted: Vec<_> = rows.iter().flat_map(|row| row.as_bytes().chunks_exact(32))
+            .filter(|&pixel| pixel != b"00000000000000000000000000000000").collect();
+        assert_eq!(painted.len(), 48, "{device}");
+        assert!(painted.iter().all(|&pixel| pixel == b"000000800000803e0000003f0000803f"), "{device}");
+    }
+}
+
 /// d3d9state probe, when it is there
 #[test]
 fn d3d9_defaults_match_the_d3d9state_probe() {
