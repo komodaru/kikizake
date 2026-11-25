@@ -1781,7 +1781,7 @@ fn wgl_outline_spaces_apply_state_only_when_called() {
 fn wgl_outline_lists_draw_native_lines_and_faces() {
     let mut masks = include_str!("fixtures/opengl_outline_glyph_pixels.txt").lines();
     for format in [0, 1] {
-        for code in [65, 66, 69, 70] {
+        for code in [65, 66, 67, 68, 69, 70] {
             let mut expected = String::from("read ");
             for pixel in masks.next().unwrap().bytes() {
                 expected.push_str(if pixel == b'#' { "ffffffff" } else { "000000ff" });
@@ -1798,6 +1798,36 @@ fn wgl_outline_lists_draw_native_lines_and_faces() {
     assert!(masks.next().is_none());
 }
 
+#[test]
+fn wgl_outline_feedback_matches_the_native_vertices() {
+    for fixture in include_str!("fixtures/opengl_outline_feedback.txt").lines() {
+        let (parameters, measured) = fixture.split_once(" | ").unwrap();
+        let (metrics, expected) = measured.split_once(" | ").unwrap();
+        let parameters: Vec<_> = parameters.split_whitespace().collect();
+        let [code, format, size, words, written] = parameters.as_slice() else {
+            panic!("invalid fixture header {parameters:?}");
+        };
+        let input = format!("case outline-feedback
+glctx 32 choose 0x38 0 32 0 0 32 8
+gl glViewport 0 0 {size} {size}
+wglx fontoutline a {code} 1 100 {format}
+glp glFeedbackBuffer ii 1024 0x600 obuf
+glr glRenderMode i i 0x1c01
+gl glCallList 100
+glr glRenderMode i i 0x1c00
+globuf f {words}
+glerr
+end
+");
+        let cases = kikizake::case::parse_cases(&input);
+        let output = kikizake::model::run_case(&cases[0]).unwrap();
+        assert_eq!(&output[1..], [
+            "wglx fontoutline 1 0".into(), metrics.into(), "ret 0".into(),
+            format!("ret {written}"), expected.into(), "glerr 0".into(),
+        ], "glyph {code} format {format} viewport {size}");
+    }
+}
+
 proptest! {
     #[test]
     fn wgl_font_batches_replace_only_the_requested_lists(
@@ -1806,8 +1836,8 @@ proptest! {
     ) {
         use std::fmt::Write;
         let encoding = if wide { "w" } else { "a" };
-        let count = if outline { 1 + length % 2 } else { length };
-        let first = if outline { 65 } else { u32::from(selector) % (257 - count) };
+        let count = if outline { 1 + length % 6 } else { length };
+        let first = if outline { 65 + u32::from(selector) % (7 - count) } else { u32::from(selector) % (257 - count) };
         let end = base + count;
         let mut input = String::from("case replace\nglctx 32 choose 0x38 0 32 0 0 32 8\n");
         // A neighboring list changes the list base when called. The overwritten

@@ -1929,8 +1929,8 @@ impl Gl {
                 || (ctx.selecting && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n,
                     "glBegin" | "glRectf" | "glRecti" | "glEdgeFlag" | "glCullFace" | "glFrontFace" | "glEnable" | "glDisable"
                     | "glRasterPos2i" | "glRasterPos2f" | "glRasterPos3f" | "glRasterPos4f"
-                    | "glDepthRange" | "glMatrixMode" | "glLoadIdentity" | "glOrtho") || BEGIN_OK.contains(&n)))
-                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n, "glBegin" | "glRectf" | "glRecti" | "glEdgeFlag" | "glPolygonMode" | "glShadeModel" | "glCopyPixels" | "glRasterPos2f" | "glRasterPos2i" | "glRasterPos4f") || BEGIN_OK.contains(&n)))
+                    | "glDepthRange" | "glMatrixMode" | "glLoadIdentity" | "glOrtho" | "glTranslatef") || BEGIN_OK.contains(&n)))
+                || (ctx.feedback.is_some() && matches!(cmd, CtxOp::Gl) && name.is_some_and(|n| matches!(n, "glBegin" | "glRectf" | "glRecti" | "glEdgeFlag" | "glPolygonMode" | "glShadeModel" | "glFrontFace" | "glTranslatef" | "glCopyPixels" | "glRasterPos2f" | "glRasterPos2i" | "glRasterPos4f") || BEGIN_OK.contains(&n)))
                 || (ctx.feedback.is_some() && (matches!(cmd, CtxOp::Gldraw) || (matches!(cmd, CtxOp::Glp) && name == Some("glBitmap"))))
                 || (matches!(cmd, CtxOp::Glr | CtxOp::Glp) && matches!(name, Some("glRenderMode" | "glSelectBuffer" | "glFeedbackBuffer")));
             if !supported { return Err(Fail::Unmodeled(crate::spec::open::GL_SELECT_INTERACTION)); }
@@ -4499,11 +4499,10 @@ impl Ctx {
     }
 
     fn feedback_vertex(&self, record: &mut Vec<f32>, clip: [f32; 4], color: [f32; 4], tex: [f32; 4]) {
+        let tri::Raster([x, y]) = tri::Raster::of(clip, self.viewport, HEIGHT);
+        record.push(x - tri::RASTER_BIAS);
+        record.push((tri::float(HEIGHT) + tri::RASTER_BIAS) - y);
         let inv = 1.0 / clip[3];
-        let [vx, vy, vw, vh] = self.viewport.map(tri::float);
-        let window = |q: f32, origin, size| f64::from((q * inv + 1.0) * size * 0.5 + origin);
-        record.push(tri::float(self.snap_window(window(clip[0], vx, vw), Axis::X)) / 256.0);
-        record.push(tri::float(self.snap_window(window(clip[1], vy, vh), Axis::Y)) / 256.0);
         self.feedback_attributes(record, self.window_z(clip[2] * inv), clip[3], color, tex);
     }
 
