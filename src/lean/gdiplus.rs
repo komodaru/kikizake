@@ -1615,8 +1615,13 @@ pub static MIRRORS: &[Mirror] = &[
     Mirror {
         name: "gp.render",
         lean: CHAIN,
-        domain: Domain::Sampled("to nearest and down, x86 and x86-64, nearest, bilinear, HighQualityBilinear and HighQualityBicubic, with and without the half pixel offset: 100,000 draws of random images up to 6 x 6 in and past bitmaps up to 10 x 10, and 4,000 of images 24 wide stretched across 30 to 60 (the MMX columns), scales, flips, copies"),
+        domain: Domain::Sampled("to nearest and down, x86 and x86-64, nearest, bilinear, HighQualityBilinear and HighQualityBicubic, with and without the half pixel offset: 100,000 draws of random images up to 6 x 6 in and past bitmaps up to 10 x 10, and 4,000 of images 24 wide stretched across 30 to 60 (the MMX columns), scales, flips, copies, and a mirrored cubic stretch at the MMX right boundary"),
         inputs: |each| {
+            // In a negative-xscale cubic stretch this texel exposes the MMX right-bound rounding.
+            let mut mirrored = vec![0, 1, 4, 60, 0, -19, 3, 0, 0, 31, 2, 31, 2, 64, 4, 1];
+            mirrored.extend((0..62).map(|i| if i == 29 { 0xff65_6565 } else { 0xff00_0000 }));
+            each(&mirrored);
+
             let mut rng = crate::rng::Sample64::new(0xc4a1_0002);
             for k in 0..100_000u32 {
                 let (iw, ih, bw, bh) = (rng.range(1, 6), rng.range(1, 6), rng.range(1, 10), rng.range(1, 10));

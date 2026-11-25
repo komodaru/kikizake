@@ -37,3 +37,23 @@ Which tool for which clause:
 
 spec/unproven.txt lists the settled clauses of the finished APIs that none of these proves yet;
 it only shrinks.
+
+## GDI+ mutation checks (#19)
+
+The issue lists six checks. Apply each substitution independently to the Rust model, keep the
+Lean mirror unchanged, and run `cargo run --release -- lean spec/lean/.lake/build/bin/mirror FILTER`
+from the repository root. The original model matches each mirror. Each substitution below produces
+a model mismatch and exit status 1.
+
+| Rust function | Temporary substitution | Filter |
+|---|---|---|
+| `gpimage::chain` | Compute `span.margin(r, ratio).floor()` in place of `.ceil()` | `gp.chain` |
+| `gpstretch::stretch` | Omit `+ xscale + 1` from the numerator of `hi` in the negative-xscale cubic MMX branch | `gp.render` |
+| `gpstretch::weights` | Compute `(v - prev) >> shift` as the weight and store `prev = v` | `gp.render` |
+| `gplinear::sin_quirk` | Return `1.0` in the special round-down branch | `gp.linear` |
+| `gplinear::round_sat` | Replace `r.add(v, 0.5)` with `r.add(v, 0.0)` | `gp.linear_span` |
+| `gpimage::most` | Replace `a > b` with `a >= b` | `gp.chain` |
+
+The negative-xscale mutation survived the original 104,000 render comparisons. The
+`gp.render` fixture for a mirrored cubic draw with a single grey texel near the source's
+right edge detects the wrong MMX column range.
