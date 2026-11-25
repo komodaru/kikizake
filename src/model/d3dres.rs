@@ -224,12 +224,8 @@ pub fn copy_compatible(a: u32, b: u32, dev: Dev) -> bool {
 /// the typeless group of a format (its first member)
 pub fn group(f: u32) -> u32 {
     const STARTS: &[u32] = &[1, 5, 9, 15, 19, 23, 26, 27, 33, 39, 44, 48, 53, 60, 65, 66, 67, 68, 69, 70, 73, 76, 79, 82, 85, 86, 87, 88, 89, 90, 92, 94, 97, 100];
-    let mut g = 0;
-    for &s in STARTS {
-        if f >= s {
-            g = s;
-        }
-    }
+    let g = STARTS.partition_point(|&start| start <= f).checked_sub(1)
+        .and_then(|index| STARTS.get(index)).copied().unwrap_or(0);
     // (one group each from here on; R10G10B10_XR_BIAS_A2 is its own)
     if f >= 100 {
         return f;
@@ -1006,7 +1002,7 @@ fn update(res: &mut Resource, sub: u32, data: &[u8], rp: usize, dp: usize, bx: O
     Ok(false)
 }
 
-fn copy_resource(dev: Dev, dst: &mut Resource, src: &Resource) -> Res<()> {
+pub(crate) fn copy_resource(dev: Dev, dst: &mut Resource, src: &Resource) -> Res<()> {
     hit(clause::D3DRES_COPY);
     let (a, b) = (&dst.d, &src.d);
     let same_shape = a.dim == b.dim && a.mips == b.mips && a.da == b.da && a.count == b.count;

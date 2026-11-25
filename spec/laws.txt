@@ -935,3 +935,4 @@ src/proofs.rs::selection_depths_preserve_extrema_and_first_hit kani GL.SELECT
 tests/laws_opengl.rs::selection_writes_only_the_prefix_that_fits pbt GL.SELECT
 tests/laws_opengl.rs::light_translation_scales_with_the_homogeneous_component pbt GL.LIGHT.STATE
 src/proofs.rs::signed_light_colors_preserve_sign_and_half_step_symmetry kani GL.LIGHT.STATE
+src/proofs.rs::d3d_copy_resource_copies_every_subresource_and_sample_plane kani D3DRES.COPY D3DRES.COPY.SAMPLES D3DRES.COPY.IGNORED

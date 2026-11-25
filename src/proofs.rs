@@ -540,3 +540,36 @@ fn signed_light_colors_preserve_sign_and_half_step_symmetry() {
     assert!(color.is_finite() && color != 0.0);
     assert_eq!(color.to_bits() ^ 0x8000_0000, signed_light_component(!word).to_bits());
 }
+
+// Two RGBA8 array slices with one or two samples. Each stored byte is symbolic.
+#[kani::proof]
+#[kani::unwind(12)]
+fn d3d_copy_resource_copies_every_subresource_and_sample_plane() {
+    use crate::model::d3dres::{Desc, Dev, Resource, copy_resource};
+
+    let (source, target): ([[u8; 4]; 2], [[u8; 4]; 2]) = kani::any();
+    let (source_samples, target_samples): ([[u8; 8]; 2], [[u8; 8]; 2]) = kani::any();
+    let immutable: bool = kani::any();
+    let d3d10: bool = kani::any();
+    let sample_count: u32 = if kani::any() { 1 } else { 2 };
+    let desc = Desc {
+        dim: 2, w: 1, h: 1, da: 2, mips: 1, fmt: 28,
+        usage: 0, bind: 0, cpu: 0, misc: 0, count: sample_count, q: 0,
+    };
+    let storage = |[first, second]: [[u8; 4]; 2]| vec![Some(first.to_vec()), Some(second.to_vec())];
+    let planes = |[first, second]: [[u8; 8]; 2]| {
+        if sample_count == 2 { vec![Some(first.to_vec()), Some(second.to_vec())] } else { vec![None, None] }
+    };
+    let src = Resource { d: desc, subs: storage(source), samples: planes(source_samples) };
+    let target_desc = Desc { usage: u32::from(immutable), ..desc };
+    let mut dst = Resource { d: target_desc, subs: storage(target), samples: planes(target_samples) };
+    let dev = if d3d10 { Dev::D10 } else { Dev::D11(0xb000) };
+    assert!(copy_resource(dev, &mut dst, &src).is_ok());
+
+    let allowed = !immutable && (!d3d10 || sample_count == 1);
+    let expected = if allowed { source } else { target };
+    let expected_samples = if allowed { source_samples } else { target_samples };
+    assert_eq!(dst.d, target_desc);
+    assert_eq!(dst.subs, storage(expected));
+    assert_eq!(dst.samples, planes(expected_samples));
+}
