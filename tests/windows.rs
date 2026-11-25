@@ -93,7 +93,7 @@ fn models_match_windows() {
             if *s == "d2dlimits" {
                 let expected = case::parse_output(&g);
                 let actual = case::parse_output(&want);
-                for (name, lines) in expected.cases.iter().filter(|(name, _)| name.starts_with("bitmap-src-") || name.starts_with("gradient-")) {
+                for (name, lines) in expected.cases.iter().filter(|(name, _)| name.starts_with("bitmap-src-") || name.starts_with("gradient-") || name.starts_with("workspace-")) {
                     assert_eq!(actual.cases.iter().find(|(n, _)| n == name).map(|(_, out)| out), Some(lines),
                         "{s}-{arch} {name}");
                 }

@@ -657,3 +657,18 @@ fn d2d_bitmap_source_axis_clips_or_draws_nothing() {
         assert_eq!(source, Some([expected_left, expected_right]));
     }
 }
+
+#[kani::proof]
+fn d2d_workspace_coordinate_cast_is_exact() {
+    use crate::model::d2dtess::workspace_coordinate;
+    const LIMIT: f64 = 281474976710656.0;
+    let value = f64::from_bits(kani::any());
+    let coordinate = workspace_coordinate(value);
+    if let Some(integer) = coordinate {
+        assert!((-281474976710656..=281474976710656).contains(&integer));
+        assert_eq!(integer as f64, value);
+    }
+    if value.abs() <= LIMIT && value.fract() == 0.0 {
+        assert!(coordinate.is_some());
+    }
+}

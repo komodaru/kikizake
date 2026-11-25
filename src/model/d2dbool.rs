@@ -8,8 +8,8 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-use super::d2d::{bounds, flatten_t, shape, Fig, Geom, Seg, P};
-use super::d2dtess::{cuts, head_order, sweep, Line, Pt, Q, I};
+use super::d2d::{bounds, flatten_t, shape, Fig, Geom, Seg};
+use super::d2dtess::{cuts, head_order, snap_workspace, sweep, workspace_point, Line, Pt, Q, Workspace, I};
 use super::{Fail, Res};
 use crate::spec::{clause, hit, open};
 
@@ -72,10 +72,6 @@ struct Bnd {
     part: Option<(Part, bool)>,
 }
 
-fn snap(u: f64) -> f64 {
-    (if u >= 0.0 { u + 0.5 } else { u - 0.5 }).trunc()
-}
-
 /// de Casteljau: the curve on [0, t]
 fn trim_end(p: [[f64; 2]; 4], t: f64) -> [[f64; 2]; 4] {
     let s = 1.0 - t;
@@ -94,27 +90,29 @@ fn trim_start(p: [[f64; 2]; 4], t: f64) -> [[f64; 2]; 4] {
     [m(r0, r1), r1, q2, p[3]]
 }
 
-fn out(v: (f64, f64)) -> P {
-    ((v.0 * (1.0 / SCALE) + 0.0) as f32, (v.1 * (1.0 / SCALE) + 0.0) as f32)
-}
-
 /// MEASURED (D2D.OUTLINE, from the clean-room notes; golden d2d-32/-64: outline-*, combine-*
 /// bit for bit): the figures Outline (one geometry) or CombineWithGeometry (two) give the sink,
 /// its fill mode ALTERNATE
 pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
     let tol = if tol > 0.0 { tol.max(f32::from_bits(0x358637bd)) } else { 0.25 };
     let mut ext = 0f64;
+    let mut merged: Option<[f32; 4]> = None;
     for g in gs {
         let b = bounds(g, None)?;
         if !b.iter().all(|v| v.is_finite()) {
             return Err(bad());
         }
         if b[2] >= b[0] && b[3] >= b[1] {
+            merged = Some(match merged {
+                None => b,
+                Some([l, t, r, bottom]) => [l.min(b[0]), t.min(b[1]), r.max(b[2]), bottom.max(b[3])],
+            });
             ext = ext.max(f64::from(b[2]) - f64::from(b[0])).max(f64::from(b[3]) - f64::from(b[1]));
         }
     }
-    let tol = SCALE * f64::from(tol).max(ext * 3e-12);
-    let ws = |p: P| (snap(f64::from(p.0) * SCALE), snap(f64::from(p.1) * SCALE));
+    let workspace = Workspace::new(merged.unwrap_or([0.0; 4]), SCALE);
+    let tol = workspace.scale() * f64::from(tol).max(ext * 3e-12);
+    let ws = |p| workspace.snap(p);
     let mut curves: Vec<[[f64; 2]; 4]> = Vec::new();
     let mut lines: Vec<Line> = Vec::new();
     let mut parts: Vec<Option<(Part, bool)>> = Vec::new();
@@ -135,20 +133,16 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
                         curves.push(b);
                         let mut t0 = 0.0;
                         for (v, t, _) in flatten_t(b, tol) {
-                            pts.push(((snap(v[0]), snap(v[1])), Some(Part { curve, ta: t0, tb: t })));
+                            pts.push(((snap_workspace(v[0]), snap_workspace(v[1])), Some(Part { curve, ta: t0, tb: t })));
                             t0 = t;
                         }
                         pts.push((ws(p3), Some(Part { curve, ta: t0, tb: 1.0 })));
                     }
                 }
             }
-            // (the workspace holds integers to 2^48)
-            if pts.iter().any(|p| !(p.0.0.abs() <= 281474976710656.0 && p.0.1.abs() <= 281474976710656.0)) {
-                return Err(bad());
-            }
             let mut fp: Vec<(Pt, Option<Part>)> = Vec::new();
             for (p, part) in pts {
-                let p = (p.0 as I, p.1 as I);
+                let p = workspace_point(p)?;
                 if fp.last().map(|l| l.0) != Some(p) {
                     fp.push((p, part));
                 }
@@ -183,7 +177,7 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
     for b in curves.iter_mut() {
         *b = b.map(|p| [p[0] / f, p[1] / f]);
     }
-    let out = |v: (f64, f64)| out((v.0 * f, v.1 * f));
+    let out = |v: (f64, f64)| workspace.restore((v.0 * f, v.1 * f));
     let (mut on, inner) = cuts(&lines);
     for vs in on.iter_mut() {
         vs.sort_by(|a, b| sweep(*a, *b));
@@ -284,11 +278,19 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
                 e += 1;
             }
             let left = inside(&w);
+            let mut between = false;
             for &h in &hs[k..e] {
                 let l = &lines[pieces[h].line];
                 w[l.tag] += l.dir;
+                if workspace.centered && !left {
+                    between |= inside(&w);
+                }
             }
             let right = inside(&w);
+            // A fill between coincident edges can leave an open, hollow run in the sink.
+            if between && !right {
+                return Err(bad());
+            }
             if left != right {
                 let pc = &pieces[hs[k]];
                 let l = &lines[pc.line];
@@ -400,8 +402,11 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
             }
         }
         flush(&mut pend, &mut segs, &mut last);
-        figs.push(Fig { start: out(start), segs, closed: last == start });
+        // The sink's closure test uses the emitted coordinates.
+        let start = out(start);
+        figs.push(Fig { start, segs, closed: out(last) == start });
     }
     hit(clause::D2D_OUTLINE);
+    if workspace.centered { hit(clause::D2D_SIMP_SCALE); }
     Ok(figs)
 }

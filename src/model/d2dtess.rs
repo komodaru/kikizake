@@ -269,32 +269,106 @@ pub(crate) fn cuts(lines: &[Line]) -> (Vec<Vec<Q>>, HashMap<Q, Vec<(usize, I, I,
     (on, inner)
 }
 
-/// the figures in workspace units (1/64 DIP, integers), each without repeated points
-fn workspace(g: &Geom, tol: f32, ext: f64) -> Res<(bool, Vec<Vec<Pt>>)> {
+const WORKSPACE_LIMIT: f64 = 281474976710656.0;
+
+#[derive(Clone, Copy)]
+struct WorkspaceAxis {
+    center: f64,
+    scale: f64,
+    inverse: f64,
+}
+
+impl WorkspaceAxis {
+    fn centered(lo: f64, hi: f64) -> Self {
+        let center = 0.5 * hi + 0.5 * lo;
+        let scale = WORKSPACE_LIMIT / ((hi - lo) * 1.5 + 2.0);
+        let inverse = 1.0 / scale;
+        Self { center: (scale * center + 0.5).floor() * inverse, scale, inverse }
+    }
+
+    fn snap(self, v: f32) -> f64 {
+        snap_workspace((f64::from(v) - self.center) * self.scale)
+    }
+
+    fn restore(self, v: f64) -> f64 {
+        v * self.inverse + self.center
+    }
+}
+
+/// The scanner's fixed grid, or the two centered grids selected from the geometry's bounds.
+pub(crate) struct Workspace {
+    x: WorkspaceAxis,
+    y: WorkspaceAxis,
+    pub centered: bool,
+}
+
+impl Workspace {
+    pub(crate) fn new(bounds: [f32; 4], scale: f64) -> Self {
+        let [l, t, r, b] = bounds.map(f64::from);
+        let lower_fits = |v| (v - 1.0) * scale * 1.5 > -WORKSPACE_LIMIT;
+        let upper_fits = |v| (v + 1.0) * scale * 1.5 < WORKSPACE_LIMIT;
+        if lower_fits(l) && lower_fits(t) && upper_fits(r) && upper_fits(b) {
+            let axis = WorkspaceAxis { center: 0.0, scale, inverse: 1.0 / scale };
+            Self { x: axis, y: axis, centered: false }
+        } else {
+            Self { x: WorkspaceAxis::centered(l, r), y: WorkspaceAxis::centered(t, b), centered: true }
+        }
+    }
+
+    pub(crate) fn snap(&self, p: P) -> (f64, f64) {
+        (self.x.snap(p.0), self.y.snap(p.1))
+    }
+
+    pub(crate) fn restore(&self, (x, y): (f64, f64)) -> P {
+        (self.x.restore(x) as f32, self.y.restore(y) as f32)
+    }
+
+    pub(crate) fn scale(&self) -> f64 {
+        self.x.scale.max(self.y.scale)
+    }
+
+    pub(crate) fn inverse_area_scale(&self) -> f64 {
+        self.x.inverse * self.y.inverse
+    }
+}
+
+pub(crate) fn snap_workspace(u: f64) -> f64 {
+    (if u >= 0.0 { u + 0.5 } else { u - 0.5 }).trunc()
+}
+
+/// Bound the scanner inputs before casting, so no invalid float can silently saturate.
+pub(crate) fn workspace_coordinate(v: f64) -> Option<I> {
+    if v.abs() <= WORKSPACE_LIMIT && v.fract() == 0.0 {
+        Some(v as I)
+    } else {
+        None
+    }
+}
+
+pub(crate) fn workspace_point((x, y): (f64, f64)) -> Res<Pt> {
+    Ok((workspace_coordinate(x).ok_or_else(bad)?, workspace_coordinate(y).ok_or_else(bad)?))
+}
+
+/// The figures snapped to the scanner's grid.
+fn workspace(g: &Geom, tol: f32, ext: f64, ws: &Workspace) -> Res<(bool, Vec<Vec<Pt>>)> {
     let (wind, _, figs) = shape(g);
-    let snap = |u: f64| (if u >= 0.0 { u + 0.5 } else { u - 0.5 }).trunc();
-    let ws = |p: P| (snap(f64::from(p.0) * 64.0), snap(f64::from(p.1) * 64.0));
-    let tol = 64.0 * f64::from(tol).max(ext * 3e-12);
+    let point = |p| ws.snap(p);
+    let tol = ws.scale() * f64::from(tol).max(ext * 3e-12);
     let mut all = Vec::new();
     for f in &figs {
-        let mut pts = vec![ws(f.start)];
+        let mut pts = vec![point(f.start)];
         for sg in &f.segs {
             match *sg {
-                Seg::L(p) => pts.push(ws(p)),
+                Seg::L(p) => pts.push(point(p)),
                 Seg::C(p1, p2, p3) => {
                     let p0 = pts[pts.len() - 1];
-                    let b = [p0, ws(p1), ws(p2), ws(p3)].map(|p| [p.0, p.1]);
-                    pts.extend(flatten_in(b, tol).into_iter().map(|v| (snap(v[0]), snap(v[1]))));
-                    pts.push(ws(p3));
+                    let b = [p0, point(p1), point(p2), point(p3)].map(|p| [p.0, p.1]);
+                    pts.extend(flatten_in(b, tol).into_iter().map(|v| (snap_workspace(v[0]), snap_workspace(v[1]))));
+                    pts.push(point(p3));
                 }
             }
         }
-        // (the workspace holds integers to 2^48: the exact fractions reach that far; past it
-        // the spec's open D2D.SIMP)
-        if pts.iter().any(|p| !(p.0.abs() <= 281474976710656.0 && p.1.abs() <= 281474976710656.0)) {
-            return Err(bad());
-        }
-        all.push(pts.iter().map(|p| (p.0 as I, p.1 as I)).collect());
+        all.push(pts.into_iter().map(workspace_point).collect::<Res<Vec<_>>>()?);
     }
     Ok((wind, all))
 }
@@ -310,14 +384,14 @@ pub fn tessellate(g: &Geom, tol: f32) -> Res<Vec<[P; 3]>> {
     if !b.iter().all(|v| v.is_finite()) {
         return Err(bad());
     }
+    let ws = Workspace::new(b, 64.0);
     let c = |v: f32| f64::from(v.clamp(-524287.0, 524287.0));
     let ext = (c(b[2]) - c(b[0])).max(c(b[3]) - c(b[1]));
-    let (wind, figs) = workspace(g, tol, ext)?;
+    let (wind, figs) = workspace(g, tol, ext, &ws)?;
     let sc = scan(wind, &figs)?;
     hit(clause::D2D_TESS);
-    // (each coordinate u 0.015625 + 0 in f64, then to f32 to nearest)
-    let o = |v: (f64, f64)| ((v.0 * 0.015625 + 0.0) as f32, (v.1 * 0.015625 + 0.0) as f32);
-    Ok(sc.tris.into_iter().map(|t| t.map(o)).collect())
+    if ws.centered { hit(clause::D2D_SIMP_SCALE); }
+    Ok(sc.tris.into_iter().map(|t| t.map(|p| ws.restore(p))).collect())
 }
 
 /// what the scanner's sweep gives: the tessellator's triangles in workspace units, and CArea's

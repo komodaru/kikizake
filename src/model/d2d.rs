@@ -830,12 +830,6 @@ pub fn region_area2(a: &[Vec<(f64, f64)>], wa: bool, b: &[Vec<(f64, f64)>], wb: 
 /// and rounded half away from zero to an integer (f64); the scale back is 2^-20 per axis
 const AREA_SCALE: f64 = 1048576.0;
 
-/// a point in the area workspace: (v 2^20 +- 0.5) truncated
-fn area_snap(v: f64) -> f64 {
-    let u = v * AREA_SCALE;
-    (if u >= 0.0 { u + 0.5 } else { u - 0.5 }).trunc()
-}
-
 /// an ellipse's or rounded rectangle's figure from its 16 points: a cubic per corner, a line
 /// along every side
 fn rrect_fig(p: [P; 16]) -> Fig {
@@ -933,39 +927,17 @@ fn scanner_area(g: &Geom, tol: f32) -> Res<Measure> {
     if !ext.is_finite() {
         return Ok(Measure::BadNumber);
     }
-    // Beyond about 1.8e8 the workspace is centered and scaled to 2^48.
-    let big = 2f64.powi(48);
-    let inside = (f64::from(bb[0]) - 1.0) * AREA_SCALE * 1.5 > -big && (f64::from(bb[1]) - 1.0) * AREA_SCALE * 1.5 > -big && (f64::from(bb[2]) + 1.0) * AREA_SCALE * 1.5 < big && (f64::from(bb[3]) + 1.0) * AREA_SCALE * 1.5 < big;
-    // (MEASURED, D2D.AREA.HUGE, from the clean-room notes: beyond that each axis is centered
-    // and scaled to 2^48 by itself, SetWithScaleFactor)
-    let (figs, inv2) = if inside {
-        let ws = |p: P| (area_snap(f64::from(p.0)), area_snap(f64::from(p.1)));
-        let f = area_figures(g, area_tolerance(tol, ext, AREA_SCALE, AREA_SCALE), ws);
-        (f, (1.0 / AREA_SCALE) * (1.0 / AREA_SCALE))
-    } else {
+    let workspace = super::d2dtess::Workspace::new(bb, AREA_SCALE);
+    let inside = !workspace.centered;
+    if workspace.centered {
         hit(clause::D2D_AREA_HUGE);
-        let axis = |lo: f32, hi: f32| {
-            let (lo, hi) = (f64::from(lo), f64::from(hi));
-            let c = 0.5 * hi + 0.5 * lo;
-            let d = (hi - lo) * 1.5 + 2.0;
-            if d > f64::from_bits(0x0300000000000001) {
-                let scale = big / d;
-                let inv = 1.0 / scale;
-                ((scale * c + 0.5).floor() * inv, scale, inv)
-            } else {
-                (c, 1.0, 1.0)
-            }
-        };
-        let ((cx, sx, ix), (cy, sy, iy)) = (axis(bb[0], bb[2]), axis(bb[1], bb[3]));
-        let r = |u: f64| (if u >= 0.0 { u + 0.5 } else { u - 0.5 }).trunc();
-        let ws = |p: P| (r((f64::from(p.0) - cx) * sx), r((f64::from(p.1) - cy) * sy));
-        // Windows uses the larger axis scale for the scalar flattening tolerance.
         if !matches!(g, Geom::Path { .. }) {
             hit(clause::D2D_AREA_CURVE);
         }
-        let f = area_figures(g, area_tolerance(tol, ext, sx, sy), ws);
-        (f, ix * iy)
-    };
+    }
+    let scale = workspace.scale();
+    let figs = area_figures(g, area_tolerance(tol, ext, scale, scale), |p| workspace.snap(p));
+    let inv2 = workspace.inverse_area_scale();
     let (wind, figs) = figs;
     let a = if let [f] = figs.as_slice() && (matches!(g, Geom::Ell(_) | Geom::RRect(_)) || inside && simple_polygon(f)) {
         let n = f.len();

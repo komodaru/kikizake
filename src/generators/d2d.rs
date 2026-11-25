@@ -1011,7 +1011,7 @@ fn probes(s: &mut String, r: &mut XorShift32) {
     writeln!(s, "case strknan-0\nd2target 16 12\nd2path 0 alt m 2 2 12 4 4 10 z\nd2drawg 0 NaN 255 255 255 255\nd2read\nend");
 }
 
-/// Focused native measurements for the remaining render-target contracts.
+/// Focused native measurements for render-target and geometry boundary contracts.
 pub fn d2dlimits() -> String {
     let mut s = String::from("# kikizake suite d2dlimits: Direct2D render-target boundary cases.\n");
     let bitmap = "d2bmp 0 2 2 0000ffff00ff00ffff0000ffffffffff";
@@ -1051,5 +1051,36 @@ pub fn d2dlimits() -> String {
             writeln!(s, "case gradient-{name}-{ext}\nd2target 4 4\nd2clear 39 70 111 255\nd2xform {transform}\nd2grad 0 0 4 4 {kind} 22 {ext} {args} {colors}\nd2read\nend");
         }
     }
+    for (i, k) in [3e8f64, 1e12, 4e12, 5e12, 1e13, 1e16, 1e20].into_iter().enumerate() {
+        for (name, vertices) in [
+            ("tri", format!("{a} {a} {k} {a} 0 {k}", a = -k)),
+            ("cross", format!("{a} {a} {k} {k} {k} {a} {a} {k}", a = -k)),
+            ("translated", format!("{k} {k} {b} {k} {a} {b}", a = k * 1.01, b = k * 1.02)),
+        ] {
+            writeln!(s, "case workspace-{i}-{name}\nd2path 0 alt m {vertices} z\nd2tess 0\nd2outline 0\nend");
+        }
+    }
+    for exponent in [27u64, 29, 42, 43, 52, 66, 114, 125] {
+        let scale = f64::from_bits(1023u64.saturating_add(exponent) << 52);
+        let point = |n| f64::from(n) * scale;
+        let [a, b, c, d, e, f, g, h, i] = [-7, -5, -4, -3, -2, 2, 3, 4, 5].map(point);
+        writeln!(s, "case workspace-crossings-{exponent}\nd2path 0 alt m {b} {d} {h} {i} {g} {e} {a} {f} z\nd2rect 1 {c} {b} {f} {g}\nd2tess 0\nd2outline 0\nd2combine 0 1 union\nd2combine 0 1 intersect\nd2combine 0 1 xor\nd2combine 0 1 exclude\nend");
+    }
+    for (name, left, right, top, bottom, x) in [
+        ("outline-fixed", -178956960.0, 178956960.0, -178956960.0, 178956960.0, 0.03125),
+        ("outline-centered", -178956976.0, 178956976.0, -178956976.0, 178956976.0, 0.03125),
+        ("tess-fixed", -2199023255552.0, 2199023255552.0, -2199023255552.0, 2199023255552.0, 0.03125),
+        ("tess-centered", -4398046511104.0, 4398046511104.0, -4398046511104.0, 4398046511104.0, 0.03125),
+        ("asymmetric", -325000000.0, 162500000.0, -325000000.0, 325000000.0, -1.0),
+        ("thin", -536870912.0, 536870912.0, -16.0, 20.0, 0.03125),
+        ("collapse-coordinate", -1125899906842624.0, 1125899906842624.0, -1125899906842624.0, 1125899906842624.0, 0.03125),
+    ] {
+        writeln!(s, "case workspace-{name}\nd2path 0 alt m {left} {top} {right} {top} {x} {bottom} z\nd2tess 0\nd2outline 0\nend");
+    }
+    writeln!(s, "case workspace-thin-transposed\nd2path 0 alt m -274877906944 -17592186044416 -274877906944 17592186044416 274877906944 0.125 z\nd2outline 0\nd2tess 0\nend");
+    writeln!(s, "case workspace-mixed-outline\nd2path 0 alt m -536870912 -536870912 536870912 536870912 0 0.03125 -1 536870912 z\nd2tess 0\nd2outline 0\nend");
+    writeln!(s, "case workspace-centered-ellipse\nd2ell 0 4398046511104 0 549755813888 274877906944\nd2outline 0 43980465111.04\nd2tess 0 43980465111.04\nend");
+    // The centered grid merges the two points at the diagonal and leaves a hollow run.
+    writeln!(s, "case outline-hollow-overlap\nd2path 0 alt m -1125899906842624 -1125899906842624 1125899906842624 1125899906842624 0 0.03125 -1 1125899906842624 z\nd2outline 0\nend");
     s
 }
