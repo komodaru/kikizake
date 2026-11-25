@@ -3,7 +3,6 @@
 # its line out; a new clause comes proven (tests/spec.rs unproven_only_shrinks).
 GP.PEN.WIDE
 GP.PEN.INSET
-D3DRES.RESOLVE.MEAN
 D3DRASTER.SHADER
 D3DRASTER.DEPTH.ALONE
 D3DRASTER.MS.DEPTH

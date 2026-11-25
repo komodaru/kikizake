@@ -38,7 +38,7 @@ def mirrors : List Mirror :=
   D3d11.Line.mirrors ++
   D3d11.Layout.mirrors ++
   D3d11.Lod.mirrors ++
-  D3d11.Copy.mirrors ++
+  D3d11.Copy.mirrors ++ D3d11.ResolveMean.mirrors ++
   DWrite.Advance.mirrors ++
   DWrite.Metrics.mirrors ++
   D3dx9.DxtEnc.mirrors

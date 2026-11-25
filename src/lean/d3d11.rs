@@ -1504,3 +1504,119 @@ pub static LOD_MIRRORS: &[Mirror] = &[
         },
     },
 ];
+
+const RESOLVE_MEAN: &str = "spec/lean/Kikizake/D3d11/ResolveMean.lean";
+
+/// When an f32 operation returns NaN its payload and sign may vary with the compiler.
+/// Compare the NaN class at the pixel boundary. The conversion mirrors check raw payloads.
+fn canon_resolve_nan(f: &crate::model::dxgifmt::Format, out: &mut [u8]) {
+    use crate::model::dxgifmt::Num;
+    if f.num != Num::Float { return; }
+    match f.comps.first() {
+        Some(16) => {
+            for word in out.as_chunks_mut::<2>().0 {
+                let code = u16::from_le_bytes(*word);
+                if code & 0x7fff > 0x7c00 { *word = 0x7e00u16.to_le_bytes(); }
+            }
+        }
+        Some(32) => {
+            for word in out.as_chunks_mut::<4>().0 {
+                let code = u32::from_le_bytes(*word);
+                if f32::from_bits(code).is_nan() { *word = 0x7fc0_0000u32.to_le_bytes(); }
+            }
+        }
+        _ => {}
+    }
+}
+
+pub static RESOLVE_MEAN_MIRRORS: &[Mirror] = &[Mirror {
+    name: "d3d11.resolveMean",
+    lean: RESOLVE_MEAN,
+    domain: Domain::Sampled("all supported DXGI layouts, 1 to 32 samples, pairs of boundary texels, and 2,000 seeded byte vectors per layout"),
+    inputs: |each| {
+        use crate::model::dxgifmt::{format, Num};
+        let mut rng = crate::rng::Sample64::new(0x18ce_a4d3);
+        for id in 0..=200 {
+            let width = format(id).and_then(|f| usize::try_from(f.bits / 8).ok()).unwrap_or(4);
+            each(&[i64::from(id)]);
+            let mut args = vec![i64::from(id)];
+            args.extend(std::iter::repeat_n(0, width.saturating_mul(2)));
+            each(&args);
+            let Some(f) = format(id) else { continue };
+            if !matches!(f.num, Num::Unorm | Num::Snorm | Num::Float | Num::Srgb) && id != 26 { continue; }
+
+            let fill = |b: u8| vec![b; width];
+            let mut edges: Vec<Vec<u8>> = [0, 1, 2, 0x7e, 0x7f, 0x80, 0x81, 0xfe, 0xff].into_iter().map(fill).collect();
+            let mut repeat = |code: &[u8]| edges.push(code.iter().copied().cycle().take(width).collect());
+            if f.num == Num::Float {
+                if f.comps.first() == Some(&16) {
+                    for code in [0x0001u16, 0x03ff, 0x0400, 0x3c00, 0x7bff, 0x7c00, 0x7c01, 0x8000, 0xbc00, 0xfc00] {
+                        repeat(&code.to_le_bytes());
+                    }
+                } else {
+                    for code in [1u32, 0x007f_ffff, 0x0080_0000, 0x3f80_0000, 0x7f7f_ffff, 0x7f80_0000,
+                        0x7f80_0001, 0x8000_0000, 0xbf80_0000, 0xff80_0000] {
+                        repeat(&code.to_le_bytes());
+                    }
+                }
+            }
+            if id == 26 {
+                for code in [0u32, 1, 0x3e0, 0x3e1, 0x7c0, 0x7c1, 0xf800_0000, 0xf840_0000] {
+                    repeat(&code.to_le_bytes());
+                }
+            }
+            for a in &edges {
+                for b in &edges {
+                    args.truncate(1);
+                    args.extend(a.iter().chain(b).copied().map(i64::from));
+                    each(&args);
+                }
+            }
+            if f.num == Num::Float && f.comps.first() == Some(&32) {
+                let large = 0x60ad_78ecu32;
+                let one = 1.0f32.to_bits();
+                let negative = large | 0x8000_0000;
+                for ordered in [[large, negative, one], [large, one, negative]] {
+                    args.truncate(1);
+                    for code in ordered {
+                        args.extend(code.to_le_bytes().into_iter().cycle().take(width).map(i64::from));
+                    }
+                    each(&args);
+                }
+            }
+            for i in 0usize..2000 {
+                let count = (i % 32).saturating_add(1);
+                args.truncate(1);
+                args.extend((0..count.saturating_mul(width)).map(|_| rng.range(0, 255)));
+                each(&args);
+            }
+            for invalid in [[-1, 0], [256, 0]] {
+                args.truncate(1);
+                args.extend(invalid.into_iter().cycle().take(width.saturating_mul(2)));
+                each(&args);
+            }
+        }
+        each(&[]);
+        each(&[-1, 0]);
+        each(&[28, 0]);
+        let mut long = vec![61];
+        long.resize(34, 0);
+        each(&long);
+    },
+    model: |a| {
+        use crate::model::{d3dres::Mean, dxgifmt::format};
+        let answer = || {
+            let f = format(arg::<u32>(a, 0)?)?;
+            let mean = Mean::of(f)?;
+            let width = usize::try_from(f.bits / 8).ok().filter(|&w| w != 0)?;
+            let data = a.get(1..)?.iter().map(|&b| u8::try_from(b).ok()).collect::<Option<Vec<_>>>()?;
+            let samples = data.chunks_exact(width);
+            let n = samples.len();
+            if !samples.remainder().is_empty() || !(1..=32).contains(&n) { return None; }
+            let mut out = mean.resolve(f, n, |i| samples.clone().nth(i).unwrap_or_default()).ok()?;
+            canon_resolve_nan(f, &mut out);
+            Some(out.into_iter().map(i64::from).collect::<Vec<_>>())
+        };
+        Some(answer().unwrap_or_else(|| vec![-1]))
+    },
+}];

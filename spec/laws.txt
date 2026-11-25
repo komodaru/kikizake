@@ -956,3 +956,8 @@ spec/lean/Kikizake/Dxgi/Srgb.lean::decode_increases lean CONV.SRGBREAD
 spec/lean/Kikizake/Dxgi/Srgb.lean::curve_correct lean CONV.SRGB
 spec/lean/Kikizake/Dxgi/Srgb.lean::curve_endpoints lean CONV.SRGB
 spec/lean/Kikizake/Dxgi/Srgb.lean::encode_nan lean CONV.SRGB
+spec/lean/Kikizake/D3d11/ResolveMean.lean::snorm_minimum lean D3DRES.RESOLVE.MEAN
+spec/lean/Kikizake/D3d11/ResolveMean.lean::norm_mean_fits lean D3DRES.RESOLVE.MEAN
+spec/lean/Kikizake/D3d11/ResolveMean.lean::resolve_pixel lean D3DRES.RESOLVE.MEAN
+spec/lean/Kikizake/D3d11/ResolveMean.lean::resolve_binary32_order lean D3DRES.RESOLVE.MEAN
+spec/lean/Kikizake/D3d11/ResolveMean.lean::resolve_packed_midpoint lean D3DRES.RESOLVE.MEAN D3DRES.RESOLVE.MEAN.INTEGER

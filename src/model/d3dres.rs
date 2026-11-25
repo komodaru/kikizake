@@ -1150,7 +1150,7 @@ pub fn texel(res: &Resource, sub: u32, fmt: u32, x: u32, y: u32) -> Res<[u32; 4]
 
 /// how samples that differ resolve to their mean, by the format (D3DRES.RESOLVE.MEAN)
 #[derive(Clone, Copy, PartialEq, Debug)]
-enum Mean {
+pub(crate) enum Mean {
     /// 8-bit UNORM: bytes as integers, (sum + n / 2) / n
     Bytes,
     /// 16-bit UNORM: v / 65535 in f32 summed, / n, times 65535 rounded half to even
@@ -1182,7 +1182,7 @@ pub(crate) fn word_resolve_mean(samples: impl ExactSizeIterator<Item = u16>) -> 
 }
 
 impl Mean {
-    fn of(f: &Format) -> Option<Mean> {
+    pub(crate) fn of(f: &Format) -> Option<Mean> {
         let all = |b: u32| f.comps.iter().all(|&c| c == b);
         match f.num {
             Num::Unorm if all(8) => Some(Mean::Bytes),
@@ -1197,7 +1197,7 @@ impl Mean {
         }
     }
 
-    fn resolve<'a>(self, f: &Format, n: usize, sample: impl Fn(usize) -> &'a [u8]) -> Res<Vec<u8>> {
+    pub(crate) fn resolve<'a>(self, f: &Format, n: usize, sample: impl Fn(usize) -> &'a [u8]) -> Res<Vec<u8>> {
         let el = (f.bits / 8) as usize;
         let count = u64::try_from(n).ok().ok_or(Fail::Bad)?;
         let word = |k: usize| sample(k).iter().rev().fold(0u64, |a, &b| a << 8 | u64::from(b));

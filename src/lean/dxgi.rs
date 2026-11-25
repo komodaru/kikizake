@@ -167,10 +167,10 @@ pub static MIRRORS: &[Mirror] = &[
         lean: SMALL_FLOAT,
         domain: Domain::Every("every signed binary16 and unsigned 11/10-bit floating-point code"),
         inputs: |each| {
-            for (kind, &(mantissa, signed)) in SMALL_FORMATS.iter().enumerate() {
-                let codes = 1u32 << (5 + mantissa + u32::from(signed));
+            for (kind, &(mantissa, signed)) in (0i64..).zip(SMALL_FORMATS.iter()) {
+                let codes = 1u32 << 5u32.saturating_add(mantissa).saturating_add(u32::from(signed));
                 for bits in 0..codes {
-                    each(&[kind as i64, i64::from(bits)]);
+                    each(&[kind, i64::from(bits)]);
                 }
             }
         },
@@ -185,11 +185,10 @@ pub static MIRRORS: &[Mirror] = &[
         domain: Domain::Sampled("binary32 at and on either side of every positive small-float code, both signs, all exponent boundaries, and 20,000 full bit patterns per format"),
         inputs: |each| {
             use crate::model::dxgiconv::from_small_float;
-            for (kind, &(mantissa, signed)) in SMALL_FORMATS.iter().enumerate() {
-                let kind = kind as i64;
-                for code in 0..1u32 << (5 + mantissa) {
+            for (kind, &(mantissa, signed)) in (0i64..).zip(SMALL_FORMATS.iter()) {
+                for code in 0..1u32 << 5u32.saturating_add(mantissa) {
                     let pivot = from_small_float(code, 5, mantissa, signed).to_bits();
-                    for bits in [pivot.saturating_sub(1), pivot, pivot + 1] {
+                    for bits in [pivot.saturating_sub(1), pivot, pivot.saturating_add(1)] {
                         each(&[kind, i64::from(bits)]);
                         each(&[kind, i64::from(bits | 0x8000_0000)]);
                     }
@@ -201,7 +200,7 @@ pub static MIRRORS: &[Mirror] = &[
                         each(&[kind, i64::from(bits | 0x8000_0000)]);
                     }
                 }
-                sampled(&[(0, 0xffff_ffff)], 20_000, 0x5f10_a732, &mut |a| each(&[kind, a[0]]));
+                sampled(&[(0, 0xffff_ffff)], 20_000, 0x5f10_a732, &mut |a| { if let [bits] = a { each(&[kind, *bits]); } });
             }
         },
         model: |a| {
@@ -235,8 +234,8 @@ pub static MIRRORS: &[Mirror] = &[
         domain: Domain::Sampled("both sides of each UNORM12 midpoint, every binary32 exponent boundary, and 20,000 sampled binary32 words"),
         inputs: |each| {
             for q in 0..4095u16 {
-                let bits = ((f32::from(q) + 0.5) / 4095.0).to_bits();
-                for b in [bits - 1, bits, bits + 1] {
+                let bits = ((f32::from(q).mul_add(1.0, 0.5)) / 4095.0).to_bits();
+                for b in [bits.saturating_sub(1), bits, bits.saturating_add(1)] {
                     each(&[i64::from(b)]);
                 }
             }
