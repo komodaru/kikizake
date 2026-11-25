@@ -134,7 +134,11 @@ impl Edge {
         let istep = trunc(slope)?;
         let Some(whole) = raster_long(istep) else {
             // A short edge used once only contributes its first column.
-            return (!advances).then_some(Edge { x, err, istep: 0, fstep: 0, cstep: 0 });
+            if advances {
+                return None;
+            }
+            crate::spec::hit(crate::spec::clause::D3D7_TRI_CLIP);
+            return Some(Edge { x, err, istep: 0, fstep: 0, cstep: 0 });
         };
         let fs = trunc(x87_mul(slope - whole, TWO31))?;
         // (the fraction's bits as the 32-bit add sees them: negative for a negative slope)
