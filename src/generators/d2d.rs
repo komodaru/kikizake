@@ -1084,3 +1084,35 @@ pub fn d2dlimits() -> String {
     writeln!(s, "case outline-hollow-overlap\nd2path 0 alt m -1125899906842624 -1125899906842624 1125899906842624 1125899906842624 0 0.03125 -1 1125899906842624 z\nd2outline 0\nend");
     s
 }
+
+pub fn d2dhugecurve() -> String {
+    let mut s = String::from("# kikizake suite d2dhugecurve: curve controls outside the fixed scan frame.
+");
+    for aa in ["aliased", "aa"] {
+        for (i, (slot, geom)) in [
+            (0, "d2ell 0 8388608 2 8388608 2"),
+            (0, "d2ell 0 8388608 2 8388610 2"),
+            (0, "d2ell 0 -8388608 2 8388612 2"),
+            (0, "d2ell 0 2 8388608 2 8388610"),
+            (0, "d2ell 0 2 -8388608 2 8388612"),
+            (0, "d2ell 0 2 2 33554432 33554432"),
+            (0, "d2ell 0 2 2 33554432 2"),
+            (0, "d2ell 0 2 2 2 33554432"),
+            (0, "d2ell 0 12000000 12000000 11999998 11999998"),
+            (1, "d2ell 0 2 2 4 3
+d2xf 1 0 4000000 4000000 -4000000 4000000 -2000000 -2000000"),
+        ].iter().enumerate() {
+            writeln!(s, "case huge-curve-{aa}-{i}
+d2target 8 6");
+            if aa == "aliased" {
+                writeln!(s, "d2aa aliased");
+            }
+            writeln!(s, "d2clear 39 70 111 255
+{geom}
+d2fillg {slot} 255 255 255 255
+d2read
+end");
+        }
+    }
+    s
+}

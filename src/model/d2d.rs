@@ -3202,6 +3202,8 @@ impl Frame {
     }
 }
 
+const SCAN_GUARD: f32 = 65536.0;
+
 /// MEASURED (D2D.FILL.FIXED, D2D.FILL.AACURVE): a geometry through the transform as closed
 /// polygons in 1/16 pixel of the frame: straight figures' points snapped, a curve's four points
 /// snapped and flattened in that fixed point by WPF's Bezier32
@@ -3218,7 +3220,7 @@ fn fixed_polys(tg: &Target, g: &Geom, frame: Frame) -> Res<(bool, Vec<Vec<(i64, 
             // the figure cut far outside the target first; where it is cut does not reach a
             // pixel)
             hit(clause::D2D_FILL_HUGE);
-            let g = 65536.0;
+            let g = f64::from(SCAN_GUARD);
             let quad = [(-g, -g), (g, -g), (g, g), (-g, g)];
             ps = ps.iter().map(|p| clip_convex(p, &quad)).filter(|p| p.len() >= 3).collect();
         }
@@ -3235,12 +3237,29 @@ fn fixed_curves(tg: &Target, figs: &[Fig], frame: Frame) -> Res<Vec<Vec<(i64, i6
     hit(clause::D2D_FILL_AACURVE);
     let sn = |v: f64| frame.snap(v);
     let s = |p: P| (sn(f64::from(p.0)), sn(f64::from(p.1)));
-    if figs.iter().any(|f| std::iter::once(f.start).chain(f.segs.iter().flat_map(|s| match *s {
+    let points = figs.iter().flat_map(|f| std::iter::once(f.start).chain(f.segs.iter().flat_map(|s| match *s {
         Seg::L(p) => vec![p],
         Seg::C(a, b, c) => vec![a, b, c],
-    })).any(|p| !(p.0.abs() <= 8388608.0 && p.1.abs() <= 8388608.0))) {
-        return Err(Fail::Unmodeled(open::D2D_RT));
+    })));
+    let mut needs_clip = false;
+    for (x, y) in points {
+        let extent = x.abs().max(y.abs());
+        // The strip flattener forms second differences and multiplies them by six.
+        if !x.is_finite() || !y.is_finite() || extent > f32::MAX / 64.0 {
+            return Err(Fail::Unmodeled(open::D2D_RT));
+        }
+        needs_clip |= extent > 8388608.0;
     }
+    let clipped;
+    let figs = if needs_clip {
+        // Windows clips oversized curves before snapping them to the 28.4 grid.
+        // Cubics leaving a strip are flattened by the same clipper as layer masks.
+        hit(clause::D2D_FILL_HUGE);
+        clipped = strip_clip(strip_clip(figs.to_vec(), 0, -SCAN_GUARD, SCAN_GUARD), 1, -SCAN_GUARD, SCAN_GUARD);
+        &clipped
+    } else {
+        figs
+    };
     // (the target in 28.4: in the antialiased frame WPF's 28.4 point plus 8)
     let clip = match frame {
         Frame::Aliased | Frame::AliasedWarp => [0, 0, 16 * tg.w as i64, 16 * tg.h as i64],

@@ -1,0 +1,153 @@
+# kikizake suite d2dhugecurve: curve controls outside the fixed scan frame.
+case huge-curve-aliased-0
+d2target 8 6
+d2aa aliased
+d2clear 39 70 111 255
+d2ell 0 8388608 2 8388608 2
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aliased-1
+d2target 8 6
+d2aa aliased
+d2clear 39 70 111 255
+d2ell 0 8388608 2 8388610 2
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aliased-2
+d2target 8 6
+d2aa aliased
+d2clear 39 70 111 255
+d2ell 0 -8388608 2 8388612 2
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aliased-3
+d2target 8 6
+d2aa aliased
+d2clear 39 70 111 255
+d2ell 0 2 8388608 2 8388610
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aliased-4
+d2target 8 6
+d2aa aliased
+d2clear 39 70 111 255
+d2ell 0 2 -8388608 2 8388612
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aliased-5
+d2target 8 6
+d2aa aliased
+d2clear 39 70 111 255
+d2ell 0 2 2 33554432 33554432
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aliased-6
+d2target 8 6
+d2aa aliased
+d2clear 39 70 111 255
+d2ell 0 2 2 33554432 2
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aliased-7
+d2target 8 6
+d2aa aliased
+d2clear 39 70 111 255
+d2ell 0 2 2 2 33554432
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aliased-8
+d2target 8 6
+d2aa aliased
+d2clear 39 70 111 255
+d2ell 0 12000000 12000000 11999998 11999998
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aliased-9
+d2target 8 6
+d2aa aliased
+d2clear 39 70 111 255
+d2ell 0 2 2 4 3
+d2xf 1 0 4000000 4000000 -4000000 4000000 -2000000 -2000000
+d2fillg 1 255 255 255 255
+d2read
+end
+case huge-curve-aa-0
+d2target 8 6
+d2clear 39 70 111 255
+d2ell 0 8388608 2 8388608 2
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aa-1
+d2target 8 6
+d2clear 39 70 111 255
+d2ell 0 8388608 2 8388610 2
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aa-2
+d2target 8 6
+d2clear 39 70 111 255
+d2ell 0 -8388608 2 8388612 2
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aa-3
+d2target 8 6
+d2clear 39 70 111 255
+d2ell 0 2 8388608 2 8388610
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aa-4
+d2target 8 6
+d2clear 39 70 111 255
+d2ell 0 2 -8388608 2 8388612
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aa-5
+d2target 8 6
+d2clear 39 70 111 255
+d2ell 0 2 2 33554432 33554432
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aa-6
+d2target 8 6
+d2clear 39 70 111 255
+d2ell 0 2 2 33554432 2
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aa-7
+d2target 8 6
+d2clear 39 70 111 255
+d2ell 0 2 2 2 33554432
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aa-8
+d2target 8 6
+d2clear 39 70 111 255
+d2ell 0 12000000 12000000 11999998 11999998
+d2fillg 0 255 255 255 255
+d2read
+end
+case huge-curve-aa-9
+d2target 8 6
+d2clear 39 70 111 255
+d2ell 0 2 2 4 3
+d2xf 1 0 4000000 4000000 -4000000 4000000 -2000000 -2000000
+d2fillg 1 255 255 255 255
+d2read
+end
