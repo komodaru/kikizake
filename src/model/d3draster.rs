@@ -807,6 +807,11 @@ pub fn sampler_or_default(s: Option<[u32; 5]>) -> [u32; 5] {
     s.unwrap_or([0x15, 3, 3, 3, 1])
 }
 
+/// An ordinary linear float sample crashes WARP when its view stores integers.
+pub fn linear_filter_crashes(integer: bool, comparison: bool) -> bool {
+    integer && !comparison
+}
+
 /// D3DRASTER.FILTER.ANISO, MINMAG: a sampler's filter's minifying and magnifying filters,
 /// linear or point; None for a filter the model does not draw with
 pub fn filter_linear(f: u32) -> Option<(bool, bool)> {
@@ -2678,7 +2683,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // (MEASURED, WARP: probe-filter-r8g8b8a8-uint, golden 878bb10, x86 and x86-64) an integer
                 // format's view sampled through a float one ends the executor
                 let integer = format(v.format()).is_some_and(|f| matches!(f.num, Num::Uint | Num::Sint));
-                if cmp.is_none() && integer {
+                if linear_filter_crashes(integer, cmp.is_some()) {
                     hit(clause::D3DRASTER_FILTER_INT);
                     return Err(Fail::Crash);
                 }

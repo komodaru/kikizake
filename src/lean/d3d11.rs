@@ -884,6 +884,16 @@ fn lods(seed: u32, each: &mut dyn FnMut(&[i64])) {
 
 pub static FILTER_MIRRORS: &[Mirror] = &[
     Mirror {
+        name: "d3d11.linearfiltercrashes",
+        lean: FILTER,
+        domain: Domain::Every("all integer-format and comparison-sampling flag pairs"),
+        inputs: |each| every(&[(0, 1), (0, 1)], each),
+        model: |a| {
+            let crashes = crate::model::d3draster::linear_filter_crashes(flag(a, 0)?, flag(a, 1)?);
+            Some(vec![i64::from(crashes)])
+        },
+    },
+    Mirror {
         name: "d3d11.split",
         lean: FILTER,
         domain: Domain::Sampled("40 signed boundary floats and 60,000 coordinates (in -1..2, multiples of 2^-k in 0..1, any pattern), each with a texture size of 14 (0 to 2^32 - 1) and one of 1..4096"),

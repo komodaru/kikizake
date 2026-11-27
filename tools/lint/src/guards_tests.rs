@@ -493,6 +493,15 @@ fn shade() {
 }
 
 #[test]
+fn integer_filter_check_stays_in_the_mirrored_function() {
+    let inlined = "fn shade() { if cmp.is_none() && integer {} }";
+    let errors = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(errors.iter().filter(|e| e.contains("confined:") && e.contains(" in shade")).count(), 1, "{errors:?}");
+    let mirrored = "fn linear_filter_crashes(integer: bool, comparison: bool) -> bool { integer && !comparison }";
+    assert!(rust("src/model/d3draster.rs", mirrored).is_empty());
+}
+
+#[test]
 fn lod_stays_in_the_mirrored_functions() {
     let inlined = "fn shade() {\n    let s = (du * w).powi(2);\n    if rho <= 1.0 {}\n    let d = [0x15, 3, 3, 3, 1];\n}\n";
     let r = rust("src/model/d3draster.rs", inlined);

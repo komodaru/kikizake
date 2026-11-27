@@ -140,6 +140,14 @@ abbrev cmp := cmpWith F32.fmt
 /-- sample_c's texel: its red against the reference, 1 or 0 -/
 def sampleCmp (func ref red : Nat) : Nat := if cmp func ref red then one else 0
 
+/-- D3DRASTER.FILTER.INT: the ordinary linear float path faults on an integer view. -/
+def linearFilterCrashes (integer comparison : Bool) : Bool :=
+  integer && !comparison
+
+theorem integer_filter_crashes (integer comparison : Bool) :
+    linearFilterCrashes integer comparison = true ↔ integer = true ∧ comparison = false := by
+  cases integer <;> cases comparison <;> decide
+
 /-! ## D3DRASTER.DEPTH.SMALL -/
 
 /-- Direct3D 10: a pixel past a smaller depth view's width or height is not drawn -/
@@ -190,6 +198,11 @@ theorem past_depth (dw dh x y : Nat) : pastDepth dw dh x y = false ↔ x < dw �
 
 /-- the mirrors: a binary64 as its two 32-bit halves -/
 def mirrors : List Mirror := [
+  ⟨"d3d11.linearfiltercrashes", fun
+    | [i, c] => if (i = 0 ∨ i = 1) ∧ (c = 0 ∨ c = 1) then
+        some [if linearFilterCrashes (i != 0) (c != 0) then 1 else 0]
+      else none
+    | _ => none⟩,
   ⟨"d3d11.split", fun | [c, n] => do let (i, w) := split (← nat c) (← nat n); pure [i, w] | _ => none⟩,
   ⟨"d3d11.pointtexel", fun | [c, n] => do pure [pointTexel (← nat c) (← nat n)] | _ => none⟩,
   ⟨"d3d11.linearfloat", fun | [n] => do pure [linearFloat (← nat n)] | _ => none⟩,
