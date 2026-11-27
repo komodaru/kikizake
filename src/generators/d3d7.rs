@@ -1169,3 +1169,39 @@ pub fn d3d7wide() -> String {
     }
     s
 }
+
+pub fn d3d7rowspill() -> String {
+    let mut s = String::from("# kikizake suite d3d7rowspill: 24-bit spans reaching the next row.
+# x86 only
+");
+    for device in ["rgb", "mmx"] {
+        for (width, tri) in [(5, "51 17 79 17 64 0"), (7, "104 19 80 0 70 21"),
+                             (8, "109 5 114 18 112 0"), (10, "159 18 117 3 112 0")] {
+            writeln!(s, "case spill-{device}-{width}
+d3d 7
+d3ddev {device} 24 {width} 3
+d3drs set 22 1
+d3dclear 0xff010203
+d3dtri 0xff6ba3fb {tri} z 500
+d3ddump");
+            writeln!(s, "d3drs set 27 1
+d3drs set 19 2
+d3drs set 20 2
+d3dtri 0xff1a2b3c {tri}
+d3ddump
+end");
+            if width != 7 {
+                writeln!(s, "case depth-{device}-{width}
+d3d 7
+d3ddev {device} 24 {width} 3 z16
+d3drs set 22 1
+d3dclear 0xff010203 z 1000
+d3dtri 0xff6ba3fb {tri} z 500
+d3ddump
+d3dzdump
+end");
+            }
+        }
+    }
+    s
+}

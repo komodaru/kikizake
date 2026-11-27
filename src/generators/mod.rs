@@ -115,6 +115,7 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("d3d7edge", d3d7::d3d7edge),
     ("d3d7dev", d3d7::d3d7dev),
     ("d3d7wide", d3d7::d3d7wide),
+    ("d3d7rowspill", d3d7::d3d7rowspill),
     ("d3d7spill0", d3d7::d3d7spill::<0>),
     ("d3d7spill1", d3d7::d3d7spill::<1>),
     ("d3d7spill2", d3d7::d3d7spill::<2>),

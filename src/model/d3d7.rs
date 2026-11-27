@@ -353,8 +353,12 @@ struct Target {
     h: i64,
     fmt: Fmt,
     px: Vec<u32>,
+    /// The bytes of 24-bit row padding a pixel spanning two rows can read and write.
+    color_pad: Vec<[u8; 2]>,
     depth: Option<Depth>,
     z: Vec<u32>,
+    /// First sample of each depth row's padding, when a span reaches column w.
+    z_pad: Vec<u32>,
 }
 
 /// a device that was made
@@ -674,7 +678,17 @@ impl D3d7 {
         };
         let k = usize::try_from(w * h).map_err(|_| Fail::Bad)?;
         // MEASURED (v1 golden): a new target holds zeros
-        let rt = Target { w, h, fmt, px: vec![0; k], depth, z: vec![0; if depth.is_some() { k } else { 0 }] };
+        let rows = usize::try_from(h).map_err(|_| Fail::Bad)?;
+        let rt = Target {
+            w,
+            h,
+            fmt,
+            px: vec![0; k],
+            color_pad: vec![[0; 2]; if fmt == Fmt::R24 { rows } else { 0 }],
+            depth,
+            z: vec![0; if depth.is_some() { k } else { 0 }],
+            z_pad: vec![0; if depth.is_some() { rows } else { 0 }],
+        };
         self.dev = Some(Device { heap: Heap::Intact, family, ver, spans: crate::model::ramp::Spans::default(), rt });
         if depth.is_some() {
             // MEASURED: ZENABLE is on when the target had a z-buffer
@@ -1392,7 +1406,7 @@ fn point_writes(family: Family, ver: Ver, st: &States, tri: &Tri, w: i64, h: i64
                 Col::Unit(hal_mix(st, [r, g, b], [sr, sg, sb], sa))
             }
         };
-        out.push(Write { k, x: px, y: py, c: col });
+        out.push(Write { k, x: px, y: py, c: col, prefix: 0 });
     }
     Ok(out)
 }
@@ -1480,7 +1494,7 @@ fn soft_line(st: &States, e: [(i64, i64); 2], c: [[u8; 4]; 2], w: i64, h: i64) -
     let mut out = Vec::new();
     for (&(x, y), &c) in walk.px.iter().zip(&walk.colours(ca, cb)?) {
         let Some(k) = at(x, y, w, h)? else { continue };
-        out.push(Write { k, x, y, c: words(c) });
+        out.push(Write { k, x, y, c: words(c), prefix: 0 });
     }
     Ok(out)
 }
@@ -1518,7 +1532,7 @@ fn line_writes(family: Family, st: &States, ends: [((i64, i64), [u8; 4], [u8; 4]
             for (k, _) in cover.iter().enumerate().filter(|&(_, &c)| c) {
                 let (x, y) = (i64::try_from(k % wu).ok().ok_or(Fail::Bad)?, i64::try_from(k / wu).ok().ok_or(Fail::Bad)?);
                 let mix = hal_mix(st, [r.at(x, y)?, g.at(x, y)?, b.at(x, y)?], [sr.at(x, y)?, sg.at(x, y)?, sbl.at(x, y)?], sf.at(x, y)?);
-                out.push(Write { k, x, y, c: Col::Unit(mix) });
+                out.push(Write { k, x, y, c: Col::Unit(mix), prefix: 0 });
             }
         }
     }
@@ -1715,6 +1729,8 @@ enum Prim {
 enum Walked {
     /// in the target: its index
     In(usize),
+    /// First pixel of the next row and the number of preceding padding bytes.
+    AcrossRow { k: usize, prefix: usize },
     /// in a row's padding past its right side
     Padding,
     /// past the surface's last byte
@@ -1722,8 +1738,7 @@ enum Walked {
 }
 
 /// the address of pixel (x, y) as a span walks it (past the right side on into the row's padding
-/// and the next row, past the last row into the memory after the surface); one across a row's
-/// end (a 24-bit pixel half in the padding) not worked out (D3D7.TRI.CLIP)
+/// and the next row, past the last row into the memory after the surface).
 fn walked(x: i64, y: i64, w: i64, h: i64, fmt: Fmt) -> Res<Walked> {
     let bad = || Fail::Bad;
     let b = i64::try_from(fmt.bytes()).ok().ok_or_else(bad)?;
@@ -1736,6 +1751,11 @@ fn walked(x: i64, y: i64, w: i64, h: i64, fmt: Fmt) -> Res<Walked> {
     }
     if a.wrapping_add(b) > h.wrapping_mul(p) {
         return Ok(Walked::PastEnd);
+    }
+    if at == end && (1..b).contains(&(p - at)) {
+        let k = usize::try_from((row + 1) * w).map_err(|_| Fail::Bad)?;
+        let prefix = usize::try_from(p - at).map_err(|_| Fail::Bad)?;
+        return Ok(Walked::AcrossRow { k, prefix });
     }
     let col = at.div_euclid(b);
     if col >= w {
@@ -1762,7 +1782,7 @@ fn ramp_writes(spans: &mut crate::model::ramp::Spans, heap: &mut Heap, st: &Stat
         (z_stage, _) => RFill::Either { z_stage },
     };
     let fog = st.fog.map(|fc| [0u32, 8, 16].map(|sh| u16::try_from(fc >> sh & 255).unwrap_or(0)));
-    let sh = Shading { fill, i: 0x8000, j: alpha << 16, gouraud, specular: st.specular, fog };
+    let sh = Shading { fill, j: alpha << 16, gouraud, specular: st.specular, fog };
     let mut b = Batch::begin(spans, sh);
     let inside = |v: &[(i64, i64)]| v.iter().all(|&(x, y)| (0..w.wrapping_mul(16)).contains(&x) && (0..h.wrapping_mul(16)).contains(&y));
     match (prim, st.fill) {
@@ -1822,8 +1842,9 @@ fn ramp_writes(spans: &mut crate::model::ramp::Spans, heap: &mut Heap, st: &Stat
     b.end()?;
     let mut out = Vec::with_capacity(b.out.len());
     for q in &b.out {
-        let k = match walked(q.x, q.y, w, h, fmt)? {
-            Walked::In(k) => k,
+        let (k, prefix) = match walked(q.x, q.y, w, h, fmt)? {
+            Walked::In(k) => (k, 0),
+            Walked::AcrossRow { k, prefix } => (k, prefix),
             Walked::Padding => continue,
             Walked::PastEnd => {
                 *heap = Heap::Overrun;
@@ -1831,7 +1852,7 @@ fn ramp_writes(spans: &mut crate::model::ramp::Spans, heap: &mut Heap, st: &Stat
             }
         };
         let [cb, cg, cr] = q.c.map(|v| Fix88(u32::from(v)));
-        out.push(Write { k, x: q.x, y: q.y, c: Col::Words([cr, cg, cb]) });
+        out.push(Write { k, x: q.x, y: q.y, c: Col::Words([cr, cg, cb]), prefix });
     }
     Ok(out)
 }
@@ -1839,7 +1860,7 @@ fn ramp_writes(spans: &mut crate::model::ramp::Spans, heap: &mut Heap, st: &Stat
 /// the covered pixels of a target w wide, row by row, their colours left to shade()
 fn cover_writes(cover: &[bool], w: i64) -> Vec<Write> {
     let w = usize::try_from(w).unwrap_or(1).max(1);
-    cover.iter().enumerate().filter(|&(_, &c)| c).map(|(k, _)| Write { k, x: i64::try_from(k % w).unwrap_or(0), y: i64::try_from(k / w).unwrap_or(0), c: Col::Tri }).collect()
+    cover.iter().enumerate().filter(|&(_, &c)| c).map(|(k, _)| Write { k, x: i64::try_from(k % w).unwrap_or(0), y: i64::try_from(k / w).unwrap_or(0), c: Col::Tri, prefix: 0 }).collect()
 }
 
 /// one pixel a primitive writes: its index in the target, its column and row as walked (a
@@ -1850,6 +1871,8 @@ struct Write {
     x: i64,
     y: i64,
     c: Col,
+    /// Bytes of this pixel in the preceding row's padding.
+    prefix: usize,
 }
 
 /// the colour a written pixel carries
@@ -1899,13 +1922,14 @@ fn soft_writes(st: &States, tri: &Tri, w: i64, h: i64, fmt: Fmt) -> Res<Vec<Writ
     }
     let mut out = Vec::with_capacity(r.px.len());
     for q in &r.px {
-        // (a pixel past the surface's last byte writes the memory after it: d3d7edge-32 died in
-        // the case after whole-rgb-short, whose triangle 36 did; one across a row's end is not
-        // measured)
-        // (MEASURED, d3d7spill0..2: a pixel past the surface's end lost, the case run on)
-        let Walked::In(k) = walked(q.x, q.y, w, h, fmt)? else { continue };
+        // Writes past the last row are outside the dumped surface (d3d7spill0..2).
+        let (k, prefix) = match walked(q.x, q.y, w, h, fmt)? {
+            Walked::In(k) => (k, 0),
+            Walked::AcrossRow { k, prefix } => (k, prefix),
+            Walked::Padding | Walked::PastEnd => continue,
+        };
         let f = |i: usize| Fix88(u32::from(q.c[i]));
-        out.push(Write { k, x: q.x, y: q.y, c: Col::Words([f(2), f(1), f(0)]) });
+        out.push(Write { k, x: q.x, y: q.y, c: Col::Words([f(2), f(1), f(0)]), prefix });
     }
     let all = out.len() == usize::try_from(w * h).unwrap_or(0);
     if walker == crate::model::d3dim::Walker::Clip && all {
@@ -1958,19 +1982,30 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
                 }
             }
             if let Some(zw) = zv {
+                let depth = match zw {
+                    Zw::Soft(dp) if px == rt.w => {
+                        let bits = if dp == Depth::Z16 { 16 } else { 32 };
+                        if crate::model::ddraw::pitch(rt.w, bits) > rt.w * i64::from(bits / 8) {
+                            rt.z_pad.get_mut(usize::try_from(py).map_err(|_| Fail::Bad)?)
+                        } else {
+                            rt.z.get_mut(k)
+                        }
+                    }
+                    Zw::Soft(_) | Zw::Hw(_) => rt.z.get_mut(k),
+                }.ok_or(Fail::Bad)?;
                 let zv = match zw {
-                    Zw::Soft(dp) => tri_z_write(dp, z, rt.z[k]),
+                    Zw::Soft(dp) => tri_z_write(dp, z, *depth),
                     Zw::Hw(v) => v,
                 };
                 // MEASURED (d3d7shade zfunc-*: every function, z writes on and off, every
                 // device): the documented compares
                 hit(clause::D3D7_ZTEST);
                 hit(if st.zfunc == Cmp::LessEqual { clause::D3D7_ZFUNC } else { clause::D3D7_ZFUNC_ALL });
-                if !st.zfunc.passes(zv, rt.z[k]) {
+                if !st.zfunc.passes(zv, *depth) {
                     continue;
                 }
                 if st.zwrite {
-                    rt.z[k] = zv;
+                    *depth = zv;
                 }
             }
             let src = match family {
@@ -2031,7 +2066,19 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
             };
             let srcf = src;
             let src = srcf.map(Shade::int);
-            let dst = fmt.channels(rt.px[k]);
+            let mut stored = rt.px[k];
+            let padding = if wr.prefix == 0 {
+                None
+            } else {
+                let pad = rt.color_pad.get_mut(usize::try_from(py).map_err(|_| Fail::Bad)?).ok_or(Fail::Bad)?;
+                let pad = pad.get_mut(..wr.prefix).ok_or(Fail::Bad)?;
+                let mut bytes = stored.to_le_bytes();
+                bytes.copy_within(..3 - wr.prefix, wr.prefix);
+                bytes[..wr.prefix].copy_from_slice(pad);
+                stored = u32::from_le_bytes(bytes);
+                Some(pad)
+            };
+            let dst = fmt.channels(stored);
             if st.blend.is_some() {
                 hit(clause::D3D7_BLEND);
                 hit(clause::D3D7_BLEND_OTHER);
@@ -2094,7 +2141,16 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
                     q
                 }
             };
-            rt.px[k] = fmt.pack(q);
+            let packed = fmt.pack(q);
+            rt.px[k] = if let Some(pad) = padding {
+                let bytes = packed.to_le_bytes();
+                pad.copy_from_slice(&bytes[..wr.prefix]);
+                let mut pixel = rt.px[k].to_le_bytes();
+                pixel[..3 - wr.prefix].copy_from_slice(&bytes[wr.prefix..3]);
+                u32::from_le_bytes(pixel)
+            } else {
+                packed
+            };
         }
     }
     Ok(())
