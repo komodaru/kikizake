@@ -1205,3 +1205,52 @@ end");
     }
     s
 }
+
+pub fn d3d7rampclip() -> String {
+    let mut s = String::from("# kikizake suite d3d7rampclip: clipping a ramp triangle with a far vertex.
+# x86 only
+");
+    let [a, b, c] = ["-937880254 -1131076774", "165 -28", "18 96"];
+    let mut tris: Vec<String> = [[a, b, c], [a, c, b], [b, a, c], [b, c, a], [c, a, b], [c, b, a]]
+        .iter().map(|p| p.join(" ")).collect();
+    tris.extend([
+        "-449486022 494317535 30 40 57 157",
+        "-1009777481 709330657 165 -28 1 56",
+        "115 156 70757820 -125010146 -12 102",
+        "106926096 -93575778 90 106 -12 102",
+        "96 96 11 77 1330 -1761",
+        "557569080 697475131 45 19 30 40",
+    ].map(str::to_owned));
+    for (i, coords) in tris.iter().enumerate() {
+        writeln!(s, "case ramp-guard-{i}
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff {coords}
+d3ddump");
+        writeln!(s, "d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 {coords}
+d3ddump
+end");
+    }
+    for (i, (w, h, coords)) in [
+        (1, 7, "554277618 137 0 81 1 -1937463075"),
+        (1, 9, "11 -1683705410 0 112 650554527 52"),
+        (1, 6, "2 -1069310508 0 18 410173298 38"),
+        (5, 7, "16 81 0 81 1 -1937463075"),
+        (10, 7, "16 81 0 81 1 -1937463075"),
+        (4, 7, "16 81 0 81 1 -1937463075"),
+    ].iter().enumerate() {
+        writeln!(s, "case ramp-left-{i}
+d3d 2
+d3ddev ramp 24 {w} {h}
+d3drs set 22 1
+d3dclear 0xff010203
+d3dtri 0xffffffff {coords}
+d3ddump
+end");
+    }
+    s
+}

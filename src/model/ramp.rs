@@ -437,16 +437,19 @@ impl View {
     }
 }
 
-/// the vertex where a (inside) to b (outside) crosses a plane, lerped from the outside vertex
-/// (the index and the alpha as integers, truncated)
+/// The crossing from the inside endpoint to the outside endpoint, with index and alpha
+/// truncated to integers. Starting inside preserves its distance when the outside endpoint
+/// is many orders of magnitude farther from the plane.
 fn cut(plane: Plane, a: &Cv, b: &Cv) -> Cv {
     let (p, dist) = plane;
     let (di, dout) = (dist(a), dist(b));
-    let t = dout / (dout - di);
-    let l = |pi: f32, po: f32| (pi - po) * t + po;
+    // A negative zero can be on the outside of the sign test. If both endpoints
+    // lie on the plane, use the inside endpoint and avoid dividing zero by zero.
+    let t = if di == 0.0 { 0.0 } else { di / (di - dout) };
+    let l = |pi: f32, po: f32| (po - pi) * t + pi;
     let li = |ci: u32, co: u32| -> u32 {
         let (fi, fo) = (f32_u(ci), f32_u(co));
-        d3dim::trunc((fi - fo) * t + fo).and_then(|v| u32::try_from(v).ok()).unwrap_or(0)
+        d3dim::trunc(l(fi, fo)).and_then(|v| u32::try_from(v).ok()).unwrap_or(0)
     };
     let c = li(a.tl.c >> 24, b.tl.c >> 24) << 24 | li(a.tl.c & 0xff_ffff, b.tl.c & 0xff_ffff) & 0xff_ffff;
     Cv { x: l(a.x, b.x), y: l(a.y, b.y), z: l(a.z, b.z), w: l(a.w, b.w), flags: (a.flags & b.flags) | p, tl: Tl { c, ..a.tl } }
@@ -482,7 +485,7 @@ pub fn clip_line(v: [Tl; 2], w: f32, h: f32) -> Option<[Tl; 2]> {
 
 /// the triangles the ramp device rasterizes for one TL triangle in a viewport w × h at the
 /// origin: itself when inside, else its polygon clipped Left, Right, Bottom, Top (each pass
-/// emitting the previous vertex, a new one lerped from the outside vertex) and drawn as the fan
+/// emitting the previous vertex, a new one lerped from the inside vertex) and drawn as the fan
 /// (v[i], v[i+1], v[0]); a new vertex snapped to the side it was cut on
 pub fn clip(v: [Tl; 3], w: f32, h: f32) -> Vec<[Tl; 3]> {
     let view = View { w, h };
@@ -496,7 +499,8 @@ pub fn clip(v: [Tl; 3], w: f32, h: f32) -> Vec<[Tl; 3]> {
         if any & plane.0 == 0 || poly.is_empty() {
             continue;
         }
-        let inside = |c: &Cv| !(plane.1)(c).is_sign_negative();
+        // A vertex on the plane remains in the polygon, even at negative zero.
+        let inside = |c: &Cv| (plane.1)(c) >= 0.0;
         let mut out = Vec::new();
         let Some(&last) = poly.last() else { break };
         let mut prev = last;
