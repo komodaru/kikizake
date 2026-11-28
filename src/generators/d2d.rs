@@ -1022,6 +1022,7 @@ pub fn d2dlimits() -> String {
         ("gradient-singular", "d2xform 1 1 1 1 0 0\nd2grad 0 0 4 4 lin 22 clamp 0 0 4 4 2 0 255 0 0 255 1 0 0 255 255".into()),
         ("gradient-coincident", "d2grad 0 0 4 4 lin 22 clamp 2 2 2 2 2 0 255 0 0 255 1 0 0 255 255".into()),
         ("curve-outside-fixed-range", "d2ell 0 8388608 2 8388608 2\nd2fillg 0 255 255 255 255".into()),
+        ("curve-flattener-range", "d2ell 0 9e36 2 9e36 2\nd2fillg 0 255 255 255 255".into()),
         ("stroke-nan", "d2ell 0 2 2 1 1\nd2drawg 0 NaN 255 255 255 255".into()),
     ] {
         writeln!(s, "case {name}\nd2target 4 4\nd2clear 39 70 111 255\n{op}\nd2read\nend");
@@ -1082,5 +1083,74 @@ pub fn d2dlimits() -> String {
     writeln!(s, "case workspace-centered-ellipse\nd2ell 0 4398046511104 0 549755813888 274877906944\nd2outline 0 43980465111.04\nd2tess 0 43980465111.04\nend");
     // The centered grid merges the two points at the diagonal and leaves a hollow run.
     writeln!(s, "case outline-hollow-overlap\nd2path 0 alt m -1125899906842624 -1125899906842624 1125899906842624 1125899906842624 0 0.03125 -1 1125899906842624 z\nd2outline 0\nend");
+    s
+}
+
+pub fn d2dhugecurve() -> String {
+    let mut s = String::from("# kikizake suite d2dhugecurve: curve controls outside the fixed scan frame.
+");
+    for aa in ["aliased", "aa"] {
+        for (i, (slot, geom)) in [
+            (0, "d2ell 0 8388608 2 8388608 2"),
+            (0, "d2ell 0 8388608 2 8388610 2"),
+            (0, "d2ell 0 -8388608 2 8388612 2"),
+            (0, "d2ell 0 2 8388608 2 8388610"),
+            (0, "d2ell 0 2 -8388608 2 8388612"),
+            (0, "d2ell 0 2 2 33554432 33554432"),
+            (0, "d2ell 0 2 2 33554432 2"),
+            (0, "d2ell 0 2 2 2 33554432"),
+            (0, "d2ell 0 12000000 12000000 11999998 11999998"),
+            (1, "d2ell 0 2 2 4 3
+d2xf 1 0 4000000 4000000 -4000000 4000000 -2000000 -2000000"),
+        ].iter().enumerate() {
+            writeln!(s, "case huge-curve-{aa}-{i}
+d2target 8 6");
+            if aa == "aliased" {
+                writeln!(s, "d2aa aliased");
+            }
+            writeln!(s, "d2clear 39 70 111 255
+{geom}
+d2fillg {slot} 255 255 255 255
+d2read
+end");
+        }
+    }
+    s
+}
+
+pub fn d2doutlinehollow() -> String {
+    let mut s = String::from("# kikizake suite d2doutlinehollow: collapsed linear runs in the geometry sink.
+");
+    const LIMIT: i64 = 1 << 50;
+    const EXTENTS: (i64, i64, i64, i64) = (-LIMIT, LIMIT / 2, LIMIT / 4, -LIMIT / 2);
+    let l = LIMIT;
+    let (lo, mid, quarter, neg_mid) = EXTENTS;
+    for (i, tail) in [
+        String::new(),
+        format!("{mid} {mid} "),
+        format!("{mid} {mid} {quarter} {quarter} "),
+        format!("1 0 {mid} {mid} "),
+        String::new(),
+    ].iter().enumerate() {
+        let rest = if i == 4 { format!(" m {mid} {neg_mid} {l} 0 {mid} -0.03125 0 {neg_mid} z") } else { String::new() };
+        let shape = format!("m {lo} {lo} {l} {l} {tail}0 0.03125 -1 {l} z{rest}");
+        for fill in ["alt", "wind"] {
+            writeln!(s, "case hollow-{i}-{fill}-outline
+d2path 0 {fill} {shape}
+d2outline 0
+end");
+            for op in ["union", "intersect", "exclude"] {
+                if op == "exclude" && i == 4 {
+                    continue;
+                }
+                writeln!(s, "case hollow-{i}-{fill}-{op}
+d2path 0 {fill} {shape}
+d2path 1 alt m {lo} {lo} {l} {lo} {l} 0 {lo} 0 z
+d2combine 0 1 {op}
+end");
+            }
+        }
+    }
+    writeln!(s, "case hollow-xor-tied\nd2path 0 alt m {lo} {lo} {l} {l} 0 0.03125 -1 {l} z\nd2path 1 alt m {lo} {lo} {l} {lo} {l} 0 {lo} 0 z\nd2combine 0 1 xor\nend");
     s
 }

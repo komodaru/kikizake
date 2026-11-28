@@ -39,6 +39,13 @@ d2ell 0 8388608 2 8388608 2
 d2fillg 0 255 255 255 255
 d2read
 end
+case curve-flattener-range
+d2target 4 4
+d2clear 39 70 111 255
+d2ell 0 9e36 2 9e36 2
+d2fillg 0 255 255 255 255
+d2read
+end
 case stroke-nan
 d2target 4 4
 d2clear 39 70 111 255

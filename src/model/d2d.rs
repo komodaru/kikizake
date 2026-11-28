@@ -513,12 +513,16 @@ fn round_widen_text(figs: &[(bool, Fig)]) -> String {
 }
 
 pub fn sink_text(wind: bool, round: bool, figs: &[Fig]) -> String {
+    sink_figures(wind, round, figs.iter().map(|fig| (false, fig)))
+}
+
+fn sink_figures<'a>(wind: bool, round: bool, figs: impl Iterator<Item = (bool, &'a Fig)>) -> String {
     let mut o = format!(" F {}", wind as u32);
     if round {
         o += " S 2";
     }
-    for f in figs {
-        o += &format!(" B {} {} 0", hex(f.start.0), hex(f.start.1));
+    for (hollow, f) in figs {
+        o += &format!(" B {} {} {}", hex(f.start.0), hex(f.start.1), u32::from(hollow));
         for s in &f.segs {
             match *s {
                 Seg::L(p) => o += &format!(" L {} {}", hex(p.0), hex(p.1)),
@@ -2191,13 +2195,14 @@ impl D2d {
                 if t[0] == "d2outline" || t[0] == "d2combine" {
                     let tol = if len > at { f(op, at)? } else { 0.25 };
                     let figs = match &other {
-                        None => super::d2dbool::outline(&[&g], super::d2dbool::Op::Outline, tol)?,
+                        None => super::d2dbool::outline_with_hollow(&[&g], super::d2dbool::Op::Outline, tol)?,
                         Some(b) => {
                             let mode = t.get(3).and_then(|m| super::d2dbool::Op::parse(m)).ok_or(Fail::Bad)?;
-                            super::d2dbool::outline(&[&g, b], mode, tol)?
+                            super::d2dbool::outline_with_hollow(&[&g, b], mode, tol)?
                         }
                     };
-                    out.push(format!("{}{} hr 00000000", &t[0][2..], sink_text(false, false, &figs)));
+                    let body = sink_figures(false, false, figs.iter().map(|(hollow, fig)| (*hollow, fig)));
+                    out.push(format!("{}{} hr 00000000", &t[0][2..], body));
                     return Ok(true);
                 }
                 let Some(simp) = simp else { return Err(Fail::Unmodeled(open::D2D_SIMP)) };
@@ -3202,6 +3207,8 @@ impl Frame {
     }
 }
 
+const SCAN_GUARD: f32 = 65536.0;
+
 /// MEASURED (D2D.FILL.FIXED, D2D.FILL.AACURVE): a geometry through the transform as closed
 /// polygons in 1/16 pixel of the frame: straight figures' points snapped, a curve's four points
 /// snapped and flattened in that fixed point by WPF's Bezier32
@@ -3218,7 +3225,7 @@ fn fixed_polys(tg: &Target, g: &Geom, frame: Frame) -> Res<(bool, Vec<Vec<(i64, 
             // the figure cut far outside the target first; where it is cut does not reach a
             // pixel)
             hit(clause::D2D_FILL_HUGE);
-            let g = 65536.0;
+            let g = f64::from(SCAN_GUARD);
             let quad = [(-g, -g), (g, -g), (g, g), (-g, g)];
             ps = ps.iter().map(|p| clip_convex(p, &quad)).filter(|p| p.len() >= 3).collect();
         }
@@ -3235,12 +3242,29 @@ fn fixed_curves(tg: &Target, figs: &[Fig], frame: Frame) -> Res<Vec<Vec<(i64, i6
     hit(clause::D2D_FILL_AACURVE);
     let sn = |v: f64| frame.snap(v);
     let s = |p: P| (sn(f64::from(p.0)), sn(f64::from(p.1)));
-    if figs.iter().any(|f| std::iter::once(f.start).chain(f.segs.iter().flat_map(|s| match *s {
+    let points = figs.iter().flat_map(|f| std::iter::once(f.start).chain(f.segs.iter().flat_map(|s| match *s {
         Seg::L(p) => vec![p],
         Seg::C(a, b, c) => vec![a, b, c],
-    })).any(|p| !(p.0.abs() <= 8388608.0 && p.1.abs() <= 8388608.0))) {
-        return Err(Fail::Unmodeled(open::D2D_RT));
+    })));
+    let mut needs_clip = false;
+    for (x, y) in points {
+        let extent = x.abs().max(y.abs());
+        // The strip flattener forms second differences and multiplies them by six.
+        if !x.is_finite() || !y.is_finite() || extent > f32::MAX / 64.0 {
+            return Err(Fail::Unmodeled(open::D2D_RT));
+        }
+        needs_clip |= extent > 8388608.0;
     }
+    let clipped;
+    let figs = if needs_clip {
+        // Windows clips oversized curves before snapping them to the 28.4 grid.
+        // Cubics leaving a strip are flattened by the same clipper as layer masks.
+        hit(clause::D2D_FILL_HUGE);
+        clipped = strip_clip(strip_clip(figs.to_vec(), 0, -SCAN_GUARD, SCAN_GUARD), 1, -SCAN_GUARD, SCAN_GUARD);
+        &clipped
+    } else {
+        figs
+    };
     // (the target in 28.4: in the antialiased frame WPF's 28.4 point plus 8)
     let clip = match frame {
         Frame::Aliased | Frame::AliasedWarp => [0, 0, 16 * tg.w as i64, 16 * tg.h as i64],

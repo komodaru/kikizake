@@ -159,8 +159,8 @@ proptest! {
 
     /// the software walk of a triangle inside the target (d3dim700's NoClip walker, spans
     /// unclamped): no pixel left of the target's left side, above or below it, nor more than one
-    /// column past its right side, so a span reaches at most the first byte after a row (D3D7.TRI.CLIP:
-    /// the 24-bit pixel across a row's end is never reached; d3d7spill*: column w on the last row)
+    /// column past its right side (D3D7.TRI.CLIP). The pixel at column w can span row padding
+    /// and the next row on a 24-bit target (d3d7rowspill).
     #[test]
     fn soft_walk_overruns_by_one_column_at_most(v in prop::array::uniform6(0i64..=320), w in 1i64..=20, h in 1i64..=20) {
         use kikizake::model::d3dim::{raster, Clip, Vert};

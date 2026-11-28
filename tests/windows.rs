@@ -18,6 +18,18 @@ fn case_files_are_what_the_generators_make() {
     }
 }
 
+/// Two x86 spill recordings have the same pixels with either native exit
+/// outcome (golden revisions 851a5b61 and 4b55dbc9).
+fn alternate_spill_exit(suite: &str, arch: u32, status: i64, modeled: &case::Output, recorded: &case::Output) -> bool {
+    arch == 32
+        && matches!(suite, "d3d7spill0" | "d3d7spill3")
+        && matches!(status, 0 | 139)
+        && recorded.done == (status == 0)
+        && modeled.cases.len() == 1
+        && modeled.cases == recorded.cases
+        && modeled.head == recorded.head
+}
+
 #[test]
 fn models_match_windows() {
     let mut bad = Vec::new();
@@ -54,12 +66,19 @@ fn models_match_windows() {
             };
             let want = model::ModelContext::recorded(arch, &g).evaluate(|| model::run(s, &cases));
             // (every suite is compared to the end: a stop here would hide the differences after it)
-            if case::parse_output(&want).done != (status == 0) {
+            let mut modeled = case::parse_output(&want);
+            let recorded = case::parse_output(&g);
+            if alternate_spill_exit(s, arch, status, &modeled, &recorded) {
+                modeled.done = recorded.done;
+            }
+            if modeled.done != (status == 0) {
                 bad.push(format!("{s}-{arch}: the model's end (done or not) is not Windows' exit {status}"));
             }
             // These suites have deterministic, fully modeled output on both architectures.
             // A wildcard, missing result or newly unmodeled case must fail this comparison.
-            if matches!(*s, "ntstr" | "ntcase" | "glstipple") && (status != 0 || !want.lines().eq(g.lines())) {
+            if matches!(*s, "ntstr" | "ntcase" | "glstipple" | "d2dhugecurve" | "d3d7rowspill" | "d3d7rampclip")
+                && (status != 0 || !want.lines().eq(g.lines()))
+            {
                 bad.push(format!("{s}-{arch}: expected a successful recording and exact output for every operation"));
             }
             if *s == "opengl" {
@@ -88,6 +107,14 @@ fn models_match_windows() {
                     } else {
                         assert_eq!(actual, Some(expected), "{name} on {arch}-bit Windows");
                     }
+                }
+            }
+            if *s == "d2doutlinehollow" {
+                let expected = case::parse_output(&g);
+                let actual = case::parse_output(&want);
+                for reference in expected.cases.iter().filter(|(n, _)| n != "hollow-xor-tied") {
+                    let got = actual.cases.iter().find(|(n, _)| n == &reference.0);
+                    assert_eq!(got, Some(reference), "{s}-{arch} {}", reference.0);
                 }
             }
             if *s == "d2dlimits" {
@@ -145,7 +172,7 @@ fn models_match_windows() {
                     assert_eq!(modeled, Some(reference), "{s}-{arch} {name}");
                 }
             }
-            let r = compare::compare_text(&want, &g);
+            let r = compare::compare(&modeled, &recorded);
             eprintln!("kikizake_{s}-{arch}: {} cases, {} as Windows, {} unmodeled, {} differ", r.cases, r.same, r.unmodeled, r.differ.len());
             bad.extend(r.differ.iter().map(|d| format!("{s}-{arch} {d}")));
         }
