@@ -84,12 +84,27 @@ def planeValue (x0 x1 x2 y0 y1 y2 a0 a1 a2 cx cy : Nat) : Nat :=
 
 abbrev Triple := Nat × Nat × Nat
 
-/-- The texture coordinates use the same perspective plane evaluation as color. -/
-def sampleUV (xs ys iw u v : Triple) (cx cy : Nat) : Nat × Nat :=
+/-- Evaluate a perspective plane for attributes at one position using the shared reciprocal. -/
+def perspectiveEval (xs ys iw : Triple) (cx cy : Nat) : Triple → Nat :=
   let plane (a : Triple) :=
     planeValue xs.1 xs.2.1 xs.2.2 ys.1 ys.2.1 ys.2.2 a.1 a.2.1 a.2.2 cx cy
   let q := div one (plane iw)
-  (mul (plane u) q, mul (plane v) q)
+  fun a => mul (plane a) q
+
+/-- The texture coordinates use the same perspective plane evaluation as color. -/
+def sampleUV (xs ys iw u v : Triple) (cx cy : Nat) : Nat × Nat :=
+  let eval := perspectiveEval xs ys iw cx cy
+  (eval u, eval v)
+
+def interpolatedColor (xs ys iw r g b a : Triple) (cx cy : Nat) : Nat × Nat × Nat × Nat :=
+  let eval := perspectiveEval xs ys iw cx cy
+  (eval r, eval g, eval b, eval a)
+
+theorem color_and_uv_use_same_planes (xs ys iw r g b a : Triple) (cx cy : Nat) :
+    interpolatedColor xs ys iw r g b a cx cy =
+      ((sampleUV xs ys iw r g cx cy).1, (sampleUV xs ys iw r g cx cy).2,
+       (sampleUV xs ys iw b a cx cy).1, (sampleUV xs ys iw b a cx cy).2) := by
+  rfl
 
 set_option exponentiation.threshold 2048 in
 set_option maxRecDepth 20000 in
@@ -377,6 +392,14 @@ private def i64Argument (value : Int) : Option Int :=
   if -(2 ^ 63) ≤ value ∧ value < 2 ^ 63 then some value else none
 
 def mirrors : List Mirror := [
+  ⟨"d3d11.interpolatedcolor", fun args => do
+    if args.length != 23 then none
+    let xs ← args.mapM nat
+    let triple := fun i => (xs.getD i 0, xs.getD (i + 1) 0, xs.getD (i + 2) 0)
+    let channel := fun i => (xs.getD (9 + i) 0, xs.getD (13 + i) 0, xs.getD (17 + i) 0)
+    let (r, g, b, a) := interpolatedColor (triple 0) (triple 3) (triple 6)
+      (channel 0) (channel 1) (channel 2) (channel 3) (xs.getD 21 0) (xs.getD 22 0)
+    pure ([r, g, b, a].map canon)⟩,
   ⟨"d3d11.originaltriangledepth", fun
     | [vx, vy, vw, vh, lo, hi, x0, y0, z0, w0, x1, y1, z1, w1, x2, y2, z2, w2, cx, cy] => do
       pure [canon (originalTriangleDepth (← nat vx) (← nat vy) (← nat vw) (← nat vh)
