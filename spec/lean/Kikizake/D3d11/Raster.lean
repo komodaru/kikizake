@@ -1,4 +1,5 @@
 import Kikizake.Mirror
+import Kikizake.F32
 import Kikizake.D3d9.Pixel
 import Kikizake.D3d9.Raster
 /-! The integer rules of drawing on Direct3D 10 and 11 (spec/d3dres.txt D3DRASTER.*), as
@@ -139,7 +140,32 @@ theorem mask_shared (a b c d : Pt) (px py : Int) (n : Nat) (hc : area a b c > 0)
   simp only [mask, List.getElem_map]
   exact (shared_edge a b c d _ hc hd).1
 
+private def wireLt (a b : Nat) : Bool := !F32.isNaN a && !F32.isNaN b && F32.lt a b
+
+/-- Vertex pairs in draw order, starting at the first vertex of least clip x. -/
+def wireEdges (a b c : Nat) : List Int :=
+  let second := wireLt b a
+  let least := if second then b else a
+  if wireLt c least then [2, 0, 0, 1, 1, 2]
+  else if second then [1, 2, 2, 0, 0, 1]
+  else [0, 1, 1, 2, 2, 0]
+
+theorem wire_first (a b c : Nat) (h : wireLt b a = false) (hc : wireLt c a = false) :
+    wireEdges a b c = [0, 1, 1, 2, 2, 0] := by
+  simp [wireEdges, h, hc]
+
+theorem wire_second (a b c : Nat) (h : wireLt b a = true) (hc : wireLt c b = false) :
+    wireEdges a b c = [1, 2, 2, 0, 0, 1] := by
+  simp [wireEdges, h, hc]
+
+theorem wire_third (a b c : Nat) (h : wireLt c (if wireLt b a then b else a) = true) :
+    wireEdges a b c = [2, 0, 0, 1, 1, 2] := by
+  simp [wireEdges, h]
+
 def mirrors : List Mirror := [
+  ⟨"d3d11.wireedges", fun
+    | [a, b, c] => do pure (wireEdges (← nat a) (← nat b) (← nat c))
+    | _ => none⟩,
   ⟨"d3d11.covers", fun
     | [ax, ay, bx, by', cx, cy, sx, sy] => pure [if covers (ax, ay) (bx, by') (cx, cy) (sx, sy) then 1 else 0]
     | _ => none⟩,

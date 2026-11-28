@@ -426,7 +426,51 @@ fn quantized_depth(f: &Format, z: f32) -> f64 {
     }
 }
 
+/// No pixel shader in the runner writes a second blend source.
+pub fn secondary_factor(code: u32) -> Option<f32> {
+    match code {
+        16 | 17 => Some(0.0),
+        18 | 19 => Some(1.0),
+        _ => None,
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum ColorWrite {
+    Integer,
+    Raw,
+    Blended,
+}
+
+/// Integer shader outputs go straight to the target before applying the write mask.
+pub fn color_write(integer: bool, blend_enabled: bool) -> ColorWrite {
+    if integer {
+        ColorWrite::Integer
+    } else if blend_enabled {
+        ColorWrite::Blended
+    } else {
+        ColorWrite::Raw
+    }
+}
+
+/// Walk the triangle's cyclic edges from the first vertex of least clip x.
+pub fn wire_edges([a, b, c]: [f32; 3]) -> [[usize; 2]; 3] {
+    let second = b < a;
+    let least = if second { b } else { a };
+    if c < least {
+        [[2, 0], [0, 1], [1, 2]]
+    } else if second {
+        [[1, 2], [2, 0], [0, 1]]
+    } else {
+        [[0, 1], [1, 2], [2, 0]]
+    }
+}
+
 fn factor(f: u32, s: [f32; 4], dst: [f32; 4], bf: [f32; 4], ch: usize) -> Res<f32> {
+    if let Some(value) = secondary_factor(f) {
+        hit(clause::D3DRASTER_BLEND_FACTOR);
+        return Ok(value);
+    }
     Ok(match f {
         1 => 0.0,
         2 => 1.0,
@@ -447,15 +491,6 @@ fn factor(f: u32, s: [f32; 4], dst: [f32; 4], bf: [f32; 4], ch: usize) -> Res<f3
         }
         14 => bf[ch],
         15 => 1.0 - bf[ch],
-        // (MEASURED: the second source, which no program here writes, is 0, probe-blend-src1)
-        16 | 17 => {
-            hit(clause::D3DRASTER_BLEND_FACTOR);
-            0.0
-        }
-        18 | 19 => {
-            hit(clause::D3DRASTER_BLEND_FACTOR);
-            1.0
-        }
         _ => return Err(Fail::Unmodeled(open::D3DRASTER_BLEND_OP)),
     })
 }
@@ -805,6 +840,11 @@ pub fn level(lod: f64, last: u32, point: bool) -> Level {
 /// clamped addresses (filter, address u, v, w, comparison)
 pub fn sampler_or_default(s: Option<[u32; 5]>) -> [u32; 5] {
     s.unwrap_or([0x15, 3, 3, 3, 1])
+}
+
+/// An ordinary linear float sample crashes WARP when its view stores integers.
+pub fn linear_filter_crashes(integer: bool, comparison: bool) -> bool {
+    integer && !comparison
 }
 
 /// D3DRASTER.FILTER.ANISO, MINMAG: a sampler's filter's minifying and magnifying filters,
@@ -1690,10 +1730,10 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     // lines, from the vertex of least clip x on: 0 to 1, 1 to 2, 2 to 0
     if d.rast[0] == 2 {
         hit(clause::D3DRASTER_WIREFRAME);
-        let k0 = (0..3).fold(0, |k, i| if tri[i].pos[0] < tri[k].pos[0] { i } else { k });
-        let t: [Vert; 3] = [0, 1, 2].map(|i| tri[(k0 + i) % 3]);
-        for e in 0..3 {
-            wire.push(Seg { a: t[e], b: t[(e + 1) % 3], lead, prim, front, clip: SegClip::Line });
+        for [a, b] in wire_edges(tri.map(|v| v.pos[0])) {
+            let a = *tri.get(a).ok_or(Fail::Bad)?;
+            let b = *tri.get(b).ok_or(Fail::Bad)?;
+            wire.push(Seg { a, b, lead, prim, front, clip: SegClip::Line });
         }
         return Ok(());
     }
@@ -2678,7 +2718,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                 // (MEASURED, WARP: probe-filter-r8g8b8a8-uint, golden 878bb10, x86 and x86-64) an integer
                 // format's view sampled through a float one ends the executor
                 let integer = format(v.format()).is_some_and(|f| matches!(f.num, Num::Uint | Num::Sint));
-                if cmp.is_none() && integer {
+                if linear_filter_crashes(integer, cmp.is_some()) {
                     hit(clause::D3DRASTER_FILTER_INT);
                     return Err(Fail::Crash);
                 }
@@ -2799,17 +2839,19 @@ fn output(m: &mut D3dres, dev: Dev, d: &Draw, view: &super::d3dres::View, f: &'s
     let b = res.subs[sub as usize].as_mut().ok_or(Fail::Unmodeled(open::D3DRES_READ_UNKNOWN))?;
     // (a view whose elements are wider than its resource's, as mutations make: not measured)
     let e = b.get_mut(slice * rows * rb + y * rb + (first + x) * el..).and_then(|r| r.get_mut(..el)).ok_or(Fail::Bad)?;
-    let new = match f.num {
-        Num::Uint | Num::Sint => {
-            if d.blend.0[0] != 0 {
+    let blend_enabled = d.blend.0[0] != 0;
+    let integer = matches!(f.num, Num::Uint | Num::Sint);
+    let new = match color_write(integer, blend_enabled) {
+        ColorWrite::Integer => {
+            if blend_enabled {
                 hit(clause::D3DRASTER_BLEND_INT);
             }
             encode_bits(f, out)
         }
-        _ => {
+        ColorWrite::Raw => encode(f, out.map(f32::from_bits))?,
+        ColorWrite::Blended => {
             let s = out.map(f32::from_bits);
-            let c = if d.blend.0[0] != 0 { blend(&d.blend.0, d.blend.1, f, s, decode_f(f, e)?)? } else { s };
-            encode(f, c)?
+            encode(f, blend(&d.blend.0, d.blend.1, f, s, decode_f(f, e)?)?)?
         }
     };
     let mask = d.blend.0[7];
