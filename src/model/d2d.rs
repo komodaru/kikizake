@@ -513,12 +513,16 @@ fn round_widen_text(figs: &[(bool, Fig)]) -> String {
 }
 
 pub fn sink_text(wind: bool, round: bool, figs: &[Fig]) -> String {
+    sink_figures(wind, round, figs.iter().map(|fig| (false, fig)))
+}
+
+fn sink_figures<'a>(wind: bool, round: bool, figs: impl Iterator<Item = (bool, &'a Fig)>) -> String {
     let mut o = format!(" F {}", wind as u32);
     if round {
         o += " S 2";
     }
-    for f in figs {
-        o += &format!(" B {} {} 0", hex(f.start.0), hex(f.start.1));
+    for (hollow, f) in figs {
+        o += &format!(" B {} {} {}", hex(f.start.0), hex(f.start.1), u32::from(hollow));
         for s in &f.segs {
             match *s {
                 Seg::L(p) => o += &format!(" L {} {}", hex(p.0), hex(p.1)),
@@ -2206,13 +2210,14 @@ impl D2d {
                 if t[0] == "d2outline" || t[0] == "d2combine" {
                     let tol = if len > at { f(op, at)? } else { 0.25 };
                     let figs = match &other {
-                        None => super::d2dbool::outline(&[&g], super::d2dbool::Op::Outline, tol)?,
+                        None => super::d2dbool::outline_with_hollow(&[&g], super::d2dbool::Op::Outline, tol)?,
                         Some(b) => {
                             let mode = t.get(3).and_then(|m| super::d2dbool::Op::parse(m)).ok_or(Fail::Bad)?;
-                            super::d2dbool::outline(&[&g, b], mode, tol)?
+                            super::d2dbool::outline_with_hollow(&[&g, b], mode, tol)?
                         }
                     };
-                    out.push(format!("{}{} hr 00000000", &t[0][2..], sink_text(false, false, &figs)));
+                    let body = sink_figures(false, false, figs.iter().map(|(hollow, fig)| (*hollow, fig)));
+                    out.push(format!("{}{} hr 00000000", &t[0][2..], body));
                     return Ok(true);
                 }
                 let Some(simp) = simp else { return Err(Fail::Unmodeled(open::D2D_SIMP)) };

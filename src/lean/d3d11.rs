@@ -30,6 +30,31 @@ fn bound(a: &[i64], i: usize) -> Option<Option<Bound>> {
 
 pub static MIRRORS: &[Mirror] = &[
     Mirror {
+        name: "d3d11.wireedges",
+        lean: RASTER,
+        domain: Domain::Sampled("all triples from a boundary coordinate table and 10,000 triples of binary32 bit patterns"),
+        inputs: |each| {
+            let edge = [0, 0x8000_0000, 1, 0x8000_0001, 0x3f80_0000, 0xbf80_0000, 0x7f7f_ffff,
+                0xff7f_ffff, 0x7f80_0000, 0xff80_0000, 0x7fc0_0001, 0xff80_0001];
+            for a in edge {
+                for b in edge {
+                    for c in edge {
+                        each(&[a, b, c]);
+                    }
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0x7712_ed9e);
+            for _ in 0..10_000 {
+                each(&std::array::from_fn::<_, 3, _>(|_| rng.range(0, U32)));
+            }
+        },
+        model: |a| {
+            let f = |i| arg(a, i).map(f32::from_bits);
+            let edges = crate::model::d3draster::wire_edges([f(0)?, f(1)?, f(2)?]);
+            edges.into_iter().flatten().map(|i| i64::try_from(i).ok()).collect()
+        },
+    },
+    Mirror {
         name: "d3d11.covers",
         lean: RASTER,
         domain: Domain::Sampled("every triangle and point of coordinates -256..256 in half pixels (1/256 units), and 300,000 of -700..700"),
@@ -884,6 +909,16 @@ fn lods(seed: u32, each: &mut dyn FnMut(&[i64])) {
 
 pub static FILTER_MIRRORS: &[Mirror] = &[
     Mirror {
+        name: "d3d11.linearfiltercrashes",
+        lean: FILTER,
+        domain: Domain::Every("all integer-format and comparison-sampling flag pairs"),
+        inputs: |each| every(&[(0, 1), (0, 1)], each),
+        model: |a| {
+            let crashes = crate::model::d3draster::linear_filter_crashes(flag(a, 0)?, flag(a, 1)?);
+            Some(vec![i64::from(crashes)])
+        },
+    },
+    Mirror {
         name: "d3d11.split",
         lean: FILTER,
         domain: Domain::Sampled("40 signed boundary floats and 60,000 coordinates (in -1..2, multiples of 2^-k in 0..1, any pattern), each with a texture size of 14 (0 to 2^32 - 1) and one of 1..4096"),
@@ -970,6 +1005,26 @@ pub static FILTER_MIRRORS: &[Mirror] = &[
 const MERGE: &str = "spec/lean/Kikizake/D3d11/Merge.lean";
 
 pub static MERGE_MIRRORS: &[Mirror] = &[Mirror {
+    name: "d3d11.secondaryfactor",
+    lean: MERGE,
+    domain: Domain::Every("every D3D11_BLEND enumerant and the unused values from 0 through 19"),
+    inputs: |each| every(&[(0, 19)], each),
+    model: |a| Some(vec![crate::model::d3draster::secondary_factor(arg(a, 0)?)
+        .map_or(-1, |value| i64::from(value.to_bits()))]),
+}, Mirror {
+    name: "d3d11.colorwrite",
+    lean: MERGE,
+    domain: Domain::Every("all integer-target and blend-enable flag pairs"),
+    inputs: |each| every(&[(0, 1), (0, 1)], each),
+    model: |a| {
+        use crate::model::d3draster::{ColorWrite, color_write};
+        Some(vec![match color_write(flag(a, 0)?, flag(a, 1)?) {
+            ColorWrite::Integer => 0,
+            ColorWrite::Raw => 1,
+            ColorWrite::Blended => 2,
+        }])
+    },
+}, Mirror {
     name: "d3d11.merge",
     lean: MERGE,
     domain: Domain::Sampled("every DXGI format's components with every mask 0..15 (and 16, 0xffffffff) over 40 pairs of elements each: zeros, ones, alternating bits, any bytes"),

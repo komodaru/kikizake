@@ -94,6 +94,11 @@ fn trim_start(p: [[f64; 2]; 4], t: f64) -> [[f64; 2]; 4] {
 /// bit for bit): the figures Outline (one geometry) or CombineWithGeometry (two) give the sink,
 /// its fill mode ALTERNATE
 pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
+    outline_with_hollow(gs, op, tol)?.into_iter()
+        .map(|(hollow, fig)| if hollow { Err(bad()) } else { Ok(fig) }).collect()
+}
+
+pub(crate) fn outline_with_hollow(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<(bool, Fig)>> {
     let tol = if tol > 0.0 { tol.max(f32::from_bits(0x358637bd)) } else { 0.25 };
     let mut ext = 0f64;
     let mut merged: Option<[f32; 4]> = None;
@@ -251,6 +256,9 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
     let inside = |w: &[i32; 2]| op.keep(filled(0, w[0]), gs.len() > 1 && filled(1, w[1]));
     // the sweep: the windings left of every head, coincident heads one candidate
     let mut bnd: Vec<Bnd> = Vec::new();
+    let mut hollow = Vec::<(Q, Fig)>::new();
+    // A collapsed run is walked from high to low in sweep order.
+    let mut hollow_ends = HashMap::<Q, usize>::new();
     let mut active: Vec<usize> = Vec::new();
     for v in verts {
         let ends: Vec<usize> = (0..active.len()).filter(|&i| pieces[active[i]].b == v).collect();
@@ -271,6 +279,7 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
             let l = &lines[pieces[c].line];
             w[l.tag] += l.dir;
         }
+        let mut have_hollow_head = false;
         let mut k = 0;
         while k < hs.len() {
             let mut e = k + 1;
@@ -289,7 +298,34 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
             let right = inside(&w);
             // A fill between coincident edges can leave an open, hollow run in the sink.
             if between && !right {
-                return Err(bad());
+                // When multiple contours overlap, their transient inside states
+                // cannot identify the two sides of one collapsed run.
+                let head = *hs.get(k).ok_or_else(bad)?;
+                let pc = pieces.get(head).ok_or_else(bad)?;
+                let tag = lines.get(pc.line).ok_or_else(bad)?.tag;
+                let coincident = hs.get(k..e).ok_or_else(bad)?;
+                if have_hollow_head || coincident.iter().any(|&h| {
+                    pieces.get(h).is_none_or(|piece| {
+                        lines.get(piece.line).is_none_or(|l| l.tag != tag)
+                            || parts.get(piece.line).is_none_or(Option::is_some)
+                    })
+                }) {
+                    return Err(bad());
+                }
+                have_hollow_head = true;
+                let end = out(pc.vb);
+                let run = if let Some(run) = hollow_ends.remove(&pc.a) {
+                    hollow.get_mut(run).ok_or_else(bad)?.1.segs.push(Seg::L(end));
+                    run
+                } else {
+                    let start = out(pc.va);
+                    let run = hollow.len();
+                    hollow.push((pc.a, Fig { start, segs: vec![Seg::L(end)], closed: false }));
+                    run
+                };
+                if hollow_ends.insert(pc.b, run).is_some() {
+                    return Err(bad());
+                }
             }
             if left != right {
                 let pc = &pieces[hs[k]];
@@ -353,10 +389,21 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
         c.rotate_left(s);
         cycles.push(c);
     }
-    cycles.sort_by(|a, b| sweep(bnd[a[0]].from, bnd[b[0]].from));
-    let mut figs = Vec::new();
+    if !hollow.is_empty() {
+        // When closed contours begin at the same vertex, the sweep's tie order
+        // is still open. Keep that case separate from the collapsed run itself.
+        let mut origins = std::collections::HashSet::new();
+        for c in &cycles {
+            let first = c.first().and_then(|&k| bnd.get(k)).ok_or_else(bad)?;
+            if !origins.insert(first.from) {
+                return Err(bad());
+            }
+        }
+    }
+    let mut figs: Vec<_> = hollow.into_iter().map(|(key, fig)| (key, (true, fig))).collect();
     for c in cycles {
-        let start = bnd[c[0]].vf;
+        let first = c.first().and_then(|&k| bnd.get(k)).ok_or_else(bad)?;
+        let start = first.vf;
         let mut segs = Vec::new();
         let mut last = start;
         // a Bezier fragment not yet sent: part, reversed, its end
@@ -404,9 +451,10 @@ pub fn outline(gs: &[&Geom], op: Op, tol: f32) -> Res<Vec<Fig>> {
         flush(&mut pend, &mut segs, &mut last);
         // The sink's closure test uses the emitted coordinates.
         let start = out(start);
-        figs.push(Fig { start, segs, closed: out(last) == start });
+        figs.push((first.from, (false, Fig { start, segs, closed: out(last) == start })));
     }
     hit(clause::D2D_OUTLINE);
     if workspace.centered { hit(clause::D2D_SIMP_SCALE); }
-    Ok(figs)
+    figs.sort_by(|a, b| sweep(a.0, b.0));
+    Ok(figs.into_iter().map(|(_, fig)| fig).collect())
 }

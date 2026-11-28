@@ -479,6 +479,9 @@ tests/laws_dd.rs::far_soft_lines_stay_on_the_segment pbt D3D7.LINE
 tests/laws_dd.rs::guard_cut_stays_on_the_segment pbt D3D7.LINE
 tests/laws_dd.rs::soft_walk_overruns_by_one_column_at_most pbt D3D7.TRI.CLIP
 tests/laws_dd.rs::warp_line_cut_stays_on_the_segment pbt D3D7.LINE.HW
+spec/lean/Kikizake/D3d11/Raster.lean::wire_first lean D3DRASTER.WIREFRAME
+spec/lean/Kikizake/D3d11/Raster.lean::wire_second lean D3DRASTER.WIREFRAME
+spec/lean/Kikizake/D3d11/Raster.lean::wire_third lean D3DRASTER.WIREFRAME
 spec/lean/Kikizake/D3d11/Raster.lean::shared_edge lean D3DRASTER.TOPLEFT
 spec/lean/Kikizake/D3d11/Raster.lean::covers_turn lean D3DRASTER.TOPLEFT D3DRASTER.CULL
 spec/lean/Kikizake/D3d11/Raster.lean::degenerate lean D3DRASTER.DEGENERATE
@@ -570,6 +573,8 @@ spec/lean/Kikizake/GdiPlus/InsetRoute.lean::open_dashed_figures_keep_the_centere
 spec/lean/Kikizake/GdiPlus/InsetRoute.lean::flat_dashed_square lean GP.PEN.INSET.DASHED
 spec/lean/Kikizake/GdiPlus/InsetRoute.lean::round_dashed_square lean GP.PEN.INSET.DASHED
 spec/lean/Kikizake/GdiPlus/InsetRoute.lean::triangular_dashed_square lean GP.PEN.INSET.DASHED
+spec/lean/Kikizake/GdiPlus/Anchor.lean::half_inset_on_horizontal_line lean GP.PEN.WIDE.ANCHOR.WALK
+spec/lean/Kikizake/GdiPlus/Anchor.lean::short_line_is_marked lean GP.PEN.WIDE.ANCHOR.WALK
 spec/lean/Kikizake/GdiPlus/Wide.lean::bevel_side_bound lean GP.PEN.WIDE.JOIN
 spec/lean/Kikizake/GdiPlus/Wide.lean::right_angle_miter lean GP.PEN.WIDE.JOIN
 spec/lean/Kikizake/GdiPlus/Wide.lean::right_angle_compound lean GP.PEN.WIDE.JOIN
@@ -729,6 +734,7 @@ spec/lean/Kikizake/D3d9/Chain.lean::reads_args lean D3D9.STAGE.ALPHADISABLE.FIRS
 spec/lean/Kikizake/D3d9/Chain.lean::bump lean D3D9.STAGE.BUMP
 tests/laws_dwrite_bidi.rs::a_paragraph_separator_ends_the_paragraph exhaustive DW.BIDI.SEGMENT
 tests/laws_dwrite_bidi.rs::a_segment_separator_ends_the_level_run exhaustive DW.BIDI.SEGMENT
+spec/lean/Kikizake/D3d11/Filter.lean::integer_filter_crashes lean D3DRASTER.FILTER.INT
 spec/lean/Kikizake/D3d11/Filter.lean::split_nan lean D3DRASTER.FILTER.LINEAR D3DRASTER.FILTER.POINT
 spec/lean/Kikizake/D3d11/Filter.lean::linear_ends lean D3DRASTER.FILTER.LINEAR
 spec/lean/Kikizake/D3d11/Filter.lean::pixels_exact lean D3DRASTER.FILTER.MIPLINEAR
@@ -740,6 +746,8 @@ spec/lean/Kikizake/D3d9/Decl.lean::bad_element lean D3D9.DECL.CREATE
 spec/lean/Kikizake/D3d9/Decl.lean::twice lean D3D9.DECL.CREATE
 spec/lean/Kikizake/D3d9/Decl.lean::positiont lean D3D9.DECL.CREATE
 spec/lean/Kikizake/D3d9/Decl.lean::stream_apart lean D3D9.DECL.CREATE
+spec/lean/Kikizake/D3d11/Merge.lean::secondary_source_is_zero lean D3DRASTER.BLEND.FACTOR
+spec/lean/Kikizake/D3d11/Merge.lean::integer_target_writes_shader_bits lean D3DRASTER.BLEND.INT
 spec/lean/Kikizake/D3d11/Merge.lean::merge_none lean D3DRASTER.WRITEMASK
 spec/lean/Kikizake/D3d11/Merge.lean::merge_zero lean D3DRASTER.WRITEMASK
 spec/lean/Kikizake/D3d9/Blend.lean::blend_format lean D3D9.BLEND.FORMAT

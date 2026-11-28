@@ -19,6 +19,7 @@ const CHAIN: &str = "spec/lean/Kikizake/GdiPlus/Chain.lean";
 const DASH: &str = "spec/lean/Kikizake/GdiPlus/Dash.lean";
 const INSET: &str = "spec/lean/Kikizake/GdiPlus/Inset.lean";
 const WIDE: &str = "spec/lean/Kikizake/GdiPlus/Wide.lean";
+const ANCHOR: &str = "spec/lean/Kikizake/GdiPlus/Anchor.lean";
 const WIDE_ROUTE: &str = "spec/lean/Kikizake/GdiPlus/WideRoute.lean";
 const INSET_ROUTE: &str = "spec/lean/Kikizake/GdiPlus/InsetRoute.lean";
 
@@ -543,6 +544,63 @@ fn widen_point_stream(d: i64, fill: i64, align: i64, a: &[i64], dash: Option<Das
 }
 
 pub static MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "gp.anchor-trim",
+        lean: ANCHOR,
+        domain: Domain::Sampled("2,000 open paths with repeats, zero and nonzero radii, previously marked points, both endpoints and rounding modes, and the two theorem inputs"),
+        inputs: |each| {
+            let bits = |x: f32| i64::from(x.to_bits());
+            for r in 0..2 {
+                for end in 0..2 {
+                    for scale in [1.0, 8.0] {
+                        each(&[r, end, bits(1.0), bits(0.5), bits(scale), 0, 0, 0, bits(4.0), 0, 0]);
+                    }
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0xa9c4_0173);
+            for _ in 0..2000 {
+                let q = |v: i64| f32::from(i16::try_from(v).unwrap_or(0)) / 8.0;
+                let len = rng.range(0, 6);
+                let mut args = vec![
+                    rng.range(0, 1), rng.range(0, 1), bits(q(rng.range(0, 24))),
+                    bits(q(rng.range(-2, 8))), bits(q(rng.range(0, 32))),
+                ];
+                let (mut x, mut y) = (rng.range(-40, 40), rng.range(-40, 40));
+                for _ in 0..=len {
+                    args.extend([bits(q(x)), bits(q(y)), rng.range(0, 1)]);
+                    if rng.range(0, 4) != 0 {
+                        x += rng.range(-16, 16);
+                        y += rng.range(-16, 16);
+                    }
+                }
+                each(&args);
+            }
+        },
+        model: |a| {
+            let r = rounding(*a.first()?);
+            let from_end = *a.get(1)? != 0;
+            let f = |i| arg(a, i).map(f32::from_bits);
+            let raw = a.get(5..)?;
+            if raw.is_empty() || raw.len() % 3 != 0 {
+                return None;
+            }
+            let mut points = Vec::new();
+            let mut marked = Vec::new();
+            for p in raw.chunks_exact(3) {
+                points.push((f32::from_bits(arg(p, 0)?), f32::from_bits(arg(p, 1)?)));
+                marked.push(*p.get(2)? != 0);
+            }
+            let mut order: Vec<_> = (0..points.len()).collect();
+            if from_end {
+                order.reverse();
+            }
+            let g = crate::model::gpwiden::shorten(r, &mut points, &mut marked, &order, f(2)?, f(3)?, f(4)?);
+            let enc = |x: f32| if x.is_nan() { 0x7fc0_0000 } else { i64::from(x.to_bits()) };
+            let mut out = vec![enc(g.0), enc(g.1)];
+            out.extend(points.into_iter().zip(marked).flat_map(|((x, y), m)| [enc(x), enc(y), i64::from(m)]));
+            Some(out)
+        },
+    },
     Mirror {
         name: "gp.premultiply",
         lean: CONV,
