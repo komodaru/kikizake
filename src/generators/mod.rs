@@ -76,6 +76,7 @@ pub const GENERATORS: &[(&str, fn() -> String)] = &[
     ("d2dhugecurve", d2d::d2dhugecurve),
     ("d2doutlinehollow", d2d::d2doutlinehollow),
     ("d2dgradientmap", d2d::d2dgradientmap),
+    ("d2droundturn", d2d::d2droundturn),
     ("gdiplus", gdiplus::gdiplus),
     ("gdiplusmat", gdiplus::gdiplusmat),
     ("gdipluspaint", gdiplus::gdipluspaint),
