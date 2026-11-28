@@ -162,6 +162,45 @@ y + (1 - y/w) (height/2) -/
 def viewportXY (vx vy vw vh x y w : Nat) : Int × Int :=
   (snap (add vx (mul (add (div x w) one) (mul vw half))), snap (add vy (mul (sub one (div y w)) (mul vh half))))
 
+/-- The original triangle's guard-band snap, with 2^31 pixels as the limit on either side. -/
+def triangleSnap (v : Nat) : Int :=
+  if isNaN F32.fmt v then 0
+  else
+    let v := minF (maxF v 0xcf000000) 0x4f000000
+    let (neg, n, d) := Float.toRat F32.fmt v
+    let n := n * 256
+    let q := n / d
+    let r := n % d
+    let k := if 2 * r > d ∨ (2 * r = d ∧ q % 2 = 1) then q + 1 else q
+    if neg then -(k : Int) else k
+
+abbrev ClipPos := Nat × Nat × Nat × Nat
+
+/-- Near and far clipping preserves the original triangle's depth plane. -/
+def originalTriangleDepth (vx vy vw vh lo hi : Nat) (p0 p1 p2 : ClipPos) (cx cy : Nat) : Nat :=
+  let le := fun (a b : ClipPos) => ltF a.1 b.1 || Filter.eqF a.1 b.1
+  let (a, b, c) := if le p1 p0 then
+      if le p2 p1 then (p2, p0, p1) else (p1, p2, p0)
+    else if le p2 p0 then (p2, p0, p1) else (p0, p1, p2)
+  -- The snapped screen coordinates are signed. Convert the integer before dividing by 256.
+  let signedPixels := fun i => div (ofInt i) f256
+  let screen := fun (x, y, z, w) =>
+    (signedPixels (triangleSnap (add vx (mul (add (div x w) one) (mul vw half)))),
+      signedPixels (triangleSnap (add vy (mul (sub one (div y w)) (mul vh half)))),
+      vertexDepth lo hi z w)
+  let (x0, y0, z0) := screen a
+  let (x1, y1, z1) := screen b
+  let (x2, y2, z2) := screen c
+  clampRange lo hi (planeValue x0 x1 x2 y0 y1 y2 z0 z1 z2 cx cy)
+
+set_option maxRecDepth 4096 in
+set_option exponentiation.threshold 2048 in
+/-- The plane still uses the near-clipped vertex's original negative depth. -/
+theorem depth_uses_whole_triangle :
+    originalTriangleDepth 0 0 0x40800000 0x40800000 0 one
+      (0xbf800000, one, 0xbf800000, one) (one, one, one, one)
+      (0xbf800000, 0xbf800000, half, one) 0x40000000 0x3fc00000 = 0x3f100000 := by decide
+
 /-- Direct3D 10's viewport: the (INT) cast toward zero -/
 def vp10 (x : Nat) : Nat := truncF F32.fmt x
 
@@ -338,6 +377,13 @@ private def i64Argument (value : Int) : Option Int :=
   if -(2 ^ 63) ≤ value ∧ value < 2 ^ 63 then some value else none
 
 def mirrors : List Mirror := [
+  ⟨"d3d11.originaltriangledepth", fun
+    | [vx, vy, vw, vh, lo, hi, x0, y0, z0, w0, x1, y1, z1, w1, x2, y2, z2, w2, cx, cy] => do
+      pure [canon (originalTriangleDepth (← nat vx) (← nat vy) (← nat vw) (← nat vh)
+        (← nat lo) (← nat hi) (← nat x0, ← nat y0, ← nat z0, ← nat w0)
+        (← nat x1, ← nat y1, ← nat z1, ← nat w1) (← nat x2, ← nat y2, ← nat z2, ← nat w2)
+        (← nat cx) (← nat cy))]
+    | _ => none⟩,
   ⟨"d3d11.sampleuv", fun
     | [x0, x1, x2, y0, y1, y2, w0, w1, w2, u0, u1, u2, v0, v1, v2, cx, cy] => do
       let (u, v) := sampleUV (← nat x0, ← nat x1, ← nat x2) (← nat y0, ← nat y1, ← nat y2)
