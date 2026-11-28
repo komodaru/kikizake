@@ -30,6 +30,31 @@ fn bound(a: &[i64], i: usize) -> Option<Option<Bound>> {
 
 pub static MIRRORS: &[Mirror] = &[
     Mirror {
+        name: "d3d11.wireedges",
+        lean: RASTER,
+        domain: Domain::Sampled("all triples from a boundary coordinate table and 10,000 triples of binary32 bit patterns"),
+        inputs: |each| {
+            let edge = [0, 0x8000_0000, 1, 0x8000_0001, 0x3f80_0000, 0xbf80_0000, 0x7f7f_ffff,
+                0xff7f_ffff, 0x7f80_0000, 0xff80_0000, 0x7fc0_0001, 0xff80_0001];
+            for a in edge {
+                for b in edge {
+                    for c in edge {
+                        each(&[a, b, c]);
+                    }
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0x7712_ed9e);
+            for _ in 0..10_000 {
+                each(&std::array::from_fn::<_, 3, _>(|_| rng.range(0, U32)));
+            }
+        },
+        model: |a| {
+            let f = |i| arg(a, i).map(f32::from_bits);
+            let edges = crate::model::d3draster::wire_edges([f(0)?, f(1)?, f(2)?]);
+            edges.into_iter().flatten().map(|i| i64::try_from(i).ok()).collect()
+        },
+    },
+    Mirror {
         name: "d3d11.covers",
         lean: RASTER,
         domain: Domain::Sampled("every triangle and point of coordinates -256..256 in half pixels (1/256 units), and 300,000 of -700..700"),

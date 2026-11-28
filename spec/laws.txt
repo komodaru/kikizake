@@ -479,6 +479,9 @@ tests/laws_dd.rs::far_soft_lines_stay_on_the_segment pbt D3D7.LINE
 tests/laws_dd.rs::guard_cut_stays_on_the_segment pbt D3D7.LINE
 tests/laws_dd.rs::soft_walk_overruns_by_one_column_at_most pbt D3D7.TRI.CLIP
 tests/laws_dd.rs::warp_line_cut_stays_on_the_segment pbt D3D7.LINE.HW
+spec/lean/Kikizake/D3d11/Raster.lean::wire_first lean D3DRASTER.WIREFRAME
+spec/lean/Kikizake/D3d11/Raster.lean::wire_second lean D3DRASTER.WIREFRAME
+spec/lean/Kikizake/D3d11/Raster.lean::wire_third lean D3DRASTER.WIREFRAME
 spec/lean/Kikizake/D3d11/Raster.lean::shared_edge lean D3DRASTER.TOPLEFT
 spec/lean/Kikizake/D3d11/Raster.lean::covers_turn lean D3DRASTER.TOPLEFT D3DRASTER.CULL
 spec/lean/Kikizake/D3d11/Raster.lean::degenerate lean D3DRASTER.DEGENERATE

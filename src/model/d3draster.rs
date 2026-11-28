@@ -453,6 +453,19 @@ pub fn color_write(integer: bool, blend_enabled: bool) -> ColorWrite {
     }
 }
 
+/// Walk the triangle's cyclic edges from the first vertex of least clip x.
+pub fn wire_edges([a, b, c]: [f32; 3]) -> [[usize; 2]; 3] {
+    let second = b < a;
+    let least = if second { b } else { a };
+    if c < least {
+        [[2, 0], [0, 1], [1, 2]]
+    } else if second {
+        [[1, 2], [2, 0], [0, 1]]
+    } else {
+        [[0, 1], [1, 2], [2, 0]]
+    }
+}
+
 fn factor(f: u32, s: [f32; 4], dst: [f32; 4], bf: [f32; 4], ch: usize) -> Res<f32> {
     if let Some(value) = secondary_factor(f) {
         hit(clause::D3DRASTER_BLEND_FACTOR);
@@ -1717,10 +1730,10 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     // lines, from the vertex of least clip x on: 0 to 1, 1 to 2, 2 to 0
     if d.rast[0] == 2 {
         hit(clause::D3DRASTER_WIREFRAME);
-        let k0 = (0..3).fold(0, |k, i| if tri[i].pos[0] < tri[k].pos[0] { i } else { k });
-        let t: [Vert; 3] = [0, 1, 2].map(|i| tri[(k0 + i) % 3]);
-        for e in 0..3 {
-            wire.push(Seg { a: t[e], b: t[(e + 1) % 3], lead, prim, front, clip: SegClip::Line });
+        for [a, b] in wire_edges(tri.map(|v| v.pos[0])) {
+            let a = *tri.get(a).ok_or(Fail::Bad)?;
+            let b = *tri.get(b).ok_or(Fail::Bad)?;
+            wire.push(Seg { a, b, lead, prim, front, clip: SegClip::Line });
         }
         return Ok(());
     }
