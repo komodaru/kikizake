@@ -1,0 +1,194 @@
+# kikizake suite d3d7rampclip: clipping a ramp triangle with a far vertex.
+# x86 only
+case ramp-guard-0
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff -937880254 -1131076774 165 -28 18 96
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 -937880254 -1131076774 165 -28 18 96
+d3ddump
+end
+case ramp-guard-1
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff -937880254 -1131076774 18 96 165 -28
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 -937880254 -1131076774 18 96 165 -28
+d3ddump
+end
+case ramp-guard-2
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff 165 -28 -937880254 -1131076774 18 96
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 165 -28 -937880254 -1131076774 18 96
+d3ddump
+end
+case ramp-guard-3
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff 165 -28 18 96 -937880254 -1131076774
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 165 -28 18 96 -937880254 -1131076774
+d3ddump
+end
+case ramp-guard-4
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff 18 96 -937880254 -1131076774 165 -28
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 18 96 -937880254 -1131076774 165 -28
+d3ddump
+end
+case ramp-guard-5
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff 18 96 165 -28 -937880254 -1131076774
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 18 96 165 -28 -937880254 -1131076774
+d3ddump
+end
+case ramp-guard-6
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff -449486022 494317535 30 40 57 157
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 -449486022 494317535 30 40 57 157
+d3ddump
+end
+case ramp-guard-7
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff -1009777481 709330657 165 -28 1 56
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 -1009777481 709330657 165 -28 1 56
+d3ddump
+end
+case ramp-guard-8
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff 115 156 70757820 -125010146 -12 102
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 115 156 70757820 -125010146 -12 102
+d3ddump
+end
+case ramp-guard-9
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff 106926096 -93575778 90 106 -12 102
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 106926096 -93575778 90 106 -12 102
+d3ddump
+end
+case ramp-guard-10
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff 96 96 11 77 1330 -1761
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 96 96 11 77 1330 -1761
+d3ddump
+end
+case ramp-guard-11
+d3d 2
+d3ddev ramp 565 6 6
+d3drs set 22 1
+d3dclear 0
+d3dtri 0xffffffff 557569080 697475131 45 19 30 40
+d3ddump
+d3drs set 14 0
+d3dclear 0
+d3dtri 0x10ff0022/0x90aabbcc/0xff001122 557569080 697475131 45 19 30 40
+d3ddump
+end
+case ramp-left-0
+d3d 2
+d3ddev ramp 24 1 7
+d3drs set 22 1
+d3dclear 0xff010203
+d3dtri 0xffffffff 554277618 137 0 81 1 -1937463075
+d3ddump
+end
+case ramp-left-1
+d3d 2
+d3ddev ramp 24 1 9
+d3drs set 22 1
+d3dclear 0xff010203
+d3dtri 0xffffffff 11 -1683705410 0 112 650554527 52
+d3ddump
+end
+case ramp-left-2
+d3d 2
+d3ddev ramp 24 1 6
+d3drs set 22 1
+d3dclear 0xff010203
+d3dtri 0xffffffff 2 -1069310508 0 18 410173298 38
+d3ddump
+end
+case ramp-left-3
+d3d 2
+d3ddev ramp 24 5 7
+d3drs set 22 1
+d3dclear 0xff010203
+d3dtri 0xffffffff 16 81 0 81 1 -1937463075
+d3ddump
+end
+case ramp-left-4
+d3d 2
+d3ddev ramp 24 10 7
+d3drs set 22 1
+d3dclear 0xff010203
+d3dtri 0xffffffff 16 81 0 81 1 -1937463075
+d3ddump
+end
+case ramp-left-5
+d3d 2
+d3ddev ramp 24 4 7
+d3drs set 22 1
+d3dclear 0xff010203
+d3dtri 0xffffffff 16 81 0 81 1 -1937463075
+d3ddump
+end
