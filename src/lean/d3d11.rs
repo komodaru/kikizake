@@ -1512,6 +1512,21 @@ fn vec4(a: &[i64], i: usize) -> Option<[f32; 4]> {
 
 pub static CLIP_MIRRORS: &[Mirror] = &[
     Mirror {
+        name: "d3d11.clippedwireedges",
+        lean: CLIP,
+        domain: Domain::Sampled("both culling outcomes and every clip-plane flag list up to length 12"),
+        inputs: |each| {
+            for n in 0usize..=12 {
+                every(&vec![(0, 1); n.saturating_add(1)], each);
+            }
+        },
+        model: |a| {
+            let visible = flag(a, 0)?;
+            let along = a.get(1..)?.iter().map(|&v| v != 0);
+            crate::model::d3draster::clipped_wire_edges(visible, along).flatten().map(|i| i64::try_from(i).ok()).collect()
+        },
+    },
+    Mirror {
         name: "d3d11.cliptri",
         lean: CLIP,
         domain: Domain::Sampled("200,000 triangles (positions and colors of the values of clip_args), with and without depth clipping; a NaN answer as the one quiet NaN"),
