@@ -1191,3 +1191,34 @@ end");
     }
     s
 }
+
+pub fn d2droundturn() -> String {
+    let mut s = String::from("# kikizake suite d2droundturn: round joins at a stroke reversal.
+");
+    for (i, (slot, geom)) in [
+        (0, "d2ell 0 5 5 4 0"), (0, "d2ell 0 5 5 0 4"),
+        (1, "d2ell 0 5 5 4 2
+d2xf 1 0 1 0 0 0 0 5"),
+        (1, "d2ell 0 5 5 4 2
+d2xf 1 0 0 0 0 1 5 0"),
+        (1, "d2ell 0 5 5 4 2
+d2xf 1 0 1 1 0 0 0 0"),
+        (1, "d2ell 0 5 5 4 2
+d2xf 1 0 1 0 1 0 0 5"),
+        (1, "d2ell 0 5 5 4 2
+d2xf 1 0 1 0 1e-8 0 0 5"),
+        (1, "d2ell 0 5 5 4 2
+d2xf 1 0 1 0 1e-5 0 0 5"),
+    ].iter().enumerate() {
+        for width in [1, 2, 6] {
+            writeln!(s, "case turn-{i}-{width}
+{geom}
+d2widen {slot} {width}
+d2target 16 12
+d2drawg {slot} {width} 70 145 220 255
+d2read
+end");
+        }
+    }
+    s
+}

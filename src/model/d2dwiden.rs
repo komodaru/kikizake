@@ -181,25 +181,24 @@ impl Rails {
         let (next_l, next_r) = (sub(c, o), add(c, o));
         let det = cross(vin, vout);
         let dt = dot(vin, vout);
-        if dt.abs() * 1e-4 >= det.abs() {
+        let parallel = dt.abs() * 1e-4 >= det.abs();
+        if parallel {
             if dt > 0.0 {
                 return Ok(());
             }
-            // a turn of 180 degrees (golden d2d-32/-64: widenturn-*, strketurn-*): a miter join
-            // pushes both rails out by the limit along the incoming direction, then across
-            let Join::Miter(lim) = join else {
-                // (a round join turning back: the spec's open D2D.SIMP / D2D.RT)
-                return Err(unmodeled());
-            };
             hit(clause::D2D_WIDEN_TURN);
-            let u = scale(pen.vec(pen.rad(vin)), lim);
-            let (cl, cr) = (end(&self.l)?, end(&self.r)?);
-            self.l.extend([add(cl, u), add(next_l, u), next_l].map(DSeg::L));
-            self.r.extend([add(cr, u), add(next_r, u), next_r].map(DSeg::L));
-            self.rad = rad_out;
-            return Ok(());
+            if let Join::Miter(lim) = join {
+                // A miter reversal pushes both rails out along the incoming direction.
+                let u = scale(pen.vec(pen.rad(vin)), lim);
+                let (cl, cr) = (end(&self.l)?, end(&self.r)?);
+                self.l.extend([add(cl, u), add(next_l, u), next_l].map(DSeg::L));
+                self.r.extend([add(cr, u), add(next_r, u), next_r].map(DSeg::L));
+                self.rad = rad_out;
+                return Ok(());
+            }
         }
-        let outer_left = det > 0.0;
+        // A round reversal puts the arc on rail 1 and the spine point on rail 0.
+        let outer_left = !parallel && det > 0.0;
         let lim = match join {
             Join::Miter(l) => l,
             Join::Round => {
