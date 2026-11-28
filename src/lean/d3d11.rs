@@ -1103,6 +1103,38 @@ fn float_args(args: usize, n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
 
 pub static INTERP_MIRRORS: &[Mirror] = &[
     Mirror {
+        name: "d3d11.originaltriangledepth",
+        lean: INTERP,
+        domain: Domain::Sampled("the clipped-near example and 4,000 triangles with clip-space positions on a 1/16 grid, positive w including guard-band crossings, and varying viewport ranges"),
+        inputs: |each| {
+            each(&[0, 0, 0x4080_0000, 0x4080_0000, 0, 0x3f80_0000,
+                0xbf80_0000, 0x3f80_0000, 0xbf80_0000, 0x3f80_0000,
+                0x3f80_0000, 0x3f80_0000, 0x3f80_0000, 0x3f80_0000,
+                0xbf80_0000, 0xbf80_0000, 0x3f00_0000, 0x3f80_0000,
+                0x4000_0000, 0x3fc0_0000]);
+            let mut rng = crate::rng::Sample64::new(0xc11d_de97);
+            let f = |x| i64::from((f32::from(i16::try_from(x).unwrap_or(0)) / 16.0).to_bits());
+            for i in 0..4_000 {
+                let mut a = vec![f(rng.range(-32, 32)), f(rng.range(-32, 32)),
+                    f(rng.range(1, 256)), f(rng.range(1, 256)),
+                    f(rng.range(0, 16)), f(rng.range(0, 16))];
+                for j in 0..3 {
+                    a.extend((0..3).map(|_| f(rng.range(-64, 64))));
+                    a.push(if i % 16 == j { 0x0080_0000 } else { f(rng.range(1, 32)) });
+                }
+                a.extend((0..2).map(|_| f(rng.range(-64, 256))));
+                each(&a);
+            }
+        },
+        model: |a| {
+            let [x, y, w, h] = vec4(a, 0)?;
+            let f = |i| arg::<u32>(a, i).map(f32::from_bits);
+            let vp = [x, y, w, h, f(4)?, f(5)?];
+            let pos = [vec4(a, 6)?, vec4(a, 10)?, vec4(a, 14)?];
+            Some(vec![canon32(crate::model::d3draster::original_triangle_depth(vp, pos, (f(18)?, f(19)?)))])
+        },
+    },
+    Mirror {
         name: "d3d11.sampleuv",
         lean: INTERP,
         domain: Domain::Sampled("2,000 signed fractional texture coordinates with constant and varying reciprocal w, at and beyond triangle vertices, plus the theorem input"),
