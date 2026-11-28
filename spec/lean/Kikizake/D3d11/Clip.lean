@@ -2,6 +2,7 @@ import Kikizake.Mirror
 import Kikizake.F32
 import Kikizake.D3d11.Filter
 import Kikizake.D3d11.Interp
+import Kikizake.D3d11.Raster
 /-! Direct3D 10 and 11's clipping (spec/d3dres.txt D3DRASTER.CLIP, CLIPW.AWAY, CLIPW.NAN,
 CLIPZ.PIECES, CLIPZ.LINE, DEPTHCLIP, LINE's clipping) in binary32 and binary64 as
 src/model/d3draster.rs computes it: `clipTri` is `clip_tri_values` (`clip_tri`), `shF32` its
@@ -250,12 +251,54 @@ theorem only_unmarked_edges_survive (along : List Bool) (a b : Nat) :
   · rintro ⟨ha, hm, rfl⟩
     exact ⟨a, ⟨ha, hm⟩, rfl, rfl⟩
 
+abbrev Point := Int × Int
+
+/-- Triangulate from the first snapped vertex and keep the surviving pieces in fan order. -/
+def clippedFan (mode : Nat) (ccw : Bool) : List Point → List (Point × Point × Point × Bool)
+  | [] => []
+  | a :: rest => (rest.zip rest.tail).filterMap fun (b, c) =>
+      let s := area a b c
+      let cw := decide (s > 0)
+      if s != 0 && !Raster.culls mode ccw cw then some (a, b, c, cw) else none
+
+theorem clipped_fan_membership (mode : Nat) (ccw cw : Bool) (a b c : Point) (rest : List Point) :
+    (a, b, c, cw) ∈ clippedFan mode ccw (a :: rest) ↔
+      (b, c) ∈ rest.zip rest.tail ∧ area a b c ≠ 0 ∧ cw = decide (area a b c > 0) ∧
+        Raster.culls mode ccw cw = false := by
+  simp only [clippedFan, List.mem_filterMap]
+  constructor
+  · rintro ⟨⟨u, v⟩, h, e⟩
+    split at e <;> rename_i hKeep
+    · have e' := Option.some.inj e
+      simp only [Prod.mk.injEq] at e'
+      obtain ⟨_, rfl, rfl, rfl⟩ := e'
+      simpa using And.intro h hKeep
+    · simp at e
+  · rintro ⟨h, hn, rfl, hc⟩
+    exact ⟨(b, c), h, by simp [hn, hc]⟩
+
+/-- With fixed front-facing state, FRONT and BACK partition each nonzero fan triangle. -/
+theorem clipped_fan_front_back (ccw cw : Bool) (a b c : Point) (rest : List Point)
+    (h : (a, b, c, cw) ∈ clippedFan 1 ccw (a :: rest)) :
+    (a, b, c, cw) ∈ clippedFan 2 ccw (a :: rest) ↔
+      (a, b, c, cw) ∉ clippedFan 3 ccw (a :: rest) := by
+  have ⟨hp, hn, hw, _⟩ := (clipped_fan_membership 1 ccw cw a b c rest).mp h
+  simp [clipped_fan_membership, hp, hn, hw, Raster.culls, Raster.frontFace]
+
 /-- the mirrors' answers: a NaN as the one quiet NaN -/
 def canon (x : Nat) : Int := (F32.canon x : Nat)
 
 def cvOut (v : CV) : List Int := v.pos.map canon ++ v.color.map canon ++ [if v.made then 1 else 0, if v.along then 1 else 0]
 
 def mirrors : List Mirror := [
+  ⟨"d3d11.clippedfan", fun
+    | mode :: ccw :: points => do
+      if points.length % 2 != 0 then none
+      let ps := (List.range (points.length / 2)).map fun i =>
+        (points.getD (2 * i) 0, points.getD (2 * i + 1) 0)
+      let fan := clippedFan (← nat mode) (ccw != 0) ps
+      pure (fan.flatMap fun (a, b, c, cw) => [a.1, a.2, b.1, b.2, c.1, c.2, if cw then 1 else 0])
+    | _ => none⟩,
   ⟨"d3d11.clippedwireedges", fun
     | visible :: along => some ((clippedWireEdges (visible != 0) (along.map (· != 0))).flatMap
         fun (a, b) => [Int.ofNat a, Int.ofNat b])

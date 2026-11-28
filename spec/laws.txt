@@ -853,6 +853,8 @@ spec/lean/Kikizake/Gdi/Glyph.lean::char_rows lean GDI.TEXT.DRAW
 tests/laws_gdigradtri.rs::triangle_is_its_values_carried_as_flat_rectangles exhaustive GDI.GRAD.TRIANGLE
 spec/lean/Kikizake/D3d11/Clip.lean::culled_wire_has_no_edges lean D3DRASTER.CLIPW.WIRE
 spec/lean/Kikizake/D3d11/Clip.lean::only_unmarked_edges_survive lean D3DRASTER.CLIPW.WIRE
+spec/lean/Kikizake/D3d11/Clip.lean::clipped_fan_membership lean D3DRASTER.CLIPW.AREA
+spec/lean/Kikizake/D3d11/Clip.lean::clipped_fan_front_back lean D3DRASTER.CLIPW.AREA
 spec/lean/Kikizake/D3d11/Clip.lean::depth_first lean D3DRASTER.CLIPZ.PIECES
 spec/lean/Kikizake/D3d11/Clip.lean::all_out lean D3DRASTER.CLIP D3DRASTER.DEPTHCLIP
 spec/lean/Kikizake/D3d11/Clip.lean::in_front lean D3DRASTER.DEPTHCLIP
