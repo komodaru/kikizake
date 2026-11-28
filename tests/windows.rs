@@ -90,6 +90,14 @@ fn models_match_windows() {
                     }
                 }
             }
+            if *s == "d2doutlinehollow" {
+                let expected = case::parse_output(&g);
+                let actual = case::parse_output(&want);
+                for reference in expected.cases.iter().filter(|(n, _)| n != "hollow-xor-tied") {
+                    let got = actual.cases.iter().find(|(n, _)| n == &reference.0);
+                    assert_eq!(got, Some(reference), "{s}-{arch} {}", reference.0);
+                }
+            }
             if *s == "d2dlimits" {
                 let expected = case::parse_output(&g);
                 let actual = case::parse_output(&want);
