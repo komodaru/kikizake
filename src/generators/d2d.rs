@@ -1022,6 +1022,7 @@ pub fn d2dlimits() -> String {
         ("gradient-singular", "d2xform 1 1 1 1 0 0\nd2grad 0 0 4 4 lin 22 clamp 0 0 4 4 2 0 255 0 0 255 1 0 0 255 255".into()),
         ("gradient-coincident", "d2grad 0 0 4 4 lin 22 clamp 2 2 2 2 2 0 255 0 0 255 1 0 0 255 255".into()),
         ("curve-outside-fixed-range", "d2ell 0 8388608 2 8388608 2\nd2fillg 0 255 255 255 255".into()),
+        ("curve-flattener-range", "d2ell 0 9e36 2 9e36 2\nd2fillg 0 255 255 255 255".into()),
         ("stroke-nan", "d2ell 0 2 2 1 1\nd2drawg 0 NaN 255 255 255 255".into()),
     ] {
         writeln!(s, "case {name}\nd2target 4 4\nd2clear 39 70 111 255\n{op}\nd2read\nend");
