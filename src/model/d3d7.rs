@@ -678,7 +678,7 @@ impl D3d7 {
         };
         let k = usize::try_from(w * h).map_err(|_| Fail::Bad)?;
         // MEASURED (v1 golden): a new target holds zeros
-        let rows = usize::try_from(h).map_err(|_| Fail::Bad)?;
+        let rows = usize::try_from(h).ok().ok_or(Fail::Bad)?;
         let rt = Target {
             w,
             h,
@@ -1748,23 +1748,24 @@ fn walked(x: i64, y: i64, w: i64, h: i64, fmt: Fmt) -> Res<Walked> {
     if a < 0 {
         return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
     }
-    if a.checked_add(b).ok_or(Fail::Bad)? > h * p {
+    if a.checked_add(b).ok_or(Fail::Bad)? > h.wrapping_mul(p) {
         return Ok(Walked::PastEnd);
     }
+    let tail = at.wrapping_add(b);
     if at >= end {
-        if at + b <= p {
+        if tail <= p {
             return Ok(Walked::Padding);
         }
-        let k = usize::try_from((row + 1) * w).map_err(|_| Fail::Bad)?;
-        let offset = i8::try_from(at - p).map_err(|_| Fail::Bad)?;
+        let k = usize::try_from(row.wrapping_add(1).wrapping_mul(w)).ok().ok_or(Fail::Bad)?;
+        let offset = i8::try_from(at.wrapping_sub(p)).ok().ok_or(Fail::Bad)?;
         return Ok(Walked::In { k, offset });
     }
     let byte = at.rem_euclid(b);
-    if byte != 0 && !(at + b > end && at + b <= p) {
+    if byte != 0 && !(tail > end && tail <= p) {
         return Err(Fail::Unmodeled(open::D3D7_TRI_CLIP));
     }
-    let k = usize::try_from(row * w + at.div_euclid(b)).map_err(|_| Fail::Bad)?;
-    let offset = i8::try_from(byte).map_err(|_| Fail::Bad)?;
+    let k = usize::try_from(row.wrapping_mul(w).wrapping_add(at.div_euclid(b))).ok().ok_or(Fail::Bad)?;
+    let offset = i8::try_from(byte).ok().ok_or(Fail::Bad)?;
     Ok(Walked::In { k, offset })
 }
 
@@ -1972,9 +1973,7 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
     for wr in writes {
         {
             let (k, px, py) = (wr.k, wr.x, wr.y);
-            if k >= rt.px.len() {
-                return Err(Fail::Bad);
-            }
+            let pixel = rt.px.get_mut(k).ok_or(Fail::Bad)?;
             // MEASURED (d3d7shade alphatest-*: each function and reference against 8 alphas,
             // every device): the documented compare of the vertex alpha (ramp: 0) with ALPHAREF
             if let Some((f, aref)) = st.alphatest {
@@ -1986,17 +1985,19 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
             if let Some(zw) = zv {
                 let depth = match zw {
                     Zw::Soft(dp) if !(0..rt.w).contains(&px) => {
-                        let bits = if dp == Depth::Z16 { 16 } else { 32 };
-                        let pitch = crate::model::ddraw::pitch(rt.w, bits) / i64::from(bits / 8);
-                        let at = py * pitch + px;
+                        let bytes: u8 = if dp == Depth::Z16 { 2 } else { 4 };
+                        let bits = u32::from(bytes).wrapping_mul(8);
+                        let pitch = crate::model::ddraw::pitch(rt.w, bits).div_euclid(i64::from(bytes));
+                        let at = py.wrapping_mul(pitch).wrapping_add(px);
                         let col = at.rem_euclid(pitch);
-                        let row = usize::try_from(at.div_euclid(pitch)).map_err(|_| Fail::Bad)?;
+                        let row = usize::try_from(at.div_euclid(pitch)).ok().ok_or(Fail::Bad)?;
                         if col >= rt.w {
-                            let col = usize::try_from(col - rt.w).map_err(|_| Fail::Bad)?;
+                            let col = usize::try_from(col.wrapping_sub(rt.w)).ok().ok_or(Fail::Bad)?;
                             rt.z_pad.get_mut(row).and_then(|p| p.get_mut(col))
                         } else {
-                            let slot = row * usize::try_from(rt.w).map_err(|_| Fail::Bad)?
-                                + usize::try_from(col).map_err(|_| Fail::Bad)?;
+                            let width = usize::try_from(rt.w).ok().ok_or(Fail::Bad)?;
+                            let col = usize::try_from(col).ok().ok_or(Fail::Bad)?;
+                            let slot = row.wrapping_mul(width).wrapping_add(col);
                             rt.z.get_mut(slot)
                         }
                     }
@@ -2075,22 +2076,25 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
             };
             let srcf = src;
             let src = srcf.map(Shade::int);
-            let mut stored = rt.px[k];
+            let mut stored = *pixel;
             let padding = if wr.offset == 0 {
                 None
             } else {
                 let n = usize::from(wr.offset.unsigned_abs());
-                let row = k / usize::try_from(rt.w).map_err(|_| Fail::Bad)?;
+                let row = k.checked_div(usize::try_from(rt.w).ok().ok_or(Fail::Bad)?).ok_or(Fail::Bad)?;
+                let visible = 3usize.checked_sub(n).ok_or(Fail::Bad)?;
                 let (row, pad_bytes, pixel_bytes) = if wr.offset < 0 {
-                    (row.checked_sub(1).ok_or(Fail::Bad)?, 0..n, 0..3 - n)
+                    (row.checked_sub(1).ok_or(Fail::Bad)?, 0..n, 0..visible)
                 } else {
-                    (row, 3 - n..3, n..3)
+                    (row, visible..3, n..3)
                 };
                 let pad = rt.color_pad.get_mut(row).and_then(|p| p.get_mut(..n)).ok_or(Fail::Bad)?;
                 let mut bytes = [0; 4];
-                bytes[pad_bytes.clone()].copy_from_slice(pad);
-                let color_bytes = if wr.offset < 0 { n..3 } else { 0..3 - n };
-                bytes[color_bytes.clone()].copy_from_slice(&stored.to_le_bytes()[pixel_bytes.clone()]);
+                bytes.get_mut(pad_bytes.clone()).ok_or(Fail::Bad)?.copy_from_slice(pad);
+                let color_bytes = if wr.offset < 0 { n..3 } else { 0..visible };
+                let old = stored.to_le_bytes();
+                let source = old.get(pixel_bytes.clone()).ok_or(Fail::Bad)?;
+                bytes.get_mut(color_bytes.clone()).ok_or(Fail::Bad)?.copy_from_slice(source);
                 stored = u32::from_le_bytes(bytes);
                 Some((pad, pad_bytes, pixel_bytes, color_bytes))
             };
@@ -2133,7 +2137,7 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
                 // d·Fd) + 0.5) in floats, the destination its exact fraction q / max
                 (Family::Hw { .. }, Some(f)) => [0, 1, 2].map(|i| {
                     let max = f64::from((1u32 << bits[i]) - 1);
-                    let dq = rt.px[k] >> fmt.shifts()[i] & ((1 << bits[i]) - 1);
+                    let dq = stored >> fmt.shifts()[i] & ((1 << bits[i]) - 1);
                     let s = match (wr.c, warp.get(i).copied().flatten()) {
                         (Col::Unit(u), _) => f64::from(u.get(i).copied().unwrap_or(0.0).clamp(0.0, 1.0)),
                         (Col::Tri, Some(pl)) => pl.at(px, py).map(|v| f64::from(v.clamp(0.0, 1.0))).unwrap_or(0.0),
@@ -2158,12 +2162,13 @@ fn paint(dev: &mut Device, st: &States, tri: &Tri, writes: &[Write]) -> Res<()> 
                 }
             };
             let packed = fmt.pack(q);
-            rt.px[k] = if let Some((pad, pad_bytes, pixel_bytes, color_bytes)) = padding {
+            *pixel = if let Some((pad, pad_bytes, pixel_bytes, color_bytes)) = padding {
                 let bytes = packed.to_le_bytes();
-                pad.copy_from_slice(&bytes[pad_bytes]);
-                let mut pixel = rt.px[k].to_le_bytes();
-                pixel[pixel_bytes].copy_from_slice(&bytes[color_bytes]);
-                u32::from_le_bytes(pixel)
+                pad.copy_from_slice(bytes.get(pad_bytes).ok_or(Fail::Bad)?);
+                let mut value = pixel.to_le_bytes();
+                let source = bytes.get(color_bytes).ok_or(Fail::Bad)?;
+                value.get_mut(pixel_bytes).ok_or(Fail::Bad)?.copy_from_slice(source);
+                u32::from_le_bytes(value)
             } else {
                 packed
             };

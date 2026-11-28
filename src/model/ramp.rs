@@ -344,7 +344,7 @@ impl<'a> Batch<'a> {
                 }
                 if let Some((fc, f)) = fog {
                     for (ci, &fcc) in c.iter_mut().zip(&fc) {
-                        let term = u32::from(fcc).wrapping_mul(255 - f);
+                        let term = u32::from(fcc).wrapping_mul(255u32.wrapping_sub(f));
                         let v = (u32::from(*ci >> 8).wrapping_mul(f) & 0xffff).wrapping_add(term);
                         *ci = u16::try_from(v.min(0xffff)).unwrap_or(u16::MAX);
                     }
