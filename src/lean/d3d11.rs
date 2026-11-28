@@ -1103,6 +1103,40 @@ fn float_args(args: usize, n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
 
 pub static INTERP_MIRRORS: &[Mirror] = &[
     Mirror {
+        name: "d3d11.sampleuv",
+        lean: INTERP,
+        domain: Domain::Sampled("2,000 signed fractional texture coordinates with constant and varying reciprocal w, at and beyond triangle vertices, plus the theorem input"),
+        inputs: |each| {
+            let f = |x: f32| i64::from(x.to_bits());
+            each(&[0, f(2.0), 0, 0, 0, f(2.0), f(1.0), f(2.0), f(4.0), 0, f(4.0), 0, 0, 0, f(8.0), f(0.5), f(0.5)]);
+            let mut rng = crate::rng::Sample64::new(0x9f30_edec);
+            let fixed = |n| f32::from(i16::try_from(n).unwrap_or(0)) / 16.0;
+            for sample in 0..2_000u32 {
+                let width = fixed(rng.range(1, 96));
+                let height = fixed(rng.range(1, 96));
+                let mut words = vec![0, f(width), 0, 0, 0, f(height)];
+                if sample & 1 == 0 {
+                    words.extend([f(fixed(rng.range(1, 48))); 3]);
+                } else {
+                    words.extend((0..3).map(|_| f(fixed(rng.range(1, 48)))));
+                }
+                words.extend((0..6).map(|_| f(fixed(rng.range(-128, 128)))));
+                words.extend((0..2).map(|_| f(fixed(rng.range(-32, 128)))));
+                each(&words);
+            }
+        },
+        model: |a| {
+            use crate::model::d3draster::perspective_at;
+            let f = |i| arg(a, i).map(f32::from_bits);
+            let xs = [f(0)?, f(1)?, f(2)?];
+            let ys = [f(3)?, f(4)?, f(5)?];
+            let iw = [f(6)?, f(7)?, f(8)?];
+            let uv = [[f(9)?, f(12)?], [f(10)?, f(13)?], [f(11)?, f(14)?]];
+            let enc = |x: f32| if x.is_nan() { 0x7fc0_0000 } else { i64::from(x.to_bits()) };
+            Some(perspective_at(xs, ys, iw, uv, (f(15)?, f(16)?)).map(enc).to_vec())
+        },
+    },
+    Mirror {
         name: "d3d11.positioncolor",
         lean: INTERP,
         domain: Domain::Sampled("all pixel pairs in -32..32, i64 and f32 rounding boundaries, and 40,000 i64 pixel pairs with independent binary32 depth and w"),
