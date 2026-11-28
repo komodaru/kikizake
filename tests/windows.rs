@@ -76,7 +76,9 @@ fn models_match_windows() {
             }
             // These suites have deterministic, fully modeled output on both architectures.
             // A wildcard, missing result or newly unmodeled case must fail this comparison.
-            if matches!(*s, "ntstr" | "ntcase" | "glstipple" | "d3d7rowspill" | "d3d7rampclip") && (status != 0 || !want.lines().eq(g.lines())) {
+            if matches!(*s, "ntstr" | "ntcase" | "glstipple" | "d2dhugecurve" | "d3d7rowspill" | "d3d7rampclip")
+                && (status != 0 || !want.lines().eq(g.lines()))
+            {
                 bad.push(format!("{s}-{arch}: expected a successful recording and exact output for every operation"));
             }
             if *s == "opengl" {
