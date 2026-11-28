@@ -503,6 +503,8 @@ spec/lean/Kikizake/D3d11/Draw.lean::topology lean D3DRASTER.TOPOLOGY D3DRASTER.P
 spec/lean/Kikizake/D3d11/Draw.lean::strip lean D3DRASTER.STRIP
 spec/lean/Kikizake/D3d11/Draw.lean::flat_strip_leading lean D3DRASTER.FLAT
 spec/lean/Kikizake/D3d11/Draw.lean::flat_leading_member lean D3DRASTER.FLAT
+spec/lean/Kikizake/D3d11/Draw.lean::cbuf_preserves_draw_state lean D3DRASTER.CBUF
+spec/lean/Kikizake/D3d11/Draw.lean::cbuf_accepts_only_buffers lean D3DRASTER.CBUF
 spec/lean/Kikizake/D3d11/Draw.lean::adjacency lean D3DRASTER.ADJ
 spec/lean/Kikizake/D3d11/Draw.lean::prims_inside lean D3DRASTER.ADJ D3DRASTER.STRIP
 spec/lean/Kikizake/D3d11/Draw.lean::vb_past lean D3DRASTER.VBPAST
@@ -786,6 +788,7 @@ spec/lean/Kikizake/D3d9/Clip.lean::snap_near lean D3D9.RASTER.CLIP
 spec/lean/Kikizake/D3d9/Clip.lean::d3d9_half_in lean D3D9.RASTER.CLIP8SIDE
 spec/lean/Kikizake/D3d9/Clip.lean::outside_sides lean D3D9.RASTER.CLIP8
 spec/lean/Kikizake/D3d11/Interp.lean::texture_coordinates_use_reciprocal_w lean D3DRASTER.SAMPLE
+spec/lean/Kikizake/D3d11/Interp.lean::color_and_uv_use_same_planes lean D3DRASTER.INTERP
 spec/lean/Kikizake/D3d11/Interp.lean::viewport_nan lean D3DRASTER.VIEWPORT
 spec/lean/Kikizake/D3d11/Interp.lean::vp10_toward_zero lean D3DRASTER.VP10
 spec/lean/Kikizake/D3d11/Interp.lean::plane_example lean D3DRASTER.INTERP.PLANE

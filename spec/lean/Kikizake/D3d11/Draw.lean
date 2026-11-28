@@ -376,7 +376,25 @@ private def uintArg (bits : Int) : Option Nat := do
   let n ← nat bits
   if n < 2 ^ 32 then some n else none
 
+/-- The constant buffer is optional and is unread by the supplied shaders. The command checks
+the resource dimension and returns the draw state untouched. -/
+def bindCbuf {α : Type} (state : α) (dim : Option Nat) : α × Bool :=
+  (state, dim != some 4)
+
+theorem cbuf_preserves_draw_state {α : Type} (state : α) (dim : Option Nat) :
+    (bindCbuf state dim).1 = state := rfl
+
+theorem cbuf_accepts_only_buffers {α : Type} (state : α) (dim : Option Nat) :
+    (bindCbuf state dim).2 = false ↔ dim = some 4 := by
+  simp [bindCbuf]
+
 def mirrors : List Mirror := [
+  ⟨"d3d11.cbufmissing", fun
+    | [dim] => do
+      let n ← nat dim
+      let (_, missing) := bindCbuf () (if n == 0 then none else some n)
+      pure [if missing then 1 else 0]
+    | _ => none⟩,
   ⟨"d3d11.verdict", fun
     | [p, v, vp, top] => do
       pure [match verdict (p != 0) (v != 0) (vp != 0) (← nat top) with
