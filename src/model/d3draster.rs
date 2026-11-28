@@ -340,12 +340,7 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
         }
         // (MEASURED: a bound constant buffer no program reads changes nothing, probe-cbuf)
         DrawOp::Cbuf => {
-            hit(clause::D3DRASTER_CBUF);
-            let b = slot::<Resource>(t, 1)?;
-            // (the executor binds only a buffer)
-            if m.res.at(b).is_none_or(|r| r.d.dim != 4) {
-                out.push("cbuf nores".into());
-            }
+            cbuf(m, t, out)?;
         }
         DrawOp::Draw => {
             if t.len() < 4 || t.len() > 5 {
@@ -358,6 +353,20 @@ pub fn op(m: &mut D3dres, dev: Dev, cmd: DrawOp, op: &Op, out: &mut Vec<String>)
         }
     }
     Ok(())
+}
+
+// The modeled shaders never read the binding. The command only observes the resource slot.
+fn cbuf(m: &D3dres, t: &[String], out: &mut Vec<String>) -> Res<()> {
+    hit(clause::D3DRASTER_CBUF);
+    let b = slot::<Resource>(t, 1)?;
+    if cbuf_missing(m.res.at(b).map(|r| r.d.dim)) {
+        out.push("cbuf nores".into());
+    }
+    Ok(())
+}
+
+pub(crate) fn cbuf_missing(dim: Option<u32>) -> bool {
+    dim != Some(4)
 }
 
 /// a vertex after the vertex shader: clip position and the color it gives

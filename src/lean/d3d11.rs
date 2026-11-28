@@ -139,6 +139,17 @@ pub static MIRRORS: &[Mirror] = &[
         },
     },
     Mirror {
+        name: "d3d11.cbufmissing",
+        lean: DRAW,
+        domain: Domain::Every("all constant buffer slot states: absent, texture dimensions 1 through 3, and buffer"),
+        inputs: |each| every(&[(0, 4)], each),
+        model: |a| {
+            let dim: u32 = arg(a, 0)?;
+            let missing = crate::model::d3draster::cbuf_missing((dim != 0).then_some(dim));
+            Some(vec![i64::from(missing)])
+        },
+    },
+    Mirror {
         name: "d3d11.verdict",
         lean: DRAW,
         domain: Domain::Sampled("programs, views, viewport each bound or not with topologies 0..200 and the 32-bit ends, and 20,000 32-bit topologies"),
@@ -1152,6 +1163,33 @@ fn float_args(args: usize, n: usize, seed: u32, each: &mut dyn FnMut(&[i64])) {
 }
 
 pub static INTERP_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.interpolatedcolor",
+        lean: INTERP,
+        domain: Domain::Sampled("2,000 triangles with varying reciprocal w and distinct per-vertex RGBA attributes, including signed binary32 boundary values"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xd3d1_1c01);
+            let f = |n| i64::from((f32::from(i16::try_from(n).unwrap_or(0)) / 16.0).to_bits());
+            let mut colors = Vec::new();
+            floats(24_000, &mut rng, &mut |v| colors.push(i64::from(v)));
+            for c in colors.chunks_exact(12).take(2_000) {
+                let mut words = vec![0, f(rng.range(1, 96)), 0, 0, 0, f(rng.range(1, 96))];
+                words.extend((0..3).map(|_| f(rng.range(1, 48))));
+                words.extend_from_slice(c);
+                words.extend((0..2).map(|_| f(rng.range(-32, 96))));
+                each(&words);
+            }
+        },
+        model: |a| {
+            let f = |i| arg::<u32>(a, i).map(f32::from_bits);
+            let x = [f(0)?, f(1)?, f(2)?];
+            let y = [f(3)?, f(4)?, f(5)?];
+            let iw = [f(6)?, f(7)?, f(8)?];
+            let aw = [vec4(a, 9)?, vec4(a, 13)?, vec4(a, 17)?];
+            let color = crate::model::d3draster::perspective_at(x, y, iw, aw, (f(21)?, f(22)?));
+            Some(color.map(canon32).to_vec())
+        },
+    },
     Mirror {
         name: "d3d11.originaltriangledepth",
         lean: INTERP,
