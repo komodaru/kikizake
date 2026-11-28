@@ -1117,3 +1117,40 @@ end");
     }
     s
 }
+
+pub fn d2dgradientmap() -> String {
+    let mut s = String::from("# kikizake suite d2dgradientmap: linear and radial gradient mapping at small scales.
+");
+    for (i, (mode, coords)) in [
+        ("lin", "0 0 1e-30 0"), ("lin", "0 0 0 1e-30"), ("lin", "0 0 1e-21 1e-21"),
+        ("lin", "0 0 0.001 0"), ("lin", "0 0 1 0"), ("lin", "0 0 0 0"),
+        ("rad", "0 0 0 0 1e-30 1e-30"), ("rad", "2 2 0 0 1e-30 2"),
+        ("rad", "2 2 0 0 2 1e-30"), ("rad", "2 2 0 0 2 0"),
+        ("rad", "0 0 1e-21 0 1e-21 1e-21"), ("rad", "2 2 0 0 1e-6 0.2"),
+    ].iter().enumerate() {
+        for ext in ["clamp", "wrap", "mirror"] {
+            for (name, transform) in [("identity", ""), ("translated", "d2xform 1 0 0 1 1 1
+")] {
+                writeln!(s, "case gradmap-{i}-{ext}-{name}
+d2target 4 4
+d2clear 39 70 111 255
+{transform}d2grad 0 0 4 4 {mode} 22 {ext} {coords} 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end");
+            }
+        }
+    }
+    for (i, (a, b)) in [
+        ("-1", "-0.5"), ("0", "0.25"), ("0", "0.5"), ("0", "0.75"), ("0.25", "0.75"),
+        ("0.50", "0.75"), ("0.50", "0.875"), ("0.5625", "0.8125"), ("0.75", "1.25"),
+        ("0.75", "0.25"), ("0.75", "0.5"), ("0.625", "0.375"), ("0.4375", "0.9375"),
+        ("0.125", "0.625"), ("0.125", "0.875"), ("0.49", "0.51"), ("0.4999", "0.5001"),
+    ].iter().enumerate() {
+        writeln!(s, "case slide-{i}
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp {a} 0 {b} 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end");
+    }
+    s
+}

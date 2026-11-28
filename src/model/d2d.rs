@@ -1493,10 +1493,18 @@ impl Ramp {
         };
         let (dx, dy) = (p1.0 - p0.0, p1.1 - p0.1);
         let l2 = dy * dy + dx * dx;
+        if l2 == 0.0 && [p0.0, p0.1, p1.0, p1.1, p2.0, p2.1].into_iter().all(f32::is_finite) {
+            return Some(Self::one_texel(stops, gamma, ext, false));
+        }
         if l2 == 0.0 || l2.is_nan() {
             return None;
         }
-        let k = (s1 - s0) / l2;
+        let k = if ext == Extend::Clamp && tn == 2 {
+            // Two end texels use one device pixel of distance per texel.
+            1.0 / l2.sqrt()
+        } else {
+            (s1 - s0) / l2
+        };
         let (m11, m21, m31) = (dx * k, dy * k, s0 - (dy * p0.1 + dx * p0.0) * k);
         let r = 1.0 / tn as f32;
         let u = Along::Linear([m11 * r, m21 * r, m31 * r]);
@@ -1538,6 +1546,10 @@ impl Ramp {
             Extend::Wrap | Extend::Mirror => fl.max(1),
         };
         let tn = cnt.next_power_of_two().min(1024);
+        let finite = [c0, px, py, po].into_iter().all(|(x, y)| x.is_finite() && y.is_finite());
+        if tn == 1 && finite && rx >= 0.0 && ry >= 0.0 {
+            return Some(Self::one_texel(stops, gamma, ext, true));
+        }
         let (st, _, last) = ramp_stops(stops, gamma);
         let (tex, s1) = match ext {
             Extend::Clamp => {
@@ -1562,6 +1574,9 @@ impl Ramp {
         let m31 = (((tlbl * x1) + (brtl * x0)) + (tlrt * x2)) * inv;
         let m32 = (((tlbl * y1) + (brtl * y0)) + (tlrt * y2)) * inv;
         let det = m11 * m22 - m12 * m21;
+        if det == 0.0 && finite && rx >= 0.0 && ry >= 0.0 {
+            return Some(Self::one_texel(stops, gamma, ext, true));
+        }
         if det == 0.0 || det.is_nan() {
             return None;
         }
