@@ -2158,6 +2158,12 @@ pub fn lerp_sse(a: f32, b: f32, t: f32) -> f32 {
     op(a, m, a + m)
 }
 
+/// Filter the two columns first, then interpolate between them, with weights in 1/256.
+pub(crate) fn wide_bilinear([a, b, c, d]: [f32; 4], (wu, wv): (i64, i64)) -> f32 {
+    let (fu, fv) = (pixels(wu), pixels(wv));
+    lerp_sse(lerp_sse(a, c, fv), lerp_sse(b, d, fv), fu)
+}
+
 /// how a format's texels are filtered linearly
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum FilterPath {
@@ -2745,16 +2751,13 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     if matches!(v.format(), 68 | 69) {
                         hit(clause::D3DRASTER_FILTER_PAIRS);
                     }
-                    let (fu, fv) = (pixels(wu), pixels(wv));
                     let f = |t: [u32; 4]| t.map(f32::from_bits);
                     let (a, b, c, e) = (f(at(i, j)?), f(at(i + 1, j)?), f(at(i, j + 1)?), f(at(i + 1, j + 1)?));
                     if let Some(pick) = reduction.pick() {
                         return Ok(Filtered::Wide(reduce(pick, [a, b, c, e], (wu, wv))));
                     }
                     return Ok(Filtered::Wide([0, 1, 2, 3].map(|k| {
-                        let l = lerp_sse(a[k], c[k], fv);
-                        let r = lerp_sse(b[k], e[k], fv);
-                        lerp_sse(l, r, fu)
+                        wide_bilinear([a[k], b[k], c[k], e[k]], (wu, wv))
                     })));
                 }
                 let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);

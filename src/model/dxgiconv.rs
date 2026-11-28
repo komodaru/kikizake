@@ -444,6 +444,13 @@ pub fn bc4_snorm_code(r0: i8, r1: i8, k: i64) -> i16 {
     i16::try_from(n * 32767 / (d * 127)).unwrap_or(i16::MAX)
 }
 
+/// Select one texel of a packed pair, sharing red and blue between both texels.
+pub(crate) fn packed_pair([b0, b1, b2, b3]: [u8; 4], green_first: bool, right: bool) -> [f32; 4] {
+    let (r, g0, b, g1) = if green_first { (b1, b0, b3, b2) } else { (b0, b1, b2, b3) };
+    let g = if right { g1 } else { g0 };
+    [r, g, b, 255].map(|v| f32::from(v) / 255.0)
+}
+
 /// the color (as floats) a format's element holds, for blending (dst read back)
 /// the texel (x, y) of a block (block-compressed formats: Direct3D 11 functional spec, 19.5;
 /// the 2x1 pairs of R8G8_B8G8 and G8R8_G8B8)
@@ -470,8 +477,11 @@ pub fn decode_block(f: &Format, b: &[u8], x: u32, y: u32) -> Res<[u32; 4]> {
     };
     let v: [f32; 4] = match f.id {
         68 | 69 => {
-            let (r, g, bb) = if f.id == 68 { (b[0], [b[1], b[3]][x as usize], b[2]) } else { (b[1], [b[0], b[2]][x as usize], b[3]) };
-            [un(r as u32, 8), un(g as u32, 8), un(bb as u32, 8), one]
+            let bytes = *b.first_chunk().ok_or(Fail::Bad)?;
+            if x > 1 {
+                return Err(Fail::Bad);
+            }
+            packed_pair(bytes, f.id == 69, x == 1)
         }
         71 => color(b, false),
         74 => {
