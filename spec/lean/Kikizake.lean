@@ -21,6 +21,7 @@ import Kikizake.GdiPlus.Chain
 import Kikizake.GdiPlus.Dash
 import Kikizake.GdiPlus.Inset
 import Kikizake.GdiPlus.Wide
+import Kikizake.GdiPlus.Anchor
 import Kikizake.GdiPlus.WideRoute
 import Kikizake.GdiPlus.InsetRoute
 import Kikizake.D3d12.Footprint

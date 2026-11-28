@@ -1055,7 +1055,8 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &
 }
 
 /// one end's walk (ComputeCapGradient): the direction from the end into the line
-fn shorten(r: Round, pts: &mut [P], marked: &mut [bool], order: &[usize], l: f32, base: f32, mm: f32) -> P {
+pub(crate) fn shorten(r: Round, pts: &mut [P], marked: &mut [bool], order: &[usize], l: f32, base: f32, mm: f32) -> P {
+    hit(clause::GP_PEN_WIDE_ANCHOR_WALK);
     let rad = r.mul(l, mm);
     let r2 = r.mul(rad, rad);
     let inset = if EPS > l.abs() { 0.0 } else { r.div(base, l) };
