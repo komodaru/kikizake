@@ -1117,3 +1117,40 @@ end");
     }
     s
 }
+
+pub fn d2doutlinehollow() -> String {
+    let mut s = String::from("# kikizake suite d2doutlinehollow: collapsed linear runs in the geometry sink.
+");
+    const LIMIT: i64 = 1 << 50;
+    const EXTENTS: (i64, i64, i64, i64) = (-LIMIT, LIMIT / 2, LIMIT / 4, -LIMIT / 2);
+    let l = LIMIT;
+    let (lo, mid, quarter, neg_mid) = EXTENTS;
+    for (i, tail) in [
+        String::new(),
+        format!("{mid} {mid} "),
+        format!("{mid} {mid} {quarter} {quarter} "),
+        format!("1 0 {mid} {mid} "),
+        String::new(),
+    ].iter().enumerate() {
+        let rest = if i == 4 { format!(" m {mid} {neg_mid} {l} 0 {mid} -0.03125 0 {neg_mid} z") } else { String::new() };
+        let shape = format!("m {lo} {lo} {l} {l} {tail}0 0.03125 -1 {l} z{rest}");
+        for fill in ["alt", "wind"] {
+            writeln!(s, "case hollow-{i}-{fill}-outline
+d2path 0 {fill} {shape}
+d2outline 0
+end");
+            for op in ["union", "intersect", "exclude"] {
+                if op == "exclude" && i == 4 {
+                    continue;
+                }
+                writeln!(s, "case hollow-{i}-{fill}-{op}
+d2path 0 {fill} {shape}
+d2path 1 alt m {lo} {lo} {l} {lo} {l} 0 {lo} 0 z
+d2combine 0 1 {op}
+end");
+            }
+        }
+    }
+    writeln!(s, "case hollow-xor-tied\nd2path 0 alt m {lo} {lo} {l} {l} 0 0.03125 -1 {l} z\nd2path 1 alt m {lo} {lo} {l} {lo} {l} 0 {lo} 0 z\nd2combine 0 1 xor\nend");
+    s
+}
