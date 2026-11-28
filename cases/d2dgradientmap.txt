@@ -1,0 +1,554 @@
+# kikizake suite d2dgradientmap: linear and radial gradient mapping at small scales.
+case gradmap-0-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 clamp 0 0 1e-30 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-0-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 clamp 0 0 1e-30 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-0-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 wrap 0 0 1e-30 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-0-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 wrap 0 0 1e-30 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-0-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 mirror 0 0 1e-30 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-0-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 mirror 0 0 1e-30 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-1-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 clamp 0 0 0 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-1-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 clamp 0 0 0 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-1-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 wrap 0 0 0 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-1-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 wrap 0 0 0 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-1-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 mirror 0 0 0 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-1-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 mirror 0 0 0 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-2-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 clamp 0 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-2-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 clamp 0 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-2-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 wrap 0 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-2-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 wrap 0 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-2-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 mirror 0 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-2-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 mirror 0 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-3-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 clamp 0 0 0.001 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-3-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 clamp 0 0 0.001 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-3-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 wrap 0 0 0.001 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-3-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 wrap 0 0 0.001 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-3-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 mirror 0 0 0.001 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-3-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 mirror 0 0 0.001 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-4-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 clamp 0 0 1 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-4-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 clamp 0 0 1 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-4-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 wrap 0 0 1 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-4-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 wrap 0 0 1 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-4-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 mirror 0 0 1 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-4-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 mirror 0 0 1 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-5-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 clamp 0 0 0 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-5-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 clamp 0 0 0 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-5-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 wrap 0 0 0 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-5-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 wrap 0 0 0 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-5-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 lin 22 mirror 0 0 0 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-5-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 lin 22 mirror 0 0 0 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-6-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 clamp 0 0 0 0 1e-30 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-6-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 clamp 0 0 0 0 1e-30 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-6-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 wrap 0 0 0 0 1e-30 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-6-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 wrap 0 0 0 0 1e-30 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-6-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 mirror 0 0 0 0 1e-30 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-6-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 mirror 0 0 0 0 1e-30 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-7-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 1e-30 2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-7-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 1e-30 2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-7-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 1e-30 2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-7-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 1e-30 2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-7-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 1e-30 2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-7-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 1e-30 2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-8-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 2 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-8-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 2 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-8-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 2 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-8-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 2 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-8-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 2 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-8-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 2 1e-30 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-9-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 2 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-9-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 2 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-9-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 2 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-9-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 2 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-9-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 2 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-9-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 2 0 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-10-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 clamp 0 0 1e-21 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-10-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 clamp 0 0 1e-21 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-10-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 wrap 0 0 1e-21 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-10-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 wrap 0 0 1e-21 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-10-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 mirror 0 0 1e-21 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-10-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 mirror 0 0 1e-21 0 1e-21 1e-21 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-11-clamp-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 1e-6 0.2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-11-clamp-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 clamp 2 2 0 0 1e-6 0.2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-11-wrap-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 1e-6 0.2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-11-wrap-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 wrap 2 2 0 0 1e-6 0.2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-11-mirror-identity
+d2target 4 4
+d2clear 39 70 111 255
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 1e-6 0.2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case gradmap-11-mirror-translated
+d2target 4 4
+d2clear 39 70 111 255
+d2xform 1 0 0 1 1 1
+d2grad 0 0 4 4 rad 22 mirror 2 2 0 0 1e-6 0.2 3 0 255 0 0 255 0.25 0 255 0 255 1 0 0 255 255
+d2read
+end
+case slide-0
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp -1 0 -0.5 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-1
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0 0 0.25 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-2
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0 0 0.5 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-3
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0 0 0.75 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-4
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.25 0 0.75 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-5
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.50 0 0.75 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-6
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.50 0 0.875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-7
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.5625 0 0.8125 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-8
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.75 0 1.25 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-9
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.75 0 0.25 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-10
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.75 0 0.5 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-11
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.625 0 0.375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-12
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.4375 0 0.9375 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-13
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.125 0 0.625 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-14
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.125 0 0.875 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-15
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.49 0 0.51 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
+case slide-16
+d2target 4 1
+d2grad 0 0 4 1 lin 22 clamp 0.4999 0 0.5001 0 2 0 255 0 0 255 1 0 0 255 255
+d2read
+end
