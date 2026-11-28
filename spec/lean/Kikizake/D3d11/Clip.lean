@@ -227,12 +227,39 @@ theorem nan_not_finite (q : List Nat) (x : Nat) (hx : x ∈ q) (h : isNaN F32.fm
   simp only [notFinite, List.any_eq_true]
   exact ⟨x, hx, by simp [h]⟩
 
+/-- Keep each cyclic edge whose start is unmarked, if any piece survives culling. -/
+def clippedWireEdges (visible : Bool) (along : List Bool) : List (Nat × Nat) :=
+  if visible then
+    ((List.range along.length).filter fun i => !(along.getD i true)).map
+      fun i => (i, (i + 1) % along.length)
+  else []
+
+theorem culled_wire_has_no_edges (along : List Bool) :
+    clippedWireEdges false along = [] := by
+  rfl
+
+theorem only_unmarked_edges_survive (along : List Bool) (a b : Nat) :
+    (a, b) ∈ clippedWireEdges true along ↔
+      a < along.length ∧ along.getD a true = false ∧ b = (a + 1) % along.length := by
+  simp only [clippedWireEdges, ↓reduceIte, List.mem_map, List.mem_filter, List.mem_range,
+    Bool.not_eq_true', Prod.mk.injEq]
+  constructor
+  · rintro ⟨i, ⟨hi, hm⟩, ha, hb⟩
+    subst a
+    exact ⟨hi, hm, hb.symm⟩
+  · rintro ⟨ha, hm, rfl⟩
+    exact ⟨a, ⟨ha, hm⟩, rfl, rfl⟩
+
 /-- the mirrors' answers: a NaN as the one quiet NaN -/
 def canon (x : Nat) : Int := (F32.canon x : Nat)
 
 def cvOut (v : CV) : List Int := v.pos.map canon ++ v.color.map canon ++ [if v.made then 1 else 0, if v.along then 1 else 0]
 
 def mirrors : List Mirror := [
+  ⟨"d3d11.clippedwireedges", fun
+    | visible :: along => some ((clippedWireEdges (visible != 0) (along.map (· != 0))).flatMap
+        fun (a, b) => [Int.ofNat a, Int.ofNat b])
+    | _ => none⟩,
   ⟨"d3d11.cliptri", fun a => do
     if a.length != 25 then none
     let xs ← a.mapM nat
