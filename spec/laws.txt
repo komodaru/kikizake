@@ -575,6 +575,8 @@ spec/lean/Kikizake/GdiPlus/InsetRoute.lean::round_dashed_square lean GP.PEN.INSE
 spec/lean/Kikizake/GdiPlus/InsetRoute.lean::triangular_dashed_square lean GP.PEN.INSET.DASHED
 spec/lean/Kikizake/GdiPlus/Anchor.lean::half_inset_on_horizontal_line lean GP.PEN.WIDE.ANCHOR.WALK
 spec/lean/Kikizake/GdiPlus/Anchor.lean::short_line_is_marked lean GP.PEN.WIDE.ANCHOR.WALK
+spec/lean/Kikizake/GdiPlus/Anchor.lean::horizontal_anchor_uses_endpoint lean GP.PEN.WIDE.ANCHOR.PLACE
+spec/lean/Kikizake/GdiPlus/Anchor.lean::vertical_anchor_uses_endpoint lean GP.PEN.WIDE.ANCHOR.PLACE
 spec/lean/Kikizake/GdiPlus/Wide.lean::bevel_side_bound lean GP.PEN.WIDE.JOIN
 spec/lean/Kikizake/GdiPlus/Wide.lean::right_angle_miter lean GP.PEN.WIDE.JOIN
 spec/lean/Kikizake/GdiPlus/Wide.lean::right_angle_compound lean GP.PEN.WIDE.JOIN

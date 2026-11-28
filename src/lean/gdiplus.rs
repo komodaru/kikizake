@@ -545,6 +545,35 @@ fn widen_point_stream(d: i64, fill: i64, align: i64, a: &[i64], dash: Option<Das
 
 pub static MIRRORS: &[Mirror] = &[
     Mirror {
+        name: "gp.anchor-place",
+        lean: ANCHOR,
+        domain: Domain::Sampled("horizontal and vertical caps and 2,000 subpixel cap points, axes, scales, and endpoints in both rounding modes"),
+        inputs: |each| {
+            let bits = |v: f32| i64::from(v.to_bits());
+            let q = |n| bits(f32::from(i16::try_from(n).unwrap_or(0)) / 64.0);
+            let mut rng = crate::rng::Sample64::new(0xa9c4_504c);
+            for r in 0..=1 {
+                for (ax, ay, oy) in [(1.0, 0.0, 4.0), (0.0, -1.0, 5.0), (0.0, -1.0, 4.0)] {
+                    each(&[r, bits(1.0), bits(2.0), bits(ax), bits(ay), bits(2.0), bits(3.0), bits(oy)]);
+                }
+            }
+            for _ in 0..1_000 {
+                let p = [q(rng.range(-256, 256)), q(rng.range(-256, 256)), q(rng.range(-64, 64)), q(rng.range(-64, 64)),
+                    q(rng.range(0, 512)), q(rng.range(-2_048, 2_048)), q(rng.range(-2_048, 2_048))];
+                let [x, y, ax, ay, s, ox, oy] = p;
+                each(&[0, x, y, ax, ay, s, ox, oy]);
+                each(&[1, x, y, ax, ay, s, ox, oy]);
+            }
+        },
+        model: |a| {
+            let r = rounding(*a.first()?);
+            let f = |i| arg(a, i).map(f32::from_bits);
+            let (x, y) = crate::model::gpwiden::place_anchor(r, (f(1)?, f(2)?), (f(3)?, f(4)?),
+                f(5)?, (f(6)?, f(7)?));
+            Some(vec![canon(x), canon(y)])
+        },
+    },
+    Mirror {
         name: "gp.anchor-trim",
         lean: ANCHOR,
         domain: Domain::Sampled("2,000 open paths with repeats, zero and nonzero radii, previously marked points, both endpoints and rounding modes, and the two theorem inputs"),

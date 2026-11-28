@@ -969,6 +969,16 @@ fn end_cap(r: Round, cap: Cap, value: i64, custom_cap: Option<&CustomCap>) -> Re
     }
 }
 
+/// Place an anchor or custom cap point at the original endpoint, oriented by the trim direction.
+pub(crate) fn place_anchor(r: Round, q: P, d: P, s: f32, o: P) -> P {
+    hit(clause::GP_PEN_WIDE_ANCHOR_PLACE);
+    let (a, b, cn) = (r.mul(d.0, s), r.mul(d.1, s), r.mul(-s, d.0));
+    (
+        r.add(r.add(r.mul(b, q.0), r.mul(a, q.1)), o.0),
+        r.add(r.add(r.mul(cn, q.0), r.mul(b, q.1)), o.1),
+    )
+}
+
 /// GpEndCapCreator on each open subpath (geometry.md 9, 21d-21g): the start's then the end's
 /// fill caps, then their stroke caps, each walk erasing the points within the cap's radius of
 /// its end and moving the first kept one to the circle pulled back by the base inset; the cap
@@ -983,11 +993,6 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &
     }
     let unit = r.div(1.0, min_axis);
     let s2 = r.div(2.0, min_axis);
-    // (9d: a cap point (px, py) through d = -g scaled by s about o)
-    let place = |q: (f32, f32), d: P, s: f32, o: P| -> P {
-        let (a, b, cn) = (r.mul(d.0, s), r.mul(d.1, s), r.mul(-s, d.0));
-        (r.add(r.add(r.mul(b, q.0), r.mul(a, q.1)), o.0), r.add(r.add(r.mul(cn, q.0), r.mul(b, q.1)), o.1))
-    };
     for (pts, closed) in figs.iter_mut() {
         if *closed || pts.is_empty() {
             continue;
@@ -1016,7 +1021,7 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &
                     let g = shorten(r, pts, &mut marked, &order, *l, cap.base, mm);
                     let d = (-g.0, -g.1);
                     figs_out.extend(fill.iter().map(|q| {
-                        let (x, y) = place((q.x, q.y), d, s, o);
+                        let (x, y) = place_anchor(r, (q.x, q.y), d, s, o);
                         Point { x, y, ..*q }
                     }));
                 }
@@ -1030,7 +1035,7 @@ fn anchors(r: Round, figs: &mut [(Vec<P>, bool)], pen: &Pen, m: &Matrix, minv: &
                         return Err(Fail::Unmodeled(open::GP_PEN));
                     }
                     let d = (-g.0, -g.1);
-                    let placed: Vec<P> = line.iter().map(|&q| place(q, d, s1, o)).collect();
+                    let placed: Vec<P> = line.iter().map(|&q| place_anchor(r, q, d, s1, o)).collect();
                     let cap_pen = Pen { width: s1, start_cap: cap.caps.0, end_cap: cap.caps.1, dash_cap: 0, join: cap.join, align: 0, miter: 10.0, dash: 0, compound: Vec::new(), custom: [None, None], ..pen.clone() };
                     // (an x86 stroke join past 0 ..= 3 at a vertex: that figure left out)
                     if let Ok(w) = body(r, &[(placed, false)], &cap_pen, m, minv, (Cap::line(cap.caps.0), Cap::line(cap.caps.1)), StrokeMode::CustomCap)? {
