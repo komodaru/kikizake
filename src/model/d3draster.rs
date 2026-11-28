@@ -2012,9 +2012,21 @@ impl Planes {
 
     fn at(&self, cx: f32, cy: f32) -> [f32; 4] {
         hit(clause::D3DRASTER_INTERP);
-        let q = 1.0 / self.plane(self.iw, cx, cy);
-        [0, 1, 2, 3].map(|k| self.plane(self.aw.map(|a| a[k]), cx, cy) * q)
+        perspective_at(self.xs, self.ys, self.iw, self.aw, (cx, cy))
     }
+
+    fn uv(&self, center: (f32, f32)) -> [f32; 2] {
+        hit(clause::D3DRASTER_INTERP);
+        perspective_at(self.xs, self.ys, self.iw, self.aw.map(|[u, v, _, _]| [u, v]), center)
+    }
+}
+
+/// Evaluate attributes already multiplied by reciprocal w and remove that factor at the sample.
+pub fn perspective_at<const N: usize>(
+    xs: [f32; 3], ys: [f32; 3], iw: [f32; 3], aw: [[f32; N]; 3], (cx, cy): (f32, f32),
+) -> [f32; N] {
+    let q = 1.0 / plane_value(xs, ys, iw, cx, cy);
+    std::array::from_fn(|k| plane_value(xs, ys, aw.map(|a| a[k]), cx, cy) * q)
 }
 
 /// D3DRASTER.INTERP.PLANE: an attribute's plane over a triangle (xs, ys its vertices in
@@ -2626,10 +2638,7 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
             let (w, h, _) = r.size(reach.base);
             let uv_at = |x: i64, y: i64| -> Res<[f32; 2]> {
                 match planes {
-                    Some(p) => {
-                        let c = p.at(x as f32 + 0.5, y as f32 + 0.5);
-                        Ok([c[0], c[1]])
-                    }
+                    Some(p) => Ok(p.uv((center_of(x), center_of(y)))),
                     None => same(&|v| v.color).map(|c| [c[0], c[1]]),
                 }
             };

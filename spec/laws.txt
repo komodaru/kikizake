@@ -785,6 +785,7 @@ spec/lean/Kikizake/D3d9/Clip.lean::pass_keeps lean D3D9.RASTER.CLIP
 spec/lean/Kikizake/D3d9/Clip.lean::snap_near lean D3D9.RASTER.CLIP
 spec/lean/Kikizake/D3d9/Clip.lean::d3d9_half_in lean D3D9.RASTER.CLIP8SIDE
 spec/lean/Kikizake/D3d9/Clip.lean::outside_sides lean D3D9.RASTER.CLIP8
+spec/lean/Kikizake/D3d11/Interp.lean::texture_coordinates_use_reciprocal_w lean D3DRASTER.SAMPLE
 spec/lean/Kikizake/D3d11/Interp.lean::viewport_nan lean D3DRASTER.VIEWPORT
 spec/lean/Kikizake/D3d11/Interp.lean::vp10_toward_zero lean D3DRASTER.VP10
 spec/lean/Kikizake/D3d11/Interp.lean::plane_example lean D3DRASTER.INTERP.PLANE

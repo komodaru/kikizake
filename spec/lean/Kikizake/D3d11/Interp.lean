@@ -80,6 +80,25 @@ def planeValue (x0 x1 x2 y0 y1 y2 a0 a1 a2 cx cy : Nat) : Nat :=
   let c := sub (sub a0 (mul gx x0)) (mul gy y0)
   add (add c (mul gy cy)) (mul gx cx)
 
+/-! ## Texture coordinates -/
+
+abbrev Triple := Nat × Nat × Nat
+
+/-- The texture coordinates use the same perspective plane evaluation as color. -/
+def sampleUV (xs ys iw u v : Triple) (cx cy : Nat) : Nat × Nat :=
+  let plane (a : Triple) :=
+    planeValue xs.1 xs.2.1 xs.2.2 ys.1 ys.2.1 ys.2.2 a.1 a.2.1 a.2.2 cx cy
+  let q := div one (plane iw)
+  (mul (plane u) q, mul (plane v) q)
+
+set_option exponentiation.threshold 2048 in
+set_option maxRecDepth 20000 in
+theorem texture_coordinates_use_reciprocal_w :
+    sampleUV (0, 0x40000000, 0) (0, 0, 0x40000000) (one, 0x40000000, 0x40800000)
+      (0, 0x40800000, 0) (0, 0, 0x41000000) 0x3f000000 0x3f000000 =
+      (0x3f000000, one) := by
+  decide +kernel
+
 /-! ## D3DRASTER.LINE.COLOR, LINE.DEPTH -/
 
 /-- a value along a line's major axis (ends a, b in 1/256 pixels) at c -/
@@ -319,6 +338,13 @@ private def i64Argument (value : Int) : Option Int :=
   if -(2 ^ 63) ≤ value ∧ value < 2 ^ 63 then some value else none
 
 def mirrors : List Mirror := [
+  ⟨"d3d11.sampleuv", fun
+    | [x0, x1, x2, y0, y1, y2, w0, w1, w2, u0, u1, u2, v0, v1, v2, cx, cy] => do
+      let (u, v) := sampleUV (← nat x0, ← nat x1, ← nat x2) (← nat y0, ← nat y1, ← nat y2)
+        (← nat w0, ← nat w1, ← nat w2) (← nat u0, ← nat u1, ← nat u2)
+        (← nat v0, ← nat v1, ← nat v2) (← nat cx) (← nat cy)
+      pure [Int.ofNat (F32.canon u), Int.ofNat (F32.canon v)]
+    | _ => none⟩,
   ⟨"d3d11.positioncolor", fun
     | [x, y, depth, w] => some ((do
         let px ← i64Argument x
