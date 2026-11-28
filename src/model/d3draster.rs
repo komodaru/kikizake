@@ -453,6 +453,18 @@ pub fn color_write(integer: bool, blend_enabled: bool) -> ColorWrite {
     }
 }
 
+/// Edges of a clipped polygon, omitting clip-plane edges and culled polygons.
+pub fn clipped_wire_edges(visible: bool, along: impl ExactSizeIterator<Item = bool>) -> impl Iterator<Item = [usize; 2]> {
+    let count = along.len();
+    along.enumerate().filter_map(move |(i, on_plane)| {
+        if visible && !on_plane {
+            Some([i, i.wrapping_add(1).checked_rem(count).unwrap_or(0)])
+        } else {
+            None
+        }
+    })
+}
+
 /// Walk the triangle's cyclic edges from the first vertex of least clip x.
 pub fn wire_edges([a, b, c]: [f32; 3]) -> [[usize; 2]; 3] {
     let second = b < a;
@@ -1639,14 +1651,10 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         // by the pieces' facing, as filled
         if d.rast[0] == 2 {
             hit(clause::D3DRASTER_CLIPW_WIRE);
-            if pieces.is_empty() {
-                return Ok(());
-            }
             let front = pieces.first().is_some_and(|p| rules::front_face(d.rast[2] != 0, p.2));
-            for (a, b) in poly.iter().zip(poly.iter().cycle().skip(1)) {
-                if a.along {
-                    continue;
-                }
+            for [a, b] in clipped_wire_edges(!pieces.is_empty(), poly.iter().map(|v| v.along)) {
+                let a = poly.get(a).ok_or(Fail::Bad)?;
+                let b = poly.get(b).ok_or(Fail::Bad)?;
                 wire.push(Seg { a: Vert { pos: a.pos, color: a.color }, b: Vert { pos: b.pos, color: b.color }, lead, prim, front, clip: SegClip::Done });
             }
             return Ok(());
