@@ -1156,7 +1156,7 @@ end");
 }
 
 pub fn d2dgradientmap() -> String {
-    let mut s = String::from("# kikizake suite d2dgradientmap: linear and radial gradient mapping at small scales.
+    let mut s = String::from("# kikizake suite d2dgradientmap: small and nonfinite mappings and transformed radial foci.
 ");
     for (i, (mode, coords)) in [
         ("lin", "0 0 1e-30 0"), ("lin", "0 0 0 1e-30"), ("lin", "0 0 1e-21 1e-21"),
@@ -1188,6 +1188,54 @@ d2target 4 1
 d2grad 0 0 4 1 lin 22 clamp {a} 0 {b} 0 2 0 255 0 0 255 1 0 0 255 255
 d2read
 end");
+    }
+    for (name, matrix) in [
+        ("turn", "0 1 -1 0 7 0"),
+        ("skew", "1 0.25 -0.4 1 1 1"),
+        ("reflect", "-1 0 0 1 8 0"),
+        ("scale", "1.25 0 0 0.75 -1 2"),
+    ] {
+        for ext in ["clamp", "wrap", "mirror"] {
+            for (focus, offset) in [("inside", "0.5 -0.75"), ("outside", "5.125 1.25")] {
+                writeln!(s, "case radial-focus-{name}-{ext}-{focus}
+d2target 8 8
+d2clear 19 55 87 201
+d2xform {matrix}
+d2grad -64 -64 64 64 rad 22 {ext} 3 3 {offset} 5 2 3 0 191 21 71 255 0.375 34 221 12 141 1 96 52 228 212
+d2read
+end");
+            }
+        }
+    }
+    for (brush, params) in [("lin", &["0", "1", "4", "1"][..]), ("rad", &["2", "2", "0.5", "0.25", "3", "1.5"][..])] {
+        for i in 0..params.len() {
+            for (nonfinite, bits) in [("nan", "0x7fc00000"), ("posinf", "0x7f800000"), ("neginf", "0xff800000")] {
+                let mut coords = params.to_vec();
+                if let Some(value) = coords.get_mut(i) {
+                    *value = bits;
+                }
+                let coords = coords.join(" ");
+                for ext in ["clamp", "wrap", "mirror"] {
+                    writeln!(s, "case nonfinite-{brush}-{i}-{nonfinite}-{ext}
+d2target 4 4
+d2clear 19 55 87 201
+d2grad 0 0 4 4 {brush} 22 {ext} {coords} 3 0 191 21 71 255 0.375 34 221 12 141 1 96 52 228 212
+d2read
+end");
+                }
+            }
+        }
+    }
+    for (brush, coords) in [("lin", "0 1 4 0x7fc00000"), ("rad", "2 2 0.5 0.25 3 0xff800000")] {
+        for ext in ["clamp", "wrap", "mirror"] {
+            writeln!(s, "case nonfinite-{brush}-linear-gamma-{ext}
+d2target 4 4
+d2clear 60 80 100 120
+d2xform 1 0.25 -0.25 1 1 0
+d2grad -8 -8 8 8 {brush} 10 {ext} {coords} 2 0 17 181 225 200 1 255 43 121 100
+d2read
+end");
+        }
     }
     s
 }

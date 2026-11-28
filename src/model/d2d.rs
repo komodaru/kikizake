@@ -1464,6 +1464,9 @@ impl Ramp {
     /// a linear gradient from s to e (brush space) under the world transform w; None where
     /// the transformed direction vanishes for distinct endpoints
     pub fn linear(w: &M, s: P, e: P, stops: &[Stop], gamma: Gamma, ext: Extend) -> Option<Ramp> {
+        if [s.0, s.1, e.0, e.1].into_iter().any(|v| !v.is_finite()) && w.iter().all(|v| v.is_finite()) {
+            return Some(Self::one_texel(stops, gamma, ext, false));
+        }
         if s.0 - e.0 == 0.0 && s.1 - e.1 == 0.0 {
             return Some(Self::one_texel(stops, gamma, ext, false));
         }
@@ -1531,6 +1534,9 @@ impl Ramp {
     /// origin offset by o, under the world transform w; None where the mapping has no inverse
     #[allow(clippy::too_many_arguments)]
     pub fn radial(w: &M, c: P, o: P, rx: f32, ry: f32, stops: &[Stop], gamma: Gamma, ext: Extend) -> Option<Ramp> {
+        if [c.0, c.1, o.0, o.1, rx, ry].into_iter().any(|v| !v.is_finite()) && w.iter().all(|v| v.is_finite()) {
+            return Some(Self::one_texel(stops, gamma, ext, true));
+        }
         if (rx == 0.0 || ry == 0.0) && rx >= 0.0 && ry >= 0.0 && [c.0, c.1, o.0, o.1, rx, ry].into_iter().all(f32::is_finite) {
             return Some(Self::one_texel(stops, gamma, ext, true));
         }
@@ -1590,8 +1596,8 @@ impl Ramp {
         let h = 0.5 / tn as f32;
         let rr = s1 / tn as f32;
         let focal = (o.0 != 0.0 || o.1 != 0.0).then(|| {
-            // (the origin through the brush transform only, the identity here, then m)
-            let (x, y) = (c.0 + o.0, c.1 + o.1);
+            // The normalization matrix takes the focal point in device coordinates.
+            let (x, y) = po;
             let ou = ((m[0] * x + m[2] * y) + m[4], (m[1] * x + m[3] * y) + m[5]);
             let kk = 1.0 - 0.5 / s1.ceil();
             let inside = f64::from(rr * rr) - 1e-6 > f64::from(ou.0 * ou.0 + ou.1 * ou.1);
