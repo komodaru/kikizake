@@ -3,9 +3,6 @@
 # its line out; a new clause comes proven (tests/spec.rs unproven_only_shrinks).
 GP.PEN.WIDE
 GP.PEN.INSET
-D3DRASTER.CLIPZ.DEPTH
-D3DRASTER.FILTER.PAIRS
-D3DRASTER.FILTER.FLOAT
 D2D.ARCS
 D2D.AREA.HUGE
 D2D.AREA.POLY

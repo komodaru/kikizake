@@ -741,6 +741,8 @@ spec/lean/Kikizake/D3d11/Filter.lean::split_nan lean D3DRASTER.FILTER.LINEAR D3D
 spec/lean/Kikizake/D3d11/Filter.lean::linear_ends lean D3DRASTER.FILTER.LINEAR
 spec/lean/Kikizake/D3d11/Filter.lean::pixels_exact lean D3DRASTER.FILTER.MIPLINEAR
 spec/lean/Kikizake/D3d11/Filter.lean::lerp_nan_first lean D3DRASTER.FILTER.MIPLINEAR D3DRASTER.SAMPLE.CMP
+spec/lean/Kikizake/D3d11/Filter.lean::wide_filter_column_first lean D3DRASTER.FILTER.FLOAT
+spec/lean/Kikizake/D3d11/Filter.lean::packed_pair_channels lean D3DRASTER.FILTER.PAIRS
 spec/lean/Kikizake/D3d11/Filter.lean::cmp_nan lean D3DRASTER.SAMPLE.CMP
 spec/lean/Kikizake/D3d11/Filter.lean::cmp_opposites lean D3DRASTER.SAMPLE.CMP
 spec/lean/Kikizake/D3d11/Filter.lean::past_depth lean D3DRASTER.DEPTH.SMALL
@@ -809,6 +811,7 @@ spec/lean/Kikizake/D3d11/Interp.lean::flat_color_bits lean D3DRASTER.FLAT
 spec/lean/Kikizake/D3d11/Interp.lean::clamp_nan_range lean D3DRASTER.INTERP.DEPTH D3DRASTER.LINE.DEPTH
 spec/lean/Kikizake/D3d11/Interp.lean::vertex_depth_example lean D3DRASTER.INTERP.DEPTH
 spec/lean/Kikizake/D3d11/Interp.lean::made_least lean D3DRASTER.INTERP.CLIP
+spec/lean/Kikizake/D3d11/Interp.lean::depth_uses_whole_triangle lean D3DRASTER.CLIPZ.DEPTH
 spec/lean/Kikizake/D3d11/Interp.lean::line_example lean D3DRASTER.LINE.COLOR D3DRASTER.LINE.DEPTH
 tests/laws_dwrite_layout.rs::the_fallback_table_is_the_lookup exhaustive DW.FALLBACK.FONTS
 tests/laws_dwrite_layout.rs::the_fallback_pieces_for_every_short_text exhaustive DW.FALLBACK.MAP

@@ -90,6 +90,17 @@ def lerpSse (a b t : Nat) : Nat :=
   let m := sse d t (F32.mul d t)
   sse a m (F32.add a m)
 
+/-- Filter two columns, then interpolate horizontally, with weights in 1/256. -/
+def wideBilinear (a b c d wu wv : Nat) : Nat :=
+  lerpSse (lerpSse a c (pixels wv)) (lerpSse b d (pixels wv)) (pixels wu)
+
+def unorm8 (x : Nat) : Nat := F32.div (F32.ofNat x) 0x437f0000
+
+/-- A packed pair's red and blue are shared. Each texel has its own green. -/
+def packedPair (b0 b1 b2 b3 : Nat) (greenFirst right : Bool) : Nat × Nat × Nat × Nat :=
+  let (r, g0, b, g1) := if greenFirst then (b1, b0, b3, b2) else (b0, b1, b2, b3)
+  (unorm8 r, unorm8 (if right then g1 else g0), unorm8 b, one)
+
 /-! ## D3DRASTER.FILTER.LEVEL, MIPLINEAR -/
 
 /-- binary64 `min` (a NaN gives the other) -/
@@ -172,6 +183,15 @@ weight -/
 theorem lerp_nan_first (a b t : Nat) (ha : isNaN F32.fmt a = true) : lerpSse a b t = a ||| 0x400000 := by
   simp [lerpSse, sse, ha]
 
+/-- This footprint rounds one ulp differently when the horizontal interpolation is first. -/
+theorem wide_filter_column_first :
+    wideBilinear 0x3e969697 0x3e86bca2 0x3e5e9bd3 0x3e25294a 73 181 = 0x3e676558 := by decide
+
+theorem packed_pair_channels (r g0 b g1 : Nat) (right : Bool) :
+    packedPair r g0 b g1 false right = (unorm8 r, unorm8 (if right then g1 else g0), unorm8 b, one) ∧
+    packedPair g0 r g1 b true right = packedPair r g0 b g1 false right := by
+  constructor <;> rfl
+
 /-- D3DRASTER.SAMPLE.CMP: against a NaN (the reference or the texel) every function but
 NOT_EQUAL and ALWAYS fails -/
 theorem cmp_nan (func a s : Nat) (h : isNaN F32.fmt a = true ∨ isNaN F32.fmt s = true) :
@@ -208,6 +228,15 @@ def mirrors : List Mirror := [
   ⟨"d3d11.linearfloat", fun | [n] => do pure [linearFloat (← nat n)] | _ => none⟩,
   ⟨"d3d11.pixels", fun | [v] => do pure [pixels (← nat v)] | _ => none⟩,
   ⟨"d3d11.lerp", fun | [a, b, t] => do pure [lerpSse (← nat a) (← nat b) (← nat t)] | _ => none⟩,
+  ⟨"d3d11.widebilinear", fun
+    | [a, b, c, d, wu, wv] => do
+      pure [wideBilinear (← nat a) (← nat b) (← nat c) (← nat d) (← nat wu) (← nat wv)]
+    | _ => none⟩,
+  ⟨"d3d11.packedpair", fun
+    | [b0, b1, b2, b3, greenFirst, right] => do
+      let (r, g, b, a) := packedPair (← nat b0) (← nat b1) (← nat b2) (← nat b3) (greenFirst != 0) (right != 0)
+      pure [r, g, b, a]
+    | _ => none⟩,
   ⟨"d3d11.level", fun
     | [hi, lo, last, point] => do
       match level (F64.join (← nat hi) (← nat lo)) (← nat last) (point != 0) with

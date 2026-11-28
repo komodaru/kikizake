@@ -1716,20 +1716,8 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
     }
     // the viewport transform, then 16.8 fixed point
     let [vx, vy, vw, vh, minz, maxz] = vp;
-    let to_screen = |q: &[f32; 4]| (vx + (q[0] / q[3] + 1.0) * (vw * 0.5), vy + (1.0 - q[1] / q[3]) * (vh * 0.5));
     hit(clause::D3DRASTER_SNAP);
-    let snap = |v: f32| -> i64 {
-        // (2^31 pixels: past any guard band; the products below stay within i128)
-        let x = f64::from(v).clamp(-2147483648.0, 2147483648.0) * 256.0;
-        let f = x.floor();
-        let r = x - f;
-        (if r > 0.5 || r == 0.5 && (f as i64) % 2 != 0 { f + 1.0 } else { f }) as i64
-    };
-    let snap2 = |q: &[f32; 4]| {
-        let (x, y) = to_screen(q);
-        (snap(x), snap(y))
-    };
-    let p: Vec<(i64, i64)> = tri.iter().map(|v| snap2(&v.pos)).collect();
+    let p: [(i64, i64); 3] = tri.map(|v| triangle_snapped(vp, &v.pos));
     let area = rules::area(p[0], p[1], p[2]);
     if area == 0 {
         hit(clause::D3DRASTER_DEGENERATE);
@@ -1765,18 +1753,12 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         hit(clause::D3DRASTER_CLIPZ_PIECES);
     }
     let unclipped = poly.iter().all(|v| !v.made);
-    let planes = unclipped.then(|| Planes::new(tri, |q| {
-        let (x, y) = snap2(q);
-        (pixels(x), pixels(y))
-    }, |q| vertex_depth(minz, maxz, q[2], q[3])));
+    let planes = unclipped.then(|| Planes::original_triangle(tri, vp));
     // (MEASURED, WARP: probe-clip-z-pos) a triangle cut by the depth range takes its depth from
     // the whole triangle's plane (D3DRASTER.INTERP.DEPTH)
     let zplanes = zclip.then(|| {
         hit(clause::D3DRASTER_CLIPZ_DEPTH);
-        Planes::new(tri, |q| {
-            let (x, y) = snap2(q);
-            (pixels(x), pixels(y))
-        }, |q| vertex_depth(minz, maxz, q[2], q[3]))
+        Planes::original_triangle(tri, vp)
     });
     // the pieces, turned for the edge tests, with their planes (the whole triangle's, or the
     // fan triangle's as it comes, D3DRASTER.INTERP.CLIP)
@@ -1833,7 +1815,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 let z = z.or_else(|| {
                     let p = planes.as_ref().or(zplanes.as_ref()).or_else(|| here(c))?;
                     hit(clause::D3DRASTER_INTERP_DEPTH);
-                    Some(clamp_range(minz, maxz, p.plane(p.zs, cx, cy)))
+                    Some(p.depth((minz, maxz), (cx, cy)))
                 });
                 let out = shade(m, ps, tri, here(c), lead, prim, front, (px, py), z, d)?;
                 output(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, out)?;
@@ -1860,7 +1842,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                 }
                 (Some(_), _) | (None, None) => None,
             };
-            let z = z.or_else(|| q.map(|q| clamp_range(minz, maxz, q.plane(q.zs, cx, cy))));
+            let z = z.or_else(|| q.map(|q| q.depth((minz, maxz), (cx, cy))));
             let out = shade(m, ps, tri, pl, lead, prim, front, (px, py), z, d)?;
             put_samples(m, dev, d, view, rt_fmt, rt_sub, dsv, at, z, each.as_deref(), out, &mask)?;
         }
@@ -2003,6 +1985,14 @@ struct Planes {
 }
 
 impl Planes {
+    fn original_triangle(tri: &[Vert; 3], vp: [f32; 6]) -> Planes {
+        let [_, _, _, _, minz, maxz] = vp;
+        Self::new(tri, |q| {
+            let (x, y) = triangle_snapped(vp, q);
+            (pixels(x), pixels(y))
+        }, |q| vertex_depth(minz, maxz, q[2], q[3]))
+    }
+
     fn new(tri: &[Vert; 3], screen: impl Fn(&[f32; 4]) -> (f32, f32), depth: impl Fn(&[f32; 4]) -> f32) -> Planes {
         // (the last of the least clip x, as a stable rotation: MEASURED, WARP, probe-filter-float,
         // -unorm16, where two share it)
@@ -2016,6 +2006,10 @@ impl Planes {
 
     fn plane(&self, a: [f32; 3], cx: f32, cy: f32) -> f32 {
         plane_value(self.xs, self.ys, a, cx, cy)
+    }
+
+    fn depth(&self, (minz, maxz): (f32, f32), (cx, cy): (f32, f32)) -> f32 {
+        clamp_range(minz, maxz, self.plane(self.zs, cx, cy))
     }
 
     fn at(&self, cx: f32, cy: f32) -> [f32; 4] {
@@ -2083,6 +2077,25 @@ pub fn clamp_range(minz: f32, maxz: f32, z: f32) -> f32 {
 pub fn viewport_xy(vp: [f32; 6], q: &[f32; 4]) -> (i64, i64) {
     let [vx, vy, vw, vh, _, _] = vp;
     (snap256(vx + (q[0] / q[3] + 1.0) * (vw * 0.5)), snap256(vy + (1.0 - q[1] / q[3]) * (vh * 0.5)))
+}
+
+/// Snap an original triangle's viewport coordinates within the rasterizer guard band.
+fn triangle_snapped([vx, vy, vw, vh, _, _]: [f32; 6], &[x, y, _, w]: &[f32; 4]) -> (i64, i64) {
+    let snap = |v: f32| {
+        // (2^31 pixels: past any guard band; edge products stay within i128.)
+        let x = f64::from(v).clamp(-2147483648.0, 2147483648.0) * 256.0;
+        let f = x.floor();
+        let r = x - f;
+        (if r > 0.5 || r == 0.5 && (f as i64) % 2 != 0 { f + 1.0 } else { f }) as i64
+    };
+    (snap(vx + (x / w + 1.0) * (vw * 0.5)), snap(vy + (1.0 - y / w) * (vh * 0.5)))
+}
+
+/// The depth at a pixel or sample covered by a triangle cut at the near or far plane.
+pub(crate) fn original_triangle_depth(vp: [f32; 6], pos: [[f32; 4]; 3], center: (f32, f32)) -> f32 {
+    let tri = pos.map(|pos| Vert { pos, color: [0.0; 4] });
+    let [_, _, _, _, minz, maxz] = vp;
+    Planes::original_triangle(&tri, vp).depth((minz, maxz), center)
 }
 
 /// D3DRASTER.INTERP.DEPTH: a vertex's depth on the viewport's range, minz + z (1/w) (maxz -
@@ -2164,6 +2177,12 @@ pub fn lerp_sse(a: f32, b: f32, t: f32) -> f32 {
     let d = op(b, a, b - a);
     let m = op(d, t, d * t);
     op(a, m, a + m)
+}
+
+/// Filter the two columns first, then interpolate between them, with weights in 1/256.
+pub(crate) fn wide_bilinear([a, b, c, d]: [f32; 4], (wu, wv): (i64, i64)) -> f32 {
+    let (fu, fv) = (pixels(wu), pixels(wv));
+    lerp_sse(lerp_sse(a, c, fv), lerp_sse(b, d, fv), fu)
 }
 
 /// how a format's texels are filtered linearly
@@ -2760,16 +2779,13 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     if matches!(v.format(), 68 | 69) {
                         hit(clause::D3DRASTER_FILTER_PAIRS);
                     }
-                    let (fu, fv) = (pixels(wu), pixels(wv));
                     let f = |t: [u32; 4]| t.map(f32::from_bits);
                     let (a, b, c, e) = (f(at(i, j)?), f(at(i + 1, j)?), f(at(i, j + 1)?), f(at(i + 1, j + 1)?));
                     if let Some(pick) = reduction.pick() {
                         return Ok(Filtered::Wide(reduce(pick, [a, b, c, e], (wu, wv))));
                     }
                     return Ok(Filtered::Wide([0, 1, 2, 3].map(|k| {
-                        let l = lerp_sse(a[k], c[k], fv);
-                        let r = lerp_sse(b[k], e[k], fv);
-                        lerp_sse(l, r, fu)
+                        wide_bilinear([a[k], b[k], c[k], e[k]], (wu, wv))
                     })));
                 }
                 let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);
