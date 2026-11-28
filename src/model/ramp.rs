@@ -13,6 +13,8 @@ use super::{Fail, Res};
 const SIZE: usize = 0x1000;
 const HEADER: usize = 0x60;
 const SPAN: usize = 0x40;
+// Every ramp vertex has index 0. The span's 16.16 I starts at half an index.
+const INDEX_ZERO: u32 = 0x8000;
 
 /// the device's buffer: zeros when the device is made, then whatever was last written
 pub struct Spans {
@@ -48,8 +50,7 @@ pub enum Fill {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct Shading {
     pub fill: Fill,
-    /// the first vertex's index and alpha (16.16 each: I = (index + 1/2) · 256 · 256 / 256)
-    pub i: u32,
+    /// the first vertex's alpha in 16.16
     pub j: u32,
     /// D3DSHADE_GOURAUD (TriSetup_DIdx writes the steps, ColorGen adds them)
     pub gouraud: bool,
@@ -185,11 +186,11 @@ impl<'a> Batch<'a> {
             }
             (Kind::Tri, Fill::ZIdx { z }) => {
                 self.sp.wr32(s.wrapping_add(0x0c), z)?;
-                self.sp.wr32(s.wrapping_add(0x20), self.sh.i)?;
-                self.sp.wr32(s.wrapping_add(0x24), self.sh.i)?;
+                self.sp.wr32(s.wrapping_add(0x20), INDEX_ZERO)?;
+                self.sp.wr32(s.wrapping_add(0x24), INDEX_ZERO)?;
             }
             (Kind::Tri, Fill::Either { .. }) => {
-                self.sp.wr32(s.wrapping_add(0x20), self.sh.i)?;
+                self.sp.wr32(s.wrapping_add(0x20), INDEX_ZERO)?;
                 self.sp.wr32(s.wrapping_add(0x24), self.j_now)?;
                 if self.sh.fog.is_some() {
                     // (the fog word and its step: the ramp vertex's fog is 0)
@@ -308,11 +309,17 @@ impl<'a> Batch<'a> {
             let n = i16::from_le_bytes(self.sp.rd16(s)?.to_le_bytes());
             let x = i64::from(i16::from_le_bytes(self.sp.rd16(s.wrapping_add(4))?.to_le_bytes()));
             let y = i64::from(i16::from_le_bytes(self.sp.rd16(s.wrapping_add(6))?.to_le_bytes()));
-            let fogw = |b: &Spans| -> Res<u16> { Ok(b.rd16(s.wrapping_add(0x2e))? >> 8) };
-            let f0 = fogw(self.sp)?;
-            if sh.fog.is_some() && self.sp.rd16(s.wrapping_add(0x02))? != 0 {
-                return Err(Fail::Unmodeled(crate::spec::open::D3D7_TRI_CLIP));
-            }
+            // Headers and spans start at multiples of 0x20, including after FlushPartial.
+            // The fog step aliases only a header's direction high word, a span's I high
+            // word, or another fog step. Direction is 0 or 1, I is 0 or INDEX_ZERO and
+            // its step at header+0x18 is always zero, and fog setup writes a zero step.
+            // Reusing a slot can preserve the fog factor at +0x2e but cannot change its step.
+            let fog = if let Some(color) = sh.fog {
+                let factor = u32::from(self.sp.rd16(s.wrapping_add(0x2e))? >> 8);
+                Some((color, factor))
+            } else {
+                None
+            };
             for j in 0..i64::from(n.max(0)) {
                 let mut c = [0u16; 3];
                 for (i, ci) in c.iter_mut().enumerate() {
@@ -335,10 +342,9 @@ impl<'a> Batch<'a> {
                         self.sp.wr16(a, sp.wrapping_add(d))?;
                     }
                 }
-                if let Some(fc) = sh.fog {
-                    let f = u32::from(fogw(self.sp)?);
+                if let Some((fc, f)) = fog {
                     for (ci, &fcc) in c.iter_mut().zip(&fc) {
-                        let term = u32::from(fcc).wrapping_mul(255u32.saturating_sub(u32::from(f0)));
+                        let term = u32::from(fcc).wrapping_mul(255u32.wrapping_sub(f));
                         let v = (u32::from(*ci >> 8).wrapping_mul(f) & 0xffff).wrapping_add(term);
                         *ci = u16::try_from(v.min(0xffff)).unwrap_or(u16::MAX);
                     }
@@ -431,16 +437,19 @@ impl View {
     }
 }
 
-/// the vertex where a (inside) to b (outside) crosses a plane, lerped from the outside vertex
-/// (the index and the alpha as integers, truncated)
+/// The crossing from the inside endpoint to the outside endpoint, with index and alpha
+/// truncated to integers. Starting inside preserves its distance when the outside endpoint
+/// is many orders of magnitude farther from the plane.
 fn cut(plane: Plane, a: &Cv, b: &Cv) -> Cv {
     let (p, dist) = plane;
     let (di, dout) = (dist(a), dist(b));
-    let t = dout / (dout - di);
-    let l = |pi: f32, po: f32| (pi - po) * t + po;
+    // A negative zero can be on the outside of the sign test. If both endpoints
+    // lie on the plane, use the inside endpoint and avoid dividing zero by zero.
+    let t = if di == 0.0 { 0.0 } else { di / (di - dout) };
+    let l = |pi: f32, po: f32| (po - pi) * t + pi;
     let li = |ci: u32, co: u32| -> u32 {
         let (fi, fo) = (f32_u(ci), f32_u(co));
-        d3dim::trunc((fi - fo) * t + fo).and_then(|v| u32::try_from(v).ok()).unwrap_or(0)
+        d3dim::trunc(l(fi, fo)).and_then(|v| u32::try_from(v).ok()).unwrap_or(0)
     };
     let c = li(a.tl.c >> 24, b.tl.c >> 24) << 24 | li(a.tl.c & 0xff_ffff, b.tl.c & 0xff_ffff) & 0xff_ffff;
     Cv { x: l(a.x, b.x), y: l(a.y, b.y), z: l(a.z, b.z), w: l(a.w, b.w), flags: (a.flags & b.flags) | p, tl: Tl { c, ..a.tl } }
@@ -476,7 +485,7 @@ pub fn clip_line(v: [Tl; 2], w: f32, h: f32) -> Option<[Tl; 2]> {
 
 /// the triangles the ramp device rasterizes for one TL triangle in a viewport w × h at the
 /// origin: itself when inside, else its polygon clipped Left, Right, Bottom, Top (each pass
-/// emitting the previous vertex, a new one lerped from the outside vertex) and drawn as the fan
+/// emitting the previous vertex, a new one lerped from the inside vertex) and drawn as the fan
 /// (v[i], v[i+1], v[0]); a new vertex snapped to the side it was cut on
 pub fn clip(v: [Tl; 3], w: f32, h: f32) -> Vec<[Tl; 3]> {
     let view = View { w, h };
@@ -490,7 +499,8 @@ pub fn clip(v: [Tl; 3], w: f32, h: f32) -> Vec<[Tl; 3]> {
         if any & plane.0 == 0 || poly.is_empty() {
             continue;
         }
-        let inside = |c: &Cv| !(plane.1)(c).is_sign_negative();
+        // A vertex on the plane remains in the polygon, even at negative zero.
+        let inside = |c: &Cv| (plane.1)(c) >= 0.0;
         let mut out = Vec::new();
         let Some(&last) = poly.last() else { break };
         let mut prev = last;
