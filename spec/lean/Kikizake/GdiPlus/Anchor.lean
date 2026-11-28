@@ -90,7 +90,28 @@ theorem short_line_is_marked :
       some ((one, 0), [((0, 0), true), ((0x40000000, 0), true)]) := by
   decide +kernel
 
+/-- Orient the cap, apply its width scale, and translate it to the original endpoint. -/
+def place (d : Bool) (q axis : Pair) (scale : Nat) (origin : Pair) : Pair :=
+  let r := ops d
+  let (a, b, c) := (r.mul axis.1 scale, r.mul axis.2 scale, r.mul (neg F32.fmt scale) axis.1)
+  (r.add (r.add (r.mul b q.1) (r.mul a q.2)) origin.1,
+   r.add (r.add (r.mul c q.1) (r.mul b q.2)) origin.2)
+
+theorem horizontal_anchor_uses_endpoint (d : Bool) :
+    place d (one, 0x40000000) (one, 0) 0x40000000 (0x40400000, 0x40800000) =
+      (0x40e00000, 0x40000000) := by cases d <;> decide
+
+theorem vertical_anchor_uses_endpoint (d : Bool) :
+    place d (one, 0x40000000) (0, 0xbf800000) 0x40000000 (0x40400000, 0x40a00000) =
+      (one, one) := by cases d <;> decide
+
 def mirrors : List Mirror := [
+  ⟨"gp.anchor-place", fun
+    | [d, x, y, ax, ay, s, ox, oy] => do
+      let (px, py) := place (d != 0) (← nat x, ← nat y) (← nat ax, ← nat ay)
+        (← nat s) (← nat ox, ← nat oy)
+      pure [Int.ofNat (F32.canon px), Int.ofNat (F32.canon py)]
+    | _ => none⟩,
   ⟨"gp.anchor-trim", fun args => do
     let d ← args[0]?
     let fromEnd ← args[1]?
