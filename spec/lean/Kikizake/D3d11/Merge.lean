@@ -47,9 +47,39 @@ theorem merge_zero (comps : List (Nat × Nat)) (len old new : Nat) (ho : old < 2
 def bytes (len x : Nat) : List Nat := (List.range len).map fun i => (x >>> (8 * i)) % 256
 def ofBytes (bs : List Nat) : Nat := bs.foldr (fun b acc => b + 256 * acc) 0
 
+/-- The second blend source is zero for the runner's pixel shaders. -/
+def secondaryFactor (code : Nat) : Option Nat :=
+  if code = 16 ∨ code = 17 then some 0
+  else if code = 18 ∨ code = 19 then some 0x3f800000
+  else none
+
+theorem secondary_source_is_zero :
+    secondaryFactor 16 = some 0 ∧ secondaryFactor 17 = some 0 ∧
+    secondaryFactor 18 = some 0x3f800000 ∧ secondaryFactor 19 = some 0x3f800000 := by
+  decide
+
+/-- The path used to produce the target element before applying its write mask. -/
+def colorWrite (integer enabled : Bool) : Nat :=
+  if integer then 0 else if enabled then 2 else 1
+
+theorem integer_target_writes_shader_bits (enabled : Bool) :
+    colorWrite true enabled = 0 := by
+  rfl
+
 /-- the mirror: [the components' count, (bits, channel) each, the bytes' count, old's bytes,
 new's bytes, the mask] -/
 def mirrors : List Mirror := [
+  ⟨"d3d11.secondaryfactor", fun
+    | [code] => do
+      pure (match secondaryFactor (← nat code) with
+        | some bits => [Int.ofNat bits]
+        | none => [-1])
+    | _ => none⟩,
+  ⟨"d3d11.colorwrite", fun
+    | [i, e] => if (i = 0 ∨ i = 1) ∧ (e = 0 ∨ e = 1) then
+        some [Int.ofNat (colorWrite (i != 0) (e != 0))]
+      else none
+    | _ => none⟩,
   ⟨"d3d11.merge", fun a => do
     let n ← nat (← a.head?)
     let rest := a.drop 1

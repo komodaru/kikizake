@@ -980,6 +980,26 @@ pub static FILTER_MIRRORS: &[Mirror] = &[
 const MERGE: &str = "spec/lean/Kikizake/D3d11/Merge.lean";
 
 pub static MERGE_MIRRORS: &[Mirror] = &[Mirror {
+    name: "d3d11.secondaryfactor",
+    lean: MERGE,
+    domain: Domain::Every("every D3D11_BLEND enumerant and the unused values from 0 through 19"),
+    inputs: |each| every(&[(0, 19)], each),
+    model: |a| Some(vec![crate::model::d3draster::secondary_factor(arg(a, 0)?)
+        .map_or(-1, |value| i64::from(value.to_bits()))]),
+}, Mirror {
+    name: "d3d11.colorwrite",
+    lean: MERGE,
+    domain: Domain::Every("all integer-target and blend-enable flag pairs"),
+    inputs: |each| every(&[(0, 1), (0, 1)], each),
+    model: |a| {
+        use crate::model::d3draster::{ColorWrite, color_write};
+        Some(vec![match color_write(flag(a, 0)?, flag(a, 1)?) {
+            ColorWrite::Integer => 0,
+            ColorWrite::Raw => 1,
+            ColorWrite::Blended => 2,
+        }])
+    },
+}, Mirror {
     name: "d3d11.merge",
     lean: MERGE,
     domain: Domain::Sampled("every DXGI format's components with every mask 0..15 (and 16, 0xffffffff) over 40 pairs of elements each: zeros, ones, alternating bits, any bytes"),

@@ -493,6 +493,15 @@ fn shade() {
 }
 
 #[test]
+fn blend_decisions_stay_in_the_mirrored_functions() {
+    let inlined = "fn factor() { match code { 16 | 17 => 0.0, _ => 1.0 } }\nfn output() { let new = match f.num { _ => n }; }";
+    let errors = rust("src/model/d3draster.rs", inlined);
+    assert_eq!(errors.iter().filter(|e| e.contains("confined:")).count(), 2, "{errors:?}");
+    let mirrored = "fn secondary_factor() { match code { 16 | 17 => Some(0.0), 18 | 19 => Some(1.0), _ => None } }";
+    assert!(rust("src/model/d3draster.rs", mirrored).is_empty());
+}
+
+#[test]
 fn integer_filter_check_stays_in_the_mirrored_function() {
     let inlined = "fn shade() { if cmp.is_none() && integer {} }";
     let errors = rust("src/model/d3draster.rs", inlined);

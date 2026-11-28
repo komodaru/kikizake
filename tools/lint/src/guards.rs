@@ -124,6 +124,8 @@ pub const CONFINED: &[(&str, &str, &[&str])] = &[
     ("src/model/d3draster.rs", r"\.powi\(2\)|rho\s*<=\s*1\.0|0x15,\s*3,\s*3,\s*3", &["quad_span", "filter_pick", "sampler_or_default"]),
     // The ordinary linear path checks integer formats through the mirrored predicate.
     ("src/model/d3draster.rs", r"\binteger\s*&&\s*!comparison\b|cmp\.is_none\(\)\s*&&\s*integer\b|\binteger\s*&&\s*cmp\.is_none\(\)", &["linear_filter_crashes"]),
+    // Blend source constants and target write routing use their mirrored functions.
+    ("src/model/d3draster.rs", r"\b16\s*\|\s*17\s*=>|\b18\s*\|\s*19\s*=>|let\s+new\s*=\s*match\s+f\.num", &["secondary_factor"]),
     // (a declaration's refusals are decl_ok's, which the Lean mirror d3d9.decl holds to
     // spec/lean/Kikizake/D3d9/Decl.lean)
     ("src/model/d3d9draw.rs", r"usage\s*==\s*8\s*&&|\(9,\s*0\)", &["decl_ok"]),
