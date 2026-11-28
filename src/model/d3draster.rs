@@ -1612,8 +1612,8 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         let flat = tri.iter().all(|v| v.color == tri[0].color) && matches!(ps, "ps" | "psflat");
         if poly.iter().all(|q| q[3] > 0.0) && flat && d.rast[1] == 1 && d.rast[0] != 2 && dsv.is_none() && samples.is_none() {
             hit(clause::D3DRASTER_CLIPW_AREA);
-            let q: Vec<Sub> = poly.iter().map(|q| snapped(vp, q)).collect();
-            let q: Vec<(i64, i64)> = q.iter().map(|s| (s.x, s.y)).collect();
+            let q: Vec<_> = poly.iter().map(|q| viewport_xy(vp, q)).collect();
+            let fan: Vec<_> = clipped_fan(&q, |q| *q, 1, false).map(|(t, _)| t.map(|q| *q)).collect();
             let out = if ps == "psflat" {
                 hit(clause::D3DRASTER_FLAT);
                 flat_color(lead.color)
@@ -1628,7 +1628,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
                         continue;
                     }
                     let c = (sample_sub(px, 0), sample_sub(py, 0));
-                    let lit = (1..q.len().saturating_sub(1)).any(|i| tri_covers([q[0], q[i], q[i + 1]], c));
+                    let lit = fan.iter().any(|&t| tri_covers(t, c));
                     if lit {
                         output(m, dev, d, view, rt_fmt, rt_sub, None, (index(px), index(py), index(rw)), None, out)?;
                     }
@@ -1643,8 +1643,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         let Some(poly) = clip_tri(tri, d.rast[6] != 0) else {
             return Ok(());
         };
-        let culled = |cw: bool| rules::culls(d.rast[1], d.rast[2] != 0, cw);
-        let pieces: Vec<([(i64, i64); 3], Planes, bool)> = clip_pieces(&poly, vp, d.rast[6] != 0).into_iter().filter(|(_, _, cw)| !culled(*cw)).collect();
+        let pieces = clip_pieces(&poly, vp, d.rast[6] != 0, d.rast[1], d.rast[2] != 0);
         // (MEASURED, WARP: probe-clip-w-wire, every value) wireframe: the clipped polygon's
         // edges but those along a clip plane, as lines from the vertices the clipping gives,
         // not clipped again (D3DRASTER.CLIPW.WIRE); (probe-clip-w-wire-cull2, -cull3) culled
@@ -1758,7 +1757,7 @@ fn triangle(m: &mut D3dres, dev: Dev, d: &Draw, vp: [f32; 6], ps: &str, tri: &[V
         vec![(v, None)]
     } else {
         hit(clause::D3DRASTER_CLIP);
-        clip_pieces(&poly, vp, zclip).into_iter().map(|(t, p, _)| (t, Some(p))).collect()
+        clip_pieces(&poly, vp, zclip, 1, false).into_iter().map(|(t, p, _)| (t, Some(p))).collect()
     };
     // depth: one value per triangle in these cases
     let z = {
@@ -2171,6 +2170,12 @@ pub fn lerp_sse(a: f32, b: f32, t: f32) -> f32 {
     op(a, m, a + m)
 }
 
+/// Filter the two columns first, then interpolate between them, with weights in 1/256.
+pub(crate) fn wide_bilinear([a, b, c, d]: [f32; 4], (wu, wv): (i64, i64)) -> f32 {
+    let (fu, fv) = (pixels(wu), pixels(wv));
+    lerp_sse(lerp_sse(a, c, fv), lerp_sse(b, d, fv), fu)
+}
+
 /// how a format's texels are filtered linearly
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum FilterPath {
@@ -2398,36 +2403,43 @@ fn clip_tri(tri: &[Vert; 3], zclip: bool) -> Option<Vec<ClipVert>> {
     Some(poly)
 }
 
-/// a clipped polygon's fan triangles (D3DRASTER.CLIP), turned for the edge tests, with their
-/// planes (D3DRASTER.INTERP.CLIP); those of no area left out
-fn clip_pieces(poly: &[ClipVert], vp: [f32; 6], zclip: bool) -> Vec<([(i64, i64); 3], Planes, bool)> {
+/// Fan from the first snapped vertex, discarding zero-area and culled triangles.
+pub(crate) fn clipped_fan<T>(
+    poly: &[T], point: impl Fn(&T) -> rules::Sub + Copy, mode: u32, front_ccw: bool,
+) -> impl Iterator<Item = ([&T; 3], bool)> {
+    poly.split_first().into_iter().flat_map(move |(a, rest)| {
+        rest.iter().zip(rest.iter().skip(1)).filter_map(move |(b, c)| {
+            let area = rules::area(point(a), point(b), point(c));
+            let cw = area > 0;
+            (area != 0 && !rules::culls(mode, front_ccw, cw)).then_some(([a, b, c], cw))
+        })
+    })
+}
+
+/// A clipped polygon's visible fan triangles, turned for the edge tests, with their
+/// planes (D3DRASTER.INTERP.CLIP).
+fn clip_pieces(
+    poly: &[ClipVert], vp: [f32; 6], zclip: bool, mode: u32, front_ccw: bool,
+) -> Vec<([(i64, i64); 3], Planes, bool)> {
     hit(clause::D3DRASTER_INTERP_CLIP);
     let [_, _, _, _, minz, maxz] = vp;
-    let cross = rules::area;
-    let at: Vec<((i64, i64), f32, f32)> = poly
+    let at: Vec<_> = poly
         .iter()
         .map(|c| {
-            if c.made {
+            let screen = if c.made {
                 made_screen(vp, &c.pos, zclip)
             } else {
-                let s = snapped(vp, &c.pos);
-                ((s.x, s.y), vertex_depth(minz, maxz, c.pos[2], c.pos[3]), 1.0 / c.pos[3])
-            }
+                (viewport_xy(vp, &c.pos), vertex_depth(minz, maxz, c.pos[2], c.pos[3]), 1.0 / c.pos[3])
+            };
+            (screen, c.color)
         })
         .collect();
-    // (a fan from the first vertex: each piece's three corners)
-    let pieces = at.iter().zip(poly).skip(1).zip(at.iter().zip(poly).skip(2));
-    let first = at.first().zip(poly.first());
-    first
-        .into_iter()
-        .flat_map(|a| pieces.clone().map(move |(b, c)| [a, b, c]))
-        .filter(|k| cross(k[0].0 .0, k[1].0 .0, k[2].0 .0) != 0)
-        .map(|k| {
+    clipped_fan(&at, |v| v.0 .0, mode, front_ccw)
+        .map(|(k, cw)| {
             let t = k.map(|v| v.0 .0);
-            let cw = cross(t[0], t[1], t[2]) > 0;
             let t = if cw { t } else { [t[0], t[2], t[1]] };
             let iw = k.map(|v| v.0 .2);
-            let p = Planes { xs: k.map(|v| pixels(v.0 .0 .0)), ys: k.map(|v| pixels(v.0 .0 .1)), iw, aw: k.map(|v| v.1.color.map(|a| a * v.0 .2)), zs: k.map(|v| v.0 .1) };
+            let p = Planes { xs: k.map(|v| pixels(v.0 .0 .0)), ys: k.map(|v| pixels(v.0 .0 .1)), iw, aw: k.map(|v| v.1.map(|a| a * v.0 .2)), zs: k.map(|v| v.0 .1) };
             (t, p, cw)
         })
         .collect()
@@ -2758,16 +2770,13 @@ fn shade(m: &D3dres, ps: &str, tri: &[Vert; 3], planes: Option<&Planes>, lead: V
                     if matches!(v.format(), 68 | 69) {
                         hit(clause::D3DRASTER_FILTER_PAIRS);
                     }
-                    let (fu, fv) = (pixels(wu), pixels(wv));
                     let f = |t: [u32; 4]| t.map(f32::from_bits);
                     let (a, b, c, e) = (f(at(i, j)?), f(at(i + 1, j)?), f(at(i, j + 1)?), f(at(i + 1, j + 1)?));
                     if let Some(pick) = reduction.pick() {
                         return Ok(Filtered::Wide(reduce(pick, [a, b, c, e], (wu, wv))));
                     }
                     return Ok(Filtered::Wide([0, 1, 2, 3].map(|k| {
-                        let l = lerp_sse(a[k], c[k], fv);
-                        let r = lerp_sse(b[k], e[k], fv);
-                        lerp_sse(l, r, fu)
+                        wide_bilinear([a[k], b[k], c[k], e[k]], (wu, wv))
                     })));
                 }
                 let bytes = |t: [u32; 4]| t.map(|b| (f32::from_bits(b) * 255.0).round() as i64);

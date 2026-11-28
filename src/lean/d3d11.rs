@@ -960,6 +960,56 @@ pub static FILTER_MIRRORS: &[Mirror] = &[
         },
     },
     Mirror {
+        name: "d3d11.widebilinear",
+        lean: FILTER,
+        domain: Domain::Sampled("the column-first rounding example, an infinity and both NaN payloads, and groups of four d3d11 floats with two weights in 0..255"),
+        inputs: |each| {
+            each(&[0x3e96_9697, 0x3e86_bca2, 0x3e5e_9bd3, 0x3e25_294a, 73, 181]);
+            each(&[0x7f80_0000, 0x7fc0_0001, 0x7f80_0002, 0, 85, 175]);
+            let mut rng = crate::rng::Sample64::new(0x41de_d311);
+            let mut words = Vec::new();
+            floats(16_000, &mut rng, &mut |c| words.push(i64::from(c)));
+            for w in words.chunks_exact(4) {
+                let args = [w, &[rng.range(0, 255), rng.range(0, 255)]].concat();
+                each(&args);
+            }
+        },
+        model: |a| {
+            let f = |i| arg::<u32>(a, i).map(f32::from_bits);
+            let v = crate::model::d3draster::wide_bilinear([f(0)?, f(1)?, f(2)?, f(3)?], (arg(a, 4)?, arg(a, 5)?));
+            one(v.to_bits())
+        },
+    },
+    Mirror {
+        name: "d3d11.packedpair",
+        lean: FILTER,
+        domain: Domain::Sampled("both layouts and sides, all byte values in each position and 1,000 arbitrary pairs"),
+        inputs: |each| {
+            let mut emit = |bytes: [i64; 4]| {
+                let [a, b, c, d] = bytes;
+                for green_first in 0..=1 {
+                    for right in 0..=1 {
+                        each(&[a, b, c, d, green_first, right]);
+                    }
+                }
+            };
+            for v in 0..=255 {
+                for i in 0..4 {
+                    emit(std::array::from_fn(|j| if j == i { v } else { 0 }));
+                }
+            }
+            let mut rng = crate::rng::Sample64::new(0x4220_d311);
+            for _ in 0..1_000 {
+                emit(std::array::from_fn(|_| rng.range(0, 255)));
+            }
+        },
+        model: |a| {
+            let bytes = [arg(a, 0)?, arg(a, 1)?, arg(a, 2)?, arg(a, 3)?];
+            let v = crate::model::dxgiconv::packed_pair(bytes, flag(a, 4)?, flag(a, 5)?);
+            Some(v.map(|x| i64::from(x.to_bits())).to_vec())
+        },
+    },
+    Mirror {
         name: "d3d11.level",
         lean: FILTER,
         domain: Domain::Sampled("720 lods of 18 special values (whole and half levels, the largest, infinities, a NaN), 200,000 lods: in 1/512 of a level, a little off them, anywhere in 0..20, any binary64; each with a last level of 0..15, point and linear"),
@@ -1577,6 +1627,47 @@ fn vec4(a: &[i64], i: usize) -> Option<[f32; 4]> {
 }
 
 pub static CLIP_MIRRORS: &[Mirror] = &[
+    Mirror {
+        name: "d3d11.clippedfan",
+        lean: CLIP,
+        domain: Domain::Sampled("all six culling settings over 2,003 snapped polygons up to 12 vertices, including duplicates, collinear turns, and large coordinates"),
+        inputs: |each| {
+            let mut rng = crate::rng::Sample64::new(0xc11f_a4ea);
+            let mut emit = |coords: &[i64]| {
+                for mode in 1..=3 {
+                    for ccw in 0..=1 {
+                        let mut words = vec![mode, ccw];
+                        words.extend_from_slice(coords);
+                        each(&words);
+                    }
+                }
+            };
+            let max = 1i64 << 40;
+            emit(&[0, 0, 2, 0, 2, 2, 0, 2]);
+            emit(&[0, 0, 0, 2, 2, 2, 2, 0]);
+            emit(&[-max, -max, max, -max, max, -max, max, max, -max, -max]);
+            for n in (0..=12).cycle().take(2_000) {
+                let coords: Vec<_> = (0..n * 2).map(|_| rng.range(-4, 4)).collect();
+                emit(&coords);
+            }
+        },
+        model: |a| {
+            let mode = arg(a, 0)?;
+            let ccw = flag(a, 1)?;
+            let coords = a.get(2..)?;
+            if coords.len() % 2 != 0 {
+                return None;
+            }
+            let points: Option<Vec<_>> = coords.chunks_exact(2).map(|pair| {
+                let [x, y] = *pair else { return None };
+                Some((x, y))
+            }).collect();
+            let points = points?;
+            Some(crate::model::d3draster::clipped_fan(&points, |q| *q, mode, ccw)
+                .flat_map(|([(ax, ay), (bx, by), (cx, cy)], cw)| [*ax, *ay, *bx, *by, *cx, *cy, i64::from(cw)])
+                .collect())
+        },
+    },
     Mirror {
         name: "d3d11.clippedwireedges",
         lean: CLIP,
